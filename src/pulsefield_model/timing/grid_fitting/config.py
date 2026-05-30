@@ -22,6 +22,9 @@ class GridFitterConfig:
     split_step_ms: float = 4000.0
     split_score_improvement_threshold: float = 0.02
     split_phase_change_threshold_ms: float = 10.0
+    super_timing_split_candidates: bool = True
+    split_relative_interval_change_threshold: float = 0.025
+    split_downbeat_signal_weight: float = 0.35
     autocorrelation_candidate_count: int = 16
     bpm_search_window_ratio: float = 0.08
     bpm_search_window_min_bpm: float = 2.0
@@ -95,6 +98,8 @@ _NONNEGATIVE_FINITE_FIELDS: Final[tuple[str, ...]] = (
     "double_tempo_score_ratio_threshold",
     "split_score_improvement_threshold",
     "split_phase_change_threshold_ms",
+    "split_relative_interval_change_threshold",
+    "split_downbeat_signal_weight",
     "bpm_search_window_ratio",
     "bpm_search_window_min_bpm",
     "initial_batch_split_max_parent_score",

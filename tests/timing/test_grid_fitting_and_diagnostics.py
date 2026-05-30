@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 
 import pulsefield_model.timing.grid_fitting.scoring as scoring_module
+from pulsefield_model.timing.grid_fitting.change_detection import _detect_change_split_candidates
 from pulsefield_model.timing.diagnostics.compare_to_oracle import compare_timing_grids
 from pulsefield_model.timing.canonicalization import (
     TIMING_CANONICALIZATION_BPM_80_160,
@@ -10,7 +11,22 @@ from pulsefield_model.timing.canonicalization import (
     canonicalize_timing_grid,
 )
 from pulsefield_model.timing.grid_fitting import GridFitter, GridFitterConfig
+from pulsefield_model.timing.grid_fitting.types import _SegmentFit
 from pulsefield_model.timing.schema import FittedTimingGrid, FrameTimingPrediction, TimingSegment
+
+
+def _pulse_probabilities(
+    frame_times_ms: np.ndarray,
+    beat_times_ms: list[float],
+    *,
+    pulse_width_ms: float = 40.0,
+    baseline: float = 0.05,
+) -> np.ndarray:
+    probabilities = np.full(frame_times_ms.shape, baseline, dtype=np.float64)
+    for beat_time_ms in beat_times_ms:
+        distance_ms = np.abs(frame_times_ms - beat_time_ms)
+        probabilities = np.maximum(probabilities, np.maximum(0.0, 1.0 - distance_ms / pulse_width_ms))
+    return probabilities.astype(np.float32)
 
 
 def _sample_prediction(
@@ -33,6 +49,58 @@ def _sample_prediction(
         beat_prob=beat_prob,
         downbeat_prob=np.zeros_like(beat_prob),
         frame_rate_hz=frame_rate_hz,
+    )
+
+
+def _multi_tempo_prediction(
+    *,
+    frame_count: int = 1000,
+    frame_rate_hz: float = 50.0,
+    boundary_ms: float = 8000.0,
+    first_beat_length_ms: float = 500.0,
+    second_beat_length_ms: float = 400.0,
+    downbeat_every: int = 4,
+) -> FrameTimingPrediction:
+    frame_times_ms = np.arange(frame_count, dtype=np.float64) / frame_rate_hz * 1000.0
+    duration_ms = float(frame_times_ms[-1])
+    first_beats = list(np.arange(0.0, boundary_ms, first_beat_length_ms, dtype=np.float64))
+    second_beats = list(np.arange(boundary_ms, duration_ms + second_beat_length_ms, second_beat_length_ms, dtype=np.float64))
+    beat_times_ms = [*first_beats, *second_beats]
+    downbeat_times_ms = [
+        beat_time_ms
+        for index, beat_time_ms in enumerate(beat_times_ms)
+        if index % downbeat_every == 0 or np.isclose(beat_time_ms, boundary_ms)
+    ]
+    return FrameTimingPrediction(
+        provider="unit-test",
+        beat_prob=_pulse_probabilities(frame_times_ms, beat_times_ms),
+        downbeat_prob=_pulse_probabilities(frame_times_ms, downbeat_times_ms, baseline=0.0),
+        frame_rate_hz=frame_rate_hz,
+    )
+
+
+def _fit_for_change_detection(
+    *,
+    frame_count: int = 1000,
+    frame_rate_hz: float = 50.0,
+    beat_length_ms: float = 500.0,
+) -> tuple[_SegmentFit, np.ndarray]:
+    frame_times_ms = np.arange(frame_count, dtype=np.float64) / frame_rate_hz * 1000.0
+    return (
+        _SegmentFit(
+            start_frame=0,
+            end_frame=frame_count,
+            score=0.9,
+            beat_length_ms=beat_length_ms,
+            offset_ms=0.0,
+            half_tempo_score=0.0,
+            double_tempo_score=0.0,
+            raw_bpm=60000.0 / beat_length_ms,
+            raw_score=0.9,
+            tempo_multiplier=1.0,
+            candidate_count=1,
+        ),
+        frame_times_ms,
     )
 
 
@@ -59,6 +127,102 @@ class GridFittingDiagnosticsTests(unittest.TestCase):
         self.assertAlmostEqual(segment.offset_ms, 120.0, delta=1e-6)
         self.assertAlmostEqual(segment.beat_length_ms, 500.0, delta=1e-6)
         self.assertGreater(result.score, 0.95)
+
+    def test_change_detection_finds_peak_walk_bpm_boundary(self) -> None:
+        fit, frame_times_ms = _fit_for_change_detection()
+        first_beats = list(np.arange(0.0, 8000.0, 500.0, dtype=np.float64))
+        second_beats = list(np.arange(8000.0, 16000.0, 400.0, dtype=np.float64))
+        signal = _pulse_probabilities(frame_times_ms, [*first_beats, *second_beats]).astype(np.float64)
+        config = GridFitterConfig(min_segment_duration_ms=4000.0)
+
+        candidates = _detect_change_split_candidates(
+            signal,
+            frame_times_ms=frame_times_ms,
+            downbeat_signal=np.zeros_like(signal),
+            fit=fit,
+            config=config,
+        )
+
+        self.assertTrue(candidates)
+        self.assertAlmostEqual(frame_times_ms[candidates[0].frame], 8000.0, delta=40.0)
+
+    def test_change_detection_prefers_downbeat_boundary(self) -> None:
+        fit, frame_times_ms = _fit_for_change_detection()
+        first_beats = list(np.arange(0.0, 8000.0, 500.0, dtype=np.float64))
+        second_beats = list(np.arange(7800.0, 16000.0, 400.0, dtype=np.float64))
+        signal = _pulse_probabilities(frame_times_ms, [*first_beats, *second_beats]).astype(np.float64)
+        downbeat_signal = _pulse_probabilities(frame_times_ms, [8000.0], baseline=0.0).astype(np.float64)
+        config = GridFitterConfig(min_segment_duration_ms=4000.0, split_downbeat_signal_weight=0.5)
+
+        candidates = _detect_change_split_candidates(
+            signal,
+            frame_times_ms=frame_times_ms,
+            downbeat_signal=downbeat_signal,
+            fit=fit,
+            config=config,
+        )
+
+        self.assertTrue(candidates)
+        self.assertAlmostEqual(frame_times_ms[candidates[0].frame], 8000.0, delta=40.0)
+
+    def test_grid_fitter_recovers_two_tempo_boundary(self) -> None:
+        prediction = _multi_tempo_prediction()
+
+        result = GridFitter(
+            GridFitterConfig(
+                min_bpm=100.0,
+                max_bpm=170.0,
+                max_segments=2,
+                min_segment_duration_ms=6000.0,
+            )
+        ).fit(prediction)
+
+        self.assertEqual(len(result.grid.segments), 2)
+        self.assertAlmostEqual(result.grid.segments[0].beat_length_ms, 500.0, delta=1e-6)
+        self.assertAlmostEqual(result.grid.segments[1].beat_length_ms, 400.0, delta=1e-6)
+        self.assertAlmostEqual(result.grid.segments[1].offset_ms, 8000.0, delta=40.0)
+
+    def test_grid_fitter_does_not_move_short_speedup_boundary_early(self) -> None:
+        prediction = _multi_tempo_prediction(frame_count=260, boundary_ms=2000.0)
+
+        result = GridFitter(
+            GridFitterConfig(
+                min_bpm=100.0,
+                max_bpm=170.0,
+                max_segments=2,
+                min_segment_duration_ms=1000.0,
+                initial_batch_split_candidate_count=0,
+            )
+        ).fit(prediction)
+
+        self.assertEqual(len(result.grid.segments), 2)
+        self.assertAlmostEqual(result.grid.segments[0].beat_length_ms, 500.0, delta=1e-6)
+        self.assertAlmostEqual(result.grid.segments[1].beat_length_ms, 400.0, delta=1e-6)
+        self.assertAlmostEqual(result.grid.segments[1].offset_ms, 2000.0, delta=40.0)
+
+    def test_grid_fitter_keeps_steady_tempo_with_downbeats_single_segment(self) -> None:
+        frame_rate_hz = 50.0
+        frame_times_ms = np.arange(1000, dtype=np.float64) / frame_rate_hz * 1000.0
+        beat_times_ms = list(np.arange(0.0, float(frame_times_ms[-1]) + 500.0, 500.0, dtype=np.float64))
+        downbeat_times_ms = beat_times_ms[::4]
+        prediction = FrameTimingPrediction(
+            provider="unit-test",
+            beat_prob=_pulse_probabilities(frame_times_ms, beat_times_ms),
+            downbeat_prob=_pulse_probabilities(frame_times_ms, downbeat_times_ms, baseline=0.0),
+            frame_rate_hz=frame_rate_hz,
+        )
+
+        result = GridFitter(
+            GridFitterConfig(
+                min_bpm=100.0,
+                max_bpm=140.0,
+                max_segments=4,
+                min_segment_duration_ms=4000.0,
+            )
+        ).fit(prediction)
+
+        self.assertEqual(len(result.grid.segments), 1)
+        self.assertAlmostEqual(result.grid.segments[0].beat_length_ms, 500.0, delta=1e-6)
 
     def test_canonical_bpm_80_160_uses_half_open_octave(self) -> None:
         self.assertEqual(
