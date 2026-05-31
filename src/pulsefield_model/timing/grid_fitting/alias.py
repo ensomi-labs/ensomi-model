@@ -20,7 +20,7 @@ from pulsefield_model.timing.grid_fitting.types import _GridCandidate, _SegmentF
 from pulsefield_model.timing.schema import TimingSegment
 
 
-DEFAULT_TEMPO_ALIAS_MULTIPLIERS = (0.25, 0.5, 1.0, 2.0, 4.0)
+DEFAULT_TEMPO_ALIAS_MULTIPLIERS = (0.25, 1.0 / 3.0, 0.5, 1.0, 2.0, 3.0, 4.0)
 
 
 @dataclass(frozen=True)
@@ -143,7 +143,17 @@ def _alias_options_for_fit(
             downbeat_signal_norm=downbeat_signal_norm,
             config=config,
         )
-        if not np.isfinite(score) or not _alias_score_is_close(score, fit.score, config=config):
+        semantic_promotion = _alias_is_semantic_promotion(
+            fit.bpm,
+            bpm,
+            score=score,
+            current_score=fit.score,
+            config=config,
+        )
+        if not np.isfinite(score) or (
+            not _alias_score_is_close(score, fit.score, config=config)
+            and not semantic_promotion
+        ):
             continue
 
         change_kind = _alias_change_kind(fit.bpm, bpm)
@@ -167,6 +177,8 @@ def _alias_options_for_fit(
             beat_support_ratio=beat_support_ratio,
             config=config,
         )
+        if semantic_promotion:
+            has_strong_evidence = True
         if not has_strong_evidence:
             continue
 
@@ -177,6 +189,8 @@ def _alias_options_for_fit(
             is_current_alias=_bpms_are_close(bpm, fit.bpm),
             config=config,
         )
+        if semantic_promotion:
+            local_score += config.alias_semantic_promotion_bonus
         bpm_key = round(bpm, 6)
         previous = options_by_bpm.get(bpm_key)
         if previous is None or local_score > previous.local_score:
@@ -286,6 +300,33 @@ def _alias_score_is_close(score: float, current_score: float, *, config: GridFit
     if current_score > 0.0 and score >= current_score * config.alias_score_ratio_threshold:
         return True
     return False
+
+
+def _alias_is_semantic_promotion(
+    current_bpm: float,
+    candidate_bpm: float,
+    *,
+    score: float,
+    current_score: float,
+    config: GridFitterConfig,
+) -> bool:
+    if current_bpm <= 0.0 or candidate_bpm <= current_bpm:
+        return False
+    below_preferred_band = current_bpm < config.alias_preferred_min_bpm
+    in_half_time_trap_band = (
+        config.alias_semantic_promotion_in_band_min_bpm
+        <= current_bpm
+        <= config.alias_semantic_promotion_current_max_bpm
+    )
+    if not below_preferred_band and not in_half_time_trap_band:
+        return False
+    if not (config.alias_preferred_min_bpm <= candidate_bpm <= config.alias_preferred_max_bpm):
+        return False
+    if not np.isfinite(score):
+        return False
+    if not np.isfinite(current_score) or current_score <= 0.0:
+        return True
+    return score >= current_score * config.alias_semantic_promotion_score_ratio_threshold
 
 
 def _alias_local_score(

@@ -259,6 +259,37 @@ class GridFittingDiagnosticsTests(unittest.TestCase):
         self.assertAlmostEqual(segment.local_bpm, 120.0, delta=1e-6)
         self.assertEqual(result.diagnostics.alias_candidate_count, 0)
 
+    def test_grid_fitter_promotes_low_octave_semantic_alias(self) -> None:
+        prediction = _sample_prediction(offset_ms=120.0, beat_length_ms=60000.0 / 70.0)
+
+        result = GridFitter(
+            GridFitterConfig(
+                min_bpm=60.0,
+                max_bpm=220.0,
+                max_segments=1,
+            )
+        ).fit(prediction)
+
+        segment = result.grid.segments[0]
+        self.assertAlmostEqual(segment.local_bpm, 140.0, delta=1e-6)
+        self.assertAlmostEqual(segment.offset_ms, 120.0, delta=1e-6)
+        self.assertEqual(result.diagnostics.tempo_multiplier_distribution, {"2": 1})
+
+    def test_grid_fitter_keeps_low_preferred_band_tempo(self) -> None:
+        prediction = _sample_prediction(offset_ms=120.0, beat_length_ms=60000.0 / 85.0)
+
+        result = GridFitter(
+            GridFitterConfig(
+                min_bpm=60.0,
+                max_bpm=220.0,
+                max_segments=1,
+            )
+        ).fit(prediction)
+
+        segment = result.grid.segments[0]
+        self.assertAlmostEqual(segment.local_bpm, 85.0, delta=0.5)
+        self.assertEqual(result.diagnostics.tempo_multiplier_distribution, {"1": 1})
+
     def test_compare_identical_grids_has_zero_error(self) -> None:
         grid = FittedTimingGrid(segments=(TimingSegment(offset_ms=0.0, beat_length_ms=500.0),))
 

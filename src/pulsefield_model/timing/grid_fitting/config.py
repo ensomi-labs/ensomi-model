@@ -55,7 +55,7 @@ class GridFitterConfig:
     merge_alias_max_fit_score: float = 0.92
     canonicalization: str = DEFAULT_TIMING_CANONICALIZATION
     canonicalize_tempo_aliases: bool = True
-    alias_tempo_multipliers: tuple[float, ...] = (0.25, 0.5, 1.0, 2.0, 4.0)
+    alias_tempo_multipliers: tuple[float, ...] = (0.25, 1.0 / 3.0, 0.5, 1.0, 2.0, 3.0, 4.0)
     alias_score_tie_margin: float = 0.03
     alias_score_ratio_threshold: float = 0.97
     alias_preferred_min_bpm: float = 80.0
@@ -64,6 +64,10 @@ class GridFitterConfig:
     alias_current_tempo_bonus: float = 0.04
     alias_downbeat_score_weight: float = 0.02
     alias_continuity_penalty: float = 0.02
+    alias_semantic_promotion_in_band_min_bpm: float = 86.0
+    alias_semantic_promotion_current_max_bpm: float = 100.0
+    alias_semantic_promotion_score_ratio_threshold: float = 0.55
+    alias_semantic_promotion_bonus: float = 0.35
     alias_demotion_dropped_support_ratio_threshold: float = 0.35
     alias_promotion_inserted_support_ratio_threshold: float = 0.35
     alias_beat_match_tolerance_ms: float = 45.0
@@ -121,6 +125,10 @@ _NONNEGATIVE_FINITE_FIELDS: Final[tuple[str, ...]] = (
     "alias_current_tempo_bonus",
     "alias_downbeat_score_weight",
     "alias_continuity_penalty",
+    "alias_semantic_promotion_in_band_min_bpm",
+    "alias_semantic_promotion_current_max_bpm",
+    "alias_semantic_promotion_score_ratio_threshold",
+    "alias_semantic_promotion_bonus",
     "alias_demotion_dropped_support_ratio_threshold",
     "alias_promotion_inserted_support_ratio_threshold",
     "alias_beat_match_tolerance_ms",
