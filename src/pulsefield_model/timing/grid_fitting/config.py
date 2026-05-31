@@ -66,8 +66,15 @@ class GridFitterConfig:
     alias_continuity_penalty: float = 0.02
     alias_semantic_promotion_in_band_min_bpm: float = 86.0
     alias_semantic_promotion_current_max_bpm: float = 100.0
-    alias_semantic_promotion_score_ratio_threshold: float = 0.55
+    alias_semantic_promotion_score_ratio_threshold: float = 0.65
+    alias_semantic_promotion_low_bpm_max_fit_score: float = 0.78
+    alias_semantic_promotion_strong_score_ratio_threshold: float = 0.78
+    alias_semantic_promotion_low_confidence_max_fit_score: float = 0.70
+    alias_semantic_promotion_low_confidence_score_ratio_threshold: float = 0.60
+    alias_semantic_promotion_low_confidence_max_candidate_bpm: float = 185.0
+    alias_semantic_promotion_low_bpm_max_segments: int = 4
     alias_semantic_promotion_bonus: float = 0.35
+    alias_collapse_score_ratio_threshold: float = 0.78
     alias_demotion_dropped_support_ratio_threshold: float = 0.35
     alias_promotion_inserted_support_ratio_threshold: float = 0.35
     alias_beat_match_tolerance_ms: float = 45.0
@@ -128,7 +135,13 @@ _NONNEGATIVE_FINITE_FIELDS: Final[tuple[str, ...]] = (
     "alias_semantic_promotion_in_band_min_bpm",
     "alias_semantic_promotion_current_max_bpm",
     "alias_semantic_promotion_score_ratio_threshold",
+    "alias_semantic_promotion_low_bpm_max_fit_score",
+    "alias_semantic_promotion_strong_score_ratio_threshold",
+    "alias_semantic_promotion_low_confidence_max_fit_score",
+    "alias_semantic_promotion_low_confidence_score_ratio_threshold",
+    "alias_semantic_promotion_low_confidence_max_candidate_bpm",
     "alias_semantic_promotion_bonus",
+    "alias_collapse_score_ratio_threshold",
     "alias_demotion_dropped_support_ratio_threshold",
     "alias_promotion_inserted_support_ratio_threshold",
     "alias_beat_match_tolerance_ms",
@@ -147,6 +160,7 @@ _POSITIVE_COUNT_FIELDS: Final[tuple[str, ...]] = (
     "downbeat_refine_candidate_count",
     "merge_many_similar_min_segments",
     "merge_alias_min_segments",
+    "alias_semantic_promotion_low_bpm_max_segments",
 )
 
 _NONNEGATIVE_COUNT_FIELDS: Final[tuple[str, ...]] = (

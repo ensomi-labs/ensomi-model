@@ -325,8 +325,21 @@ def _alias_is_semantic_promotion(
     if not np.isfinite(score):
         return False
     if not np.isfinite(current_score) or current_score <= 0.0:
+        return score > 0.0
+
+    score_ratio = float(score / current_score)
+    if below_preferred_band:
+        return (
+            current_score <= config.alias_semantic_promotion_low_bpm_max_fit_score
+            and score_ratio >= config.alias_semantic_promotion_score_ratio_threshold
+        )
+    if score_ratio >= config.alias_semantic_promotion_strong_score_ratio_threshold:
         return True
-    return score >= current_score * config.alias_semantic_promotion_score_ratio_threshold
+    return (
+        current_score <= config.alias_semantic_promotion_low_confidence_max_fit_score
+        and candidate_bpm <= config.alias_semantic_promotion_low_confidence_max_candidate_bpm
+        and score_ratio >= config.alias_semantic_promotion_low_confidence_score_ratio_threshold
+    )
 
 
 def _alias_local_score(
@@ -574,10 +587,21 @@ def _alias_path_is_acceptable(
         return True
     if any(not option.has_strong_evidence for option in changed_options):
         return False
+    if len(original_fits) > config.alias_semantic_promotion_low_bpm_max_segments and any(
+        original_fit.bpm < config.alias_preferred_min_bpm and option.fit.bpm > original_fit.bpm
+        for original_fit, option in zip(original_fits, proposed_options)
+    ):
+        return False
 
     original_segments = _timing_segments_from_fits(original_fits, frame_times_ms, config=config)
     proposed_segments = _timing_segments_from_fits(proposed_fits, frame_times_ms, config=config)
     if len(proposed_segments) > len(original_segments):
+        return False
+    if len(proposed_segments) < len(original_segments) and not _alias_score_ratio_is_at_least(
+        _weighted_fit_score(proposed_fits),
+        _weighted_fit_score(original_fits),
+        threshold=config.alias_collapse_score_ratio_threshold,
+    ):
         return False
     if _segment_alias_switch_count(proposed_segments, config=config) > _segment_alias_switch_count(
         original_segments,
@@ -593,6 +617,22 @@ def _alias_path_is_acceptable(
     ):
         return False
     return True
+
+
+def _weighted_fit_score(segment_fits: Sequence[_SegmentFit]) -> float:
+    total_frames = sum(max(0, fit.frame_count) for fit in segment_fits)
+    if total_frames <= 0:
+        return np.nan
+    weighted_score = sum(max(0, fit.frame_count) * fit.score for fit in segment_fits)
+    return float(weighted_score / total_frames)
+
+
+def _alias_score_ratio_is_at_least(score: float, current_score: float, *, threshold: float) -> bool:
+    if not np.isfinite(score):
+        return False
+    if not np.isfinite(current_score) or current_score <= 0.0:
+        return True
+    return score >= current_score * threshold
 
 
 def _alias_continuity_penalty(previous_bpm: float, bpm: float, *, config: GridFitterConfig) -> float:

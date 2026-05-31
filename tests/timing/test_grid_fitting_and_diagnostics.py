@@ -3,6 +3,11 @@ import unittest
 import numpy as np
 
 import pulsefield_model.timing.grid_fitting.scoring as scoring_module
+from pulsefield_model.timing.grid_fitting.alias import (
+    _AliasOption,
+    _alias_is_semantic_promotion,
+    _alias_path_is_acceptable,
+)
 from pulsefield_model.timing.grid_fitting.change_detection import _detect_change_split_candidates
 from pulsefield_model.timing.diagnostics.compare_to_oracle import compare_timing_grids
 from pulsefield_model.timing.canonicalization import (
@@ -259,7 +264,7 @@ class GridFittingDiagnosticsTests(unittest.TestCase):
         self.assertAlmostEqual(segment.local_bpm, 120.0, delta=1e-6)
         self.assertEqual(result.diagnostics.alias_candidate_count, 0)
 
-    def test_grid_fitter_promotes_low_octave_semantic_alias(self) -> None:
+    def test_grid_fitter_keeps_confident_low_octave_alias(self) -> None:
         prediction = _sample_prediction(offset_ms=120.0, beat_length_ms=60000.0 / 70.0)
 
         result = GridFitter(
@@ -271,9 +276,193 @@ class GridFittingDiagnosticsTests(unittest.TestCase):
         ).fit(prediction)
 
         segment = result.grid.segments[0]
-        self.assertAlmostEqual(segment.local_bpm, 140.0, delta=1e-6)
+        self.assertAlmostEqual(segment.local_bpm, 70.0, delta=1e-6)
         self.assertAlmostEqual(segment.offset_ms, 120.0, delta=1e-6)
-        self.assertEqual(result.diagnostics.tempo_multiplier_distribution, {"2": 1})
+        self.assertEqual(result.diagnostics.tempo_multiplier_distribution, {"1": 1})
+
+    def test_semantic_alias_promotion_is_confidence_gated(self) -> None:
+        config = GridFitterConfig()
+
+        self.assertTrue(
+            _alias_is_semantic_promotion(
+                70.0,
+                140.0,
+                score=0.567,
+                current_score=0.771,
+                config=config,
+            )
+        )
+        self.assertFalse(
+            _alias_is_semantic_promotion(
+                72.0,
+                144.0,
+                score=0.576,
+                current_score=0.797,
+                config=config,
+            )
+        )
+        self.assertTrue(
+            _alias_is_semantic_promotion(
+                90.8,
+                181.6,
+                score=0.410,
+                current_score=0.637,
+                config=config,
+            )
+        )
+        self.assertFalse(
+            _alias_is_semantic_promotion(
+                88.1,
+                176.2,
+                score=0.516,
+                current_score=0.800,
+                config=config,
+            )
+        )
+        self.assertFalse(
+            _alias_is_semantic_promotion(
+                90.0,
+                180.0,
+                score=0.01,
+                current_score=0.50,
+                config=config,
+            )
+        )
+
+    def test_alias_path_rejects_weak_segment_collapse(self) -> None:
+        config = GridFitterConfig()
+        frame_times_ms = np.arange(1000, dtype=np.float64) * 20.0
+        original = (
+            _SegmentFit(
+                start_frame=0,
+                end_frame=500,
+                score=0.9,
+                beat_length_ms=600.0,
+                offset_ms=0.0,
+                half_tempo_score=0.0,
+                double_tempo_score=0.0,
+                raw_bpm=100.0,
+                raw_score=0.9,
+                tempo_multiplier=1.0,
+                candidate_count=1,
+            ),
+            _SegmentFit(
+                start_frame=500,
+                end_frame=1000,
+                score=0.9,
+                beat_length_ms=300.0,
+                offset_ms=0.0,
+                half_tempo_score=0.0,
+                double_tempo_score=0.0,
+                raw_bpm=200.0,
+                raw_score=0.9,
+                tempo_multiplier=1.0,
+                candidate_count=1,
+            ),
+        )
+        weak_proposed = (
+            _AliasOption(
+                fit=_SegmentFit(
+                    start_frame=0,
+                    end_frame=500,
+                    score=0.5,
+                    beat_length_ms=300.0,
+                    offset_ms=0.0,
+                    half_tempo_score=0.0,
+                    double_tempo_score=0.0,
+                    raw_bpm=100.0,
+                    raw_score=0.9,
+                    tempo_multiplier=2.0,
+                    candidate_count=1,
+                ),
+                local_score=0.5,
+            ),
+            _AliasOption(fit=original[1], local_score=0.9),
+        )
+        strong_proposed = (
+            _AliasOption(
+                fit=_SegmentFit(
+                    start_frame=0,
+                    end_frame=500,
+                    score=0.8,
+                    beat_length_ms=300.0,
+                    offset_ms=0.0,
+                    half_tempo_score=0.0,
+                    double_tempo_score=0.0,
+                    raw_bpm=100.0,
+                    raw_score=0.9,
+                    tempo_multiplier=2.0,
+                    candidate_count=1,
+                ),
+                local_score=0.8,
+            ),
+            _AliasOption(fit=original[1], local_score=0.9),
+        )
+
+        self.assertFalse(
+            _alias_path_is_acceptable(
+                original,
+                weak_proposed,
+                frame_times_ms=frame_times_ms,
+                config=config,
+            )
+        )
+        self.assertTrue(
+            _alias_path_is_acceptable(
+                original,
+                strong_proposed,
+                frame_times_ms=frame_times_ms,
+                config=config,
+            )
+        )
+
+    def test_alias_path_rejects_low_bpm_promotion_in_complex_path(self) -> None:
+        config = GridFitterConfig()
+        frame_times_ms = np.arange(1000, dtype=np.float64) * 20.0
+        original = tuple(
+            _SegmentFit(
+                start_frame=index * 100,
+                end_frame=(index + 1) * 100,
+                score=0.8,
+                beat_length_ms=800.0 if index == 0 else 400.0,
+                offset_ms=float(index * 8000),
+                half_tempo_score=0.0,
+                double_tempo_score=0.0,
+                raw_bpm=75.0 if index == 0 else 150.0,
+                raw_score=0.8,
+                tempo_multiplier=1.0,
+                candidate_count=1,
+            )
+            for index in range(config.alias_semantic_promotion_low_bpm_max_segments + 1)
+        )
+        proposed = (
+            _AliasOption(
+                fit=_SegmentFit(
+                    start_frame=0,
+                    end_frame=100,
+                    score=0.75,
+                    beat_length_ms=400.0,
+                    offset_ms=0.0,
+                    half_tempo_score=0.0,
+                    double_tempo_score=0.0,
+                    raw_bpm=75.0,
+                    raw_score=0.8,
+                    tempo_multiplier=2.0,
+                    candidate_count=1,
+                ),
+                local_score=0.75,
+            ),
+            *(_AliasOption(fit=fit, local_score=fit.score) for fit in original[1:]),
+        )
+
+        self.assertFalse(
+            _alias_path_is_acceptable(
+                original,
+                proposed,
+                frame_times_ms=frame_times_ms,
+                config=config,
+            )
+        )
 
     def test_grid_fitter_keeps_low_preferred_band_tempo(self) -> None:
         prediction = _sample_prediction(offset_ms=120.0, beat_length_ms=60000.0 / 85.0)
