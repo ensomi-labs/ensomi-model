@@ -1,0 +1,111 @@
+{
+  "decision": {
+    "route": "TEST_NEXT",
+    "selected_variant": "full_vocab_multilabel_bag_auxiliary_target",
+    "smoke_pass": true,
+    "recommended_next_card": "longer C3 auxiliary-target learnability comparison"
+  },
+  "implementation": {
+    "default_behavior": "disabled",
+    "model_flags": {
+      "use_c3_side_stream_conditioning": false,
+      "use_c3_auxiliary_target": true,
+      "c3_auxiliary_vocab_size": 14294
+    },
+    "loss_flags": {
+      "lambda_c3_auxiliary": 0.05
+    },
+    "model_change": "optional pooled decoder-hidden C3 auxiliary head",
+    "loss_change": "optional multi-label BCE over c3_side_stream_tokens as target labels",
+    "rollout_changed": false
+  },
+  "unit_verification": {
+    "focused": {
+      "command": "uv run --group dev pytest tests/models/mapper/v2_1/test_model.py tests/training/test_mapper_v2_1.py -q",
+      "result": "17 passed in 0.90s"
+    },
+    "broader_focused": {
+      "command": "uv run --group dev pytest tests/models/mapper/v2_1/test_model.py tests/models/mapper/v2_1/test_data_windows.py tests/training/test_mapper_v2_1.py -q",
+      "result": "22 passed in 0.84s"
+    }
+  },
+  "training_smoke": {
+    "command": "uv run python -m pulsefield_model.training.mapper_v2_1 --config artifacts/reports/audits/context_adaptive_fallback_codec/c3_auxiliary_target_smoke.yaml",
+    "completed_steps": 2,
+    "is_complete": true,
+    "device": "cpu",
+    "parameter_count": 15542563,
+    "report_path": "artifacts/runs/stage2_mapper_v2_1/c3_auxiliary_target_smoke/report.json",
+    "checkpoint_path": "artifacts/runs/stage2_mapper_v2_1/c3_auxiliary_target_smoke/checkpoint.pt",
+    "dataset": {
+      "include_c3_side_stream_token_tensors": true,
+      "c3_side_stream_token_sidecar_path": "artifacts/cache/c3_mapper_window_sidecar/c3_exact_mapper_window_sidecar_le3.json",
+      "c3_side_stream_max_tokens": 256,
+      "train_window_count": 174472,
+      "eval_window_count": 43,
+      "final_train_eval_window_count": 2
+    }
+  },
+  "metrics": {
+    "last_train": {
+      "loss_total": 3.34513521194458,
+      "loss_token": 3.1773760318756104,
+      "loss_c3_auxiliary": 0.7134383320808411,
+      "c3_auxiliary_sample_count": 1.0,
+      "c3_auxiliary_token_count": 30.0,
+      "c3_auxiliary_positive_label_count": 25.0
+    },
+    "final_eval": {
+      "loss_total": 3.496222333057923,
+      "loss_token": 3.3667730368153395,
+      "loss_c3_auxiliary": 0.7140970479610355,
+      "c3_auxiliary_sample_count": 43.0,
+      "c3_auxiliary_token_count": 206.0,
+      "c3_auxiliary_positive_label_count": 191.0
+    },
+    "final_train_eval": {
+      "loss_total": 3.3627532893659007,
+      "loss_token": 3.224132527559594,
+      "loss_c3_auxiliary": 0.7130170166492462,
+      "c3_auxiliary_sample_count": 2.0,
+      "c3_auxiliary_token_count": 23.0,
+      "c3_auxiliary_positive_label_count": 22.0
+    },
+    "history": [
+      {
+        "step": 1,
+        "train_loss_total": 3.8697211742401123,
+        "train_loss_c3_auxiliary": 0.7154147624969482,
+        "eval_loss_total": 3.505680862727916,
+        "eval_loss_c3_auxiliary": 0.7153269981229028
+      },
+      {
+        "step": 2,
+        "train_loss_total": 3.34513521194458,
+        "train_loss_c3_auxiliary": 0.7134383320808411,
+        "eval_loss_total": 3.496222333057923,
+        "eval_loss_c3_auxiliary": 0.7140970479610355
+      }
+    ]
+  },
+  "loss_accounting": {
+    "last_train_total_delta_from_formula": 0.00000008046626831514914,
+    "final_eval_total_delta_from_formula": 0.0,
+    "final_train_total_delta_from_formula": 0.0
+  },
+  "interpretation": {
+    "what_passed": [
+      "C3 auxiliary target is disabled by default.",
+      "C3 labels are used as target supervision, not input conditioning.",
+      "Auxiliary logits and finite BCE loss are present when enabled.",
+      "Auxiliary-head gradients are nonzero in unit tests.",
+      "Two-step real-data smoke completes with finite train/eval C3 auxiliary loss."
+    ],
+    "what_surfaced": [
+      "This bag target proves wiring only; it discards C3 order and reference semantics.",
+      "The full 14,294-way BCE head is viable for a smoke but may need top-K or kind-aware diagnostics for longer runs.",
+      "This does not make C3 generation-ready."
+    ],
+    "next_step": "Run a longer auxiliary-target learnability comparison before deciding whether to keep auxiliary regularization or move directly to C3 target grammar decomposition."
+  }
+}

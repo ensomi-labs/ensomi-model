@@ -51,6 +51,8 @@ class MapperV21Config(MapperV2Config):
     c3_side_stream_vocab_size: int = 0
     c3_side_stream_embedding_dim: int = 64
     c3_side_stream_scale_init: float = 0.03
+    use_c3_auxiliary_target: bool = False
+    c3_auxiliary_vocab_size: int = 0
 
 
 @dataclass(frozen=True)
@@ -58,6 +60,7 @@ class MapperV21ForwardOutput(MapperV2ForwardOutput):
     state_emitted_lane_mask: torch.Tensor | None = None
     state_last_lane_index: torch.Tensor | None = None
     c3_side_stream_conditioning: torch.Tensor | None = None
+    c3_auxiliary_logits: torch.Tensor | None = None
 
 
 MapperV21IncrementalDecodeState = IncrementalDecodeState
@@ -145,6 +148,7 @@ class MapperV21Model(MapperV2Model):
         self.c3_side_stream_embedding: nn.Embedding | None = None
         self.c3_side_stream_projection: nn.Linear | None = None
         self.c3_side_stream_scale: nn.Parameter | None = None
+        self.c3_auxiliary_head: nn.Linear | None = None
         if config.use_c3_side_stream_conditioning:
             if int(config.c3_side_stream_vocab_size) <= 0:
                 raise ValueError("c3_side_stream_vocab_size must be positive when C3 conditioning is enabled")
@@ -157,6 +161,10 @@ class MapperV21Model(MapperV2Model):
             )
             self.c3_side_stream_projection = nn.Linear(int(config.c3_side_stream_embedding_dim), config.d_model)
             self.c3_side_stream_scale = nn.Parameter(torch.tensor(float(config.c3_side_stream_scale_init)))
+        if config.use_c3_auxiliary_target:
+            if int(config.c3_auxiliary_vocab_size) <= 0:
+                raise ValueError("c3_auxiliary_vocab_size must be positive when C3 auxiliary target is enabled")
+            self.c3_auxiliary_head = nn.Linear(config.d_model, int(config.c3_auxiliary_vocab_size))
 
     def forward(
         self,
@@ -333,6 +341,10 @@ class MapperV21Model(MapperV2Model):
         if c3_conditioning is not None:
             decoder_hidden = decoder_hidden + c3_conditioning.unsqueeze(1)
             base_logits = self.output_head(decoder_hidden)
+        c3_auxiliary_logits = self._c3_auxiliary_logits(
+            decoder_hidden,
+            target_mask=valid_input_mask,
+        )
         remaining_ms = (target_end_ms.reshape(-1, 1) - current_ms).clamp_min(0)
         with torch.profiler.record_function("mapper_v21.state_prior_adapter"):
             state_prior = self.state_prior_adapter(
@@ -410,7 +422,24 @@ class MapperV21Model(MapperV2Model):
             state_emitted_lane_mask=emitted_lane_mask,
             state_last_lane_index=last_lane_index,
             c3_side_stream_conditioning=c3_conditioning,
+            c3_auxiliary_logits=c3_auxiliary_logits,
         )
+
+    def _c3_auxiliary_logits(
+        self,
+        decoder_hidden: torch.Tensor,
+        *,
+        target_mask: torch.Tensor,
+    ) -> torch.Tensor | None:
+        if not self.config.use_c3_auxiliary_target:
+            return None
+        if self.c3_auxiliary_head is None:
+            raise RuntimeError("C3 auxiliary target head is not initialized")
+        if target_mask.ndim != 2 or tuple(target_mask.shape) != tuple(decoder_hidden.shape[:2]):
+            raise ValueError("target_mask must align with decoder_hidden for C3 auxiliary target")
+        mask = target_mask.to(device=decoder_hidden.device, dtype=decoder_hidden.dtype).unsqueeze(-1)
+        pooled = (decoder_hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp_min(1.0)
+        return self.c3_auxiliary_head(pooled)
 
     def _c3_side_stream_conditioning(
         self,

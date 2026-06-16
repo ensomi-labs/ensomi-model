@@ -363,6 +363,7 @@ def default_mapper_metric_finalizer(metrics: dict[str, float], loss_adapter: Any
         + float(getattr(config, "lambda_ln_close", 0.0)) * metrics.get("loss/ln_close", 0.0)
         + float(getattr(config, "lambda_adapter_reg", 0.0)) * metrics.get("loss/adapter_reg", 0.0)
         + float(getattr(config, "lambda_density", 0.0)) * metrics.get("loss/density", 0.0)
+        + float(getattr(config, "lambda_c3_auxiliary", 0.0)) * metrics.get("loss/c3_auxiliary", 0.0)
     )
     return metrics
 

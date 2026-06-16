@@ -101,9 +101,13 @@ class MapperV21PhaseBTrainingTests(unittest.TestCase):
                             "c3_side_stream_vocab_size": 128,
                             "c3_side_stream_embedding_dim": 16,
                             "c3_side_stream_scale_init": 0.05,
+                            "use_c3_auxiliary_target": True,
+                            "c3_auxiliary_vocab_size": 128,
                         },
                         "control_model": {},
-                        "loss": {},
+                        "loss": {
+                            "lambda_c3_auxiliary": 0.1,
+                        },
                     },
                     sort_keys=False,
                 ),
@@ -120,6 +124,10 @@ class MapperV21PhaseBTrainingTests(unittest.TestCase):
         self.assertEqual(model_config.c3_side_stream_vocab_size, 128)
         self.assertEqual(model_config.c3_side_stream_embedding_dim, 16)
         self.assertEqual(model_config.c3_side_stream_scale_init, 0.05)
+        self.assertTrue(model_config.use_c3_auxiliary_target)
+        self.assertEqual(model_config.c3_auxiliary_vocab_size, 128)
+        loss_config = MapperV21LossConfig(**config["loss"])
+        self.assertEqual(loss_config.lambda_c3_auxiliary, 0.1)
 
     def test_main_forwards_v2_1_training_options(self) -> None:
         train_result = SimpleNamespace(

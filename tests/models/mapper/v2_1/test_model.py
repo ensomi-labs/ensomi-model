@@ -158,8 +158,101 @@ class MapperV21ModelTests(unittest.TestCase):
 
         self.assertIsNone(baseline.c3_side_stream_conditioning)
         self.assertIsNone(ignored.c3_side_stream_conditioning)
+        self.assertIsNone(baseline.c3_auxiliary_logits)
+        self.assertIsNone(ignored.c3_auxiliary_logits)
         self.assertTrue(torch.allclose(baseline.base_logits, ignored.base_logits))
         self.assertTrue(torch.allclose(baseline.logits_final, ignored.logits_final, equal_nan=True))
+
+    def test_c3_auxiliary_target_head_receives_gradients_without_conditioning(self) -> None:
+        torch.manual_seed(20260619)
+        vocab = MapperV21Vocab()
+        tokenized = encode_mapper_window(
+            [
+                MapperTimepoint(1000, _actions(LaneAction.TAP, LaneAction.NONE, LaneAction.TAP)),
+                MapperTimepoint(1500, _actions(LaneAction.NONE, LaneAction.TAP, LaneAction.NONE)),
+            ],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=1500,
+        )
+        batch = {
+            **_batch_for_window(tokenized),
+            "c3_side_stream_tokens": torch.tensor([[5, 6, 0]], dtype=torch.long),
+            "c3_side_stream_token_mask": torch.tensor([[True, True, False]], dtype=torch.bool),
+            "c3_side_stream_available": torch.tensor([True], dtype=torch.bool),
+            "c3_side_stream_token_count": torch.tensor([2], dtype=torch.long),
+            "c3_side_stream_truncated": torch.tensor([False], dtype=torch.bool),
+        }
+        model = MapperV21Model(
+            _small_config(
+                use_c3_auxiliary_target=True,
+                c3_auxiliary_vocab_size=32,
+            ),
+            vocab=vocab,
+        )
+
+        output = model(batch)
+
+        self.assertIsNone(output.c3_side_stream_conditioning)
+        self.assertIsNotNone(output.c3_auxiliary_logits)
+        assert output.c3_auxiliary_logits is not None
+        self.assertEqual(tuple(output.c3_auxiliary_logits.shape), (1, 32))
+
+        loss_fn = MapperV21ModelLoss(
+            MapperV21LossConfig(
+                lambda_density=0.0,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+                lambda_c3_auxiliary=0.25,
+            ),
+            vocab=vocab,
+        )
+        loss = loss_fn(output, batch)
+        loss.total_loss.backward()
+
+        self.assertTrue(torch.isfinite(loss.total_loss).item())
+        self.assertIn("loss/c3_auxiliary", loss.metrics)
+        self.assertGreater(loss.metrics["loss/c3_auxiliary"], 0.0)
+        self.assertEqual(loss.metrics["c3_auxiliary/token_count"], 2.0)
+        self.assertEqual(loss.metrics["c3_auxiliary/positive_label_count"], 2.0)
+        self.assertIsNotNone(model.c3_auxiliary_head)
+        self.assertIsNotNone(model.c3_auxiliary_head.weight.grad)
+        self.assertGreater(float(model.c3_auxiliary_head.weight.grad.abs().sum().item()), 0.0)
+        self.assertIsNotNone(model.token_embedding.weight.grad)
+        self.assertGreater(float(model.token_embedding.weight.grad.abs().sum().item()), 0.0)
+
+    def test_c3_auxiliary_target_rejects_out_of_range_labels(self) -> None:
+        torch.manual_seed(20260620)
+        vocab = MapperV21Vocab()
+        tokenized = encode_mapper_window(
+            [MapperTimepoint(1000, _actions(LaneAction.TAP, LaneAction.NONE, LaneAction.TAP))],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=1000,
+        )
+        batch = {
+            **_batch_for_window(tokenized),
+            "c3_side_stream_tokens": torch.tensor([[33]], dtype=torch.long),
+            "c3_side_stream_token_mask": torch.tensor([[True]], dtype=torch.bool),
+            "c3_side_stream_available": torch.tensor([True], dtype=torch.bool),
+        }
+        model = MapperV21Model(
+            _small_config(
+                use_c3_auxiliary_target=True,
+                c3_auxiliary_vocab_size=32,
+            ),
+            vocab=vocab,
+        )
+        output = model(batch)
+        loss_fn = MapperV21ModelLoss(
+            MapperV21LossConfig(lambda_density=0.0, lambda_ln_close=0.0, lambda_c3_auxiliary=0.1),
+            vocab=vocab,
+        )
+
+        with self.assertRaisesRegex(ValueError, "c3_side_stream_tokens must be between 1"):
+            loss_fn(output, batch)
 
     def test_c3_side_stream_conditioning_changes_logits_and_receives_gradients(self) -> None:
         torch.manual_seed(20260617)
