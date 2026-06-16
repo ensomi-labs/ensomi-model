@@ -1,0 +1,93 @@
+{
+  "classification": {
+    "primary_role": "offline_target_derived_conditioning_probe",
+    "production_input_promotion": "kill",
+    "legal_full_pipeline_input": false,
+    "recommended_next_family": "c3_auxiliary_target_or_target_grammar_candidate",
+    "decision": "MUTATE"
+  },
+  "evidence": {
+    "sidecar_provenance": {
+      "status": "target_derived",
+      "source": "src/pulsefield_model/osu_core/c3_side_stream_tokenization.py:301",
+      "details": [
+        "audit_c3_mapper_window_sidecar builds the sidecar from chunk cache fallback records and a selected C3 plan.",
+        "_build_mapper_window_sidecar_payload writes traced C3 tokens into beatmap/window rows as token_ids.",
+        "The exact sidecar report preserves 3,203,904 traced side-stream tokens with zero missing anchors."
+      ]
+    },
+    "dataset_loader": {
+      "status": "attaches_sidecar_by_target_beatmap_window",
+      "source": "src/pulsefield_model/data/mapper_sparse_windows_v2_1.py:91",
+      "details": [
+        "MapperV21WindowDataset tokenizes the target beatmap window and optionally adds c3_side_stream_tokens from a beatmap_path/window_start_ms sidecar lookup.",
+        "load_c3_side_stream_token_sidecar expects windows with beatmap_path, window_start_ms, and token_ids."
+      ]
+    },
+    "model_conditioning": {
+      "status": "uses_c3_tokens_as_input_conditioning",
+      "source": "src/pulsefield_model/models/mapper/v2_1/model.py:415",
+      "details": [
+        "The model embeds c3_side_stream_tokens, mean-pools them, projects them, and adds the result to decoder_hidden.",
+        "This is stable in teacher-forced training, but the tokens are target-derived."
+      ]
+    },
+    "inference_rollout": {
+      "status": "no_legal_c3_source",
+      "source": "src/pulsefield_model/inference/mapper_v2_1_rollout.py:250",
+      "details": [
+        "generate_full_song_rollout_v2_1 takes control/density context and generated token prefix, but no C3 sidecar input.",
+        "mapper_v2_1_logits_fn calls incremental_decode_next_token without C3 side-stream tensors.",
+        "MapperV21Model.incremental_decode_next_token rejects use_c3_side_stream_conditioning=True."
+      ]
+    }
+  },
+  "sidecar_report": {
+    "path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_exact_mapper_window_sidecar_report.json",
+    "sidecar_generation_pass": true,
+    "p5_exact_sidecar_generation_pass": true,
+    "reconstruction_pass": true,
+    "loader_guard_pass": true,
+    "window_anchor_mode": "exact_group",
+    "window_count": 173268,
+    "window_with_tokens_count": 166801,
+    "sidecar_token_count": 3203904,
+    "token_vocab_size": 14294,
+    "missing_anchor_token_count": 0,
+    "token_preservation_pass": true,
+    "target_cross_mapper_window_span_rate": 0.10585367490556269,
+    "reference_cross_mapper_window_span_rate": 0.10350712354509022,
+    "target_reference_same_window_span_rate": 0.31961036221740713
+  },
+  "p9_training_probe": {
+    "path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_mapper_conditioning_longer_summary.json",
+    "controlled_comparison_pass": true,
+    "baseline_final_eval_loss_total": 2.806851521704298,
+    "enabled_final_eval_loss_total": 2.806887042521245,
+    "enabled_minus_baseline_final_eval_loss": 0.000035520816946910116,
+    "enabled_relative_final_eval_loss_delta": 0.000012655039524620867,
+    "kill_threshold_triggered": false,
+    "interpretation": "training-stable but not deployable as production input conditioning"
+  },
+  "result": {
+    "what_passed": [
+      "C3 sidecar correctness remains strong.",
+      "P9 training stability remains valid as an offline probe.",
+      "Current source clearly identifies the inference gap."
+    ],
+    "what_surfaced": [
+      "Current C3 conditioning uses target-derived tokens as input.",
+      "Generation has no exogenous C3 source.",
+      "Incremental decode explicitly rejects C3-conditioned configs.",
+      "Further training on this path would not prove full-pipeline deployability."
+    ],
+    "kill_criteria_triggered": [
+      "Kill current pooled C3 input-conditioning promotion path for production/default use."
+    ],
+    "next_step": "Create a bounded C3 auxiliary-target or target-grammar Experiment Card that predicts or emits C3 RAW/REF/RES structure instead of consuming target-derived sidecar tokens as input."
+  },
+  "verification": {
+    "pytest": "uv run --group dev pytest tests/models/mapper/v2_1/test_model.py tests/models/mapper/v2_1/test_data_windows.py tests/training/test_mapper_v2_1.py -q",
+    "pytest_result": "20 passed in 0.84s"
+  }
+}
