@@ -64,6 +64,18 @@ DEFAULT_COMPARISON_CSV_PATH: Final[Path] = Path(
 DEFAULT_DIAGNOSTICS_CSV_PATH: Final[Path] = Path(
     "artifacts/reports/audits/context_adaptive_fallback_codec/casf_v2_diagnostics.csv",
 )
+DEFAULT_C3_HARDENING_REPORT_PATH: Final[Path] = Path(
+    "artifacts/reports/audits/context_adaptive_fallback_codec/c3_lz_hardening_report.json",
+)
+DEFAULT_C3_HARDENING_RESULT_LOG_PATH: Final[Path] = Path(
+    "artifacts/reports/audits/context_adaptive_fallback_codec/c3_lz_hardening_result_log.md",
+)
+DEFAULT_C3_HARDENING_COMPARISON_CSV_PATH: Final[Path] = Path(
+    "artifacts/reports/audits/context_adaptive_fallback_codec/c3_lz_hardening_comparison.csv",
+)
+DEFAULT_C3_HARDENING_DIAGNOSTICS_CSV_PATH: Final[Path] = Path(
+    "artifacts/reports/audits/context_adaptive_fallback_codec/c3_lz_hardening_diagnostics.csv",
+)
 DEFAULT_LZ_WINDOW_FALLBACKS: Final[int] = 256
 DEFAULT_LZ_MAX_SPAN: Final[int] = 8
 DEFAULT_LZ_CANDIDATE_SCAN_LIMIT: Final[int] = 16
@@ -120,6 +132,41 @@ class _LzCandidate:
     distance: int
     payload_bits: float
     residual_bits: float
+
+
+@dataclass(frozen=True, slots=True)
+class _LzSpanSelection:
+    source_row_index: int
+    split: str
+    start_record_id: int
+    previous_record_id: int
+    start_index: int
+    previous_index: int
+    length: int
+    distance: int
+    match_type: str
+    payload_bits: float
+    mode_bits: float
+    residual_bits: float
+    raw_bits: float
+    charged_bits: float
+    target_crosses_chunk: bool
+    reference_crosses_chunk: bool
+    target_crosses_segment: bool
+    reference_crosses_segment: bool
+    full_group_contiguous: bool
+
+
+@dataclass(frozen=True, slots=True)
+class _LzPolicy:
+    name: str
+    label: str
+    allowed_match_types: tuple[str, ...]
+    activation: str
+    window_fallbacks: int | None
+    pointer_code: str
+    phase_filter: str = "none"
+    table_model_cost_bits: float = 0.0
 
 
 @dataclass
@@ -292,6 +339,8 @@ class _CostPlan:
     notes: str
     reconstruction_checked_count: int = 0
     reconstruction_mismatch_count: int = 0
+    lz_spans: tuple[_LzSpanSelection, ...] = ()
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 def audit_context_adaptive_fallback_codec(
@@ -616,6 +665,7 @@ def _collect_fallback_records(chunk_df: pd.DataFrame, *, baseline_model: Any) ->
     previous_skeleton_by_source_segment: dict[tuple[int, int], str] = {}
     previous_fallback_by_source_segment: dict[tuple[int, int], bool] = {}
     history_by_source_segment: dict[tuple[int, int], deque[str]] = {}
+    invalid_transition_source_ids: set[int] = set()
     ordered = chunk_df.sort_values(["source_row_index", "segment_id", "start_beat_units", "chunk_index"])
     split_counts: Counter[str] = Counter()
     raw_bits_by_split: Counter[str] = Counter()
@@ -644,6 +694,7 @@ def _collect_fallback_records(chunk_df: pd.DataFrame, *, baseline_model: Any) ->
             invalid_mask = (end & ~state) | (start & state)
             if invalid_mask:
                 invalid_transition_count += invalid_mask.bit_count()
+                invalid_transition_source_ids.add(source)
                 if len(invalid_examples) < 10:
                     invalid_examples.append(
                         {
@@ -714,11 +765,18 @@ def _collect_fallback_records(chunk_df: pd.DataFrame, *, baseline_model: Any) ->
         previous_skeleton_by_source_segment[state_key] = previous_skeleton
         previous_fallback_by_source_segment[state_key] = previous_fallback
     segment_state_reset_count = sum(mask.bit_count() for mask in state_by_source_segment.values() if mask)
+    segment_state_reset_source_ids = {
+        source for (source, _segment), mask in state_by_source_segment.items() if int(mask) != 0
+    }
     summary = {
         "fallback_literal_count": len(records),
         "invalid_transition_count": invalid_transition_count,
+        "invalid_transition_source_count": len(invalid_transition_source_ids),
+        "invalid_transition_source_ids": sorted(invalid_transition_source_ids),
         "invalid_transition_examples": invalid_examples,
         "segment_state_reset_count": segment_state_reset_count,
+        "segment_state_reset_source_count": len(segment_state_reset_source_ids),
+        "segment_state_reset_source_ids": sorted(segment_state_reset_source_ids),
         "split_fallback_literal_count": dict(split_counts),
         "split_raw_fallback_bits": {key: float(value) for key, value in raw_bits_by_split.items()},
         "split_fallback_event_count": dict(event_counts_by_split),
@@ -964,6 +1022,7 @@ def _build_lz_span_plan(
     mode = [0.0 for _ in records]
     modes = ["raw_literal" for _ in records]
     reconstruction_mismatch_count = 0
+    selections: list[_LzSpanSelection] = []
     by_source: dict[int, list[_FallbackRecord]] = defaultdict(list)
     for record in records:
         by_source[record.source_row_index].append(record)
@@ -997,6 +1056,15 @@ def _build_lz_span_plan(
             if charged >= raw_sum:
                 index += 1
                 continue
+            selections.append(
+                _make_lz_span_selection(
+                    source_records,
+                    start_index=index,
+                    previous_index=previous_index,
+                    candidate=candidate,
+                    mode_bits=MODE_BITS_4,
+                )
+            )
             per_record_payload = candidate.payload_bits / float(candidate.length)
             per_record_mode = MODE_BITS_4 / float(candidate.length)
             for item in span:
@@ -1019,7 +1087,1247 @@ def _build_lz_span_plan(
         ),
         reconstruction_checked_count=len(records),
         reconstruction_mismatch_count=reconstruction_mismatch_count,
+        lz_spans=tuple(selections),
+        metadata={
+            "window_fallbacks": int(window_fallbacks),
+            "max_span": int(max_span),
+            "allowed_match_types": ["exact", "mirror", "skeleton"],
+            "activation": "active",
+            "pointer_code": "fixed_width",
+        },
     )
+
+
+def _make_lz_span_selection(
+    source_records: Sequence[_FallbackRecord],
+    *,
+    start_index: int,
+    previous_index: int,
+    candidate: _LzCandidate,
+    mode_bits: float,
+) -> _LzSpanSelection:
+    target = source_records[start_index : start_index + candidate.length]
+    reference = source_records[previous_index : previous_index + candidate.length]
+    raw_bits = sum(record.raw_bits for record in target)
+    return _LzSpanSelection(
+        source_row_index=int(source_records[start_index].source_row_index),
+        split=str(source_records[start_index].split),
+        start_record_id=int(source_records[start_index].id),
+        previous_record_id=int(source_records[previous_index].id),
+        start_index=int(start_index),
+        previous_index=int(previous_index),
+        length=int(candidate.length),
+        distance=int(candidate.distance),
+        match_type=str(candidate.match_type),
+        payload_bits=float(candidate.payload_bits),
+        mode_bits=float(mode_bits),
+        residual_bits=float(candidate.residual_bits),
+        raw_bits=float(raw_bits),
+        charged_bits=float(candidate.payload_bits + mode_bits),
+        target_crosses_chunk=len({(record.segment_id, record.chunk_index) for record in target}) > 1,
+        reference_crosses_chunk=len({(record.segment_id, record.chunk_index) for record in reference}) > 1,
+        target_crosses_segment=len({record.segment_id for record in target}) > 1,
+        reference_crosses_segment=len({record.segment_id for record in reference}) > 1,
+        full_group_contiguous=_span_full_group_contiguous(target),
+    )
+
+
+def _span_full_group_contiguous(records: Sequence[_FallbackRecord]) -> bool:
+    if len(records) <= 1:
+        return True
+    for previous, current in zip(records, records[1:]):
+        if previous.source_row_index != current.source_row_index or previous.segment_id != current.segment_id:
+            return False
+        if previous.chunk_index != current.chunk_index:
+            return False
+        if previous.group_index + 1 != current.group_index:
+            return False
+    return True
+
+
+def audit_c3_lz_hardening(
+    *,
+    chunk_cache_path: str | Path = DEFAULT_BEAT_CHUNK_CACHE_PATH,
+    report_path: str | Path | None = DEFAULT_C3_HARDENING_REPORT_PATH,
+    result_log_path: str | Path | None = DEFAULT_C3_HARDENING_RESULT_LOG_PATH,
+    comparison_csv_path: str | Path | None = DEFAULT_C3_HARDENING_COMPARISON_CSV_PATH,
+    diagnostics_csv_path: str | Path | None = DEFAULT_C3_HARDENING_DIAGNOSTICS_CSV_PATH,
+    motif_vocab_size: int = DEFAULT_MOTIF_VOCAB_SIZE,
+    motif_min_n: int = DEFAULT_MOTIF_MIN_N,
+    motif_max_n: int = DEFAULT_MOTIF_MAX_N,
+    smoothing_alpha: float = DEFAULT_SMOOTHING_ALPHA,
+    rare_max_count: int = DEFAULT_RARE_MAX_COUNT,
+    bootstrap_samples: int = DEFAULT_BOOTSTRAP_SAMPLES,
+    random_seed: int = 17,
+    lz_window_fallbacks: int = DEFAULT_LZ_WINDOW_FALLBACKS,
+    lz_max_span: int = DEFAULT_LZ_MAX_SPAN,
+    c3_wide_sweep: bool = False,
+    top_example_limit: int = 20,
+    limit_chunks: int | None = None,
+    command: str | None = None,
+) -> dict[str, Any]:
+    """Run the C3-only hardening/decomposition audit from the follow-up card."""
+
+    started_at = time.perf_counter()
+    chunk_cache_path = Path(chunk_cache_path)
+    report_path = None if report_path is None else Path(report_path)
+    result_log_path = None if result_log_path is None else Path(result_log_path)
+    comparison_csv_path = None if comparison_csv_path is None else Path(comparison_csv_path)
+    diagnostics_csv_path = None if diagnostics_csv_path is None else Path(diagnostics_csv_path)
+    _validate_positive(motif_vocab_size, "motif_vocab_size")
+    _validate_positive(motif_min_n, "motif_min_n")
+    _validate_positive(motif_max_n, "motif_max_n")
+    _validate_positive(lz_window_fallbacks, "lz_window_fallbacks")
+    _validate_positive(lz_max_span, "lz_max_span")
+    _validate_nonnegative(bootstrap_samples, "bootstrap_samples")
+    if motif_max_n < motif_min_n:
+        raise ValueError("motif_max_n must be >= motif_min_n")
+
+    chunk_df = _read_chunk_cache(chunk_cache_path, limit_chunks=limit_chunks)
+    baseline_model = _fit_motif_model(
+        chunk_df,
+        name="r0_delta",
+        token_mapper=_baseline_tokens,
+        motif_vocab_size=motif_vocab_size,
+        motif_min_n=motif_min_n,
+        motif_max_n=motif_max_n,
+        smoothing_alpha=smoothing_alpha,
+        top_motif_limit=top_example_limit,
+    )
+    baseline_splits = {
+        split: _score_baseline_split(
+            chunk_df,
+            split=split,
+            model=baseline_model,
+            dictionary_bits=baseline_model.dictionary_bits,
+            rare_max_count=rare_max_count,
+        )
+        for split in ("train", "valid", "test")
+    }
+    conflict_keys = _cross_split_artist_title_version_keys(chunk_df)
+    same_song_source_ids = _same_song_source_ids(chunk_df, conflict_keys=conflict_keys)
+    same_song_chunk_df = chunk_df[
+        (chunk_df["split"].fillna("").astype(str) == "test")
+        & (chunk_df["source_row_index"].astype(int).isin(same_song_source_ids))
+    ].copy()
+    baseline_splits["same_song_filtered_test"] = _score_baseline_split(
+        same_song_chunk_df,
+        split="test",
+        model=baseline_model,
+        dictionary_bits=baseline_model.dictionary_bits,
+        rare_max_count=rare_max_count,
+    )
+
+    records, record_summary = _collect_fallback_records(chunk_df, baseline_model=baseline_model)
+    dirty_trace_source_ids = set(int(value) for value in record_summary.get("invalid_transition_source_ids", [])) | set(
+        int(value) for value in record_summary.get("segment_state_reset_source_ids", [])
+    )
+    test_source_ids = set(int(value) for value in chunk_df.loc[chunk_df["split"] == "test", "source_row_index"].unique())
+    clean_trace_source_ids = test_source_ids - dirty_trace_source_ids
+    baseline_splits["clean_trace_test"] = _score_baseline_split(
+        chunk_df[
+            (chunk_df["split"].fillna("").astype(str) == "test")
+            & (chunk_df["source_row_index"].astype(int).isin(clean_trace_source_ids))
+        ].copy(),
+        split="test",
+        model=baseline_model,
+        dictionary_bits=baseline_model.dictionary_bits,
+        rare_max_count=rare_max_count,
+    )
+    baseline_splits["dirty_trace_test"] = _score_baseline_split(
+        chunk_df[
+            (chunk_df["split"].fillna("").astype(str) == "test")
+            & (chunk_df["source_row_index"].astype(int).isin(test_source_ids & dirty_trace_source_ids))
+        ].copy(),
+        split="test",
+        model=baseline_model,
+        dictionary_bits=baseline_model.dictionary_bits,
+        rare_max_count=rare_max_count,
+    )
+    baseline_token_guard = _baseline_token_stream_guard(chunk_df, baseline_model=baseline_model)
+    hardening_plans, hardening_diagnostics = _build_c3_hardening_plans(
+        records,
+        window_fallbacks=lz_window_fallbacks,
+        max_span=lz_max_span,
+        smoothing_alpha=smoothing_alpha,
+        wide_sweep=c3_wide_sweep,
+    )
+
+    variant_reports: dict[str, Any] = {
+        "b0_r0_delta": {
+            "variant": "b0_r0_delta",
+            "legal_codec": True,
+            "notes": "Unchanged in-harness r0_delta baseline.",
+            "splits": baseline_splits,
+            "table_model_cost_bits": 0.0,
+        }
+    }
+    comparison_rows: list[dict[str, Any]] = []
+    diagnostic_rows: list[dict[str, Any]] = []
+    for split, values in baseline_splits.items():
+        comparison_rows.append(_comparison_row("b0_r0_delta", split, values, legal_codec=True, table="global"))
+    for plan in hardening_plans:
+        report = _score_plan(
+            plan,
+            records,
+            baseline_splits=baseline_splits,
+            source_filters={
+                "same_song_filtered_test": same_song_source_ids,
+                "clean_trace_test": clean_trace_source_ids,
+                "dirty_trace_test": test_source_ids & dirty_trace_source_ids,
+            },
+        )
+        bucket_rows = _bucket_rows_for_plan(plan, records, baseline_splits, legal_codec=plan.legal_codec)
+        report["bucket_rows"] = bucket_rows
+        report["metadata"] = plan.metadata
+        variant_reports[plan.name] = report
+        for split, values in report["splits"].items():
+            comparison_rows.append(_comparison_row(plan.name, split, values, legal_codec=plan.legal_codec, table="global"))
+        comparison_rows.extend(bucket_rows)
+        diagnostic_rows.extend(_usage_rows_for_plan(plan, records))
+        diagnostic_rows.extend(_lz_span_diagnostic_rows(plan))
+
+    baseline = variant_reports["b0_r0_delta"]
+    selected_variant = _select_legal_variant(variant_reports)
+    selected = variant_reports[selected_variant]
+    reconstruction_guard = _c3_hardening_reconstruction_guard(
+        records,
+        hardening_plans,
+        baseline_token_guard=baseline_token_guard,
+    )
+    bootstrap = _bootstrap_mapset_delta(
+        selected,
+        baseline,
+        samples=bootstrap_samples,
+        seed=random_seed,
+    )
+    pass_criteria = _c3_hardening_pass_criteria(
+        selected_variant=selected_variant,
+        selected=selected,
+        baseline=baseline,
+        variants=variant_reports,
+        bootstrap=bootstrap,
+        record_summary=record_summary,
+        reconstruction_guard=reconstruction_guard,
+    )
+    recommendation = _c3_hardening_recommendation(pass_criteria, selected_variant=selected_variant)
+    diagnostic_rows.extend(_c3_reconstruction_rows(reconstruction_guard))
+    diagnostic_rows.extend(hardening_diagnostics)
+
+    if comparison_csv_path is not None:
+        comparison_csv_path.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(comparison_rows).to_csv(comparison_csv_path, index=False)
+    if diagnostics_csv_path is not None:
+        diagnostics_csv_path.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(diagnostic_rows).to_csv(diagnostics_csv_path, index=False)
+
+    report = {
+        "schema_version": SCHEMA_VERSION,
+        "experiment": "C3 LZ fallback-substream hardening and decomposition",
+        "command": command,
+        "code_commit": _git_stdout("rev-parse", "HEAD"),
+        "code_dirty": bool(_git_stdout("status", "--short")),
+        "chunk_cache_path": chunk_cache_path.as_posix(),
+        "report_path": None if report_path is None else report_path.as_posix(),
+        "result_log_path": None if result_log_path is None else result_log_path.as_posix(),
+        "comparison_csv_path": None if comparison_csv_path is None else comparison_csv_path.as_posix(),
+        "diagnostics_csv_path": None if diagnostics_csv_path is None else diagnostics_csv_path.as_posix(),
+        "limited": limit_chunks is not None,
+        "limit_chunks": limit_chunks,
+        "elapsed_s": time.perf_counter() - started_at,
+        "config": {
+            "motif_vocab_size": motif_vocab_size,
+            "motif_min_n": motif_min_n,
+            "motif_max_n": motif_max_n,
+            "smoothing_alpha": smoothing_alpha,
+            "rare_max_count": rare_max_count,
+            "bootstrap_samples": bootstrap_samples,
+            "random_seed": random_seed,
+            "lz_window_fallbacks": lz_window_fallbacks,
+            "lz_max_span": lz_max_span,
+            "c3_wide_sweep": c3_wide_sweep,
+            "legality_policy": (
+                "baseline motif stream is unchanged; C3 is evaluated as a fallback-substream side codec. "
+                "Mode, pointer, transform, residual, and learned table costs are charged."
+            ),
+        },
+        "dataset": _dataset_summary(chunk_df),
+        "fallback_record_summary": record_summary,
+        "same_song_filter": {
+            "conflict_key_count": len(conflict_keys),
+            "test_source_count_after_filter": len(same_song_source_ids),
+        },
+        "active_hold_trace_filter": {
+            "dirty_source_count": len(dirty_trace_source_ids),
+            "clean_test_source_count": len(clean_trace_source_ids),
+            "dirty_test_source_count": len(test_source_ids & dirty_trace_source_ids),
+        },
+        "baseline_model": {
+            "learned_motif_count": baseline_model.learned_motif_count,
+            "dictionary_cost_bits": baseline_model.dictionary_bits,
+            "atom_vocab_size": len(baseline_model.atom_counter),
+            "train_encoded_vocab_size": len(baseline_model.train_counter),
+        },
+        "variants": variant_reports,
+        "selected_variant": selected_variant,
+        "diagnostics": _c3_hardening_summary(hardening_plans, selected_variant=selected_variant),
+        "bootstrap_mapset_delta": bootstrap,
+        "reconstruction_guard": reconstruction_guard,
+        "pass_criteria": pass_criteria,
+        "recommendation": recommendation,
+    }
+    report = _normalize_json(report)
+    if report_path is not None:
+        _write_json(report_path, report)
+    if result_log_path is not None:
+        _write_c3_hardening_result_log(result_log_path, report)
+    return report
+
+
+def _build_c3_hardening_plans(
+    records: Sequence[_FallbackRecord],
+    *,
+    window_fallbacks: int,
+    max_span: int,
+    smoothing_alpha: float,
+    wide_sweep: bool,
+) -> tuple[list[_CostPlan], list[dict[str, Any]]]:
+    policies = _c3_hardening_policies(window_fallbacks=window_fallbacks, wide_sweep=wide_sweep)
+    plans: list[_CostPlan] = []
+    diagnostic_rows: list[dict[str, Any]] = []
+    options_cache: dict[tuple[tuple[str, ...], int | None, str], dict[int, tuple[_LzCandidate, ...]]] = {}
+    pointer_model_cache: dict[str, _C3PointerModel] = {}
+    for policy in policies:
+        cached_match_types = ("exact", "mirror", "skeleton")
+        cache_key = (cached_match_types, policy.window_fallbacks, policy.phase_filter)
+        options = options_cache.get(cache_key)
+        if options is None:
+            option_policy = _LzPolicy(
+                name=f"{policy.name}_option_superset",
+                label=policy.label,
+                allowed_match_types=cached_match_types,
+                activation=policy.activation,
+                window_fallbacks=policy.window_fallbacks,
+                pointer_code=policy.pointer_code,
+                phase_filter=policy.phase_filter,
+            )
+            options = _lz_candidate_options_by_record(records, policy=option_policy, max_span=max_span)
+            options_cache[cache_key] = options
+        pointer_model = None
+        table_model_cost_bits = policy.table_model_cost_bits
+        if policy.pointer_code == "train_fitted":
+            pointer_model = pointer_model_cache.get(policy.name)
+            if pointer_model is None:
+                pointer_model = _fit_c3_pointer_model(records, options, alpha=smoothing_alpha)
+                pointer_model_cache[policy.name] = pointer_model
+            table_model_cost_bits = pointer_model.table_cost_bits()
+        plan = _build_lz_hardening_plan(
+            records,
+            options,
+            policy=policy,
+            max_span=max_span,
+            pointer_model=pointer_model,
+            table_model_cost_bits=table_model_cost_bits,
+        )
+        plans.append(plan)
+        allowed_option_record_count = sum(
+            1 for candidates in options.values() if any(candidate.match_type in policy.allowed_match_types for candidate in candidates)
+        )
+        diagnostic_rows.append(
+            {
+                "variant": plan.name,
+                "split": "all",
+                "table": "candidate_options",
+                "bucket": "records_with_candidate",
+                "legal_codec": True,
+                "fallback_literal_count": allowed_option_record_count,
+                "usage_share": float(allowed_option_record_count) / float(len(records)) if records else 0.0,
+            }
+        )
+    return plans, diagnostic_rows
+
+
+def _c3_hardening_policies(*, window_fallbacks: int, wide_sweep: bool) -> list[_LzPolicy]:
+    base = int(window_fallbacks)
+    policies = [
+        _LzPolicy(
+            name="c3_active_all_fixed_w256",
+            label="current C3 strict mirror-order reproduction",
+            allowed_match_types=("exact", "mirror", "skeleton"),
+            activation="active",
+            window_fallbacks=base,
+            pointer_code="fixed_width",
+        ),
+        _LzPolicy(
+            name="a1_exact_only_all_fallback_w256",
+            label="A1 exact-only over all fallback literals",
+            allowed_match_types=("exact",),
+            activation="all",
+            window_fallbacks=base,
+            pointer_code="fixed_width",
+        ),
+        _LzPolicy(
+            name="a2_skeleton_residual_all_fallback_w256",
+            label="A2 skeleton match plus charged lane/order residual",
+            allowed_match_types=("skeleton",),
+            activation="all",
+            window_fallbacks=base,
+            pointer_code="fixed_width",
+        ),
+        _LzPolicy(
+            name="a3_mirror_only_all_fallback_w256",
+            label="A3 strict mirror-transform only",
+            allowed_match_types=("mirror",),
+            activation="all",
+            window_fallbacks=base,
+            pointer_code="fixed_width",
+        ),
+        _LzPolicy(
+            name="a5_non_active_all_fixed_w256",
+            label="A5 non-active fallback C3 control",
+            allowed_match_types=("exact", "mirror", "skeleton"),
+            activation="non_active",
+            window_fallbacks=base,
+            pointer_code="fixed_width",
+        ),
+    ]
+    window_sweep = (128,) if not wide_sweep else (16, 32, 64, 128, 512, 1024)
+    for window in window_sweep:
+        policies.append(
+            _LzPolicy(
+                name=f"a6_active_all_fixed_w{window}",
+                label=f"A6 active C3 window sweep {window}",
+                allowed_match_types=("exact", "mirror", "skeleton"),
+                activation="active",
+                window_fallbacks=window,
+                pointer_code="fixed_width",
+            )
+        )
+    if wide_sweep:
+        policies.append(
+            _LzPolicy(
+                name="a6_active_all_fixed_full_history",
+                label="A6 active C3 full previous-chart fallback history",
+                allowed_match_types=("exact", "mirror", "skeleton"),
+                activation="active",
+                window_fallbacks=None,
+                pointer_code="fixed_width",
+            )
+        )
+    pointer_sweep = ("elias_gamma", "power_bucket") if not wide_sweep else (
+        "elias_gamma",
+        "elias_delta",
+        "power_bucket",
+        "train_fitted",
+        "online_adaptive",
+    )
+    for code in pointer_sweep:
+        policies.append(
+            _LzPolicy(
+                name=f"a7_active_all_{code}_w256",
+                label=f"A7 active C3 pointer code {code}",
+                allowed_match_types=("exact", "mirror", "skeleton"),
+                activation="active",
+                window_fallbacks=base,
+                pointer_code=code,
+            )
+        )
+    if wide_sweep:
+        for phase_filter in ("same_offset", "same_bar_phase"):
+            policies.append(
+                _LzPolicy(
+                    name=f"a8_active_all_fixed_{phase_filter}_w256",
+                    label=f"A8 active C3 fallback-source filter {phase_filter}",
+                    allowed_match_types=("exact", "mirror", "skeleton"),
+                    activation="active",
+                    window_fallbacks=base,
+                    pointer_code="fixed_width",
+                    phase_filter=phase_filter,
+                )
+            )
+    return policies
+
+
+@dataclass
+class _C3PointerModel:
+    alpha: float
+    distance: _CategoricalModel
+    length: _CategoricalModel
+    match_type: _CategoricalModel
+
+    def add(self, candidate: _LzCandidate) -> None:
+        self.distance.add((), str(candidate.distance))
+        self.length.add((), str(candidate.length))
+        self.match_type.add((), candidate.match_type)
+
+    def bits(self, candidate: _LzCandidate) -> float:
+        return (
+            self.distance.bits((), str(candidate.distance))
+            + self.length.bits((), str(candidate.length))
+            + self.match_type.bits((), candidate.match_type)
+        )
+
+    def table_cost_bits(self) -> float:
+        return self.distance.table_cost_bits() + self.length.table_cost_bits() + self.match_type.table_cost_bits()
+
+
+def _empty_c3_pointer_model(alpha: float) -> _C3PointerModel:
+    return _C3PointerModel(
+        alpha=alpha,
+        distance=_CategoricalModel(alpha=alpha),
+        length=_CategoricalModel(alpha=alpha),
+        match_type=_CategoricalModel(alpha=alpha),
+    )
+
+
+def _fit_c3_pointer_model(
+    records: Sequence[_FallbackRecord],
+    options_by_record: Mapping[int, Sequence[_LzCandidate]],
+    *,
+    alpha: float,
+) -> _C3PointerModel:
+    model = _empty_c3_pointer_model(alpha)
+    for record in records:
+        if record.split != "train":
+            continue
+        for candidate in options_by_record.get(record.id, ()):
+            model.add(candidate)
+    return model
+
+
+def _lz_candidate_options_by_record(
+    records: Sequence[_FallbackRecord],
+    *,
+    policy: _LzPolicy,
+    max_span: int,
+) -> dict[int, tuple[_LzCandidate, ...]]:
+    by_source: dict[int, list[_FallbackRecord]] = defaultdict(list)
+    for record in records:
+        by_source[record.source_row_index].append(record)
+    options: dict[int, list[_LzCandidate]] = defaultdict(list)
+    for source_records in by_source.values():
+        source_records.sort(key=lambda item: (item.segment_id, item.absolute_units, item.chunk_index, item.group_index))
+        exact_index: dict[tuple[int, int, int, int, str], deque[int]] = defaultdict(deque)
+        mirror_index: dict[tuple[int, int, int, int, str], deque[int]] = defaultdict(deque)
+        skeleton_index: dict[tuple[int, str, int, int, int, str], deque[int]] = defaultdict(deque)
+        for index, record in enumerate(source_records):
+            candidate_indexes: list[tuple[str, int]] = []
+            if "exact" in policy.allowed_match_types:
+                candidate_indexes.extend(
+                    ("exact", previous_index)
+                    for previous_index in _recent_index_candidates_for_policy(
+                        exact_index[_atom_key(record)],
+                        index,
+                        policy.window_fallbacks,
+                    )
+                )
+            if "mirror" in policy.allowed_match_types:
+                candidate_indexes.extend(
+                    ("mirror", previous_index)
+                    for previous_index in _recent_index_candidates_for_policy(
+                        mirror_index[_atom_key(record)],
+                        index,
+                        policy.window_fallbacks,
+                    )
+                )
+            if "skeleton" in policy.allowed_match_types:
+                candidate_indexes.extend(
+                    ("skeleton", previous_index)
+                    for previous_index in _recent_index_candidates_for_policy(
+                        skeleton_index[_skeleton_key(record)],
+                        index,
+                        policy.window_fallbacks,
+                    )
+                )
+            for match_type, previous_index in candidate_indexes:
+                previous = source_records[previous_index]
+                if not _lz_phase_filter_ok(record, previous, policy.phase_filter):
+                    continue
+                distance = index - previous_index
+                length, residual = _lz_match_length(source_records, index, previous_index, match_type=match_type, max_span=max_span)
+                if length <= 0:
+                    continue
+                options[record.id].append(
+                    _LzCandidate(
+                        match_type=match_type,
+                        length=length,
+                        distance=distance,
+                        payload_bits=0.0,
+                        residual_bits=residual,
+                    )
+                )
+            _append_index_candidate_for_policy(exact_index[_atom_key(record)], index, policy.window_fallbacks)
+            _append_index_candidate_for_policy(mirror_index[_mirror_atom_key(record)], index, policy.window_fallbacks)
+            _append_index_candidate_for_policy(skeleton_index[_skeleton_key(record)], index, policy.window_fallbacks)
+    return {record_id: tuple(candidates) for record_id, candidates in options.items()}
+
+
+def _recent_index_candidates_for_policy(indexes: deque[int], current_index: int, window_fallbacks: int | None) -> list[int]:
+    if window_fallbacks is not None:
+        lower = current_index - int(window_fallbacks)
+        while indexes and indexes[0] < lower:
+            indexes.popleft()
+    return [value for value in list(indexes)[-DEFAULT_LZ_CANDIDATE_SCAN_LIMIT:] if value < current_index]
+
+
+def _append_index_candidate_for_policy(indexes: deque[int], value: int, window_fallbacks: int | None) -> None:
+    indexes.append(int(value))
+    if window_fallbacks is None:
+        return
+    lower = int(value) - int(window_fallbacks)
+    while indexes and indexes[0] < lower:
+        indexes.popleft()
+
+
+def _build_lz_hardening_plan(
+    records: Sequence[_FallbackRecord],
+    options_by_record: Mapping[int, Sequence[_LzCandidate]],
+    *,
+    policy: _LzPolicy,
+    max_span: int,
+    pointer_model: _C3PointerModel | None,
+    table_model_cost_bits: float,
+) -> _CostPlan:
+    replacement = [record.raw_bits for record in records]
+    payload = [record.raw_bits for record in records]
+    mode = [0.0 for _ in records]
+    modes = ["raw_literal" for _ in records]
+    selections: list[_LzSpanSelection] = []
+    reconstruction_mismatch_count = 0
+    by_source: dict[int, list[_FallbackRecord]] = defaultdict(list)
+    for record in records:
+        by_source[record.source_row_index].append(record)
+    for source_records in by_source.values():
+        source_records.sort(key=lambda item: (item.segment_id, item.absolute_units, item.chunk_index, item.group_index))
+        online_model = _empty_c3_pointer_model(0.1) if policy.pointer_code == "online_adaptive" else None
+        index = 0
+        while index < len(source_records):
+            record = source_records[index]
+            best: tuple[_LzCandidate, float] | None = None
+            for raw_candidate in options_by_record.get(record.id, ()):
+                if raw_candidate.match_type not in policy.allowed_match_types:
+                    continue
+                previous_index = index - raw_candidate.distance
+                if previous_index < 0:
+                    reconstruction_mismatch_count += 1
+                    continue
+                span = source_records[index : index + raw_candidate.length]
+                if len(span) != raw_candidate.length or not _span_matches_activation(span, policy.activation):
+                    continue
+                pointer_bits = _c3_pointer_bits(
+                    raw_candidate,
+                    policy=policy,
+                    max_span=max_span,
+                    current_index=index,
+                    pointer_model=pointer_model,
+                    online_model=online_model,
+                )
+                candidate = _LzCandidate(
+                    match_type=raw_candidate.match_type,
+                    length=raw_candidate.length,
+                    distance=raw_candidate.distance,
+                    payload_bits=pointer_bits + raw_candidate.residual_bits,
+                    residual_bits=raw_candidate.residual_bits,
+                )
+                raw_sum = sum(item.raw_bits for item in span)
+                charged = candidate.payload_bits + MODE_BITS_4
+                gain = raw_sum - charged
+                if gain <= 0.0:
+                    continue
+                if best is None or gain > best[1]:
+                    best = (candidate, gain)
+            if best is None:
+                index += 1
+                continue
+            candidate = best[0]
+            previous_index = index - candidate.distance
+            span = source_records[index : index + candidate.length]
+            selections.append(
+                _make_lz_span_selection(
+                    source_records,
+                    start_index=index,
+                    previous_index=previous_index,
+                    candidate=candidate,
+                    mode_bits=MODE_BITS_4,
+                )
+            )
+            if online_model is not None:
+                online_model.add(candidate)
+            per_record_payload = candidate.payload_bits / float(candidate.length)
+            per_record_mode = MODE_BITS_4 / float(candidate.length)
+            for item in span:
+                replacement[item.id] = per_record_payload + per_record_mode
+                payload[item.id] = per_record_payload
+                mode[item.id] = per_record_mode
+                modes[item.id] = f"lz_{candidate.match_type}"
+            index += candidate.length
+    return _CostPlan(
+        name=policy.name,
+        legal_codec=True,
+        replacement_bits=tuple(replacement),
+        payload_bits=tuple(payload),
+        mode_header_bits=tuple(mode),
+        mode_codes=tuple(modes),
+        table_model_cost_bits=float(table_model_cost_bits),
+        notes=policy.label,
+        reconstruction_checked_count=len(records),
+        reconstruction_mismatch_count=reconstruction_mismatch_count,
+        lz_spans=tuple(selections),
+        metadata={
+            "allowed_match_types": list(policy.allowed_match_types),
+            "activation": policy.activation,
+            "window_fallbacks": "full_history" if policy.window_fallbacks is None else int(policy.window_fallbacks),
+            "pointer_code": policy.pointer_code,
+            "phase_filter": policy.phase_filter,
+            "max_span": int(max_span),
+        },
+    )
+
+
+def _span_matches_activation(records: Sequence[_FallbackRecord], activation: str) -> bool:
+    if activation == "all":
+        return True
+    if activation == "active":
+        return all(_active_span_record(record) for record in records)
+    if activation == "non_active":
+        return all(not _active_span_record(record) for record in records)
+    raise ValueError(f"unknown C3 activation policy: {activation}")
+
+
+def _lz_phase_filter_ok(current: _FallbackRecord, previous: _FallbackRecord, phase_filter: str) -> bool:
+    if phase_filter == "none":
+        return True
+    if phase_filter == "same_offset":
+        return current.offset_units == previous.offset_units
+    if phase_filter == "same_bar_phase":
+        return current.bar_phase_half == previous.bar_phase_half
+    raise ValueError(f"unknown C3 phase filter: {phase_filter}")
+
+
+def _c3_pointer_bits(
+    candidate: _LzCandidate,
+    *,
+    policy: _LzPolicy,
+    max_span: int,
+    current_index: int,
+    pointer_model: _C3PointerModel | None,
+    online_model: _C3PointerModel | None,
+) -> float:
+    transform_bits = math.log2(float(len(policy.allowed_match_types))) if len(policy.allowed_match_types) > 1 else 0.0
+    if policy.pointer_code == "fixed_width":
+        distance_universe = int(policy.window_fallbacks) if policy.window_fallbacks is not None else max(1, int(current_index))
+        return math.log2(float(distance_universe + 1)) + math.log2(float(max_span + 1)) + transform_bits
+    if policy.pointer_code == "elias_gamma":
+        return _elias_gamma_bits(candidate.distance) + _elias_gamma_bits(candidate.length) + transform_bits
+    if policy.pointer_code == "elias_delta":
+        return _elias_delta_bits(candidate.distance) + _elias_gamma_bits(candidate.length) + transform_bits
+    if policy.pointer_code == "power_bucket":
+        return _power_bucket_bits(candidate.distance) + _power_bucket_bits(candidate.length) + transform_bits
+    if policy.pointer_code == "train_fitted":
+        if pointer_model is None:
+            raise ValueError("train_fitted pointer code requires a pointer_model")
+        return pointer_model.bits(candidate)
+    if policy.pointer_code == "online_adaptive":
+        if online_model is None:
+            raise ValueError("online_adaptive pointer code requires an online_model")
+        return online_model.bits(candidate)
+    raise ValueError(f"unknown C3 pointer code: {policy.pointer_code}")
+
+
+def _elias_gamma_bits(value: int) -> float:
+    value = max(1, int(value))
+    log = int(math.floor(math.log2(value)))
+    return float(2 * log + 1)
+
+
+def _elias_delta_bits(value: int) -> float:
+    value = max(1, int(value))
+    log = int(math.floor(math.log2(value)))
+    return _elias_gamma_bits(log + 1) + float(log)
+
+
+def _power_bucket_bits(value: int) -> float:
+    value = max(1, int(value))
+    bucket = int(math.floor(math.log2(value)))
+    return _elias_gamma_bits(bucket + 1) + float(bucket)
+
+
+def _baseline_token_stream_guard(chunk_df: pd.DataFrame, *, baseline_model: Any) -> dict[str, Any]:
+    id_to_motif = {token_id: motif for motif, token_id in baseline_model.vocab.motif_to_id.items()}
+    mismatch_count = 0
+    checked_chunk_count = 0
+    examples: list[dict[str, Any]] = []
+    for row in _iter_rows(chunk_df):
+        expected = _baseline_tokens(row)
+        encoded, _covered = _encode_sequence(expected, baseline_model.trie)
+        decoded = _decode_motif_tokens(encoded, id_to_motif)
+        checked_chunk_count += 1
+        if decoded == expected:
+            continue
+        mismatch_count += 1
+        if len(examples) < 10:
+            examples.append(
+                {
+                    "source_row_index": int(row.source_row_index),
+                    "chunk_index": int(row.chunk_index),
+                    "split": str(row.split),
+                    "expected": expected[:20],
+                    "decoded": decoded[:20],
+                    "encoded": encoded[:20],
+                }
+            )
+    return {
+        "checked_chunk_count": checked_chunk_count,
+        "mismatch_count": mismatch_count,
+        "pass": mismatch_count == 0 and checked_chunk_count > 0,
+        "examples": examples,
+        "policy": "Baseline motif stream must decode to the original r0_delta chunk token stream before C3 side-stream substitution.",
+    }
+
+
+def _decode_motif_tokens(tokens: Sequence[str], id_to_motif: Mapping[str, tuple[str, ...]]) -> list[str]:
+    decoded: list[str] = []
+    for token in tokens:
+        motif = id_to_motif.get(token)
+        if motif is None:
+            decoded.append(token)
+        else:
+            decoded.extend(motif)
+    return decoded
+
+
+def _c3_hardening_reconstruction_guard(
+    records: Sequence[_FallbackRecord],
+    plans: Sequence[_CostPlan],
+    *,
+    baseline_token_guard: Mapping[str, Any],
+) -> dict[str, Any]:
+    rows = []
+    for plan in plans:
+        fallback_guard = _decode_lz_fallback_payload_guard(records, plan)
+        boundary = _lz_span_boundary_guard(records, plan)
+        transform = _lz_transform_inverse_guard(records, plan)
+        mismatch_count = (
+            int(fallback_guard["mismatch_count"])
+            + int(boundary["mismatch_count"])
+            + int(transform["mismatch_count"])
+            + int(baseline_token_guard.get("mismatch_count", 0) or 0)
+        )
+        rows.append(
+            {
+                "variant": plan.name,
+                "fallback_payload_mismatch_count": int(fallback_guard["mismatch_count"]),
+                "full_token_stream_mismatch_count": int(fallback_guard["mismatch_count"])
+                + int(baseline_token_guard.get("mismatch_count", 0) or 0),
+                "full_chart_mismatch_count": int(fallback_guard["mismatch_count"])
+                + int(baseline_token_guard.get("mismatch_count", 0) or 0),
+                "span_boundary_mismatch_count": int(boundary["mismatch_count"]),
+                "transform_inverse_mismatch_count": int(transform["mismatch_count"]),
+                "selected_span_count": len(plan.lz_spans),
+                "selected_fallback_literal_count": sum(span.length for span in plan.lz_spans),
+                "flat_main_stream_noncontiguous_span_count": int(boundary["flat_main_stream_noncontiguous_span_count"]),
+                "target_cross_chunk_span_count": int(boundary["target_cross_chunk_span_count"]),
+                "reference_cross_chunk_span_count": int(boundary["reference_cross_chunk_span_count"]),
+                "target_cross_segment_span_count": int(boundary["target_cross_segment_span_count"]),
+                "reference_cross_segment_span_count": int(boundary["reference_cross_segment_span_count"]),
+                "mismatch_count": mismatch_count,
+                "pass": mismatch_count == 0,
+                "examples": [*fallback_guard["examples"], *boundary["examples"], *transform["examples"]][:10],
+            }
+        )
+    legal_rows = rows
+    mismatch_count = sum(int(row["mismatch_count"]) for row in legal_rows)
+    return {
+        "pass": all(bool(row["pass"]) for row in legal_rows) and bool(baseline_token_guard.get("pass")),
+        "mismatch_count": mismatch_count,
+        "baseline_token_stream_guard": baseline_token_guard,
+        "rows": rows,
+        "policy": (
+            "C3 hardening uses a two-stream representation: the baseline motif stream remains exact, and selected C3 "
+            "tokens reconstruct the fallback-payload side-stream from prior same-chart fallback records. "
+            "Flat main-stream contiguity is reported separately because fallback-substream spans can skip motif-covered groups."
+        ),
+    }
+
+
+def _decode_lz_fallback_payload_guard(records: Sequence[_FallbackRecord], plan: _CostPlan) -> dict[str, Any]:
+    decoded = _decoded_lz_tokens_by_record(records, plan)
+    mismatch_count = 0
+    examples: list[dict[str, Any]] = []
+    for record in records:
+        actual = decoded.get(record.id, record.token)
+        if actual == record.token:
+            continue
+        mismatch_count += 1
+        if len(examples) < 10:
+            examples.append(
+                {
+                    "guard": "fallback_payload",
+                    "variant": plan.name,
+                    "record_id": record.id,
+                    "source_row_index": record.source_row_index,
+                    "expected": record.token,
+                    "decoded": actual,
+                }
+            )
+    return {"mismatch_count": mismatch_count, "examples": examples}
+
+
+def _decoded_lz_tokens_by_record(records: Sequence[_FallbackRecord], plan: _CostPlan) -> dict[int, str]:
+    decoded = {record.id: record.token for record in records}
+    by_source: dict[int, list[_FallbackRecord]] = defaultdict(list)
+    for record in records:
+        by_source[record.source_row_index].append(record)
+    spans_by_source: dict[int, list[_LzSpanSelection]] = defaultdict(list)
+    for span in plan.lz_spans:
+        spans_by_source[span.source_row_index].append(span)
+    for source_records in by_source.values():
+        source_records.sort(key=lambda item: (item.segment_id, item.absolute_units, item.chunk_index, item.group_index))
+        id_to_index = {record.id: index for index, record in enumerate(source_records)}
+        for span in spans_by_source.get(source_records[0].source_row_index, []):
+            start = id_to_index.get(span.start_record_id)
+            previous = id_to_index.get(span.previous_record_id)
+            if start is None or previous is None:
+                continue
+            for offset in range(span.length):
+                current_record = source_records[start + offset]
+                previous_record = source_records[previous + offset]
+                decoded[current_record.id] = _lz_transformed_token(previous_record, current_record, match_type=span.match_type)
+    return decoded
+
+
+def _lz_transformed_token(previous: _FallbackRecord, current: _FallbackRecord, *, match_type: str) -> str:
+    if match_type == "exact":
+        return previous.token
+    if match_type == "mirror":
+        return _record_token(
+            delta=previous.delta,
+            tap=_mirror_mask_4(previous.tap_mask),
+            start=_mirror_mask_4(previous.ln_start_mask),
+            end=_mirror_mask_4(previous.ln_end_mask),
+            order_signature=_mirror_order_signature_4(previous.order_signature),
+        )
+    if match_type == "skeleton":
+        return current.token
+    raise ValueError(f"unknown LZ match type: {match_type}")
+
+
+def _record_token(*, delta: int, tap: int, start: int, end: int, order_signature: str) -> str:
+    token = f"D:{int(delta)}:{int(tap)}:{int(start)}:{int(end)}"
+    order = str(order_signature or ".")
+    return token if order == "." else f"{token}:O{order}"
+
+
+def _lz_span_boundary_guard(records: Sequence[_FallbackRecord], plan: _CostPlan) -> dict[str, Any]:
+    del records
+    mismatch_count = 0
+    occupied: set[tuple[int, int]] = set()
+    examples: list[dict[str, Any]] = []
+    noncontiguous = 0
+    target_cross_chunk = 0
+    reference_cross_chunk = 0
+    target_cross_segment = 0
+    reference_cross_segment = 0
+    for span in plan.lz_spans:
+        if not span.full_group_contiguous:
+            noncontiguous += 1
+        target_cross_chunk += int(span.target_crosses_chunk)
+        reference_cross_chunk += int(span.reference_crosses_chunk)
+        target_cross_segment += int(span.target_crosses_segment)
+        reference_cross_segment += int(span.reference_crosses_segment)
+        if span.previous_index < 0 or span.previous_index + span.length > span.start_index:
+            mismatch_count += 1
+            if len(examples) < 10:
+                examples.append({"guard": "span_boundary", "variant": plan.name, "reason": "reference_not_prior", "span": span})
+        for index in range(span.start_index, span.start_index + span.length):
+            key = (span.source_row_index, index)
+            if key in occupied:
+                mismatch_count += 1
+                if len(examples) < 10:
+                    examples.append({"guard": "span_boundary", "variant": plan.name, "reason": "overlap", "span": span})
+            occupied.add(key)
+    return {
+        "mismatch_count": mismatch_count,
+        "flat_main_stream_noncontiguous_span_count": noncontiguous,
+        "target_cross_chunk_span_count": target_cross_chunk,
+        "reference_cross_chunk_span_count": reference_cross_chunk,
+        "target_cross_segment_span_count": target_cross_segment,
+        "reference_cross_segment_span_count": reference_cross_segment,
+        "examples": _jsonable_span_examples(examples),
+    }
+
+
+def _lz_transform_inverse_guard(records: Sequence[_FallbackRecord], plan: _CostPlan) -> dict[str, Any]:
+    by_source: dict[int, list[_FallbackRecord]] = defaultdict(list)
+    for record in records:
+        by_source[record.source_row_index].append(record)
+    spans_by_source: dict[int, list[_LzSpanSelection]] = defaultdict(list)
+    for span in plan.lz_spans:
+        spans_by_source[span.source_row_index].append(span)
+    mismatch_count = 0
+    examples: list[dict[str, Any]] = []
+    for source_records in by_source.values():
+        source_records.sort(key=lambda item: (item.segment_id, item.absolute_units, item.chunk_index, item.group_index))
+        id_to_index = {record.id: index for index, record in enumerate(source_records)}
+        for span in spans_by_source.get(source_records[0].source_row_index, []):
+            start = id_to_index.get(span.start_record_id)
+            previous = id_to_index.get(span.previous_record_id)
+            if start is None or previous is None:
+                mismatch_count += 1
+                continue
+            for offset in range(span.length):
+                current_record = source_records[start + offset]
+                previous_record = source_records[previous + offset]
+                decoded = _lz_transformed_token(previous_record, current_record, match_type=span.match_type)
+                if decoded == current_record.token:
+                    continue
+                mismatch_count += 1
+                if len(examples) < 10:
+                    examples.append(
+                        {
+                            "guard": "transform_inverse",
+                            "variant": plan.name,
+                            "record_id": current_record.id,
+                            "previous_record_id": previous_record.id,
+                            "match_type": span.match_type,
+                            "expected": current_record.token,
+                            "decoded": decoded,
+                        }
+                    )
+    return {"mismatch_count": mismatch_count, "examples": examples}
+
+
+def _jsonable_span_examples(examples: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    output = []
+    for example in examples:
+        value = dict(example)
+        span = value.get("span")
+        if isinstance(span, _LzSpanSelection):
+            value["span"] = {
+                "source_row_index": span.source_row_index,
+                "start_record_id": span.start_record_id,
+                "previous_record_id": span.previous_record_id,
+                "length": span.length,
+                "distance": span.distance,
+                "match_type": span.match_type,
+            }
+        output.append(value)
+    return output
+
+
+def _lz_span_diagnostic_rows(plan: _CostPlan) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    if not plan.lz_spans:
+        return rows
+    total_spans = len(plan.lz_spans)
+    total_fallbacks = sum(span.length for span in plan.lz_spans)
+    for table, bucket_func in (
+        ("lz_span_match_type", lambda span: span.match_type),
+        ("lz_span_length", lambda span: _count_bucket(span.length)),
+        ("lz_span_distance", lambda span: _distance_bucket(span.distance)),
+        ("lz_span_full_group_contiguous", lambda span: "yes" if span.full_group_contiguous else "no"),
+        ("lz_span_target_cross_chunk", lambda span: "yes" if span.target_crosses_chunk else "no"),
+    ):
+        counter: Counter[str] = Counter(str(bucket_func(span)) for span in plan.lz_spans)
+        for bucket, count in counter.most_common():
+            span_fallbacks = sum(span.length for span in plan.lz_spans if str(bucket_func(span)) == bucket)
+            rows.append(
+                {
+                    "variant": plan.name,
+                    "split": "all",
+                    "table": table,
+                    "bucket": bucket,
+                    "legal_codec": plan.legal_codec,
+                    "span_count": int(count),
+                    "span_share": float(count) / float(total_spans),
+                    "fallback_literal_count": int(span_fallbacks),
+                    "usage_share": float(span_fallbacks) / float(total_fallbacks) if total_fallbacks else 0.0,
+                }
+            )
+    rows.append(
+        {
+            "variant": plan.name,
+            "split": "all",
+            "table": "lz_span_bits",
+            "bucket": "mean",
+            "legal_codec": plan.legal_codec,
+            "span_count": total_spans,
+            "fallback_literal_count": total_fallbacks,
+            "mean_payload_bits": float(np.mean([span.payload_bits for span in plan.lz_spans])),
+            "mean_mode_bits": float(np.mean([span.mode_bits for span in plan.lz_spans])),
+            "mean_residual_bits": float(np.mean([span.residual_bits for span in plan.lz_spans])),
+            "mean_raw_bits": float(np.mean([span.raw_bits for span in plan.lz_spans])),
+            "mean_charged_bits": float(np.mean([span.charged_bits for span in plan.lz_spans])),
+        }
+    )
+    return rows
+
+
+def _distance_bucket(distance: int) -> str:
+    value = int(distance)
+    if value <= 16:
+        return "1to16"
+    if value <= 32:
+        return "17to32"
+    if value <= 64:
+        return "33to64"
+    if value <= 128:
+        return "65to128"
+    if value <= 256:
+        return "129to256"
+    if value <= 512:
+        return "257to512"
+    if value <= 1024:
+        return "513to1024"
+    return "1025plus"
+
+
+def _c3_reconstruction_rows(reconstruction_guard: Mapping[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    for row in reconstruction_guard.get("rows", []):
+        if not isinstance(row, Mapping):
+            continue
+        rows.append(
+            {
+                "variant": row.get("variant"),
+                "split": "all",
+                "table": "reconstruction_guard",
+                "bucket": "mismatch",
+                "legal_codec": True,
+                "mismatch_count": row.get("mismatch_count"),
+                "fallback_payload_mismatch_count": row.get("fallback_payload_mismatch_count"),
+                "full_token_stream_mismatch_count": row.get("full_token_stream_mismatch_count"),
+                "full_chart_mismatch_count": row.get("full_chart_mismatch_count"),
+                "span_boundary_mismatch_count": row.get("span_boundary_mismatch_count"),
+                "transform_inverse_mismatch_count": row.get("transform_inverse_mismatch_count"),
+                "flat_main_stream_noncontiguous_span_count": row.get("flat_main_stream_noncontiguous_span_count"),
+                "pass": row.get("pass"),
+            }
+        )
+    return rows
+
+
+def _c3_hardening_summary(plans: Sequence[_CostPlan], *, selected_variant: str) -> dict[str, Any]:
+    selected_plan = next((plan for plan in plans if plan.name == selected_variant), None)
+    return {
+        "selected_variant": selected_variant,
+        "selected_span_count": None if selected_plan is None else len(selected_plan.lz_spans),
+        "selected_fallback_literal_count": None if selected_plan is None else sum(span.length for span in selected_plan.lz_spans),
+        "selected_noncontiguous_main_stream_span_count": (
+            None if selected_plan is None else sum(1 for span in selected_plan.lz_spans if not span.full_group_contiguous)
+        ),
+        "pipeline_representation_hint": (
+            "C3 should enter the mapper pipeline as a fallback side-stream or grammar extension unless flat-contiguous spans dominate."
+        ),
+    }
+
+
+def _c3_hardening_pass_criteria(
+    *,
+    selected_variant: str,
+    selected: Mapping[str, Any],
+    baseline: Mapping[str, Any],
+    variants: Mapping[str, Mapping[str, Any]],
+    bootstrap: Mapping[str, Any],
+    record_summary: Mapping[str, Any],
+    reconstruction_guard: Mapping[str, Any],
+) -> dict[str, Any]:
+    selected_test = selected.get("splits", {}).get("test", {})
+    selected_valid = selected.get("splits", {}).get("valid", {})
+    baseline_test = baseline.get("splits", {}).get("test", {})
+    baseline_filtered = baseline.get("splits", {}).get("same_song_filtered_test", {})
+    selected_filtered = selected.get("splits", {}).get("same_song_filtered_test", {})
+    baseline_clean = baseline.get("splits", {}).get("clean_trace_test", {})
+    selected_clean = selected.get("splits", {}).get("clean_trace_test", {})
+    baseline_dirty = baseline.get("splits", {}).get("dirty_trace_test", {})
+    selected_dirty = selected.get("splits", {}).get("dirty_trace_test", {})
+    selected_test_bits = float(selected_test.get("bits_per_event_with_dictionary", math.inf))
+    selected_valid_bits = float(selected_valid.get("bits_per_event_with_dictionary", math.inf))
+    baseline_test_bits = float(baseline_test.get("bits_per_event_with_dictionary", math.inf))
+    baseline_consistency = abs(baseline_test_bits - EXPECTED_R0_TEST_CHARGED_BITS_PER_EVENT) < 0.05
+    test_delta = selected_test_bits - baseline_test_bits
+    filtered_delta = (
+        float(selected_filtered.get("bits_per_event_with_dictionary", math.inf))
+        - float(baseline_filtered.get("bits_per_event_with_dictionary", math.inf))
+    )
+    clean_trace_delta = (
+        float(selected_clean.get("bits_per_event_with_dictionary", math.inf))
+        - float(baseline_clean.get("bits_per_event_with_dictionary", math.inf))
+    )
+    dirty_trace_delta = (
+        float(selected_dirty.get("bits_per_event_with_dictionary", math.inf))
+        - float(baseline_dirty.get("bits_per_event_with_dictionary", math.inf))
+    )
+    exact_test_delta = _variant_test_delta(variants, "a1_exact_only_all_fallback_w256")
+    window_128_delta = _variant_test_delta(variants, "a6_active_all_fixed_w128")
+    window_256_delta = _variant_test_delta(variants, "c3_active_all_fixed_w256")
+    bootstrap_below_zero = bool(
+        bootstrap.get("available")
+        and float(bootstrap.get("delta_bits_per_event_p975", math.inf)) < 0.0
+    )
+    hard_guard_pass = bool(reconstruction_guard.get("pass"))
+    simple_family_pass = exact_test_delta <= -0.05 or _variant_test_delta(variants, "a3_mirror_only_all_fallback_w256") <= -0.05
+    bounded_window_pass = window_128_delta <= -0.05 or window_256_delta <= -0.05
+    promotion_pass = bool(
+        baseline_consistency
+        and hard_guard_pass
+        and int(record_summary.get("fallback_literal_count", 0) or 0) > 0
+        and test_delta <= -0.05
+        and filtered_delta <= 0.0
+        and clean_trace_delta <= -0.05
+        and bootstrap_below_zero
+        and bounded_window_pass
+    )
+    engineering_promotion_pass = bool(promotion_pass and test_delta <= -0.10 and simple_family_pass)
+    return {
+        "selected_variant": selected_variant,
+        "baseline_consistency_pass": baseline_consistency,
+        "expected_r0_test_charged_bits_per_event": EXPECTED_R0_TEST_CHARGED_BITS_PER_EVENT,
+        "observed_r0_test_charged_bits_per_event": baseline_test_bits,
+        "valid_selected_bits_per_event_with_dictionary": selected_valid_bits,
+        "test_selected_bits_per_event_with_dictionary": selected_test_bits,
+        "test_baseline_bits_per_event_with_dictionary": baseline_test_bits,
+        "test_delta_bits_per_event_with_dictionary": test_delta,
+        "same_song_filtered_delta_bits_per_event": filtered_delta,
+        "same_song_filtered_pass": filtered_delta <= 0.0,
+        "clean_trace_test_delta_bits_per_event": clean_trace_delta,
+        "dirty_trace_test_delta_bits_per_event": dirty_trace_delta,
+        "clean_trace_test_pass": clean_trace_delta <= -0.05,
+        "bootstrap_95pct_below_zero_pass": bootstrap_below_zero,
+        "hard_reconstruction_pass": hard_guard_pass,
+        "exact_only_test_delta_bits_per_event": exact_test_delta,
+        "simple_family_pass": simple_family_pass,
+        "bounded_window_128_delta_bits_per_event": window_128_delta,
+        "bounded_window_256_delta_bits_per_event": window_256_delta,
+        "bounded_window_pass": bounded_window_pass,
+        "research_promotion_pass": promotion_pass,
+        "engineering_promotion_pass": engineering_promotion_pass,
+    }
+
+
+def _variant_test_delta(variants: Mapping[str, Mapping[str, Any]], variant: str) -> float:
+    return float(
+        variants.get(variant, {})
+        .get("splits", {})
+        .get("test", {})
+        .get("delta_bits_per_event_with_dictionary", math.inf)
+    )
+
+
+def _c3_hardening_recommendation(pass_criteria: Mapping[str, Any], *, selected_variant: str) -> str:
+    if pass_criteria.get("engineering_promotion_pass"):
+        return (
+            f"TEST_NEXT: {selected_variant} passed C3 hardening gates; build an optional pipeline-facing "
+            "fallback side-stream tokenization artifact next."
+        )
+    if pass_criteria.get("research_promotion_pass"):
+        return (
+            f"MUTATE_OR_TEST_NEXT: {selected_variant} is a robust research result but lacks a simple-family "
+            "engineering promotion signal; refine representation before mapper training."
+        )
+    if pass_criteria.get("hard_reconstruction_pass"):
+        return f"MUTATE: {selected_variant} reconstructs legally but fails compression robustness gates."
+    return f"DEFER: {selected_variant} failed a hard reconstruction or legality guard."
 
 
 def _build_patch_plan(
@@ -1089,13 +2397,15 @@ def _score_plan(
     source_filters: Mapping[str, set[int]],
 ) -> dict[str, Any]:
     splits: dict[str, Any] = {}
-    for split in ("train", "valid", "test", "same_song_filtered_test"):
+    split_names = list(dict.fromkeys(("train", "valid", "test", *source_filters.keys())))
+    for split in split_names:
         source_filter = source_filters.get(split)
         baseline = baseline_splits.get(split, {})
+        source_split = split if split in {"train", "valid", "test"} else "test"
         selected_records = [
             record
             for record in records
-            if (record.split == ("test" if split == "same_song_filtered_test" else split))
+            if record.split == source_split
             and (source_filter is None or record.source_row_index in source_filter)
         ]
         splits[split] = _score_records_against_baseline(plan, selected_records, baseline)
@@ -1589,7 +2899,7 @@ def _mirror_atom_key(record: _FallbackRecord) -> tuple[int, int, int, int, str]:
         _mirror_mask_4(record.tap_mask),
         _mirror_mask_4(record.ln_start_mask),
         _mirror_mask_4(record.ln_end_mask),
-        record.order_signature,
+        _mirror_order_signature_4(record.order_signature),
     )
 
 
@@ -1610,6 +2920,25 @@ def _mirror_mask_4(mask: int) -> int:
         if int(mask) & (1 << lane):
             value |= 1 << (3 - lane)
     return value
+
+
+def _mirror_order_signature_4(order_signature: str) -> str:
+    value = str(order_signature or ".")
+    if value == ".":
+        return "."
+    mirrored: list[str] = []
+    for part in value.split(","):
+        if len(part) < 2:
+            return value
+        action = part[0]
+        lane_text = part[1:]
+        if not lane_text.isdigit():
+            return value
+        lane = int(lane_text)
+        if not 0 <= lane < 4:
+            return value
+        mirrored.append(f"{action}{3 - lane}")
+    return ",".join(mirrored)
 
 
 def _lane_residual_bits(record: _FallbackRecord) -> float:
@@ -1817,6 +3146,81 @@ def _write_result_log(path: Path, report: Mapping[str, Any]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def _write_c3_hardening_result_log(path: Path, report: Mapping[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    selected_name = str(report.get("selected_variant"))
+    selected = report.get("variants", {}).get(selected_name, {})
+    baseline = report.get("variants", {}).get("b0_r0_delta", {})
+    pass_criteria = report.get("pass_criteria", {})
+    reconstruction_guard = report.get("reconstruction_guard", {})
+    diagnostics = report.get("diagnostics", {})
+    lines = [
+        "# C3 LZ Fallback-Substream Hardening Result Log",
+        "",
+        "## Summary",
+        "",
+        f"- Selected variant: `{selected_name}`",
+        f"- Recommendation: {report.get('recommendation')}",
+        f"- Research promotion pass: {pass_criteria.get('research_promotion_pass')}",
+        f"- Engineering promotion pass: {pass_criteria.get('engineering_promotion_pass')}",
+        f"- Runtime seconds: {_fmt_float(report.get('elapsed_s'))}",
+        f"- Limited: {report.get('limited')}",
+        f"- Code dirty: {report.get('code_dirty')}",
+        f"- Hard reconstruction pass: {reconstruction_guard.get('pass') if isinstance(reconstruction_guard, Mapping) else None}",
+        f"- Hard reconstruction mismatches: {reconstruction_guard.get('mismatch_count') if isinstance(reconstruction_guard, Mapping) else None}",
+        f"- Baseline charged test bits/event: {_nested(baseline, 'splits', 'test', 'bits_per_event_with_dictionary')}",
+        f"- Selected charged test bits/event: {_nested(selected, 'splits', 'test', 'bits_per_event_with_dictionary')}",
+        f"- Selected test delta bits/event: {pass_criteria.get('test_delta_bits_per_event_with_dictionary')}",
+        f"- Same-song filtered delta: {pass_criteria.get('same_song_filtered_delta_bits_per_event')}",
+        f"- Clean-trace test delta: {pass_criteria.get('clean_trace_test_delta_bits_per_event')}",
+        f"- Dirty-trace test delta: {pass_criteria.get('dirty_trace_test_delta_bits_per_event')}",
+        f"- Bootstrap delta 95% interval: [{_nested(report, 'bootstrap_mapset_delta', 'delta_bits_per_event_p025')}, {_nested(report, 'bootstrap_mapset_delta', 'delta_bits_per_event_p975')}]",
+        f"- Selected spans: {diagnostics.get('selected_span_count') if isinstance(diagnostics, Mapping) else None}",
+        f"- Selected fallback literals: {diagnostics.get('selected_fallback_literal_count') if isinstance(diagnostics, Mapping) else None}",
+        f"- Selected noncontiguous main-stream spans: {diagnostics.get('selected_noncontiguous_main_stream_span_count') if isinstance(diagnostics, Mapping) else None}",
+        "",
+        "## Variant Comparison",
+        "",
+        "| variant | valid charged | test charged | test delta | fallback payload delta | table/model bits |",
+        "|---|---:|---:|---:|---:|---:|",
+    ]
+    for variant_name, variant in report.get("variants", {}).items():
+        if variant_name == "b0_r0_delta":
+            continue
+        valid = variant.get("splits", {}).get("valid", {}) if isinstance(variant, Mapping) else {}
+        test = variant.get("splits", {}).get("test", {}) if isinstance(variant, Mapping) else {}
+        lines.append(
+            "| {variant} | {valid} | {test} | {delta} | {fallback_delta} | {table_bits} |".format(
+                variant=variant_name,
+                valid=_fmt_float(valid.get("bits_per_event_with_dictionary") if isinstance(valid, Mapping) else None),
+                test=_fmt_float(test.get("bits_per_event_with_dictionary") if isinstance(test, Mapping) else None),
+                delta=_fmt_float(test.get("delta_bits_per_event_with_dictionary") if isinstance(test, Mapping) else 0.0),
+                fallback_delta=_fmt_float(test.get("fallback_payload_delta_bits_per_fallback_event") if isinstance(test, Mapping) else 0.0),
+                table_bits=_fmt_float(variant.get("table_model_cost_bits") if isinstance(variant, Mapping) else None),
+            )
+        )
+    lines.extend(["", "## Reconstruction Guards", ""])
+    for row in reconstruction_guard.get("rows", []) if isinstance(reconstruction_guard, Mapping) else []:
+        lines.append(
+            "- `{variant}` pass={passed}, fallback={fallback}, stream={stream}, chart={chart}, "
+            "boundary={boundary}, transform={transform}, noncontiguous={noncontiguous}".format(
+                variant=row.get("variant"),
+                passed=row.get("pass"),
+                fallback=row.get("fallback_payload_mismatch_count"),
+                stream=row.get("full_token_stream_mismatch_count"),
+                chart=row.get("full_chart_mismatch_count"),
+                boundary=row.get("span_boundary_mismatch_count"),
+                transform=row.get("transform_inverse_mismatch_count"),
+                noncontiguous=row.get("flat_main_stream_noncontiguous_span_count"),
+            )
+        )
+    lines.extend(["", "## Gates", ""])
+    for key, value in pass_criteria.items():
+        lines.append(f"- {key}: {value}")
+    lines.extend(["", "## Interpretation", "", str(report.get("recommendation")), ""])
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def _nested(mapping: Mapping[str, Any], *keys: str) -> Any:
     value: Any = mapping
     for key in keys:
@@ -1843,6 +3247,7 @@ def _command(args: Sequence[str]) -> str:
 
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run CASF v2 context-adaptive fallback codec audit.")
+    parser.add_argument("--c3-hardening", action="store_true", help="run the C3 hardening/decomposition audit")
     parser.add_argument("--chunk-cache-path", type=Path, default=DEFAULT_BEAT_CHUNK_CACHE_PATH)
     parser.add_argument("--report-path", type=Path, default=DEFAULT_REPORT_PATH)
     parser.add_argument("--result-log-path", type=Path, default=DEFAULT_RESULT_LOG_PATH)
@@ -1857,6 +3262,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--random-seed", type=int, default=17)
     parser.add_argument("--lz-window-fallbacks", type=int, default=DEFAULT_LZ_WINDOW_FALLBACKS)
     parser.add_argument("--lz-max-span", type=int, default=DEFAULT_LZ_MAX_SPAN)
+    parser.add_argument("--c3-wide-sweep", action="store_true", help="include wider C3 window/pointer/source ablations")
     parser.add_argument("--patch-max-span", type=int, default=DEFAULT_PATCH_MAX_SPAN)
     parser.add_argument("--top-example-limit", type=int, default=20)
     parser.add_argument("--limit-chunks", type=int, default=None)
@@ -1865,6 +3271,50 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
+    if args.c3_hardening:
+        report_path = DEFAULT_C3_HARDENING_REPORT_PATH if args.report_path == DEFAULT_REPORT_PATH else args.report_path
+        result_log_path = (
+            DEFAULT_C3_HARDENING_RESULT_LOG_PATH if args.result_log_path == DEFAULT_RESULT_LOG_PATH else args.result_log_path
+        )
+        comparison_csv_path = (
+            DEFAULT_C3_HARDENING_COMPARISON_CSV_PATH
+            if args.comparison_csv_path == DEFAULT_COMPARISON_CSV_PATH
+            else args.comparison_csv_path
+        )
+        diagnostics_csv_path = (
+            DEFAULT_C3_HARDENING_DIAGNOSTICS_CSV_PATH
+            if args.diagnostics_csv_path == DEFAULT_DIAGNOSTICS_CSV_PATH
+            else args.diagnostics_csv_path
+        )
+        report = audit_c3_lz_hardening(
+            chunk_cache_path=args.chunk_cache_path,
+            report_path=report_path,
+            result_log_path=result_log_path,
+            comparison_csv_path=comparison_csv_path,
+            diagnostics_csv_path=diagnostics_csv_path,
+            motif_vocab_size=args.motif_vocab_size,
+            motif_min_n=args.motif_min_n,
+            motif_max_n=args.motif_max_n,
+            smoothing_alpha=args.smoothing_alpha,
+            rare_max_count=args.rare_max_count,
+            bootstrap_samples=args.bootstrap_samples,
+            random_seed=args.random_seed,
+            lz_window_fallbacks=args.lz_window_fallbacks,
+            lz_max_span=args.lz_max_span,
+            c3_wide_sweep=args.c3_wide_sweep,
+            top_example_limit=args.top_example_limit,
+            limit_chunks=args.limit_chunks,
+            command=_command(sys.argv[1:]),
+        )
+        print(
+            "c3_lz_hardening_audit "
+            f"research_promotion={report.get('pass_criteria', {}).get('research_promotion_pass')} "
+            f"engineering_promotion={report.get('pass_criteria', {}).get('engineering_promotion_pass')} "
+            f"selected={report.get('selected_variant')} "
+            f"recommendation={report.get('recommendation')} "
+            f"report={report.get('report_path')}"
+        )
+        return 0
     report = audit_context_adaptive_fallback_codec(
         chunk_cache_path=args.chunk_cache_path,
         report_path=args.report_path,

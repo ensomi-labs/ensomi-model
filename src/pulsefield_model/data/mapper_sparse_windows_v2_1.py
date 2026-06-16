@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Mapping, Sequence
 
 import torch
 
@@ -31,6 +31,7 @@ from pulsefield_model.models.mapper.v2_1.vocab import MapperV21Vocab
 
 MAPPER_V21_RECORD_CACHE_SCHEMA_VERSION = 2
 MAPPER_V21_TOKENIZER_CACHE_VERSION = 2
+C3_SIDE_STREAM_METADATA_CONTRACT = "r0_delta_main_plus_c3_fallback_side_stream_v1"
 MAPPER_WRITE_FRAMES = MAPPER_WRITE_MS // FRAME_HOP_MS
 MAPPER_CONTEXT_FRAMES = MAPPER_WRITE_FRAMES
 
@@ -47,11 +48,20 @@ class MapperV21WindowDataset(MapperTupleWindowDataset):
         self,
         *args: Any,
         vocab: MapperV21Vocab | None = None,
+        include_c3_side_stream_metadata: bool = False,
+        c3_side_stream_metadata_by_beatmap_path: Mapping[str, Mapping[str, Any]] | None = None,
+        c3_side_stream_contract: str = C3_SIDE_STREAM_METADATA_CONTRACT,
         **kwargs: Any,
     ) -> None:
         resolved_vocab = MapperV21Vocab() if vocab is None else vocab
         if not isinstance(resolved_vocab, MapperV21Vocab):
             raise TypeError(f"vocab must be a MapperV21Vocab, got {type(resolved_vocab).__name__}")
+        self.include_c3_side_stream_metadata = bool(include_c3_side_stream_metadata)
+        self.c3_side_stream_contract = str(c3_side_stream_contract)
+        self.c3_side_stream_metadata_by_beatmap_path = {
+            str(key): dict(value)
+            for key, value in (c3_side_stream_metadata_by_beatmap_path or {}).items()
+        }
         super().__init__(*args, vocab=resolved_vocab, **kwargs)
 
     def _record_cache_validity_metadata(self) -> dict[str, Any]:
@@ -92,6 +102,8 @@ class MapperV21WindowDataset(MapperTupleWindowDataset):
             "control_record_index": mapper_record.control_record_index,
             "mapper_token_contract": "v2.1_sparse_lane_actions",
         }
+        if self.include_c3_side_stream_metadata:
+            metadata["c3_side_stream"] = self._c3_side_stream_metadata(record)
         if cache_path is not None:
             metadata["control_teacher_cache_key"] = control_teacher_cache_key(record)
             metadata["control_teacher_cache_path"] = cache_path.as_posix()
@@ -137,6 +149,19 @@ class MapperV21WindowDataset(MapperTupleWindowDataset):
         sample["density_target_8s"] = density_target_8s
         sample["density_confidence_8s"] = density_confidence_8s
         return sample
+
+    def _c3_side_stream_metadata(self, record: Any) -> dict[str, Any]:
+        beatmap_path = record.beatmap_path.as_posix()
+        summary = self.c3_side_stream_metadata_by_beatmap_path.get(beatmap_path)
+        return {
+            "enabled": True,
+            "contract": self.c3_side_stream_contract,
+            "beatmap_path": beatmap_path,
+            "window_start_ms": int(record.target_start_ms),
+            "window_end_ms": int(record.target_start_ms) + MAPPER_WRITE_MS,
+            "summary_available": summary is not None,
+            "summary": summary,
+        }
 
     def _tokenize_record(self, record: Any) -> TokenizedMapperWindow:
         write_start_ms = int(record.target_start_ms)

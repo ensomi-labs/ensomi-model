@@ -9,7 +9,11 @@ from pathlib import Path
 import torch
 
 from pulsefield_model.data.control_windows import ControlWindowRecord, normalize_difficulty
-from pulsefield_model.data.mapper_sparse_windows_v2_1 import MapperV21WindowDataset, collate_mapper_v2_1_windows
+from pulsefield_model.data.mapper_sparse_windows_v2_1 import (
+    C3_SIDE_STREAM_METADATA_CONTRACT,
+    MapperV21WindowDataset,
+    collate_mapper_v2_1_windows,
+)
 from pulsefield_model.features.control_v3_targets import MODEL_FEATURE_NAMES
 from pulsefield_model.models.mapper.v2_1.replay import NO_EMITTED_LANE_INDEX, ln_carry_state_tensors
 from pulsefield_model.models.mapper.v2_1.tokenizer import MapperTimepoint, encode_mapper_window
@@ -41,6 +45,7 @@ class MapperV21DataWindowTests(unittest.TestCase):
 
         batch = collate_mapper_v2_1_windows([sparse_sample, empty_sample], pad_id=vocab.pad_id)
 
+        self.assertNotIn("c3_side_stream", sparse_sample["metadata"])
         token_names = [vocab.token_name(token_id) for token_id in sparse_sample["target_fragment_tokens"][:3].tolist()]
         self.assertEqual(token_names, ["TS_1000", "LANE_1_TAP", "LANE_3_TAP"])
         self.assertEqual(int(sparse_sample["chart_end_ms"].item()), 1000)
@@ -57,6 +62,35 @@ class MapperV21DataWindowTests(unittest.TestCase):
         self.assertEqual(int(states["last_lane_index"][1, -1].item()), NO_EMITTED_LANE_INDEX)
         self.assertFalse(batch["target_fragment_mask"][1, -1].item())
         self.assertEqual(tuple(batch["density_target_8s"].shape), (2, 400, 1))
+
+    def test_c3_side_stream_shadow_metadata_is_opt_in(self) -> None:
+        summary = {
+            "selected_span_count": 7,
+            "selected_fallback_literal_count": 23,
+            "noncontiguous_main_stream_span_count": 4,
+        }
+        dataset = _MapperV21DatasetWithFullInputs(
+            [_record("shadow.osu", difficulty=5.0, target_start_frame=400)],
+            timepoints_by_path={
+                "shadow.osu": (
+                    MapperTimepoint(9000, _actions(LaneAction.TAP)),
+                ),
+            },
+            include_c3_side_stream_metadata=True,
+            c3_side_stream_metadata_by_beatmap_path={"shadow.osu": summary},
+        )
+
+        sample = dataset[0]
+        batch = collate_mapper_v2_1_windows([sample], pad_id=MapperV21Vocab().pad_id)
+        c3_metadata = sample["metadata"]["c3_side_stream"]
+
+        self.assertEqual(c3_metadata["contract"], C3_SIDE_STREAM_METADATA_CONTRACT)
+        self.assertEqual(c3_metadata["beatmap_path"], "shadow.osu")
+        self.assertEqual(c3_metadata["window_start_ms"], 8000)
+        self.assertEqual(c3_metadata["window_end_ms"], 16000)
+        self.assertTrue(c3_metadata["summary_available"])
+        self.assertEqual(c3_metadata["summary"], summary)
+        self.assertEqual(batch["metadata"][0]["c3_side_stream"], c3_metadata)
 
 
 def _sample(tokenized) -> dict:
@@ -133,9 +167,10 @@ class _MapperV21DatasetWithFullInputs(MapperV21WindowDataset):
         records: list[ControlWindowRecord],
         *,
         timepoints_by_path: dict[str, tuple[MapperTimepoint, ...]],
+        **dataset_kwargs,
     ) -> None:
         self.timepoints_by_path = timepoints_by_path
-        super().__init__(control_dataset=_FullInputControlDataset(records))
+        super().__init__(control_dataset=_FullInputControlDataset(records), **dataset_kwargs)
 
     def _load_timepoints(self, beatmap_path: Path) -> tuple:
         return self.timepoints_by_path.get(beatmap_path.as_posix(), ())
