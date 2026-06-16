@@ -95,6 +95,15 @@ class C3SideStreamTokenizationTests(unittest.TestCase):
             report_path = root / "report.json"
             log_path = root / "log.md"
             dataset_root = root / "dataset"
+            for source in (1, 2, 3, 4):
+                _write_osu(
+                    dataset_root / "0" / f"{source}.osu",
+                    timing_lines=["0,500,4,2,0,80,1,0"],
+                    hitobject_lines=[
+                        "64,192,0,1,0,0:0:0:0:",
+                        "192,192,250,1,0,0:0:0:0:",
+                    ],
+                )
             pd.DataFrame(rows).to_parquet(cache_path, index=False)
 
             report = audit_c3_mapper_window_sidecar(
@@ -114,7 +123,10 @@ class C3SideStreamTokenizationTests(unittest.TestCase):
 
             self.assertTrue(report_path.exists())
             self.assertTrue(log_path.exists())
-            self.assertTrue(report["pass_criteria"]["p3_sidecar_generation_pass"])
+            self.assertTrue(report["pass_criteria"]["sidecar_generation_pass"])
+            self.assertTrue(report["pass_criteria"]["p5_exact_sidecar_generation_pass"])
+            self.assertEqual(report["pass_criteria"]["window_anchor_mode"], "exact_group")
+            self.assertEqual(report["anchor_report"]["parse_error_count"], 0)
             self.assertTrue(report["sidecar_stats"]["token_preservation_pass"])
             self.assertEqual(report["sidecar_stats"]["missing_anchor_token_count"], 0)
             self.assertEqual(report["loader_guard"]["loaded_window_count"], len(sidecar["windows"]))
@@ -124,6 +136,9 @@ class C3SideStreamTokenizationTests(unittest.TestCase):
             expected_path = (dataset_root / "0" / "1.osu").as_posix()
             self.assertIn(expected_path, loaded)
             self.assertIn(0, loaded[expected_path])
+            source2_path = (dataset_root / "0" / "2.osu").as_posix()
+            self.assertIn(0, loaded[source2_path])
+            self.assertNotIn(8_000, loaded[source2_path])
 
     def test_exact_window_assignment_comparison_detects_chunk_sort_mismatch(self) -> None:
         rows = [

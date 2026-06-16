@@ -1,0 +1,288 @@
+{
+  "anchor_report": {
+    "anchor_count": 15053,
+    "anchor_key": "source_row_index,segment_id,absolute_units",
+    "errors": [],
+    "exact_group_anchor_count": 15053,
+    "parse_error_count": 0,
+    "parsed_source_count": 16,
+    "source_count": 16,
+    "window_anchor_mode": "exact_group"
+  },
+  "chunk_cache_path": "artifacts/audits/beat_chunk_patterns/beat_chunk_pattern_cache_le3.parquet",
+  "code_commit": "4e8a4506b88682c0925a8bd1b736301284b8f1a9",
+  "code_dirty": true,
+  "command": "python -m pulsefield_model.osu_core.c3_side_stream_tokenization --mapper-sidecar --window-anchor-mode exact_group --limit-chunks 2000 --sidecar-path artifacts/cache/c3_mapper_window_sidecar/smoke_c3_exact_mapper_window_sidecar.json --report-path artifacts/reports/audits/context_adaptive_fallback_codec/smoke_c3_exact_mapper_window_sidecar_report.json --result-log-path artifacts/reports/audits/context_adaptive_fallback_codec/smoke_c3_exact_mapper_window_sidecar_result_log.md",
+  "config": {
+    "boundary_risk_margin_ms": 2000,
+    "expected_key_count": 4,
+    "lz_max_span": 8,
+    "lz_window_fallbacks": 256,
+    "mapper_window_ms": 8000,
+    "motif_max_n": 8,
+    "motif_min_n": 2,
+    "motif_vocab_size": 16384,
+    "path_contract": "beatmap_path is resolved as dataset_root/shard/cache_beatmap_path",
+    "selected_c3_variant": "a2_skeleton_residual_all_fallback_w256",
+    "sidecar_max_tokens": 256,
+    "smoothing_alpha": 0.1,
+    "snap_denominator": 48,
+    "timing_canonicalization": "bpm-80-160",
+    "timing_contract": "window assignment uses exact per-group snapped time reconstructed from the beatmap",
+    "window_anchor_mode": "exact_group"
+  },
+  "dataset": {
+    "chunk_count": 2000,
+    "event_count": 24132,
+    "group_count": 13975,
+    "map_count": 16,
+    "mapset_count": 8,
+    "split_summary": {
+      "test": {
+        "chunk_count": 94,
+        "event_count": 676,
+        "group_count": 450,
+        "map_count": 1,
+        "mapset_count": 1
+      },
+      "train": {
+        "chunk_count": 1712,
+        "event_count": 21602,
+        "group_count": 12499,
+        "map_count": 13,
+        "mapset_count": 6
+      },
+      "valid": {
+        "chunk_count": 194,
+        "event_count": 1854,
+        "group_count": 1026,
+        "map_count": 2,
+        "mapset_count": 1
+      }
+    }
+  },
+  "dataset_root": "dataset",
+  "elapsed_s": 1.3113233330077492,
+  "experiment": "C3 exact mapper-window sidecar generation P5",
+  "fallback_record_summary": {
+    "fallback_literal_count": 2532,
+    "invalid_transition_count": 1,
+    "invalid_transition_examples": [
+      {
+        "beatmap_set_id": 1000722,
+        "chunk_index": 18,
+        "invalid_mask": 8,
+        "ln_end_mask": 8,
+        "ln_start_mask": 1,
+        "offset_units": 0,
+        "pre_hold_mask": 0,
+        "source_row_index": 2,
+        "tap_mask": 4
+      }
+    ],
+    "invalid_transition_source_count": 1,
+    "invalid_transition_source_ids": [
+      2
+    ],
+    "segment_state_reset_count": 1,
+    "segment_state_reset_source_count": 1,
+    "segment_state_reset_source_ids": [
+      2
+    ],
+    "split_fallback_event_count": {
+      "test": 185,
+      "train": 3748,
+      "valid": 1231
+    },
+    "split_fallback_literal_count": {
+      "test": 125,
+      "train": 1789,
+      "valid": 618
+    },
+    "split_raw_fallback_bits": {
+      "test": 1728.3889318325917,
+      "train": 18403.463788293117,
+      "valid": 16292.855943360151
+    }
+  },
+  "limit_chunks": 2000,
+  "limited": true,
+  "loader_guard": {
+    "checked": true,
+    "expected_token_count": 2876,
+    "expected_window_count": 310,
+    "loaded_beatmap_count": 16,
+    "loaded_token_count": 2876,
+    "loaded_window_count": 310,
+    "pass": true
+  },
+  "pass_criteria": {
+    "anchor_coverage_pass": true,
+    "exact_anchor_parse_pass": true,
+    "exact_timing_sidecar": true,
+    "full_cache_pass": false,
+    "loader_guard_pass": true,
+    "p3_sidecar_generation_pass": true,
+    "p5_exact_sidecar_generation_pass": true,
+    "reconstruction_pass": true,
+    "sidecar_generation_pass": true,
+    "token_preservation_pass": true,
+    "window_anchor_mode": "exact_group"
+  },
+  "recommendation": "TEST_FULL: mapper-window C3 sidecar passed on a limited slice; run full-cache generation.",
+  "reconstruction_guard": {
+    "examples": [],
+    "full_token_stream_mismatch_count": 0,
+    "group_signature_mismatch_count": 0,
+    "missing_side_payload_count": 0,
+    "pass": true,
+    "side_stream_payload_mismatch_count": 0,
+    "side_stream_reference_error_count": 0
+  },
+  "report_path": "artifacts/reports/audits/context_adaptive_fallback_codec/smoke_c3_exact_mapper_window_sidecar_report.json",
+  "result_log_path": "artifacts/reports/audits/context_adaptive_fallback_codec/smoke_c3_exact_mapper_window_sidecar_result_log.md",
+  "schema_version": 1,
+  "selected_plan": {
+    "metadata": {
+      "activation": "all",
+      "allowed_match_types": [
+        "skeleton"
+      ],
+      "max_span": 8,
+      "phase_filter": "none",
+      "pointer_code": "fixed_width",
+      "window_fallbacks": 256
+    },
+    "selected_fallback_literal_count": 1083,
+    "span_count": 344,
+    "variant": "a2_skeleton_residual_all_fallback_w256"
+  },
+  "sidecar_path": "artifacts/cache/c3_mapper_window_sidecar/smoke_c3_exact_mapper_window_sidecar.json",
+  "sidecar_stats": {
+    "anchor_key": "source_row_index,segment_id,absolute_units",
+    "boundary_risk_token_count": 723,
+    "boundary_risk_token_rate": 0.25139082058414464,
+    "cap_sweep": {
+      "1024": {
+        "max_overflow_tokens": 0,
+        "overflow_token_count": 0,
+        "overflow_token_rate": 0.0,
+        "truncated_window_count": 0,
+        "truncated_window_rate": 0.0
+      },
+      "128": {
+        "max_overflow_tokens": 0,
+        "overflow_token_count": 0,
+        "overflow_token_rate": 0.0,
+        "truncated_window_count": 0,
+        "truncated_window_rate": 0.0
+      },
+      "256": {
+        "max_overflow_tokens": 0,
+        "overflow_token_count": 0,
+        "overflow_token_rate": 0.0,
+        "truncated_window_count": 0,
+        "truncated_window_rate": 0.0
+      },
+      "512": {
+        "max_overflow_tokens": 0,
+        "overflow_token_count": 0,
+        "overflow_token_rate": 0.0,
+        "truncated_window_count": 0,
+        "truncated_window_rate": 0.0
+      },
+      "64": {
+        "max_overflow_tokens": 0,
+        "overflow_token_count": 0,
+        "overflow_token_rate": 0.0,
+        "truncated_window_count": 0,
+        "truncated_window_rate": 0.0
+      }
+    },
+    "examples": [],
+    "missing_anchor_token_count": 0,
+    "sidecar_token_count": 2876,
+    "token_kind_counts": {
+      "raw": 1449,
+      "ref": 344,
+      "residual": 1083
+    },
+    "token_preservation_pass": true,
+    "token_vocab_size": 1193,
+    "tokens_per_nonzero_window": {
+      "count": 281,
+      "max": 63,
+      "mean": 10.234875444839858,
+      "p50": 6.0,
+      "p90": 25.0,
+      "p95": 30.0,
+      "p99": 47.0
+    },
+    "tokens_per_window": {
+      "count": 310,
+      "max": 63,
+      "mean": 9.27741935483871,
+      "p50": 6.0,
+      "p90": 23.0,
+      "p95": 29.55000000000001,
+      "p99": 46.370000000000175
+    },
+    "traced_side_stream_token_count": 2876,
+    "window_anchor_mode": "exact_group",
+    "window_count": 310,
+    "window_with_tokens_count": 281,
+    "window_with_tokens_rate": 0.9064516129032258
+  },
+  "span_window_stats": {
+    "missing_anchor_span_count": 0,
+    "reference_cross_mapper_window_span_count": 51,
+    "reference_cross_mapper_window_span_rate": 0.14825581395348839,
+    "span_count": 344,
+    "target_cross_mapper_window_span_count": 53,
+    "target_cross_mapper_window_span_rate": 0.15406976744186046,
+    "target_reference_same_window_span_count": 61,
+    "target_reference_same_window_span_rate": 0.17732558139534885,
+    "target_reference_window_delta_top": [
+      {
+        "count": 77,
+        "delta_ms": 8000
+      },
+      {
+        "count": 61,
+        "delta_ms": 0
+      },
+      {
+        "count": 39,
+        "delta_ms": 16000
+      },
+      {
+        "count": 35,
+        "delta_ms": 56000
+      },
+      {
+        "count": 25,
+        "delta_ms": 24000
+      },
+      {
+        "count": 21,
+        "delta_ms": 32000
+      },
+      {
+        "count": 15,
+        "delta_ms": 64000
+      },
+      {
+        "count": 15,
+        "delta_ms": 40000
+      },
+      {
+        "count": 13,
+        "delta_ms": 48000
+      },
+      {
+        "count": 6,
+        "delta_ms": 128000
+      }
+    ]
+  }
+}

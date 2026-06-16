@@ -72,6 +72,15 @@ DEFAULT_MAPPER_SIDECAR_REPORT_PATH: Final[Path] = Path(
 DEFAULT_MAPPER_SIDECAR_RESULT_LOG_PATH: Final[Path] = Path(
     "artifacts/reports/audits/context_adaptive_fallback_codec/c3_mapper_window_sidecar_result_log.md",
 )
+DEFAULT_EXACT_MAPPER_SIDECAR_PATH: Final[Path] = Path(
+    "artifacts/cache/c3_mapper_window_sidecar/c3_exact_mapper_window_sidecar_le3.json",
+)
+DEFAULT_EXACT_MAPPER_SIDECAR_REPORT_PATH: Final[Path] = Path(
+    "artifacts/reports/audits/context_adaptive_fallback_codec/c3_exact_mapper_window_sidecar_report.json",
+)
+DEFAULT_EXACT_MAPPER_SIDECAR_RESULT_LOG_PATH: Final[Path] = Path(
+    "artifacts/reports/audits/context_adaptive_fallback_codec/c3_exact_mapper_window_sidecar_result_log.md",
+)
 DEFAULT_EXACT_WINDOW_COMPARISON_REPORT_PATH: Final[Path] = Path(
     "artifacts/reports/audits/context_adaptive_fallback_codec/c3_exact_window_assignment_comparison_report.json",
 )
@@ -83,6 +92,10 @@ MAPPER_SIDECAR_CONTRACT: Final[str] = "r0_delta_main_plus_c3_fallback_side_strea
 MAPPER_SIDECAR_PAD_ID: Final[int] = 0
 DEFAULT_MAPPER_SIDECAR_MAX_TOKENS: Final[int] = 256
 DEFAULT_BOUNDARY_RISK_MARGIN_MS: Final[int] = 2_000
+WINDOW_ANCHOR_CHUNK_SORT: Final[str] = "chunk_sort"
+WINDOW_ANCHOR_EXACT_GROUP: Final[str] = "exact_group"
+WINDOW_ANCHOR_MODES: Final[tuple[str, str]] = (WINDOW_ANCHOR_CHUNK_SORT, WINDOW_ANCHOR_EXACT_GROUP)
+DEFAULT_MAPPER_SIDECAR_WINDOW_ANCHOR_MODE: Final[str] = WINDOW_ANCHOR_EXACT_GROUP
 DEFAULT_EXACT_WINDOW_COMPARE_SOURCE_LIMIT: Final[int] = 64
 DEFAULT_EXACT_WINDOW_MISMATCH_RATE_MAX: Final[float] = 0.01
 FALLBACK_PLACEHOLDER_TOKEN: Final[str] = "F"
@@ -289,9 +302,9 @@ def audit_c3_mapper_window_sidecar(
     *,
     chunk_cache_path: str | Path = DEFAULT_BEAT_CHUNK_CACHE_PATH,
     dataset_root: str | Path = DEFAULT_DATASET_ROOT,
-    sidecar_path: str | Path | None = DEFAULT_MAPPER_SIDECAR_PATH,
-    report_path: str | Path | None = DEFAULT_MAPPER_SIDECAR_REPORT_PATH,
-    result_log_path: str | Path | None = DEFAULT_MAPPER_SIDECAR_RESULT_LOG_PATH,
+    sidecar_path: str | Path | None = DEFAULT_EXACT_MAPPER_SIDECAR_PATH,
+    report_path: str | Path | None = DEFAULT_EXACT_MAPPER_SIDECAR_REPORT_PATH,
+    result_log_path: str | Path | None = DEFAULT_EXACT_MAPPER_SIDECAR_RESULT_LOG_PATH,
     motif_vocab_size: int = DEFAULT_MOTIF_VOCAB_SIZE,
     motif_min_n: int = DEFAULT_MOTIF_MIN_N,
     motif_max_n: int = DEFAULT_MOTIF_MAX_N,
@@ -302,6 +315,10 @@ def audit_c3_mapper_window_sidecar(
     mapper_window_ms: int = MAPPER_WRITE_MS,
     sidecar_max_tokens: int = DEFAULT_MAPPER_SIDECAR_MAX_TOKENS,
     boundary_risk_margin_ms: int = DEFAULT_BOUNDARY_RISK_MARGIN_MS,
+    window_anchor_mode: str = DEFAULT_MAPPER_SIDECAR_WINDOW_ANCHOR_MODE,
+    expected_key_count: int | None = 4,
+    snap_denominator: int = DEFAULT_SNAP_DENOMINATOR,
+    timing_canonicalization: str = DEFAULT_BEAT_REPRESENTATION_TIMING_CANONICALIZATION,
     limit_chunks: int | None = None,
     command: str | None = None,
 ) -> dict[str, Any]:
@@ -322,6 +339,8 @@ def audit_c3_mapper_window_sidecar(
     _validate_positive(mapper_window_ms, "mapper_window_ms")
     _validate_positive(sidecar_max_tokens, "sidecar_max_tokens")
     _validate_positive(boundary_risk_margin_ms, "boundary_risk_margin_ms")
+    _validate_window_anchor_mode(window_anchor_mode)
+    _validate_positive(snap_denominator, "snap_denominator")
     if motif_max_n < motif_min_n:
         raise ValueError("motif_max_n must be >= motif_min_n")
 
@@ -350,11 +369,15 @@ def audit_c3_mapper_window_sidecar(
         records=records,
         side_decoded_by_record_id=side_decode.decoded_by_record_id,
     )
-    anchors = _chunk_window_anchors(
+    anchors, anchor_report = _sidecar_window_anchors_for_mode(
         chunk_df,
         dataset_root=dataset_root,
         mapper_window_ms=mapper_window_ms,
         boundary_risk_margin_ms=boundary_risk_margin_ms,
+        window_anchor_mode=window_anchor_mode,
+        expected_key_count=expected_key_count,
+        snap_denominator=snap_denominator,
+        timing_canonicalization=timing_canonicalization,
     )
     sidecar, sidecar_stats = _build_mapper_window_sidecar_payload(
         chunk_df,
@@ -362,12 +385,13 @@ def audit_c3_mapper_window_sidecar(
         anchors=anchors,
         mapper_window_ms=mapper_window_ms,
         sidecar_max_tokens=sidecar_max_tokens,
+        window_anchor_mode=window_anchor_mode,
     )
     loader_guard = {"checked": False}
     if sidecar_path is not None:
         _write_sidecar_json(sidecar_path, sidecar)
         loader_guard = _loader_guard(sidecar_path, sidecar)
-    span_window_stats = _span_window_stats(plan, records, anchors=anchors)
+    span_window_stats = _span_window_stats(plan, records, anchors=anchors, window_anchor_mode=window_anchor_mode)
     reconstruction_guard = {
         "pass": (
             side_decode.reference_error_count == 0
@@ -383,21 +407,35 @@ def audit_c3_mapper_window_sidecar(
         "missing_side_payload_count": main_guard["missing_side_payload_count"],
         "examples": [*side_decode.examples, *main_guard["examples"]][:10],
     }
+    sidecar_generation_pass = (
+        bool(reconstruction_guard["pass"])
+        and bool(sidecar_stats["token_preservation_pass"])
+        and int(sidecar_stats["missing_anchor_token_count"]) == 0
+        and int(anchor_report.get("parse_error_count", 0) or 0) == 0
+        and (not loader_guard.get("checked") or bool(loader_guard.get("pass")))
+    )
     pass_criteria = {
-        "p3_sidecar_generation_pass": (
-            bool(reconstruction_guard["pass"])
-            and bool(sidecar_stats["token_preservation_pass"])
-            and int(sidecar_stats["missing_anchor_token_count"]) == 0
-            and (not loader_guard.get("checked") or bool(loader_guard.get("pass")))
-        ),
+        "sidecar_generation_pass": sidecar_generation_pass,
+        "p3_sidecar_generation_pass": sidecar_generation_pass,
+        "exact_anchor_parse_pass": int(anchor_report.get("parse_error_count", 0) or 0) == 0,
+        "anchor_coverage_pass": int(sidecar_stats["missing_anchor_token_count"]) == 0,
+        "window_anchor_mode": window_anchor_mode,
+        "exact_timing_sidecar": window_anchor_mode == WINDOW_ANCHOR_EXACT_GROUP,
         "token_preservation_pass": sidecar_stats["token_preservation_pass"],
         "loader_guard_pass": loader_guard.get("pass") if loader_guard.get("checked") else None,
         "reconstruction_pass": reconstruction_guard["pass"],
         "full_cache_pass": limit_chunks is None,
     }
+    pass_criteria["p5_exact_sidecar_generation_pass"] = (
+        sidecar_generation_pass if window_anchor_mode == WINDOW_ANCHOR_EXACT_GROUP else None
+    )
     report = {
         "schema_version": SCHEMA_VERSION,
-        "experiment": "C3 mapper-window sidecar generation P3",
+        "experiment": (
+            "C3 exact mapper-window sidecar generation P5"
+            if window_anchor_mode == WINDOW_ANCHOR_EXACT_GROUP
+            else "C3 mapper-window sidecar generation P3"
+        ),
         "command": command,
         "code_commit": _git_stdout("rev-parse", "HEAD"),
         "code_dirty": bool(_git_stdout("status", "--short")),
@@ -420,8 +458,12 @@ def audit_c3_mapper_window_sidecar(
             "mapper_window_ms": mapper_window_ms,
             "sidecar_max_tokens": sidecar_max_tokens,
             "boundary_risk_margin_ms": boundary_risk_margin_ms,
+            "window_anchor_mode": window_anchor_mode,
+            "expected_key_count": expected_key_count,
+            "snap_denominator": snap_denominator,
+            "timing_canonicalization": timing_canonicalization,
             "path_contract": "beatmap_path is resolved as dataset_root/shard/cache_beatmap_path",
-            "timing_contract": "window assignment uses chunk_sort_ms, the earliest snapped event time in the chunk",
+            "timing_contract": _window_anchor_timing_contract(window_anchor_mode),
         },
         "dataset": _dataset_summary(chunk_df),
         "fallback_record_summary": record_summary,
@@ -431,6 +473,7 @@ def audit_c3_mapper_window_sidecar(
             "selected_fallback_literal_count": sum(span.length for span in plan.lz_spans),
             "metadata": plan.metadata,
         },
+        "anchor_report": anchor_report,
         "sidecar_stats": sidecar_stats,
         "span_window_stats": span_window_stats,
         "reconstruction_guard": reconstruction_guard,
@@ -1131,6 +1174,115 @@ def _chunk_window_anchors(
     return anchors
 
 
+def _sidecar_window_anchors_for_mode(
+    chunk_df: pd.DataFrame,
+    *,
+    dataset_root: Path,
+    mapper_window_ms: int,
+    boundary_risk_margin_ms: int,
+    window_anchor_mode: str,
+    expected_key_count: int | None,
+    snap_denominator: int,
+    timing_canonicalization: str,
+) -> tuple[dict[tuple[int, int, int], _WindowAnchor], dict[str, Any]]:
+    _validate_window_anchor_mode(window_anchor_mode)
+    if window_anchor_mode == WINDOW_ANCHOR_CHUNK_SORT:
+        anchors = _chunk_window_anchors(
+            chunk_df,
+            dataset_root=dataset_root,
+            mapper_window_ms=mapper_window_ms,
+            boundary_risk_margin_ms=boundary_risk_margin_ms,
+        )
+        return anchors, {
+            "window_anchor_mode": window_anchor_mode,
+            "anchor_key": "source_row_index,segment_id,chunk_index",
+            "anchor_count": len(anchors),
+            "parse_error_count": 0,
+            "source_count": int(chunk_df["source_row_index"].nunique()),
+            "parsed_source_count": int(chunk_df["source_row_index"].nunique()),
+            "errors": [],
+        }
+    return _exact_sidecar_window_anchors_for_sources(
+        chunk_df,
+        dataset_root=dataset_root,
+        mapper_window_ms=mapper_window_ms,
+        boundary_risk_margin_ms=boundary_risk_margin_ms,
+        expected_key_count=expected_key_count,
+        snap_denominator=snap_denominator,
+        timing_canonicalization=timing_canonicalization,
+    )
+
+
+def _exact_sidecar_window_anchors_for_sources(
+    selected_df: pd.DataFrame,
+    *,
+    dataset_root: Path,
+    mapper_window_ms: int,
+    boundary_risk_margin_ms: int,
+    expected_key_count: int | None,
+    snap_denominator: int,
+    timing_canonicalization: str,
+) -> tuple[dict[tuple[int, int, int], _WindowAnchor], dict[str, Any]]:
+    anchors: dict[tuple[int, int, int], _WindowAnchor] = {}
+    errors: list[dict[str, Any]] = []
+    source_count = 0
+    parsed_source_count = 0
+    for source, source_df in selected_df.groupby("source_row_index", sort=True):
+        source_count += 1
+        row = next(source_df.itertuples(index=False))
+        beatmap_path = Path(_resolved_mapper_beatmap_path(row, dataset_root=dataset_root))
+        try:
+            timing_points = require_red_timing_points(beatmap_path)
+            hitobjects = parse_mania_hit_objects(beatmap_path, expected_key_count=expected_key_count)
+            events = hitobjects_to_beat_events(
+                hitobjects,
+                timing_points,
+                snap_denominator=snap_denominator,
+                timing_canonicalization=timing_canonicalization,
+                include_diagnostics=False,
+            )
+            segment_ids = _segment_ids(events)
+            groups = _group_tokens(events, segment_ids, snap_denominator=snap_denominator)
+        except Exception as exc:  # noqa: BLE001 - source-local audit failure.
+            if len(errors) < 20:
+                errors.append(
+                    {
+                        "source_row_index": int(source),
+                        "beatmap_path": beatmap_path.as_posix(),
+                        "error_type": type(exc).__name__,
+                        "error_message": str(exc)[:500],
+                    }
+                )
+            continue
+        parsed_source_count += 1
+        for group in groups:
+            snapped_time_ms = float(group["snapped_time_ms"])
+            window_start_ms = _window_start_ms(snapped_time_ms, mapper_window_ms=mapper_window_ms)
+            modulo_ms = float(snapped_time_ms) - float(window_start_ms)
+            anchors[(int(source), int(group["segment_id"]), int(group["beat_offset_numerator"]))] = _WindowAnchor(
+                beatmap_path=beatmap_path.as_posix(),
+                raw_beatmap_path=str(getattr(row, "beatmap_path", "")),
+                shard=str(getattr(row, "shard", "")),
+                split=str(getattr(row, "split", "")),
+                source_row_index=int(source),
+                beatmap_set_id=int(getattr(row, "beatmap_set_id", 0) or 0),
+                beatmap_id=int(getattr(row, "beatmap_id", 0) or 0),
+                window_start_ms=window_start_ms,
+                chunk_sort_ms=snapped_time_ms,
+                near_boundary=modulo_ms >= float(max(0, mapper_window_ms - boundary_risk_margin_ms)),
+            )
+    return anchors, {
+        "window_anchor_mode": WINDOW_ANCHOR_EXACT_GROUP,
+        "anchor_key": "source_row_index,segment_id,absolute_units",
+        "anchor_count": len(anchors),
+        "exact_group_anchor_count": len(anchors),
+        "source_count": source_count,
+        "parsed_source_count": parsed_source_count,
+        "parse_error_count": source_count - parsed_source_count,
+        "errors": errors,
+    }
+
+
 def _build_mapper_window_sidecar_payload(
     chunk_df: pd.DataFrame,
     traced_by_source: Mapping[int, Sequence[_TracedSideToken]],
@@ -1138,7 +1290,9 @@ def _build_mapper_window_sidecar_payload(
     anchors: Mapping[tuple[int, int, int], _WindowAnchor],
     mapper_window_ms: int,
     sidecar_max_tokens: int,
+    window_anchor_mode: str,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
+    _validate_window_anchor_mode(window_anchor_mode)
     token_to_id: dict[str, int] = {}
     windows: dict[tuple[str, int], dict[str, Any]] = {}
     for anchor in anchors.values():
@@ -1168,16 +1322,17 @@ def _build_mapper_window_sidecar_payload(
         for traced in traced_tokens:
             traced_side_stream_token_count += 1
             token_kind_counter[traced.kind] += 1
-            anchor = anchors.get((int(traced.record.source_row_index), int(traced.record.segment_id), int(traced.record.chunk_index)))
+            anchor = anchors.get(_record_window_anchor_key(traced.record, window_anchor_mode=window_anchor_mode))
             if anchor is None:
                 missing_anchor_token_count += 1
                 if len(examples) < 10:
                     examples.append(
                         {
-                            "reason": "missing_chunk_anchor",
+                            "reason": f"missing_{window_anchor_mode}_anchor",
                             "source_row_index": source,
                             "segment_id": traced.record.segment_id,
                             "chunk_index": traced.record.chunk_index,
+                            "absolute_units": traced.record.absolute_units,
                             "record_id": traced.record.id,
                         }
                     )
@@ -1216,6 +1371,8 @@ def _build_mapper_window_sidecar_payload(
     sidecar = {
         "schema_version": SCHEMA_VERSION,
         "contract": MAPPER_SIDECAR_CONTRACT,
+        "window_anchor_mode": window_anchor_mode,
+        "timing_contract": _window_anchor_timing_contract(window_anchor_mode),
         "token_pad_id": MAPPER_SIDECAR_PAD_ID,
         "token_id_base": 1,
         "mapper_window_ms": int(mapper_window_ms),
@@ -1223,6 +1380,8 @@ def _build_mapper_window_sidecar_payload(
         "windows": sidecar_rows,
     }
     stats = {
+        "window_anchor_mode": window_anchor_mode,
+        "anchor_key": _window_anchor_key_name(window_anchor_mode),
         "window_count": len(sidecar_rows),
         "window_with_tokens_count": len(nonzero_lengths),
         "window_with_tokens_rate": float(len(nonzero_lengths)) / float(len(sidecar_rows)) if sidecar_rows else 0.0,
@@ -1249,7 +1408,9 @@ def _span_window_stats(
     records: Sequence[_FallbackRecord],
     *,
     anchors: Mapping[tuple[int, int, int], _WindowAnchor],
+    window_anchor_mode: str,
 ) -> dict[str, Any]:
+    _validate_window_anchor_mode(window_anchor_mode)
     source_records = _records_by_source(records)
     by_source_index: dict[int, dict[int, _FallbackRecord]] = {
         source: {index: record for index, record in enumerate(values)}
@@ -1267,12 +1428,14 @@ def _span_window_stats(
             int(span.start_index),
             int(span.length),
             anchors=anchors,
+            window_anchor_mode=window_anchor_mode,
         )
         reference_windows = _span_windows(
             records_by_index,
             int(span.previous_index),
             int(span.length),
             anchors=anchors,
+            window_anchor_mode=window_anchor_mode,
         )
         if not target_windows or not reference_windows:
             missing_anchor_spans += 1
@@ -1310,16 +1473,33 @@ def _span_windows(
     length: int,
     *,
     anchors: Mapping[tuple[int, int, int], _WindowAnchor],
+    window_anchor_mode: str,
 ) -> set[int]:
     windows: set[int] = set()
     for index in range(start_index, start_index + length):
         record = records_by_index.get(index)
         if record is None:
             continue
-        anchor = anchors.get((int(record.source_row_index), int(record.segment_id), int(record.chunk_index)))
+        anchor = anchors.get(_record_window_anchor_key(record, window_anchor_mode=window_anchor_mode))
         if anchor is not None:
             windows.add(int(anchor.window_start_ms))
     return windows
+
+
+def _record_window_anchor_key(record: _FallbackRecord, *, window_anchor_mode: str) -> tuple[int, int, int]:
+    if window_anchor_mode == WINDOW_ANCHOR_CHUNK_SORT:
+        return (int(record.source_row_index), int(record.segment_id), int(record.chunk_index))
+    if window_anchor_mode == WINDOW_ANCHOR_EXACT_GROUP:
+        return (int(record.source_row_index), int(record.segment_id), int(record.absolute_units))
+    raise ValueError(f"unsupported window_anchor_mode: {window_anchor_mode!r}")
+
+
+def _window_anchor_key_name(window_anchor_mode: str) -> str:
+    if window_anchor_mode == WINDOW_ANCHOR_CHUNK_SORT:
+        return "source_row_index,segment_id,chunk_index"
+    if window_anchor_mode == WINDOW_ANCHOR_EXACT_GROUP:
+        return "source_row_index,segment_id,absolute_units"
+    raise ValueError(f"unsupported window_anchor_mode: {window_anchor_mode!r}")
 
 
 def _select_exact_compare_sources(
@@ -1594,6 +1774,7 @@ def _write_mapper_sidecar_result_log(path: Path, report: Mapping[str, Any]) -> N
     path.parent.mkdir(parents=True, exist_ok=True)
     sidecar_stats = report.get("sidecar_stats", {})
     span_stats = report.get("span_window_stats", {})
+    anchor_report = report.get("anchor_report", {})
     guard = report.get("reconstruction_guard", {})
     loader_guard = report.get("loader_guard", {})
     pass_criteria = report.get("pass_criteria", {})
@@ -1605,11 +1786,17 @@ def _write_mapper_sidecar_result_log(path: Path, report: Mapping[str, Any]) -> N
         "## Summary",
         "",
         f"- Recommendation: {report.get('recommendation')}",
-        f"- P3 sidecar generation pass: {pass_criteria.get('p3_sidecar_generation_pass') if isinstance(pass_criteria, Mapping) else None}",
+        f"- Sidecar generation pass: {pass_criteria.get('sidecar_generation_pass') if isinstance(pass_criteria, Mapping) else None}",
+        f"- P5 exact sidecar generation pass: {pass_criteria.get('p5_exact_sidecar_generation_pass') if isinstance(pass_criteria, Mapping) else None}",
+        f"- Window anchor mode: {pass_criteria.get('window_anchor_mode') if isinstance(pass_criteria, Mapping) else None}",
         f"- Full cache: {pass_criteria.get('full_cache_pass') if isinstance(pass_criteria, Mapping) else None}",
         f"- Runtime seconds: {_fmt_float(report.get('elapsed_s'))}",
         f"- Limited: {report.get('limited')}",
         f"- Code dirty: {report.get('code_dirty')}",
+        f"- Anchor count: {anchor_report.get('anchor_count') if isinstance(anchor_report, Mapping) else None}",
+        f"- Parsed sources: {anchor_report.get('parsed_source_count') if isinstance(anchor_report, Mapping) else None}",
+        f"- Parse errors: {anchor_report.get('parse_error_count') if isinstance(anchor_report, Mapping) else None}",
+        f"- Missing anchor tokens: {sidecar_stats.get('missing_anchor_token_count') if isinstance(sidecar_stats, Mapping) else None}",
         f"- Reconstruction pass: {guard.get('pass') if isinstance(guard, Mapping) else None}",
         f"- Loader guard pass: {loader_guard.get('pass') if isinstance(loader_guard, Mapping) else None}",
         f"- Sidecar token preservation pass: {sidecar_stats.get('token_preservation_pass') if isinstance(sidecar_stats, Mapping) else None}",
@@ -1723,7 +1910,8 @@ def _mapper_sidecar_recommendation(
     span_window_stats: Mapping[str, Any],
     limit_chunks: int | None,
 ) -> str:
-    if not pass_criteria.get("p3_sidecar_generation_pass"):
+    window_anchor_mode = str(pass_criteria.get("window_anchor_mode") or sidecar_stats.get("window_anchor_mode") or "")
+    if not pass_criteria.get("sidecar_generation_pass", pass_criteria.get("p3_sidecar_generation_pass")):
         return "MUTATE: mapper-window C3 sidecar generation failed preservation, reconstruction, or loader gates."
     if limit_chunks is not None:
         return "TEST_FULL: mapper-window C3 sidecar passed on a limited slice; run full-cache generation."
@@ -1734,6 +1922,10 @@ def _mapper_sidecar_recommendation(
     target_cross_rate = float(span_window_stats.get("target_cross_mapper_window_span_rate", 0.0) or 0.0)
     if trunc_rate > 0.05:
         return "MUTATE: full-cache C3 sidecar works, but default cap truncation is high; run a cap/packing sweep before model conditioning."
+    if window_anchor_mode == WINDOW_ANCHOR_EXACT_GROUP:
+        if target_cross_rate > 0.10:
+            return "MUTATE: full-cache exact-timing C3 sidecar works, but cross-window reference spans are high; inspect packing before model conditioning."
+        return "TEST_NEXT: full-cache exact-timing C3 mapper-window sidecar is tractable; design a disabled-by-default model-conditioning probe."
     if boundary_rate > 0.10 or target_cross_rate > 0.10:
         return "MUTATE: full-cache C3 sidecar works, but chunk-sort window anchoring risk is high; compare against exact per-group timing."
     return "TEST_NEXT: full-cache C3 mapper-window sidecar is tractable; design a disabled-by-default model-conditioning probe."
@@ -1832,6 +2024,19 @@ def _validate_positive(value: int, name: str) -> None:
         raise ValueError(f"{name} must be positive, got {value!r}")
 
 
+def _validate_window_anchor_mode(value: str) -> None:
+    if value not in WINDOW_ANCHOR_MODES:
+        raise ValueError(f"window_anchor_mode must be one of {WINDOW_ANCHOR_MODES}, got {value!r}")
+
+
+def _window_anchor_timing_contract(window_anchor_mode: str) -> str:
+    if window_anchor_mode == WINDOW_ANCHOR_CHUNK_SORT:
+        return "window assignment uses chunk_sort_ms, the earliest snapped event time in the chunk"
+    if window_anchor_mode == WINDOW_ANCHOR_EXACT_GROUP:
+        return "window assignment uses exact per-group snapped time reconstructed from the beatmap"
+    raise ValueError(f"unsupported window_anchor_mode: {window_anchor_mode!r}")
+
+
 def _git_stdout(*args: str) -> str:
     try:
         completed = subprocess.run(
@@ -1871,6 +2076,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--mapper-window-ms", type=int, default=MAPPER_WRITE_MS)
     parser.add_argument("--sidecar-max-tokens", type=int, default=DEFAULT_MAPPER_SIDECAR_MAX_TOKENS)
     parser.add_argument("--boundary-risk-margin-ms", type=int, default=DEFAULT_BOUNDARY_RISK_MARGIN_MS)
+    parser.add_argument("--window-anchor-mode", default=DEFAULT_MAPPER_SIDECAR_WINDOW_ANCHOR_MODE, choices=WINDOW_ANCHOR_MODES)
     parser.add_argument("--source-limit", type=int, default=DEFAULT_EXACT_WINDOW_COMPARE_SOURCE_LIMIT)
     parser.add_argument("--source-selection", default="boundary_risk", choices=("boundary_risk", "first"))
     parser.add_argument("--mismatch-rate-fail-threshold", type=float, default=DEFAULT_EXACT_WINDOW_MISMATCH_RATE_MAX)
@@ -1921,12 +2127,27 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         return 0
     if args.mapper_sidecar:
+        default_sidecar_path = (
+            DEFAULT_EXACT_MAPPER_SIDECAR_PATH
+            if args.window_anchor_mode == WINDOW_ANCHOR_EXACT_GROUP
+            else DEFAULT_MAPPER_SIDECAR_PATH
+        )
+        default_report_path = (
+            DEFAULT_EXACT_MAPPER_SIDECAR_REPORT_PATH
+            if args.window_anchor_mode == WINDOW_ANCHOR_EXACT_GROUP
+            else DEFAULT_MAPPER_SIDECAR_REPORT_PATH
+        )
+        default_result_log_path = (
+            DEFAULT_EXACT_MAPPER_SIDECAR_RESULT_LOG_PATH
+            if args.window_anchor_mode == WINDOW_ANCHOR_EXACT_GROUP
+            else DEFAULT_MAPPER_SIDECAR_RESULT_LOG_PATH
+        )
         report = audit_c3_mapper_window_sidecar(
             chunk_cache_path=args.chunk_cache_path,
             dataset_root=args.dataset_root,
-            sidecar_path=args.sidecar_path or DEFAULT_MAPPER_SIDECAR_PATH,
-            report_path=args.report_path or DEFAULT_MAPPER_SIDECAR_REPORT_PATH,
-            result_log_path=args.result_log_path or DEFAULT_MAPPER_SIDECAR_RESULT_LOG_PATH,
+            sidecar_path=args.sidecar_path or default_sidecar_path,
+            report_path=args.report_path or default_report_path,
+            result_log_path=args.result_log_path or default_result_log_path,
             motif_vocab_size=args.motif_vocab_size,
             motif_min_n=args.motif_min_n,
             motif_max_n=args.motif_max_n,
@@ -1937,12 +2158,17 @@ def main(argv: Sequence[str] | None = None) -> int:
             mapper_window_ms=args.mapper_window_ms,
             sidecar_max_tokens=args.sidecar_max_tokens,
             boundary_risk_margin_ms=args.boundary_risk_margin_ms,
+            window_anchor_mode=args.window_anchor_mode,
+            expected_key_count=args.expected_key_count,
+            snap_denominator=args.snap_denominator,
+            timing_canonicalization=args.timing_canonicalization,
             limit_chunks=args.limit_chunks,
             command=_command(sys.argv[1:]),
         )
         print(
             "c3_mapper_window_sidecar "
-            f"pass={report.get('pass_criteria', {}).get('p3_sidecar_generation_pass')} "
+            f"pass={report.get('pass_criteria', {}).get('sidecar_generation_pass')} "
+            f"window_anchor_mode={report.get('pass_criteria', {}).get('window_anchor_mode')} "
             f"full_cache={report.get('pass_criteria', {}).get('full_cache_pass')} "
             f"tokens={report.get('sidecar_stats', {}).get('sidecar_token_count')} "
             f"windows={report.get('sidecar_stats', {}).get('window_count')} "
