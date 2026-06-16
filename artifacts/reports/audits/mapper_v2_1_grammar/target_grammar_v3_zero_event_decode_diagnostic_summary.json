@@ -1,0 +1,241 @@
+{
+  "baseline": {
+    "alpha": 0.0,
+    "argmax_kind_counts": {
+      "eos": 1,
+      "time_shift": 214
+    },
+    "best_event_margin_max": -0.031151533126831055,
+    "best_event_margin_median": -1.5870003700256348,
+    "best_event_rank_mean": 4.453271028037383,
+    "best_event_rank_median": 3.0,
+    "completed": true,
+    "dead_end": false,
+    "emitted_kind_counts": {
+      "eos": 1,
+      "time_shift": 214
+    },
+    "event_top1_step_count": 0,
+    "event_topk_step_count": 108,
+    "event_valid_step_count": 214,
+    "max_tokens_exceeded": false,
+    "report_path": "artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/alpha_0_00_report.md",
+    "route": "TEST_NEXT",
+    "step_count": 215,
+    "summary_path": "artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/alpha_0_00_summary.json",
+    "timepoint_count": 0,
+    "timepoints": [],
+    "token_count": 215
+  },
+  "commands": {
+    "inference_model_guard": "uv run --group dev pytest tests/inference/test_mapper_v3_rollout.py tests/inference/test_mapper_v2_1_rollout.py tests/models/mapper/v3/test_model.py tests/models/mapper/v2_1/test_model.py -q",
+    "runtime_guard": "uv run --group dev pytest tests/inference/test_model_runtime.py tests/inference/test_mapper_v3_rollout.py tests/evals/test_mapper_v3_trained_runtime_rollout.py -q",
+    "sweep": "for alpha in 0.00 0.05 0.10 0.20; do uv run python -m pulsefield_model.evals.mapper_v3_trained_runtime_rollout ... --real-audio --chart-end-ms 16000 --time-shift-length-penalty-alpha \"$alpha\" --collect-logit-diagnostics --logit-top-k 5; done",
+    "synthetic_regression": "uv run python -m pulsefield_model.evals.mapper_v3_trained_runtime_rollout --mapper-checkpoint-path artifacts/tmp/mapper_v3_real_audio_session_rollout/train/run/checkpoint.pt --control-checkpoint-path artifacts/runs/stage2_control_demo/stage2_control_demo_global_d384_l3_stride16_b6/checkpoints/checkpoint_step_002000.pt --summary-output artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/synthetic_regression_summary.json --report-output artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/synthetic_regression_report.md --device mps --chart-end-ms 1000 --max-tokens-per-window 256 --temperature 0.0 --collect-logit-diagnostics --logit-top-k 5",
+    "training_guard": "uv run --group dev pytest tests/evals/test_mapper_v3_training_comparison.py tests/training/test_mapper_v3.py tests/training/test_mapper_v2_1.py -q"
+  },
+  "date": "2026-06-17",
+  "decision": {
+    "reason": "event tokens are reachable and small time-shift penalty produces non-empty legal output",
+    "route": "TEST_NEXT"
+  },
+  "experiment": "Target grammar v3 zero-event decode diagnostic",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_zero_event_decode_diagnostic_experiment_card.md",
+  "guard_results": {
+    "inference_model_guard_passed": true,
+    "inference_model_guard_tests": 26,
+    "runtime_guard_passed": true,
+    "runtime_guard_tests": 13,
+    "synthetic_regression_route": "TEST_NEXT",
+    "synthetic_regression_timepoints": 0,
+    "training_guard_passed": true,
+    "training_guard_tests": 18
+  },
+  "interpretation": "The zero-event real-audio result is primarily a greedy decode/calibration and undertraining symptom. Event tokens are reachable under the online grammar, and mild time-shift penalty can surface events, but the emitted events are sparse boundary artifacts, not acceptable chart quality.",
+  "key_findings": [
+    "Baseline greedy decode emitted zero events, but event tokens were valid on 214/215 steps.",
+    "Baseline event tokens were top-5 on 108/215 steps, so the grammar/runtime did not make events unreachable.",
+    "A flat time-shift penalty alpha of 0.05 or higher emitted two legal events without dead-end or max-token failure.",
+    "The emitted events occur at 7950 ms and 15950 ms, immediately before 8s window boundaries, so this is a calibration signal rather than a quality pass.",
+    "The current 20-step checkpoint remains replacement-unready; next work should combine longer training with decode/loss calibration checks."
+  ],
+  "next_step": "Run a bounded longer v3 training plus decode-policy comparison, and track event density/location quality before considering default replacement.",
+  "runs": [
+    {
+      "alpha": 0.0,
+      "argmax_kind_counts": {
+        "eos": 1,
+        "time_shift": 214
+      },
+      "best_event_margin_max": -0.031151533126831055,
+      "best_event_margin_median": -1.5870003700256348,
+      "best_event_rank_mean": 4.453271028037383,
+      "best_event_rank_median": 3.0,
+      "completed": true,
+      "dead_end": false,
+      "emitted_kind_counts": {
+        "eos": 1,
+        "time_shift": 214
+      },
+      "event_top1_step_count": 0,
+      "event_topk_step_count": 108,
+      "event_valid_step_count": 214,
+      "max_tokens_exceeded": false,
+      "report_path": "artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/alpha_0_00_report.md",
+      "route": "TEST_NEXT",
+      "step_count": 215,
+      "summary_path": "artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/alpha_0_00_summary.json",
+      "timepoint_count": 0,
+      "timepoints": [],
+      "token_count": 215
+    },
+    {
+      "alpha": 0.05,
+      "argmax_kind_counts": {
+        "eos": 1,
+        "event": 2,
+        "time_shift": 214
+      },
+      "best_event_margin_max": 0.0,
+      "best_event_margin_median": -1.3251452445983887,
+      "best_event_rank_mean": 4.083333333333333,
+      "best_event_rank_median": 3.0,
+      "completed": true,
+      "dead_end": false,
+      "emitted_kind_counts": {
+        "eos": 1,
+        "event": 2,
+        "time_shift": 214
+      },
+      "event_top1_step_count": 2,
+      "event_topk_step_count": 110,
+      "event_valid_step_count": 216,
+      "max_tokens_exceeded": false,
+      "report_path": "artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/alpha_0_05_report.md",
+      "route": "TEST_NEXT",
+      "step_count": 217,
+      "summary_path": "artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/alpha_0_05_summary.json",
+      "timepoint_count": 2,
+      "timepoints": [
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "NONE"
+          ],
+          "time_ms": 7950
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "NONE"
+          ],
+          "time_ms": 15950
+        }
+      ],
+      "token_count": 217
+    },
+    {
+      "alpha": 0.1,
+      "argmax_kind_counts": {
+        "eos": 1,
+        "event": 2,
+        "time_shift": 214
+      },
+      "best_event_margin_max": 0.0,
+      "best_event_margin_median": -1.2751452922821045,
+      "best_event_rank_mean": 3.9675925925925926,
+      "best_event_rank_median": 3.0,
+      "completed": true,
+      "dead_end": false,
+      "emitted_kind_counts": {
+        "eos": 1,
+        "event": 2,
+        "time_shift": 214
+      },
+      "event_top1_step_count": 2,
+      "event_topk_step_count": 110,
+      "event_valid_step_count": 216,
+      "max_tokens_exceeded": false,
+      "report_path": "artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/alpha_0_10_report.md",
+      "route": "TEST_NEXT",
+      "step_count": 217,
+      "summary_path": "artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/alpha_0_10_summary.json",
+      "timepoint_count": 2,
+      "timepoints": [
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "NONE"
+          ],
+          "time_ms": 7950
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "NONE"
+          ],
+          "time_ms": 15950
+        }
+      ],
+      "token_count": 217
+    },
+    {
+      "alpha": 0.2,
+      "argmax_kind_counts": {
+        "eos": 1,
+        "event": 2,
+        "time_shift": 214
+      },
+      "best_event_margin_max": 0.0,
+      "best_event_margin_median": -1.175145149230957,
+      "best_event_rank_mean": 3.962962962962963,
+      "best_event_rank_median": 2.5,
+      "completed": true,
+      "dead_end": false,
+      "emitted_kind_counts": {
+        "eos": 1,
+        "event": 2,
+        "time_shift": 214
+      },
+      "event_top1_step_count": 2,
+      "event_topk_step_count": 110,
+      "event_valid_step_count": 216,
+      "max_tokens_exceeded": false,
+      "report_path": "artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/alpha_0_20_report.md",
+      "route": "TEST_NEXT",
+      "step_count": 217,
+      "summary_path": "artifacts/tmp/mapper_v3_zero_event_decode_diagnostic/alpha_0_20_summary.json",
+      "timepoint_count": 2,
+      "timepoints": [
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "NONE"
+          ],
+          "time_ms": 7950
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "NONE"
+          ],
+          "time_ms": 15950
+        }
+      ],
+      "token_count": 217
+    }
+  ],
+  "schema_version": 1
+}

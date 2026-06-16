@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+from collections import Counter
 from dataclasses import replace
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -10,6 +12,7 @@ import numpy as np
 import torch
 
 from pulsefield_model.inference.mapper_v3_rollout import (
+    MapperV3GenerationStep,
     generate_full_song_rollout_v3,
     generated_v3_tokens_to_v2_1_tokens,
     rollout_to_timepoints_v3,
@@ -24,6 +27,111 @@ from pulsefield_model.timing.schema import FittedTimingGrid, FrameTimingPredicti
 
 
 SUMMARY_SCHEMA_VERSION = 1
+
+
+class V3LogitDiagnosticsCollector:
+    def __init__(self, *, vocab: MapperV3Vocab, top_k: int = 5, max_examples: int = 12) -> None:
+        self.vocab = vocab
+        self.top_k = int(top_k)
+        if self.top_k <= 0:
+            raise ValueError("top_k must be positive")
+        self.max_examples = int(max_examples)
+        if self.max_examples < 0:
+            raise ValueError("max_examples must be non-negative")
+        self.step_count = 0
+        self.event_valid_step_count = 0
+        self.event_top1_step_count = 0
+        self.event_topk_step_count = 0
+        self.argmax_kind_counts: Counter[str] = Counter()
+        self.topk_kind_counts: Counter[str] = Counter()
+        self.valid_kind_counts: Counter[str] = Counter()
+        self.best_event_ranks: list[int] = []
+        self.best_event_margins: list[float] = []
+        self.examples: list[dict[str, Any]] = []
+
+    def observe(self, step: MapperV3GenerationStep, logits: torch.Tensor) -> None:
+        flat_logits = torch.as_tensor(logits, dtype=torch.float32).reshape(-1)
+        valid_mask = step.valid_token_mask.to(device=flat_logits.device, dtype=torch.bool).reshape(-1)
+        if int(flat_logits.numel()) != int(valid_mask.numel()):
+            raise ValueError(f"logits must contain {valid_mask.numel()} values, got {flat_logits.numel()}")
+        if not bool(valid_mask.any().item()):
+            return
+
+        self.step_count += 1
+        masked = flat_logits.masked_fill(~valid_mask, -torch.inf)
+        valid_ids = torch.nonzero(valid_mask, as_tuple=False).reshape(-1).tolist()
+        for token_id in valid_ids:
+            self.valid_kind_counts[_token_kind(self.vocab, int(token_id))] += 1
+
+        argmax_id = int(torch.argmax(masked).item())
+        argmax_kind = _token_kind(self.vocab, argmax_id)
+        self.argmax_kind_counts[argmax_kind] += 1
+
+        top_k = min(self.top_k, len(valid_ids))
+        top_ids = [int(token_id) for token_id in torch.topk(masked, k=top_k).indices.tolist()]
+        top_kinds = [_token_kind(self.vocab, token_id) for token_id in top_ids]
+        self.topk_kind_counts.update(top_kinds)
+        if argmax_kind == "event":
+            self.event_top1_step_count += 1
+        if "event" in top_kinds:
+            self.event_topk_step_count += 1
+
+        event_ids = [
+            int(token_id)
+            for token_id in self.vocab.event_token_ids
+            if 0 <= int(token_id) < int(valid_mask.numel()) and bool(valid_mask[int(token_id)].item())
+        ]
+        best_event_id: int | None = None
+        best_event_rank: int | None = None
+        best_event_margin: float | None = None
+        if event_ids:
+            self.event_valid_step_count += 1
+            event_id_tensor = torch.tensor(event_ids, dtype=torch.long, device=masked.device)
+            event_logits = masked.index_select(0, event_id_tensor)
+            best_index = int(torch.argmax(event_logits).item())
+            best_event_id = event_ids[best_index]
+            best_event_logit = float(event_logits[best_index].item())
+            argmax_logit = float(masked[argmax_id].item())
+            best_event_rank = int(torch.sum(masked > best_event_logit).item()) + 1
+            best_event_margin = best_event_logit - argmax_logit
+            self.best_event_ranks.append(best_event_rank)
+            self.best_event_margins.append(best_event_margin)
+
+        if len(self.examples) < self.max_examples:
+            self.examples.append(
+                {
+                    "step": int(step.token_index),
+                    "current_ms": int(step.state.current_ms),
+                    "argmax_token": self.vocab.token_name(argmax_id),
+                    "argmax_kind": argmax_kind,
+                    "top_tokens": [self.vocab.token_name(token_id) for token_id in top_ids],
+                    "top_kinds": top_kinds,
+                    "best_event_token": None if best_event_id is None else self.vocab.token_name(best_event_id),
+                    "best_event_rank": best_event_rank,
+                    "best_event_margin_vs_argmax": best_event_margin,
+                }
+            )
+
+    def to_dict(self, emitted_tokens: Sequence[int]) -> dict[str, Any]:
+        emitted_kind_counts = Counter(_token_kind(self.vocab, int(token_id)) for token_id in emitted_tokens)
+        return {
+            "enabled": True,
+            "top_k": int(self.top_k),
+            "step_count": int(self.step_count),
+            "event_valid_step_count": int(self.event_valid_step_count),
+            "event_valid_step_ratio": _safe_ratio(self.event_valid_step_count, self.step_count),
+            "event_top1_step_count": int(self.event_top1_step_count),
+            "event_top1_step_ratio": _safe_ratio(self.event_top1_step_count, self.step_count),
+            "event_topk_step_count": int(self.event_topk_step_count),
+            "event_topk_step_ratio": _safe_ratio(self.event_topk_step_count, self.step_count),
+            "argmax_kind_counts": dict(sorted(self.argmax_kind_counts.items())),
+            "topk_kind_counts": dict(sorted(self.topk_kind_counts.items())),
+            "valid_kind_counts": dict(sorted(self.valid_kind_counts.items())),
+            "emitted_kind_counts": dict(sorted(emitted_kind_counts.items())),
+            "best_event_rank": _numeric_summary(self.best_event_ranks),
+            "best_event_margin_vs_argmax": _numeric_summary(self.best_event_margins),
+            "examples": list(self.examples),
+        }
 
 
 class SyntheticTimingProvider:
@@ -94,6 +202,10 @@ def run_trained_v3_runtime_rollout_smoke(
     audio_length_ms: int | None = None,
     beatthis_device: str | None = None,
     beatthis_float16: bool = False,
+    time_shift_length_penalty_alpha: float = 0.0,
+    time_shift_delta_penalty_alpha: float = 0.0,
+    collect_logit_diagnostics: bool = False,
+    logit_top_k: int = 5,
 ) -> dict[str, Any]:
     chart_end_ms = int(chart_end_ms)
     if chart_end_ms <= 0 or chart_end_ms % 10 != 0:
@@ -149,6 +261,11 @@ def run_trained_v3_runtime_rollout_smoke(
     full_control_cache = session_runtime.prepare_full_control(max_batch_size=4)
     generator = torch.Generator(device=runtime.device)
     generator.manual_seed(int(seed))
+    logit_diagnostics = (
+        V3LogitDiagnosticsCollector(vocab=runtime.vocab, top_k=int(logit_top_k))
+        if bool(collect_logit_diagnostics)
+        else None
+    )
     rollout = generate_full_song_rollout_v3(
         model=runtime.mapper_model,
         vocab=runtime.vocab,
@@ -162,7 +279,10 @@ def run_trained_v3_runtime_rollout_smoke(
         max_tokens_per_window=int(max_tokens_per_window),
         temperature=float(temperature),
         top_p=top_p,
+        time_shift_length_penalty_alpha=float(time_shift_length_penalty_alpha),
+        time_shift_delta_penalty_alpha=float(time_shift_delta_penalty_alpha),
         generator=generator,
+        logits_observer=None if logit_diagnostics is None else logit_diagnostics.observe,
     )
     timepoints = rollout_to_timepoints_v3(rollout, runtime.vocab)
     expanded_v2_1_tokens = generated_v3_tokens_to_v2_1_tokens(rollout.tokens, source_vocab=runtime.vocab)
@@ -205,6 +325,10 @@ def run_trained_v3_runtime_rollout_smoke(
             "synthetic_frame_count": None if bool(real_audio) else int(frame_count),
             "beatthis_device": beatthis_device,
             "beatthis_float16": bool(beatthis_float16),
+            "time_shift_length_penalty_alpha": float(time_shift_length_penalty_alpha),
+            "time_shift_delta_penalty_alpha": float(time_shift_delta_penalty_alpha),
+            "collect_logit_diagnostics": bool(collect_logit_diagnostics),
+            "logit_top_k": int(logit_top_k),
         },
         "runtime": {
             "mapper": mapper_metadata,
@@ -240,6 +364,8 @@ def run_trained_v3_runtime_rollout_smoke(
             "completed": bool(rollout.completed),
             "dead_end": bool(rollout.dead_end),
             "max_tokens_exceeded": bool(rollout.max_tokens_exceeded),
+            "timepoints": [_timepoint_to_dict(timepoint) for timepoint in timepoints[:32]],
+            "timepoint_preview_limit": 32,
             "windows": [
                 {
                     "write_start_ms": int(window.write_start_ms),
@@ -253,6 +379,11 @@ def run_trained_v3_runtime_rollout_smoke(
                 for window in rollout.windows
             ],
         },
+        "logit_diagnostics": (
+            {"enabled": False}
+            if logit_diagnostics is None
+            else logit_diagnostics.to_dict(rollout.tokens)
+        ),
         "interpretation": (
             "The trained v3 checkpoint loaded through ModelRuntime and executed the runtime-backed v3 online rollout path."
             if route == "TEST_NEXT"
@@ -288,6 +419,54 @@ def _real_audio_length_ms(audio_path: Path, *, audio_length_ms: int | None) -> i
     return int(resolved)
 
 
+def _token_kind(vocab: MapperV3Vocab, token_id: int) -> str:
+    token_id = int(token_id)
+    if token_id == vocab.pad_id:
+        return "pad"
+    if token_id == vocab.bos_id:
+        return "bos"
+    if token_id == vocab.eos_id:
+        return "eos"
+    if vocab.is_time_shift_token(token_id):
+        return "time_shift"
+    if vocab.is_event_token(token_id):
+        return "event"
+    return "other"
+
+
+def _safe_ratio(numerator: int | float, denominator: int | float) -> float:
+    denominator = float(denominator)
+    if denominator == 0.0:
+        return 0.0
+    return float(numerator) / denominator
+
+
+def _numeric_summary(values: Sequence[int | float]) -> dict[str, Any]:
+    if not values:
+        return {"count": 0, "min": None, "median": None, "mean": None, "max": None}
+    ordered = sorted(float(value) for value in values)
+    count = len(ordered)
+    midpoint = count // 2
+    if count % 2:
+        median = ordered[midpoint]
+    else:
+        median = 0.5 * (ordered[midpoint - 1] + ordered[midpoint])
+    return {
+        "count": int(count),
+        "min": float(ordered[0]),
+        "median": float(median),
+        "mean": float(math.fsum(ordered) / count),
+        "max": float(ordered[-1]),
+    }
+
+
+def _timepoint_to_dict(timepoint: Any) -> dict[str, Any]:
+    return {
+        "time_ms": int(timepoint.time_ms),
+        "lane_actions": [str(getattr(action, "value", action)) for action in timepoint.lane_actions],
+    }
+
+
 def write_report(summary: Mapping[str, Any], path: str | Path) -> None:
     output_path = Path(path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -300,6 +479,9 @@ def _report_markdown(summary: Mapping[str, Any]) -> str:
     runtime = _mapping(summary.get("runtime"))
     mapper = _mapping(runtime.get("mapper"))
     rollout = _mapping(summary.get("rollout"))
+    diagnostics = _mapping(summary.get("logit_diagnostics"))
+    rank_summary = _mapping(diagnostics.get("best_event_rank"))
+    margin_summary = _mapping(diagnostics.get("best_event_margin_vs_argmax"))
     lines = [
         "# Target Grammar v3 Trained Runtime Rollout Result Report",
         "",
@@ -318,16 +500,31 @@ def _report_markdown(summary: Mapping[str, Any]) -> str:
         f"- Real audio: `{config.get('real_audio')}`",
         f"- Audio path: `{config.get('audio_path')}`",
         f"- Audio length: `{config.get('audio_length_ms')}` ms",
+        f"- Time-shift length penalty alpha: `{config.get('time_shift_length_penalty_alpha')}`",
+        f"- Time-shift delta penalty alpha: `{config.get('time_shift_delta_penalty_alpha')}`",
+        f"- Logit diagnostics: `{config.get('collect_logit_diagnostics')}`",
         f"- Mapper runtime version: `{mapper.get('version')}`",
         f"- Filtered embedded control keys: `{len(tuple(mapper.get('filtered_control_encoder_keys', ())))}`",
         f"- Chart end: `{config.get('chart_end_ms')}` ms",
         f"- Windows: `{rollout.get('window_count')}`",
         f"- Generated v3 tokens: `{rollout.get('token_count')}`",
         f"- Generated event timepoints: `{rollout.get('timepoint_count')}`",
+        f"- Timepoint preview: `{rollout.get('timepoints')}`",
         f"- Expanded v2.1 tokens: `{rollout.get('expanded_v2_1_token_count')}`",
         f"- Completed: `{rollout.get('completed')}`",
         f"- Dead end: `{rollout.get('dead_end')}`",
         f"- Max tokens exceeded: `{rollout.get('max_tokens_exceeded')}`",
+        "",
+        "## Diagnostics",
+        "",
+        f"- Enabled: `{diagnostics.get('enabled')}`",
+        f"- Event-valid steps: `{diagnostics.get('event_valid_step_count')}` / `{diagnostics.get('step_count')}`",
+        f"- Event top-1 steps: `{diagnostics.get('event_top1_step_count')}`",
+        f"- Event top-k steps: `{diagnostics.get('event_topk_step_count')}`",
+        f"- Argmax kind counts: `{diagnostics.get('argmax_kind_counts')}`",
+        f"- Emitted kind counts: `{diagnostics.get('emitted_kind_counts')}`",
+        f"- Best-event rank median: `{rank_summary.get('median')}`",
+        f"- Best-event margin median: `{margin_summary.get('median')}`",
         "",
         "## Interpretation",
         "",
@@ -364,6 +561,10 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--temperature", type=float, default=0.0)
     parser.add_argument("--top-p", type=float)
     parser.add_argument("--seed", type=int, default=1337)
+    parser.add_argument("--time-shift-length-penalty-alpha", type=float, default=0.0)
+    parser.add_argument("--time-shift-delta-penalty-alpha", type=float, default=0.0)
+    parser.add_argument("--collect-logit-diagnostics", action="store_true")
+    parser.add_argument("--logit-top-k", type=int, default=5)
     args = parser.parse_args(argv)
     summary = run_trained_v3_runtime_rollout_smoke(
         mapper_checkpoint_path=args.mapper_checkpoint_path,
@@ -383,6 +584,10 @@ def main(argv: Sequence[str] | None = None) -> None:
         audio_length_ms=args.audio_length_ms,
         beatthis_device=args.beatthis_device,
         beatthis_float16=args.beatthis_float16,
+        time_shift_length_penalty_alpha=args.time_shift_length_penalty_alpha,
+        time_shift_delta_penalty_alpha=args.time_shift_delta_penalty_alpha,
+        collect_logit_diagnostics=args.collect_logit_diagnostics,
+        logit_top_k=args.logit_top_k,
     )
     print(
         "mapper_v3_trained_runtime_rollout_done "
