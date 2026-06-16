@@ -18,6 +18,7 @@ from pulsefield_model.models.mapper.v2_1 import MapperV21Config, MapperV21LossCo
 from pulsefield_model.training import common as training_common
 from pulsefield_model.training import mapper_v2_1 as mapper_v2_1_training
 from pulsefield_model.training.common import ResumableRandomBatchSampler, _infinite_loader
+from pulsefield_model.training.mapper_common import _move_mapper_batch_tensors
 from pulsefield_model.training.mapper_v2_1 import load_run_config
 
 _STALE_ROOT = "train" + "/"
@@ -86,6 +87,30 @@ class MapperV21PhaseBTrainingTests(unittest.TestCase):
 
         self.assertEqual(config["resume_from"], "artifacts/runs/stage2_mapper_v2_1/example/checkpoint.pt")
 
+    def test_run_config_accepts_c3_side_stream_sidecar_options(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_path = Path(temp_dir) / "mapper_v2_1_c3.yaml"
+            config_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "include_c3_side_stream_token_tensors": True,
+                        "c3_side_stream_token_sidecar_path": "artifacts/cache/c3_mapper_sidecar.json",
+                        "c3_side_stream_max_tokens": 64,
+                        "model": {},
+                        "control_model": {},
+                        "loss": {},
+                    },
+                    sort_keys=False,
+                ),
+                encoding="utf-8",
+            )
+
+            config = load_run_config(config_path)
+
+        self.assertTrue(config["include_c3_side_stream_token_tensors"])
+        self.assertEqual(config["c3_side_stream_token_sidecar_path"], "artifacts/cache/c3_mapper_sidecar.json")
+        self.assertEqual(config["c3_side_stream_max_tokens"], 64)
+
     def test_main_forwards_v2_1_training_options(self) -> None:
         train_result = SimpleNamespace(
             report_path=Path("report.json"),
@@ -121,6 +146,60 @@ class MapperV21PhaseBTrainingTests(unittest.TestCase):
         self.assertEqual(kwargs["resume_from"], Path("artifacts/runs/stage2_mapper_v2_1/example/checkpoint.pt"))
         self.assertEqual(kwargs["model_config_overrides"]["max_seq_len"], 1024)
         self.assertEqual(kwargs["loss_config_overrides"]["lambda_density"], 0.05)
+
+    def test_main_forwards_c3_side_stream_sidecar_options(self) -> None:
+        train_result = SimpleNamespace(
+            report_path=Path("report.json"),
+            checkpoint_path=Path("checkpoint.pt"),
+            final_loss=0.0,
+            completed_steps=0,
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            config_path = Path(temp_dir) / "mapper_v2_1_c3.yaml"
+            config_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "include_c3_side_stream_token_tensors": True,
+                        "c3_side_stream_token_sidecar_path": "artifacts/cache/c3_mapper_sidecar.json",
+                        "c3_side_stream_max_tokens": 64,
+                        "model": {},
+                        "control_model": {},
+                        "loss": {},
+                    },
+                    sort_keys=False,
+                ),
+                encoding="utf-8",
+            )
+            with patch.object(
+                mapper_v2_1_training,
+                "run_mapper_v2_1_phase_b_training",
+                return_value=train_result,
+                autospec=True,
+            ) as train:
+                mapper_v2_1_training.main(["--config", str(config_path), "--max-steps", "1"])
+
+        train.assert_called_once()
+        kwargs = train.call_args.kwargs
+        self.assertTrue(kwargs["include_c3_side_stream_token_tensors"])
+        self.assertEqual(kwargs["c3_side_stream_token_sidecar_path"], Path("artifacts/cache/c3_mapper_sidecar.json"))
+        self.assertEqual(kwargs["c3_side_stream_max_tokens"], 64)
+
+    def test_c3_side_stream_tensors_move_through_training_batch_mover(self) -> None:
+        raw_batch = {
+            "c3_side_stream_tokens": torch.tensor([[11, 12, 0]], dtype=torch.long),
+            "c3_side_stream_token_mask": torch.tensor([[True, True, False]], dtype=torch.bool),
+            "c3_side_stream_available": torch.tensor([True], dtype=torch.bool),
+            "c3_side_stream_token_count": torch.tensor([2], dtype=torch.long),
+            "c3_side_stream_truncated": torch.tensor([False], dtype=torch.bool),
+            "metadata": [{"beatmap_path": "side.osu"}],
+        }
+
+        moved = _move_mapper_batch_tensors(raw_batch, torch.device("cpu"))
+
+        self.assertEqual(moved["c3_side_stream_tokens"].device, torch.device("cpu"))
+        self.assertEqual(moved["c3_side_stream_token_mask"].device, torch.device("cpu"))
+        self.assertEqual(moved["c3_side_stream_available"].device, torch.device("cpu"))
+        self.assertNotIn("metadata", moved)
 
     def test_cache_only_cli_runs_shared_control_teacher_precompute(self) -> None:
         precompute_result = SimpleNamespace(

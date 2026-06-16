@@ -10,7 +10,12 @@ import yaml
 from torch.utils.data import DataLoader
 
 from pulsefield_model.data.control_windows import DEFAULT_MAX_CACHED_MAPS
-from pulsefield_model.data.mapper_sparse_windows_v2_1 import MapperV21WindowDataset, collate_mapper_v2_1_windows
+from pulsefield_model.data.mapper_sparse_windows_v2_1 import (
+    DEFAULT_C3_SIDE_STREAM_MAX_TOKENS,
+    MapperV21WindowDataset,
+    collate_mapper_v2_1_windows,
+    load_c3_side_stream_token_sidecar,
+)
 from pulsefield_model.models.control import ControlDemoGlobalEncoder, ControlDemoGlobalEncoderConfig
 from pulsefield_model.models.mapper.v2_1 import (
     MapperV21Config,
@@ -79,6 +84,9 @@ RUN_CONFIG_KEYS = {
     "control_teacher_precompute_batch_size",
     "control_teacher_cache_overwrite",
     "include_full_song_context",
+    "include_c3_side_stream_token_tensors",
+    "c3_side_stream_token_sidecar_path",
+    "c3_side_stream_max_tokens",
     "skip_first_eval_pass",
     "mps_cleanup_every",
     "model",
@@ -148,6 +156,9 @@ def run_mapper_v2_1_phase_b_training(
     control_teacher_precompute_batch_size: int | None = None,
     control_teacher_cache_overwrite: bool = False,
     include_full_song_context: bool = True,
+    include_c3_side_stream_token_tensors: bool = False,
+    c3_side_stream_token_sidecar_path: Path | None = None,
+    c3_side_stream_max_tokens: int = DEFAULT_C3_SIDE_STREAM_MAX_TOKENS,
     skip_first_eval_pass: bool = False,
     mps_cleanup_every: int | None = None,
     model_config_overrides: Mapping[str, Any] | None = None,
@@ -164,6 +175,10 @@ def run_mapper_v2_1_phase_b_training(
     if model_config.use_global_context and not include_full_song_context:
         raise ValueError("Mapper V2.1 global context requires include_full_song_context=True")
     loss_config = MapperV21LossConfig(**dict(loss_config_overrides or {}))
+    c3_side_stream_token_lookup = None
+    if c3_side_stream_token_sidecar_path is not None:
+        c3_side_stream_token_lookup = load_c3_side_stream_token_sidecar(c3_side_stream_token_sidecar_path)
+        include_c3_side_stream_token_tensors = True
 
     cache_precompute_reports: list[dict[str, Any]] = []
     source_control_dataset = None
@@ -210,6 +225,12 @@ def run_mapper_v2_1_phase_b_training(
     if control_teacher_cache_dir is not None:
         dataset_kwargs["control_teacher_cache_dir"] = control_teacher_cache_dir
         dataset_kwargs["require_control_teacher_cache"] = bool(require_control_teacher_cache)
+    _add_c3_side_stream_dataset_kwargs(
+        dataset_kwargs,
+        include_c3_side_stream_token_tensors=include_c3_side_stream_token_tensors,
+        c3_side_stream_token_lookup=c3_side_stream_token_lookup,
+        c3_side_stream_max_tokens=c3_side_stream_max_tokens,
+    )
     train_source = MapperV21WindowDataset(**dataset_kwargs)
     if len(train_source) == 0:
         raise ValueError("MapperV21WindowDataset produced no training windows")
@@ -230,6 +251,12 @@ def run_mapper_v2_1_phase_b_training(
             if control_teacher_cache_dir is not None:
                 eval_kwargs["control_teacher_cache_dir"] = control_teacher_cache_dir
                 eval_kwargs["require_control_teacher_cache"] = bool(require_control_teacher_cache)
+            _add_c3_side_stream_dataset_kwargs(
+                eval_kwargs,
+                include_c3_side_stream_token_tensors=include_c3_side_stream_token_tensors,
+                c3_side_stream_token_lookup=c3_side_stream_token_lookup,
+                c3_side_stream_max_tokens=c3_side_stream_max_tokens,
+            )
         eval_dataset = MapperV21WindowDataset(**eval_kwargs)
         train_dataset = train_source
     else:
@@ -315,6 +342,13 @@ def run_mapper_v2_1_phase_b_training(
             "control_teacher_cache_precompute": cache_precompute_reports,
             "include_full_song_context": bool(include_full_song_context),
             "mapper_token_contract": "v2.1_sparse_lane_actions",
+            "include_c3_side_stream_token_tensors": bool(include_c3_side_stream_token_tensors),
+            "c3_side_stream_token_sidecar_path": (
+                c3_side_stream_token_sidecar_path.as_posix()
+                if c3_side_stream_token_sidecar_path is not None
+                else None
+            ),
+            "c3_side_stream_max_tokens": int(c3_side_stream_max_tokens),
         },
         init_from_control_checkpoint=init_from_control_checkpoint,
         resume_from=resume_from,
@@ -454,6 +488,20 @@ def _mapper_v2_1_loss_factory(model: torch.nn.Module, loss_config: Any) -> Mappe
     if not isinstance(loss_config, MapperV21LossConfig):
         raise TypeError("mapper v2.1 training requires MapperV21LossConfig")
     return MapperV21ModelLoss(loss_config, vocab=model.vocab)
+
+
+def _add_c3_side_stream_dataset_kwargs(
+    dataset_kwargs: dict[str, Any],
+    *,
+    include_c3_side_stream_token_tensors: bool,
+    c3_side_stream_token_lookup: Mapping[str, Mapping[int, Sequence[int]]] | None,
+    c3_side_stream_max_tokens: int,
+) -> None:
+    if not include_c3_side_stream_token_tensors:
+        return
+    dataset_kwargs["include_c3_side_stream_token_tensors"] = True
+    dataset_kwargs["c3_side_stream_token_ids_by_beatmap_path"] = c3_side_stream_token_lookup or {}
+    dataset_kwargs["c3_side_stream_max_tokens"] = int(c3_side_stream_max_tokens)
 
 
 def _mapper_v2_1_batch_loss_adapter(
@@ -747,6 +795,20 @@ def main(argv: Sequence[str] | None = None) -> None:
         default=bool(config_defaults.get("include_full_song_context", True)),
     )
     parser.add_argument(
+        "--include-c3-side-stream-token-tensors",
+        action=argparse.BooleanOptionalAction,
+        default=bool(config_defaults.get("include_c3_side_stream_token_tensors", False)),
+    )
+    parser.add_argument(
+        "--c3-side-stream-token-sidecar-path",
+        default=config_defaults.get("c3_side_stream_token_sidecar_path"),
+    )
+    parser.add_argument(
+        "--c3-side-stream-max-tokens",
+        type=int,
+        default=config_defaults.get("c3_side_stream_max_tokens", DEFAULT_C3_SIDE_STREAM_MAX_TOKENS),
+    )
+    parser.add_argument(
         "--skip-first-eval-pass",
         action=argparse.BooleanOptionalAction,
         default=bool(config_defaults.get("skip_first_eval_pass", False)),
@@ -826,6 +888,13 @@ def main(argv: Sequence[str] | None = None) -> None:
         control_teacher_precompute_batch_size=args.control_teacher_precompute_batch_size,
         control_teacher_cache_overwrite=args.control_teacher_cache_overwrite,
         include_full_song_context=args.include_full_song_context,
+        include_c3_side_stream_token_tensors=args.include_c3_side_stream_token_tensors,
+        c3_side_stream_token_sidecar_path=(
+            Path(args.c3_side_stream_token_sidecar_path)
+            if args.c3_side_stream_token_sidecar_path is not None
+            else None
+        ),
+        c3_side_stream_max_tokens=args.c3_side_stream_max_tokens,
         skip_first_eval_pass=args.skip_first_eval_pass,
         mps_cleanup_every=args.mps_cleanup_every,
         model_config_overrides=model_defaults,

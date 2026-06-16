@@ -99,6 +99,15 @@ class MapperV21ModelTests(unittest.TestCase):
             chart_end_ms=1000,
         )
         batch = _batch_for_window(tokenized)
+        batch.update(
+            {
+                "c3_side_stream_tokens": torch.tensor([[11, 12, 0]], dtype=torch.long),
+                "c3_side_stream_token_mask": torch.tensor([[True, True, False]], dtype=torch.bool),
+                "c3_side_stream_available": torch.tensor([True], dtype=torch.bool),
+                "c3_side_stream_token_count": torch.tensor([2], dtype=torch.long),
+                "c3_side_stream_truncated": torch.tensor([False], dtype=torch.bool),
+            }
+        )
         model = MapperV21Model(_small_config(), vocab=vocab)
 
         output = model(batch)

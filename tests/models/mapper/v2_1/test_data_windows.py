@@ -1,3 +1,5 @@
+import json
+import tempfile
 import unittest
 
 import importlib.util
@@ -11,8 +13,10 @@ import torch
 from pulsefield_model.data.control_windows import ControlWindowRecord, normalize_difficulty
 from pulsefield_model.data.mapper_sparse_windows_v2_1 import (
     C3_SIDE_STREAM_METADATA_CONTRACT,
+    C3_SIDE_STREAM_TOKEN_PAD_ID,
     MapperV21WindowDataset,
     collate_mapper_v2_1_windows,
+    load_c3_side_stream_token_sidecar,
 )
 from pulsefield_model.features.control_v3_targets import MODEL_FEATURE_NAMES
 from pulsefield_model.models.mapper.v2_1.replay import NO_EMITTED_LANE_INDEX, ln_carry_state_tensors
@@ -46,6 +50,9 @@ class MapperV21DataWindowTests(unittest.TestCase):
         batch = collate_mapper_v2_1_windows([sparse_sample, empty_sample], pad_id=vocab.pad_id)
 
         self.assertNotIn("c3_side_stream", sparse_sample["metadata"])
+        self.assertNotIn("c3_side_stream_tokens", sparse_sample)
+        self.assertNotIn("c3_side_stream_tokens", sparse_sample["metadata"])
+        self.assertNotIn("c3_side_stream_tokens", batch)
         token_names = [vocab.token_name(token_id) for token_id in sparse_sample["target_fragment_tokens"][:3].tolist()]
         self.assertEqual(token_names, ["TS_1000", "LANE_1_TAP", "LANE_3_TAP"])
         self.assertEqual(int(sparse_sample["chart_end_ms"].item()), 1000)
@@ -91,6 +98,98 @@ class MapperV21DataWindowTests(unittest.TestCase):
         self.assertTrue(c3_metadata["summary_available"])
         self.assertEqual(c3_metadata["summary"], summary)
         self.assertEqual(batch["metadata"][0]["c3_side_stream"], c3_metadata)
+
+    def test_c3_side_stream_token_sidecar_is_bounded_and_collated(self) -> None:
+        dataset = _MapperV21DatasetWithFullInputs(
+            [
+                _record("side.osu", difficulty=4.0),
+                _record("side.osu", difficulty=4.0, target_start_frame=400),
+            ],
+            timepoints_by_path={
+                "side.osu": (
+                    MapperTimepoint(1000, _actions(LaneAction.TAP)),
+                    MapperTimepoint(9000, _actions(LaneAction.TAP)),
+                ),
+            },
+            include_c3_side_stream_token_tensors=True,
+            c3_side_stream_token_ids_by_beatmap_path={
+                "side.osu": {
+                    0: (11, 12, 13),
+                    "8000": (21, 22, 23, 24, 25),
+                },
+            },
+            c3_side_stream_max_tokens=4,
+        )
+
+        first = dataset[0]
+        second = dataset[1]
+        batch = collate_mapper_v2_1_windows([first, second], pad_id=MapperV21Vocab().pad_id)
+
+        self.assertEqual(first["c3_side_stream_tokens"].tolist(), [11, 12, 13])
+        self.assertEqual(first["c3_side_stream_token_mask"].tolist(), [True, True, True])
+        self.assertTrue(first["c3_side_stream_available"].item())
+        self.assertEqual(int(first["c3_side_stream_token_count"].item()), 3)
+        self.assertFalse(first["c3_side_stream_truncated"].item())
+
+        self.assertEqual(second["c3_side_stream_tokens"].tolist(), [21, 22, 23, 24])
+        self.assertEqual(int(second["c3_side_stream_token_count"].item()), 5)
+        self.assertTrue(second["c3_side_stream_truncated"].item())
+        self.assertTrue(second["metadata"]["c3_side_stream_tokens"]["available"])
+        self.assertEqual(second["metadata"]["c3_side_stream_tokens"]["token_count"], 5)
+        self.assertEqual(second["metadata"]["c3_side_stream_tokens"]["clipped_token_count"], 4)
+        self.assertEqual(second["metadata"]["c3_side_stream_tokens"]["pad_id"], C3_SIDE_STREAM_TOKEN_PAD_ID)
+
+        self.assertEqual(batch["c3_side_stream_tokens"].tolist(), [[11, 12, 13, 0], [21, 22, 23, 24]])
+        self.assertEqual(batch["c3_side_stream_token_mask"].tolist(), [[True, True, True, False], [True, True, True, True]])
+        self.assertEqual(batch["c3_side_stream_available"].tolist(), [True, True])
+        self.assertEqual(batch["c3_side_stream_token_count"].tolist(), [3, 5])
+        self.assertEqual(batch["c3_side_stream_truncated"].tolist(), [False, True])
+
+    def test_c3_side_stream_token_sidecar_missing_window_marks_unavailable(self) -> None:
+        dataset = _MapperV21DatasetWithFullInputs(
+            [_record("missing.osu", difficulty=4.0)],
+            timepoints_by_path={
+                "missing.osu": (
+                    MapperTimepoint(1000, _actions(LaneAction.TAP)),
+                ),
+            },
+            include_c3_side_stream_token_tensors=True,
+            c3_side_stream_token_ids_by_beatmap_path={"missing.osu": {8000: (41, 42)}},
+        )
+
+        sample = dataset[0]
+        batch = collate_mapper_v2_1_windows([sample], pad_id=MapperV21Vocab().pad_id)
+
+        self.assertEqual(sample["c3_side_stream_tokens"].tolist(), [])
+        self.assertFalse(sample["c3_side_stream_available"].item())
+        self.assertFalse(sample["metadata"]["c3_side_stream_tokens"]["available"])
+        self.assertEqual(sample["metadata"]["c3_side_stream_tokens"]["token_count"], 0)
+        self.assertEqual(tuple(batch["c3_side_stream_tokens"].shape), (1, 0))
+        self.assertEqual(batch["c3_side_stream_available"].tolist(), [False])
+
+    def test_c3_side_stream_token_sidecar_json_loader(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            sidecar_path = Path(temp_dir) / "c3_sidecar.json"
+            sidecar_path.write_text(
+                json.dumps(
+                    {
+                        "schema_version": 1,
+                        "contract": C3_SIDE_STREAM_METADATA_CONTRACT,
+                        "windows": [
+                            {
+                                "beatmap_path": "json.osu",
+                                "window_start_ms": 8000,
+                                "token_ids": [31, 32, 33],
+                            },
+                        ],
+                    },
+                ),
+                encoding="utf-8",
+            )
+
+            loaded = load_c3_side_stream_token_sidecar(sidecar_path)
+
+        self.assertEqual(loaded, {"json.osu": {8000: (31, 32, 33)}})
 
 
 def _sample(tokenized) -> dict:

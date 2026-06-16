@@ -146,6 +146,11 @@ MAPPER_BATCH_TENSOR_KEYS = frozenset(
         "source_frame_count",
         "target_start_frame",
         "control_slice_start_frames",
+        "c3_side_stream_tokens",
+        "c3_side_stream_token_mask",
+        "c3_side_stream_available",
+        "c3_side_stream_token_count",
+        "c3_side_stream_truncated",
     )
 )
 
