@@ -20,6 +20,7 @@ from pulsefield_model.evals.mapper_v3_trained_runtime_rollout import (
 )
 from pulsefield_model.inference.mapper_v2_1_rollout import (
     MapperV21GenerationStep,
+    MapperV21LogitsTransform,
     generate_full_song_rollout_v2_1,
     rollout_to_timepoints_v2_1,
     session_window_batch_provider_v2_1,
@@ -162,6 +163,7 @@ def run_trained_v21_runtime_rollout_smoke(
     time_shift_delta_penalty_alpha: float = 0.0,
     collect_logit_diagnostics: bool = False,
     logit_top_k: int = 5,
+    logits_transform: MapperV21LogitsTransform | None = None,
     timepoint_preview_limit: int = 32,
 ) -> dict[str, Any]:
     chart_end_ms = int(chart_end_ms)
@@ -242,6 +244,7 @@ def run_trained_v21_runtime_rollout_smoke(
         time_shift_length_penalty_alpha=float(time_shift_length_penalty_alpha),
         time_shift_delta_penalty_alpha=float(time_shift_delta_penalty_alpha),
         generator=generator,
+        logits_transform=logits_transform,
         logits_observer=None if logit_diagnostics is None else logit_diagnostics.observe,
     )
     timepoints = rollout_to_timepoints_v2_1(rollout, runtime.vocab)
@@ -291,6 +294,7 @@ def run_trained_v21_runtime_rollout_smoke(
             "time_shift_delta_penalty_alpha": float(time_shift_delta_penalty_alpha),
             "collect_logit_diagnostics": bool(collect_logit_diagnostics),
             "logit_top_k": int(logit_top_k),
+            "logits_transform_enabled": logits_transform is not None,
             "timepoint_preview_limit": int(timepoint_preview_limit),
         },
         "runtime": {

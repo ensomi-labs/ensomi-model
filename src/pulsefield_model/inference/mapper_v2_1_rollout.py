@@ -99,8 +99,83 @@ class MapperV21FullRollout:
 
 
 MapperV21LogitsFn = Callable[[MapperV21GenerationStep], torch.Tensor]
+MapperV21LogitsTransform = Callable[[MapperV21GenerationStep, torch.Tensor], torch.Tensor]
 MapperV21LogitsObserver = Callable[[MapperV21GenerationStep, torch.Tensor], None]
 MapperV21WindowBatchProvider = Callable[[int, int], Mapping[str, Any]]
+
+
+class MapperV21AntiRigidSpacingLogitsTransform:
+    """Suppress the next canonical time-shift piece after a repeated event-spacing run."""
+
+    def __init__(
+        self,
+        *,
+        vocab: MapperV21Vocab,
+        min_repeated_spacings: int = 4,
+        min_spacing_ms: int = 40,
+        max_spacing_ms: int = 400,
+        hard_block: bool = True,
+        penalty: float = 8.0,
+        require_time_shift_alternative: bool = True,
+        max_examples: int = 12,
+    ) -> None:
+        self.vocab = vocab
+        self.min_repeated_spacings = int(min_repeated_spacings)
+        if self.min_repeated_spacings <= 0:
+            raise ValueError("min_repeated_spacings must be positive")
+        self.min_spacing_ms = int(min_spacing_ms)
+        self.max_spacing_ms = int(max_spacing_ms)
+        if self.min_spacing_ms <= 0 or self.max_spacing_ms < self.min_spacing_ms:
+            raise ValueError("spacing bounds must be positive and ordered")
+        self.hard_block = bool(hard_block)
+        self.penalty = float(penalty)
+        if self.penalty < 0.0:
+            raise ValueError("penalty must be non-negative")
+        self.require_time_shift_alternative = bool(require_time_shift_alternative)
+        self.max_examples = int(max_examples)
+        if self.max_examples < 0:
+            raise ValueError("max_examples must be non-negative")
+        self.blocked_count = 0
+        self.candidate_count = 0
+        self.examples: list[dict[str, int | str | bool]] = []
+
+    def __call__(self, step: MapperV21GenerationStep, logits: torch.Tensor) -> torch.Tensor:
+        flat_logits = torch.as_tensor(logits, dtype=torch.float32).reshape(-1)
+        transformed = flat_logits.clone()
+        candidate = _anti_rigid_spacing_candidate_v2_1(
+            step,
+            vocab=self.vocab,
+            min_repeated_spacings=self.min_repeated_spacings,
+            min_spacing_ms=self.min_spacing_ms,
+            max_spacing_ms=self.max_spacing_ms,
+            require_time_shift_alternative=self.require_time_shift_alternative,
+        )
+        if candidate is None:
+            return transformed
+        self.candidate_count += 1
+        token_id = int(candidate["token_id"])
+        if self.hard_block:
+            transformed[token_id] = -torch.inf
+        else:
+            transformed[token_id] = transformed[token_id] - self.penalty
+        self.blocked_count += 1
+        if len(self.examples) < self.max_examples:
+            self.examples.append(dict(candidate, mode="hard_block" if self.hard_block else "penalty"))
+        return transformed
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "enabled": True,
+            "min_repeated_spacings": int(self.min_repeated_spacings),
+            "min_spacing_ms": int(self.min_spacing_ms),
+            "max_spacing_ms": int(self.max_spacing_ms),
+            "hard_block": bool(self.hard_block),
+            "penalty": float(self.penalty),
+            "require_time_shift_alternative": bool(self.require_time_shift_alternative),
+            "candidate_count": int(self.candidate_count),
+            "blocked_count": int(self.blocked_count),
+            "examples": list(self.examples),
+        }
 
 
 def grammar_constrained_window_generation_v2_1(
@@ -120,6 +195,7 @@ def grammar_constrained_window_generation_v2_1(
     top_p: float | None = None,
     top_k: int | None = None,
     generator: torch.Generator | None = None,
+    logits_transform: MapperV21LogitsTransform | None = None,
     logits_observer: MapperV21LogitsObserver | None = None,
 ) -> MapperV21GeneratedWindow:
     write_start_ms = int(write_start_ms)
@@ -211,6 +287,13 @@ def grammar_constrained_window_generation_v2_1(
     observer: Callable[[MapperV21GenerationStep, torch.Tensor], None] | None = None
     if logits_observer is not None:
         observer = lambda step, logits: _observe_logits_v2_1(logits_observer, step, logits)
+    transformed_logits_fn: MapperV21LogitsFn | None = logits_fn
+    if logits_transform is not None:
+
+        def transformed_logits_fn(step: MapperV21GenerationStep) -> torch.Tensor:
+            base_logits = _default_generation_logits_v2_1(step.valid_token_mask, vocab=vocab) if logits_fn is None else logits_fn(step)
+            transformed = logits_transform(step, base_logits)
+            return torch.as_tensor(transformed, dtype=torch.float32, device=base_logits.device).reshape(-1)
 
     result = run_generation_engine(
         initial_state=initial_state,
@@ -221,7 +304,7 @@ def grammar_constrained_window_generation_v2_1(
         make_step=make_step,
         transition=transition,
         default_logits=lambda mask: _default_generation_logits_v2_1(mask, vocab=vocab),
-        logits_fn=logits_fn,
+        logits_fn=transformed_logits_fn,
         logits_observer=observer,
         ordinary_block_token_ids=(vocab.bos_id, vocab.eos_id),
         max_tokens=int(max_tokens),
@@ -261,6 +344,7 @@ def generate_full_song_rollout_v2_1(
     time_shift_length_penalty_alpha: float = 0.0,
     time_shift_delta_penalty_alpha: float = 0.0,
     generator: torch.Generator | None = None,
+    logits_transform: MapperV21LogitsTransform | None = None,
     logits_observer: MapperV21LogitsObserver | None = None,
 ) -> MapperV21FullRollout:
     chart_end_ms = int(chart_end_ms)
@@ -321,6 +405,7 @@ def generate_full_song_rollout_v2_1(
             temperature=float(temperature),
             top_p=top_p,
             generator=generator,
+            logits_transform=logits_transform,
             logits_observer=logits_observer,
         )
         windows.append(generated)
@@ -535,6 +620,81 @@ def rollout_to_timepoints_v2_1(
     ]
 
 
+def _anti_rigid_spacing_candidate_v2_1(
+    step: MapperV21GenerationStep,
+    *,
+    vocab: MapperV21Vocab,
+    min_repeated_spacings: int,
+    min_spacing_ms: int,
+    max_spacing_ms: int,
+    require_time_shift_alternative: bool,
+) -> dict[str, int | str | bool] | None:
+    if not any(bool(value) for value in step.state.emitted_lane_mask):
+        return None
+    event_times = _generated_event_times_v2_1(step, vocab=vocab)
+    if not event_times or int(event_times[-1]) != int(step.state.current_ms):
+        return None
+    if len(event_times) <= int(min_repeated_spacings):
+        return None
+    spacings = [int(right) - int(left) for left, right in zip(event_times[:-1], event_times[1:], strict=True)]
+    recent = spacings[-int(min_repeated_spacings) :]
+    if len(set(recent)) != 1:
+        return None
+    spacing_ms = int(recent[0])
+    if spacing_ms < int(min_spacing_ms) or spacing_ms > int(max_spacing_ms):
+        return None
+    try:
+        first_piece_ms = int(vocab.decompose_time_shift_delta(spacing_ms)[0])
+        token_id = int(vocab.time_shift_token_id(first_piece_ms))
+    except (IndexError, ValueError):
+        return None
+
+    valid_mask = step.valid_token_mask.to(dtype=torch.bool).reshape(-1)
+    if token_id >= int(valid_mask.numel()) or not bool(valid_mask[token_id].item()):
+        return None
+    if bool(require_time_shift_alternative):
+        alternatives = [
+            int(candidate_id)
+            for candidate_id in vocab.time_shift_token_ids
+            if int(candidate_id) != token_id
+            and 0 <= int(candidate_id) < int(valid_mask.numel())
+            and bool(valid_mask[int(candidate_id)].item())
+        ]
+        if not alternatives:
+            return None
+    return {
+        "token_id": token_id,
+        "token_name": vocab.token_name(token_id),
+        "spacing_ms": spacing_ms,
+        "first_piece_ms": first_piece_ms,
+        "current_ms": int(step.state.current_ms),
+        "token_index": int(step.token_index),
+        "required_alternative": bool(require_time_shift_alternative),
+    }
+
+
+def _generated_event_times_v2_1(step: MapperV21GenerationStep, *, vocab: MapperV21Vocab) -> tuple[int, ...]:
+    state = _initial_replay_state(step.ln_carry_in)
+    event_times: list[int] = []
+    for position, token_id in enumerate(step.generated_tokens):
+        token = int(token_id)
+        if vocab.is_lane_action_token(token) and (not event_times or event_times[-1] != int(state.current_ms)):
+            event_times.append(int(state.current_ms))
+        state = transition_replay_state(
+            state,
+            token,
+            position=position,
+            vocab=vocab,
+            write_start_ms=step.write_start_ms,
+            write_end_ms=step.write_end_ms,
+            chart_end_ms=step.chart_end_ms,
+            ln_carry_out=step.ln_carry_out,
+            is_full_chart_start=bool(step.is_full_chart_start),
+            is_full_chart_end=bool(step.is_full_chart_end),
+        )
+    return tuple(event_times)
+
+
 def _target_fragment_state_batch_v2_1(
     *,
     generated_tokens: Sequence[int],
@@ -672,11 +832,13 @@ def _replay_state_to_dict(state: MapperReplayState) -> dict[str, object]:
 
 
 __all__ = [
+    "MapperV21AntiRigidSpacingLogitsTransform",
     "MapperV21FullRollout",
     "MapperV21GeneratedWindow",
     "MapperV21GenerationError",
     "MapperV21GenerationStep",
     "MapperV21LogitsObserver",
+    "MapperV21LogitsTransform",
     "decoder_input_tokens_for_generation_v2_1",
     "generate_full_song_rollout_v2_1",
     "grammar_constrained_window_generation_v2_1",

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import torch
 
 from pulsefield_model.inference.mapper_v2_1_rollout import (
+    MapperV21AntiRigidSpacingLogitsTransform,
     MapperV21FullRollout,
     MapperV21GenerationStep,
     _apply_time_shift_length_penalty_v2_1,
@@ -16,7 +17,7 @@ from pulsefield_model.inference.mapper_v2_1_rollout import (
 )
 from pulsefield_model.models.mapper.v2_1 import MapperV21Vocab, empty_ln_carry_state
 from pulsefield_model.models.mapper.v2_1.model import MapperV21Config, MapperV21Model
-from pulsefield_model.models.mapper.v2_1.replay import initial_replay_state
+from pulsefield_model.models.mapper.v2_1.replay import initial_replay_state, transition_replay_state
 
 
 V21_LEGACY_DEFAULT_DETERMINISTIC_FIXTURE = {
@@ -239,6 +240,146 @@ def test_logits_observer_cannot_mutate_generation_decision() -> None:
     )
 
     assert window.tokens == expected_tokens
+
+
+def test_logits_transform_can_change_v2_1_generation_when_explicitly_enabled() -> None:
+    vocab = MapperV21Vocab()
+    ts_100 = vocab.time_shift_token_id(100)
+    ts_90 = vocab.time_shift_token_id(90)
+    ts_10 = vocab.time_shift_token_id(10)
+
+    def logits_fn(step):
+        logits = torch.full((vocab.size,), -1000.0)
+        if step.token_index == 0:
+            logits[ts_100] = 1000.0
+            logits[ts_90] = 999.0
+        elif step.state.current_ms == 90:
+            logits[ts_10] = 1000.0
+        else:
+            logits[vocab.eos_id] = 1000.0
+        return logits
+
+    def transform(step, logits):
+        transformed = logits.clone()
+        if step.token_index == 0:
+            transformed[ts_100] = -torch.inf
+        return transformed
+
+    window = grammar_constrained_window_generation_v2_1(
+        vocab=vocab,
+        write_start_ms=0,
+        write_end_ms=100,
+        chart_end_ms=100,
+        ln_carry_in=empty_ln_carry_state(0),
+        ln_carry_out=empty_ln_carry_state(100),
+        logits_fn=logits_fn,
+        logits_transform=transform,
+        is_full_chart_start=True,
+        is_full_chart_end=True,
+        max_tokens=4,
+    )
+
+    assert window.tokens == [ts_90, ts_10, vocab.eos_id]
+
+
+def test_anti_rigid_spacing_transform_blocks_first_canonical_piece_after_repeated_spacing() -> None:
+    vocab = MapperV21Vocab()
+    ts_100 = vocab.time_shift_token_id(100)
+    ts_90 = vocab.time_shift_token_id(90)
+    tap = vocab.lane_action_token_id(0, "TAP")
+    generated = tuple(token for _ in range(5) for token in (ts_100, vocab.time_shift_token_id(60), tap))
+    carry_in = empty_ln_carry_state(0)
+    carry_out = empty_ln_carry_state(2_000)
+    state = initial_replay_state(carry_in)
+    for position, token_id in enumerate(generated):
+        state = transition_replay_state(
+            state,
+            token_id,
+            position=position,
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=2_000,
+            chart_end_ms=2_000,
+            ln_carry_out=carry_out,
+            is_full_chart_start=True,
+            is_full_chart_end=False,
+        )
+    valid_mask = torch.zeros(vocab.size, dtype=torch.bool)
+    valid_mask[ts_100] = True
+    valid_mask[ts_90] = True
+    logits = torch.zeros(vocab.size, dtype=torch.float32)
+    logits[ts_100] = 10.0
+    logits[ts_90] = 9.0
+    step = MapperV21GenerationStep(
+        decoder_input_tokens=torch.tensor([vocab.bos_id, *generated], dtype=torch.long),
+        generated_tokens=generated,
+        state=state,
+        valid_token_mask=valid_mask,
+        token_index=len(generated),
+        write_start_ms=0,
+        write_end_ms=2_000,
+        chart_end_ms=2_000,
+        ln_carry_in=carry_in,
+        ln_carry_out=carry_out,
+        is_full_chart_start=True,
+        is_full_chart_end=False,
+    )
+    transform = MapperV21AntiRigidSpacingLogitsTransform(vocab=vocab, min_repeated_spacings=4)
+
+    transformed = transform(step, logits)
+
+    assert torch.isneginf(transformed[ts_100])
+    assert transformed[ts_90].item() == 9.0
+    assert transform.blocked_count == 1
+    assert transform.examples[0]["spacing_ms"] == 160
+    assert transform.examples[0]["token_name"] == "TS_100"
+
+
+def test_anti_rigid_spacing_transform_keeps_token_when_no_time_shift_alternative_exists() -> None:
+    vocab = MapperV21Vocab()
+    ts_100 = vocab.time_shift_token_id(100)
+    tap = vocab.lane_action_token_id(0, "TAP")
+    generated = tuple(token for _ in range(5) for token in (ts_100, vocab.time_shift_token_id(60), tap))
+    carry_in = empty_ln_carry_state(0)
+    carry_out = empty_ln_carry_state(2_000)
+    state = initial_replay_state(carry_in)
+    for position, token_id in enumerate(generated):
+        state = transition_replay_state(
+            state,
+            token_id,
+            position=position,
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=2_000,
+            chart_end_ms=2_000,
+            ln_carry_out=carry_out,
+            is_full_chart_start=True,
+            is_full_chart_end=False,
+        )
+    valid_mask = torch.zeros(vocab.size, dtype=torch.bool)
+    valid_mask[ts_100] = True
+    logits = torch.zeros(vocab.size, dtype=torch.float32)
+    logits[ts_100] = 10.0
+    step = MapperV21GenerationStep(
+        decoder_input_tokens=torch.tensor([vocab.bos_id, *generated], dtype=torch.long),
+        generated_tokens=generated,
+        state=state,
+        valid_token_mask=valid_mask,
+        token_index=len(generated),
+        write_start_ms=0,
+        write_end_ms=2_000,
+        chart_end_ms=2_000,
+        ln_carry_in=carry_in,
+        ln_carry_out=carry_out,
+        is_full_chart_start=True,
+        is_full_chart_end=False,
+    )
+    transform = MapperV21AntiRigidSpacingLogitsTransform(vocab=vocab, min_repeated_spacings=4)
+
+    transformed = transform(step, logits)
+
+    assert transformed[ts_100].item() == 10.0
+    assert transform.blocked_count == 0
 
 
 def test_sparse_window_generation_v2_1_matches_legacy_default_deterministic_fixture() -> None:
