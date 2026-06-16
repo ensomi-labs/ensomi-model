@@ -27,6 +27,13 @@ _EXPORTS = {
     "rollout_to_timepoints_v2_1": "mapper_v2_1_rollout",
     "session_window_batch_provider_v2_1": "mapper_v2_1_rollout",
     "zero_control_batch_provider_v2_1": "mapper_v2_1_rollout",
+    "MapperV3FullRollout": "mapper_v3_rollout",
+    "MapperV3GeneratedWindow": "mapper_v3_rollout",
+    "generate_full_song_rollout_v3": "mapper_v3_rollout",
+    "generated_v3_tokens_to_v2_1_tokens": "mapper_v3_rollout",
+    "rollout_to_timepoints_v3": "mapper_v3_rollout",
+    "session_window_batch_provider_v3": "mapper_v3_rollout",
+    "zero_control_batch_provider_v3": "mapper_v3_rollout",
     "SessionRuntime": "session_runtime",
     "SessionRuntimeConfig": "session_runtime",
 }

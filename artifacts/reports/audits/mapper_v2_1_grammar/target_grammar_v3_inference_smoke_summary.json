@@ -1,0 +1,28 @@
+{
+  "experiment": "Target grammar v3 inference smoke",
+  "date": "2026-06-17",
+  "decision": "TEST_NEXT",
+  "source_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_full_pipeline_replacement_experiment_card.md",
+  "subgoal": "v3 inference decode/expansion",
+  "changed_code": [
+    "src/pulsefield_model/inference/mapper_v3_rollout.py",
+    "src/pulsefield_model/inference/__init__.py",
+    "tests/inference/test_mapper_v3_rollout.py"
+  ],
+  "focused_v3_inference_tests_passed": 5,
+  "v3_guard_tests_passed": 23,
+  "v2_v21_guard_tests_passed": 41,
+  "proved": [
+    "v3 grammar-constrained generation can emit event-group tokens",
+    "generated v3 tokens can expand to canonical timepoints and v2.1 sparse tokens",
+    "v3 inference prefix state is rebuilt from generated tokens",
+    "incremental v3 logits reuse the prefix cache and append only the new token",
+    "v3 incremental inference receives chart_end_ms without v2.1 sparse lane state"
+  ],
+  "not_proved": [
+    "trained v3 mapper quality",
+    "session-runtime default replacement",
+    "real-checkpoint full-song inference quality"
+  ],
+  "next_step": "Run a bounded v3 mapper training/inference comparison against v2.1."
+}
