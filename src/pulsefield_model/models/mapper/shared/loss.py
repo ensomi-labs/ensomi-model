@@ -589,7 +589,8 @@ def event_budget_by_half_from_logits(
     second_half = in_window & (step_ms >= midpoint)
     half_masks = torch.stack((first_half, second_half), dim=-1).to(dtype=logits_final.dtype)
 
-    probs = torch.softmax(logits_final, dim=-1)
+    safe_logits = logits_final.masked_fill(~valid.unsqueeze(-1), 0.0)
+    probs = torch.softmax(safe_logits, dim=-1)
     event_ids = torch.tensor(event_token_ids, dtype=torch.long, device=logits_final.device)
     event_mass = probs.index_select(dim=-1, index=event_ids).sum(dim=-1)
     predicted = (event_mass.unsqueeze(-1) * half_masks).sum(dim=1)

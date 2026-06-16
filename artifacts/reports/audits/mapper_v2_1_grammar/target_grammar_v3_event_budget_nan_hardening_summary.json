@@ -1,0 +1,63 @@
+{
+  "decision": {
+    "next_step": "Rerun the event-budget training gate from a clean output directory.",
+    "reason": "invalid padded all-infinite rows were sanitized before event-budget softmax; synthetic and real cached-batch probes are finite",
+    "route": "TEST_NEXT",
+    "selected_variant_result": "PASS_NUMERIC_HARDENING_GATE"
+  },
+  "experiment": "Target grammar v3 event-budget NaN hardening",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_budget_nan_hardening_experiment_card.md",
+  "guards": {
+    "focused_v3_training_tests": "13 passed in 0.94s",
+    "real_cached_batch_probe": "passed"
+  },
+  "interpretation": {
+    "what_not_proved": [
+      "This does not prove lambda_event_budget improves rollout behavior.",
+      "This does not validate replacement readiness."
+    ],
+    "what_passed": [
+      "The NaN source was isolated to invalid/padded rows, not valid teacher-forced rows.",
+      "The event-budget loss is finite after pre-softmax invalid-row sanitization.",
+      "The 500-step post-fix training run completed with finite event-budget metrics."
+    ]
+  },
+  "post_patch_real_batch_probe": {
+    "density_loss": 1.6791046857833862,
+    "event_budget_loss": 29.321352005004883,
+    "predicted_finite": true,
+    "raw_softmax_nan_invalid_rows": 71,
+    "raw_softmax_nan_rows": 71,
+    "raw_softmax_nan_valid_rows": 0,
+    "target_finite": true,
+    "token_loss": 4.729503631591797,
+    "total_loss": 6.291800498962402
+  },
+  "post_patch_training_probe": {
+    "completed_steps": 500,
+    "final_eval_loss_event_budget": 0.2194395410229585,
+    "final_eval_loss_total": 1.9921636608057223,
+    "is_complete": true,
+    "report_path": "artifacts/tmp/mapper_v3_event_budget_training_gate/train/run_after_nan_fix/report.json"
+  },
+  "reproduction": {
+    "completed_steps_before_stop": 100,
+    "final_eval_loss_event_budget": "nan",
+    "final_eval_loss_total": "nan",
+    "interrupted_report_path": "artifacts/tmp/mapper_v3_event_budget_training_gate/train/run/report.json",
+    "last_train_loss_event_budget": "nan",
+    "last_train_loss_total": "nan",
+    "raw_softmax_nan_invalid_rows": 71,
+    "raw_softmax_nan_rows": 71,
+    "raw_softmax_nan_valid_rows": 0
+  },
+  "schema_version": 1,
+  "source_change": {
+    "description": "event_budget_by_half_from_logits masks invalid target rows to finite zeros before softmax",
+    "file": "src/pulsefield_model/models/mapper/shared/loss.py"
+  },
+  "test_change": {
+    "description": "added padded all-invalid row regression test for event_budget_auxiliary_loss",
+    "file": "tests/models/mapper/v3/test_model.py"
+  }
+}

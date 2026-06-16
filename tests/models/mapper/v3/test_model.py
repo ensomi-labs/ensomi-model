@@ -226,6 +226,52 @@ class MapperV3ModelTests(unittest.TestCase):
         self.assertEqual(on_loss.metrics["phase/lambda_event_budget"], 0.5)
         self.assertGreater(float(on_loss.total_loss.item()), float(off_loss.total_loss.item()))
 
+    def test_event_budget_loss_ignores_padded_all_invalid_rows(self) -> None:
+        vocab = MapperV3Vocab()
+        tokenized = encode_mapper_window(
+            [MapperTimepoint(1000, _actions(LaneAction.TAP))],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=1000,
+        )
+        batch = _batch_for_window(tokenized)
+        target = torch.cat(
+            [
+                batch["target_fragment_tokens"],
+                torch.tensor([[vocab.pad_id]], dtype=torch.long),
+            ],
+            dim=1,
+        )
+        mask = torch.cat(
+            [
+                batch["target_fragment_mask"],
+                torch.tensor([[False]], dtype=torch.bool),
+            ],
+            dim=1,
+        )
+        current_ms = torch.cat(
+            [
+                batch["target_fragment_states"]["current_ms"],
+                torch.tensor([[0]], dtype=torch.long),
+            ],
+            dim=1,
+        )
+        logits = torch.zeros((1, target.shape[1], vocab.size), dtype=torch.float32)
+        logits[:, -1, :] = -torch.inf
+
+        loss = event_budget_auxiliary_loss(
+            logits_final=logits,
+            target_tokens=target,
+            current_ms=current_ms,
+            write_start_ms=batch["write_start_ms"],
+            write_end_ms=batch["write_end_ms"],
+            vocab=vocab,
+            target_mask=mask,
+        )
+
+        self.assertTrue(torch.isfinite(loss).item())
+
     def test_incremental_decode_matches_cached_full_forward_logits(self) -> None:
         torch.manual_seed(20260624)
         vocab = MapperV3Vocab()
