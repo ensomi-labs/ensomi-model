@@ -1,0 +1,157 @@
+{
+  "baseline": {
+    "eval_token_count": 28073,
+    "unigram_nll": {
+      "bits_per_token": 4.23623081996384,
+      "eval_token_count": 28073,
+      "total_bits": 118923.70780884488,
+      "train_token_count": 704611,
+      "vocab_size": 35
+    }
+  },
+  "candidate": {
+    "eval_token_count": 22471,
+    "top_event_signatures": [
+      {
+        "count": 1373,
+        "lane_count": 1,
+        "signature": ".T.."
+      },
+      {
+        "count": 1360,
+        "lane_count": 1,
+        "signature": "..T."
+      },
+      {
+        "count": 1010,
+        "lane_count": 1,
+        "signature": "...T"
+      },
+      {
+        "count": 962,
+        "lane_count": 1,
+        "signature": "T..."
+      },
+      {
+        "count": 427,
+        "lane_count": 2,
+        "signature": "..TT"
+      },
+      {
+        "count": 425,
+        "lane_count": 2,
+        "signature": "TT.."
+      },
+      {
+        "count": 362,
+        "lane_count": 2,
+        "signature": "T..T"
+      },
+      {
+        "count": 193,
+        "lane_count": 2,
+        "signature": "T.T."
+      },
+      {
+        "count": 192,
+        "lane_count": 2,
+        "signature": ".TT."
+      },
+      {
+        "count": 179,
+        "lane_count": 2,
+        "signature": ".T.T"
+      },
+      {
+        "count": 121,
+        "lane_count": 3,
+        "signature": "TT.T"
+      },
+      {
+        "count": 106,
+        "lane_count": 3,
+        "signature": "T.TT"
+      },
+      {
+        "count": 73,
+        "lane_count": 1,
+        "signature": ".S.."
+      },
+      {
+        "count": 67,
+        "lane_count": 1,
+        "signature": "..S."
+      },
+      {
+        "count": 63,
+        "lane_count": 2,
+        "signature": "..SE"
+      },
+      {
+        "count": 58,
+        "lane_count": 3,
+        "signature": "TTT."
+      },
+      {
+        "count": 55,
+        "lane_count": 1,
+        "signature": "..E."
+      },
+      {
+        "count": 54,
+        "lane_count": 1,
+        "signature": ".E.."
+      },
+      {
+        "count": 53,
+        "lane_count": 2,
+        "signature": ".ES."
+      },
+      {
+        "count": 50,
+        "lane_count": 1,
+        "signature": "...E"
+      }
+    ],
+    "unigram_nll": {
+      "bits_per_token": 5.013281477769252,
+      "eval_token_count": 22471,
+      "total_bits": 112653.44808695285,
+      "train_token_count": 567275,
+      "vocab_size": 278
+    }
+  },
+  "comparison": {
+    "bits_per_baseline_token": 4.012875292521385,
+    "eval_token_count": 22471,
+    "event_token_count": 9112,
+    "lane_action_token_count": 14714,
+    "multi_lane_event_count": 3976,
+    "reconstruction_mismatches": 0,
+    "token_reduction": 5602,
+    "token_reduction_ratio": 0.1995511701635023,
+    "total_bit_reduction": 6270.259721892027,
+    "total_bit_reduction_ratio": 0.05272506077569237
+  },
+  "config_path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_1000step_enabled.yaml",
+  "dataset": {
+    "eval_window_count": 142,
+    "train_scored_window_count": 4096,
+    "train_window_count": 174373
+  },
+  "decision": {
+    "interpretation": "The v3 event-token grammar passed the smoke gate: exact reconstruction holds, target streams are shorter, and the simple total-bit proxy improves. This is still bounded-slice evidence; the updated goal requires a full 4K dataset audit before replacement.",
+    "kill_criteria_triggered": false,
+    "next_step": "Scale the v3 event-token audit to the full 4K dataset and add dataset/model integration gates.",
+    "positive_gate_passed": true,
+    "route": "TEST_NEXT"
+  },
+  "elapsed_s": 64.66943958299817,
+  "schema_version": 1,
+  "vocab": {
+    "contract": "v3_event_groups",
+    "v2_1_vocab_size": 37,
+    "v3_event_token_count": 255,
+    "v3_vocab_size": 280
+  }
+}
