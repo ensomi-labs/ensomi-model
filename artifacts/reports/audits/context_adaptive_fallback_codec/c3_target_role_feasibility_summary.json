@@ -1,0 +1,156 @@
+{
+  "decision": {
+    "route": "TEST_NEXT",
+    "selected_next_family": "auxiliary_target",
+    "rejected_next_families": {
+      "continue_input_conditioning": "killed by P10 because labels are target-derived",
+      "two_stage_plan": "legal but larger than needed before proving C3 labels are learnable",
+      "full_target_grammar": "most direct eventual tokenization path, but requires decode grammar and cross-window reference semantics first"
+    },
+    "recommended_next_card": "C3 auxiliary-target smoke: predict exact sidecar labels as a disabled-by-default target head while keeping mapper output and inference unchanged"
+  },
+  "sidecar_shape": {
+    "sidecar_path": "artifacts/cache/c3_mapper_window_sidecar/c3_exact_mapper_window_sidecar_le3.json",
+    "window_count": 173268,
+    "window_with_tokens_count": 166801,
+    "window_with_tokens_rate": 0.9626763164577418,
+    "empty_window_count": 6467,
+    "token_count": 3203904,
+    "token_vocab_size": 14294,
+    "tokens_per_window": {
+      "mean": 18.49103123485006,
+      "p50": 12,
+      "p90": 43,
+      "p95": 60,
+      "p99": 101,
+      "max": 274
+    },
+    "tokens_per_nonzero_window": {
+      "mean": 19.20794239842687,
+      "p50": 12,
+      "p90": 44,
+      "p95": 61,
+      "p99": 102,
+      "max": 274
+    }
+  },
+  "token_kind_shape": {
+    "kind_counts": {
+      "raw": 1167043,
+      "ref": 417208,
+      "residual": 1619653
+    },
+    "kind_rates": {
+      "raw": 0.36425654451569084,
+      "ref": 0.13021863326741376,
+      "residual": 0.5055248222168954
+    },
+    "kind_vocab_sizes": {
+      "raw": 7039,
+      "ref": 2020,
+      "residual": 5235
+    }
+  },
+  "vocabulary_concentration": {
+    "top_10_token_rate": 0.048605388925510876,
+    "top_50_token_rate": 0.1653083238449092,
+    "top_100_token_rate": 0.24826274445176885,
+    "top_500_token_rate": 0.5696284907412956,
+    "top_1000_token_rate": 0.740162938714768,
+    "top_2000_token_rate": 0.8808129082519326,
+    "top_5000_token_rate": 0.9796438969457262,
+    "top_tokens": [
+      {
+        "count": 19527,
+        "rate": 0.006094751902678732,
+        "token": "RAW|D:12:2:0:0",
+        "token_id": 23
+      },
+      {
+        "count": 19171,
+        "rate": 0.005983637462295999,
+        "token": "RAW|D:12:4:0:0",
+        "token_id": 25
+      },
+      {
+        "count": 15892,
+        "rate": 0.004960198557759534,
+        "token": "RES|D:12:2:0:0",
+        "token_id": 109
+      },
+      {
+        "count": 15663,
+        "rate": 0.004888723257625697,
+        "token": "RES|D:12:4:0:0",
+        "token_id": 103
+      },
+      {
+        "count": 15280,
+        "rate": 0.004769181598449891,
+        "token": "RAW|D:12:8:0:0",
+        "token_id": 47
+      }
+    ]
+  },
+  "cap_pressure": {
+    "cap_64": {
+      "overflow_token_rate": 0.05922649367771319,
+      "truncated_window_rate": 0.04257566313456611
+    },
+    "cap_128": {
+      "overflow_token_rate": 0.004428971654581411,
+      "truncated_window_rate": 0.0033127871274557332
+    },
+    "cap_256": {
+      "overflow_token_rate": 0.000005618145862048301,
+      "truncated_window_rate": 0.000005771406145393264,
+      "overflow_token_count": 18,
+      "truncated_window_count": 1
+    },
+    "cap_512": {
+      "overflow_token_rate": 0.0,
+      "truncated_window_rate": 0.0
+    },
+    "cap_1024": {
+      "overflow_token_rate": 0.0,
+      "truncated_window_rate": 0.0
+    }
+  },
+  "cross_window_semantics": {
+    "target_cross_mapper_window_span_rate": 0.10585367490556269,
+    "reference_cross_mapper_window_span_rate": 0.10350712354509022,
+    "target_reference_same_window_span_rate": 0.31961036221740713,
+    "target_reference_window_delta_top": [
+      {
+        "count": 133344,
+        "delta_ms": 0
+      },
+      {
+        "count": 128511,
+        "delta_ms": 8000
+      },
+      {
+        "count": 46804,
+        "delta_ms": 16000
+      },
+      {
+        "count": 23084,
+        "delta_ms": 24000
+      },
+      {
+        "count": 15568,
+        "delta_ms": 32000
+      }
+    ]
+  },
+  "interpretation": {
+    "auxiliary_target": "best next bounded test because labels are compact per window, nearly lossless at cap 256, and can be trained without using C3 as inference input",
+    "two_stage_plan": "defer until auxiliary learnability is known",
+    "target_grammar": "important eventual direction, but sequence/replay semantics and cross-window references need a dedicated grammar decomposition card",
+    "input_conditioning": "do not continue as production path"
+  },
+  "verification": {
+    "pytest": "uv run --group dev pytest tests/osu_core/test_c3_side_stream_tokenization.py tests/models/mapper/v2_1/test_data_windows.py -q",
+    "pytest_result": "10 passed in 0.83s"
+  }
+}
