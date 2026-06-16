@@ -11,6 +11,8 @@ license-files = ["LICENSE"]
 dependencies = [
     "numpy==1.26.4",
     "pandas==2.3.3",
+    "scipy==1.15.3; python_version < '3.11'",
+    "scipy==1.17.1; python_version >= '3.11'",
     "PyYAML==6.0.3",
     "pyarrow==22.0.0",
     "pydub==0.25.1",
