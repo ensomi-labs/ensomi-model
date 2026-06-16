@@ -96,7 +96,12 @@ class MapperV21PhaseBTrainingTests(unittest.TestCase):
                         "include_c3_side_stream_token_tensors": True,
                         "c3_side_stream_token_sidecar_path": "artifacts/cache/c3_mapper_sidecar.json",
                         "c3_side_stream_max_tokens": 64,
-                        "model": {},
+                        "model": {
+                            "use_c3_side_stream_conditioning": True,
+                            "c3_side_stream_vocab_size": 128,
+                            "c3_side_stream_embedding_dim": 16,
+                            "c3_side_stream_scale_init": 0.05,
+                        },
                         "control_model": {},
                         "loss": {},
                     },
@@ -110,6 +115,11 @@ class MapperV21PhaseBTrainingTests(unittest.TestCase):
         self.assertTrue(config["include_c3_side_stream_token_tensors"])
         self.assertEqual(config["c3_side_stream_token_sidecar_path"], "artifacts/cache/c3_mapper_sidecar.json")
         self.assertEqual(config["c3_side_stream_max_tokens"], 64)
+        model_config = MapperV21Config(**config["model"])
+        self.assertTrue(model_config.use_c3_side_stream_conditioning)
+        self.assertEqual(model_config.c3_side_stream_vocab_size, 128)
+        self.assertEqual(model_config.c3_side_stream_embedding_dim, 16)
+        self.assertEqual(model_config.c3_side_stream_scale_init, 0.05)
 
     def test_main_forwards_v2_1_training_options(self) -> None:
         train_result = SimpleNamespace(

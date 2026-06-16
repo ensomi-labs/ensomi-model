@@ -47,12 +47,17 @@ class MapperV21Config(MapperV2Config):
     """
 
     max_seq_len: int = 1024
+    use_c3_side_stream_conditioning: bool = False
+    c3_side_stream_vocab_size: int = 0
+    c3_side_stream_embedding_dim: int = 64
+    c3_side_stream_scale_init: float = 0.03
 
 
 @dataclass(frozen=True)
 class MapperV21ForwardOutput(MapperV2ForwardOutput):
     state_emitted_lane_mask: torch.Tensor | None = None
     state_last_lane_index: torch.Tensor | None = None
+    c3_side_stream_conditioning: torch.Tensor | None = None
 
 
 MapperV21IncrementalDecodeState = IncrementalDecodeState
@@ -137,6 +142,21 @@ class MapperV21Model(MapperV2Model):
             close_scale=config.close_scale,
             skip_scale=config.skip_scale,
         )
+        self.c3_side_stream_embedding: nn.Embedding | None = None
+        self.c3_side_stream_projection: nn.Linear | None = None
+        self.c3_side_stream_scale: nn.Parameter | None = None
+        if config.use_c3_side_stream_conditioning:
+            if int(config.c3_side_stream_vocab_size) <= 0:
+                raise ValueError("c3_side_stream_vocab_size must be positive when C3 conditioning is enabled")
+            if int(config.c3_side_stream_embedding_dim) <= 0:
+                raise ValueError("c3_side_stream_embedding_dim must be positive when C3 conditioning is enabled")
+            self.c3_side_stream_embedding = nn.Embedding(
+                int(config.c3_side_stream_vocab_size) + 1,
+                int(config.c3_side_stream_embedding_dim),
+                padding_idx=0,
+            )
+            self.c3_side_stream_projection = nn.Linear(int(config.c3_side_stream_embedding_dim), config.d_model)
+            self.c3_side_stream_scale = nn.Parameter(torch.tensor(float(config.c3_side_stream_scale_init)))
 
     def forward(
         self,
@@ -304,6 +324,15 @@ class MapperV21Model(MapperV2Model):
                 global_position_features=global_position_features,
                 global_attention_kv_cache=global_attention_kv_cache,
             )
+        c3_conditioning = self._c3_side_stream_conditioning(
+            batch,
+            batch_size=int(decoder_input.shape[0]),
+            device=decoder_input.device,
+            dtype=decoder_hidden.dtype,
+        )
+        if c3_conditioning is not None:
+            decoder_hidden = decoder_hidden + c3_conditioning.unsqueeze(1)
+            base_logits = self.output_head(decoder_hidden)
         remaining_ms = (target_end_ms.reshape(-1, 1) - current_ms).clamp_min(0)
         with torch.profiler.record_function("mapper_v21.state_prior_adapter"):
             state_prior = self.state_prior_adapter(
@@ -380,7 +409,61 @@ class MapperV21Model(MapperV2Model):
             global_position_features=global_position_features,
             state_emitted_lane_mask=emitted_lane_mask,
             state_last_lane_index=last_lane_index,
+            c3_side_stream_conditioning=c3_conditioning,
         )
+
+    def _c3_side_stream_conditioning(
+        self,
+        batch: Mapping[str, Any],
+        *,
+        batch_size: int,
+        device: torch.device,
+        dtype: torch.dtype,
+    ) -> torch.Tensor | None:
+        if not self.config.use_c3_side_stream_conditioning:
+            return None
+        if self.c3_side_stream_embedding is None or self.c3_side_stream_projection is None or self.c3_side_stream_scale is None:
+            raise RuntimeError("C3 side-stream conditioning modules are not initialized")
+        token_source = batch.get("c3_side_stream_tokens")
+        if token_source is None:
+            return torch.zeros((batch_size, self.config.d_model), device=device, dtype=dtype)
+        if not isinstance(token_source, torch.Tensor):
+            raise ValueError("c3_side_stream_tokens must be a torch.Tensor")
+        tokens = token_source.to(device=device, dtype=torch.long)
+        if tokens.ndim != 2 or int(tokens.shape[0]) != int(batch_size):
+            raise ValueError(f"c3_side_stream_tokens must have shape [B,T], got {tuple(tokens.shape)}")
+        if tokens.numel():
+            min_token = int(tokens.min().item())
+            max_token = int(tokens.max().item())
+            if min_token < 0 or max_token > int(self.config.c3_side_stream_vocab_size):
+                raise ValueError(
+                    "c3_side_stream_tokens must be between 0 and "
+                    f"c3_side_stream_vocab_size={self.config.c3_side_stream_vocab_size}, "
+                    f"got min={min_token} max={max_token}"
+                )
+        mask_source = batch.get("c3_side_stream_token_mask")
+        if mask_source is None:
+            mask = tokens.ne(0)
+        else:
+            if not isinstance(mask_source, torch.Tensor):
+                raise ValueError("c3_side_stream_token_mask must be a torch.Tensor")
+            mask = mask_source.to(device=device, dtype=torch.bool)
+            if tuple(mask.shape) != tuple(tokens.shape):
+                raise ValueError("c3_side_stream_token_mask must match c3_side_stream_tokens")
+            mask = mask & tokens.ne(0)
+        available_source = batch.get("c3_side_stream_available")
+        if available_source is not None:
+            if not isinstance(available_source, torch.Tensor):
+                raise ValueError("c3_side_stream_available must be a torch.Tensor")
+            available = available_source.to(device=device, dtype=torch.bool).reshape(-1)
+            if tuple(available.shape) != (batch_size,):
+                raise ValueError(f"c3_side_stream_available must have shape [{batch_size}]")
+            mask = mask & available.unsqueeze(1)
+        token_embedding = self.c3_side_stream_embedding(tokens)
+        mask_float = mask.unsqueeze(-1).to(dtype=token_embedding.dtype)
+        pooled = (token_embedding * mask_float).sum(dim=1) / mask_float.sum(dim=1).clamp_min(1.0)
+        projected = self.c3_side_stream_projection(pooled).to(dtype=dtype)
+        return projected * self.c3_side_stream_scale.to(device=device, dtype=dtype)
 
     @torch.no_grad()
     def incremental_decode_next_token(
@@ -416,6 +499,8 @@ class MapperV21Model(MapperV2Model):
     ) -> MapperV21IncrementalDecodeOutput:
         if self.training:
             raise ValueError("incremental decode is inference-only; call eval() before decoding")
+        if self.config.use_c3_side_stream_conditioning:
+            raise ValueError("incremental decode with C3 side-stream conditioning is not implemented")
         if control_memory_8s is not None and projected_control_memory_8s is not None:
             raise ValueError("projected_control_memory_8s cannot be supplied with control_memory_8s")
 
