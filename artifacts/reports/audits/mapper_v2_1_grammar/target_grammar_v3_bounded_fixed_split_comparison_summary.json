@@ -1,0 +1,76 @@
+{
+  "experiment": "Target grammar v3 bounded fixed-split comparison",
+  "date": "2026-06-17",
+  "decision": "TEST_NEXT",
+  "source_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_bounded_fixed_split_comparison_experiment_card.md",
+  "selected_variant": "16-window fixed slice, 5 CPU steps, tiny d_model=16 configs",
+  "slice": {
+    "source_index": "artifacts/indexes/stage2_control_windows_4k_2to6_dense_local_bpm_norm_unique_le3.parquet",
+    "row_selection": "first 16 rows",
+    "local_index": "artifacts/tmp/mapper_v3_bounded_fixed_split_comparison/fixed_16_index.parquet",
+    "train_window_count": 4,
+    "eval_window_count": 4,
+    "source_window_count": 4
+  },
+  "training": {
+    "max_steps": 5,
+    "eval_every": 5,
+    "batch_size": 1,
+    "device": "cpu",
+    "model_d_model": 16,
+    "model_layers": 1,
+    "model_heads": 4
+  },
+  "comparison": {
+    "route": "TEST_NEXT",
+    "reason": "all tiny trained-comparison gates passed",
+    "v2_1_report": "artifacts/tmp/mapper_v3_bounded_fixed_split_comparison/v21/run/report.json",
+    "v3_report": "artifacts/tmp/mapper_v3_bounded_fixed_split_comparison/v3/run/report.json",
+    "v2_1_contract": "v2.1_sparse_lane_actions",
+    "v3_contract": "v3_event_groups",
+    "v2_1_completed_steps": 5,
+    "v3_completed_steps": 5,
+    "v2_1_eval_loss_total": 3.433933144748801,
+    "v3_eval_loss_total": 4.878971116178896,
+    "v3_eval_loss_delta": 1.4450379714300947,
+    "v2_1_eval_valid_tokens": 808.0,
+    "v3_eval_valid_tokens": 701.0,
+    "v3_eval_valid_token_ratio": 0.8675742574257426,
+    "v3_eval_valid_token_reduction_ratio": 0.13242574257425743
+  },
+  "checks": {
+    "v21_contract": true,
+    "v21_dataset_contract": true,
+    "v3_contract": true,
+    "v3_dataset_contract": true,
+    "v21_completed_steps": true,
+    "v3_completed_steps": true,
+    "v21_complete_flag": true,
+    "v3_complete_flag": true,
+    "v21_eval_loss_finite": true,
+    "v3_eval_loss_finite": true,
+    "v21_eval_valid_tokens_positive": true,
+    "v3_eval_valid_tokens_positive": true,
+    "v3_eval_valid_tokens_lower": true
+  },
+  "guard_tests": {
+    "comparison_training_guard_passed": true,
+    "comparison_training_guard_tests": 18,
+    "inference_model_guard_passed": true,
+    "inference_model_guard_tests": 26
+  },
+  "proved": [
+    "v3 and v2.1 both complete repeated shared-runner training steps on the same fixed slice",
+    "v3 report contract remains v3_event_groups",
+    "v3 report valid-token count is lower than v2.1 on the bounded fixed split",
+    "final eval losses are finite for both reports"
+  ],
+  "not_proved": [
+    "trained v3 mapper quality",
+    "v3 convergence on a broad split",
+    "full 4K v3 runtime",
+    "trained full-song v3 inference quality",
+    "session-runtime/default replacement"
+  ],
+  "next_step": "Run a broader bounded v3-vs-v2.1 trained comparison with a fixed multi-song split and comparable compute."
+}
