@@ -12,7 +12,9 @@ from pulsefield_model.osu_core.context_adaptive_fallback_codec_audit import (
     _build_oracle_plan,
     _c1_bit_context,
     _lz_candidates_by_record,
+    _mirror_order_signature_4,
     _mirror_mask_4,
+    audit_c3_lz_hardening,
     audit_context_adaptive_fallback_codec,
 )
 
@@ -106,6 +108,11 @@ class ContextAdaptiveFallbackCodecAuditTests(unittest.TestCase):
         self.assertEqual(_mirror_mask_4(0b0110), 0b0110)
         self.assertEqual(_mirror_mask_4(0b1010), 0b0101)
 
+    def test_mirror_order_signature_uses_four_lane_reversal(self) -> None:
+        self.assertEqual(_mirror_order_signature_4("."), ".")
+        self.assertEqual(_mirror_order_signature_4("T0,T3"), "T3,T0")
+        self.assertEqual(_mirror_order_signature_4("E0,S1,T2"), "E3,S2,T1")
+
     def test_c3_lz_plan_verifies_prior_fallback_reference(self) -> None:
         records = [
             _record(0, raw_bits=20.0, tap=1, pre_hold=1),
@@ -118,6 +125,45 @@ class ContextAdaptiveFallbackCodecAuditTests(unittest.TestCase):
         self.assertEqual(plan.reconstruction_mismatch_count, 0)
         self.assertEqual(plan.mode_codes[1], "lz_exact")
         self.assertLess(plan.replacement_bits[1], records[1].raw_bits)
+
+    def test_c3_hardening_small_audit_writes_report_and_guard_rows(self) -> None:
+        rows = [
+            _cache_row(source=1, split="train", groups=[_group(0, tap=1, start=0, end=0), _group(24, tap=2, start=0, end=0)]),
+            _cache_row(source=2, split="train", groups=[_group(0, tap=1, start=0, end=0), _group(24, tap=2, start=0, end=0)]),
+            _cache_row(source=3, split="valid", groups=[_group(0, tap=1, start=0, end=0), _group(24, tap=1, start=0, end=0)]),
+            _cache_row(source=4, split="test", groups=[_group(0, tap=1, start=0, end=0), _group(24, tap=1, start=0, end=0)]),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cache_path = root / "chunks.parquet"
+            report_path = root / "hardening.json"
+            log_path = root / "hardening.md"
+            comparison_path = root / "hardening.csv"
+            diagnostics_path = root / "hardening_diagnostics.csv"
+            pd.DataFrame(rows).to_parquet(cache_path, index=False)
+
+            report = audit_c3_lz_hardening(
+                chunk_cache_path=cache_path,
+                report_path=report_path,
+                result_log_path=log_path,
+                comparison_csv_path=comparison_path,
+                diagnostics_csv_path=diagnostics_path,
+                motif_vocab_size=4,
+                motif_min_n=2,
+                motif_max_n=2,
+                bootstrap_samples=4,
+                lz_window_fallbacks=8,
+                lz_max_span=2,
+            )
+
+            self.assertTrue(report_path.exists())
+            self.assertTrue(log_path.exists())
+            self.assertTrue(comparison_path.exists())
+            self.assertTrue(diagnostics_path.exists())
+            self.assertFalse(report["limited"])
+            self.assertIn("c3_active_all_fixed_w256", report["variants"])
+            self.assertTrue(report["reconstruction_guard"]["baseline_token_stream_guard"]["pass"])
+            self.assertGreater(len(report["reconstruction_guard"]["rows"]), 0)
 
 
 def _cache_row(*, source: int, split: str, groups: list[dict[str, int | str]]) -> dict[str, object]:
