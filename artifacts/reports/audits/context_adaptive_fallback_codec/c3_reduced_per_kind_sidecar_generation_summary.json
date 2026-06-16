@@ -1,0 +1,69 @@
+{
+  "config_path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_auxiliary_positive_weight_enabled.yaml",
+  "elapsed_s": 10.35855375000392,
+  "eval_coverage": {
+    "kind_coverage": {
+      "RAW": 0.8018779342723005,
+      "REF": 0.8554216867469879,
+      "RES": 0.8448660714285714
+    },
+    "positive_label_coverage": 0.8264282599215003,
+    "positive_sample_count": 141,
+    "retained_kind_counts": {
+      "RAW": 854,
+      "REF": 284,
+      "RES": 757
+    },
+    "retained_positive_label_count": 1895,
+    "retained_positive_sample_count": 139,
+    "source_kind_counts": {
+      "RAW": 1065,
+      "REF": 332,
+      "RES": 896
+    },
+    "source_positive_label_count": 2293
+  },
+  "output_sidecar_path": "artifacts/cache/c3_mapper_window_sidecar/c3_reduced_per_kind_top512_le3.json",
+  "reduced_vocab_size": 1536,
+  "schema_version": 1,
+  "selected_by_kind": {
+    "RAW": 512,
+    "REF": 512,
+    "RES": 512
+  },
+  "sidecar_stats": {
+    "positive_label_coverage": 0.8018070977003199,
+    "raw_token_coverage": 0.8102555507281117,
+    "retained_positive_label_count": 2138717,
+    "retained_raw_token_count": 2595981,
+    "retained_window_count": 165190,
+    "source_positive_label_count": 2667371,
+    "source_raw_token_count": 3203904,
+    "source_window_count": 173268
+  },
+  "source_sidecar_path": "artifacts/cache/c3_mapper_window_sidecar/c3_exact_mapper_window_sidecar_le3.json",
+  "source_vocab_size": 14294,
+  "top_per_kind": 512,
+  "train_coverage": {
+    "kind_coverage": {
+      "RAW": 0.7942694652757821,
+      "REF": 0.8062226690123147,
+      "RES": 0.8072872196289157
+    },
+    "positive_label_coverage": 0.8017891408340315,
+    "positive_sample_count": 166582,
+    "retained_kind_counts": {
+      "RAW": 867849,
+      "REF": 320796,
+      "RES": 947379
+    },
+    "retained_positive_label_count": 2136024,
+    "retained_positive_sample_count": 164974,
+    "source_kind_counts": {
+      "RAW": 1092638,
+      "REF": 397900,
+      "RES": 1173534
+    },
+    "source_positive_label_count": 2664072
+  }
+}
