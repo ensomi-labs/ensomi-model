@@ -14,6 +14,7 @@ from pulsefield_model.models.control import ControlDemoGlobalEncoder, ControlDem
 from pulsefield_model.models.mapper.shared.vocab import MapperTupleVocab
 from pulsefield_model.models.mapper.v2 import MapperV2Config, MapperV2Model
 from pulsefield_model.models.mapper.v2_1 import MapperV21Config, MapperV21Model, MapperV21Vocab
+from pulsefield_model.models.mapper.v3 import MapperV3Config, MapperV3Model, MapperV3Vocab
 from pulsefield_model.timing.providers.beatthis import (
     DEFAULT_BEATTHIS_CHECKPOINT,
     DEFAULT_BEATTHIS_DEVICE,
@@ -41,7 +42,7 @@ class ModelRuntime:
     beatthis_provider: BeatThisTimingProvider
     control_model: ControlDemoGlobalEncoder
     mapper_model: nn.Module
-    vocab: MapperTupleVocab | MapperV21Vocab
+    vocab: MapperTupleVocab | MapperV21Vocab | MapperV3Vocab
     checkpoint_metadata: Mapping[str, Any]
 
     @classmethod
@@ -91,7 +92,11 @@ def load_model_runtime(config: ModelRuntimeConfig) -> ModelRuntime:
     mapper_state_raw = _required_state_dict(mapper_checkpoint, checkpoint_kind="mapper")
     mapper_state, filtered_control_encoder_keys = _mapper_tensor_state_dict(mapper_state_raw)
     mapper_version = _detect_mapper_checkpoint_version(mapper_checkpoint, mapper_state=mapper_state)
-    if mapper_version == "v2_1":
+    if mapper_version == "v3":
+        mapper_config = MapperV3Config(**mapper_config_raw)
+        vocab = MapperV3Vocab()
+        mapper_model = MapperV3Model(mapper_config, vocab=vocab)
+    elif mapper_version == "v2_1":
         mapper_config = MapperV21Config(**mapper_config_raw)
         vocab = MapperV21Vocab()
         mapper_model = MapperV21Model(mapper_config, vocab=vocab)
@@ -266,16 +271,22 @@ def _detect_mapper_checkpoint_version(
     raw_version = checkpoint.get("model_version")
     if isinstance(raw_version, str) and raw_version.strip():
         normalized = raw_version.strip().lower().replace(".", "_")
+        if normalized in {"v3", "mapper_v3", "3"}:
+            return "v3"
         if normalized in {"v2_1", "mapper_v2_1", "2_1"}:
             return "v2_1"
         if normalized in {"v2", "mapper_v2", "2"}:
             return "v2"
 
     run_name = str(checkpoint.get("run_name", "")).lower()
+    if "v3" in run_name:
+        return "v3"
     if "v2_1" in run_name or "v2.1" in run_name:
         return "v2_1"
 
     output_head = mapper_state.get("output_head.weight")
+    if isinstance(output_head, torch.Tensor) and int(output_head.shape[0]) == MapperV3Vocab().size:
+        return "v3"
     if isinstance(output_head, torch.Tensor) and int(output_head.shape[0]) == MapperV21Vocab().size:
         return "v2_1"
     return "v2"

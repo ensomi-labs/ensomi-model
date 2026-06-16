@@ -13,6 +13,7 @@ from pulsefield_model.inference.model_runtime import ModelRuntimeConfig, load_mo
 from pulsefield_model.models.control import ControlDemoGlobalEncoder, ControlDemoGlobalEncoderConfig
 from pulsefield_model.models.mapper.shared.vocab import MapperTupleVocab
 from pulsefield_model.models.mapper.v2 import MapperV2Config, MapperV2Model
+from pulsefield_model.models.mapper.v3 import MapperV3Config, MapperV3Model, MapperV3Vocab
 
 
 class ModelRuntimeTests(unittest.TestCase):
@@ -107,6 +108,35 @@ class ModelRuntimeTests(unittest.TestCase):
     def test_release_torch_cache_accepts_cpu(self) -> None:
         release_torch_cache("cpu")
 
+    def test_loads_v3_mapper_checkpoint_for_runtime(self) -> None:
+        mapper_path = Path("mapper_v3.pt")
+        control_path = Path("control.pt")
+        payloads, source_states = _runtime_payloads_v3(mapper_path=mapper_path, control_path=control_path)
+
+        with (
+            patch.object(model_runtime_module.torch, "load", side_effect=_fake_torch_load(payloads)),
+            patch.object(model_runtime_module, "BeatThisTimingProvider", _FakeBeatThisTimingProvider),
+        ):
+            runtime = load_model_runtime(
+                ModelRuntimeConfig(
+                    mapper_checkpoint_path=mapper_path,
+                    control_checkpoint_path=control_path,
+                    device="cpu",
+                )
+            )
+
+        self.assertIsInstance(runtime.mapper_model, MapperV3Model)
+        self.assertIsInstance(runtime.vocab, MapperV3Vocab)
+        self.assertEqual(runtime.checkpoint_metadata["mapper"]["version"], "v3")
+        self.assertEqual(
+            runtime.checkpoint_metadata["mapper"]["filtered_control_encoder_keys"],
+            ("control_encoder.embedded.weight",),
+        )
+        self.assertFalse(runtime.mapper_model.training)
+        self.assertTrue(all(not parameter.requires_grad for parameter in runtime.mapper_model.parameters()))
+        for key, expected in source_states["mapper"].items():
+            self.assertTrue(torch.equal(runtime.mapper_model.state_dict()[key], expected), key)
+
 
 def _runtime_payloads(
     *,
@@ -154,6 +184,54 @@ def _runtime_payloads(
     }
 
 
+def _runtime_payloads_v3(
+    *,
+    mapper_path: Path,
+    control_path: Path,
+) -> tuple[dict[Path, _GuardedCheckpoint], dict[str, dict[str, torch.Tensor]]]:
+    vocab = MapperV3Vocab()
+    control_config = _small_control_config()
+    mapper_config = _small_mapper_v3_config(vocab=vocab, control_dim=control_config.d_model)
+
+    control_model = ControlDemoGlobalEncoder(control_config)
+    mapper_model = MapperV3Model(mapper_config, vocab=vocab)
+    _fill_parameters(control_model, start=0.03)
+    _fill_parameters(mapper_model, start=0.04)
+
+    control_state = _clone_state_dict(control_model.state_dict())
+    mapper_state = _clone_state_dict(mapper_model.state_dict())
+    mapper_state_with_embedded_control = dict(mapper_state)
+    mapper_state_with_embedded_control["control_encoder.embedded.weight"] = torch.ones(1)
+
+    control_payload = _GuardedCheckpoint(
+        {
+            "checkpoint_schema_version": 1,
+            "model_config": asdict(control_config),
+            "model_state_dict": control_state,
+            "optimizer_state_dict": {"must": "not be read"},
+            "history": [{"must": "not be read"}],
+            "training_state": {"rng_state": {"must": "not be read"}},
+        }
+    )
+    mapper_payload = _GuardedCheckpoint(
+        {
+            "checkpoint_schema_version": 1,
+            "model_version": "v3",
+            "run_name": "mapper_v3_runtime_test",
+            "model_config": asdict(mapper_config),
+            "control_model_config": asdict(control_config),
+            "model_state_dict": mapper_state_with_embedded_control,
+            "optimizer_state_dict": {"must": "not be read"},
+            "history": [{"must": "not be read"}],
+            "training_state": {"rng_state": {"must": "not be read"}},
+        }
+    )
+    return {control_path: control_payload, mapper_path: mapper_payload}, {
+        "control": control_state,
+        "mapper": mapper_state,
+    }
+
+
 def _small_control_config() -> ControlDemoGlobalEncoderConfig:
     return ControlDemoGlobalEncoderConfig(
         mel_dim=8,
@@ -176,6 +254,32 @@ def _small_control_config() -> ControlDemoGlobalEncoderConfig:
 
 def _small_mapper_config(*, vocab: MapperTupleVocab, control_dim: int) -> MapperV2Config:
     return MapperV2Config(
+        vocab_size=vocab.size,
+        mel_dim=8,
+        timing_dim=2,
+        control_dim=control_dim,
+        d_model=8,
+        heads=2,
+        layers=1,
+        ffn_dim=16,
+        dropout=0.0,
+        max_seq_len=16,
+        state_prior_hidden_dim=8,
+        ln_close_hidden_dim=8,
+        lane_embedding_dim=2,
+        age_embedding_dim=2,
+        num_age_buckets=4,
+        age_cap_ms=1000,
+        global_stride=8,
+        global_layers=1,
+        global_ffn_dim=16,
+        global_conv_blocks=0,
+        global_conv_kernel_size=3,
+    )
+
+
+def _small_mapper_v3_config(*, vocab: MapperV3Vocab, control_dim: int) -> MapperV3Config:
+    return MapperV3Config(
         vocab_size=vocab.size,
         mel_dim=8,
         timing_dim=2,
