@@ -20,13 +20,17 @@ from pulsefield_model.evals.c3_auxiliary_diagnostics import (
     token_kind_lookup,
 )
 from pulsefield_model.evals.c3_raw_structure_audit import parse_raw_token_text
+from pulsefield_model.features.control_v3 import MODEL_FEATURE_NAMES
 from pulsefield_model.training.common import select_torch_device
 from pulsefield_model.training.mapper_common import _move_mapper_batch_tensors
 
 
 SUMMARY_SCHEMA_VERSION = 1
 RAW_FACTORS = ("field_1", "field_2", "field_3", "field_4")
+CONTEXT_FEATURES = ("density_level", "chord_ratio", "hold_occupancy")
 DEFAULT_TOP_KS = (1, 3, 5)
+CONTEXT_BUCKET_TOP_K = 3
+CONTEXT_BUCKET_MIN_TARGETS = 20
 
 
 @dataclass(frozen=True)
@@ -83,6 +87,86 @@ class _FieldAccumulator:
                 },
             }
         return rows
+
+
+class _ContextBucketAccumulator:
+    def __init__(
+        self,
+        *,
+        context_features: Sequence[str],
+        factors: Sequence[str],
+        top_k: int,
+    ) -> None:
+        self.context_features = tuple(context_features)
+        self.factors = tuple(factors)
+        self.top_k = int(top_k)
+        self.rows: dict[str, dict[str, dict[str, dict[str, int]]]] = {
+            feature: defaultdict(self._new_factor_rows) for feature in self.context_features
+        }
+
+    def update(
+        self,
+        *,
+        context_buckets: Mapping[str, str] | None,
+        target_values: Mapping[str, frozenset[str]],
+        model_values: Mapping[str, Sequence[str]],
+        unigram_values: Mapping[str, Sequence[str]],
+    ) -> None:
+        if context_buckets is None:
+            return
+        for feature in self.context_features:
+            bucket = context_buckets.get(feature)
+            if not bucket:
+                continue
+            factor_rows = self.rows[feature][str(bucket)]
+            for factor in self.factors:
+                targets = target_values.get(factor, frozenset())
+                if not targets:
+                    continue
+                row = factor_rows[factor]
+                model_top = frozenset(model_values.get(factor, ())[: self.top_k])
+                unigram_top = frozenset(unigram_values.get(factor, ())[: self.top_k])
+                row["positive_sample_count"] += 1
+                row["target_count"] += len(targets)
+                row["model_hits"] += len(targets.intersection(model_top))
+                row["unigram_hits"] += len(targets.intersection(unigram_top))
+
+    def to_dict(self) -> dict[str, Any]:
+        payload: dict[str, Any] = {}
+        for feature, by_bucket in self.rows.items():
+            payload[feature] = {}
+            for bucket, factor_rows in sorted(by_bucket.items(), key=lambda item: _context_bucket_sort_key(item[0])):
+                payload[feature][bucket] = {}
+                for factor in self.factors:
+                    row = factor_rows[factor]
+                    model_recall = _safe_divide(row["model_hits"], row["target_count"])
+                    unigram_recall = _safe_divide(row["unigram_hits"], row["target_count"])
+                    payload[feature][bucket][factor] = {
+                        "positive_sample_count": int(row["positive_sample_count"]),
+                        "target_count": int(row["target_count"]),
+                        "model_hits": int(row["model_hits"]),
+                        "unigram_hits": int(row["unigram_hits"]),
+                        "model_recall": model_recall,
+                        "unigram_recall": unigram_recall,
+                        "model_minus_unigram_recall": (
+                            None
+                            if model_recall is None or unigram_recall is None
+                            else float(model_recall) - float(unigram_recall)
+                        ),
+                    }
+        return payload
+
+    @staticmethod
+    def _new_factor_rows() -> dict[str, dict[str, int]]:
+        return {
+            factor: {
+                "positive_sample_count": 0,
+                "target_count": 0,
+                "model_hits": 0,
+                "unigram_hits": 0,
+            }
+            for factor in RAW_FACTORS
+        }
 
 
 def parse_raw_factor_fields(token_text: str) -> dict[str, str]:
@@ -210,6 +294,7 @@ def run_raw_factor_probe(
         vocab,
         limit=max_k,
     )
+    context_lookup, context_summary = build_context_bucket_lookup(datasets.eval_dataset)
     kind_by_id = token_kind_lookup(datasets.token_by_id)
     device = select_torch_device(device_name)
     model, checkpoint = load_model_from_checkpoint(checkpoint_path, device=device)
@@ -225,6 +310,11 @@ def run_raw_factor_probe(
         "logsumexp": _FieldAccumulator(RAW_FACTORS, top_ks),
         "unigram": _FieldAccumulator(RAW_FACTORS, top_ks),
     }
+    context_accumulator = _ContextBucketAccumulator(
+        context_features=CONTEXT_FEATURES,
+        factors=RAW_FACTORS,
+        top_k=CONTEXT_BUCKET_TOP_K,
+    )
     joint = {
         "max": {str(k): {"hits": 0, "targets": 0} for k in top_ks},
         "logsumexp": {str(k): {"hits": 0, "targets": 0} for k in top_ks},
@@ -284,6 +374,12 @@ def run_raw_factor_probe(
                         vocab=vocab,
                         top_ks=top_ks,
                     )
+                context_accumulator.update(
+                    context_buckets=_context_buckets_for_row(raw_batch, row_index, context_lookup),
+                    target_values=target_values,
+                    model_values=predicted_by_aggregation["max"],
+                    unigram_values=predicted_by_aggregation["unigram"],
+                )
                 _update_exact_raw_counts(
                     exact_raw,
                     logits=logits_cpu[row_index],
@@ -300,7 +396,7 @@ def run_raw_factor_probe(
     field_metrics = {name: accumulator.to_dict() for name, accumulator in aggregators.items()}
     summary: dict[str, Any] = {
         "schema_version": SUMMARY_SCHEMA_VERSION,
-        "experiment": "C3 RAW factor-marginal probe",
+        "experiment": "C3 RAW factor-marginal and context-bucket probe",
         "config_path": config_path.as_posix(),
         "checkpoint_path": checkpoint_path.as_posix(),
         "checkpoint": {
@@ -320,7 +416,11 @@ def run_raw_factor_probe(
         "config": {
             "top_ks": [int(k) for k in top_ks],
             "factors": list(RAW_FACTORS),
+            "context_features": list(CONTEXT_FEATURES),
+            "context_bucket_top_k": int(CONTEXT_BUCKET_TOP_K),
+            "context_bucket_min_targets": int(CONTEXT_BUCKET_MIN_TARGETS),
         },
+        "context_bucket_summary": context_summary,
         "raw_factor_vocab": {
             factor: {
                 "value_count": len(vocab.value_order[factor]),
@@ -336,6 +436,7 @@ def run_raw_factor_probe(
         "field_metrics": field_metrics,
         "joint_factor_coverage": _joint_to_dict(joint),
         "exact_raw_token_recovery": _exact_raw_to_dict(exact_raw),
+        "context_bucket_metrics": context_accumulator.to_dict(),
         "top_max_missed_values_at_3": {
             factor: [
                 {"value": value, "count": int(count)}
@@ -456,6 +557,7 @@ def _decision(summary: Mapping[str, Any]) -> dict[str, Any]:
     exact_raw_only = summary["exact_raw_token_recovery"]["20"]["raw_only_recall"]
     joint_lift_vs_full = None if joint5 is None or exact_full is None else float(joint5) - float(exact_full)
     joint_lift_vs_raw_only = None if joint5 is None or exact_raw_only is None else float(joint5) - float(exact_raw_only)
+    context_signal = _context_bucket_signal(summary, weak_fields=weak_fields)
     positive = len(improved_fields) >= 2 and joint_lift_vs_full is not None and joint_lift_vs_full >= 0.10
     if positive:
         route = "TEST_NEXT"
@@ -465,12 +567,27 @@ def _decision(summary: Mapping[str, Any]) -> dict[str, Any]:
         )
         next_step = "Create a RAW factor-head smoke/training Experiment Card."
     elif joint_lift_vs_full is not None and joint_lift_vs_full >= 0.10:
-        route = "MUTATE"
-        interpretation = (
-            "Joint factor coverage improves over exact token recovery, but too few fields beat unigram at K=3. "
-            "Factorization has signal, but the field design or metric needs tightening before model changes."
-        )
-        next_step = "Refine RAW factor grouping or repeat with density/chord buckets before adding heads."
+        if context_signal["positive_bucket_count"] >= 2:
+            route = "TEST_NEXT_CONTEXT_FACTOR_HEAD"
+            interpretation = (
+                "Joint factor coverage improves over exact token recovery and context buckets expose supported "
+                "weak-field pockets that beat unigram. This supports a bounded context-conditioned RAW factor-head card."
+            )
+            next_step = "Create a context-conditioned RAW factor-head smoke Experiment Card."
+        elif context_signal["positive_bucket_count"] > 0:
+            route = "MUTATE"
+            interpretation = (
+                "Joint factor coverage improves over exact token recovery, and one context bucket shows weak-field "
+                "lift over unigram. The signal is not broad enough for heads yet; refine grouping before training."
+            )
+            next_step = "Refine RAW context grouping or add an ordered grammar probe."
+        else:
+            route = "MUTATE_TO_ORDERED_GRAMMAR"
+            interpretation = (
+                "Joint factor coverage improves over exact token recovery, but context buckets do not rescue enough "
+                "weak fields versus unigram. Simple context-conditioned RAW heads are unlikely to be sufficient."
+            )
+            next_step = "Create an ordered C3 target-grammar decomposition card or a richer RAW context probe."
     else:
         route = "MUTATE_TO_ORDERED_GRAMMAR"
         interpretation = (
@@ -487,6 +604,7 @@ def _decision(summary: Mapping[str, Any]) -> dict[str, Any]:
         "exact_raw_only_recall_at_20": exact_raw_only,
         "joint_lift_vs_full_exact_at_5": joint_lift_vs_full,
         "joint_lift_vs_raw_only_exact_at_5": joint_lift_vs_raw_only,
+        "context_bucket_signal": context_signal,
         "positive_signal_observed": positive,
         "interpretation": interpretation,
         "next_step": next_step,
@@ -503,11 +621,11 @@ def write_markdown_report(summary: Mapping[str, Any], output_path: Path) -> None
     decision = summary["decision"]
     text = "\n".join(
         [
-            "# C3 RAW Factor-Marginal Probe Result Report",
+            "# C3 RAW Context-Bucket Probe Result Report",
             "",
             "## Scope",
             "",
-            "This P22 pass tests whether P19's RAW logits contain recoverable field-level structure even when exact RAW token top-20 recovery trails unigram.",
+            "This P23 pass extends the P22 RAW factor-marginal probe with density/chord/hold context buckets. It tests whether weak RAW fields are localized enough to justify context-conditioned RAW factor heads before changing training.",
             "",
             "## Result",
             "",
@@ -522,6 +640,7 @@ def write_markdown_report(summary: Mapping[str, Any], output_path: Path) -> None
             f"- joint lift vs full exact: `{_fmt_metric(decision['joint_lift_vs_full_exact_at_5'])}`",
             f"- improved fields@3: `{', '.join(decision['improved_fields_at_3']) or 'none'}`",
             f"- weak fields@3: `{', '.join(decision['weak_fields_at_3']) or 'none'}`",
+            f"- supported positive context buckets: `{decision['context_bucket_signal']['positive_bucket_count']}`",
             f"- elapsed: `{float(summary['elapsed_s']):.2f}s`",
             "",
             "## Field Recall At K=3",
@@ -536,6 +655,18 @@ def write_markdown_report(summary: Mapping[str, Any], output_path: Path) -> None
             "| ---: | ---: | ---: | ---: |",
             *_joint_rows(summary),
             "",
+            "## Context Bucket Recall At K=3",
+            "",
+            "| Feature | Bucket | Field | Targets | Model recall | Unigram recall | Delta |",
+            "| --- | --- | --- | ---: | ---: | ---: | ---: |",
+            *_context_bucket_rows(summary),
+            "",
+            "## Strongest Context Signals",
+            "",
+            "| Feature | Bucket | Field | Targets | Delta |",
+            "| --- | --- | --- | ---: | ---: |",
+            *_context_signal_rows(summary),
+            "",
             "## Top Max-Marginal Missed Values At K=3",
             "",
             "| Field | Missed values |",
@@ -547,6 +678,7 @@ def write_markdown_report(summary: Mapping[str, Any], output_path: Path) -> None
             "- The P19 checkpoint, config, reduced sidecar, and eval split are loadable.",
             "- RAW factor scoring is post-hoc; no C3 labels are used as model inputs.",
             "- Max, logsumexp, and train-unigram factor comparators are all reported.",
+            "- Density/chord/hold buckets are loaded from the same control-v3 target source used for mapper supervision.",
             "",
             "## What Surfaced",
             "",
@@ -596,6 +728,161 @@ def _miss_rows(summary: Mapping[str, Any]) -> list[str]:
     return rows
 
 
+def build_context_bucket_lookup(dataset: Any) -> tuple[dict[tuple[str, int], dict[str, str]], dict[str, Any]]:
+    lookup: dict[tuple[str, int], dict[str, str]] = {}
+    counts: dict[str, Counter[str]] = {feature: Counter() for feature in CONTEXT_FEATURES}
+    missing = 0
+    for index in range(len(dataset)):
+        try:
+            owner, record = _dataset_owner_and_record(dataset, index)
+            target = owner._load_control_v3_target_8s(record)  # noqa: SLF001 - eval-only diagnostic.
+            buckets = control_context_buckets(target)
+            key = (record.beatmap_path.as_posix(), int(record.target_start_ms))
+        except Exception:
+            missing += 1
+            continue
+        lookup[key] = buckets
+        for feature, bucket in buckets.items():
+            counts[feature][bucket] += 1
+    return lookup, {
+        "available_window_count": int(len(lookup)),
+        "missing_window_count": int(missing),
+        "features": {
+            feature: dict(sorted(counter.items(), key=lambda item: _context_bucket_sort_key(item[0])))
+            for feature, counter in counts.items()
+        },
+    }
+
+
+def control_context_buckets(control_v3_target_8s: torch.Tensor) -> dict[str, str]:
+    target = torch.as_tensor(control_v3_target_8s, dtype=torch.float32)
+    if target.ndim != 2 or int(target.shape[1]) != len(MODEL_FEATURE_NAMES):
+        raise ValueError(
+            f"control_v3_target_8s must have shape [T,{len(MODEL_FEATURE_NAMES)}], got {tuple(target.shape)}"
+        )
+    if not torch.isfinite(target).all():
+        raise ValueError("control_v3_target_8s must contain only finite values")
+    buckets: dict[str, str] = {}
+    for feature in CONTEXT_FEATURES:
+        index = MODEL_FEATURE_NAMES.index(feature)
+        buckets[feature] = context_value_bucket(float(target[:, index].mean().item()))
+    return buckets
+
+
+def context_value_bucket(value: float) -> str:
+    if not math.isfinite(float(value)):
+        raise ValueError(f"context value must be finite: {value!r}")
+    clipped = min(1.0, max(0.0, float(value)))
+    if clipped < 1.0 / 3.0:
+        return "low"
+    if clipped < 2.0 / 3.0:
+        return "mid"
+    return "high"
+
+
+def _dataset_owner_and_record(dataset: Any, index: int) -> tuple[Any, Any]:
+    indices = getattr(dataset, "indices", None)
+    wrapped = getattr(dataset, "dataset", None)
+    if indices is not None and wrapped is not None:
+        return _dataset_owner_and_record(wrapped, int(indices[int(index)]))
+    records = getattr(dataset, "records", None)
+    if records is None:
+        raise ValueError("dataset does not expose records")
+    mapper_record = records[int(index)]
+    return dataset, getattr(mapper_record, "control_record", mapper_record)
+
+
+def _context_buckets_for_row(
+    batch: Mapping[str, Any],
+    row_index: int,
+    context_lookup: Mapping[tuple[str, int], Mapping[str, str]],
+) -> Mapping[str, str] | None:
+    metadata_rows = batch.get("metadata")
+    if not isinstance(metadata_rows, Sequence) or row_index >= len(metadata_rows):
+        return None
+    metadata = metadata_rows[int(row_index)]
+    if not isinstance(metadata, Mapping):
+        return None
+    beatmap_path = metadata.get("beatmap_path")
+    start_ms = metadata.get("target_start_ms")
+    if beatmap_path is None or start_ms is None:
+        return None
+    return context_lookup.get((str(beatmap_path), int(start_ms)))
+
+
+def _context_bucket_signal(summary: Mapping[str, Any], *, weak_fields: Sequence[str]) -> dict[str, Any]:
+    rows: list[dict[str, Any]] = []
+    for feature, by_bucket in summary.get("context_bucket_metrics", {}).items():
+        if not isinstance(by_bucket, Mapping):
+            continue
+        for bucket, by_factor in by_bucket.items():
+            if not isinstance(by_factor, Mapping):
+                continue
+            for factor in weak_fields:
+                row = by_factor.get(factor)
+                if not isinstance(row, Mapping):
+                    continue
+                target_count = int(row.get("target_count", 0) or 0)
+                delta = row.get("model_minus_unigram_recall")
+                if target_count < CONTEXT_BUCKET_MIN_TARGETS or delta is None:
+                    continue
+                rows.append(
+                    {
+                        "feature": str(feature),
+                        "bucket": str(bucket),
+                        "factor": str(factor),
+                        "target_count": target_count,
+                        "model_recall": row.get("model_recall"),
+                        "unigram_recall": row.get("unigram_recall"),
+                        "model_minus_unigram_recall": float(delta),
+                    }
+                )
+    positive = [row for row in rows if float(row["model_minus_unigram_recall"]) > 0.0]
+    strongest = sorted(rows, key=lambda row: (-float(row["model_minus_unigram_recall"]), -int(row["target_count"])))[:10]
+    weakest = sorted(rows, key=lambda row: (float(row["model_minus_unigram_recall"]), -int(row["target_count"])))[:10]
+    return {
+        "min_target_count": int(CONTEXT_BUCKET_MIN_TARGETS),
+        "evaluated_bucket_count": int(len(rows)),
+        "positive_bucket_count": int(len(positive)),
+        "positive_buckets": positive[:10],
+        "strongest_buckets": strongest,
+        "weakest_buckets": weakest,
+    }
+
+
+def _context_bucket_rows(summary: Mapping[str, Any]) -> list[str]:
+    rows: list[str] = []
+    for feature, by_bucket in summary.get("context_bucket_metrics", {}).items():
+        if not isinstance(by_bucket, Mapping):
+            continue
+        for bucket, by_factor in sorted(by_bucket.items(), key=lambda item: _context_bucket_sort_key(item[0])):
+            if not isinstance(by_factor, Mapping):
+                continue
+            for factor in RAW_FACTORS:
+                row = by_factor.get(factor)
+                if not isinstance(row, Mapping):
+                    continue
+                if int(row.get("target_count", 0) or 0) < CONTEXT_BUCKET_MIN_TARGETS:
+                    continue
+                rows.append(
+                    f"| {feature} | {bucket} | {factor} | {row['target_count']} | "
+                    f"{_fmt_metric(row['model_recall'])} | {_fmt_metric(row['unigram_recall'])} | "
+                    f"{_fmt_metric(row['model_minus_unigram_recall'])} |"
+                )
+    return rows or ["| n/a | n/a | n/a | 0 | n/a | n/a | n/a |"]
+
+
+def _context_signal_rows(summary: Mapping[str, Any]) -> list[str]:
+    signal = summary.get("decision", {}).get("context_bucket_signal", {})
+    rows = []
+    for row in signal.get("strongest_buckets", [])[:8]:
+        rows.append(
+            f"| {row['feature']} | {row['bucket']} | {row['factor']} | {row['target_count']} | "
+            f"{_fmt_metric(row['model_minus_unigram_recall'])} |"
+        )
+    return rows or ["| n/a | n/a | n/a | 0 | n/a |"]
+
+
 def _batch_token_rows(batch: Mapping[str, Any]) -> tuple[list[list[int]], list[list[bool]], list[bool]]:
     tokens = batch["c3_side_stream_tokens"].detach().cpu()
     token_mask = batch.get("c3_side_stream_token_mask")
@@ -620,6 +907,11 @@ def _field_value_sort_key(value: str) -> tuple[int, int | str]:
         return (0, int(value))
     except ValueError:
         return (1, value)
+
+
+def _context_bucket_sort_key(value: str) -> tuple[int, str]:
+    order = {"low": 0, "mid": 1, "high": 2}
+    return (order.get(str(value), 99), str(value))
 
 
 def _safe_divide(numerator: float, denominator: float) -> float | None:
