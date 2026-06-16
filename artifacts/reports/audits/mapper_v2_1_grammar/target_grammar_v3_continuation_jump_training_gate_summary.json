@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "experiment": "target_grammar_v3_continuation_jump_training_gate",
+  "route": "MUTATE",
+  "selected_variant_result": "FAIL_ROLLOUT_GATE",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_terminal_jump_guard_experiment_card.md",
+  "paths": {
+    "training_config": "artifacts/tmp/mapper_v3_continuation_jump_guard/train_config_lambda005.yaml",
+    "training_report": "artifacts/tmp/mapper_v3_continuation_jump_guard/train/run_lambda005/report.json",
+    "checkpoint": "artifacts/tmp/mapper_v3_continuation_jump_guard/train/run_lambda005/checkpoint.pt",
+    "rollout_summary": "artifacts/tmp/mapper_v3_continuation_jump_guard/continuation_jump_guard_rollout_summary.json",
+    "rollout_dir": "artifacts/tmp/mapper_v3_continuation_jump_guard/rollouts_lambda005"
+  },
+  "config": {
+    "max_steps": 500,
+    "lambda_continuation_jump": 0.05,
+    "continuation_jump_tolerance_ms": 100,
+    "lambda_density": 0.05,
+    "lambda_event_budget": 0.0,
+    "max_tokens_per_window": 512,
+    "temperature": 0.0,
+    "top_p": null,
+    "slice": "fixed_32song_256window_mapper_v3",
+    "audio": "real"
+  },
+  "training": {
+    "completed_steps": 500,
+    "status": "completed",
+    "final_eval": {
+      "loss_token": 1.905414356288017,
+      "loss_total": 1.9917915488128453,
+      "loss_continuation_jump": 0.030943549357230583,
+      "loss_density": 1.6165463768586898,
+      "loss_event_budget": 0.0,
+      "loss_ln_close": 0.11098753016180636,
+      "phase_lambda_continuation_jump": 0.04999999999999998,
+      "token_valid_count": 6366.0
+    },
+    "final_train": {
+      "loss_token": 1.5630983047367553,
+      "loss_total": 1.6492344782183423,
+      "loss_continuation_jump": 0.04469302322713604,
+      "loss_density": 1.6470050164349141,
+      "loss_event_budget": 0.0,
+      "loss_ln_close": 0.07570849598770261,
+      "phase_lambda_continuation_jump": 0.05000000000000001,
+      "token_valid_count": 1943.0
+    },
+    "interpretation": "The auxiliary objective was finite and active under teacher forcing, so the local training gate passed."
+  },
+  "rollout_aggregate": {
+    "all_legal": false,
+    "case_count": 32,
+    "run_count": 32,
+    "dead_end_case_count": 3,
+    "max_token_hit_case_count": 0,
+    "second_window_starved_case_count": 19,
+    "rigid_case_count": 24,
+    "overgeneration_case_count": 2,
+    "undergeneration_case_count_lt_0_7": 17,
+    "median_event_count_ratio": 0.631578947368421,
+    "mean_event_count_ratio": 0.8701774840573224,
+    "min_event_count_ratio": 0.23076923076923078,
+    "max_event_count_ratio": 2.159090909090909,
+    "median_second_window_share": 0.041666666666666664,
+    "mean_second_window_share": 0.21935032868278298,
+    "median_f1_100ms": 0.574693186627169,
+    "mean_f1_100ms": 0.5695808754101777,
+    "median_dominant_spacing_ratio": 0.9361702127659575,
+    "mean_dominant_spacing_ratio": 0.8380619526396432,
+    "max_boundary_event_ratio": 0.047619047619047616,
+    "max_duplicate_or_nonincreasing_spacing_ratio": 0.0
+  },
+  "checks": {
+    "all_32_rollouts_legal": false,
+    "no_max_token_cases": true,
+    "max_boundary_ratio_no_worse_than_baseline_0_200": true,
+    "no_duplicate_regression": true,
+    "starved_cases_below_baseline_11": false,
+    "rigid_cases_no_worse_than_baseline_7": false,
+    "median_event_ratio_in_0_80_1_25": false,
+    "mean_f1_no_more_than_0_03_below_baseline": false
+  },
+  "comparators": {
+    "baseline_500step_wide_audit": {
+      "all_legal": true,
+      "second_window_starved_case_count": 11,
+      "rigid_case_count": 7,
+      "median_event_count_ratio": 1.0,
+      "mean_event_count_ratio": 0.9714319480874892,
+      "median_second_window_share": 0.49090157154673286,
+      "mean_second_window_share": 0.3736116976982868,
+      "mean_f1_100ms": 0.6395655017708878,
+      "median_f1_100ms": 0.6789519147710913
+    },
+    "same_ms_event_guard": {
+      "all_legal": true,
+      "dead_end_case_count": 0,
+      "max_token_hit_case_count": 0,
+      "second_window_starved_case_count": 22,
+      "rigid_case_count": 9,
+      "median_event_count_ratio": 0.5853658536585366,
+      "mean_event_count_ratio": 0.7779353385216502,
+      "median_second_window_share": 0.047619047619047616,
+      "mean_second_window_share": 0.2018421174759499,
+      "mean_f1_100ms": 0.5568768801367562,
+      "median_f1_100ms": 0.562876254180602,
+      "overgeneration_case_count": 2
+    }
+  },
+  "dead_end_cases": [
+    {
+      "case_index": 18,
+      "case_id": "18_billiummoto_four_veiled_stars_aries_famoss_hard",
+      "generated_event_count": 46,
+      "reference_event_count": 77,
+      "second_window_event_share": 0.0,
+      "token_count": 138,
+      "last_generated_times": [7220, 7380, 7540, 7700, 7860, 7990]
+    },
+    {
+      "case_index": 22,
+      "case_id": "22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair",
+      "generated_event_count": 46,
+      "reference_event_count": 93,
+      "second_window_event_share": 0.0,
+      "token_count": 138,
+      "last_generated_times": [7220, 7380, 7540, 7700, 7860, 7990]
+    },
+    {
+      "case_index": 23,
+      "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+      "generated_event_count": 46,
+      "reference_event_count": 104,
+      "second_window_event_share": 0.0,
+      "token_count": 138,
+      "last_generated_times": [7220, 7380, 7540, 7700, 7860, 7990]
+    }
+  ],
+  "starved_signature": {
+    "case_count": 19,
+    "patterns": [
+      "first-window clamp near 7990ms with no second-window events",
+      "minimal second-window spill via late tokens near 15950ms/15990ms without density continuation"
+    ],
+    "examples": [
+      {
+        "case_index": 1,
+        "case_id": "01_hatsuki_yura_guren_yasha_a_m_d_normal",
+        "generated_event_count": 22,
+        "reference_event_count": 63,
+        "second_window_event_share": 0.0,
+        "reference_second_window_event_share": 0.7301587301587301,
+        "dominant_spacing_ms": 400,
+        "dominant_spacing_ratio": 0.6190476190476191,
+        "f1_100ms": 0.11764705882352942,
+        "last_generated_times": [6860, 7260, 7660, 7860, 7960, 7990]
+      },
+      {
+        "case_index": 18,
+        "case_id": "18_billiummoto_four_veiled_stars_aries_famoss_hard",
+        "generated_event_count": 46,
+        "reference_event_count": 77,
+        "second_window_event_share": 0.0,
+        "reference_second_window_event_share": 0.6233766233766234,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9777777777777777,
+        "f1_100ms": 0.4878048780487804,
+        "last_generated_times": [7220, 7380, 7540, 7700, 7860, 7990]
+      },
+      {
+        "case_index": 21,
+        "case_id": "21_namirin_kanzen_shouriesper_girl_tailsdk_ash_s_insane",
+        "generated_event_count": 46,
+        "reference_event_count": 86,
+        "second_window_event_share": 0.0,
+        "reference_second_window_event_share": 0.46511627906976744,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9777777777777777,
+        "f1_100ms": 0.6823529411764706,
+        "last_generated_times": [7220, 7380, 7540, 7700, 7860, 7980]
+      }
+    ]
+  },
+  "passed": [
+    "500-step training completed with finite losses",
+    "continuation-jump loss was active in train/eval metrics",
+    "max-token loops did not regress",
+    "duplicate or non-increasing spacing did not regress",
+    "boundary event ratio stayed below the configured comparator guard"
+  ],
+  "surfaced": [
+    "free-running legality regressed with 3 dead-end cases",
+    "second-window starvation remained high at 19 of 32 cases",
+    "rigid-grid collapse worsened to 24 of 32 cases",
+    "median event ratio stayed below the acceptance range at 0.631579",
+    "mean F1 remained more than 0.03 below the 500-step baseline"
+  ],
+  "interpretation": "Teacher-forced continuation-jump pressure is locally trainable but does not transfer strongly enough to generated-state continuation. The mutation removes neither first-window terminal clamping nor rigid local timing attractors.",
+  "decision": {
+    "route": "MUTATE",
+    "reason": "failed rollout checks: all_32_rollouts_legal, starved_cases_below_baseline_11, rigid_cases_no_worse_than_baseline_7, median_event_ratio_in_0_80_1_25, mean_f1_no_more_than_0_03_below_baseline",
+    "next_step": "Do not scale lambda_continuation_jump=0.05; analyze failure clusters only if they define the next bounded mutation, otherwise pivot toward planner-side event-budget/completion semantics or v2.1 grammar improvement."
+  }
+}
