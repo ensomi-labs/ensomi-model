@@ -1,0 +1,72 @@
+{
+  "checks": {
+    "v21_complete_flag": true,
+    "v21_completed_steps": true,
+    "v21_contract": true,
+    "v21_dataset_contract": true,
+    "v21_eval_loss_finite": true,
+    "v21_eval_valid_tokens_positive": true,
+    "v3_complete_flag": true,
+    "v3_completed_steps": true,
+    "v3_contract": true,
+    "v3_dataset_contract": true,
+    "v3_eval_loss_finite": true,
+    "v3_eval_valid_tokens_lower": true,
+    "v3_eval_valid_tokens_positive": true
+  },
+  "decision": {
+    "reason": "all tiny trained-comparison gates passed",
+    "route": "TEST_NEXT"
+  },
+  "experiment": "Target grammar v3 tiny trained comparison",
+  "interpretation": "The tiny paired comparison passed: both reports use the expected contracts, both completed, loss/token metrics are finite, and v3 preserves a lower valid-token count. This supports a longer bounded trained comparison, but not replacement yet.",
+  "metrics": {
+    "v2_1_eval_loss_total": 3.5576158606487773,
+    "v2_1_eval_valid_tokens": 138.0,
+    "v3_eval_loss_delta": 1.121886092476223,
+    "v3_eval_loss_total": 4.679501953125,
+    "v3_eval_valid_token_ratio": 0.9057971014492754,
+    "v3_eval_valid_token_reduction_ratio": 0.09420289855072461,
+    "v3_eval_valid_tokens": 125.0
+  },
+  "next_step": "Run a longer bounded v3-vs-v2.1 trained comparison with fixed split and comparable compute.",
+  "reports": {
+    "v2_1": {
+      "completed_steps": 1,
+      "dataset_mapper_token_contract": "v2.1_sparse_lane_actions",
+      "eval_window_count": 1,
+      "final_eval_loss_total": 3.5576158606487773,
+      "final_eval_valid_tokens": 138.0,
+      "final_train_loss_total": 3.5576158606487773,
+      "final_train_valid_tokens": 138.0,
+      "is_complete": true,
+      "label": "v2.1",
+      "last_train_loss_total": 3.5607149600982666,
+      "mapper_token_contract": "v2.1_sparse_lane_actions",
+      "parameter_count": 38603,
+      "path": "artifacts/tmp/mapper_v3_tiny_trained_comparison/v21/run/report.json",
+      "run_name": "mapper_v21_tiny_trained_comparison",
+      "source_window_count": 1,
+      "train_window_count": 1
+    },
+    "v3": {
+      "completed_steps": 1,
+      "dataset_mapper_token_contract": "v3_event_groups",
+      "eval_window_count": 1,
+      "final_eval_loss_total": 4.679501953125,
+      "final_eval_valid_tokens": 125.0,
+      "final_train_loss_total": 4.679501953125,
+      "final_train_valid_tokens": 125.0,
+      "is_complete": true,
+      "label": "v3",
+      "last_train_loss_total": 4.683746814727783,
+      "mapper_token_contract": "v3_event_groups",
+      "parameter_count": 46639,
+      "path": "artifacts/tmp/mapper_v3_tiny_trained_comparison/v3/run/report.json",
+      "run_name": "mapper_v3_tiny_trained_comparison",
+      "source_window_count": 1,
+      "train_window_count": 1
+    }
+  },
+  "schema_version": 1
+}
