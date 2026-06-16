@@ -1,0 +1,90 @@
+{
+  "report": "casf_c3_current_audit_target_report.md",
+  "scope": "Synthesis of the latest CASF/C3 interpretation against existing CASF v2, C3 hardening, side-stream, and role-audit artifacts.",
+  "current_thesis": "The remaining compressible structure is chart-local and online-referential, not primarily corpus-global and vocabulary-based.",
+  "recommended_name": "r0_delta + LZ fallback-substream codec",
+  "decision": {
+    "route": "TEST_NEXT",
+    "not_as": [
+      "global tokenizer replacement",
+      "active-hold semantic model",
+      "target-derived mapper input conditioning",
+      "default production path"
+    ],
+    "as": [
+      "research-backed representation family",
+      "offline target-side side-stream artifact",
+      "future auxiliary-target, emitted-target-grammar, or two-stage-plan candidate"
+    ]
+  },
+  "proved": {
+    "casf_v2_chart_local_fallback_repetition": {
+      "baseline_test_charged_bits_per_event": 4.421714207191301,
+      "c3_test_charged_bits_per_event": 4.198613101989439,
+      "delta_bits_per_event": -0.2231011052018621,
+      "same_song_filtered_delta_bits_per_event": -0.22353525270533403,
+      "bootstrap_95_ci": [
+        -0.258092,
+        -0.186757
+      ],
+      "fallback_payload_reconstruction_mismatches": 0
+    },
+    "c3_hardening_reconstruction": {
+      "selected_variant": "a2_skeleton_residual_all_fallback_w256",
+      "test_charged_bits_per_event": 4.0368045441872065,
+      "delta_bits_per_event": -0.3849096630040947,
+      "same_song_filtered_delta_bits_per_event": -0.38592890137466185,
+      "clean_active_hold_trace_delta_bits_per_event": -0.3809793375551669,
+      "dirty_active_hold_trace_delta_bits_per_event": -0.43255187244188775,
+      "bootstrap_95_ci": [
+        -0.4235772949889358,
+        -0.34584630062559635
+      ],
+      "fallback_payload_mismatches": 0,
+      "full_token_stream_mismatches": 0,
+      "full_chart_mismatches": 0,
+      "span_boundary_mismatches": 0,
+      "transform_inverse_mismatches": 0,
+      "baseline_motif_stream_mismatches": 0
+    },
+    "side_stream_p0_artifact": {
+      "side_stream_reference_errors": 0,
+      "side_stream_payload_mismatches": 0,
+      "full_token_stream_mismatches": 0,
+      "group_signature_mismatches": 0,
+      "mapper_timepoint_compatible_mismatches": 0,
+      "side_stream_tokens": 3203904,
+      "fallback_placeholders": 2786696,
+      "combined_main_side_tokens": 8856468,
+      "combined_main_baseline_token_ratio": 1.566805
+    }
+  },
+  "not_proved": [
+    "active-hold causality",
+    "end-to-end mapper loss or generation quality improvement",
+    "legal production input conditioning from target-derived sidecar tokens",
+    "global tokenizer replacement readiness",
+    "default production enablement"
+  ],
+  "surfaced_issues": [
+    "C3 is side-stream-shaped and often noncontiguous in the main stream.",
+    "Many selected spans cross chunk/window boundaries.",
+    "The P0 side-stream artifact is lossless but larger than the baseline encoded stream.",
+    "Current pooled C3 conditioning consumes target-derived labels and is not a legal inference input.",
+    "Later auxiliary/kind diagnostics have not yet shown enough RAW-side learnability for full integration."
+  ],
+  "audit_target": "Can C3's chart-local fallback reference structure be turned into a legal mapper-side target or auxiliary target without target leakage, while preserving deterministic reconstruction and acceptable sequence/state cost?",
+  "kill_or_defer": [
+    "broad global vocabulary expansion as the next answer",
+    "C1/C2 table-heavy fallback codecs",
+    "C4=C1 dynamic patching",
+    "current C3 pooled input-conditioning promotion",
+    "active-hold causality claims",
+    "default production enablement"
+  ],
+  "next_bounded_direction": [
+    "Keep v3 as the current simpler teacher-forcing target-grammar route.",
+    "Preserve C3 as a codec-side and target-side representation family.",
+    "Revisit C3 through auxiliary target, emitted target grammar, or a two-stage predicted C3 plan only after a bounded card defines legal decode path and metrics."
+  ]
+}
