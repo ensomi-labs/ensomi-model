@@ -1,0 +1,187 @@
+{
+  "aggregate": {
+    "all_legal": false,
+    "case_count": 32,
+    "max_boundary_event_ratio": 0.047619047619047616,
+    "max_duplicate_or_nonincreasing_spacing_ratio": 0.8926014319809069,
+    "max_event_count_ratio": 8.571428571428571,
+    "mean_dominant_spacing_ratio": 0.8296081748391119,
+    "mean_event_count_ratio": 1.4119813916408674,
+    "mean_f1_100ms": 0.5823494948310033,
+    "mean_second_window_share": 0.26408760360528555,
+    "median_dominant_spacing_ratio": 0.9166666666666666,
+    "median_event_count_ratio": 1.0879120879120878,
+    "median_f1_100ms": 0.6430673642903859,
+    "median_second_window_share": 0.04464285714285714,
+    "min_event_count_ratio": 0.23076923076923078,
+    "overgeneration_case_count": 5,
+    "rigid_case_count": 9,
+    "run_count": 32,
+    "second_window_starved_case_count": 17,
+    "starved_160_grid_case_count": 11,
+    "undergeneration_case_count": 10,
+    "zero_reference_prefix_case_count": 1
+  },
+  "baseline_aggregate": {
+    "all_legal": true,
+    "case_count": 32,
+    "max_boundary_event_ratio": 0.2,
+    "max_duplicate_or_nonincreasing_spacing_ratio": 0.75,
+    "max_event_count_ratio": 2.1578947368421053,
+    "mean_dominant_spacing_ratio": 0.7491002925568186,
+    "mean_event_count_ratio": 0.9714319480874892,
+    "mean_f1_100ms": 0.6395655017708878,
+    "mean_second_window_share": 0.3736116976982868,
+    "median_dominant_spacing_ratio": 0.7361111111111112,
+    "median_event_count_ratio": 1.0,
+    "median_f1_100ms": 0.6789519147710913,
+    "median_second_window_share": 0.49090157154673286,
+    "min_event_count_ratio": 0.34558823529411764,
+    "rigid_case_count": 7,
+    "run_count": 32,
+    "second_window_starved_case_count": 11,
+    "zero_reference_prefix_case_count": 1
+  },
+  "baseline_cluster_counts": {
+    "boundary_or_duplicate_artifact": 5,
+    "easier_chart_overproduction": 2,
+    "event_logit_time_shift_bias": 8,
+    "low_f1_misalignment": 5,
+    "overgeneration": 2,
+    "pass_like_or_minor_residual": 13,
+    "reference_mismatch_second_window_drop": 11,
+    "rigid_high_f1_same_audio_grid": 4,
+    "rigid_low_f1_grid_collapse": 3,
+    "second_window_starvation": 11,
+    "semi_rigid_low_f1_grid": 7,
+    "starved_160_grid": 10,
+    "undergeneration": 9,
+    "zero_reference_boundary_duplicate": 1
+  },
+  "baseline_summary_path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_500step_fixed_slice_wide_audit_summary.json",
+  "checkpoint_path": "artifacts/tmp/mapper_v3_event_distribution_calibration/train/run/checkpoint.pt",
+  "cluster_counts": {
+    "boundary_or_duplicate_artifact": 4,
+    "easier_chart_overproduction": 3,
+    "event_logit_time_shift_bias": 11,
+    "low_f1_misalignment": 11,
+    "overgeneration": 5,
+    "pass_like_or_minor_residual": 7,
+    "reference_mismatch_second_window_drop": 16,
+    "rigid_high_f1_same_audio_grid": 5,
+    "rigid_low_f1_grid_collapse": 4,
+    "second_window_starvation": 17,
+    "semi_rigid_low_f1_grid": 15,
+    "starved_160_grid": 11,
+    "undergeneration": 10,
+    "zero_reference_boundary_duplicate": 1
+  },
+  "commands": {
+    "rollout_driver": "uv run python - <<PY ... run all 32 fixed-slice mapper_v3_trained_runtime_rollout cases ... PY",
+    "runtime_guard": "uv run --group dev pytest tests/inference/test_model_runtime.py tests/inference/test_mapper_v3_rollout.py tests/evals/test_mapper_v3_trained_runtime_rollout.py -q",
+    "train": "uv run python - <<PY ... run_mapper_v3_phase_b_training(lambda_density=0.20, max_steps=500) ... PY",
+    "training_guard": "uv run --group dev pytest tests/evals/test_mapper_v3_training_comparison.py tests/training/test_mapper_v3.py tests/training/test_mapper_v2_1.py -q",
+    "v3_model_guard": "uv run --group dev pytest tests/inference/test_mapper_v3_rollout.py tests/models/mapper/v3/test_model.py -q"
+  },
+  "date": "2026-06-17",
+  "decision": {
+    "next_step": "Do not scale lambda_density-only calibration. Mutate to an explicit event-count/window-continuity objective or planner-side event-budget target before another full 32-case rollout.",
+    "reason": "Higher density weight regressed legality and event distribution on the 32-case fixed-slice gate.",
+    "route": "MUTATE",
+    "selected_variant_result": "KILL_SIMPLE_DENSITY_WEIGHT_0_20"
+  },
+  "experiment": "Target grammar v3 event-distribution calibration",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_distribution_calibration_experiment_card.md",
+  "guard_results": {
+    "all_legal": false,
+    "rollout_case_count": 32,
+    "runtime_guard_passed": true,
+    "runtime_guard_tests": "13 passed in 1.21s",
+    "source_code_changed": false,
+    "summary_json_validated": true,
+    "training_completed": true,
+    "training_guard_passed": true,
+    "training_guard_tests": "18 passed in 0.63s",
+    "v3_model_guard_passed": true,
+    "v3_model_guard_tests": "9 passed in 0.82s"
+  },
+  "improved_starved_cases": [
+    "15_phantom_sage_holystone_unluckycroco_at_the_point_of_no_return",
+    "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+    "19_nekodex_circles_famoss_hard"
+  ],
+  "nonlegal_cases": [
+    "11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz",
+    "29_camellia_beyond_the_geostationary_orbit_level_leniane_synergic_ascent",
+    "30_goreshit_one_way_to_hannover_cokiiplay_autophobia",
+    "31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial"
+  ],
+  "positive_signal_failures": [
+    "all_legal false: 4 rollouts hit max_tokens_exceeded",
+    "second-window starvation worsened from 11 to 17 cases",
+    "starved-160-grid worsened from 10 to 11 cases",
+    "overgeneration worsened from 2 to 5 cases",
+    "max duplicate/nonincreasing spacing worsened from 0.750 to 0.893",
+    "mean F1 fell below the 0.590 gate"
+  ],
+  "positive_signal_passed": false,
+  "rollout_summary_path": "artifacts/tmp/mapper_v3_event_distribution_calibration/event_distribution_calibration_rollout_summary.json",
+  "selected_variant": "fresh 500-step v3 training with lambda_density=0.20",
+  "training": {
+    "completed_steps": 500,
+    "eval_loss_by_step": [
+      {
+        "loss_density": 1.520292361966925,
+        "loss_token": 4.131833488447577,
+        "loss_total": 4.448113799982845,
+        "step": 1
+      },
+      {
+        "loss_density": 1.605133467831456,
+        "loss_token": 2.1389172743073135,
+        "loss_total": 2.4655897486160203,
+        "step": 100
+      },
+      {
+        "loss_density": 1.5980419771882237,
+        "loss_token": 1.9919728274020316,
+        "loss_total": 2.3168125178113597,
+        "step": 200
+      },
+      {
+        "loss_density": 1.6133349053441988,
+        "loss_token": 2.065959825255082,
+        "loss_total": 2.393525479074868,
+        "step": 300
+      },
+      {
+        "loss_density": 1.6134410859897088,
+        "loss_token": 1.9157906744115352,
+        "loss_total": 2.243557078542531,
+        "step": 400
+      },
+      {
+        "loss_density": 1.6143304766832969,
+        "loss_token": 1.906425775689147,
+        "loss_total": 2.234774858190202,
+        "step": 500
+      }
+    ],
+    "final_eval_loss_density": 1.6143304766832969,
+    "final_eval_loss_token": 1.906425775689147,
+    "final_eval_loss_total": 2.234774858190202,
+    "final_train_loss_density": 1.6456313656958035,
+    "final_train_loss_token": 1.5634307861328125,
+    "final_train_loss_total": 1.896342058984119,
+    "loss_config": {
+      "density_calibration_bias": 0.0,
+      "density_calibration_scale": 1.0,
+      "lambda_adapter_reg": 1e-05,
+      "lambda_density": 0.2,
+      "lambda_ln_close": 0.05,
+      "ln_close_focal_gamma": 1.5,
+      "ln_close_pos_weight": 1.0
+    }
+  },
+  "training_report_path": "artifacts/tmp/mapper_v3_event_distribution_calibration/train/run/report.json"
+}
