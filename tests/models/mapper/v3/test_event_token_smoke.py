@@ -13,7 +13,12 @@ from pulsefield_model.models.mapper.v3.conversion import (
     v3_event_tokens_to_v2_1_tokens,
 )
 from pulsefield_model.models.mapper.v3.grammar import build_grammar_mask
-from pulsefield_model.models.mapper.v3.replay import replay_terminal_state
+from pulsefield_model.models.mapper.v3.replay import (
+    ReplayError,
+    empty_ln_carry_state,
+    replay_terminal_state,
+    transition_replay_state,
+)
 from pulsefield_model.models.mapper.v3.tokenizer import (
     MapperTimepoint,
     encode_full_chart_tokens,
@@ -141,6 +146,31 @@ class MapperV3EventTokenSmokeTests(unittest.TestCase):
         self.assertEqual(vocab.token_name(tokens[1]), "TS_1000")
         self.assertEqual(vocab.event_signature(tokens[2]), "TT..")
         self.assertEqual(vocab.token_name(tokens[3]), "EOS")
+
+    def test_replay_rejects_second_event_group_at_same_timestamp(self) -> None:
+        vocab = MapperV3Vocab()
+        first_event = vocab.encode_event(_actions(LaneAction.TAP))
+        second_event = vocab.encode_event(_actions(LaneAction.NONE, LaneAction.TAP))
+        state = replay_terminal_state(
+            [vocab.time_shift_token_id(100), first_event],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            ln_carry_in=empty_ln_carry_state(0),
+            ln_carry_out=empty_ln_carry_state(8000),
+        )
+        self.assertTrue(state.event_emitted_at_current_ms)
+
+        with self.assertRaisesRegex(ReplayError, "same current_ms"):
+            transition_replay_state(
+                state,
+                second_event,
+                position=2,
+                vocab=vocab,
+                write_start_ms=0,
+                write_end_ms=8000,
+                ln_carry_out=empty_ln_carry_state(8000),
+            )
 
     def test_left_context_keeps_autoregressive_time_shift_to_boundary(self) -> None:
         vocab = MapperV3Vocab()

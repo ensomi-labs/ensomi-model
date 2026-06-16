@@ -164,6 +164,7 @@ def grammar_constrained_window_generation_v3(
             is_full_chart_start=bool(is_full_chart_start),
             is_full_chart_end=bool(is_full_chart_end),
             vocab=vocab,
+            event_emitted_at_current_ms=state.event_emitted_at_current_ms,
         )
 
     def completion_mask(_state: MapperReplayState, generated_tokens: tuple[int, ...]) -> torch.Tensor | None:
@@ -567,6 +568,11 @@ def _target_fragment_state_batch_v3(
         states.append(state)
     return {
         "current_ms": torch.tensor([[state.current_ms for state in states]], dtype=torch.long, device=device),
+        "event_emitted_at_current_ms": torch.tensor(
+            [[state.event_emitted_at_current_ms for state in states]],
+            dtype=torch.bool,
+            device=device,
+        ),
         "open_mask": torch.tensor([[state.open_mask for state in states]], dtype=torch.bool, device=device),
         "open_start_ms": torch.tensor(
             [[open_start_tuple_to_tensor_values(state.open_start_ms) for state in states]],
@@ -645,6 +651,7 @@ def _replay_state_to_dict(state: MapperReplayState) -> dict[str, object]:
         "open_mask": list(state.open_mask),
         "open_start_ms": list(state.open_start_ms),
         "open_age_ms": list(state.open_age_ms),
+        "event_emitted_at_current_ms": bool(state.event_emitted_at_current_ms),
     }
 
 

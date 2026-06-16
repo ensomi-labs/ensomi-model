@@ -84,6 +84,7 @@ class MapperReplayState:
     open_mask: tuple[bool, bool, bool, bool]
     open_start_ms: tuple[int | None, int | None, int | None, int | None]
     open_age_ms: tuple[int, int, int, int]
+    event_emitted_at_current_ms: bool = False
 
     @property
     def open_mask_bits(self) -> int:
@@ -375,7 +376,8 @@ def format_replay_state(state: MapperReplayState) -> str:
         "MapperReplayState("
         f"position={state.position}, current_ms={state.current_ms}, "
         f"open_mask={state.open_mask}, open_start_ms={state.open_start_ms}, "
-        f"open_age_ms={state.open_age_ms})"
+        f"open_age_ms={state.open_age_ms}, "
+        f"event_emitted_at_current_ms={state.event_emitted_at_current_ms})"
     )
 
 

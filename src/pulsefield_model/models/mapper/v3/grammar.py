@@ -36,6 +36,7 @@ def valid_token_mask(
     is_full_chart_end: bool,
     vocab: MapperV3Vocab,
     chart_end_ms: int | None = None,
+    event_emitted_at_current_ms: bool | torch.Tensor = False,
     min_ln_duration_ms: int | None = None,
     device: torch.device | None = None,
 ) -> torch.Tensor:
@@ -52,6 +53,11 @@ def valid_token_mask(
         open_mask=_normalize_open_mask(open_mask),
         open_start_ms=_normalize_open_start_ms(open_start_ms),
         open_age_ms=_normalize_open_age_ms(open_age_ms),
+        event_emitted_at_current_ms=bool(
+            event_emitted_at_current_ms.item()
+            if isinstance(event_emitted_at_current_ms, torch.Tensor)
+            else event_emitted_at_current_ms
+        ),
     )
     mask = torch.zeros(vocab.size, dtype=torch.bool, device=resolved_device)
 
@@ -109,6 +115,7 @@ def build_grammar_mask(
     is_full_chart_end: torch.Tensor | bool,
     vocab: MapperV3Vocab,
     chart_end_ms: torch.Tensor | int | None = None,
+    event_emitted_at_current_ms: torch.Tensor | bool = False,
     positions: torch.Tensor | None = None,
     min_ln_duration_ms: int | None = None,
     invalid_value: float = -torch.inf,
@@ -155,6 +162,12 @@ def build_grammar_mask(
     full_end_values = _broadcast_bool_tensor(is_full_chart_end, batch_size=batch_size, device=device)
     carry_in_values = _broadcast_carry(ln_carry_in, batch_size=batch_size, device=device)
     carry_out_values = _broadcast_carry(ln_carry_out, batch_size=batch_size, device=device)
+    event_emitted_values = _broadcast_step_bool_tensor(
+        event_emitted_at_current_ms,
+        batch_size=batch_size,
+        steps=steps,
+        device=device,
+    )
 
     valid = torch.zeros((batch_size, steps, vocab.size), dtype=torch.bool, device=device)
     for batch_index in range(batch_size):
@@ -176,9 +189,34 @@ def build_grammar_mask(
                 is_full_chart_end=bool(full_end_values[batch_index].item()),
                 vocab=vocab,
                 min_ln_duration_ms=min_ln_duration_ms,
+                event_emitted_at_current_ms=event_emitted_values[batch_index, step],
                 device=device,
             )
     return torch.zeros_like(valid, dtype=torch.float32).masked_fill(~valid, invalid_value)
+
+
+def _broadcast_step_bool_tensor(
+    value: torch.Tensor | bool,
+    *,
+    batch_size: int,
+    steps: int,
+    device: torch.device,
+) -> torch.Tensor:
+    if isinstance(value, torch.Tensor):
+        tensor = value.to(device=device, dtype=torch.bool)
+        if tensor.ndim == 0:
+            return tensor.reshape(1, 1).expand(batch_size, steps)
+        if tensor.ndim == 1:
+            if int(tensor.numel()) == 1:
+                return tensor.reshape(1, 1).expand(batch_size, steps)
+            if int(tensor.numel()) == steps:
+                return tensor.reshape(1, steps).expand(batch_size, steps)
+            if int(tensor.numel()) == batch_size:
+                return tensor.reshape(batch_size, 1).expand(batch_size, steps)
+        if tuple(tensor.shape) == (batch_size, steps):
+            return tensor
+        raise ValueError(f"event_emitted_at_current_ms must broadcast to {(batch_size, steps)}, got {tuple(tensor.shape)}")
+    return torch.full((batch_size, steps), bool(value), dtype=torch.bool, device=device)
 
 
 def _target_end_tensor(

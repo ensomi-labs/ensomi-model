@@ -82,6 +82,7 @@ def replay_tokens(
             open_mask=state.open_mask,
             open_start_ms=state.open_start_ms,
             open_age_ms=state.open_age_ms,
+            event_emitted_at_current_ms=state.event_emitted_at_current_ms,
         )
         states.append(state)
         state = transition_replay_state(
@@ -140,6 +141,7 @@ def replay_terminal_state(
                 open_mask=state.open_mask,
                 open_start_ms=state.open_start_ms,
                 open_age_ms=state.open_age_ms,
+                event_emitted_at_current_ms=state.event_emitted_at_current_ms,
             ),
             int(token_id),
             position=position,
@@ -210,6 +212,7 @@ def transition_replay_state(
             open_mask=state.open_mask,
             open_start_ms=state.open_start_ms,
             open_age_ms=next_age,  # type: ignore[arg-type]
+            event_emitted_at_current_ms=False,
         )
         if not is_full_chart_end and next_ms == int(target_end) and not replay_state_matches_carry(next_state, ln_carry_out):
             raise ReplayError("TIME_SHIFT to write_end_ms requires resulting state to equal ln_carry_out")
@@ -218,6 +221,8 @@ def transition_replay_state(
     if vocab.is_event_token(token_id):
         if state.current_ms > int(target_end) or (state.current_ms == int(target_end) and not is_full_chart_end):
             raise ReplayError("EVENT is illegal after the target end")
+        if state.event_emitted_at_current_ms:
+            raise ReplayError("EVENT is illegal after an event at the same current_ms")
         next_open = list(state.open_mask)
         next_start = list(state.open_start_ms)
         next_age = list(state.open_age_ms)
@@ -243,6 +248,7 @@ def transition_replay_state(
             open_mask=tuple(next_open),  # type: ignore[arg-type]
             open_start_ms=tuple(next_start),  # type: ignore[arg-type]
             open_age_ms=tuple(int(value) for value in next_age),  # type: ignore[arg-type]
+            event_emitted_at_current_ms=True,
         )
 
     raise ReplayError(f"unknown mapper v3 token id: {token_id}")
@@ -325,6 +331,7 @@ def _copy_state_at_position(state: MapperReplayState, *, position: int) -> Mappe
         open_mask=state.open_mask,
         open_start_ms=state.open_start_ms,
         open_age_ms=state.open_age_ms,
+        event_emitted_at_current_ms=state.event_emitted_at_current_ms,
     )
 
 
