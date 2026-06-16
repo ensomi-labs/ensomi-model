@@ -1,0 +1,51 @@
+{
+  "baseline": {
+    "completed_steps": 2,
+    "final_eval_loss_total": 3.460522012098137,
+    "final_train_eval_loss_total": 3.3271089523777464,
+    "is_complete": true,
+    "last_train_loss_total": 3.3094663619995117,
+    "model": {
+      "c3_side_stream_embedding_dim": 64,
+      "c3_side_stream_scale_init": 0.03,
+      "c3_side_stream_vocab_size": 0,
+      "use_c3_side_stream_conditioning": false
+    },
+    "parameter_count": 15070861,
+    "report_path": "artifacts/runs/stage2_mapper_v2_1/c3_conditioning_smoke_baseline/report.json"
+  },
+  "comparison": {
+    "enabled_minus_baseline_final_eval_loss": 0.000860161374778734,
+    "enabled_relative_final_eval_loss_delta": 0.0002485640524093105,
+    "kill_threshold_relative_loss_delta": 0.25,
+    "kill_threshold_triggered": false,
+    "smoke_pass": true
+  },
+  "dataset": {
+    "c3_side_stream_max_tokens": 256,
+    "c3_side_stream_token_sidecar_path": "artifacts/cache/c3_mapper_window_sidecar/c3_exact_mapper_window_sidecar_le3.json",
+    "eval_window_count": 43,
+    "final_train_eval_window_count": 2,
+    "include_c3_side_stream_token_tensors": true,
+    "train_window_count": 174472
+  },
+  "enabled": {
+    "completed_steps": 2,
+    "final_eval_loss_total": 3.4613821734729155,
+    "final_train_eval_loss_total": 3.3272485406985886,
+    "is_complete": true,
+    "last_train_loss_total": 3.309666395187378,
+    "model": {
+      "c3_side_stream_embedding_dim": 16,
+      "c3_side_stream_scale_init": 0.03,
+      "c3_side_stream_vocab_size": 14294,
+      "use_c3_side_stream_conditioning": true
+    },
+    "parameter_count": 15300126,
+    "report_path": "artifacts/runs/stage2_mapper_v2_1/c3_conditioning_smoke_enabled/report.json"
+  },
+  "verification": {
+    "pytest": "uv run --group dev pytest tests/models/mapper/v2_1/test_model.py tests/training/test_mapper_v2_1.py -q",
+    "pytest_result": "15 passed in 0.80s"
+  }
+}
