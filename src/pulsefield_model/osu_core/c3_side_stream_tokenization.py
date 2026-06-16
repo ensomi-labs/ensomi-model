@@ -18,8 +18,15 @@ from pulsefield_model.osu_core.beat_chunk_pattern_audit import (
     DEFAULT_MOTIF_MAX_N,
     DEFAULT_MOTIF_MIN_N,
     DEFAULT_SMOOTHING_ALPHA,
+    _group_tokens,
+    _segment_ids,
 )
 from pulsefield_model.osu_core.beat_chunk_tokenizer_refinement_audit import DEFAULT_RARE_MAX_COUNT
+from pulsefield_model.osu_core.beat_representation import (
+    DEFAULT_BEAT_REPRESENTATION_TIMING_CANONICALIZATION,
+    DEFAULT_SNAP_DENOMINATOR,
+    hitobjects_to_beat_events,
+)
 from pulsefield_model.osu_core.beat_representation_audit import DEFAULT_DATASET_ROOT
 from pulsefield_model.osu_core.context_adaptive_fallback_codec_audit import (
     DEFAULT_LZ_MAX_SPAN,
@@ -44,6 +51,8 @@ from pulsefield_model.osu_core.duration_ln_tokenization_audit import (
     DEFAULT_MOTIF_VOCAB_SIZE,
     _normalize_json,
 )
+from pulsefield_model.osu_core.hitobjects import parse_mania_hit_objects
+from pulsefield_model.osu_core.timing import require_red_timing_points
 from pulsefield_model.models.mapper.v2_1.tokenizer import MAPPER_WRITE_MS
 
 
@@ -63,11 +72,19 @@ DEFAULT_MAPPER_SIDECAR_REPORT_PATH: Final[Path] = Path(
 DEFAULT_MAPPER_SIDECAR_RESULT_LOG_PATH: Final[Path] = Path(
     "artifacts/reports/audits/context_adaptive_fallback_codec/c3_mapper_window_sidecar_result_log.md",
 )
+DEFAULT_EXACT_WINDOW_COMPARISON_REPORT_PATH: Final[Path] = Path(
+    "artifacts/reports/audits/context_adaptive_fallback_codec/c3_exact_window_assignment_comparison_report.json",
+)
+DEFAULT_EXACT_WINDOW_COMPARISON_RESULT_LOG_PATH: Final[Path] = Path(
+    "artifacts/reports/audits/context_adaptive_fallback_codec/c3_exact_window_assignment_comparison_result_log.md",
+)
 SELECTED_C3_VARIANT: Final[str] = "a2_skeleton_residual_all_fallback_w256"
 MAPPER_SIDECAR_CONTRACT: Final[str] = "r0_delta_main_plus_c3_fallback_side_stream_v1"
 MAPPER_SIDECAR_PAD_ID: Final[int] = 0
 DEFAULT_MAPPER_SIDECAR_MAX_TOKENS: Final[int] = 256
 DEFAULT_BOUNDARY_RISK_MARGIN_MS: Final[int] = 2_000
+DEFAULT_EXACT_WINDOW_COMPARE_SOURCE_LIMIT: Final[int] = 64
+DEFAULT_EXACT_WINDOW_MISMATCH_RATE_MAX: Final[float] = 0.01
 FALLBACK_PLACEHOLDER_TOKEN: Final[str] = "F"
 RAW_PREFIX: Final[str] = "RAW|"
 REF_PREFIX: Final[str] = "REF|"
@@ -114,6 +131,12 @@ class _WindowAnchor:
     window_start_ms: int
     chunk_sort_ms: float
     near_boundary: bool
+
+
+@dataclass(frozen=True, slots=True)
+class _ExactGroupAnchor:
+    window_start_ms: int
+    snapped_time_ms: float
 
 
 def audit_c3_side_stream_tokenization(
@@ -425,6 +448,167 @@ def audit_c3_mapper_window_sidecar(
         _write_json(report_path, report)
     if result_log_path is not None:
         _write_mapper_sidecar_result_log(result_log_path, report)
+    return report
+
+
+def audit_c3_exact_window_assignment_comparison(
+    *,
+    chunk_cache_path: str | Path = DEFAULT_BEAT_CHUNK_CACHE_PATH,
+    dataset_root: str | Path = DEFAULT_DATASET_ROOT,
+    report_path: str | Path | None = DEFAULT_EXACT_WINDOW_COMPARISON_REPORT_PATH,
+    result_log_path: str | Path | None = DEFAULT_EXACT_WINDOW_COMPARISON_RESULT_LOG_PATH,
+    motif_vocab_size: int = DEFAULT_MOTIF_VOCAB_SIZE,
+    motif_min_n: int = DEFAULT_MOTIF_MIN_N,
+    motif_max_n: int = DEFAULT_MOTIF_MAX_N,
+    smoothing_alpha: float = DEFAULT_SMOOTHING_ALPHA,
+    rare_max_count: int = DEFAULT_RARE_MAX_COUNT,
+    lz_window_fallbacks: int = DEFAULT_LZ_WINDOW_FALLBACKS,
+    lz_max_span: int = DEFAULT_LZ_MAX_SPAN,
+    mapper_window_ms: int = MAPPER_WRITE_MS,
+    boundary_risk_margin_ms: int = DEFAULT_BOUNDARY_RISK_MARGIN_MS,
+    source_limit: int = DEFAULT_EXACT_WINDOW_COMPARE_SOURCE_LIMIT,
+    source_selection: str = "boundary_risk",
+    mismatch_rate_fail_threshold: float = DEFAULT_EXACT_WINDOW_MISMATCH_RATE_MAX,
+    expected_key_count: int | None = 4,
+    snap_denominator: int = DEFAULT_SNAP_DENOMINATOR,
+    timing_canonicalization: str = DEFAULT_BEAT_REPRESENTATION_TIMING_CANONICALIZATION,
+    limit_chunks: int | None = None,
+    command: str | None = None,
+) -> dict[str, Any]:
+    """Compare P3 chunk-sort window assignment against exact group snapped-time assignment."""
+
+    del rare_max_count
+    started_at = time.perf_counter()
+    chunk_cache_path = Path(chunk_cache_path)
+    dataset_root = Path(dataset_root)
+    report_path = None if report_path is None else Path(report_path)
+    result_log_path = None if result_log_path is None else Path(result_log_path)
+    _validate_positive(motif_vocab_size, "motif_vocab_size")
+    _validate_positive(motif_min_n, "motif_min_n")
+    _validate_positive(motif_max_n, "motif_max_n")
+    _validate_positive(lz_window_fallbacks, "lz_window_fallbacks")
+    _validate_positive(lz_max_span, "lz_max_span")
+    _validate_positive(mapper_window_ms, "mapper_window_ms")
+    _validate_positive(boundary_risk_margin_ms, "boundary_risk_margin_ms")
+    _validate_positive(source_limit, "source_limit")
+    _validate_positive(snap_denominator, "snap_denominator")
+    if mismatch_rate_fail_threshold < 0:
+        raise ValueError("mismatch_rate_fail_threshold must be non-negative")
+    if motif_max_n < motif_min_n:
+        raise ValueError("motif_max_n must be >= motif_min_n")
+
+    chunk_df = _read_chunk_cache_for_mapper_sidecar(chunk_cache_path, limit_chunks=limit_chunks)
+    selected_source_ids, selection_report = _select_exact_compare_sources(
+        chunk_df,
+        source_limit=source_limit,
+        source_selection=source_selection,
+        mapper_window_ms=mapper_window_ms,
+        boundary_risk_margin_ms=boundary_risk_margin_ms,
+    )
+    selected_df = chunk_df[chunk_df["source_row_index"].astype(int).isin(selected_source_ids)].copy()
+    baseline_model = _fit_motif_model(
+        selected_df,
+        name="r0_delta",
+        token_mapper=_baseline_tokens,
+        motif_vocab_size=motif_vocab_size,
+        motif_min_n=motif_min_n,
+        motif_max_n=motif_max_n,
+        smoothing_alpha=smoothing_alpha,
+        top_motif_limit=20,
+    )
+    records, record_summary = _collect_fallback_records(selected_df, baseline_model=baseline_model)
+    plan = _build_selected_skeleton_residual_plan(
+        records,
+        window_fallbacks=lz_window_fallbacks,
+        max_span=lz_max_span,
+    )
+    traced = _trace_side_stream_tokens(records, plan)
+    chunk_anchors = _chunk_window_anchors(
+        selected_df,
+        dataset_root=dataset_root,
+        mapper_window_ms=mapper_window_ms,
+        boundary_risk_margin_ms=boundary_risk_margin_ms,
+    )
+    exact_anchors, exact_anchor_report = _exact_group_anchors_for_sources(
+        selected_df,
+        dataset_root=dataset_root,
+        mapper_window_ms=mapper_window_ms,
+        expected_key_count=expected_key_count,
+        snap_denominator=snap_denominator,
+        timing_canonicalization=timing_canonicalization,
+    )
+    comparison = _compare_traced_token_windows(
+        traced,
+        chunk_anchors=chunk_anchors,
+        exact_anchors=exact_anchors,
+    )
+    pass_criteria = {
+        "exact_window_comparison_pass": (
+            int(exact_anchor_report["parse_error_count"]) == 0
+            and int(comparison["missing_exact_anchor_token_count"]) == 0
+            and float(comparison["token_window_mismatch_rate"]) <= float(mismatch_rate_fail_threshold)
+        ),
+        "kill_chunk_sort_anchoring": float(comparison["token_window_mismatch_rate"]) > float(mismatch_rate_fail_threshold),
+        "token_mismatch_rate_threshold": float(mismatch_rate_fail_threshold),
+        "chunk_cache_untruncated": limit_chunks is None,
+    }
+    report = {
+        "schema_version": SCHEMA_VERSION,
+        "experiment": "C3 exact mapper-window assignment comparison P4",
+        "command": command,
+        "code_commit": _git_stdout("rev-parse", "HEAD"),
+        "code_dirty": bool(_git_stdout("status", "--short")),
+        "chunk_cache_path": chunk_cache_path.as_posix(),
+        "dataset_root": dataset_root.as_posix(),
+        "report_path": None if report_path is None else report_path.as_posix(),
+        "result_log_path": None if result_log_path is None else result_log_path.as_posix(),
+        "limited": limit_chunks is not None,
+        "limit_chunks": limit_chunks,
+        "scope": {
+            "bounded_source_slice": True,
+            "full_cache_exact_comparison": False,
+            "chunk_cache_limited": limit_chunks is not None,
+            "limit_chunks": limit_chunks,
+            "source_limit": int(source_limit),
+            "source_selection": source_selection,
+        },
+        "elapsed_s": time.perf_counter() - started_at,
+        "config": {
+            "motif_vocab_size": motif_vocab_size,
+            "motif_min_n": motif_min_n,
+            "motif_max_n": motif_max_n,
+            "smoothing_alpha": smoothing_alpha,
+            "lz_window_fallbacks": lz_window_fallbacks,
+            "lz_max_span": lz_max_span,
+            "selected_c3_variant": SELECTED_C3_VARIANT,
+            "mapper_window_ms": mapper_window_ms,
+            "boundary_risk_margin_ms": boundary_risk_margin_ms,
+            "source_limit": source_limit,
+            "source_selection": source_selection,
+            "mismatch_rate_fail_threshold": mismatch_rate_fail_threshold,
+            "expected_key_count": expected_key_count,
+            "snap_denominator": snap_denominator,
+            "timing_canonicalization": timing_canonicalization,
+        },
+        "dataset": _dataset_summary(selected_df),
+        "source_selection": selection_report,
+        "fallback_record_summary": record_summary,
+        "selected_plan": {
+            "variant": plan.name,
+            "span_count": len(plan.lz_spans),
+            "selected_fallback_literal_count": sum(span.length for span in plan.lz_spans),
+            "metadata": plan.metadata,
+        },
+        "exact_anchor_report": exact_anchor_report,
+        "comparison": comparison,
+        "pass_criteria": pass_criteria,
+        "recommendation": _exact_window_comparison_recommendation(pass_criteria, comparison=comparison),
+    }
+    report = _normalize_json(report)
+    if report_path is not None:
+        _write_json(report_path, report)
+    if result_log_path is not None:
+        _write_exact_window_comparison_result_log(result_log_path, report)
     return report
 
 
@@ -1138,6 +1322,221 @@ def _span_windows(
     return windows
 
 
+def _select_exact_compare_sources(
+    chunk_df: pd.DataFrame,
+    *,
+    source_limit: int,
+    source_selection: str,
+    mapper_window_ms: int,
+    boundary_risk_margin_ms: int,
+) -> tuple[tuple[int, ...], dict[str, Any]]:
+    if source_selection not in {"boundary_risk", "first"}:
+        raise ValueError("source_selection must be 'boundary_risk' or 'first'")
+    frame = chunk_df.copy()
+    frame["_source_row_index"] = frame["source_row_index"].astype(int)
+    frame["_chunk_sort_ms"] = frame["chunk_sort_ms"].astype(float)
+    modulo = frame["_chunk_sort_ms"] % float(mapper_window_ms)
+    frame["_boundary_risk"] = modulo >= float(max(0, mapper_window_ms - boundary_risk_margin_ms))
+    grouped = (
+        frame.groupby("_source_row_index", sort=True)
+        .agg(
+            chunk_count=("chunk_index", "count"),
+            boundary_risk_chunk_count=("_boundary_risk", "sum"),
+            beatmap_path=("beatmap_path", "first"),
+            split=("split", "first"),
+        )
+        .reset_index()
+        .rename(columns={"_source_row_index": "source_row_index"})
+    )
+    if source_selection == "boundary_risk":
+        grouped = grouped.sort_values(
+            ["boundary_risk_chunk_count", "chunk_count", "source_row_index"],
+            ascending=[False, False, True],
+        )
+    else:
+        grouped = grouped.sort_values("source_row_index")
+    selected = grouped.head(int(source_limit)).copy()
+    source_ids = tuple(int(value) for value in selected["source_row_index"].tolist())
+    return source_ids, {
+        "source_selection": source_selection,
+        "source_limit": int(source_limit),
+        "selected_source_count": len(source_ids),
+        "selected_source_ids": list(source_ids),
+        "selected_boundary_risk_chunk_count": int(selected["boundary_risk_chunk_count"].sum()) if len(selected) else 0,
+        "selected_chunk_count": int(selected["chunk_count"].sum()) if len(selected) else 0,
+        "top_sources": [
+            {
+                "source_row_index": int(row.source_row_index),
+                "beatmap_path": str(row.beatmap_path),
+                "split": str(row.split),
+                "chunk_count": int(row.chunk_count),
+                "boundary_risk_chunk_count": int(row.boundary_risk_chunk_count),
+            }
+            for row in selected.head(20).itertuples(index=False)
+        ],
+    }
+
+
+def _exact_group_anchors_for_sources(
+    selected_df: pd.DataFrame,
+    *,
+    dataset_root: Path,
+    mapper_window_ms: int,
+    expected_key_count: int | None,
+    snap_denominator: int,
+    timing_canonicalization: str,
+) -> tuple[dict[tuple[int, int, int], _ExactGroupAnchor], dict[str, Any]]:
+    anchors: dict[tuple[int, int, int], _ExactGroupAnchor] = {}
+    errors: list[dict[str, Any]] = []
+    source_count = 0
+    parsed_source_count = 0
+    for source, source_df in selected_df.groupby("source_row_index", sort=True):
+        source_count += 1
+        row = next(source_df.itertuples(index=False))
+        beatmap_path = Path(_resolved_mapper_beatmap_path(row, dataset_root=dataset_root))
+        try:
+            timing_points = require_red_timing_points(beatmap_path)
+            hitobjects = parse_mania_hit_objects(beatmap_path, expected_key_count=expected_key_count)
+            events = hitobjects_to_beat_events(
+                hitobjects,
+                timing_points,
+                snap_denominator=snap_denominator,
+                timing_canonicalization=timing_canonicalization,
+                include_diagnostics=False,
+            )
+            segment_ids = _segment_ids(events)
+            groups = _group_tokens(events, segment_ids, snap_denominator=snap_denominator)
+        except Exception as exc:  # noqa: BLE001 - source-local audit failure.
+            if len(errors) < 20:
+                errors.append(
+                    {
+                        "source_row_index": int(source),
+                        "beatmap_path": beatmap_path.as_posix(),
+                        "error_type": type(exc).__name__,
+                        "error_message": str(exc)[:500],
+                    }
+                )
+            continue
+        parsed_source_count += 1
+        for group in groups:
+            snapped_time_ms = float(group["snapped_time_ms"])
+            anchors[(int(source), int(group["segment_id"]), int(group["beat_offset_numerator"]))] = _ExactGroupAnchor(
+                window_start_ms=_window_start_ms(snapped_time_ms, mapper_window_ms=mapper_window_ms),
+                snapped_time_ms=snapped_time_ms,
+            )
+    return anchors, {
+        "source_count": source_count,
+        "parsed_source_count": parsed_source_count,
+        "parse_error_count": source_count - parsed_source_count,
+        "exact_group_anchor_count": len(anchors),
+        "errors": errors,
+    }
+
+
+def _compare_traced_token_windows(
+    traced_by_source: Mapping[int, Sequence[_TracedSideToken]],
+    *,
+    chunk_anchors: Mapping[tuple[int, int, int], _WindowAnchor],
+    exact_anchors: Mapping[tuple[int, int, int], _ExactGroupAnchor],
+) -> dict[str, Any]:
+    traced_token_count = 0
+    compared_token_count = 0
+    mismatched_token_count = 0
+    missing_chunk_anchor_token_count = 0
+    missing_exact_anchor_token_count = 0
+    boundary_risk_token_count = 0
+    compared_by_kind: Counter[str] = Counter()
+    mismatch_by_kind: Counter[str] = Counter()
+    record_seen: set[tuple[int, int]] = set()
+    compared_record_count = 0
+    mismatched_record_count = 0
+    examples: list[dict[str, Any]] = []
+    for source, traced_tokens in sorted(traced_by_source.items()):
+        for traced in traced_tokens:
+            traced_token_count += 1
+            record = traced.record
+            chunk_anchor = chunk_anchors.get((int(record.source_row_index), int(record.segment_id), int(record.chunk_index)))
+            exact_anchor = exact_anchors.get((int(record.source_row_index), int(record.segment_id), int(record.absolute_units)))
+            if chunk_anchor is None:
+                missing_chunk_anchor_token_count += 1
+                continue
+            if exact_anchor is None:
+                missing_exact_anchor_token_count += 1
+                if len(examples) < 20:
+                    examples.append(
+                        {
+                            "reason": "missing_exact_anchor",
+                            "source_row_index": int(source),
+                            "record_id": int(record.id),
+                            "segment_id": int(record.segment_id),
+                            "absolute_units": int(record.absolute_units),
+                            "chunk_window_start_ms": int(chunk_anchor.window_start_ms),
+                            "beatmap_path": chunk_anchor.beatmap_path,
+                        }
+                    )
+                continue
+            compared_token_count += 1
+            compared_by_kind[traced.kind] += 1
+            if chunk_anchor.near_boundary:
+                boundary_risk_token_count += 1
+            mismatch = int(chunk_anchor.window_start_ms) != int(exact_anchor.window_start_ms)
+            if mismatch:
+                mismatched_token_count += 1
+                mismatch_by_kind[traced.kind] += 1
+                if len(examples) < 20:
+                    examples.append(
+                        {
+                            "reason": "window_mismatch",
+                            "source_row_index": int(source),
+                            "record_id": int(record.id),
+                            "token_kind": traced.kind,
+                            "token": traced.token[:200],
+                            "segment_id": int(record.segment_id),
+                            "chunk_index": int(record.chunk_index),
+                            "group_index": int(record.group_index),
+                            "absolute_units": int(record.absolute_units),
+                            "chunk_window_start_ms": int(chunk_anchor.window_start_ms),
+                            "exact_window_start_ms": int(exact_anchor.window_start_ms),
+                            "chunk_sort_ms": float(chunk_anchor.chunk_sort_ms),
+                            "exact_snapped_time_ms": float(exact_anchor.snapped_time_ms),
+                            "beatmap_path": chunk_anchor.beatmap_path,
+                        }
+                    )
+            record_key = (int(record.source_row_index), int(record.id))
+            if record_key not in record_seen:
+                record_seen.add(record_key)
+                compared_record_count += 1
+                if mismatch:
+                    mismatched_record_count += 1
+    mismatch_rate_by_kind = {
+        kind: float(mismatch_by_kind.get(kind, 0)) / float(count) if count else 0.0
+        for kind, count in compared_by_kind.items()
+    }
+    return {
+        "traced_token_count": traced_token_count,
+        "compared_token_count": compared_token_count,
+        "mismatched_token_count": mismatched_token_count,
+        "token_window_mismatch_rate": (
+            float(mismatched_token_count) / float(compared_token_count) if compared_token_count else 0.0
+        ),
+        "missing_chunk_anchor_token_count": missing_chunk_anchor_token_count,
+        "missing_exact_anchor_token_count": missing_exact_anchor_token_count,
+        "boundary_risk_token_count": boundary_risk_token_count,
+        "boundary_risk_token_rate": (
+            float(boundary_risk_token_count) / float(compared_token_count) if compared_token_count else 0.0
+        ),
+        "compared_by_kind": dict(compared_by_kind),
+        "mismatch_by_kind": dict(mismatch_by_kind),
+        "mismatch_rate_by_kind": mismatch_rate_by_kind,
+        "compared_record_count": compared_record_count,
+        "mismatched_record_count": mismatched_record_count,
+        "record_window_mismatch_rate": (
+            float(mismatched_record_count) / float(compared_record_count) if compared_record_count else 0.0
+        ),
+        "examples": examples,
+    }
+
+
 def _recommendation(reconstruction_guard: Mapping[str, Any], *, limit_chunks: int | None) -> str:
     if not reconstruction_guard.get("pass"):
         return "MUTATE: P0 side-stream artifact failed lossless reconstruction; do not move to mapper-side fields."
@@ -1234,6 +1633,45 @@ def _write_mapper_sidecar_result_log(path: Path, report: Mapping[str, Any]) -> N
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
+def _write_exact_window_comparison_result_log(path: Path, report: Mapping[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    comparison = report.get("comparison", {})
+    exact = report.get("exact_anchor_report", {})
+    selection = report.get("source_selection", {})
+    pass_criteria = report.get("pass_criteria", {})
+    lines = [
+        "# C3 Exact Window Assignment Comparison Result Log",
+        "",
+        "## Summary",
+        "",
+        f"- Recommendation: {report.get('recommendation')}",
+        f"- Exact comparison pass: {pass_criteria.get('exact_window_comparison_pass') if isinstance(pass_criteria, Mapping) else None}",
+        f"- Kill chunk-sort anchoring: {pass_criteria.get('kill_chunk_sort_anchoring') if isinstance(pass_criteria, Mapping) else None}",
+        f"- Runtime seconds: {_fmt_float(report.get('elapsed_s'))}",
+        f"- Bounded source slice: {report.get('scope', {}).get('bounded_source_slice') if isinstance(report.get('scope'), Mapping) else None}",
+        f"- Full-cache exact comparison: {report.get('scope', {}).get('full_cache_exact_comparison') if isinstance(report.get('scope'), Mapping) else None}",
+        f"- Chunk cache limited: {report.get('scope', {}).get('chunk_cache_limited') if isinstance(report.get('scope'), Mapping) else None}",
+        f"- Code dirty: {report.get('code_dirty')}",
+        f"- Selected sources: {selection.get('selected_source_count') if isinstance(selection, Mapping) else None}",
+        f"- Parsed sources: {exact.get('parsed_source_count') if isinstance(exact, Mapping) else None}",
+        f"- Parse errors: {exact.get('parse_error_count') if isinstance(exact, Mapping) else None}",
+        f"- Exact group anchors: {exact.get('exact_group_anchor_count') if isinstance(exact, Mapping) else None}",
+        f"- Traced tokens: {comparison.get('traced_token_count') if isinstance(comparison, Mapping) else None}",
+        f"- Compared tokens: {comparison.get('compared_token_count') if isinstance(comparison, Mapping) else None}",
+        f"- Mismatched tokens: {comparison.get('mismatched_token_count') if isinstance(comparison, Mapping) else None}",
+        f"- Token mismatch rate: {comparison.get('token_window_mismatch_rate') if isinstance(comparison, Mapping) else None}",
+        f"- Boundary-risk token rate: {comparison.get('boundary_risk_token_rate') if isinstance(comparison, Mapping) else None}",
+        f"- Missing exact anchor tokens: {comparison.get('missing_exact_anchor_token_count') if isinstance(comparison, Mapping) else None}",
+        f"- Mismatch by kind: {comparison.get('mismatch_by_kind') if isinstance(comparison, Mapping) else None}",
+        "",
+        "## Interpretation",
+        "",
+        str(report.get("recommendation")),
+        "",
+    ]
+    path.write_text("\n".join(lines), encoding="utf-8")
+
+
 def _write_sidecar_json(path: Path, payload: Mapping[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = path.with_suffix(path.suffix + ".tmp")
@@ -1299,6 +1737,22 @@ def _mapper_sidecar_recommendation(
     if boundary_rate > 0.10 or target_cross_rate > 0.10:
         return "MUTATE: full-cache C3 sidecar works, but chunk-sort window anchoring risk is high; compare against exact per-group timing."
     return "TEST_NEXT: full-cache C3 mapper-window sidecar is tractable; design a disabled-by-default model-conditioning probe."
+
+
+def _exact_window_comparison_recommendation(
+    pass_criteria: Mapping[str, Any],
+    *,
+    comparison: Mapping[str, Any],
+) -> str:
+    if int(comparison.get("missing_exact_anchor_token_count", 0) or 0) > 0:
+        return "MUTATE: exact timing comparison could not anchor all C3 tokens; fix exact group lookup before sidecar promotion."
+    if int(comparison.get("missing_chunk_anchor_token_count", 0) or 0) > 0:
+        return "MUTATE: chunk-sort anchors are missing for some C3 tokens; fix P3 anchoring before model conditioning."
+    if bool(pass_criteria.get("kill_chunk_sort_anchoring")):
+        return "MUTATE: exact timing comparison shows material window mismatch; replace P3 chunk-sort anchoring with exact per-group timing."
+    if bool(pass_criteria.get("exact_window_comparison_pass")):
+        return "TEST_NEXT: exact comparison supports chunk-sort anchoring on this slice; confirm on random slice or begin model-conditioning probe."
+    return "MUTATE: exact timing comparison did not pass; inspect mismatch examples before model conditioning."
 
 
 def _resolved_mapper_beatmap_path(row: object, *, dataset_root: Path) -> str:
@@ -1401,6 +1855,7 @@ def _command(args: Sequence[str]) -> str:
 def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Validate C3 fallback side-stream tokenization artifact.")
     parser.add_argument("--mapper-sidecar", action="store_true", help="build mapper-window C3 sidecar instead of P0 audit")
+    parser.add_argument("--exact-window-compare", action="store_true", help="compare chunk-sort and exact group-time window assignment")
     parser.add_argument("--chunk-cache-path", type=Path, default=DEFAULT_BEAT_CHUNK_CACHE_PATH)
     parser.add_argument("--dataset-root", type=Path, default=DEFAULT_DATASET_ROOT)
     parser.add_argument("--sidecar-path", type=Path, default=None)
@@ -1416,12 +1871,55 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--mapper-window-ms", type=int, default=MAPPER_WRITE_MS)
     parser.add_argument("--sidecar-max-tokens", type=int, default=DEFAULT_MAPPER_SIDECAR_MAX_TOKENS)
     parser.add_argument("--boundary-risk-margin-ms", type=int, default=DEFAULT_BOUNDARY_RISK_MARGIN_MS)
+    parser.add_argument("--source-limit", type=int, default=DEFAULT_EXACT_WINDOW_COMPARE_SOURCE_LIMIT)
+    parser.add_argument("--source-selection", default="boundary_risk", choices=("boundary_risk", "first"))
+    parser.add_argument("--mismatch-rate-fail-threshold", type=float, default=DEFAULT_EXACT_WINDOW_MISMATCH_RATE_MAX)
+    parser.add_argument("--expected-key-count", type=int, default=4)
+    parser.add_argument("--snap-denominator", type=int, default=DEFAULT_SNAP_DENOMINATOR)
+    parser.add_argument(
+        "--timing-canonicalization",
+        default=DEFAULT_BEAT_REPRESENTATION_TIMING_CANONICALIZATION,
+    )
     parser.add_argument("--limit-chunks", type=int, default=None)
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
+    if args.exact_window_compare:
+        report = audit_c3_exact_window_assignment_comparison(
+            chunk_cache_path=args.chunk_cache_path,
+            dataset_root=args.dataset_root,
+            report_path=args.report_path or DEFAULT_EXACT_WINDOW_COMPARISON_REPORT_PATH,
+            result_log_path=args.result_log_path or DEFAULT_EXACT_WINDOW_COMPARISON_RESULT_LOG_PATH,
+            motif_vocab_size=args.motif_vocab_size,
+            motif_min_n=args.motif_min_n,
+            motif_max_n=args.motif_max_n,
+            smoothing_alpha=args.smoothing_alpha,
+            rare_max_count=args.rare_max_count,
+            lz_window_fallbacks=args.lz_window_fallbacks,
+            lz_max_span=args.lz_max_span,
+            mapper_window_ms=args.mapper_window_ms,
+            boundary_risk_margin_ms=args.boundary_risk_margin_ms,
+            source_limit=args.source_limit,
+            source_selection=args.source_selection,
+            mismatch_rate_fail_threshold=args.mismatch_rate_fail_threshold,
+            expected_key_count=args.expected_key_count,
+            snap_denominator=args.snap_denominator,
+            timing_canonicalization=args.timing_canonicalization,
+            limit_chunks=args.limit_chunks,
+            command=_command(sys.argv[1:]),
+        )
+        print(
+            "c3_exact_window_compare "
+            f"pass={report.get('pass_criteria', {}).get('exact_window_comparison_pass')} "
+            f"kill_chunk_sort={report.get('pass_criteria', {}).get('kill_chunk_sort_anchoring')} "
+            f"mismatch_rate={report.get('comparison', {}).get('token_window_mismatch_rate')} "
+            f"compared_tokens={report.get('comparison', {}).get('compared_token_count')} "
+            f"recommendation={report.get('recommendation')} "
+            f"report={report.get('report_path')}"
+        )
+        return 0
     if args.mapper_sidecar:
         report = audit_c3_mapper_window_sidecar(
             chunk_cache_path=args.chunk_cache_path,

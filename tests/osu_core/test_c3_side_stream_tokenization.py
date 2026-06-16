@@ -10,6 +10,7 @@ from pulsefield_model.osu_core.c3_side_stream_tokenization import (
     _encode_side_stream_for_source,
     _signature_from_delta_tokens,
     audit_c3_mapper_window_sidecar,
+    audit_c3_exact_window_assignment_comparison,
     audit_c3_side_stream_tokenization,
 )
 from pulsefield_model.osu_core.context_adaptive_fallback_codec_audit import (
@@ -123,6 +124,52 @@ class C3SideStreamTokenizationTests(unittest.TestCase):
             expected_path = (dataset_root / "0" / "1.osu").as_posix()
             self.assertIn(expected_path, loaded)
             self.assertIn(0, loaded[expected_path])
+
+    def test_exact_window_assignment_comparison_detects_chunk_sort_mismatch(self) -> None:
+        rows = [
+            _cache_row(source=1, split="train", groups=[_group(0, tap=1), _group(24, tap=2)], chunk_sort_ms=8_100.0),
+            _cache_row(source=2, split="train", groups=[_group(0, tap=1), _group(24, tap=2)], chunk_sort_ms=100.0),
+            _cache_row(source=3, split="valid", groups=[_group(0, tap=1), _group(24, tap=1)], chunk_sort_ms=100.0),
+            _cache_row(source=4, split="test", groups=[_group(0, tap=1), _group(24, tap=1)], chunk_sort_ms=100.0),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            dataset_root = root / "dataset"
+            for source in (1, 2, 3, 4):
+                _write_osu(
+                    dataset_root / "0" / f"{source}.osu",
+                    timing_lines=["0,500,4,2,0,80,1,0"],
+                    hitobject_lines=[
+                        "64,192,0,1,0,0:0:0:0:",
+                        "192,192,250,1,0,0:0:0:0:",
+                    ],
+                )
+            cache_path = root / "chunks.parquet"
+            report_path = root / "exact_report.json"
+            log_path = root / "exact_log.md"
+            pd.DataFrame(rows).to_parquet(cache_path, index=False)
+
+            report = audit_c3_exact_window_assignment_comparison(
+                chunk_cache_path=cache_path,
+                dataset_root=dataset_root,
+                report_path=report_path,
+                result_log_path=log_path,
+                motif_vocab_size=2,
+                motif_min_n=2,
+                motif_max_n=2,
+                lz_window_fallbacks=8,
+                lz_max_span=2,
+                source_limit=4,
+                mismatch_rate_fail_threshold=0.01,
+            )
+
+            self.assertTrue(report_path.exists())
+            self.assertTrue(log_path.exists())
+            self.assertEqual(report["exact_anchor_report"]["parse_error_count"], 0)
+            self.assertGreater(report["comparison"]["compared_token_count"], 0)
+            self.assertGreater(report["comparison"]["mismatched_token_count"], 0)
+            self.assertTrue(report["pass_criteria"]["kill_chunk_sort_anchoring"])
+            self.assertFalse(report["pass_criteria"]["exact_window_comparison_pass"])
 
 
 def _span(
@@ -242,6 +289,38 @@ def _group(offset: int, *, tap: int) -> dict[str, int | str]:
         "order_signature": ".",
         "event_count": max(1, tap.bit_count()),
     }
+
+
+def _write_osu(
+    path: Path,
+    *,
+    timing_lines: list[str],
+    hitobject_lines: list[str],
+    circle_size: int = 4,
+    mode: int = 3,
+) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        "\n".join(
+            [
+                "osu file format v14",
+                "",
+                "[General]",
+                f"Mode: {mode}",
+                "",
+                "[Difficulty]",
+                f"CircleSize:{circle_size}",
+                "",
+                "[TimingPoints]",
+                *timing_lines,
+                "",
+                "[HitObjects]",
+                *hitobject_lines,
+            ],
+        )
+        + "\n",
+        encoding="utf-8",
+    )
 
 
 if __name__ == "__main__":
