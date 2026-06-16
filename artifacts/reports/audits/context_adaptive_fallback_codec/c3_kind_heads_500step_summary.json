@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "decision": {
+    "route": "TEST_NEXT",
+    "selected_variant": "500_step_reduced_sidecar_kind_heads",
+    "passes_p18_positive_signal": true,
+    "beats_reduced_unigram": false,
+    "recommended_next_card": "1000-step kind-head run or RAW-focused structured C3 target"
+  },
+  "comparator": {
+    "p17_kind_heads_100step": {
+      "model_recall_at_20": 0.025857519788918207,
+      "model_hits_at_20": 49,
+      "raw_recall_at_20": 0.03278688524590164,
+      "ref_recall_at_20": 0.017605633802816902,
+      "res_recall_at_20": 0.021136063408190225,
+      "reduced_unigram_recall_at_20": 0.08970976253298153,
+      "final_eval_loss_token": 2.705860820557332
+    },
+    "p13_no_auxiliary_100step_baseline": {
+      "final_eval_loss_token": 2.7059266700142657
+    }
+  },
+  "training": {
+    "run_name": "c3_kind_heads_reduced_sidecar_500step",
+    "completed_steps": 500,
+    "is_complete": true,
+    "parameter_count": 15121549,
+    "model": {
+      "use_c3_side_stream_conditioning": false,
+      "use_c3_auxiliary_target": true,
+      "use_c3_auxiliary_kind_heads": true,
+      "c3_auxiliary_vocab_size": 1536,
+      "c3_auxiliary_kind_vocab_sizes": [
+        512,
+        512,
+        512
+      ]
+    },
+    "loss_config": {
+      "lambda_c3_auxiliary": 0.05,
+      "c3_auxiliary_positive_weight": 64.0,
+      "c3_auxiliary_kind_balance": true,
+      "c3_auxiliary_kind_vocab_sizes": [
+        512,
+        512,
+        512
+      ]
+    },
+    "final_eval_loss_total": 2.4603000897418403,
+    "final_eval_loss_token": 2.3167961488038284,
+    "final_eval_loss_c3_auxiliary": 0.9450187727179326,
+    "final_train_eval_loss_total": 2.6119569611300917,
+    "final_train_eval_loss_token": 2.450148507093859,
+    "final_train_eval_loss_c3_auxiliary": 1.3450782168656588,
+    "eval_curve": [
+      {
+        "step": 100,
+        "loss_token": 2.705860820557332,
+        "loss_c3_auxiliary": 1.0490015132326476,
+        "loss_total": 2.85923552251573
+      },
+      {
+        "step": 200,
+        "loss_token": 2.542444721029375,
+        "loss_c3_auxiliary": 0.9994125983244936,
+        "loss_total": 2.6905490523589455
+      },
+      {
+        "step": 300,
+        "loss_token": 2.456627112223409,
+        "loss_c3_auxiliary": 0.9740790613520314,
+        "loss_total": 2.602483188010099
+      },
+      {
+        "step": 400,
+        "loss_token": 2.3949736288495522,
+        "loss_c3_auxiliary": 0.9579963245442216,
+        "loss_total": 2.5393856410933844
+      },
+      {
+        "step": 500,
+        "loss_token": 2.3167961488038284,
+        "loss_c3_auxiliary": 0.9450187727179326,
+        "loss_total": 2.4603000897418403
+      }
+    ],
+    "report_path": "artifacts/runs/stage2_mapper_v2_1/c3_kind_heads_reduced_sidecar_500step/report.json"
+  },
+  "diagnostics": {
+    "eval_window_count": 142,
+    "positive_sample_count": 139,
+    "positive_label_count": 1895,
+    "model_recall_at_20": 0.05857519788918206,
+    "model_hits_at_20": 111,
+    "reduced_unigram_recall_at_20": 0.08970976253298153,
+    "reduced_unigram_hits_at_20": 170,
+    "relative_lift_vs_reduced_unigram_at_20": -0.3470588235294118,
+    "raw_recall_at_20": 0.06908665105386416,
+    "ref_recall_at_20": 0.05985915492957746,
+    "res_recall_at_20": 0.046235138705416116,
+    "recovers_all_three_kinds": true,
+    "diagnostics_summary_path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_500step_diagnostics_summary.json"
+  },
+  "comparison": {
+    "p18_minus_p17_model_recall_at_20": 0.03271767810026385,
+    "p18_relative_p17_model_recall_at_20_delta": 1.2653061224489794,
+    "p18_vs_p17_model_recall_at_20_ratio": 2.265306122448979,
+    "p18_vs_p17_raw_recall_at_20_ratio": 2.1071428571428568,
+    "p18_vs_p17_ref_recall_at_20_ratio": 3.3999999999999995,
+    "p18_vs_p17_res_recall_at_20_ratio": 2.1875,
+    "p18_minus_p13_100step_baseline_final_eval_loss_token": -0.38913052121043723,
+    "p18_relative_p13_100step_baseline_final_eval_loss_token_delta": -0.14380675039075827,
+    "main_token_loss_regression_gate": 0.02,
+    "main_token_loss_regression_gate_triggered": false,
+    "auxiliary_eval_step100_loss": 1.0490015132326476,
+    "auxiliary_eval_step500_loss": 0.9450187727179326,
+    "auxiliary_eval_relative_delta_step100_to_500": -0.09912544377012135,
+    "p18_positive_gate_passed": true,
+    "production_gate_passed": false
+  },
+  "verification": {
+    "training_command": "uv run python -m pulsefield_model.training.mapper_v2_1 --config artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_500step_enabled.yaml",
+    "diagnostics_command": "uv run python -m pulsefield_model.evals.c3_auxiliary_diagnostics --config artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_500step_enabled.yaml --checkpoint artifacts/runs/stage2_mapper_v2_1/c3_kind_heads_reduced_sidecar_500step/checkpoint.pt --summary-output artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_500step_diagnostics_summary.json --report-output artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_500step_diagnostics_result_report.md --device cpu --batch-size 2",
+    "pytest": "uv run --group dev pytest tests/evals/test_c3_auxiliary_diagnostics.py tests/evals/test_c3_reduced_sidecar.py tests/models/mapper/v2_1/test_model.py tests/models/mapper/v2_1/test_data_windows.py tests/training/test_mapper_v2_1.py -q",
+    "pytest_result": "30 passed in 0.91s"
+  }
+}
