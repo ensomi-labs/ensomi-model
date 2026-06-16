@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "experiment": "target_grammar_v3_continuation_jump_guard",
+  "route": "TEST_NEXT",
+  "selected_variant_result": "PASS_LOCAL_LOSS_GATE",
+  "decision": {
+    "route": "TEST_NEXT",
+    "reason": "default-off continuation-jump loss passed local directional and regression gates; next evidence must come from a bounded 500-step fixed-slice training rollout",
+    "next_step": "Run lambda_continuation_jump fixed-slice training gate and compare starvation, rigidity, event ratio, legality, and overgeneration against same-ms guard and 500-step baselines."
+  },
+  "code_change": {
+    "loss_config_fields": [
+      "lambda_continuation_jump",
+      "continuation_jump_tolerance_ms"
+    ],
+    "new_loss": "continuation_jump_guard_loss",
+    "default_off": true,
+    "changed_tokenization": false,
+    "changed_vocab": false,
+    "changed_replay": false,
+    "changed_grammar": false,
+    "changed_rollout": false
+  },
+  "local_gates": {
+    "directional_skip_over_penalty": true,
+    "default_off_zero_loss": true,
+    "enabled_metric_positive": true,
+    "v2_1_shared_loss_regression": true,
+    "v3_rollout_regression": true
+  },
+  "verification": {
+    "focused_v3_shared_loss": "18 passed",
+    "v2_1_v3_training_model_regression": "25 passed",
+    "v3_replay_rollout_eval": "14 passed",
+    "json_validation": "passed",
+    "git_diff_check": "passed"
+  },
+  "baselines": {
+    "same_ms_guard_full32": {
+      "legal": true,
+      "max_token_cases": 0,
+      "starved_cases": 22,
+      "rigid_cases": 9,
+      "median_event_ratio": 0.585366,
+      "mean_f1_100ms": 0.556877
+    },
+    "baseline_500step_wide_audit": {
+      "legal": true,
+      "max_token_cases": 0,
+      "starved_cases": 11,
+      "rigid_cases": 7,
+      "median_event_ratio": 1.0,
+      "mean_f1_100ms": 0.639566
+    }
+  },
+  "not_proved": [
+    "free-running rollout improvement",
+    "reduced second-window starvation",
+    "reduced rigid-grid collapse",
+    "replacement readiness"
+  ]
+}

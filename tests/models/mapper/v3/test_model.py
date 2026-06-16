@@ -18,7 +18,7 @@ from pulsefield_model.models.mapper.v3 import (
     encode_mapper_window,
     ln_carry_state_tensors,
 )
-from pulsefield_model.models.mapper.shared.loss import event_budget_auxiliary_loss
+from pulsefield_model.models.mapper.shared.loss import continuation_jump_guard_loss, event_budget_auxiliary_loss
 from pulsefield_model.models.mapper.v3.replay import initial_replay_state, transition_replay_state
 from pulsefield_model.models.mapper.v3.vocab import LaneAction
 from pulsefield_model.training.mapper_v3 import _mapper_v3_training_spec
@@ -271,6 +271,88 @@ class MapperV3ModelTests(unittest.TestCase):
         )
 
         self.assertTrue(torch.isfinite(loss).item())
+
+    def test_continuation_jump_guard_penalizes_skipping_next_gold_event(self) -> None:
+        vocab = MapperV3Vocab()
+        event = vocab.encode_event(_actions(LaneAction.TAP))
+        shift_1000 = vocab.time_shift_token_id(1000)
+        shift_2000 = vocab.time_shift_token_id(2000)
+        shift_4000 = vocab.time_shift_token_id(4000)
+        target = torch.tensor(
+            [[shift_1000, event, shift_2000, event, vocab.eos_id]],
+            dtype=torch.long,
+        )
+        current_ms = torch.tensor([[0, 1000, 1000, 3000, 3000]], dtype=torch.long)
+        mask = torch.ones_like(target, dtype=torch.bool)
+        local_logits = torch.full((1, target.shape[1], vocab.size), -5.0)
+        jump_logits = torch.full_like(local_logits, -5.0)
+        local_logits[0, 0, shift_1000] = 5.0
+        local_logits[0, 2, shift_2000] = 5.0
+        jump_logits[0, 0, shift_4000] = 5.0
+        jump_logits[0, 2, shift_4000] = 5.0
+
+        local_loss = continuation_jump_guard_loss(
+            logits_final=local_logits,
+            target_tokens=target,
+            current_ms=current_ms,
+            vocab=vocab,
+            target_mask=mask,
+            tolerance_ms=100,
+        )
+        jump_loss = continuation_jump_guard_loss(
+            logits_final=jump_logits,
+            target_tokens=target,
+            current_ms=current_ms,
+            vocab=vocab,
+            target_mask=mask,
+            tolerance_ms=100,
+        )
+
+        self.assertLess(float(local_loss.item()), float(jump_loss.item()))
+        self.assertTrue(torch.isfinite(jump_loss).item())
+
+    def test_continuation_jump_loss_is_default_off_and_reports_metric_when_enabled(self) -> None:
+        vocab = MapperV3Vocab()
+        tokenized = encode_mapper_window(
+            [
+                MapperTimepoint(1000, _actions(LaneAction.TAP)),
+                MapperTimepoint(3000, _actions(LaneAction.TAP)),
+            ],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=3000,
+        )
+        batch = _batch_for_window(tokenized)
+        logits = torch.zeros((1, tokenized.seq_len, vocab.size), dtype=torch.float32)
+        output = SimpleNamespace(logits_final=logits)
+
+        off_loss = MapperV3ModelLoss(
+            MapperV3LossConfig(
+                lambda_density=0.0,
+                lambda_event_budget=0.0,
+                lambda_continuation_jump=0.0,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+            ),
+            vocab=vocab,
+        )(output, batch)
+        on_loss = MapperV3ModelLoss(
+            MapperV3LossConfig(
+                lambda_density=0.0,
+                lambda_event_budget=0.0,
+                lambda_continuation_jump=0.5,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+            ),
+            vocab=vocab,
+        )(output, batch)
+
+        self.assertEqual(off_loss.metrics["phase/lambda_continuation_jump"], 0.0)
+        self.assertEqual(float(off_loss.continuation_jump_loss.item()), 0.0)
+        self.assertEqual(on_loss.metrics["phase/lambda_continuation_jump"], 0.5)
+        self.assertGreater(float(on_loss.continuation_jump_loss.item()), 0.0)
+        self.assertGreater(float(on_loss.total_loss.item()), float(off_loss.total_loss.item()))
 
     def test_incremental_decode_matches_cached_full_forward_logits(self) -> None:
         torch.manual_seed(20260624)

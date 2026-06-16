@@ -102,6 +102,7 @@ class MapperV21ModelLoss(_MapperTupleModelLoss):
             ln_close_loss=loss.ln_close_loss,
             density_loss=loss.density_loss,
             event_budget_loss=loss.event_budget_loss,
+            continuation_jump_loss=loss.continuation_jump_loss,
             adapter_reg_loss=loss.adapter_reg_loss,
             metrics=metrics,
             metric_numerators=metric_numerators,

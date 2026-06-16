@@ -17,12 +17,14 @@ from .vocab import MapperTupleVocab
 class MapperTupleLossConfig:
     lambda_density: float = 0.0
     lambda_event_budget: float = 0.0
+    lambda_continuation_jump: float = 0.0
     lambda_ln_close: float = 0.05
     lambda_adapter_reg: float = 1e-5
     ln_close_pos_weight: float = 1.0
     ln_close_focal_gamma: float = 1.5
     density_calibration_scale: float = 1.0
     density_calibration_bias: float = 0.0
+    continuation_jump_tolerance_ms: int = 100
 
 
 @dataclass(frozen=True)
@@ -32,6 +34,7 @@ class MapperTupleLossOutput:
     ln_close_loss: torch.Tensor
     density_loss: torch.Tensor
     event_budget_loss: torch.Tensor
+    continuation_jump_loss: torch.Tensor
     adapter_reg_loss: torch.Tensor
     metrics: dict[str, float]
     metric_numerators: dict[str, float] = field(default_factory=dict)
@@ -207,11 +210,25 @@ class MapperTupleModelLoss(nn.Module):
         else:
             event_budget_loss_value = disabled_zero
             event_budget_weight = logits_final.new_zeros(())
+        if self.config.lambda_continuation_jump > 0.0:
+            continuation_jump_loss_value = continuation_jump_guard_loss(
+                logits_final=logits_final,
+                target_tokens=target,
+                current_ms=_require_fragment_state_tensor(batch, "current_ms").to(device=logits_final.device),
+                token_spec=self.token_spec,
+                target_mask=target_mask,
+                tolerance_ms=int(self.config.continuation_jump_tolerance_ms),
+            )
+            continuation_jump_weight = target_mask.to(dtype=logits_final.dtype).sum()
+        else:
+            continuation_jump_loss_value = disabled_zero
+            continuation_jump_weight = logits_final.new_zeros(())
         total_loss = (
             token_loss
             + float(self.config.lambda_ln_close) * ln_close_loss
             + float(self.config.lambda_density) * density_loss
             + float(self.config.lambda_event_budget) * event_budget_loss_value
+            + float(self.config.lambda_continuation_jump) * continuation_jump_loss_value
             + float(self.config.lambda_adapter_reg) * adapter_reg_loss
         )
 
@@ -223,9 +240,11 @@ class MapperTupleModelLoss(nn.Module):
         _record_scalar(metrics, "loss/ln_close", ln_close_loss)
         _record_scalar(metrics, "loss/density", density_loss)
         _record_scalar(metrics, "loss/event_budget", event_budget_loss_value)
+        _record_scalar(metrics, "loss/continuation_jump", continuation_jump_loss_value)
         _record_scalar(metrics, "loss/adapter_reg", adapter_reg_loss)
         metrics["phase/lambda_density"] = float(self.config.lambda_density)
         metrics["phase/lambda_event_budget"] = float(self.config.lambda_event_budget)
+        metrics["phase/lambda_continuation_jump"] = float(self.config.lambda_continuation_jump)
         metrics["phase/lambda_ln_close"] = float(self.config.lambda_ln_close)
         metrics["token/valid_count"] = int(target_mask.sum().detach().cpu())
         metrics["ln_close/open_lane_count"] = close_open_count
@@ -241,6 +260,10 @@ class MapperTupleModelLoss(nn.Module):
         denominators["loss/density"] = float(density_weight.detach().cpu())
         numerators["loss/event_budget"] = float((event_budget_loss_value.detach() * event_budget_weight.clamp_min(1)).cpu())
         denominators["loss/event_budget"] = float(event_budget_weight.detach().cpu())
+        numerators["loss/continuation_jump"] = float(
+            (continuation_jump_loss_value.detach() * continuation_jump_weight.clamp_min(1)).cpu()
+        )
+        denominators["loss/continuation_jump"] = float(continuation_jump_weight.detach().cpu())
 
         return MapperTupleLossOutput(
             total_loss=total_loss,
@@ -248,6 +271,7 @@ class MapperTupleModelLoss(nn.Module):
             ln_close_loss=ln_close_loss,
             density_loss=density_loss,
             event_budget_loss=event_budget_loss_value,
+            continuation_jump_loss=continuation_jump_loss_value,
             adapter_reg_loss=adapter_reg_loss,
             metrics=metrics,
             metric_numerators=numerators,
@@ -603,6 +627,78 @@ def event_budget_by_half_from_logits(
     return predicted, target_budget
 
 
+def continuation_jump_guard_loss(
+    *,
+    logits_final: torch.Tensor,
+    target_tokens: torch.Tensor,
+    current_ms: torch.Tensor,
+    vocab: Any | None = None,
+    token_spec: MapperLossTokenSpec | None = None,
+    target_mask: torch.Tensor | None = None,
+    tolerance_ms: int = 100,
+) -> torch.Tensor:
+    token_spec = _resolve_loss_token_spec(vocab=vocab, token_spec=token_spec)
+    event_token_ids = tuple(int(token_id) for token_id in token_spec.event_token_ids)
+    if not event_token_ids:
+        raise ValueError("continuation-jump loss requires a vocab with decode_event tokens")
+    time_shift_token_ids, time_shift_values = _time_shift_token_ids_and_values(token_spec.contract.vocab)
+    if not time_shift_token_ids:
+        raise ValueError("continuation-jump loss requires a vocab with time-shift tokens")
+    if int(tolerance_ms) < 0:
+        raise ValueError("tolerance_ms must be non-negative")
+    if logits_final.ndim != 3:
+        raise ValueError(f"logits_final must have shape [B,T,V], got {tuple(logits_final.shape)}")
+    if tuple(target_tokens.shape) != tuple(logits_final.shape[:2]):
+        raise ValueError(f"target_tokens must have shape {tuple(logits_final.shape[:2])}, got {tuple(target_tokens.shape)}")
+    if tuple(current_ms.shape) != tuple(logits_final.shape[:2]):
+        raise ValueError(f"current_ms must have shape {tuple(logits_final.shape[:2])}, got {tuple(current_ms.shape)}")
+    if int(logits_final.shape[-1]) != token_spec.vocab_size:
+        raise ValueError(f"logits_final vocab dim must be {token_spec.vocab_size}, got {logits_final.shape[-1]}")
+    if target_mask is None:
+        valid = torch.ones_like(target_tokens, dtype=torch.bool)
+    else:
+        if tuple(target_mask.shape) != tuple(target_tokens.shape):
+            raise ValueError(f"target_mask must have shape {tuple(target_tokens.shape)}, got {tuple(target_mask.shape)}")
+        valid = target_mask.to(device=logits_final.device, dtype=torch.bool)
+    target_tokens = target_tokens.to(device=logits_final.device, dtype=torch.long)
+    valid = valid & (target_tokens != int(token_spec.pad_id))
+    if not bool(valid.any()):
+        return logits_final.reshape(-1)[:0].sum() * 0.0
+
+    event_ids = torch.tensor(event_token_ids, dtype=torch.long, device=logits_final.device)
+    event_token_mask = torch.zeros((token_spec.vocab_size,), dtype=torch.bool, device=logits_final.device)
+    event_token_mask[event_ids] = True
+    target_event = event_token_mask[target_tokens.clamp(0, token_spec.vocab_size - 1)] & valid
+    if not bool(target_event.any()):
+        return logits_final.reshape(-1)[:0].sum() * 0.0
+
+    step_ms = current_ms.to(device=logits_final.device, dtype=torch.long)
+    large_ms = torch.iinfo(torch.long).max // 4
+    event_ms = torch.where(target_event, step_ms, step_ms.new_full(step_ms.shape, large_ms))
+    future_event_ms = torch.where(
+        event_ms.unsqueeze(1) > step_ms.unsqueeze(2),
+        event_ms.unsqueeze(1),
+        step_ms.new_full((1,), large_ms),
+    ).min(dim=2).values
+    has_future_event = future_event_ms < large_ms
+    guard_mask = valid & has_future_event
+    if not bool(guard_mask.any()):
+        return logits_final.reshape(-1)[:0].sum() * 0.0
+
+    safe_logits = logits_final.masked_fill(~valid.unsqueeze(-1), 0.0)
+    probs = torch.softmax(safe_logits, dim=-1)
+    shift_ids = torch.tensor(time_shift_token_ids, dtype=torch.long, device=logits_final.device)
+    shift_values = torch.tensor(time_shift_values, dtype=torch.long, device=logits_final.device)
+    shift_probs = probs.index_select(dim=-1, index=shift_ids)
+    landing_ms = step_ms.unsqueeze(-1) + shift_values.reshape(1, 1, -1)
+    unsafe_shift = landing_ms > (future_event_ms.unsqueeze(-1) + int(tolerance_ms))
+    unsafe_mass = (shift_probs * unsafe_shift.to(dtype=shift_probs.dtype)).sum(dim=-1)
+    unsafe_mass = unsafe_mass.clamp(min=0.0, max=1.0 - torch.finfo(unsafe_mass.dtype).eps)
+    loss = -torch.log1p(-unsafe_mass)
+    mask_f = guard_mask.to(dtype=loss.dtype)
+    return (loss * mask_f).sum() / mask_f.sum().clamp_min(torch.finfo(mask_f.dtype).eps)
+
+
 def _target_loss_mask(batch: Mapping[str, torch.Tensor], *, target: torch.Tensor, pad_id: int) -> torch.Tensor:
     raw_mask = batch.get("target_fragment_mask")
     if raw_mask is None:
@@ -717,6 +813,16 @@ def _token_ids_decodable_by(vocab: Any, decoder_name: str, *, vocab_size: int) -
     return tuple(token_ids)
 
 
+def _time_shift_token_ids_and_values(vocab: Any) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    token_ids = getattr(vocab, "time_shift_token_ids", None)
+    value_fn = getattr(vocab, "time_shift_value", None)
+    if token_ids is None or not callable(value_fn):
+        return (), ()
+    normalized_ids = tuple(int(token_id) for token_id in token_ids)
+    values = tuple(int(value_fn(token_id)) for token_id in normalized_ids)
+    return normalized_ids, values
+
+
 def _density_onset_weight(contract: MapperTokenContract, token_id: int) -> float:
     weight = getattr(contract.vocab, "event_onset_weight", None)
     if not callable(weight):
@@ -732,18 +838,22 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
     for name in (
         "lambda_density",
         "lambda_event_budget",
+        "lambda_continuation_jump",
         "lambda_ln_close",
         "lambda_adapter_reg",
         "ln_close_pos_weight",
         "ln_close_focal_gamma",
         "density_calibration_scale",
         "density_calibration_bias",
+        "continuation_jump_tolerance_ms",
     ):
         _require_finite_number(getattr(config, name), name)
     if config.lambda_density < 0.0:
         raise ValueError("lambda_density must be non-negative")
     if config.lambda_event_budget < 0.0:
         raise ValueError("lambda_event_budget must be non-negative")
+    if config.lambda_continuation_jump < 0.0:
+        raise ValueError("lambda_continuation_jump must be non-negative")
     if config.lambda_ln_close < 0.0:
         raise ValueError("lambda_ln_close must be non-negative")
     if config.lambda_adapter_reg < 0.0:
@@ -754,6 +864,8 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
         raise ValueError("ln_close_focal_gamma must be non-negative")
     if config.density_calibration_scale < 0.0:
         raise ValueError("density_calibration_scale must be non-negative")
+    if int(config.continuation_jump_tolerance_ms) < 0:
+        raise ValueError("continuation_jump_tolerance_ms must be non-negative")
 
 
 def _require_finite_number(value: float, name: str) -> None:
