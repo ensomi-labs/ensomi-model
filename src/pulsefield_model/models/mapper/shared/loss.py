@@ -16,6 +16,7 @@ from .vocab import MapperTupleVocab
 @dataclass(frozen=True)
 class MapperTupleLossConfig:
     lambda_density: float = 0.0
+    lambda_event_budget: float = 0.0
     lambda_ln_close: float = 0.05
     lambda_adapter_reg: float = 1e-5
     ln_close_pos_weight: float = 1.0
@@ -30,6 +31,7 @@ class MapperTupleLossOutput:
     token_loss: torch.Tensor
     ln_close_loss: torch.Tensor
     density_loss: torch.Tensor
+    event_budget_loss: torch.Tensor
     adapter_reg_loss: torch.Tensor
     metrics: dict[str, float]
     metric_numerators: dict[str, float] = field(default_factory=dict)
@@ -41,6 +43,7 @@ class MapperLossTokenSpec:
     contract: MapperTokenContract
     onset_token_ids: tuple[int, ...]
     onset_weights: tuple[float, ...]
+    event_token_ids: tuple[int, ...] = ()
 
     def __post_init__(self) -> None:
         if not isinstance(self.contract, MapperTokenContract):
@@ -60,6 +63,7 @@ class MapperLossTokenSpec:
             contract=contract,
             onset_token_ids=onset_token_ids,
             onset_weights=onset_weights,
+            event_token_ids=_event_budget_token_ids(contract),
         )
 
     @classmethod
@@ -188,10 +192,26 @@ class MapperTupleModelLoss(nn.Module):
         else:
             density_loss = disabled_zero
             density_weight = logits_final.new_zeros(())
+
+        if self.config.lambda_event_budget > 0.0:
+            event_budget_loss_value = event_budget_auxiliary_loss(
+                logits_final=logits_final,
+                target_tokens=target,
+                current_ms=_require_fragment_state_tensor(batch, "current_ms").to(device=logits_final.device),
+                write_start_ms=_require_batch_tensor(batch, "write_start_ms").to(device=logits_final.device),
+                write_end_ms=_require_batch_tensor(batch, "write_end_ms").to(device=logits_final.device),
+                token_spec=self.token_spec,
+                target_mask=target_mask,
+            )
+            event_budget_weight = logits_final.new_tensor(float(logits_final.shape[0] * 2))
+        else:
+            event_budget_loss_value = disabled_zero
+            event_budget_weight = logits_final.new_zeros(())
         total_loss = (
             token_loss
             + float(self.config.lambda_ln_close) * ln_close_loss
             + float(self.config.lambda_density) * density_loss
+            + float(self.config.lambda_event_budget) * event_budget_loss_value
             + float(self.config.lambda_adapter_reg) * adapter_reg_loss
         )
 
@@ -202,8 +222,10 @@ class MapperTupleModelLoss(nn.Module):
         _record_scalar(metrics, "loss/token", token_loss)
         _record_scalar(metrics, "loss/ln_close", ln_close_loss)
         _record_scalar(metrics, "loss/density", density_loss)
+        _record_scalar(metrics, "loss/event_budget", event_budget_loss_value)
         _record_scalar(metrics, "loss/adapter_reg", adapter_reg_loss)
         metrics["phase/lambda_density"] = float(self.config.lambda_density)
+        metrics["phase/lambda_event_budget"] = float(self.config.lambda_event_budget)
         metrics["phase/lambda_ln_close"] = float(self.config.lambda_ln_close)
         metrics["token/valid_count"] = int(target_mask.sum().detach().cpu())
         metrics["ln_close/open_lane_count"] = close_open_count
@@ -217,12 +239,15 @@ class MapperTupleModelLoss(nn.Module):
         denominators["loss/ln_close"] = float(close_open_count)
         numerators["loss/density"] = float((density_loss.detach() * density_weight.clamp_min(1)).cpu())
         denominators["loss/density"] = float(density_weight.detach().cpu())
+        numerators["loss/event_budget"] = float((event_budget_loss_value.detach() * event_budget_weight.clamp_min(1)).cpu())
+        denominators["loss/event_budget"] = float(event_budget_weight.detach().cpu())
 
         return MapperTupleLossOutput(
             total_loss=total_loss,
             token_loss=token_loss,
             ln_close_loss=ln_close_loss,
             density_loss=density_loss,
+            event_budget_loss=event_budget_loss_value,
             adapter_reg_loss=adapter_reg_loss,
             metrics=metrics,
             metric_numerators=numerators,
@@ -494,6 +519,89 @@ def expected_density_from_logits(
     return float(calibration_scale) * density + float(calibration_bias)
 
 
+def event_budget_auxiliary_loss(
+    *,
+    logits_final: torch.Tensor,
+    target_tokens: torch.Tensor,
+    current_ms: torch.Tensor,
+    write_start_ms: torch.Tensor,
+    write_end_ms: torch.Tensor,
+    vocab: Any | None = None,
+    token_spec: MapperLossTokenSpec | None = None,
+    target_mask: torch.Tensor | None = None,
+) -> torch.Tensor:
+    predicted, target = event_budget_by_half_from_logits(
+        logits_final=logits_final,
+        target_tokens=target_tokens,
+        current_ms=current_ms,
+        write_start_ms=write_start_ms,
+        write_end_ms=write_end_ms,
+        vocab=vocab,
+        token_spec=token_spec,
+        target_mask=target_mask,
+    )
+    return F.smooth_l1_loss(predicted, target, reduction="mean")
+
+
+def event_budget_by_half_from_logits(
+    *,
+    logits_final: torch.Tensor,
+    target_tokens: torch.Tensor,
+    current_ms: torch.Tensor,
+    write_start_ms: torch.Tensor,
+    write_end_ms: torch.Tensor,
+    vocab: Any | None = None,
+    token_spec: MapperLossTokenSpec | None = None,
+    target_mask: torch.Tensor | None = None,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    token_spec = _resolve_loss_token_spec(vocab=vocab, token_spec=token_spec)
+    event_token_ids = tuple(int(token_id) for token_id in token_spec.event_token_ids)
+    if not event_token_ids:
+        raise ValueError("event-budget loss requires a vocab with decode_event tokens")
+    if logits_final.ndim != 3:
+        raise ValueError(f"logits_final must have shape [B,T,V], got {tuple(logits_final.shape)}")
+    if tuple(target_tokens.shape) != tuple(logits_final.shape[:2]):
+        raise ValueError(f"target_tokens must have shape {tuple(logits_final.shape[:2])}, got {tuple(target_tokens.shape)}")
+    if tuple(current_ms.shape) != tuple(logits_final.shape[:2]):
+        raise ValueError(f"current_ms must have shape {tuple(logits_final.shape[:2])}, got {tuple(current_ms.shape)}")
+    batch_size = int(logits_final.shape[0])
+    if write_start_ms.ndim != 1 or int(write_start_ms.shape[0]) != batch_size:
+        raise ValueError(f"write_start_ms must have shape [{batch_size}]")
+    if write_end_ms.ndim != 1 or int(write_end_ms.shape[0]) != batch_size:
+        raise ValueError(f"write_end_ms must have shape [{batch_size}]")
+    if int(logits_final.shape[-1]) != token_spec.vocab_size:
+        raise ValueError(f"logits_final vocab dim must be {token_spec.vocab_size}, got {logits_final.shape[-1]}")
+    if target_mask is None:
+        valid = torch.ones_like(target_tokens, dtype=torch.bool)
+    else:
+        if tuple(target_mask.shape) != tuple(target_tokens.shape):
+            raise ValueError(f"target_mask must have shape {tuple(target_tokens.shape)}, got {tuple(target_mask.shape)}")
+        valid = target_mask.to(device=logits_final.device, dtype=torch.bool)
+    valid = valid & (target_tokens.to(device=logits_final.device, dtype=torch.long) != int(token_spec.pad_id))
+
+    write_start = write_start_ms.to(device=logits_final.device, dtype=torch.long).reshape(batch_size, 1)
+    write_end = write_end_ms.to(device=logits_final.device, dtype=torch.long).reshape(batch_size, 1)
+    span_ms = (write_end - write_start).clamp_min(1)
+    midpoint = write_start + torch.div(span_ms, 2, rounding_mode="floor")
+    step_ms = current_ms.to(device=logits_final.device, dtype=torch.long)
+    in_window = (step_ms >= write_start) & (step_ms < write_end) & valid
+    first_half = in_window & (step_ms < midpoint)
+    second_half = in_window & (step_ms >= midpoint)
+    half_masks = torch.stack((first_half, second_half), dim=-1).to(dtype=logits_final.dtype)
+
+    probs = torch.softmax(logits_final, dim=-1)
+    event_ids = torch.tensor(event_token_ids, dtype=torch.long, device=logits_final.device)
+    event_mass = probs.index_select(dim=-1, index=event_ids).sum(dim=-1)
+    predicted = (event_mass.unsqueeze(-1) * half_masks).sum(dim=1)
+
+    target_tokens = target_tokens.to(device=logits_final.device, dtype=torch.long)
+    event_token_mask = torch.zeros((token_spec.vocab_size,), dtype=torch.bool, device=logits_final.device)
+    event_token_mask[event_ids] = True
+    target_event = event_token_mask[target_tokens.clamp(0, token_spec.vocab_size - 1)] & in_window
+    target_budget = (target_event.to(dtype=logits_final.dtype).unsqueeze(-1) * half_masks).sum(dim=1)
+    return predicted, target_budget
+
+
 def _target_loss_mask(batch: Mapping[str, torch.Tensor], *, target: torch.Tensor, pad_id: int) -> torch.Tensor:
     raw_mask = batch.get("target_fragment_mask")
     if raw_mask is None:
@@ -590,6 +698,10 @@ def _density_onset_token_ids(contract: MapperTokenContract) -> tuple[int, ...]:
     return ()
 
 
+def _event_budget_token_ids(contract: MapperTokenContract) -> tuple[int, ...]:
+    return _token_ids_decodable_by(contract.vocab, "decode_event", vocab_size=contract.vocab_size)
+
+
 def _token_ids_decodable_by(vocab: Any, decoder_name: str, *, vocab_size: int) -> tuple[int, ...]:
     decoder = getattr(vocab, decoder_name, None)
     if not callable(decoder):
@@ -618,6 +730,7 @@ def _record_scalar(metrics: dict[str, float], key: str, value: torch.Tensor) -> 
 def _validate_config(config: MapperTupleLossConfig) -> None:
     for name in (
         "lambda_density",
+        "lambda_event_budget",
         "lambda_ln_close",
         "lambda_adapter_reg",
         "ln_close_pos_weight",
@@ -628,6 +741,8 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
         _require_finite_number(getattr(config, name), name)
     if config.lambda_density < 0.0:
         raise ValueError("lambda_density must be non-negative")
+    if config.lambda_event_budget < 0.0:
+        raise ValueError("lambda_event_budget must be non-negative")
     if config.lambda_ln_close < 0.0:
         raise ValueError("lambda_ln_close must be non-negative")
     if config.lambda_adapter_reg < 0.0:

@@ -1,0 +1,61 @@
+{
+  "artifacts": {
+    "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_budget_objective_experiment_card.md",
+    "report": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_budget_objective_result_report.md",
+    "summary": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_budget_objective_summary.json"
+  },
+  "controlled_values": {
+    "default_off_event_budget_loss": 0.0,
+    "default_off_lambda_event_budget": 0.0,
+    "enabled_event_budget_loss": 0.7847577333450317,
+    "enabled_lambda_event_budget": 0.5,
+    "enabled_minus_default_total_loss": 0.3923788070678711,
+    "matching_event_budget_loss": 0.00014475408534053713,
+    "matching_predicted_budget_by_half": [
+      [
+        1.0217421054840088,
+        1.0103100538253784
+      ]
+    ],
+    "suppressed_event_budget_loss": 0.47184431552886963,
+    "suppressed_minus_matching_loss": 0.4716995656490326,
+    "suppressed_predicted_budget_by_half": [
+      [
+        0.034296486526727676,
+        0.02286432310938835
+      ]
+    ],
+    "target_budget_by_half": [
+      [
+        1.0,
+        1.0
+      ]
+    ]
+  },
+  "decision": {
+    "next_step": "Run a bounded 500-step v3 training/32-case rollout gate with a modest lambda_event_budget value.",
+    "reason": "Default-off event-budget objective is finite, directional, and accepted by v3 config plumbing.",
+    "route": "TEST_NEXT",
+    "selected_variant_result": "PASS_LOSS_PLUMBING_GATE"
+  },
+  "experiment": "Target grammar v3 event-budget objective",
+  "guards": {
+    "broad_mapper_loss_model_tests": "31 passed in 0.84s",
+    "focused_v3_tests": "12 passed in 0.80s",
+    "json_validation": "passed",
+    "v3_grammar_rollout_smoke_tests": "21 passed in 0.66s"
+  },
+  "interpretation": {
+    "what_passed": [
+      "The loss is default-off and reports phase/lambda_event_budget plus loss/event_budget.",
+      "The controlled matching logits produce lower event-budget loss than event-suppressed logits.",
+      "The v3 run config loader accepts lambda_event_budget.",
+      "v2.1/shared loss wrappers still pass with the new output field."
+    ],
+    "what_surfaced": [
+      "This only proves loss plumbing and local objective direction, not rollout readiness.",
+      "The next gate must train and rerun the fixed 32-case rollout, with max-token and duplicate-event guards."
+    ]
+  },
+  "schema_version": 1
+}

@@ -1,4 +1,5 @@
 import unittest
+from types import SimpleNamespace
 
 import importlib.util
 
@@ -17,6 +18,7 @@ from pulsefield_model.models.mapper.v3 import (
     encode_mapper_window,
     ln_carry_state_tensors,
 )
+from pulsefield_model.models.mapper.shared.loss import event_budget_auxiliary_loss
 from pulsefield_model.models.mapper.v3.replay import initial_replay_state, transition_replay_state
 from pulsefield_model.models.mapper.v3.vocab import LaneAction
 from pulsefield_model.training.mapper_v3 import _mapper_v3_training_spec
@@ -147,6 +149,82 @@ class MapperV3ModelTests(unittest.TestCase):
 
         self.assertTrue(torch.isfinite(loss.total_loss).item())
         self.assertEqual(loss.metrics["phase/lambda_density"], 0.0)
+
+    def test_event_budget_loss_prefers_matching_event_mass(self) -> None:
+        vocab = MapperV3Vocab()
+        tokenized = encode_mapper_window(
+            [
+                MapperTimepoint(1000, _actions(LaneAction.TAP)),
+                MapperTimepoint(5000, _actions(LaneAction.TAP, LaneAction.TAP)),
+            ],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=5000,
+        )
+        batch = _batch_for_window(tokenized)
+        target = batch["target_fragment_tokens"]
+        mask = batch["target_fragment_mask"]
+        states = batch["target_fragment_states"]
+        vocab_size = vocab.size
+        matching_logits = torch.full((1, tokenized.seq_len, vocab_size), -5.0)
+        suppressed_logits = torch.full_like(matching_logits, -5.0)
+        time_shift_id = vocab.time_shift_token_id(100)
+        for step, token_id in enumerate(tokenized.target_fragment_ids):
+            if vocab.is_event_token(token_id):
+                matching_logits[0, step, int(token_id)] = 5.0
+                suppressed_logits[0, step, time_shift_id] = 5.0
+            else:
+                matching_logits[0, step, int(token_id)] = 5.0
+                suppressed_logits[0, step, int(token_id)] = 5.0
+
+        matching_loss = event_budget_auxiliary_loss(
+            logits_final=matching_logits,
+            target_tokens=target,
+            current_ms=states["current_ms"],
+            write_start_ms=batch["write_start_ms"],
+            write_end_ms=batch["write_end_ms"],
+            vocab=vocab,
+            target_mask=mask,
+        )
+        suppressed_loss = event_budget_auxiliary_loss(
+            logits_final=suppressed_logits,
+            target_tokens=target,
+            current_ms=states["current_ms"],
+            write_start_ms=batch["write_start_ms"],
+            write_end_ms=batch["write_end_ms"],
+            vocab=vocab,
+            target_mask=mask,
+        )
+
+        self.assertLess(float(matching_loss.item()), float(suppressed_loss.item()))
+
+    def test_event_budget_loss_is_default_off_and_reports_metric_when_enabled(self) -> None:
+        vocab = MapperV3Vocab()
+        tokenized = encode_mapper_window(
+            [MapperTimepoint(1000, _actions(LaneAction.TAP))],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=1000,
+        )
+        batch = _batch_for_window(tokenized)
+        logits = torch.zeros((1, tokenized.seq_len, vocab.size), dtype=torch.float32)
+        output = SimpleNamespace(logits_final=logits)
+        off_loss = MapperV3ModelLoss(
+            MapperV3LossConfig(lambda_density=0.0, lambda_event_budget=0.0, lambda_ln_close=0.0, lambda_adapter_reg=0.0),
+            vocab=vocab,
+        )(output, batch)
+        on_loss = MapperV3ModelLoss(
+            MapperV3LossConfig(lambda_density=0.0, lambda_event_budget=0.5, lambda_ln_close=0.0, lambda_adapter_reg=0.0),
+            vocab=vocab,
+        )(output, batch)
+
+        self.assertEqual(off_loss.metrics["phase/lambda_event_budget"], 0.0)
+        self.assertEqual(float(off_loss.event_budget_loss.item()), 0.0)
+        self.assertGreater(float(on_loss.event_budget_loss.item()), 0.0)
+        self.assertEqual(on_loss.metrics["phase/lambda_event_budget"], 0.5)
+        self.assertGreater(float(on_loss.total_loss.item()), float(off_loss.total_loss.item()))
 
     def test_incremental_decode_matches_cached_full_forward_logits(self) -> None:
         torch.manual_seed(20260624)
