@@ -52,3 +52,37 @@ def test_v3_logit_diagnostics_records_event_rank_and_kind_counts() -> None:
     assert summary["emitted_kind_counts"] == {"time_shift": 1}
     assert summary["best_event_rank"]["median"] == 2.0
     assert summary["best_event_margin_vs_argmax"]["median"] == -1.0
+
+
+def test_v3_logit_diagnostics_respects_max_examples() -> None:
+    vocab = MapperV3Vocab()
+    carry = empty_ln_carry_state(0)
+    event_token = vocab.encode_event((LaneAction.TAP, LaneAction.NONE, LaneAction.NONE, LaneAction.NONE))
+    valid_mask = torch.zeros(vocab.size, dtype=torch.bool)
+    valid_mask[event_token] = True
+    logits = torch.full((vocab.size,), -10.0, dtype=torch.float32)
+    logits[event_token] = 2.0
+
+    collector = V3LogitDiagnosticsCollector(vocab=vocab, top_k=1, max_examples=0)
+    collector.observe(
+        MapperV3GenerationStep(
+            decoder_input_tokens=torch.tensor([vocab.bos_id], dtype=torch.long),
+            generated_tokens=(),
+            state=initial_replay_state(carry),
+            valid_token_mask=valid_mask,
+            token_index=0,
+            write_start_ms=0,
+            write_end_ms=8_000,
+            chart_end_ms=8_000,
+            ln_carry_in=carry,
+            ln_carry_out=empty_ln_carry_state(8_000),
+            is_full_chart_start=True,
+            is_full_chart_end=False,
+        ),
+        logits,
+    )
+
+    summary = collector.to_dict([event_token])
+
+    assert summary["step_count"] == 1
+    assert summary["examples"] == []

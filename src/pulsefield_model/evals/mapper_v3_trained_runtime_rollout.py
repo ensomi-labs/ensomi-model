@@ -206,6 +206,7 @@ def run_trained_v3_runtime_rollout_smoke(
     time_shift_delta_penalty_alpha: float = 0.0,
     collect_logit_diagnostics: bool = False,
     logit_top_k: int = 5,
+    logit_max_examples: int = 12,
     timepoint_preview_limit: int = 32,
 ) -> dict[str, Any]:
     chart_end_ms = int(chart_end_ms)
@@ -266,7 +267,7 @@ def run_trained_v3_runtime_rollout_smoke(
     generator = torch.Generator(device=runtime.device)
     generator.manual_seed(int(seed))
     logit_diagnostics = (
-        V3LogitDiagnosticsCollector(vocab=runtime.vocab, top_k=int(logit_top_k))
+        V3LogitDiagnosticsCollector(vocab=runtime.vocab, top_k=int(logit_top_k), max_examples=int(logit_max_examples))
         if bool(collect_logit_diagnostics)
         else None
     )
@@ -333,6 +334,7 @@ def run_trained_v3_runtime_rollout_smoke(
             "time_shift_delta_penalty_alpha": float(time_shift_delta_penalty_alpha),
             "collect_logit_diagnostics": bool(collect_logit_diagnostics),
             "logit_top_k": int(logit_top_k),
+            "logit_max_examples": int(logit_max_examples),
             "timepoint_preview_limit": int(timepoint_preview_limit),
         },
         "runtime": {
@@ -570,6 +572,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--time-shift-delta-penalty-alpha", type=float, default=0.0)
     parser.add_argument("--collect-logit-diagnostics", action="store_true")
     parser.add_argument("--logit-top-k", type=int, default=5)
+    parser.add_argument("--logit-max-examples", type=int, default=12)
     parser.add_argument("--timepoint-preview-limit", type=int, default=32)
     args = parser.parse_args(argv)
     summary = run_trained_v3_runtime_rollout_smoke(
@@ -594,6 +597,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         time_shift_delta_penalty_alpha=args.time_shift_delta_penalty_alpha,
         collect_logit_diagnostics=args.collect_logit_diagnostics,
         logit_top_k=args.logit_top_k,
+        logit_max_examples=args.logit_max_examples,
         timepoint_preview_limit=args.timepoint_preview_limit,
     )
     print(

@@ -1,0 +1,2022 @@
+{
+  "aggregate": {
+    "illegal_case_count": 0,
+    "incomplete_trace_count": 0,
+    "low_bias_case_count": 3,
+    "positive_low_bias_count": 3
+  },
+  "case_results": [
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 182,
+        "first_window_opportunity_count": 35,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.9979434013366699,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1001",
+            "current_ms": 400,
+            "step": 1
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.0483551025390625,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1001",
+            "current_ms": 810,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.9270603656768799,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1001",
+            "current_ms": 1220,
+            "step": 7
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.4254298210144043,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1430,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.5698707103729248,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1640,
+            "step": 13
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.7400290966033936,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1850,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.8172619342803955,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2060,
+            "step": 19
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.7265925407409668,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0100",
+            "current_ms": 2270,
+            "step": 22
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.7889218330383301,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2480,
+            "step": 25
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.7750396728515625,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2690,
+            "step": 28
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.8406617641448975,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2900,
+            "step": 31
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.9234991073608398,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 3110,
+            "step": 34
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.9979434013366699,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1001",
+            "current_ms": 400,
+            "step": 1
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.0483551025390625,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1001",
+            "current_ms": 810,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.9270603656768799,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1001",
+            "current_ms": 1220,
+            "step": 7
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.4254298210144043,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1430,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.5698707103729248,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1640,
+            "step": 13
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.7400290966033936,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1850,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.8172619342803955,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2060,
+            "step": 19
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.7265925407409668,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0100",
+            "current_ms": 2270,
+            "step": 22
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.7889218330383301,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2480,
+            "step": 25
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.7750396728515625,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2690,
+            "step": 28
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.8406617641448975,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2900,
+            "step": 31
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.9234991073608398,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 3110,
+            "step": 34
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.9420409202575684,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 3320,
+            "step": 37
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.9184162616729736,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0100",
+            "current_ms": 3530,
+            "step": 40
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.9173831939697266,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 3740,
+            "step": 43
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.0063037872314453,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 3950,
+            "step": 46
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.0431249141693115,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 4160,
+            "step": 49
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.021571397781372,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 4370,
+            "step": 52
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.0101079940795898,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0100",
+            "current_ms": 4580,
+            "step": 55
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.0452876091003418,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 4790,
+            "step": 58
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.0896894931793213,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 5000,
+            "step": 61
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.1407814025878906,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 5210,
+            "step": 64
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.1962511539459229,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 5420,
+            "step": 67
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.247056484222412,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 5630,
+            "step": 70
+          }
+        ],
+        "positive_signal": true,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 34,
+        "second_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -1.1988763809204102,
+            "best_event_rank": 5.0,
+            "best_event_token": "EV_1001",
+            "current_ms": 8000,
+            "step": 0
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.34754478931427,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0002",
+            "current_ms": 8230,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.12637698650360107,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0001",
+            "current_ms": 8460,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.6041932106018066,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0001",
+            "current_ms": 8690,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.4195781946182251,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0001",
+            "current_ms": 8920,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.4488414525985718,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0001",
+            "current_ms": 9150,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.6092544794082642,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0001",
+            "current_ms": 9380,
+            "step": 12
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.4805554151535034,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0001",
+            "current_ms": 9610,
+            "step": 14
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.5825772285461426,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0001",
+            "current_ms": 9840,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.5587522983551025,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0001",
+            "current_ms": 10070,
+            "step": 18
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.5522992610931396,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0100",
+            "current_ms": 10300,
+            "step": 20
+          },
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -0.3789637088775635,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0100",
+            "current_ms": 10530,
+            "step": 22
+          }
+        ],
+        "step_count": 182,
+        "timepoint_count": 38,
+        "windows": {
+          "first": {
+            "event_argmax_count": 36,
+            "event_argmax_share": 0.3333333333333333,
+            "event_margin_near_count": 71,
+            "event_rank_near_count": 71,
+            "opportunity_count": 35,
+            "opportunity_share": 0.32407407407407407,
+            "step_count": 108
+          },
+          "second": {
+            "event_argmax_count": 2,
+            "event_argmax_share": 0.02702702702702703,
+            "event_margin_near_count": 36,
+            "event_rank_near_count": 37,
+            "opportunity_count": 34,
+            "opportunity_share": 0.4594594594594595,
+            "step_count": 74
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -1.0483551025390625,
+        "best_event_rank_median": 2.0,
+        "case_id": "10_graham_kartna_chiltonwalk_temp_nivrad00_nsv",
+        "case_index": 10,
+        "classes": [
+          "starved",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.8648648648648649,
+        "event_count_ratio": 0.4175824175824176,
+        "manifest": {
+          "audio_path": "dataset/0/1010184/audio.mp3",
+          "beatmap_path": "dataset/0/1010184/Graham Kartna - chiltonWALK.temp (Nivrad00) [NSV].osu",
+          "case_id": "10_graham_kartna_chiltonwalk_temp_nivrad00_nsv",
+          "case_index": 10,
+          "chart_end_ms": 16000,
+          "difficulty": 2.81,
+          "normalized_difficulty": -0.595,
+          "report_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/10_graham_kartna_chiltonwalk_temp_nivrad00_nsv_16000ms_report.md",
+          "shard": "0",
+          "summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/10_graham_kartna_chiltonwalk_temp_nivrad00_nsv_16000ms_summary.json"
+        },
+        "required_event_bias": 1.0483551025390625,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.05263157894736842
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 143,
+            "max": 0.0,
+            "mean": -1.6902634668183494,
+            "median": -0.6041932106018066,
+            "min": -6.143236696720123
+          },
+          "best_event_rank": {
+            "count": 143,
+            "max": 17.0,
+            "mean": 4.13986013986014,
+            "median": 2.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 38,
+          "event_topk_step_count": 108,
+          "event_valid_step_count": 143,
+          "example_count": 182,
+          "step_count": 182
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 38,
+          "token_count": 182,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_low_bias_trace_oracle/rollouts/10_graham_kartna_chiltonwalk_temp_nivrad00_nsv_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_low_bias_trace_oracle/rollouts/10_graham_kartna_chiltonwalk_temp_nivrad00_nsv_trace_summary.json"
+    },
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 245,
+        "first_window_opportunity_count": 2,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_20",
+            "best_event_margin_vs_argmax": -1.9159058332443237,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0200",
+            "current_ms": 800,
+            "step": 1
+          },
+          {
+            "argmax_token": "TS_20",
+            "best_event_margin_vs_argmax": -1.0696074962615967,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 7960,
+            "step": 136
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_20",
+            "best_event_margin_vs_argmax": -1.9159058332443237,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0200",
+            "current_ms": 800,
+            "step": 1
+          },
+          {
+            "argmax_token": "TS_20",
+            "best_event_margin_vs_argmax": -1.0696074962615967,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 7960,
+            "step": 136
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.3752710819244385,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0200",
+            "current_ms": 8070,
+            "step": 1
+          },
+          {
+            "argmax_token": "TS_70",
+            "best_event_margin_vs_argmax": -1.1621134281158447,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.9931586980819702,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0120",
+            "current_ms": 8220,
+            "step": 3
+          },
+          {
+            "argmax_token": "TS_70",
+            "best_event_margin_vs_argmax": -1.0462136268615723,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.4434739351272583,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8450,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.2373948097229004,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8530,
+            "step": 7
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.305161952972412,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8610,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5018882751464844,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8690,
+            "step": 9
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.414846420288086,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8770,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5697143077850342,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8850,
+            "step": 11
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5983519554138184,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8930,
+            "step": 12
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.4876677989959717,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9010,
+            "step": 13
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.4820435047149658,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9090,
+            "step": 14
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.621412754058838,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9170,
+            "step": 15
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.6050834655761719,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9250,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5771095752716064,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9330,
+            "step": 17
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5778703689575195,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9410,
+            "step": 18
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.547980546951294,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9490,
+            "step": 19
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.6564733982086182,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9570,
+            "step": 20
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.6386339664459229,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9650,
+            "step": 21
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.4831879138946533,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9730,
+            "step": 22
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5224196910858154,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9810,
+            "step": 23
+          }
+        ],
+        "positive_signal": true,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 98,
+        "second_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.3752710819244385,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0200",
+            "current_ms": 8070,
+            "step": 1
+          },
+          {
+            "argmax_token": "TS_70",
+            "best_event_margin_vs_argmax": -1.1621134281158447,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.9931586980819702,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0120",
+            "current_ms": 8220,
+            "step": 3
+          },
+          {
+            "argmax_token": "TS_70",
+            "best_event_margin_vs_argmax": -1.0462136268615723,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.4434739351272583,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8450,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.2373948097229004,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8530,
+            "step": 7
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.305161952972412,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8610,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5018882751464844,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8690,
+            "step": 9
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.414846420288086,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8770,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5697143077850342,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8850,
+            "step": 11
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5983519554138184,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8930,
+            "step": 12
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.4876677989959717,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9010,
+            "step": 13
+          }
+        ],
+        "step_count": 245,
+        "timepoint_count": 49,
+        "windows": {
+          "first": {
+            "event_argmax_count": 46,
+            "event_argmax_share": 0.33093525179856115,
+            "event_margin_near_count": 48,
+            "event_rank_near_count": 48,
+            "opportunity_count": 2,
+            "opportunity_share": 0.014388489208633094,
+            "step_count": 139
+          },
+          "second": {
+            "event_argmax_count": 3,
+            "event_argmax_share": 0.02830188679245283,
+            "event_margin_near_count": 101,
+            "event_rank_near_count": 102,
+            "opportunity_count": 98,
+            "opportunity_share": 0.9245283018867925,
+            "step_count": 106
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -1.5374469757080078,
+        "best_event_rank_median": 4.0,
+        "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+        "case_index": 23,
+        "classes": [
+          "starved",
+          "rigid",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.9166666666666666,
+        "event_count_ratio": 0.47115384615384615,
+        "manifest": {
+          "audio_path": "dataset/0/1008095/Knight Rider.mp3",
+          "beatmap_path": "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Expert].osu",
+          "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+          "case_index": 23,
+          "chart_end_ms": 16000,
+          "difficulty": 4.26,
+          "normalized_difficulty": 0.1299999999999999,
+          "report_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/23_usao_knight_rider_kuo_kyoka_expert_16000ms_report.md",
+          "shard": "0",
+          "summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/23_usao_knight_rider_kuo_kyoka_expert_16000ms_summary.json"
+        },
+        "required_event_bias": 1.5374469757080078,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.061224489795918366
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 196,
+            "max": 0.0,
+            "mean": -2.3958729703207404,
+            "median": -1.4952523708343506,
+            "min": -7.18207973241806
+          },
+          "best_event_rank": {
+            "count": 196,
+            "max": 22.0,
+            "mean": 3.938775510204082,
+            "median": 3.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 49,
+          "event_topk_step_count": 150,
+          "event_valid_step_count": 196,
+          "example_count": 245,
+          "step_count": 245
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 49,
+          "token_count": 245,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_low_bias_trace_oracle/rollouts/23_usao_knight_rider_kuo_kyoka_expert_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_low_bias_trace_oracle/rollouts/23_usao_knight_rider_kuo_kyoka_expert_trace_summary.json"
+    },
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 240,
+        "first_window_opportunity_count": 1,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_20",
+            "best_event_margin_vs_argmax": -0.8561128377914429,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 7960,
+            "step": 136
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_20",
+            "best_event_margin_vs_argmax": -0.8561128377914429,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 7960,
+            "step": 136
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.6516926288604736,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0200",
+            "current_ms": 8070,
+            "step": 1
+          },
+          {
+            "argmax_token": "TS_70",
+            "best_event_margin_vs_argmax": -1.2147055864334106,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.1671570539474487,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.4331254959106445,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8380,
+            "step": 5
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.7745081186294556,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8460,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5790477991104126,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8540,
+            "step": 7
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.6503019332885742,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8620,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.8444939851760864,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8700,
+            "step": 9
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.7497825622558594,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8780,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.8937139511108398,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8860,
+            "step": 11
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.9079804420471191,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8940,
+            "step": 12
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.7856576442718506,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9020,
+            "step": 13
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.7688422203063965,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9100,
+            "step": 14
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.8948297500610352,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9180,
+            "step": 15
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.869215488433838,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9260,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.8336172103881836,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9340,
+            "step": 17
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.8250384330749512,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9420,
+            "step": 18
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.7886009216308594,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9500,
+            "step": 19
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.889329433441162,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9580,
+            "step": 20
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.8627119064331055,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9660,
+            "step": 21
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.704376220703125,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9740,
+            "step": 22
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.7400894165039062,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9820,
+            "step": 23
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.7726995944976807,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9900,
+            "step": 24
+          }
+        ],
+        "positive_signal": true,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 79,
+        "second_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.6516926288604736,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0200",
+            "current_ms": 8070,
+            "step": 1
+          },
+          {
+            "argmax_token": "TS_70",
+            "best_event_margin_vs_argmax": -1.2147055864334106,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.1671570539474487,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.4331254959106445,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8380,
+            "step": 5
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.7745081186294556,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8460,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.5790477991104126,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8540,
+            "step": 7
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.6503019332885742,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8620,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.8444939851760864,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8700,
+            "step": 9
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.7497825622558594,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8780,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.8937139511108398,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8860,
+            "step": 11
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.9079804420471191,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8940,
+            "step": 12
+          },
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.7856576442718506,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 9020,
+            "step": 13
+          }
+        ],
+        "step_count": 240,
+        "timepoint_count": 47,
+        "windows": {
+          "first": {
+            "event_argmax_count": 46,
+            "event_argmax_share": 0.33093525179856115,
+            "event_margin_near_count": 47,
+            "event_rank_near_count": 48,
+            "opportunity_count": 1,
+            "opportunity_share": 0.007194244604316547,
+            "step_count": 139
+          },
+          "second": {
+            "event_argmax_count": 1,
+            "event_argmax_share": 0.009900990099009901,
+            "event_margin_near_count": 80,
+            "event_rank_near_count": 84,
+            "opportunity_count": 79,
+            "opportunity_share": 0.7821782178217822,
+            "step_count": 101
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -1.8362693786621094,
+        "best_event_rank_median": 4.0,
+        "case_id": "26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer",
+        "case_index": 26,
+        "classes": [
+          "starved",
+          "rigid",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.9565217391304348,
+        "event_count_ratio": 0.34558823529411764,
+        "manifest": {
+          "audio_path": "dataset/0/1000065/audio.mp3",
+          "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+          "case_id": "26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer",
+          "case_index": 26,
+          "chart_end_ms": 16000,
+          "difficulty": 4.49,
+          "normalized_difficulty": 0.2450000000000001,
+          "report_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer_16000ms_report.md",
+          "shard": "0",
+          "summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer_16000ms_summary.json"
+        },
+        "required_event_bias": 1.8362693786621094,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.02127659574468085
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 192,
+            "max": 0.0,
+            "mean": -2.653650626190938,
+            "median": -1.7030502557754517,
+            "min": -6.749696612358093
+          },
+          "best_event_rank": {
+            "count": 192,
+            "max": 22.0,
+            "mean": 4.213541666666667,
+            "median": 3.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 47,
+          "event_topk_step_count": 132,
+          "event_valid_step_count": 192,
+          "example_count": 240,
+          "step_count": 240
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 47,
+          "token_count": 240,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_low_bias_trace_oracle/rollouts/26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_low_bias_trace_oracle/rollouts/26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer_trace_summary.json"
+    },
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 250,
+        "first_window_opportunity_count": 1,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_30",
+            "best_event_margin_vs_argmax": -1.9521289467811584,
+            "best_event_rank": 5.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 7960,
+            "step": 136
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_30",
+            "best_event_margin_vs_argmax": -1.9521289467811584,
+            "best_event_rank": 5.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 7960,
+            "step": 136
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.0539095401763916,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.23415100574493408,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.2237985134124756,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 8450,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.1609370708465576,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 8600,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.413346290588379,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 8750,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.7496445178985596,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 8900,
+            "step": 12
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.6924411058425903,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 9050,
+            "step": 14
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9446183443069458,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 9200,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9114291667938232,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 9650,
+            "step": 22
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9600751399993896,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 9950,
+            "step": 26
+          }
+        ],
+        "positive_signal": true,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 10,
+        "second_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.0539095401763916,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.23415100574493408,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.2237985134124756,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 8450,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.1609370708465576,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 8600,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.413346290588379,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 8750,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.7496445178985596,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 8900,
+            "step": 12
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.6924411058425903,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 9050,
+            "step": 14
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9446183443069458,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 9200,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9114291667938232,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 9650,
+            "step": 22
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9600751399993896,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1100",
+            "current_ms": 9950,
+            "step": 26
+          }
+        ],
+        "step_count": 250,
+        "timepoint_count": 48,
+        "windows": {
+          "first": {
+            "event_argmax_count": 46,
+            "event_argmax_share": 0.33093525179856115,
+            "event_margin_near_count": 47,
+            "event_rank_near_count": 48,
+            "opportunity_count": 1,
+            "opportunity_share": 0.007194244604316547,
+            "step_count": 139
+          },
+          "second": {
+            "event_argmax_count": 2,
+            "event_argmax_share": 0.018018018018018018,
+            "event_margin_near_count": 13,
+            "event_rank_near_count": 80,
+            "opportunity_count": 10,
+            "opportunity_share": 0.09009009009009009,
+            "step_count": 111
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -7.450125813484192,
+        "best_event_rank_median": 5.0,
+        "case_id": "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+        "case_index": 17,
+        "classes": [
+          "starved",
+          "rigid",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5274725274725275,
+        "manifest": {
+          "audio_path": "dataset/0/100501/Fantastic future.mp3",
+          "beatmap_path": "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K MX].osu",
+          "case_id": "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+          "case_index": 17,
+          "chart_end_ms": 16000,
+          "difficulty": 3.44,
+          "normalized_difficulty": -0.28,
+          "report_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_16000ms_report.md",
+          "shard": "0",
+          "summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_16000ms_summary.json"
+        },
+        "required_event_bias": 7.450125813484192,
+        "role": "high_bias_starved_control",
+        "second_window_event_share": 0.041666666666666664
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 201,
+            "max": 0.0,
+            "mean": -4.319687043997779,
+            "median": -2.377540111541748,
+            "min": -8.565687119960785
+          },
+          "best_event_rank": {
+            "count": 201,
+            "max": 19.0,
+            "mean": 5.144278606965174,
+            "median": 4.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 48,
+          "event_topk_step_count": 128,
+          "event_valid_step_count": 201,
+          "example_count": 250,
+          "step_count": 250
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 48,
+          "token_count": 250,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_low_bias_trace_oracle/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_low_bias_trace_oracle/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_trace_summary.json"
+    },
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 364,
+        "first_window_opportunity_count": 65,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.975600242614746,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 910,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.3879411220550537,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1020,
+            "step": 7
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.2887325286865234,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1130,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.5046439170837402,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1240,
+            "step": 13
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4647364616394043,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1350,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4229772090911865,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1460,
+            "step": 19
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4354565143585205,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1570,
+            "step": 22
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.5479669570922852,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1680,
+            "step": 25
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.381363868713379,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1790,
+            "step": 28
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4669156074523926,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1900,
+            "step": 31
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.5711328983306885,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2010,
+            "step": 34
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.460299015045166,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2120,
+            "step": 37
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.975600242614746,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 910,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.3879411220550537,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1020,
+            "step": 7
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.2887325286865234,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1130,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.5046439170837402,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1240,
+            "step": 13
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4647364616394043,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1350,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4229772090911865,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1460,
+            "step": 19
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4354565143585205,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1570,
+            "step": 22
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.5479669570922852,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1680,
+            "step": 25
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.381363868713379,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1790,
+            "step": 28
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4669156074523926,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 1900,
+            "step": 31
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.5711328983306885,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2010,
+            "step": 34
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.460299015045166,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2120,
+            "step": 37
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4890358448028564,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2230,
+            "step": 40
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4360971450805664,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2340,
+            "step": 43
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.5544886589050293,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2450,
+            "step": 46
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4649341106414795,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2560,
+            "step": 49
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4002315998077393,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2670,
+            "step": 52
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.3559253215789795,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2780,
+            "step": 55
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.36922025680542,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 2890,
+            "step": 58
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4031243324279785,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 3000,
+            "step": 61
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.4544947147369385,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 3110,
+            "step": 64
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.5107569694519043,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 3220,
+            "step": 67
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.5450003147125244,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 3330,
+            "step": 70
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.514660120010376,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 3440,
+            "step": 73
+          }
+        ],
+        "positive_signal": false,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 1,
+        "second_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.1451979875564575,
+            "best_event_rank": 5.0,
+            "best_event_token": "EV_1001",
+            "current_ms": 8000,
+            "step": 0
+          }
+        ],
+        "step_count": 364,
+        "timepoint_count": 121,
+        "windows": {
+          "first": {
+            "event_argmax_count": 67,
+            "event_argmax_share": 0.3333333333333333,
+            "event_margin_near_count": 132,
+            "event_rank_near_count": 133,
+            "opportunity_count": 65,
+            "opportunity_share": 0.32338308457711445,
+            "step_count": 201
+          },
+          "second": {
+            "event_argmax_count": 54,
+            "event_argmax_share": 0.3312883435582822,
+            "event_margin_near_count": 55,
+            "event_rank_near_count": 103,
+            "opportunity_count": 1,
+            "opportunity_share": 0.006134969325153374,
+            "step_count": 163
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -1.514660120010376,
+        "best_event_rank_median": 3.0,
+        "case_id": "11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz",
+        "case_index": 11,
+        "classes": [
+          "pass_like"
+        ],
+        "dominant_spacing_ratio": 0.5416666666666666,
+        "event_count_ratio": 1.1862745098039216,
+        "manifest": {
+          "audio_path": "dataset/0/1003093/om.mp3",
+          "beatmap_path": "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Muwuscle].osu",
+          "case_id": "11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz",
+          "case_index": 11,
+          "chart_end_ms": 16000,
+          "difficulty": 3.06,
+          "normalized_difficulty": -0.47,
+          "report_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz_16000ms_report.md",
+          "shard": "0",
+          "summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz_16000ms_summary.json"
+        },
+        "required_event_bias": 1.514660120010376,
+        "role": "pass_like_control",
+        "second_window_event_share": 0.4462809917355372
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 242,
+            "max": 0.0,
+            "mean": -2.131136013949213,
+            "median": -0.5725989937782288,
+            "min": -8.232927560806274
+          },
+          "best_event_rank": {
+            "count": 242,
+            "max": 17.0,
+            "mean": 2.409090909090909,
+            "median": 2.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 121,
+          "event_topk_step_count": 236,
+          "event_valid_step_count": 242,
+          "example_count": 364,
+          "step_count": 364
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 121,
+          "token_count": 364,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_low_bias_trace_oracle/rollouts/11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_low_bias_trace_oracle/rollouts/11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz_trace_summary.json"
+    }
+  ],
+  "decision": {
+    "interpretation": "The low-bias exception is real enough to justify one bounded selective event-gate smoke.",
+    "next_step": "Create and run a selective event-gate smoke on these traced cases.",
+    "reason": "3/3 low-bias starved cases have second-window opportunities",
+    "route": "TEST_SELECTIVE_EVENT_GATE"
+  },
+  "dry_run": false,
+  "elapsed_s": 109.26946974999737,
+  "experiment": "Target grammar v3 low-bias trace oracle",
+  "inputs": {
+    "manifest": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/manifest.json",
+    "margin_summary": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_margin_decode_viability_summary.json"
+  },
+  "schema_version": 1,
+  "selection": {
+    "case_count": 5,
+    "case_ids": [
+      "10_graham_kartna_chiltonwalk_temp_nivrad00_nsv",
+      "23_usao_knight_rider_kuo_kyoka_expert",
+      "26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer",
+      "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+      "11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz"
+    ],
+    "low_bias_case_count": 3
+  },
+  "thresholds": {
+    "high_bias": 6.0,
+    "low_bias": 2.0,
+    "opportunity_max_rank": 5,
+    "opportunity_min_margin": -2.0,
+    "positive_opportunity_count": 10,
+    "second_window_start_ms": 8000
+  },
+  "work_dir": "artifacts/tmp/mapper_v3_low_bias_trace_oracle"
+}
