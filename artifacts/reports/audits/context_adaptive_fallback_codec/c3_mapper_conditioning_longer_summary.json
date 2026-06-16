@@ -1,0 +1,99 @@
+{
+  "baseline": {
+    "completed_steps": 100,
+    "eval_curve": [
+      {
+        "loss_total": 3.3215981701397435,
+        "step": 20
+      },
+      {
+        "loss_total": 3.156871016927916,
+        "step": 40
+      },
+      {
+        "loss_total": 3.015533352928563,
+        "step": 60
+      },
+      {
+        "loss_total": 2.8986827936044426,
+        "step": 80
+      },
+      {
+        "loss_total": 2.806851521704298,
+        "step": 100
+      }
+    ],
+    "final_eval_loss_total": 2.806851521704298,
+    "final_train_eval_loss_total": 2.8860820798784026,
+    "is_complete": true,
+    "last_train_loss_total": 2.9513864517211914,
+    "model": {
+      "c3_side_stream_embedding_dim": 16,
+      "c3_side_stream_scale_init": 0.03,
+      "c3_side_stream_vocab_size": 14294,
+      "use_c3_side_stream_conditioning": false
+    },
+    "parameter_count": 15070861,
+    "report_path": "artifacts/runs/stage2_mapper_v2_1/c3_conditioning_longer_baseline/report.json"
+  },
+  "comparison": {
+    "controlled_comparison_pass": true,
+    "enabled_minus_baseline_final_eval_loss": 0.000035520816946910116,
+    "enabled_minus_baseline_final_train_eval_loss": -0.00023088011019156696,
+    "enabled_minus_baseline_last_train_loss": 0.0006680488586425781,
+    "enabled_relative_final_eval_loss_delta": 0.000012655039524620867,
+    "kill_threshold_relative_loss_delta": 0.02,
+    "kill_threshold_triggered": false
+  },
+  "dataset": {
+    "c3_side_stream_max_tokens": 256,
+    "c3_side_stream_token_sidecar_path": "artifacts/cache/c3_mapper_window_sidecar/c3_exact_mapper_window_sidecar_le3.json",
+    "eval_window_count": 142,
+    "final_train_eval_window_count": 16,
+    "include_c3_side_stream_token_tensors": true,
+    "include_full_song_context": false,
+    "require_control_teacher_cache": true,
+    "train_window_count": 174373
+  },
+  "enabled": {
+    "completed_steps": 100,
+    "eval_curve": [
+      {
+        "loss_total": 3.322032542297863,
+        "step": 20
+      },
+      {
+        "loss_total": 3.157149364477229,
+        "step": 40
+      },
+      {
+        "loss_total": 3.0156601500020637,
+        "step": 60
+      },
+      {
+        "loss_total": 2.8987076304286767,
+        "step": 80
+      },
+      {
+        "loss_total": 2.806887042521245,
+        "step": 100
+      }
+    ],
+    "final_eval_loss_total": 2.806887042521245,
+    "final_train_eval_loss_total": 2.885851199768211,
+    "is_complete": true,
+    "last_train_loss_total": 2.952054500579834,
+    "model": {
+      "c3_side_stream_embedding_dim": 16,
+      "c3_side_stream_scale_init": 0.03,
+      "c3_side_stream_vocab_size": 14294,
+      "use_c3_side_stream_conditioning": true
+    },
+    "parameter_count": 15300126,
+    "report_path": "artifacts/runs/stage2_mapper_v2_1/c3_conditioning_longer_enabled/report.json"
+  },
+  "verification": {
+    "pytest": "uv run --group dev pytest tests/models/mapper/v2_1/test_model.py tests/training/test_mapper_v2_1.py -q",
+    "pytest_result": "15 passed in 0.83s"
+  }
+}
