@@ -1,0 +1,2185 @@
+{
+  "checkpoint": {
+    "c3_auxiliary_kind_vocab_sizes": [
+      512,
+      512,
+      512
+    ],
+    "completed_steps": 1000,
+    "is_complete": true,
+    "run_name": "c3_kind_heads_reduced_sidecar_1000step",
+    "use_c3_auxiliary_kind_heads": true
+  },
+  "checkpoint_path": "artifacts/runs/stage2_mapper_v2_1/c3_kind_heads_reduced_sidecar_1000step/checkpoint.pt",
+  "config": {
+    "candidate_count": 284,
+    "candidate_families": {
+      "identity": 1,
+      "kind_bias": 34,
+      "raw_bias": 7,
+      "scale_bias": 242
+    },
+    "top_k": 20
+  },
+  "config_path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_1000step_enabled.yaml",
+  "dataset": {
+    "batch_size": 2,
+    "calibration_sample_count": 71,
+    "collected_sample_count": 142,
+    "eval_window_count": 142,
+    "heldout_sample_count": 71,
+    "max_batches": null,
+    "split_policy": "alternating eval samples; even indexes calibrate, odd indexes held out",
+    "train_window_count": 174373
+  },
+  "decision": {
+    "heldout_hit_delta_vs_identity": -4,
+    "interpretation": "Unconstrained calibration can buy held-out hits only by overpromoting RAW and damaging non-RAW recovery. That is not a viable calibration path for the full C3 target; the next mutation should factor RAW rather than globally bias kind logits.",
+    "next_step": "Create a RAW split/factorization Experiment Card based on the P20 field buckets.",
+    "non_raw_preservation_ratio": 0.8124999999999999,
+    "oracle_heldout_hit_delta_vs_identity": 13,
+    "oracle_non_raw_preservation_ratio": 0.31249999999999994,
+    "positive_signal_observed": false,
+    "raw_gap_closure": 0.07692307692307691,
+    "route": "MUTATE_TO_RAW_SPLIT",
+    "unconstrained_heldout_hit_delta_vs_identity": 10
+  },
+  "elapsed_s": 14.933908708015224,
+  "experiment": "C3 kind-logit calibration audit",
+  "identity": {
+    "calibration": {
+      "hits": 73,
+      "kind_hits": {
+        "RAW": 36,
+        "REF": 9,
+        "RES": 28
+      },
+      "kind_recall": {
+        "RAW": 0.0784313725490196,
+        "REF": 0.05844155844155844,
+        "RES": 0.07017543859649122
+      },
+      "kind_target_counts": {
+        "RAW": 459,
+        "REF": 154,
+        "RES": 399
+      },
+      "non_raw_recall": 0.06690777576853527,
+      "positive_label_count": 1012,
+      "positive_sample_count": 70,
+      "precision": 0.052142857142857144,
+      "predicted_kind_counts": {
+        "RAW": 584,
+        "REF": 161,
+        "RES": 655
+      },
+      "recall": 0.07213438735177866,
+      "sample_hit_count": 45,
+      "sample_hit_rate": 0.6428571428571429,
+      "top_k": 20,
+      "transform": {
+        "family": "identity",
+        "kind_biases": {},
+        "kind_scales": {},
+        "name": "identity"
+      },
+      "unigram_top_ids": [
+        1,
+        2,
+        513,
+        3,
+        4,
+        1025,
+        1026,
+        5,
+        1027,
+        6,
+        1028,
+        7,
+        514,
+        8,
+        1029,
+        1030,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "heldout": {
+      "hits": 68,
+      "kind_hits": {
+        "RAW": 36,
+        "REF": 9,
+        "RES": 23
+      },
+      "kind_recall": {
+        "RAW": 0.09113924050632911,
+        "REF": 0.06923076923076923,
+        "RES": 0.06424581005586592
+      },
+      "kind_target_counts": {
+        "RAW": 395,
+        "REF": 130,
+        "RES": 358
+      },
+      "non_raw_recall": 0.06557377049180328,
+      "positive_label_count": 883,
+      "positive_sample_count": 69,
+      "precision": 0.04927536231884058,
+      "predicted_kind_counts": {
+        "RAW": 581,
+        "REF": 167,
+        "RES": 632
+      },
+      "recall": 0.07701019252548132,
+      "sample_hit_count": 43,
+      "sample_hit_rate": 0.6231884057971014,
+      "top_k": 20,
+      "transform": {
+        "family": "identity",
+        "kind_biases": {},
+        "kind_scales": {},
+        "name": "identity"
+      },
+      "unigram_top_ids": [
+        1,
+        2,
+        513,
+        3,
+        4,
+        1025,
+        1026,
+        5,
+        1027,
+        6,
+        1028,
+        7,
+        514,
+        8,
+        1029,
+        1030,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "transform": {
+      "family": "identity",
+      "kind_biases": {},
+      "kind_scales": {},
+      "name": "identity"
+    }
+  },
+  "oracle_best_on_heldout": {
+    "diagnostic_only": true,
+    "heldout": {
+      "hits": 81,
+      "kind_hits": {
+        "RAW": 71,
+        "REF": 8,
+        "RES": 2
+      },
+      "kind_recall": {
+        "RAW": 0.17974683544303796,
+        "REF": 0.06153846153846154,
+        "RES": 0.00558659217877095
+      },
+      "kind_target_counts": {
+        "RAW": 395,
+        "REF": 130,
+        "RES": 358
+      },
+      "non_raw_recall": 0.020491803278688523,
+      "positive_label_count": 883,
+      "positive_sample_count": 69,
+      "precision": 0.058695652173913045,
+      "predicted_kind_counts": {
+        "RAW": 1274,
+        "REF": 78,
+        "RES": 28
+      },
+      "recall": 0.09173272933182333,
+      "sample_hit_count": 42,
+      "sample_hit_rate": 0.6086956521739131,
+      "top_k": 20,
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.25,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.25_fs1.25_ss1.00_rb+0.5_sb+0.0"
+      },
+      "unigram_top_ids": [
+        1,
+        2,
+        513,
+        3,
+        4,
+        1025,
+        1026,
+        5,
+        1027,
+        6,
+        1028,
+        7,
+        514,
+        8,
+        1029,
+        1030,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "transform": {
+      "family": "scale_bias",
+      "kind_biases": {
+        "RAW": 0.5,
+        "REF": 0.0,
+        "RES": 0.0
+      },
+      "kind_scales": {
+        "RAW": 1.25,
+        "REF": 1.25,
+        "RES": 1.0
+      },
+      "name": "scale_bias_rs1.25_fs1.25_ss1.00_rb+0.5_sb+0.0"
+    }
+  },
+  "schema_version": 1,
+  "selected": {
+    "calibration": {
+      "hits": 75,
+      "kind_hits": {
+        "RAW": 41,
+        "REF": 5,
+        "RES": 29
+      },
+      "kind_recall": {
+        "RAW": 0.08932461873638345,
+        "REF": 0.032467532467532464,
+        "RES": 0.07268170426065163
+      },
+      "kind_target_counts": {
+        "RAW": 459,
+        "REF": 154,
+        "RES": 399
+      },
+      "non_raw_recall": 0.06148282097649186,
+      "positive_label_count": 1012,
+      "positive_sample_count": 70,
+      "precision": 0.05357142857142857,
+      "predicted_kind_counts": {
+        "RAW": 640,
+        "REF": 46,
+        "RES": 714
+      },
+      "recall": 0.0741106719367589,
+      "sample_hit_count": 45,
+      "sample_hit_rate": 0.6428571428571429,
+      "top_k": 20,
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.0,
+          "RES": 1.25
+        },
+        "name": "scale_bias_rs1.25_fs1.00_ss1.25_rb+0.5_sb+0.5"
+      },
+      "unigram_top_ids": [
+        1,
+        2,
+        513,
+        3,
+        4,
+        1025,
+        1026,
+        5,
+        1027,
+        6,
+        1028,
+        7,
+        514,
+        8,
+        1029,
+        1030,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "heldout": {
+      "hits": 64,
+      "kind_hits": {
+        "RAW": 38,
+        "REF": 3,
+        "RES": 23
+      },
+      "kind_recall": {
+        "RAW": 0.09620253164556962,
+        "REF": 0.023076923076923078,
+        "RES": 0.06424581005586592
+      },
+      "kind_target_counts": {
+        "RAW": 395,
+        "REF": 130,
+        "RES": 358
+      },
+      "non_raw_recall": 0.05327868852459016,
+      "positive_label_count": 883,
+      "positive_sample_count": 69,
+      "precision": 0.0463768115942029,
+      "predicted_kind_counts": {
+        "RAW": 649,
+        "REF": 41,
+        "RES": 690
+      },
+      "recall": 0.072480181200453,
+      "sample_hit_count": 38,
+      "sample_hit_rate": 0.5507246376811594,
+      "top_k": 20,
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.0,
+          "RES": 1.25
+        },
+        "name": "scale_bias_rs1.25_fs1.00_ss1.25_rb+0.5_sb+0.5"
+      },
+      "unigram_top_ids": [
+        1,
+        2,
+        513,
+        3,
+        4,
+        1025,
+        1026,
+        5,
+        1027,
+        6,
+        1028,
+        7,
+        514,
+        8,
+        1029,
+        1030,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "selection_policy": "best calibration hits with non-RAW preservation >= 0.90 versus identity",
+    "transform": {
+      "family": "scale_bias",
+      "kind_biases": {
+        "RAW": 0.5,
+        "REF": 0.0,
+        "RES": 0.5
+      },
+      "kind_scales": {
+        "RAW": 1.25,
+        "REF": 1.0,
+        "RES": 1.25
+      },
+      "name": "scale_bias_rs1.25_fs1.00_ss1.25_rb+0.5_sb+0.5"
+    }
+  },
+  "top_calibration_candidates": [
+    {
+      "calibration": {
+        "hits": 85,
+        "kind_hits": {
+          "RAW": 81,
+          "REF": 4
+        },
+        "kind_recall": {
+          "RAW": 0.17647058823529413,
+          "REF": 0.025974025974025976,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.007233273056057866,
+        "predicted_kind_counts": {
+          "RAW": 1371,
+          "REF": 29
+        },
+        "recall": 0.08399209486166008
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 0.75,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.25_fs0.75_ss0.75_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 85,
+        "kind_hits": {
+          "RAW": 81,
+          "REF": 4
+        },
+        "kind_recall": {
+          "RAW": 0.17647058823529413,
+          "REF": 0.025974025974025976,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.007233273056057866,
+        "predicted_kind_counts": {
+          "RAW": 1371,
+          "REF": 29
+        },
+        "recall": 0.08399209486166008
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 0.75,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.25_fs0.75_ss1.00_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 85,
+        "kind_hits": {
+          "RAW": 81,
+          "REF": 4
+        },
+        "kind_recall": {
+          "RAW": 0.17647058823529413,
+          "REF": 0.025974025974025976,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.007233273056057866,
+        "predicted_kind_counts": {
+          "RAW": 1371,
+          "REF": 29
+        },
+        "recall": 0.08399209486166008
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 0.75,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.25_fs0.75_ss0.75_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 85,
+        "kind_hits": {
+          "RAW": 81,
+          "REF": 4
+        },
+        "kind_recall": {
+          "RAW": 0.17647058823529413,
+          "REF": 0.025974025974025976,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.007233273056057866,
+        "predicted_kind_counts": {
+          "RAW": 1370,
+          "REF": 29,
+          "RES": 1
+        },
+        "recall": 0.08399209486166008
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 0.75,
+          "RES": 1.25
+        },
+        "name": "scale_bias_rs1.25_fs0.75_ss1.25_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 85,
+        "kind_hits": {
+          "RAW": 80,
+          "REF": 5
+        },
+        "kind_recall": {
+          "RAW": 0.17429193899782136,
+          "REF": 0.032467532467532464,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.009041591320072333,
+        "predicted_kind_counts": {
+          "RAW": 1361,
+          "REF": 39
+        },
+        "recall": 0.08399209486166008
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss1.00_rb+1.0_sb+0.0"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 85,
+        "kind_hits": {
+          "RAW": 80,
+          "REF": 5
+        },
+        "kind_recall": {
+          "RAW": 0.17429193899782136,
+          "REF": 0.032467532467532464,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.009041591320072333,
+        "predicted_kind_counts": {
+          "RAW": 1361,
+          "REF": 39
+        },
+        "recall": 0.08399209486166008
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss0.75_rb+1.0_sb+0.0"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 85,
+        "kind_hits": {
+          "RAW": 80,
+          "REF": 5
+        },
+        "kind_recall": {
+          "RAW": 0.17429193899782136,
+          "REF": 0.032467532467532464,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.009041591320072333,
+        "predicted_kind_counts": {
+          "RAW": 1361,
+          "REF": 39
+        },
+        "recall": 0.08399209486166008
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss1.00_rb+1.0_sb-0.5"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 85,
+        "kind_hits": {
+          "RAW": 80,
+          "REF": 5
+        },
+        "kind_recall": {
+          "RAW": 0.17429193899782136,
+          "REF": 0.032467532467532464,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.009041591320072333,
+        "predicted_kind_counts": {
+          "RAW": 1361,
+          "REF": 39
+        },
+        "recall": 0.08399209486166008
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss0.75_rb+1.0_sb-0.5"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 85,
+        "kind_hits": {
+          "RAW": 80,
+          "REF": 5
+        },
+        "kind_recall": {
+          "RAW": 0.17429193899782136,
+          "REF": 0.032467532467532464,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.009041591320072333,
+        "predicted_kind_counts": {
+          "RAW": 1361,
+          "REF": 39
+        },
+        "recall": 0.08399209486166008
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 1.25
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss1.25_rb+1.0_sb-0.5"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 84,
+        "kind_hits": {
+          "RAW": 78,
+          "REF": 5,
+          "RES": 1
+        },
+        "kind_recall": {
+          "RAW": 0.16993464052287582,
+          "REF": 0.032467532467532464,
+          "RES": 0.002506265664160401
+        },
+        "non_raw_recall": 0.0108499095840868,
+        "predicted_kind_counts": {
+          "RAW": 1343,
+          "REF": 37,
+          "RES": 20
+        },
+        "recall": 0.08300395256916997
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": 0.5
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss0.75_rb+1.0_sb+0.5"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 84,
+        "kind_hits": {
+          "RAW": 77,
+          "REF": 6,
+          "RES": 1
+        },
+        "kind_recall": {
+          "RAW": 0.16775599128540306,
+          "REF": 0.03896103896103896,
+          "RES": 0.002506265664160401
+        },
+        "non_raw_recall": 0.012658227848101266,
+        "predicted_kind_counts": {
+          "RAW": 1301,
+          "REF": 71,
+          "RES": 28
+        },
+        "recall": 0.08300395256916997
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.25,
+          "RES": 1.25
+        },
+        "name": "scale_bias_rs0.75_fs1.25_ss1.25_rb+1.0_sb+0.0"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 84,
+        "kind_hits": {
+          "RAW": 77,
+          "REF": 6,
+          "RES": 1
+        },
+        "kind_recall": {
+          "RAW": 0.16775599128540306,
+          "REF": 0.03896103896103896,
+          "RES": 0.002506265664160401
+        },
+        "non_raw_recall": 0.012658227848101266,
+        "predicted_kind_counts": {
+          "RAW": 1309,
+          "REF": 71,
+          "RES": 20
+        },
+        "recall": 0.08300395256916997
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": 0.5
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.25,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs0.75_fs1.25_ss0.75_rb+1.0_sb+0.5"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 84,
+        "kind_hits": {
+          "RAW": 66,
+          "REF": 6,
+          "RES": 12
+        },
+        "kind_recall": {
+          "RAW": 0.1437908496732026,
+          "REF": 0.03896103896103896,
+          "RES": 0.03007518796992481
+        },
+        "non_raw_recall": 0.0325497287522604,
+        "predicted_kind_counts": {
+          "RAW": 1048,
+          "REF": 71,
+          "RES": 281
+        },
+        "recall": 0.08300395256916997
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.0,
+          "REF": 1.0,
+          "RES": 1.25
+        },
+        "name": "scale_bias_rs1.00_fs1.00_ss1.25_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 84,
+        "kind_hits": {
+          "RAW": 59,
+          "REF": 6,
+          "RES": 19
+        },
+        "kind_recall": {
+          "RAW": 0.12854030501089325,
+          "REF": 0.03896103896103896,
+          "RES": 0.047619047619047616
+        },
+        "non_raw_recall": 0.045207956600361664,
+        "predicted_kind_counts": {
+          "RAW": 900,
+          "REF": 73,
+          "RES": 427
+        },
+        "recall": 0.08300395256916997
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 1.25
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss1.25_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 83,
+        "kind_hits": {
+          "RAW": 78,
+          "REF": 5
+        },
+        "kind_recall": {
+          "RAW": 0.16993464052287582,
+          "REF": 0.032467532467532464,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.009041591320072333,
+        "predicted_kind_counts": {
+          "RAW": 1342,
+          "REF": 57,
+          "RES": 1
+        },
+        "recall": 0.08201581027667984
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.0,
+          "REF": 0.75,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.00_fs0.75_ss0.75_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 83,
+        "kind_hits": {
+          "RAW": 78,
+          "REF": 5
+        },
+        "kind_recall": {
+          "RAW": 0.16993464052287582,
+          "REF": 0.032467532467532464,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.009041591320072333,
+        "predicted_kind_counts": {
+          "RAW": 1343,
+          "REF": 57
+        },
+        "recall": 0.08201581027667984
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.0,
+          "REF": 0.75,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.00_fs0.75_ss1.00_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 83,
+        "kind_hits": {
+          "RAW": 78,
+          "REF": 5
+        },
+        "kind_recall": {
+          "RAW": 0.16993464052287582,
+          "REF": 0.032467532467532464,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.009041591320072333,
+        "predicted_kind_counts": {
+          "RAW": 1343,
+          "REF": 57
+        },
+        "recall": 0.08201581027667984
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.0,
+          "REF": 0.75,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.00_fs0.75_ss0.75_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 83,
+        "kind_hits": {
+          "RAW": 77,
+          "REF": 6
+        },
+        "kind_recall": {
+          "RAW": 0.16775599128540306,
+          "REF": 0.03896103896103896,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.0108499095840868,
+        "predicted_kind_counts": {
+          "RAW": 1328,
+          "REF": 71,
+          "RES": 1
+        },
+        "recall": 0.08201581027667984
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.0,
+          "REF": 1.0,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.00_fs1.00_ss0.75_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 83,
+        "kind_hits": {
+          "RAW": 77,
+          "REF": 5,
+          "RES": 1
+        },
+        "kind_recall": {
+          "RAW": 0.16775599128540306,
+          "REF": 0.032467532467532464,
+          "RES": 0.002506265664160401
+        },
+        "non_raw_recall": 0.0108499095840868,
+        "predicted_kind_counts": {
+          "RAW": 1299,
+          "REF": 70,
+          "RES": 31
+        },
+        "recall": 0.08201581027667984
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.0,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.25_fs1.00_ss1.00_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "calibration": {
+        "hits": 83,
+        "kind_hits": {
+          "RAW": 77,
+          "REF": 6
+        },
+        "kind_recall": {
+          "RAW": 0.16775599128540306,
+          "REF": 0.03896103896103896,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.0108499095840868,
+        "predicted_kind_counts": {
+          "RAW": 1329,
+          "REF": 71
+        },
+        "recall": 0.08201581027667984
+      },
+      "transform": {
+        "family": "kind_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {},
+        "name": "kind_bias_raw+0.5_res-0.5"
+      }
+    }
+  ],
+  "top_heldout_candidates": [
+    {
+      "heldout": {
+        "hits": 81,
+        "kind_hits": {
+          "RAW": 71,
+          "REF": 8,
+          "RES": 2
+        },
+        "kind_recall": {
+          "RAW": 0.17974683544303796,
+          "REF": 0.06153846153846154,
+          "RES": 0.00558659217877095
+        },
+        "non_raw_recall": 0.020491803278688523,
+        "predicted_kind_counts": {
+          "RAW": 1256,
+          "REF": 97,
+          "RES": 27
+        },
+        "recall": 0.09173272933182333
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.0,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 0.75,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.25_fs0.75_ss1.00_rb+0.0_sb-0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 81,
+        "kind_hits": {
+          "RAW": 71,
+          "REF": 8,
+          "RES": 2
+        },
+        "kind_recall": {
+          "RAW": 0.17974683544303796,
+          "REF": 0.06153846153846154,
+          "RES": 0.00558659217877095
+        },
+        "non_raw_recall": 0.020491803278688523,
+        "predicted_kind_counts": {
+          "RAW": 1274,
+          "REF": 78,
+          "RES": 28
+        },
+        "recall": 0.09173272933182333
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.25,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.25_fs1.25_ss1.00_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 75,
+          "REF": 2,
+          "RES": 3
+        },
+        "kind_recall": {
+          "RAW": 0.189873417721519,
+          "REF": 0.015384615384615385,
+          "RES": 0.008379888268156424
+        },
+        "non_raw_recall": 0.010245901639344262,
+        "predicted_kind_counts": {
+          "RAW": 1327,
+          "REF": 21,
+          "RES": 32
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 0.75,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.25_fs0.75_ss1.00_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 6,
+          "RES": 2
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.046153846153846156,
+          "RES": 0.00558659217877095
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1284,
+          "REF": 68,
+          "RES": 28
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.0,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.25_fs1.00_ss1.00_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 8
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.06153846153846154,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1288,
+          "REF": 92
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.0,
+          "REF": 1.25,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.00_fs1.25_ss0.75_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 8
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.06153846153846154,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1301,
+          "REF": 79
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss1.00_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 8
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.06153846153846154,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1288,
+          "REF": 92
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.0,
+          "REF": 1.25,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.00_fs1.25_ss1.00_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 8
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.06153846153846154,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1275,
+          "REF": 105
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.0,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 0.75,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.25_fs0.75_ss0.75_rb+0.0_sb-0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 8
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.06153846153846154,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1301,
+          "REF": 79
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.25,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.25_fs1.25_ss0.75_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 8
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.06153846153846154,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1301,
+          "REF": 79
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss0.75_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 8
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.06153846153846154,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1288,
+          "REF": 92
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.0,
+          "REF": 1.25,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.00_fs1.25_ss0.75_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 8
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.06153846153846154,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1301,
+          "REF": 79
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.25,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.25_fs1.25_ss1.00_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 7,
+          "RES": 1
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.05384615384615385,
+          "RES": 0.002793296089385475
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1286,
+          "REF": 69,
+          "RES": 25
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.25,
+          "RES": 1.25
+        },
+        "name": "scale_bias_rs0.75_fs1.25_ss1.25_rb+1.0_sb+0.0"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 8
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.06153846153846154,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1301,
+          "REF": 79
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.25,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.25_fs1.25_ss0.75_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 8
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.06153846153846154,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1300,
+          "REF": 78,
+          "RES": 2
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.25,
+          "RES": 1.25
+        },
+        "name": "scale_bias_rs1.25_fs1.25_ss1.25_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 6,
+          "RES": 2
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.046153846153846156,
+          "RES": 0.00558659217877095
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1297,
+          "REF": 55,
+          "RES": 28
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": 0.5
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 1.25,
+          "RES": 1.0
+        },
+        "name": "scale_bias_rs1.25_fs1.25_ss1.00_rb+1.0_sb+0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 72,
+          "REF": 7,
+          "RES": 1
+        },
+        "kind_recall": {
+          "RAW": 0.18227848101265823,
+          "REF": 0.05384615384615385,
+          "RES": 0.002793296089385475
+        },
+        "non_raw_recall": 0.01639344262295082,
+        "predicted_kind_counts": {
+          "RAW": 1292,
+          "REF": 69,
+          "RES": 19
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 1.0,
+          "REF": 0.0,
+          "RES": 0.5
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.25,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs0.75_fs1.25_ss0.75_rb+1.0_sb+0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 71,
+          "REF": 8,
+          "RES": 1
+        },
+        "kind_recall": {
+          "RAW": 0.17974683544303796,
+          "REF": 0.06153846153846154,
+          "RES": 0.002793296089385475
+        },
+        "non_raw_recall": 0.018442622950819672,
+        "predicted_kind_counts": {
+          "RAW": 1282,
+          "REF": 79,
+          "RES": 19
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss0.75_rb+0.5_sb+0.0"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 80,
+        "kind_hits": {
+          "RAW": 71,
+          "REF": 8,
+          "RES": 1
+        },
+        "kind_recall": {
+          "RAW": 0.17974683544303796,
+          "REF": 0.06153846153846154,
+          "RES": 0.002793296089385475
+        },
+        "non_raw_recall": 0.018442622950819672,
+        "predicted_kind_counts": {
+          "RAW": 1277,
+          "REF": 79,
+          "RES": 24
+        },
+        "recall": 0.09060022650056625
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": -0.5
+        },
+        "kind_scales": {
+          "RAW": 0.75,
+          "REF": 1.0,
+          "RES": 1.25
+        },
+        "name": "scale_bias_rs0.75_fs1.00_ss1.25_rb+0.5_sb-0.5"
+      }
+    },
+    {
+      "heldout": {
+        "hits": 79,
+        "kind_hits": {
+          "RAW": 73,
+          "REF": 6
+        },
+        "kind_recall": {
+          "RAW": 0.1848101265822785,
+          "REF": 0.046153846153846156,
+          "RES": 0.0
+        },
+        "non_raw_recall": 0.012295081967213115,
+        "predicted_kind_counts": {
+          "RAW": 1322,
+          "REF": 56,
+          "RES": 2
+        },
+        "recall": 0.08946772366930918
+      },
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.0,
+          "REF": 0.75,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.00_fs0.75_ss0.75_rb+0.5_sb+0.0"
+      }
+    }
+  ],
+  "unconstrained_best_on_calibration": {
+    "calibration": {
+      "hits": 85,
+      "kind_hits": {
+        "RAW": 81,
+        "REF": 4
+      },
+      "kind_recall": {
+        "RAW": 0.17647058823529413,
+        "REF": 0.025974025974025976,
+        "RES": 0.0
+      },
+      "kind_target_counts": {
+        "RAW": 459,
+        "REF": 154,
+        "RES": 399
+      },
+      "non_raw_recall": 0.007233273056057866,
+      "positive_label_count": 1012,
+      "positive_sample_count": 70,
+      "precision": 0.060714285714285714,
+      "predicted_kind_counts": {
+        "RAW": 1371,
+        "REF": 29
+      },
+      "recall": 0.08399209486166008,
+      "sample_hit_count": 44,
+      "sample_hit_rate": 0.6285714285714286,
+      "top_k": 20,
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 0.75,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.25_fs0.75_ss0.75_rb+0.5_sb+0.0"
+      },
+      "unigram_top_ids": [
+        1,
+        2,
+        513,
+        3,
+        4,
+        1025,
+        1026,
+        5,
+        1027,
+        6,
+        1028,
+        7,
+        514,
+        8,
+        1029,
+        1030,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "diagnostic_only": true,
+    "heldout": {
+      "hits": 78,
+      "kind_hits": {
+        "RAW": 76,
+        "REF": 2
+      },
+      "kind_recall": {
+        "RAW": 0.19240506329113924,
+        "REF": 0.015384615384615385,
+        "RES": 0.0
+      },
+      "kind_target_counts": {
+        "RAW": 395,
+        "REF": 130,
+        "RES": 358
+      },
+      "non_raw_recall": 0.004098360655737705,
+      "positive_label_count": 883,
+      "positive_sample_count": 69,
+      "precision": 0.05652173913043478,
+      "predicted_kind_counts": {
+        "RAW": 1354,
+        "REF": 26
+      },
+      "recall": 0.08833522083805209,
+      "sample_hit_count": 38,
+      "sample_hit_rate": 0.5507246376811594,
+      "top_k": 20,
+      "transform": {
+        "family": "scale_bias",
+        "kind_biases": {
+          "RAW": 0.5,
+          "REF": 0.0,
+          "RES": 0.0
+        },
+        "kind_scales": {
+          "RAW": 1.25,
+          "REF": 0.75,
+          "RES": 0.75
+        },
+        "name": "scale_bias_rs1.25_fs0.75_ss0.75_rb+0.5_sb+0.0"
+      },
+      "unigram_top_ids": [
+        1,
+        2,
+        513,
+        3,
+        4,
+        1025,
+        1026,
+        5,
+        1027,
+        6,
+        1028,
+        7,
+        514,
+        8,
+        1029,
+        1030,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "transform": {
+      "family": "scale_bias",
+      "kind_biases": {
+        "RAW": 0.5,
+        "REF": 0.0,
+        "RES": 0.0
+      },
+      "kind_scales": {
+        "RAW": 1.25,
+        "REF": 0.75,
+        "RES": 0.75
+      },
+      "name": "scale_bias_rs1.25_fs0.75_ss0.75_rb+0.5_sb+0.0"
+    }
+  },
+  "unigram_baseline": {
+    "calibration": {
+      "hits": 85,
+      "kind_hits": {
+        "RAW": 59,
+        "REF": 8,
+        "RES": 18
+      },
+      "kind_recall": {
+        "RAW": 0.12854030501089325,
+        "REF": 0.05194805194805195,
+        "RES": 0.045112781954887216
+      },
+      "kind_target_counts": {
+        "RAW": 459,
+        "REF": 154,
+        "RES": 399
+      },
+      "non_raw_recall": 0.04701627486437613,
+      "positive_label_count": 1012,
+      "positive_sample_count": 70,
+      "precision": 0.060714285714285714,
+      "predicted_kind_counts": {
+        "RAW": 840,
+        "REF": 140,
+        "RES": 420
+      },
+      "recall": 0.08399209486166008,
+      "sample_hit_count": 45,
+      "sample_hit_rate": 0.6428571428571429,
+      "top_k": 20,
+      "unigram_top_ids": [
+        1,
+        2,
+        513,
+        3,
+        4,
+        1025,
+        1026,
+        5,
+        1027,
+        6,
+        1028,
+        7,
+        514,
+        8,
+        1029,
+        1030,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "counted_token_count": 2136024,
+    "heldout": {
+      "hits": 85,
+      "kind_hits": {
+        "RAW": 62,
+        "REF": 10,
+        "RES": 13
+      },
+      "kind_recall": {
+        "RAW": 0.1569620253164557,
+        "REF": 0.07692307692307693,
+        "RES": 0.036312849162011177
+      },
+      "kind_target_counts": {
+        "RAW": 395,
+        "REF": 130,
+        "RES": 358
+      },
+      "non_raw_recall": 0.0471311475409836,
+      "positive_label_count": 883,
+      "positive_sample_count": 69,
+      "precision": 0.06159420289855073,
+      "predicted_kind_counts": {
+        "RAW": 828,
+        "REF": 138,
+        "RES": 414
+      },
+      "recall": 0.09626274065685164,
+      "sample_hit_count": 47,
+      "sample_hit_rate": 0.6811594202898551,
+      "top_k": 20,
+      "unigram_top_ids": [
+        1,
+        2,
+        513,
+        3,
+        4,
+        1025,
+        1026,
+        5,
+        1027,
+        6,
+        1028,
+        7,
+        514,
+        8,
+        1029,
+        1030,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    "top_tokens": [
+      {
+        "count": 17362,
+        "kind": "RAW",
+        "token": "RAW|D:12:2:0:0",
+        "token_id": 1
+      },
+      {
+        "count": 16991,
+        "kind": "RAW",
+        "token": "RAW|D:12:4:0:0",
+        "token_id": 2
+      },
+      {
+        "count": 14109,
+        "kind": "REF",
+        "token": "REF|skeleton|2|2",
+        "token_id": 513
+      },
+      {
+        "count": 13689,
+        "kind": "RAW",
+        "token": "RAW|D:12:8:0:0",
+        "token_id": 3
+      },
+      {
+        "count": 13542,
+        "kind": "RAW",
+        "token": "RAW|D:12:1:0:0",
+        "token_id": 4
+      },
+      {
+        "count": 12009,
+        "kind": "RES",
+        "token": "RES|D:12:2:0:0",
+        "token_id": 1025
+      },
+      {
+        "count": 11917,
+        "kind": "RES",
+        "token": "RES|D:12:4:0:0",
+        "token_id": 1026
+      },
+      {
+        "count": 10715,
+        "kind": "RAW",
+        "token": "RAW|D:6:4:0:0",
+        "token_id": 5
+      },
+      {
+        "count": 10670,
+        "kind": "RES",
+        "token": "RES|D:12:8:0:0",
+        "token_id": 1027
+      },
+      {
+        "count": 10580,
+        "kind": "RAW",
+        "token": "RAW|D:6:2:0:0",
+        "token_id": 6
+      },
+      {
+        "count": 10426,
+        "kind": "RES",
+        "token": "RES|D:12:1:0:0",
+        "token_id": 1028
+      },
+      {
+        "count": 10322,
+        "kind": "RAW",
+        "token": "RAW|D:12:0:4:0",
+        "token_id": 7
+      },
+      {
+        "count": 10286,
+        "kind": "REF",
+        "token": "REF|skeleton|3|3",
+        "token_id": 514
+      },
+      {
+        "count": 10273,
+        "kind": "RAW",
+        "token": "RAW|D:12:0:2:0",
+        "token_id": 8
+      },
+      {
+        "count": 8801,
+        "kind": "RES",
+        "token": "RES|D:12:0:2:0",
+        "token_id": 1029
+      },
+      {
+        "count": 8612,
+        "kind": "RES",
+        "token": "RES|D:12:0:4:0",
+        "token_id": 1030
+      },
+      {
+        "count": 8539,
+        "kind": "RAW",
+        "token": "RAW|D:12:3:0:0",
+        "token_id": 9
+      },
+      {
+        "count": 8534,
+        "kind": "RAW",
+        "token": "RAW|D:12:12:0:0",
+        "token_id": 10
+      },
+      {
+        "count": 8444,
+        "kind": "RAW",
+        "token": "RAW|D:12:0:8:0",
+        "token_id": 11
+      },
+      {
+        "count": 7979,
+        "kind": "RAW",
+        "token": "RAW|D:12:0:1:0",
+        "token_id": 12
+      }
+    ],
+    "unique_token_count": 1536
+  }
+}
