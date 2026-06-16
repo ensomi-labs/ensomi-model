@@ -1,0 +1,71 @@
+{
+  "experiment": "Target grammar v3 full-pipeline replacement smoke",
+  "schema_version": 1,
+  "decision": {
+    "route": "TEST_NEXT",
+    "reason": "bounded v3 dataset/model/loss training smoke and runtime rollout passed; full-index one-step command exceeded smoke budget during v3 record-cache construction",
+    "next_step": "Run a bounded v3 training comparison with a prebuilt or explicitly bounded v3 mapper record cache, then compare trained v3 rollout behavior against v2.1."
+  },
+  "inputs": {
+    "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_full_pipeline_replacement_experiment_card.md",
+    "full_dataset_audit_summary": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_full_dataset_audit_summary.json",
+    "training_config": "configs/training/stage2_mapper_v3_phase_b_event_global_mps.yaml",
+    "bounded_index": "artifacts/tmp/target_grammar_v3_full_pipeline_smoke/small_index.parquet"
+  },
+  "focused_verifier": {
+    "command": "uv run --group dev pytest tests/models/mapper/v3/test_event_token_smoke.py tests/models/mapper/v3/test_data_windows.py tests/models/mapper/v3/test_model.py tests/evals/test_target_grammar_v3_event_smoke.py tests/models/mapper/v2_1/test_tokenizer_replay_grammar.py -q",
+    "passed": true,
+    "test_count": 24,
+    "elapsed_reported_s": 0.86
+  },
+  "full_index_training_smoke": {
+    "command": "uv run python -m pulsefield_model.training.mapper_v3 --config configs/training/stage2_mapper_v3_phase_b_event_global_mps.yaml --output-dir artifacts/tmp/target_grammar_v3_full_pipeline_smoke --run-name target_grammar_v3_full_pipeline_smoke --max-steps 1 --eval-every 1 --save-every 1 --log-every 1 --batch-size 1 --eval-size 1 --final-train-eval-size 1 --device cpu --max-cached-maps 1 --skip-first-eval-pass --no-dataset-progress",
+    "passed": false,
+    "interrupted": true,
+    "runtime_budget_s": 600,
+    "failure_layer": "setup",
+    "observed_layer": "MapperV3WindowDataset full-index record construction",
+    "interpretation": "not a model/loss failure; the full config needs a prebuilt v3 mapper record cache or a bounded index for smoke use"
+  },
+  "bounded_training_smoke": {
+    "command": "uv run python -m pulsefield_model.training.mapper_v3 --config configs/training/stage2_mapper_v3_phase_b_event_global_mps.yaml --index-path artifacts/tmp/target_grammar_v3_full_pipeline_smoke/small_index.parquet --output-dir artifacts/tmp/target_grammar_v3_full_pipeline_smoke/run --run-name target_grammar_v3_full_pipeline_smoke --mapper-record-cache-path artifacts/tmp/target_grammar_v3_full_pipeline_smoke/mapper_v3_records.parquet --max-steps 1 --eval-every 1 --save-every 1 --log-every 1 --batch-size 1 --eval-size 1 --final-train-eval-size 1 --device cpu --max-cached-maps 1 --skip-first-eval-pass --no-dataset-progress",
+    "passed": true,
+    "completed_steps": 1,
+    "step_1_train_loss": 4.821866,
+    "final_eval_loss": 3.974514,
+    "final_train_loss": 3.571947,
+    "parameter_count": 30158757,
+    "source_window_count": 2,
+    "train_window_count": 2,
+    "eval_window_count": 2,
+    "token_valid_count_step_1": 125,
+    "mapper_token_contract": "v3_event_groups",
+    "checkpoint_path": "artifacts/tmp/target_grammar_v3_full_pipeline_smoke/run/checkpoint.pt",
+    "report_path": "artifacts/tmp/target_grammar_v3_full_pipeline_smoke/run/report.json"
+  },
+  "runtime_rollout_smoke": {
+    "command": "uv run python -m pulsefield_model.evals.mapper_v3_trained_runtime_rollout --mapper-checkpoint-path artifacts/tmp/target_grammar_v3_full_pipeline_smoke/run/checkpoint.pt --control-checkpoint-path artifacts/runs/stage2_control_demo/stage2_control_demo_global_d384_l3_stride16_b6/checkpoints/checkpoint_step_002000.pt --summary-output artifacts/tmp/target_grammar_v3_full_pipeline_smoke/runtime_rollout_summary.json --report-output artifacts/tmp/target_grammar_v3_full_pipeline_smoke/runtime_rollout_report.md --device cpu --chart-end-ms 1000 --max-tokens-per-window 128 --collect-logit-diagnostics --logit-max-examples 5",
+    "passed": true,
+    "route": "TEST_NEXT",
+    "windows": 1,
+    "generated_v3_tokens": 16,
+    "expanded_v2_1_tokens": 16,
+    "generated_timepoints": 0,
+    "completed": true,
+    "dead_end": false,
+    "max_tokens_exceeded": false,
+    "event_top1_step_ratio": 0.0,
+    "event_topk_step_ratio": 0.9375,
+    "best_event_rank_median": 4.0,
+    "best_event_margin_median": -0.8587697148323059
+  },
+  "requirements_status": {
+    "v3_batch_creation": "passed on bounded real-index slice",
+    "v3_forward_loss_step": "passed",
+    "v3_checkpoint_emission": "passed",
+    "v3_runtime_load": "passed",
+    "v3_online_rollout": "passed",
+    "full_index_one_step_smoke": "failed runtime budget during record-cache construction",
+    "trained_quality": "not tested"
+  }
+}
