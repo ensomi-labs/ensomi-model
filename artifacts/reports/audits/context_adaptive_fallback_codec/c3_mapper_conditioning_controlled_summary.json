@@ -1,0 +1,95 @@
+{
+  "baseline": {
+    "completed_steps": 20,
+    "eval_curve": [
+      {
+        "loss_total": 3.4699151383729916,
+        "step": 1
+      },
+      {
+        "loss_total": 3.4330850292918806,
+        "step": 5
+      },
+      {
+        "loss_total": 3.3849710370106414,
+        "step": 10
+      },
+      {
+        "loss_total": 3.3341202045939995,
+        "step": 15
+      },
+      {
+        "loss_total": 3.285888199655284,
+        "step": 20
+      }
+    ],
+    "final_eval_loss_total": 3.285888199655284,
+    "final_train_eval_loss_total": 3.1972772199327295,
+    "is_complete": true,
+    "last_train_loss_total": 3.333955764770508,
+    "model": {
+      "c3_side_stream_embedding_dim": 64,
+      "c3_side_stream_scale_init": 0.03,
+      "c3_side_stream_vocab_size": 0,
+      "use_c3_side_stream_conditioning": false
+    },
+    "parameter_count": 15070861,
+    "report_path": "artifacts/runs/stage2_mapper_v2_1/c3_conditioning_controlled_baseline/report.json"
+  },
+  "comparison": {
+    "enabled_minus_baseline_final_eval_loss": 0.0007543153758341345,
+    "enabled_relative_final_eval_loss_delta": 0.00022956026024048844,
+    "kill_threshold_relative_loss_delta": 0.05,
+    "kill_threshold_triggered": false,
+    "controlled_comparison_pass": true
+  },
+  "dataset": {
+    "c3_side_stream_max_tokens": 256,
+    "c3_side_stream_token_sidecar_path": "artifacts/cache/c3_mapper_window_sidecar/c3_exact_mapper_window_sidecar_le3.json",
+    "eval_window_count": 43,
+    "final_train_eval_window_count": 8,
+    "include_c3_side_stream_token_tensors": true,
+    "train_window_count": 174472
+  },
+  "enabled": {
+    "completed_steps": 20,
+    "eval_curve": [
+      {
+        "loss_total": 3.4707874397722316,
+        "step": 1
+      },
+      {
+        "loss_total": 3.433916063119257,
+        "step": 5
+      },
+      {
+        "loss_total": 3.3857824142628896,
+        "step": 10
+      },
+      {
+        "loss_total": 3.3349143866224225,
+        "step": 15
+      },
+      {
+        "loss_total": 3.2866425150311183,
+        "step": 20
+      }
+    ],
+    "final_eval_loss_total": 3.2866425150311183,
+    "final_train_eval_loss_total": 3.197439366048077,
+    "is_complete": true,
+    "last_train_loss_total": 3.3351070880889893,
+    "model": {
+      "c3_side_stream_embedding_dim": 16,
+      "c3_side_stream_scale_init": 0.03,
+      "c3_side_stream_vocab_size": 14294,
+      "use_c3_side_stream_conditioning": true
+    },
+    "parameter_count": 15300126,
+    "report_path": "artifacts/runs/stage2_mapper_v2_1/c3_conditioning_controlled_enabled/report.json"
+  },
+  "verification": {
+    "pytest": "uv run --group dev pytest tests/models/mapper/v2_1/test_model.py tests/training/test_mapper_v2_1.py -q",
+    "pytest_result": "15 passed in 0.84s"
+  }
+}
