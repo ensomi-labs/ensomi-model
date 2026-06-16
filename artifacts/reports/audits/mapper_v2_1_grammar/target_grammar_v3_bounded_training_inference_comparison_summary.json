@@ -1,0 +1,46 @@
+{
+  "experiment": "Target grammar v3 bounded training/inference comparison",
+  "date": "2026-06-17",
+  "decision": "TEST_NEXT",
+  "source_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_bounded_training_inference_comparison_experiment_card.md",
+  "selected_variant": "parallel v3 training CLI/function using the shared mapper runner",
+  "changed_code": [
+    "src/pulsefield_model/training/mapper_v3.py",
+    "configs/training/stage2_mapper_v3_phase_b_event_global_mps.yaml",
+    "tests/training/test_mapper_v3.py"
+  ],
+  "verification": {
+    "focused_v3_training_tests_passed": 5,
+    "exact_v3_card_tests_passed": 14,
+    "exact_v21_card_tests_passed": 26,
+    "broader_v3_guard_tests_passed": 21,
+    "broader_v21_training_model_inference_tests_passed": 31,
+    "broader_v2_v21_eval_guard_tests_passed": 17
+  },
+  "tiny_training_smoke": {
+    "completed_steps": 1,
+    "train_loss_total": 4.683746814727783,
+    "eval_loss_total": 4.679501953125,
+    "valid_target_tokens": 125,
+    "report_path": "artifacts/tmp/mapper_v3_training_smoke/run/report.json",
+    "checkpoint_path": "artifacts/tmp/mapper_v3_training_smoke/run/checkpoint.pt",
+    "training_contract": "v3_event_groups",
+    "dataset_contract": "v3_event_groups"
+  },
+  "proved": [
+    "v3 has a public Phase B training function and CLI",
+    "v3 training uses MapperV3WindowDataset and collate_mapper_v3_windows",
+    "v3 training reuses the shared mapper runner",
+    "v3 training report/checkpoint smoke works on a tiny real local index",
+    "v3 training config records v3_event_groups",
+    "v2.1 comparator tests remain green"
+  ],
+  "not_proved": [
+    "trained v3 mapper quality",
+    "v3 convergence against v2.1",
+    "full 4K v3 training runtime",
+    "trained v3 full-song inference quality",
+    "session-runtime/default replacement"
+  ],
+  "next_step": "Run a real bounded v3-vs-v2.1 trained comparison with comparable configs/checkpoints."
+}
