@@ -17,6 +17,7 @@ from pulsefield_model.inference.mapper_v3_rollout import (
 )
 from pulsefield_model.inference.model_runtime import ModelRuntimeConfig, load_model_runtime
 from pulsefield_model.inference.session_runtime import SessionRuntime, SessionRuntimeConfig
+from pulsefield_model.inference.stream_with_cache import audio_length_ms_from_file
 from pulsefield_model.models.mapper.v3 import MapperV3Model, MapperV3Vocab
 from pulsefield_model.timing.grid_fitting.types import TimingFitDiagnostics, TimingFitResult
 from pulsefield_model.timing.schema import FittedTimingGrid, FrameTimingPrediction, TimingSegment
@@ -89,6 +90,10 @@ def run_trained_v3_runtime_rollout_smoke(
     temperature: float = 0.0,
     top_p: float | None = None,
     seed: int = 1337,
+    real_audio: bool = False,
+    audio_length_ms: int | None = None,
+    beatthis_device: str | None = None,
+    beatthis_float16: bool = False,
 ) -> dict[str, Any]:
     chart_end_ms = int(chart_end_ms)
     if chart_end_ms <= 0 or chart_end_ms % 10 != 0:
@@ -100,6 +105,8 @@ def run_trained_v3_runtime_rollout_smoke(
             mapper_checkpoint_path=mapper_checkpoint_path,
             control_checkpoint_path=control_checkpoint_path,
             device=device_name,
+            beatthis_device=beatthis_device,
+            beatthis_float16=bool(beatthis_float16),
             eager_load_beatthis=False,
         )
     )
@@ -108,14 +115,24 @@ def run_trained_v3_runtime_rollout_smoke(
     if not isinstance(runtime.vocab, MapperV3Vocab):
         raise TypeError(f"expected MapperV3Vocab runtime, got {type(runtime.vocab).__name__}")
 
-    synthetic_provider = SyntheticTimingProvider(frame_count=frame_count, source_path=Path(audio_path).as_posix())
-    runtime = replace(runtime, beatthis_provider=synthetic_provider)
-    fitter = FixedGridFitter()
-    mel = np.zeros((frame_count, 160), dtype=np.float32)
+    synthetic_provider = None
+    fitter = None
+    mel_loader = None
+    resolved_audio_path = Path(audio_path)
+    if bool(real_audio):
+        resolved_audio_length_ms = _real_audio_length_ms(resolved_audio_path, audio_length_ms=audio_length_ms)
+    else:
+        synthetic_provider = SyntheticTimingProvider(frame_count=frame_count, source_path=resolved_audio_path.as_posix())
+        runtime = replace(runtime, beatthis_provider=synthetic_provider)
+        fitter = FixedGridFitter()
+        mel = np.zeros((frame_count, 160), dtype=np.float32)
 
-    def load_mel(path: str | Path) -> np.ndarray:
-        del path
-        return mel
+        def load_mel(path: str | Path) -> np.ndarray:
+            del path
+            return mel
+
+        mel_loader = load_mel
+        resolved_audio_length_ms = chart_end_ms
 
     session_runtime = SessionRuntime(
         session_id="mapper-v3-trained-runtime-rollout-smoke",
@@ -125,11 +142,11 @@ def run_trained_v3_runtime_rollout_smoke(
             default_normalized_difficulty=float(normalized_difficulty),
             max_control_batch_size=4,
         ),
-        mel_loader=load_mel,
-        grid_fitter=fitter,
+        **({} if mel_loader is None else {"mel_loader": mel_loader}),
+        **({} if fitter is None else {"grid_fitter": fitter}),
     )
-    session_runtime.prepare_audio(audio_path, audio_length_ms=chart_end_ms, start_ms=0)
-    session_runtime.prepare_full_control(max_batch_size=4)
+    audio_cache = session_runtime.prepare_audio(resolved_audio_path, audio_length_ms=resolved_audio_length_ms, start_ms=0)
+    full_control_cache = session_runtime.prepare_full_control(max_batch_size=4)
     generator = torch.Generator(device=runtime.device)
     generator.manual_seed(int(seed))
     rollout = generate_full_song_rollout_v3(
@@ -182,13 +199,37 @@ def run_trained_v3_runtime_rollout_smoke(
             "temperature": float(temperature),
             "top_p": top_p,
             "seed": int(seed),
-            "synthetic_frame_count": int(frame_count),
+            "real_audio": bool(real_audio),
+            "audio_path": resolved_audio_path.as_posix(),
+            "audio_length_ms": int(resolved_audio_length_ms),
+            "synthetic_frame_count": None if bool(real_audio) else int(frame_count),
+            "beatthis_device": beatthis_device,
+            "beatthis_float16": bool(beatthis_float16),
         },
         "runtime": {
             "mapper": mapper_metadata,
             "control": dict(runtime.checkpoint_metadata["control"]),
-            "timing_provider_calls": list(synthetic_provider.paths),
-            "grid_fit_count": int(fitter.prediction_count),
+            "timing_provider_calls": (
+                list(synthetic_provider.paths)
+                if synthetic_provider is not None
+                else [resolved_audio_path.as_posix()]
+            ),
+            "grid_fit_count": None if fitter is None else int(fitter.prediction_count),
+            "audio_cache": {
+                "audio_path": audio_cache.audio_path.as_posix(),
+                "audio_length_ms": int(audio_cache.audio_length_ms),
+                "audio_length_source": audio_cache.audio_length_source,
+                "source_frame_count": int(audio_cache.source_frame_count),
+                "padded_frame_count": int(audio_cache.padded_frame_count),
+                "timing_provider": str(audio_cache.beatthis_prediction.provider),
+                "timing_checkpoint_path": str(audio_cache.beatthis_prediction.checkpoint_path),
+                "timing_frame_rate_hz": float(audio_cache.beatthis_prediction.frame_rate_hz),
+                "timing_fit_score": float(audio_cache.timing_fit_result.score),
+            },
+            "full_control_cache": {
+                "window_count": len(full_control_cache.start_ms_values),
+                "max_batch_size": int(full_control_cache.max_batch_size),
+            },
         },
         "rollout": {
             "chart_end_ms": int(rollout.chart_end_ms),
@@ -235,6 +276,18 @@ def write_summary_json(summary: Mapping[str, Any], path: str | Path) -> None:
     output_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _real_audio_length_ms(audio_path: Path, *, audio_length_ms: int | None) -> int:
+    if audio_length_ms is not None:
+        value = int(audio_length_ms)
+        if value <= 0:
+            raise ValueError("audio_length_ms must be positive")
+        return value
+    resolved = audio_length_ms_from_file(audio_path)
+    if resolved is None:
+        raise ValueError(f"could not infer audio length for real audio: {audio_path}")
+    return int(resolved)
+
+
 def write_report(summary: Mapping[str, Any], path: str | Path) -> None:
     output_path = Path(path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -262,6 +315,9 @@ def _report_markdown(summary: Mapping[str, Any]) -> str:
         f"- Mapper checkpoint: `{config.get('mapper_checkpoint_path')}`",
         f"- Control checkpoint: `{config.get('control_checkpoint_path')}`",
         f"- Device: `{config.get('device')}`",
+        f"- Real audio: `{config.get('real_audio')}`",
+        f"- Audio path: `{config.get('audio_path')}`",
+        f"- Audio length: `{config.get('audio_length_ms')}` ms",
         f"- Mapper runtime version: `{mapper.get('version')}`",
         f"- Filtered embedded control keys: `{len(tuple(mapper.get('filtered_control_encoder_keys', ())))}`",
         f"- Chart end: `{config.get('chart_end_ms')}` ms",
@@ -299,6 +355,10 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--chart-end-ms", type=int, default=1_000)
     parser.add_argument("--max-tokens-per-window", type=int, default=256)
     parser.add_argument("--audio-path", default="synthetic.wav")
+    parser.add_argument("--real-audio", action="store_true")
+    parser.add_argument("--audio-length-ms", type=int)
+    parser.add_argument("--beatthis-device")
+    parser.add_argument("--beatthis-float16", action="store_true")
     parser.add_argument("--normalized-difficulty", type=float, default=0.5)
     parser.add_argument("--include-control-attention-kv-cache", action="store_true")
     parser.add_argument("--temperature", type=float, default=0.0)
@@ -319,6 +379,10 @@ def main(argv: Sequence[str] | None = None) -> None:
         temperature=args.temperature,
         top_p=args.top_p,
         seed=args.seed,
+        real_audio=args.real_audio,
+        audio_length_ms=args.audio_length_ms,
+        beatthis_device=args.beatthis_device,
+        beatthis_float16=args.beatthis_float16,
     )
     print(
         "mapper_v3_trained_runtime_rollout_done "
