@@ -9,6 +9,7 @@ from pulsefield_model.osu_core.c3_side_stream_tokenization import (
     _decode_side_stream_for_source,
     _encode_side_stream_for_source,
     _signature_from_delta_tokens,
+    audit_c3_mapper_window_sidecar,
     audit_c3_side_stream_tokenization,
 )
 from pulsefield_model.osu_core.context_adaptive_fallback_codec_audit import (
@@ -16,6 +17,7 @@ from pulsefield_model.osu_core.context_adaptive_fallback_codec_audit import (
     _FallbackRecord,
     _LzSpanSelection,
 )
+from pulsefield_model.data.mapper_sparse_windows_v2_1 import load_c3_side_stream_token_sidecar
 
 
 class C3SideStreamTokenizationTests(unittest.TestCase):
@@ -77,6 +79,50 @@ class C3SideStreamTokenizationTests(unittest.TestCase):
             self.assertTrue(report["pass_criteria"]["p0_roundtrip_pass"])
             self.assertGreaterEqual(report["token_stats"]["main_stream_token_count"], 0)
             self.assertGreaterEqual(report["token_stats"]["side_stream_token_count"], 0)
+
+    def test_mapper_window_sidecar_writes_loader_compatible_rows(self) -> None:
+        rows = [
+            _cache_row(source=1, split="train", groups=[_group(0, tap=1), _group(24, tap=2)], chunk_sort_ms=100.0),
+            _cache_row(source=2, split="train", groups=[_group(0, tap=1), _group(24, tap=2)], chunk_sort_ms=8_100.0),
+            _cache_row(source=3, split="valid", groups=[_group(0, tap=1), _group(24, tap=1)], chunk_sort_ms=16_100.0),
+            _cache_row(source=4, split="test", groups=[_group(0, tap=1), _group(24, tap=1)], chunk_sort_ms=24_100.0),
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cache_path = root / "chunks.parquet"
+            sidecar_path = root / "sidecar.json"
+            report_path = root / "report.json"
+            log_path = root / "log.md"
+            dataset_root = root / "dataset"
+            pd.DataFrame(rows).to_parquet(cache_path, index=False)
+
+            report = audit_c3_mapper_window_sidecar(
+                chunk_cache_path=cache_path,
+                dataset_root=dataset_root,
+                sidecar_path=sidecar_path,
+                report_path=report_path,
+                result_log_path=log_path,
+                motif_vocab_size=2,
+                motif_min_n=2,
+                motif_max_n=2,
+                lz_window_fallbacks=8,
+                lz_max_span=2,
+            )
+            loaded = load_c3_side_stream_token_sidecar(sidecar_path)
+            sidecar = json.loads(sidecar_path.read_text(encoding="utf-8"))
+
+            self.assertTrue(report_path.exists())
+            self.assertTrue(log_path.exists())
+            self.assertTrue(report["pass_criteria"]["p3_sidecar_generation_pass"])
+            self.assertTrue(report["sidecar_stats"]["token_preservation_pass"])
+            self.assertEqual(report["sidecar_stats"]["missing_anchor_token_count"], 0)
+            self.assertEqual(report["loader_guard"]["loaded_window_count"], len(sidecar["windows"]))
+            self.assertGreater(report["sidecar_stats"]["sidecar_token_count"], 0)
+            self.assertEqual(report["sidecar_stats"]["sidecar_token_count"], report["loader_guard"]["loaded_token_count"])
+            self.assertTrue(all(int(token_id) > 0 for window in sidecar["windows"] for token_id in window["token_ids"]))
+            expected_path = (dataset_root / "0" / "1.osu").as_posix()
+            self.assertIn(expected_path, loaded)
+            self.assertIn(0, loaded[expected_path])
 
 
 def _span(
@@ -147,7 +193,13 @@ def _record(record_id: int, *, tap: int) -> _FallbackRecord:
     )
 
 
-def _cache_row(*, source: int, split: str, groups: list[dict[str, int | str]]) -> dict[str, object]:
+def _cache_row(
+    *,
+    source: int,
+    split: str,
+    groups: list[dict[str, int | str]],
+    chunk_sort_ms: float = 0.0,
+) -> dict[str, object]:
     signature = ";".join(
         f"A:{group['offset_units']}:{group['tap_mask']}:{group['ln_start_mask']}:{group['ln_end_mask']}"
         for group in groups
@@ -155,6 +207,7 @@ def _cache_row(*, source: int, split: str, groups: list[dict[str, int | str]]) -
     return {
         "source_row_index": source,
         "split": split,
+        "shard": "0",
         "beatmap_set_id": source,
         "beatmap_id": source * 10,
         "beatmap_path": f"{source}.osu",
@@ -176,6 +229,7 @@ def _cache_row(*, source: int, split: str, groups: list[dict[str, int | str]]) -
         "num_events": sum(int(group["event_count"]) for group in groups),
         "raw_signature": signature,
         "groups_json": json.dumps(groups, separators=(",", ":"), sort_keys=True),
+        "chunk_sort_ms": chunk_sort_ms,
     }
 
 
