@@ -1,0 +1,525 @@
+{
+  "audit": {
+    "eval": {
+      "baseline_token_count": 28073,
+      "candidate_token_count": 22471,
+      "cross_window_ln_window_count": 61,
+      "event_token_count": 9112,
+      "full_chart_end_window_count": 7,
+      "lane_action_token_count": 14714,
+      "ln_carry_in_window_count": 43,
+      "ln_carry_out_window_count": 43,
+      "mismatch_examples": [],
+      "multi_lane_event_count": 3976,
+      "observed_event_vocab_size": 225,
+      "reconstruction_mismatches": 0,
+      "split": "eval",
+      "terminal_event_at_chart_end_window_count": 7,
+      "token_reduction": 5602,
+      "token_reduction_ratio": 0.1995511701635023,
+      "top_event_signatures": [
+        {
+          "count": 1373,
+          "lane_count": 1,
+          "signature": ".T.."
+        },
+        {
+          "count": 1360,
+          "lane_count": 1,
+          "signature": "..T."
+        },
+        {
+          "count": 1010,
+          "lane_count": 1,
+          "signature": "...T"
+        },
+        {
+          "count": 962,
+          "lane_count": 1,
+          "signature": "T..."
+        },
+        {
+          "count": 427,
+          "lane_count": 2,
+          "signature": "..TT"
+        },
+        {
+          "count": 425,
+          "lane_count": 2,
+          "signature": "TT.."
+        },
+        {
+          "count": 362,
+          "lane_count": 2,
+          "signature": "T..T"
+        },
+        {
+          "count": 193,
+          "lane_count": 2,
+          "signature": "T.T."
+        },
+        {
+          "count": 192,
+          "lane_count": 2,
+          "signature": ".TT."
+        },
+        {
+          "count": 179,
+          "lane_count": 2,
+          "signature": ".T.T"
+        },
+        {
+          "count": 121,
+          "lane_count": 3,
+          "signature": "TT.T"
+        },
+        {
+          "count": 106,
+          "lane_count": 3,
+          "signature": "T.TT"
+        },
+        {
+          "count": 73,
+          "lane_count": 1,
+          "signature": ".S.."
+        },
+        {
+          "count": 67,
+          "lane_count": 1,
+          "signature": "..S."
+        },
+        {
+          "count": 63,
+          "lane_count": 2,
+          "signature": "..SE"
+        },
+        {
+          "count": 58,
+          "lane_count": 3,
+          "signature": "TTT."
+        },
+        {
+          "count": 55,
+          "lane_count": 1,
+          "signature": "..E."
+        },
+        {
+          "count": 54,
+          "lane_count": 1,
+          "signature": ".E.."
+        },
+        {
+          "count": 53,
+          "lane_count": 2,
+          "signature": ".ES."
+        },
+        {
+          "count": 50,
+          "lane_count": 1,
+          "signature": "...E"
+        }
+      ],
+      "window_count": 142
+    },
+    "total": {
+      "baseline_token_count": 30888365,
+      "candidate_token_count": 24542731,
+      "cross_window_ln_window_count": 80316,
+      "event_token_count": 9720062,
+      "full_chart_end_window_count": 9360,
+      "lane_action_token_count": 16065696,
+      "ln_carry_in_window_count": 53098,
+      "ln_carry_out_window_count": 53061,
+      "mismatch_examples": [],
+      "multi_lane_event_count": 4670193,
+      "observed_event_vocab_size": 255,
+      "reconstruction_mismatches": 0,
+      "split": "total",
+      "terminal_event_at_chart_end_window_count": 9360,
+      "token_reduction": 6345634,
+      "token_reduction_ratio": 0.20543767855631076,
+      "top_event_signatures": [
+        {
+          "count": 1260273,
+          "lane_count": 1,
+          "signature": "..T."
+        },
+        {
+          "count": 1258042,
+          "lane_count": 1,
+          "signature": ".T.."
+        },
+        {
+          "count": 876807,
+          "lane_count": 1,
+          "signature": "T..."
+        },
+        {
+          "count": 869797,
+          "lane_count": 1,
+          "signature": "...T"
+        },
+        {
+          "count": 495183,
+          "lane_count": 2,
+          "signature": "..TT"
+        },
+        {
+          "count": 492854,
+          "lane_count": 2,
+          "signature": "TT.."
+        },
+        {
+          "count": 391601,
+          "lane_count": 2,
+          "signature": "T..T"
+        },
+        {
+          "count": 229055,
+          "lane_count": 2,
+          "signature": ".TT."
+        },
+        {
+          "count": 222373,
+          "lane_count": 2,
+          "signature": ".T.T"
+        },
+        {
+          "count": 219630,
+          "lane_count": 2,
+          "signature": "T.T."
+        },
+        {
+          "count": 139012,
+          "lane_count": 3,
+          "signature": "T.TT"
+        },
+        {
+          "count": 138082,
+          "lane_count": 3,
+          "signature": "TT.T"
+        },
+        {
+          "count": 126019,
+          "lane_count": 1,
+          "signature": "..S."
+        },
+        {
+          "count": 123592,
+          "lane_count": 1,
+          "signature": ".S.."
+        },
+        {
+          "count": 99792,
+          "lane_count": 1,
+          "signature": "...S"
+        },
+        {
+          "count": 96822,
+          "lane_count": 1,
+          "signature": "S..."
+        },
+        {
+          "count": 88751,
+          "lane_count": 1,
+          "signature": "..E."
+        },
+        {
+          "count": 87741,
+          "lane_count": 1,
+          "signature": ".E.."
+        },
+        {
+          "count": 82279,
+          "lane_count": 1,
+          "signature": "...E"
+        },
+        {
+          "count": 79954,
+          "lane_count": 1,
+          "signature": "E..."
+        }
+      ],
+      "window_count": 174515
+    },
+    "train": {
+      "baseline_token_count": 30860292,
+      "candidate_token_count": 24520260,
+      "cross_window_ln_window_count": 80255,
+      "event_token_count": 9710950,
+      "full_chart_end_window_count": 9353,
+      "lane_action_token_count": 16050982,
+      "ln_carry_in_window_count": 53055,
+      "ln_carry_out_window_count": 53018,
+      "mismatch_examples": [],
+      "multi_lane_event_count": 4666217,
+      "observed_event_vocab_size": 255,
+      "reconstruction_mismatches": 0,
+      "split": "train",
+      "terminal_event_at_chart_end_window_count": 9353,
+      "token_reduction": 6340032,
+      "token_reduction_ratio": 0.20544303339709163,
+      "top_event_signatures": [
+        {
+          "count": 1258913,
+          "lane_count": 1,
+          "signature": "..T."
+        },
+        {
+          "count": 1256669,
+          "lane_count": 1,
+          "signature": ".T.."
+        },
+        {
+          "count": 875845,
+          "lane_count": 1,
+          "signature": "T..."
+        },
+        {
+          "count": 868787,
+          "lane_count": 1,
+          "signature": "...T"
+        },
+        {
+          "count": 494756,
+          "lane_count": 2,
+          "signature": "..TT"
+        },
+        {
+          "count": 492429,
+          "lane_count": 2,
+          "signature": "TT.."
+        },
+        {
+          "count": 391239,
+          "lane_count": 2,
+          "signature": "T..T"
+        },
+        {
+          "count": 228863,
+          "lane_count": 2,
+          "signature": ".TT."
+        },
+        {
+          "count": 222194,
+          "lane_count": 2,
+          "signature": ".T.T"
+        },
+        {
+          "count": 219437,
+          "lane_count": 2,
+          "signature": "T.T."
+        },
+        {
+          "count": 138906,
+          "lane_count": 3,
+          "signature": "T.TT"
+        },
+        {
+          "count": 137961,
+          "lane_count": 3,
+          "signature": "TT.T"
+        },
+        {
+          "count": 125952,
+          "lane_count": 1,
+          "signature": "..S."
+        },
+        {
+          "count": 123519,
+          "lane_count": 1,
+          "signature": ".S.."
+        },
+        {
+          "count": 99757,
+          "lane_count": 1,
+          "signature": "...S"
+        },
+        {
+          "count": 96772,
+          "lane_count": 1,
+          "signature": "S..."
+        },
+        {
+          "count": 88696,
+          "lane_count": 1,
+          "signature": "..E."
+        },
+        {
+          "count": 87687,
+          "lane_count": 1,
+          "signature": ".E.."
+        },
+        {
+          "count": 82229,
+          "lane_count": 1,
+          "signature": "...E"
+        },
+        {
+          "count": 79907,
+          "lane_count": 1,
+          "signature": "E..."
+        }
+      ],
+      "window_count": 174373
+    }
+  },
+  "baseline": {
+    "eval_token_count": 28073,
+    "unigram_nll": {
+      "bits_per_token": 4.207595532438236,
+      "eval_token_count": 28073,
+      "total_bits": 118119.8293821386,
+      "train_token_count": 30860292,
+      "vocab_size": 35
+    }
+  },
+  "candidate": {
+    "eval_token_count": 22471,
+    "top_event_signatures": [
+      {
+        "count": 1373,
+        "lane_count": 1,
+        "signature": ".T.."
+      },
+      {
+        "count": 1360,
+        "lane_count": 1,
+        "signature": "..T."
+      },
+      {
+        "count": 1010,
+        "lane_count": 1,
+        "signature": "...T"
+      },
+      {
+        "count": 962,
+        "lane_count": 1,
+        "signature": "T..."
+      },
+      {
+        "count": 427,
+        "lane_count": 2,
+        "signature": "..TT"
+      },
+      {
+        "count": 425,
+        "lane_count": 2,
+        "signature": "TT.."
+      },
+      {
+        "count": 362,
+        "lane_count": 2,
+        "signature": "T..T"
+      },
+      {
+        "count": 193,
+        "lane_count": 2,
+        "signature": "T.T."
+      },
+      {
+        "count": 192,
+        "lane_count": 2,
+        "signature": ".TT."
+      },
+      {
+        "count": 179,
+        "lane_count": 2,
+        "signature": ".T.T"
+      },
+      {
+        "count": 121,
+        "lane_count": 3,
+        "signature": "TT.T"
+      },
+      {
+        "count": 106,
+        "lane_count": 3,
+        "signature": "T.TT"
+      },
+      {
+        "count": 73,
+        "lane_count": 1,
+        "signature": ".S.."
+      },
+      {
+        "count": 67,
+        "lane_count": 1,
+        "signature": "..S."
+      },
+      {
+        "count": 63,
+        "lane_count": 2,
+        "signature": "..SE"
+      },
+      {
+        "count": 58,
+        "lane_count": 3,
+        "signature": "TTT."
+      },
+      {
+        "count": 55,
+        "lane_count": 1,
+        "signature": "..E."
+      },
+      {
+        "count": 54,
+        "lane_count": 1,
+        "signature": ".E.."
+      },
+      {
+        "count": 53,
+        "lane_count": 2,
+        "signature": ".ES."
+      },
+      {
+        "count": 50,
+        "lane_count": 1,
+        "signature": "...E"
+      }
+    ],
+    "unigram_nll": {
+      "bits_per_token": 4.971069048556573,
+      "eval_token_count": 22471,
+      "total_bits": 111704.89259011476,
+      "train_token_count": 24520260,
+      "vocab_size": 278
+    }
+  },
+  "comparison": {
+    "bits_per_baseline_token": 3.9790864029535413,
+    "eval_token_count": 22471,
+    "event_token_count": 9112,
+    "lane_action_token_count": 14714,
+    "multi_lane_event_count": 3976,
+    "reconstruction_mismatches": 0,
+    "token_reduction": 5602,
+    "token_reduction_ratio": 0.1995511701635023,
+    "total_bit_reduction": 6414.936792023844,
+    "total_bit_reduction_ratio": 0.05430872043736522
+  },
+  "config_path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_1000step_enabled.yaml",
+  "dataset": {
+    "audit_window_count": 174515,
+    "eval_scored_window_count": 142,
+    "eval_window_count": 142,
+    "full_dataset_audit": true,
+    "train_scored_window_count": 174373,
+    "train_window_count": 174373
+  },
+  "decision": {
+    "interpretation": "The v3 event-token grammar passed the audit gate: exact reconstruction holds on the audited scope, target streams are shorter, and the simple total-bit proxy improves. This permits the next representation gate, but trained mapper quality still needs full-pipeline validation.",
+    "kill_criteria_triggered": false,
+    "next_step": "Create the v3 dataset/model/training/inference replacement Experiment Card.",
+    "positive_gate_passed": true,
+    "route": "TEST_NEXT"
+  },
+  "elapsed_s": 2555.3793077500013,
+  "schema_version": 1,
+  "vocab": {
+    "contract": "v3_event_groups",
+    "v2_1_vocab_size": 37,
+    "v3_event_token_count": 255,
+    "v3_vocab_size": 280
+  }
+}
