@@ -1,0 +1,83 @@
+{
+  "experiment": "Target grammar v3 broader multi-song comparison",
+  "date": "2026-06-17",
+  "decision": "TEST_NEXT",
+  "source_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_broader_multisong_comparison_experiment_card.md",
+  "selected_variant": "4 beatmaps x 16 index rows, 10 CPU steps, tiny d_model=16 configs",
+  "selected_beatmaps": [
+    "1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+    "1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Asha's HD].osu",
+    "1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Shini's NM].osu",
+    "1001794/Phantom Sage - Holystone (UnluckyCroco) [At the Point of No Return].osu"
+  ],
+  "slice": {
+    "source_index": "artifacts/indexes/stage2_control_windows_4k_2to6_dense_local_bpm_norm_unique_le3.parquet",
+    "row_selection": "first 16 rows for each of the first 4 locally available beatmaps with at least 16 windows",
+    "local_index": "artifacts/tmp/mapper_v3_broader_multisong_comparison/fixed_4song_64_index.parquet",
+    "index_rows": 64,
+    "mapper_eligible_source_windows": 16,
+    "train_window_count": 4,
+    "eval_window_count": 12
+  },
+  "training": {
+    "max_steps": 10,
+    "eval_every": 10,
+    "batch_size": 1,
+    "device": "cpu",
+    "model_d_model": 16,
+    "model_layers": 1,
+    "model_heads": 4
+  },
+  "comparison": {
+    "route": "TEST_NEXT",
+    "reason": "all tiny trained-comparison gates passed",
+    "v2_1_report": "artifacts/tmp/mapper_v3_broader_multisong_comparison/v21/run/report.json",
+    "v3_report": "artifacts/tmp/mapper_v3_broader_multisong_comparison/v3/run/report.json",
+    "v2_1_contract": "v2.1_sparse_lane_actions",
+    "v3_contract": "v3_event_groups",
+    "v2_1_completed_steps": 10,
+    "v3_completed_steps": 10,
+    "v2_1_eval_loss_total": 3.3537517430653234,
+    "v3_eval_loss_total": 4.56460654189105,
+    "v3_eval_loss_delta": 1.2108547988257263,
+    "v2_1_eval_valid_tokens": 1533.0,
+    "v3_eval_valid_tokens": 1178.0,
+    "v3_eval_valid_token_ratio": 0.7684279191128506,
+    "v3_eval_valid_token_reduction_ratio": 0.23157208088714942
+  },
+  "checks": {
+    "v21_contract": true,
+    "v21_dataset_contract": true,
+    "v3_contract": true,
+    "v3_dataset_contract": true,
+    "v21_completed_steps": true,
+    "v3_completed_steps": true,
+    "v21_complete_flag": true,
+    "v3_complete_flag": true,
+    "v21_eval_loss_finite": true,
+    "v3_eval_loss_finite": true,
+    "v21_eval_valid_tokens_positive": true,
+    "v3_eval_valid_tokens_positive": true,
+    "v3_eval_valid_tokens_lower": true
+  },
+  "guard_tests": {
+    "comparison_training_guard_passed": true,
+    "comparison_training_guard_tests": 18,
+    "inference_model_guard_passed": true,
+    "inference_model_guard_tests": 26
+  },
+  "proved": [
+    "v3 and v2.1 both complete repeated shared-runner training steps on a deterministic multi-song local slice",
+    "v3 report contract remains v3_event_groups",
+    "v3 report valid-token count is lower than v2.1 on the broader multi-song slice",
+    "final eval losses are finite for both reports"
+  ],
+  "not_proved": [
+    "trained v3 mapper quality",
+    "v3 convergence on a broad or full split",
+    "full 4K v3 runtime",
+    "trained full-song v3 inference quality",
+    "session-runtime/default replacement"
+  ],
+  "next_step": "Run a larger eligible-window comparison across more mapsets or move to a short real-config cache-backed comparison."
+}
