@@ -1,0 +1,70 @@
+dataset_root: dataset
+index_path: artifacts/indexes/stage2_control_windows_4k_2to6_dense_local_bpm_norm_unique_le3.parquet
+control_v3_timeseries_path: artifacts/features/control_v3_timeseries_4k_no_timing_anomalies_2to6_dense_local_bpm_norm_unique_le3.parquet
+
+output_dir: artifacts/runs/stage2_mapper_v2_1/c3_auxiliary_positive_weight_enabled
+run_name: c3_auxiliary_positive_weight_enabled
+
+max_steps: 100
+eval_every: 20
+save_every: 100
+log_every: 20
+batch_size: 1
+learning_rate: 0.0002
+weight_decay: 0.01
+seed: 20260616
+device: cpu
+skip_first_eval_pass: true
+
+eval_fraction: 0.01
+eval_size: 8
+final_train_eval_size: 16
+num_workers: 0
+max_cached_maps: 2
+mapper_record_cache_path: artifacts/cache/stage2_mapper_v2_1/window_records/stage2_mapper_v2_1_phase_b_sparse_global_mps_plus_end.parquet
+control_teacher_cache_dir: artifacts/cache/stage2_mapper_v2_1/control_teacher_d384_l3_stride16_step002000
+require_control_teacher_cache: true
+include_full_song_context: false
+
+include_c3_side_stream_token_tensors: true
+c3_side_stream_token_sidecar_path: artifacts/cache/c3_mapper_window_sidecar/c3_exact_mapper_window_sidecar_le3.json
+c3_side_stream_max_tokens: 256
+
+control_model:
+  d_model: 384
+  heads: 8
+  layers: 3
+  ffn_dim: 1536
+  dropout: 0.0
+
+model:
+  control_dim: 384
+  d_model: 32
+  heads: 4
+  layers: 1
+  ffn_dim: 64
+  dropout: 0.0
+  max_seq_len: 1024
+  use_global_context: false
+  global_conv_blocks: 0
+  state_prior_hidden_dim: 32
+  ln_close_hidden_dim: 32
+  lane_embedding_dim: 4
+  age_embedding_dim: 4
+  state_prior_adapter_scale: 0.03
+  state_prior_max_bias: 1.5
+  close_scale: 0.05
+  skip_scale: 0.0
+  use_c3_side_stream_conditioning: false
+  c3_side_stream_vocab_size: 14294
+  c3_side_stream_embedding_dim: 16
+  c3_side_stream_scale_init: 0.03
+  use_c3_auxiliary_target: true
+  c3_auxiliary_vocab_size: 14294
+
+loss:
+  lambda_ln_close: 0.05
+  lambda_adapter_reg: 0.00001
+  lambda_density: 0.05
+  lambda_c3_auxiliary: 0.05
+  c3_auxiliary_positive_weight: 128.0

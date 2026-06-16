@@ -20,6 +20,7 @@ from .vocab import MapperV21Vocab as _MapperV21Vocab
 @dataclass(frozen=True)
 class MapperV21LossConfig(_MapperTupleLossConfig):
     lambda_c3_auxiliary: float = 0.0
+    c3_auxiliary_positive_weight: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -39,6 +40,15 @@ class MapperV21ModelLoss(_MapperTupleModelLoss):
             raise ValueError("lambda_c3_auxiliary must be finite numeric")
         if float(lambda_c3_auxiliary) < 0.0:
             raise ValueError("lambda_c3_auxiliary must be non-negative")
+        positive_weight = resolved_config.c3_auxiliary_positive_weight
+        if (
+            not isinstance(positive_weight, (int, float))
+            or isinstance(positive_weight, bool)
+            or not math.isfinite(float(positive_weight))
+        ):
+            raise ValueError("c3_auxiliary_positive_weight must be finite numeric")
+        if float(positive_weight) <= 0.0:
+            raise ValueError("c3_auxiliary_positive_weight must be positive")
         resolved_vocab = _MapperV21Vocab() if vocab is None else vocab
         super().__init__(
             resolved_config,
@@ -61,15 +71,21 @@ class MapperV21ModelLoss(_MapperTupleModelLoss):
         metric_denominators = dict(loss.metric_denominators)
         total_loss = loss.total_loss
         if float(self.config.lambda_c3_auxiliary) > 0.0:
-            c3_auxiliary_loss, c3_metrics, c3_weight = _c3_auxiliary_bag_loss(output, batch)
+            c3_auxiliary_loss, c3_metrics, c3_weight = _c3_auxiliary_bag_loss(
+                output,
+                batch,
+                positive_weight=float(self.config.c3_auxiliary_positive_weight),
+            )
             total_loss = total_loss + float(self.config.lambda_c3_auxiliary) * c3_auxiliary_loss
             metrics.update(c3_metrics)
             metrics["phase/lambda_c3_auxiliary"] = float(self.config.lambda_c3_auxiliary)
+            metrics["phase/c3_auxiliary_positive_weight"] = float(self.config.c3_auxiliary_positive_weight)
             metrics["loss/total"] = float(total_loss.detach().cpu())
             metric_numerators["loss/c3_auxiliary"] = float((c3_auxiliary_loss.detach() * c3_weight.clamp_min(1)).cpu())
             metric_denominators["loss/c3_auxiliary"] = float(c3_weight.detach().cpu())
         else:
             metrics["phase/lambda_c3_auxiliary"] = float(self.config.lambda_c3_auxiliary)
+            metrics["phase/c3_auxiliary_positive_weight"] = float(self.config.c3_auxiliary_positive_weight)
         return MapperV21LossOutput(
             total_loss=total_loss,
             token_loss=loss.token_loss,
@@ -85,6 +101,8 @@ class MapperV21ModelLoss(_MapperTupleModelLoss):
 def _c3_auxiliary_bag_loss(
     output: Any,
     batch: Mapping[str, torch.Tensor],
+    *,
+    positive_weight: float = 1.0,
 ) -> tuple[torch.Tensor, dict[str, float], torch.Tensor]:
     logits = getattr(output, "c3_auxiliary_logits", None)
     if not isinstance(logits, torch.Tensor):
@@ -135,7 +153,18 @@ def _c3_auxiliary_bag_loss(
         batch_index = valid_positions[:, 0]
         token_index = tokens[batch_index, valid_positions[:, 1]] - 1
         target[batch_index, token_index] = 1.0
-    per_sample_loss = F.binary_cross_entropy_with_logits(logits, target, reduction="none").mean(dim=1)
+    pos_weight = torch.full(
+        (int(logits.shape[1]),),
+        float(positive_weight),
+        device=logits.device,
+        dtype=logits.dtype,
+    )
+    per_sample_loss = F.binary_cross_entropy_with_logits(
+        logits,
+        target,
+        reduction="none",
+        pos_weight=pos_weight,
+    ).mean(dim=1)
     sample_weight = sample_mask.sum().clamp_min(1.0)
     loss = (per_sample_loss * sample_mask).sum() / sample_weight
     positive_count = target.sum()
@@ -145,6 +174,7 @@ def _c3_auxiliary_bag_loss(
         "c3_auxiliary/sample_count": float(sample_mask.sum().detach().cpu()),
         "c3_auxiliary/token_count": float(raw_token_count.detach().cpu()),
         "c3_auxiliary/positive_label_count": float(positive_count.detach().cpu()),
+        "c3_auxiliary/positive_weight": float(positive_weight),
     }
     return loss, metrics, sample_weight
 

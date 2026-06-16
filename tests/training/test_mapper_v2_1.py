@@ -107,6 +107,7 @@ class MapperV21PhaseBTrainingTests(unittest.TestCase):
                         "control_model": {},
                         "loss": {
                             "lambda_c3_auxiliary": 0.1,
+                            "c3_auxiliary_positive_weight": 128.0,
                         },
                     },
                     sort_keys=False,
@@ -128,6 +129,7 @@ class MapperV21PhaseBTrainingTests(unittest.TestCase):
         self.assertEqual(model_config.c3_auxiliary_vocab_size, 128)
         loss_config = MapperV21LossConfig(**config["loss"])
         self.assertEqual(loss_config.lambda_c3_auxiliary, 0.1)
+        self.assertEqual(loss_config.c3_auxiliary_positive_weight, 128.0)
 
     def test_main_forwards_v2_1_training_options(self) -> None:
         train_result = SimpleNamespace(

@@ -199,6 +199,30 @@ class MapperV21ModelTests(unittest.TestCase):
         assert output.c3_auxiliary_logits is not None
         self.assertEqual(tuple(output.c3_auxiliary_logits.shape), (1, 32))
 
+        unweighted_loss_fn = MapperV21ModelLoss(
+            MapperV21LossConfig(
+                lambda_density=0.0,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+                lambda_c3_auxiliary=0.25,
+            ),
+            vocab=vocab,
+        )
+        weighted_loss_fn = MapperV21ModelLoss(
+            MapperV21LossConfig(
+                lambda_density=0.0,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+                lambda_c3_auxiliary=0.25,
+                c3_auxiliary_positive_weight=8.0,
+            ),
+            vocab=vocab,
+        )
+        unweighted_loss = unweighted_loss_fn(output, batch)
+        weighted_loss = weighted_loss_fn(output, batch)
+        self.assertGreater(weighted_loss.metrics["loss/c3_auxiliary"], unweighted_loss.metrics["loss/c3_auxiliary"])
+        self.assertEqual(weighted_loss.metrics["phase/c3_auxiliary_positive_weight"], 8.0)
+
         loss_fn = MapperV21ModelLoss(
             MapperV21LossConfig(
                 lambda_density=0.0,
@@ -221,6 +245,10 @@ class MapperV21ModelTests(unittest.TestCase):
         self.assertGreater(float(model.c3_auxiliary_head.weight.grad.abs().sum().item()), 0.0)
         self.assertIsNotNone(model.token_embedding.weight.grad)
         self.assertGreater(float(model.token_embedding.weight.grad.abs().sum().item()), 0.0)
+
+    def test_c3_auxiliary_target_rejects_invalid_positive_weight(self) -> None:
+        with self.assertRaisesRegex(ValueError, "c3_auxiliary_positive_weight must be positive"):
+            MapperV21ModelLoss(MapperV21LossConfig(c3_auxiliary_positive_weight=0.0))
 
     def test_c3_auxiliary_target_rejects_out_of_range_labels(self) -> None:
         torch.manual_seed(20260620)
