@@ -206,10 +206,14 @@ def run_trained_v3_runtime_rollout_smoke(
     time_shift_delta_penalty_alpha: float = 0.0,
     collect_logit_diagnostics: bool = False,
     logit_top_k: int = 5,
+    timepoint_preview_limit: int = 32,
 ) -> dict[str, Any]:
     chart_end_ms = int(chart_end_ms)
     if chart_end_ms <= 0 or chart_end_ms % 10 != 0:
         raise ValueError("chart_end_ms must be positive and aligned to 10ms")
+    timepoint_preview_limit = int(timepoint_preview_limit)
+    if timepoint_preview_limit < 0:
+        raise ValueError("timepoint_preview_limit must be non-negative")
     frame_count = max(400, (chart_end_ms + 19) // 20)
 
     runtime = load_model_runtime(
@@ -329,6 +333,7 @@ def run_trained_v3_runtime_rollout_smoke(
             "time_shift_delta_penalty_alpha": float(time_shift_delta_penalty_alpha),
             "collect_logit_diagnostics": bool(collect_logit_diagnostics),
             "logit_top_k": int(logit_top_k),
+            "timepoint_preview_limit": int(timepoint_preview_limit),
         },
         "runtime": {
             "mapper": mapper_metadata,
@@ -364,8 +369,8 @@ def run_trained_v3_runtime_rollout_smoke(
             "completed": bool(rollout.completed),
             "dead_end": bool(rollout.dead_end),
             "max_tokens_exceeded": bool(rollout.max_tokens_exceeded),
-            "timepoints": [_timepoint_to_dict(timepoint) for timepoint in timepoints[:32]],
-            "timepoint_preview_limit": 32,
+            "timepoints": [_timepoint_to_dict(timepoint) for timepoint in timepoints[:timepoint_preview_limit]],
+            "timepoint_preview_limit": int(timepoint_preview_limit),
             "windows": [
                 {
                     "write_start_ms": int(window.write_start_ms),
@@ -565,6 +570,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--time-shift-delta-penalty-alpha", type=float, default=0.0)
     parser.add_argument("--collect-logit-diagnostics", action="store_true")
     parser.add_argument("--logit-top-k", type=int, default=5)
+    parser.add_argument("--timepoint-preview-limit", type=int, default=32)
     args = parser.parse_args(argv)
     summary = run_trained_v3_runtime_rollout_smoke(
         mapper_checkpoint_path=args.mapper_checkpoint_path,
@@ -588,6 +594,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         time_shift_delta_penalty_alpha=args.time_shift_delta_penalty_alpha,
         collect_logit_diagnostics=args.collect_logit_diagnostics,
         logit_top_k=args.logit_top_k,
+        timepoint_preview_limit=args.timepoint_preview_limit,
     )
     print(
         "mapper_v3_trained_runtime_rollout_done "

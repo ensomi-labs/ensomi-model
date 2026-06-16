@@ -1,0 +1,2417 @@
+{
+  "baseline_20step": {
+    "alpha_0_best_event_margin_median": -1.5870003700256348,
+    "alpha_0_best_event_rank_median": 3.0,
+    "alpha_0_event_count": 0,
+    "alpha_0_event_top1": 0,
+    "alpha_0_event_top5": 108,
+    "alpha_0_event_valid": "214/215",
+    "completed_steps": 20,
+    "final_eval_token_loss": 3.1200488875805865,
+    "final_eval_total_loss": 3.21109134869002
+  },
+  "commands": {
+    "inference_model_guard": "uv run --group dev pytest tests/inference/test_mapper_v3_rollout.py tests/inference/test_mapper_v2_1_rollout.py tests/models/mapper/v3/test_model.py tests/models/mapper/v2_1/test_model.py -q",
+    "rollout_sweep": "for alpha in 0.00 0.05 0.10 0.20; do uv run python -m pulsefield_model.evals.mapper_v3_trained_runtime_rollout ... --real-audio --chart-end-ms 16000 --time-shift-length-penalty-alpha \"$alpha\" --collect-logit-diagnostics --timepoint-preview-limit 512; done",
+    "runtime_v3_diagnostic_guard": "uv run --group dev pytest tests/inference/test_model_runtime.py tests/inference/test_mapper_v3_rollout.py tests/evals/test_mapper_v3_trained_runtime_rollout.py -q",
+    "synthetic_regression": "uv run python -m pulsefield_model.evals.mapper_v3_trained_runtime_rollout --mapper-checkpoint-path artifacts/tmp/mapper_v3_200step_decode_policy/train/run/checkpoint.pt --control-checkpoint-path artifacts/runs/stage2_control_demo/stage2_control_demo_global_d384_l3_stride16_b6/checkpoints/checkpoint_step_002000.pt --summary-output artifacts/tmp/mapper_v3_200step_decode_policy/synthetic_regression_summary.json --report-output artifacts/tmp/mapper_v3_200step_decode_policy/synthetic_regression_report.md --device mps --chart-end-ms 1000 --max-tokens-per-window 256 --temperature 0.0 --collect-logit-diagnostics --logit-top-k 5 --timepoint-preview-limit 512",
+    "training": "uv run python - <<PY ... run_mapper_v3_phase_b_training(max_steps=200, eval_every=50, fixed_32song_256 index, require_control_teacher_cache=True) ... PY",
+    "training_comparison_guard": "uv run --group dev pytest tests/evals/test_mapper_v3_training_comparison.py tests/training/test_mapper_v3.py tests/training/test_mapper_v2_1.py -q"
+  },
+  "date": "2026-06-17",
+  "decision": {
+    "reason": "200-step training breaks zero-event greedy collapse, but generated timing is still patterned and not replacement-ready",
+    "route": "TEST_NEXT"
+  },
+  "experiment": "Target grammar v3 200-step decode-policy comparison",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_200step_decode_policy_experiment_card.md",
+  "ground_truth_reference": [
+    {
+      "beatmap_path": "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Asha's HD].osu",
+      "event_count_0_16s": 57,
+      "first_12_times": [
+        480,
+        550,
+        610,
+        1390,
+        1780,
+        2170,
+        2560,
+        2950,
+        3150,
+        3340,
+        3540,
+        3730
+      ],
+      "last_12_times": [
+        12690,
+        13080,
+        13470,
+        13730,
+        13800,
+        13860,
+        14450,
+        15220,
+        15320,
+        15420,
+        15810,
+        16000
+      ],
+      "timing_match_alpha_0": [
+        {
+          "f1": 0.3925233644859813,
+          "matched_generated": 21,
+          "matched_target": 21,
+          "precision": 0.42,
+          "recall": 0.3684210526315789,
+          "tolerance_ms": 50
+        },
+        {
+          "f1": 0.5233644859813084,
+          "matched_generated": 28,
+          "matched_target": 28,
+          "precision": 0.56,
+          "recall": 0.49122807017543857,
+          "tolerance_ms": 100
+        },
+        {
+          "f1": 0.5420560747663552,
+          "matched_generated": 29,
+          "matched_target": 29,
+          "precision": 0.58,
+          "recall": 0.5087719298245614,
+          "tolerance_ms": 160
+        }
+      ]
+    },
+    {
+      "beatmap_path": "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Shini's NM].osu",
+      "event_count_0_16s": 44,
+      "first_12_times": [
+        610,
+        1390,
+        2170,
+        2950,
+        3150,
+        3340,
+        3540,
+        3730,
+        4120,
+        4510,
+        4900,
+        5090
+      ],
+      "last_12_times": [
+        11330,
+        11520,
+        11910,
+        12300,
+        12690,
+        13080,
+        13860,
+        14450,
+        15420,
+        15610,
+        15810,
+        16000
+      ],
+      "timing_match_alpha_0": [
+        {
+          "f1": 0.3829787234042554,
+          "matched_generated": 18,
+          "matched_target": 18,
+          "precision": 0.36,
+          "recall": 0.4090909090909091,
+          "tolerance_ms": 50
+        },
+        {
+          "f1": 0.5106382978723404,
+          "matched_generated": 24,
+          "matched_target": 24,
+          "precision": 0.48,
+          "recall": 0.5454545454545454,
+          "tolerance_ms": 100
+        },
+        {
+          "f1": 0.5106382978723404,
+          "matched_generated": 24,
+          "matched_target": 24,
+          "precision": 0.48,
+          "recall": 0.5454545454545454,
+          "tolerance_ms": 160
+        }
+      ]
+    }
+  ],
+  "guard_results": {
+    "inference_model_guard_passed": true,
+    "inference_model_guard_tests": 26,
+    "runtime_v3_diagnostic_guard_passed": true,
+    "runtime_v3_diagnostic_guard_tests": 13,
+    "synthetic_regression_route": "TEST_NEXT",
+    "synthetic_regression_timepoints": 7,
+    "training_comparison_guard_passed": true,
+    "training_comparison_guard_tests": 18
+  },
+  "interpretation": "Training horizon was a real bottleneck for zero-event collapse, but 200 steps exposes a new quality failure: regular-grid timing and second-window event starvation. v3 remains promising but not replacement-ready.",
+  "key_findings": [
+    "Final eval token loss improved from 3.120049 at 20 steps to 2.031527 at 200 steps on the same fixed slice.",
+    "Greedy alpha 0.00 changed from 0 generated events at 20 steps to 50 generated events at 200 steps.",
+    "All alpha settings completed legally without dead-end or max-token failure.",
+    "Alpha 0.00 generated mostly 160ms-spaced events from 160ms through 7840ms plus one event at 15980ms, showing a timing-pattern collapse rather than plausible chart structure.",
+    "The generated count is near the reference map counts, but timing alignment remains weak and the second 8s window is almost empty."
+  ],
+  "next_step": "Run a bounded timing-quality diagnostic over multiple real-audio prefixes/maps, or mutate training/loss/decode calibration to reduce rigid-grid and window-transition artifacts before broader replacement work.",
+  "rollout_runs": [
+    {
+      "alpha": 0.0,
+      "argmax_kind_counts": {
+        "eos": 1,
+        "event": 50,
+        "time_shift": 234
+      },
+      "best_event_margin_max": 0.0,
+      "best_event_margin_median": -0.5529510974884033,
+      "best_event_rank_median": 2.0,
+      "boundary_event_count": 1,
+      "boundary_event_ratio": 0.02,
+      "captured_timepoint_count": 50,
+      "completed": true,
+      "dead_end": false,
+      "emitted_kind_counts": {
+        "eos": 1,
+        "event": 50,
+        "time_shift": 234
+      },
+      "event_top1_step_count": 50,
+      "event_topk_step_count": 185,
+      "event_valid_step_count": 284,
+      "first_12_times": [
+        160,
+        320,
+        480,
+        640,
+        800,
+        960,
+        1120,
+        1280,
+        1440,
+        1600,
+        1760,
+        1920
+      ],
+      "last_12_times": [
+        6240,
+        6400,
+        6560,
+        6720,
+        6880,
+        7040,
+        7200,
+        7360,
+        7520,
+        7680,
+        7840,
+        15980
+      ],
+      "max_tokens_exceeded": false,
+      "report_path": "artifacts/tmp/mapper_v3_200step_decode_policy/rollout/alpha_0_00_report.md",
+      "route": "TEST_NEXT",
+      "step_count": 285,
+      "summary_path": "artifacts/tmp/mapper_v3_200step_decode_policy/rollout/alpha_0_00_summary.json",
+      "timepoint_count": 50,
+      "timepoints": [
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 160
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 320
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 480
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 640
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 800
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 960
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1120
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1280
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1440
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1600
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1760
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1920
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2080
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2240
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2400
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2560
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2720
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2880
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3040
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3200
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3360
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3520
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3680
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3840
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4000
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4160
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4320
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4480
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4640
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4800
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4960
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5120
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5280
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5440
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5600
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5760
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5920
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6080
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6240
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6400
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6560
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6720
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6880
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7040
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7200
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7360
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7520
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7680
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7840
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 15980
+        }
+      ],
+      "token_count": 285,
+      "unique_spacing_counts": {
+        "160": 48,
+        "8140": 1
+      }
+    },
+    {
+      "alpha": 0.05,
+      "argmax_kind_counts": {
+        "eos": 1,
+        "event": 50,
+        "time_shift": 234
+      },
+      "best_event_margin_max": 0.0,
+      "best_event_margin_median": -0.5029511451721191,
+      "best_event_rank_median": 2.0,
+      "boundary_event_count": 1,
+      "boundary_event_ratio": 0.02,
+      "captured_timepoint_count": 50,
+      "completed": true,
+      "dead_end": false,
+      "emitted_kind_counts": {
+        "eos": 1,
+        "event": 50,
+        "time_shift": 234
+      },
+      "event_top1_step_count": 50,
+      "event_topk_step_count": 185,
+      "event_valid_step_count": 284,
+      "first_12_times": [
+        160,
+        320,
+        480,
+        640,
+        800,
+        960,
+        1120,
+        1280,
+        1440,
+        1600,
+        1760,
+        1920
+      ],
+      "last_12_times": [
+        6240,
+        6400,
+        6560,
+        6720,
+        6880,
+        7040,
+        7200,
+        7360,
+        7520,
+        7680,
+        7840,
+        15980
+      ],
+      "max_tokens_exceeded": false,
+      "report_path": "artifacts/tmp/mapper_v3_200step_decode_policy/rollout/alpha_0_05_report.md",
+      "route": "TEST_NEXT",
+      "step_count": 285,
+      "summary_path": "artifacts/tmp/mapper_v3_200step_decode_policy/rollout/alpha_0_05_summary.json",
+      "timepoint_count": 50,
+      "timepoints": [
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 160
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 320
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 480
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 640
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 800
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 960
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1120
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1280
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1440
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1600
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1760
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1920
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2080
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2240
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2400
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2560
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2720
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2880
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3040
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3200
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3360
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3520
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3680
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3840
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4000
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4160
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4320
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4480
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4640
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4800
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4960
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5120
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5280
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5440
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5600
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5760
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5920
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6080
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6240
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6400
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6560
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6720
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6880
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7040
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7200
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7360
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7520
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7680
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7840
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 15980
+        }
+      ],
+      "token_count": 285,
+      "unique_spacing_counts": {
+        "160": 48,
+        "8140": 1
+      }
+    },
+    {
+      "alpha": 0.1,
+      "argmax_kind_counts": {
+        "eos": 1,
+        "event": 53,
+        "time_shift": 234
+      },
+      "best_event_margin_max": 0.0,
+      "best_event_margin_median": -0.4520583152770996,
+      "best_event_rank_median": 2.0,
+      "boundary_event_count": 4,
+      "boundary_event_ratio": 0.07547169811320754,
+      "captured_timepoint_count": 53,
+      "completed": true,
+      "dead_end": false,
+      "emitted_kind_counts": {
+        "eos": 1,
+        "event": 53,
+        "time_shift": 234
+      },
+      "event_top1_step_count": 53,
+      "event_topk_step_count": 188,
+      "event_valid_step_count": 287,
+      "first_12_times": [
+        160,
+        320,
+        480,
+        640,
+        800,
+        960,
+        1120,
+        1280,
+        1440,
+        1600,
+        1760,
+        1920
+      ],
+      "last_12_times": [
+        6720,
+        6880,
+        7040,
+        7200,
+        7360,
+        7520,
+        7680,
+        7840,
+        15980,
+        15980,
+        15980,
+        16000
+      ],
+      "max_tokens_exceeded": false,
+      "report_path": "artifacts/tmp/mapper_v3_200step_decode_policy/rollout/alpha_0_10_report.md",
+      "route": "TEST_NEXT",
+      "step_count": 288,
+      "summary_path": "artifacts/tmp/mapper_v3_200step_decode_policy/rollout/alpha_0_10_summary.json",
+      "timepoint_count": 53,
+      "timepoints": [
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 160
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 320
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 480
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 640
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 800
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 960
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1120
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1280
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1440
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1600
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1760
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1920
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2080
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2240
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2400
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2560
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2720
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2880
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3040
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3200
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3360
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3520
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3680
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3840
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4000
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4160
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4320
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4480
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4640
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4800
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4960
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5120
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5280
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5440
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5600
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5760
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5920
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6080
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6240
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6400
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6560
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6720
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6880
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7040
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7200
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7360
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7520
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7680
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7840
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 15980
+        },
+        {
+          "lane_actions": [
+            "TAP",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 15980
+        },
+        {
+          "lane_actions": [
+            "TAP",
+            "TAP",
+            "HOLD_START",
+            "TAP"
+          ],
+          "time_ms": 15980
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "HOLD_END",
+            "NONE"
+          ],
+          "time_ms": 16000
+        }
+      ],
+      "token_count": 288,
+      "unique_spacing_counts": {
+        "0": 2,
+        "160": 48,
+        "20": 1,
+        "8140": 1
+      }
+    },
+    {
+      "alpha": 0.2,
+      "argmax_kind_counts": {
+        "eos": 1,
+        "event": 53,
+        "time_shift": 234
+      },
+      "best_event_margin_max": 0.0,
+      "best_event_margin_median": -0.35205817222595215,
+      "best_event_rank_median": 2.0,
+      "boundary_event_count": 4,
+      "boundary_event_ratio": 0.07547169811320754,
+      "captured_timepoint_count": 53,
+      "completed": true,
+      "dead_end": false,
+      "emitted_kind_counts": {
+        "eos": 1,
+        "event": 53,
+        "time_shift": 234
+      },
+      "event_top1_step_count": 53,
+      "event_topk_step_count": 188,
+      "event_valid_step_count": 287,
+      "first_12_times": [
+        160,
+        320,
+        480,
+        640,
+        800,
+        960,
+        1120,
+        1280,
+        1440,
+        1600,
+        1760,
+        1920
+      ],
+      "last_12_times": [
+        6720,
+        6880,
+        7040,
+        7200,
+        7360,
+        7520,
+        7680,
+        7840,
+        15980,
+        15980,
+        15980,
+        16000
+      ],
+      "max_tokens_exceeded": false,
+      "report_path": "artifacts/tmp/mapper_v3_200step_decode_policy/rollout/alpha_0_20_report.md",
+      "route": "TEST_NEXT",
+      "step_count": 288,
+      "summary_path": "artifacts/tmp/mapper_v3_200step_decode_policy/rollout/alpha_0_20_summary.json",
+      "timepoint_count": 53,
+      "timepoints": [
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 160
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 320
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 480
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 640
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 800
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 960
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1120
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1280
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1440
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1600
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1760
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 1920
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2080
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2240
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2400
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2560
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2720
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 2880
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3040
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3200
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3360
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3520
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3680
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 3840
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4000
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4160
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4320
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4480
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4640
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4800
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 4960
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5120
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5280
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5440
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5600
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5760
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 5920
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6080
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6240
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6400
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6560
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6720
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 6880
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7040
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7200
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7360
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7520
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7680
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 7840
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 15980
+        },
+        {
+          "lane_actions": [
+            "TAP",
+            "NONE",
+            "TAP",
+            "TAP"
+          ],
+          "time_ms": 15980
+        },
+        {
+          "lane_actions": [
+            "TAP",
+            "TAP",
+            "HOLD_START",
+            "TAP"
+          ],
+          "time_ms": 15980
+        },
+        {
+          "lane_actions": [
+            "NONE",
+            "NONE",
+            "HOLD_END",
+            "NONE"
+          ],
+          "time_ms": 16000
+        }
+      ],
+      "token_count": 288,
+      "unique_spacing_counts": {
+        "0": 2,
+        "160": 48,
+        "20": 1,
+        "8140": 1
+      }
+    }
+  ],
+  "schema_version": 1,
+  "training": {
+    "checkpoint_path": "artifacts/tmp/mapper_v3_200step_decode_policy/train/run/checkpoint.pt",
+    "completed_steps": 200,
+    "dataset": {
+      "control_teacher_cache_dir": "artifacts/cache/stage2_mapper_v2_1/control_teacher_d384_l3_stride16_step002000",
+      "control_teacher_cache_overwrite": false,
+      "control_teacher_cache_precompute": [],
+      "control_teacher_precompute_batch_size": null,
+      "eval_fraction": 0.25,
+      "eval_index_path": null,
+      "eval_size": 32,
+      "eval_window_count": 56,
+      "filter_report": {
+        "cross_window_ln_drop_rate": 0.0,
+        "drop_rate": 0.0,
+        "drop_rate_by_difficulty": {
+          "2.00": 0.0,
+          "2.02": 0.0,
+          "2.09": 0.0,
+          "2.25": 0.0,
+          "2.30": 0.0,
+          "2.31": 0.0,
+          "2.45": 0.0,
+          "2.60": 0.0,
+          "2.66": 0.0,
+          "2.79": 0.0,
+          "2.81": 0.0,
+          "3.06": 0.0,
+          "3.09": 0.0,
+          "3.15": 0.0,
+          "3.19": 0.0,
+          "3.29": 0.0,
+          "3.44": 0.0,
+          "3.47": 0.0,
+          "3.55": 0.0,
+          "3.79": 0.0,
+          "3.84": 0.0,
+          "4.19": 0.0,
+          "4.26": 0.0,
+          "4.28": 0.0,
+          "4.43": 0.0,
+          "4.49": 0.0,
+          "4.61": 0.0,
+          "4.65": 0.0,
+          "4.69": 0.0,
+          "4.75": 0.0,
+          "5.12": 0.0
+        },
+        "drop_rate_by_song": {
+          "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu": 0.0,
+          "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Asha's HD].osu": 0.0,
+          "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Shini's NM].osu": 0.0,
+          "dataset/0/1001794/Phantom Sage - Holystone (UnluckyCroco) [At the Point of No Return].osu": 0.0,
+          "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Asha's Hard].osu": 0.0,
+          "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Muwuscle].osu": 0.0,
+          "dataset/0/1003217/nekodex - circles! (FAMoss) [hard!].osu": 0.0,
+          "dataset/0/1003217/nekodex - circles! (FAMoss) [insane!].osu": 0.0,
+          "dataset/0/1003217/nekodex - circles! (FAMoss) [normal!].osu": 0.0,
+          "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Insane].osu": 0.0,
+          "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Normal].osu": 0.0,
+          "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Hard].osu": 0.0,
+          "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Insane].osu": 0.0,
+          "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K HD].osu": 0.0,
+          "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K MX].osu": 0.0,
+          "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Hard].osu": 0.0,
+          "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Normal].osu": 0.0,
+          "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Poke's Insane].osu": 0.0,
+          "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [CS' Lone Sonorous].osu": 0.0,
+          "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [DnM's Normal].osu": 0.0,
+          "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Expert].osu": 0.0,
+          "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Hard].osu": 0.0,
+          "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [FAMoss' hard].osu": 0.0,
+          "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [Insane].osu": 0.0,
+          "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu": 0.0,
+          "dataset/0/1010184/Graham Kartna - chiltonWALK.temp (Nivrad00) [NSV].osu": 0.0,
+          "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Grimoire of Despair].osu": 0.0,
+          "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Hard].osu": 0.0,
+          "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Normal].osu": 0.0,
+          "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Equatorial].osu": 0.0,
+          "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Synergic Ascent].osu": 0.0,
+          "dataset/0/1011424/Moso Calibration - Sakurairo Diary (TV Size) (Drum-Hitnormal) [Hard].osu": 0.0
+        },
+        "num_dropped_cross_window_ln_windows": 0,
+        "num_dropped_short_windows": 0,
+        "num_dropped_unsupported_action_windows": 0,
+        "num_mapper_eligible_windows": 256,
+        "num_total_windows": 256,
+        "short_drop_rate": 0.0,
+        "unsupported_action_drop_rate": 0.0
+      },
+      "final_train_eval_size": 16,
+      "final_train_eval_window_count": 16,
+      "include_full_song_context": true,
+      "mapper_record_cache_path": "artifacts/tmp/mapper_v3_200step_decode_policy/train/fixed_32song_256_v3_window_records.parquet",
+      "mapper_token_contract": "v3_event_groups",
+      "num_workers": 0,
+      "precompute_control_teacher_cache": false,
+      "require_control_teacher_cache": true,
+      "source_window_count": 256,
+      "train_window_count": 200
+    },
+    "final_eval_token_loss": 2.031527203132325,
+    "final_eval_total_loss": 2.116529134035631,
+    "final_eval_valid_tokens": 6366.0,
+    "final_train_token_loss": 1.826722887699836,
+    "final_train_total_loss": 1.9131046501049476,
+    "history": [
+      {
+        "eval_token_loss": 2.485748891743556,
+        "eval_total_loss": 2.5750351539138485,
+        "step": 50
+      },
+      {
+        "eval_token_loss": 2.1830180899511897,
+        "eval_total_loss": 2.2688187455258304,
+        "step": 100
+      },
+      {
+        "eval_token_loss": 2.0762639014255764,
+        "eval_total_loss": 2.1622777742405983,
+        "step": 150
+      },
+      {
+        "eval_token_loss": 2.031527203132325,
+        "eval_total_loss": 2.116529134035631,
+        "step": 200
+      }
+    ],
+    "is_complete": true,
+    "report_path": "artifacts/tmp/mapper_v3_200step_decode_policy/train/run/report.json"
+  }
+}
