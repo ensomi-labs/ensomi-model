@@ -1,0 +1,427 @@
+{
+  "bits": {
+    "exact_c3": {
+      "all": {
+        "bits_per_item": 9.99563679758869,
+        "item_count": 2876,
+        "total_bits": 28747.451429865072,
+        "vocab_size": 1193
+      },
+      "test": {
+        "bits_per_item": 10.351670046022951,
+        "item_count": 150,
+        "total_bits": 1552.7505069034428,
+        "vocab_size": 81
+      },
+      "train": {
+        "bits_per_item": 9.314359964875651,
+        "item_count": 1990,
+        "total_bits": 18535.576330102547,
+        "vocab_size": 948
+      },
+      "valid": {
+        "bits_per_item": 11.714657351419968,
+        "item_count": 736,
+        "total_bits": 8621.987810645096,
+        "vocab_size": 391
+      }
+    },
+    "ordered_field": {
+      "all": {
+        "bits_per_item": 5.449076181590963,
+        "item_count": 11570,
+        "total_bits": 63045.81142100745,
+        "vocab_size": 688
+      },
+      "test": {
+        "bits_per_item": 6.542312721699054,
+        "item_count": 402,
+        "total_bits": 2630.00971412302,
+        "vocab_size": 79
+      },
+      "train": {
+        "bits_per_item": 5.0518527454524715,
+        "item_count": 9184,
+        "total_bits": 46396.2156142355,
+        "vocab_size": 490
+      },
+      "valid": {
+        "bits_per_item": 7.051127551857905,
+        "item_count": 1984,
+        "total_bits": 13989.437062886083,
+        "vocab_size": 304
+      }
+    },
+    "raw_exact": {
+      "all": {
+        "bits_per_item": 8.541012782472036,
+        "item_count": 1449,
+        "total_bits": 12375.92752180198,
+        "vocab_size": 574
+      },
+      "test": {
+        "bits_per_item": 8.51422146945474,
+        "item_count": 42,
+        "total_bits": 357.59730171709907,
+        "vocab_size": 27
+      },
+      "train": {
+        "bits_per_item": 8.400535492517701,
+        "item_count": 1199,
+        "total_bits": 10072.242055528724,
+        "vocab_size": 527
+      },
+      "valid": {
+        "bits_per_item": 9.323432549645243,
+        "item_count": 208,
+        "total_bits": 1939.2739703262107,
+        "vocab_size": 126
+      }
+    },
+    "raw_ordered_field": {
+      "all": {
+        "bits_per_item": 4.268785709711546,
+        "item_count": 10143,
+        "total_bits": 43298.29345360421,
+        "vocab_size": 69
+      },
+      "test": {
+        "bits_per_item": 4.061042126000613,
+        "item_count": 294,
+        "total_bits": 1193.9463850441803,
+        "vocab_size": 25
+      },
+      "train": {
+        "bits_per_item": 4.285969817793955,
+        "item_count": 8393,
+        "total_bits": 35972.14468074466,
+        "vocab_size": 69
+      },
+      "valid": {
+        "bits_per_item": 4.211677464161237,
+        "item_count": 1456,
+        "total_bits": 6132.202387818761,
+        "vocab_size": 39
+      }
+    },
+    "selected_metrics": {
+      "exact_bits_per_token": 10.351670046022951,
+      "ordered_bits_per_original_token": 17.533398094153466,
+      "ordered_bits_per_symbol": 6.542312721699054,
+      "raw_exact_bits_per_raw_token": 8.51422146945474,
+      "raw_ordered_bits_per_raw_token": 28.427294882004293,
+      "raw_ordered_bits_per_symbol": 4.061042126000613
+    },
+    "selected_split": "test",
+    "smoothing_alpha": 0.1
+  },
+  "dataset": {
+    "boundary_risk_token_count": 723,
+    "boundary_risk_token_share": 0.25139082058414464,
+    "ordered_symbol_count": 11570,
+    "other_token_count": 0,
+    "raw_token_count": 1449,
+    "ref_token_count": 344,
+    "res_token_count": 1083,
+    "split_token_counts": {
+      "all": 2876,
+      "test": 150,
+      "train": 1990,
+      "valid": 736
+    },
+    "token_count": 2876,
+    "window_count": 310
+  },
+  "decision": {
+    "next_step": "Do not train yet; refine the ordered grammar or compare against v3/v2.1 target complexity before spending model runtime.",
+    "reason": "failed checks: raw_bits_reduction_pass, sequence_expansion_bounded_pass",
+    "route": "MUTATE"
+  },
+  "elapsed_s": 0.012578833004226908,
+  "experiment": "C3 ordered RAW field grammar probe",
+  "label_space": {
+    "exact_c3_vocab_size": 1193,
+    "ordered_symbol_vocab_size": 688,
+    "raw_exact_vocab_size": 574,
+    "raw_ordered_symbol_vocab_size": 69,
+    "raw_part_position_vocab_sizes": {
+      "0": 1,
+      "1": 20,
+      "2": 16,
+      "3": 15,
+      "4": 15
+    }
+  },
+  "max_windows": 1024,
+  "pass_criteria": {
+    "label_space_reduction_pass": true,
+    "no_missing_token_ids_pass": true,
+    "raw_bits_reduction_pass": false,
+    "reconstruction_pass": true,
+    "sequence_expansion_bounded_pass": false
+  },
+  "raw_fields": {
+    "0": {
+      "entropy_bits": 0.0,
+      "top_values": [
+        {
+          "count": 1449,
+          "value": "D"
+        }
+      ],
+      "value_count": 1
+    },
+    "1": {
+      "entropy_bits": 2.503209245375201,
+      "top_values": [
+        {
+          "count": 636,
+          "value": "12"
+        },
+        {
+          "count": 357,
+          "value": "24"
+        },
+        {
+          "count": 120,
+          "value": "6"
+        },
+        {
+          "count": 96,
+          "value": "0"
+        },
+        {
+          "count": 58,
+          "value": "8"
+        },
+        {
+          "count": 57,
+          "value": "48"
+        },
+        {
+          "count": 42,
+          "value": "16"
+        },
+        {
+          "count": 24,
+          "value": "36"
+        },
+        {
+          "count": 16,
+          "value": "4"
+        },
+        {
+          "count": 11,
+          "value": "72"
+        },
+        {
+          "count": 9,
+          "value": "18"
+        },
+        {
+          "count": 5,
+          "value": "3"
+        }
+      ],
+      "value_count": 20
+    },
+    "2": {
+      "entropy_bits": 3.3278250914743617,
+      "top_values": [
+        {
+          "count": 396,
+          "value": "0"
+        },
+        {
+          "count": 179,
+          "value": "4"
+        },
+        {
+          "count": 169,
+          "value": "2"
+        },
+        {
+          "count": 150,
+          "value": "8"
+        },
+        {
+          "count": 148,
+          "value": "1"
+        },
+        {
+          "count": 71,
+          "value": "3"
+        },
+        {
+          "count": 71,
+          "value": "12"
+        },
+        {
+          "count": 50,
+          "value": "9"
+        },
+        {
+          "count": 45,
+          "value": "5"
+        },
+        {
+          "count": 45,
+          "value": "6"
+        },
+        {
+          "count": 45,
+          "value": "10"
+        },
+        {
+          "count": 24,
+          "value": "13"
+        }
+      ],
+      "value_count": 16
+    },
+    "3": {
+      "entropy_bits": 2.175166459811186,
+      "top_values": [
+        {
+          "count": 813,
+          "value": "0"
+        },
+        {
+          "count": 151,
+          "value": "4"
+        },
+        {
+          "count": 146,
+          "value": "2"
+        },
+        {
+          "count": 140,
+          "value": "8"
+        },
+        {
+          "count": 107,
+          "value": "1"
+        },
+        {
+          "count": 25,
+          "value": "9"
+        },
+        {
+          "count": 17,
+          "value": "12"
+        },
+        {
+          "count": 16,
+          "value": "3"
+        },
+        {
+          "count": 11,
+          "value": "5"
+        },
+        {
+          "count": 8,
+          "value": "6"
+        },
+        {
+          "count": 8,
+          "value": "10"
+        },
+        {
+          "count": 3,
+          "value": "13"
+        }
+      ],
+      "value_count": 15
+    },
+    "4": {
+      "entropy_bits": 2.20556936831702,
+      "top_values": [
+        {
+          "count": 806,
+          "value": "0"
+        },
+        {
+          "count": 148,
+          "value": "4"
+        },
+        {
+          "count": 137,
+          "value": "8"
+        },
+        {
+          "count": 136,
+          "value": "2"
+        },
+        {
+          "count": 123,
+          "value": "1"
+        },
+        {
+          "count": 27,
+          "value": "9"
+        },
+        {
+          "count": 18,
+          "value": "12"
+        },
+        {
+          "count": 17,
+          "value": "3"
+        },
+        {
+          "count": 14,
+          "value": "5"
+        },
+        {
+          "count": 10,
+          "value": "10"
+        },
+        {
+          "count": 6,
+          "value": "6"
+        },
+        {
+          "count": 2,
+          "value": "13"
+        }
+      ],
+      "value_count": 15
+    }
+  },
+  "reconstruction": {
+    "examples": [],
+    "mismatch_count": 0,
+    "missing_token_id_count": 0,
+    "missing_token_ids": {}
+  },
+  "ref_stats": {
+    "cross_window_reference_note": "Exact cross-window reference share is not encoded in the mapper sidecar rows; use the P5 trace report for that statistic. This probe preserves REF tokens exactly.",
+    "cross_window_reference_share": null,
+    "distance_buckets": {
+      "17to64": 101,
+      "2to4": 40,
+      "5to16": 88,
+      "65to256": 115
+    },
+    "length_buckets": {
+      "1": 23,
+      "2to4": 269,
+      "5to16": 52
+    }
+  },
+  "schema_version": 1,
+  "sequence": {
+    "ordered_to_exact_token_ratio": 4.022948539638387,
+    "raw_ordered_to_raw_token_ratio": 7.0
+  },
+  "sidecar": {
+    "contract": "r0_delta_main_plus_c3_fallback_side_stream_v1",
+    "mapper_window_ms": 8000,
+    "schema_version": 1,
+    "timing_contract": "window assignment uses exact per-group snapped time reconstructed from the beatmap",
+    "token_id_base": 1,
+    "token_pad_id": 0,
+    "window_anchor_mode": "exact_group"
+  },
+  "sidecar_path": "artifacts/cache/c3_mapper_window_sidecar/smoke_c3_exact_mapper_window_sidecar.json"
+}
