@@ -1,0 +1,145 @@
+{
+  "decision": {
+    "reason": "Density loss was active but eval density did not improve while token loss improved; next mutation needs stronger event-distribution calibration with rollout gates.",
+    "recommended_next_card": "v3 event-distribution calibration: density-weight/count-continuity sweep on fixed-slice clusters",
+    "route": "TEST_NEXT"
+  },
+  "density_loss_active": true,
+  "eval_rows": [
+    {
+      "density_loss": 1.5992476145910213,
+      "density_to_token_ratio": 0.036629280019815975,
+      "step": 100,
+      "token_loss": 2.1830180851573506,
+      "total_loss": 2.268818741053596,
+      "weighted_density": 0.07996238072955107
+    },
+    {
+      "density_loss": 1.587372065562588,
+      "density_to_token_ratio": 0.039068442286896196,
+      "step": 200,
+      "token_loss": 2.0315272028327103,
+      "total_loss": 2.1165291343880503,
+      "weighted_density": 0.0793686032781294
+    },
+    {
+      "density_loss": 1.6102212481078142,
+      "density_to_token_ratio": 0.038399939157571325,
+      "step": 300,
+      "token_loss": 2.0966455721458175,
+      "total_loss": 2.182224169711421,
+      "weighted_density": 0.08051106240539072
+    },
+    {
+      "density_loss": 1.6096273217634134,
+      "density_to_token_ratio": 0.042226908892212874,
+      "step": 400,
+      "token_loss": 1.9059260599350278,
+      "total_loss": 1.9916939163977943,
+      "weighted_density": 0.08048136608817068
+    },
+    {
+      "density_loss": 1.608767198515906,
+      "density_to_token_ratio": 0.04144288724329677,
+      "step": 500,
+      "token_loss": 1.9409448828593838,
+      "total_loss": 2.0264659435689687,
+      "weighted_density": 0.0804383599257953
+    }
+  ],
+  "experiment": "Target grammar v3 density-loss effectiveness diagnostic",
+  "failure_cluster_counts": {
+    "easier_chart_overproduction": 2,
+    "overgeneration": 2,
+    "reference_mismatch_second_window_drop": 11,
+    "second_window_starvation": 11,
+    "starved_160_grid": 10,
+    "undergeneration": 9
+  },
+  "guard_results": {
+    "density_loss_active": true,
+    "eval_density_metrics_present": true,
+    "failure_cluster_summary_loaded": true,
+    "no_training_or_rollout_rerun": true,
+    "source_code_changed": false,
+    "training_report_loaded": true
+  },
+  "history_step_count": 5,
+  "horizon_gate": {
+    "mean_dominant_spacing_ratio": 0.7328782721030749,
+    "mean_event_count_ratio": 1.5919756721915168,
+    "mean_f1_100ms": 0.7623054906508856,
+    "positive_signal_passed": true,
+    "sparse_dense_min_second_window_share_16s": 0.35333333333333333
+  },
+  "lambda_density": 0.05,
+  "source_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_density_loss_effectiveness_diagnostic_experiment_card.md",
+  "source_failure_cluster_summary": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_500step_failure_cluster_diagnostic_summary.json",
+  "source_horizon_summary": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_500step_training_horizon_gate_summary.json",
+  "source_training_report": "artifacts/tmp/mapper_v3_500step_training_horizon_gate/train/run/report.json",
+  "train_rows": [
+    {
+      "density_loss": 1.7497881650924683,
+      "density_to_token_ratio": 0.03905692748527904,
+      "step": 100,
+      "token_loss": 2.240048408508301,
+      "total_loss": 2.3351194858551025,
+      "weighted_density": 0.08748940825462342
+    },
+    {
+      "density_loss": 1.4582411050796509,
+      "density_to_token_ratio": 0.03578316686452901,
+      "step": 200,
+      "token_loss": 2.0376076698303223,
+      "total_loss": 2.114105701446533,
+      "weighted_density": 0.07291205525398255
+    },
+    {
+      "density_loss": 1.308326244354248,
+      "density_to_token_ratio": 0.04359991152127161,
+      "step": 300,
+      "token_loss": 1.5003771781921387,
+      "total_loss": 1.5677530765533447,
+      "weighted_density": 0.06541631221771241
+    },
+    {
+      "density_loss": 1.2835781574249268,
+      "density_to_token_ratio": 0.04499993814690812,
+      "step": 400,
+      "token_loss": 1.4261999130249023,
+      "total_loss": 1.4923838376998901,
+      "weighted_density": 0.06417890787124635
+    },
+    {
+      "density_loss": 1.4644896984100342,
+      "density_to_token_ratio": 0.04349899309902641,
+      "step": 500,
+      "token_loss": 1.6833604574203491,
+      "total_loss": 1.7608129978179932,
+      "weighted_density": 0.07322448492050171
+    }
+  ],
+  "trend": {
+    "eval_density_loss_final": 1.608767198515906,
+    "eval_density_loss_first": 1.5992476145910213,
+    "eval_density_loss_relative_change": 0.005952539080271934,
+    "eval_token_loss_final": 1.9409448828593838,
+    "eval_token_loss_first": 2.1830180851573506,
+    "eval_token_loss_relative_change": -0.11088923355415918,
+    "final_eval_density_to_token_loss_ratio": 0.04144288724329677,
+    "final_eval_weighted_density": 0.0804383599257953,
+    "train_density_loss_final": 1.4644896984100342,
+    "train_density_loss_first": 1.7497881650924683,
+    "train_density_loss_relative_change": -0.16304743189719617,
+    "train_token_loss_final": 1.6833604574203491,
+    "train_token_loss_first": 2.240048408508301,
+    "train_token_loss_relative_change": -0.24851603607024852
+  },
+  "wide_failure_gate": {
+    "overgeneration": 2,
+    "positive_signal_passed": false,
+    "second_window_starvation": 11,
+    "starved_160_grid": 10,
+    "undergeneration": 9
+  }
+}
