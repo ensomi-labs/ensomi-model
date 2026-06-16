@@ -53,6 +53,8 @@ class MapperV21Config(MapperV2Config):
     c3_side_stream_scale_init: float = 0.03
     use_c3_auxiliary_target: bool = False
     c3_auxiliary_vocab_size: int = 0
+    use_c3_auxiliary_kind_heads: bool = False
+    c3_auxiliary_kind_vocab_sizes: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -86,6 +88,26 @@ class MapperV21IncrementalDecodeOutput:
 
 
 MapperV21ModelOutput = MapperV21ForwardOutput
+
+
+def _normalize_c3_auxiliary_kind_vocab_sizes(
+    value: object,
+    *,
+    total_vocab_size: int,
+) -> tuple[int, ...]:
+    if not isinstance(value, (list, tuple)):
+        raise ValueError("c3_auxiliary_kind_vocab_sizes must be a sequence when C3 auxiliary kind heads are enabled")
+    sizes = tuple(int(item) for item in value)
+    if not sizes:
+        raise ValueError("c3_auxiliary_kind_vocab_sizes must be non-empty when C3 auxiliary kind heads are enabled")
+    if any(size <= 0 for size in sizes):
+        raise ValueError("c3_auxiliary_kind_vocab_sizes must contain positive sizes")
+    if sum(sizes) != int(total_vocab_size):
+        raise ValueError(
+            "sum(c3_auxiliary_kind_vocab_sizes) must equal c3_auxiliary_vocab_size "
+            f"({sum(sizes)} != {int(total_vocab_size)})"
+        )
+    return sizes
 
 
 class MapperV21Model(MapperV2Model):
@@ -149,6 +171,7 @@ class MapperV21Model(MapperV2Model):
         self.c3_side_stream_projection: nn.Linear | None = None
         self.c3_side_stream_scale: nn.Parameter | None = None
         self.c3_auxiliary_head: nn.Linear | None = None
+        self.c3_auxiliary_kind_heads: nn.ModuleList | None = None
         if config.use_c3_side_stream_conditioning:
             if int(config.c3_side_stream_vocab_size) <= 0:
                 raise ValueError("c3_side_stream_vocab_size must be positive when C3 conditioning is enabled")
@@ -164,7 +187,17 @@ class MapperV21Model(MapperV2Model):
         if config.use_c3_auxiliary_target:
             if int(config.c3_auxiliary_vocab_size) <= 0:
                 raise ValueError("c3_auxiliary_vocab_size must be positive when C3 auxiliary target is enabled")
-            self.c3_auxiliary_head = nn.Linear(config.d_model, int(config.c3_auxiliary_vocab_size))
+            if config.use_c3_auxiliary_kind_heads:
+                kind_vocab_sizes = _normalize_c3_auxiliary_kind_vocab_sizes(
+                    config.c3_auxiliary_kind_vocab_sizes,
+                    total_vocab_size=int(config.c3_auxiliary_vocab_size),
+                )
+                self.c3_auxiliary_kind_heads = nn.ModuleList(
+                    nn.Linear(config.d_model, vocab_size)
+                    for vocab_size in kind_vocab_sizes
+                )
+            else:
+                self.c3_auxiliary_head = nn.Linear(config.d_model, int(config.c3_auxiliary_vocab_size))
 
     def forward(
         self,
@@ -433,12 +466,16 @@ class MapperV21Model(MapperV2Model):
     ) -> torch.Tensor | None:
         if not self.config.use_c3_auxiliary_target:
             return None
-        if self.c3_auxiliary_head is None:
-            raise RuntimeError("C3 auxiliary target head is not initialized")
         if target_mask.ndim != 2 or tuple(target_mask.shape) != tuple(decoder_hidden.shape[:2]):
             raise ValueError("target_mask must align with decoder_hidden for C3 auxiliary target")
         mask = target_mask.to(device=decoder_hidden.device, dtype=decoder_hidden.dtype).unsqueeze(-1)
         pooled = (decoder_hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp_min(1.0)
+        if self.config.use_c3_auxiliary_kind_heads:
+            if self.c3_auxiliary_kind_heads is None:
+                raise RuntimeError("C3 auxiliary kind heads are not initialized")
+            return torch.cat([head(pooled) for head in self.c3_auxiliary_kind_heads], dim=1)
+        if self.c3_auxiliary_head is None:
+            raise RuntimeError("C3 auxiliary target head is not initialized")
         return self.c3_auxiliary_head(pooled)
 
     def _c3_side_stream_conditioning(

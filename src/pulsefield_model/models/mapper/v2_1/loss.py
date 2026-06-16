@@ -21,6 +21,8 @@ from .vocab import MapperV21Vocab as _MapperV21Vocab
 class MapperV21LossConfig(_MapperTupleLossConfig):
     lambda_c3_auxiliary: float = 0.0
     c3_auxiliary_positive_weight: float = 1.0
+    c3_auxiliary_kind_balance: bool = False
+    c3_auxiliary_kind_vocab_sizes: tuple[int, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -49,6 +51,10 @@ class MapperV21ModelLoss(_MapperTupleModelLoss):
             raise ValueError("c3_auxiliary_positive_weight must be finite numeric")
         if float(positive_weight) <= 0.0:
             raise ValueError("c3_auxiliary_positive_weight must be positive")
+        self.c3_auxiliary_kind_vocab_sizes = _normalize_c3_auxiliary_kind_vocab_sizes(
+            resolved_config.c3_auxiliary_kind_vocab_sizes,
+            required=bool(resolved_config.c3_auxiliary_kind_balance),
+        )
         resolved_vocab = _MapperV21Vocab() if vocab is None else vocab
         super().__init__(
             resolved_config,
@@ -75,17 +81,21 @@ class MapperV21ModelLoss(_MapperTupleModelLoss):
                 output,
                 batch,
                 positive_weight=float(self.config.c3_auxiliary_positive_weight),
+                kind_vocab_sizes=self.c3_auxiliary_kind_vocab_sizes,
+                kind_balance=bool(self.config.c3_auxiliary_kind_balance),
             )
             total_loss = total_loss + float(self.config.lambda_c3_auxiliary) * c3_auxiliary_loss
             metrics.update(c3_metrics)
             metrics["phase/lambda_c3_auxiliary"] = float(self.config.lambda_c3_auxiliary)
             metrics["phase/c3_auxiliary_positive_weight"] = float(self.config.c3_auxiliary_positive_weight)
+            metrics["phase/c3_auxiliary_kind_balance"] = float(bool(self.config.c3_auxiliary_kind_balance))
             metrics["loss/total"] = float(total_loss.detach().cpu())
             metric_numerators["loss/c3_auxiliary"] = float((c3_auxiliary_loss.detach() * c3_weight.clamp_min(1)).cpu())
             metric_denominators["loss/c3_auxiliary"] = float(c3_weight.detach().cpu())
         else:
             metrics["phase/lambda_c3_auxiliary"] = float(self.config.lambda_c3_auxiliary)
             metrics["phase/c3_auxiliary_positive_weight"] = float(self.config.c3_auxiliary_positive_weight)
+            metrics["phase/c3_auxiliary_kind_balance"] = float(bool(self.config.c3_auxiliary_kind_balance))
         return MapperV21LossOutput(
             total_loss=total_loss,
             token_loss=loss.token_loss,
@@ -103,6 +113,8 @@ def _c3_auxiliary_bag_loss(
     batch: Mapping[str, torch.Tensor],
     *,
     positive_weight: float = 1.0,
+    kind_vocab_sizes: tuple[int, ...] = (),
+    kind_balance: bool = False,
 ) -> tuple[torch.Tensor, dict[str, float], torch.Tensor]:
     logits = getattr(output, "c3_auxiliary_logits", None)
     if not isinstance(logits, torch.Tensor):
@@ -153,18 +165,46 @@ def _c3_auxiliary_bag_loss(
         batch_index = valid_positions[:, 0]
         token_index = tokens[batch_index, valid_positions[:, 1]] - 1
         target[batch_index, token_index] = 1.0
-    pos_weight = torch.full(
-        (int(logits.shape[1]),),
-        float(positive_weight),
-        device=logits.device,
-        dtype=logits.dtype,
-    )
-    per_sample_loss = F.binary_cross_entropy_with_logits(
-        logits,
-        target,
-        reduction="none",
-        pos_weight=pos_weight,
-    ).mean(dim=1)
+    if kind_balance:
+        if not kind_vocab_sizes:
+            raise ValueError("c3_auxiliary_kind_vocab_sizes are required when c3_auxiliary_kind_balance=True")
+        if sum(kind_vocab_sizes) != int(logits.shape[1]):
+            raise ValueError(
+                "sum(c3_auxiliary_kind_vocab_sizes) must match c3_auxiliary_logits width "
+                f"({sum(kind_vocab_sizes)} != {int(logits.shape[1])})"
+            )
+        per_kind_losses = []
+        start = 0
+        for width in kind_vocab_sizes:
+            end = start + int(width)
+            pos_weight = torch.full(
+                (int(width),),
+                float(positive_weight),
+                device=logits.device,
+                dtype=logits.dtype,
+            )
+            kind_loss = F.binary_cross_entropy_with_logits(
+                logits[:, start:end],
+                target[:, start:end],
+                reduction="none",
+                pos_weight=pos_weight,
+            ).mean(dim=1)
+            per_kind_losses.append(kind_loss)
+            start = end
+        per_sample_loss = torch.stack(per_kind_losses, dim=1).mean(dim=1)
+    else:
+        pos_weight = torch.full(
+            (int(logits.shape[1]),),
+            float(positive_weight),
+            device=logits.device,
+            dtype=logits.dtype,
+        )
+        per_sample_loss = F.binary_cross_entropy_with_logits(
+            logits,
+            target,
+            reduction="none",
+            pos_weight=pos_weight,
+        ).mean(dim=1)
     sample_weight = sample_mask.sum().clamp_min(1.0)
     loss = (per_sample_loss * sample_mask).sum() / sample_weight
     positive_count = target.sum()
@@ -175,8 +215,26 @@ def _c3_auxiliary_bag_loss(
         "c3_auxiliary/token_count": float(raw_token_count.detach().cpu()),
         "c3_auxiliary/positive_label_count": float(positive_count.detach().cpu()),
         "c3_auxiliary/positive_weight": float(positive_weight),
+        "c3_auxiliary/kind_balance": float(bool(kind_balance)),
     }
     return loss, metrics, sample_weight
+
+
+def _normalize_c3_auxiliary_kind_vocab_sizes(value: object, *, required: bool) -> tuple[int, ...]:
+    if value in (None, ()):
+        if required:
+            raise ValueError("c3_auxiliary_kind_vocab_sizes must be non-empty when kind balance is enabled")
+        return ()
+    if not isinstance(value, (list, tuple)):
+        raise ValueError("c3_auxiliary_kind_vocab_sizes must be a sequence")
+    sizes = tuple(int(item) for item in value)
+    if not sizes:
+        if required:
+            raise ValueError("c3_auxiliary_kind_vocab_sizes must be non-empty when kind balance is enabled")
+        return ()
+    if any(size <= 0 for size in sizes):
+        raise ValueError("c3_auxiliary_kind_vocab_sizes must contain positive sizes")
+    return sizes
 
 
 __all__ = [

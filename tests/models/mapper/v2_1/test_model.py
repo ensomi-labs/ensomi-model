@@ -250,6 +250,69 @@ class MapperV21ModelTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "c3_auxiliary_positive_weight must be positive"):
             MapperV21ModelLoss(MapperV21LossConfig(c3_auxiliary_positive_weight=0.0))
 
+    def test_c3_auxiliary_kind_heads_concatenate_logits_and_receive_gradients(self) -> None:
+        torch.manual_seed(20260621)
+        vocab = MapperV21Vocab()
+        tokenized = encode_mapper_window(
+            [
+                MapperTimepoint(1000, _actions(LaneAction.TAP, LaneAction.NONE, LaneAction.TAP)),
+                MapperTimepoint(1500, _actions(LaneAction.NONE, LaneAction.TAP, LaneAction.NONE)),
+            ],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=1500,
+        )
+        batch = {
+            **_batch_for_window(tokenized),
+            "c3_side_stream_tokens": torch.tensor([[5, 20, 0]], dtype=torch.long),
+            "c3_side_stream_token_mask": torch.tensor([[True, True, False]], dtype=torch.bool),
+            "c3_side_stream_available": torch.tensor([True], dtype=torch.bool),
+            "c3_side_stream_token_count": torch.tensor([2], dtype=torch.long),
+            "c3_side_stream_truncated": torch.tensor([False], dtype=torch.bool),
+        }
+        model = MapperV21Model(
+            _small_config(
+                use_c3_auxiliary_target=True,
+                c3_auxiliary_vocab_size=32,
+                use_c3_auxiliary_kind_heads=True,
+                c3_auxiliary_kind_vocab_sizes=(16, 16),
+            ),
+            vocab=vocab,
+        )
+
+        output = model(batch)
+
+        self.assertIsNone(model.c3_auxiliary_head)
+        self.assertIsNotNone(model.c3_auxiliary_kind_heads)
+        assert model.c3_auxiliary_kind_heads is not None
+        self.assertEqual(len(model.c3_auxiliary_kind_heads), 2)
+        self.assertIsNotNone(output.c3_auxiliary_logits)
+        assert output.c3_auxiliary_logits is not None
+        self.assertEqual(tuple(output.c3_auxiliary_logits.shape), (1, 32))
+
+        loss_fn = MapperV21ModelLoss(
+            MapperV21LossConfig(
+                lambda_density=0.0,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+                lambda_c3_auxiliary=0.25,
+                c3_auxiliary_positive_weight=8.0,
+                c3_auxiliary_kind_balance=True,
+                c3_auxiliary_kind_vocab_sizes=(16, 16),
+            ),
+            vocab=vocab,
+        )
+        loss = loss_fn(output, batch)
+        loss.total_loss.backward()
+
+        self.assertIn("loss/c3_auxiliary", loss.metrics)
+        self.assertEqual(loss.metrics["phase/c3_auxiliary_kind_balance"], 1.0)
+        self.assertGreater(loss.metrics["loss/c3_auxiliary"], 0.0)
+        for head in model.c3_auxiliary_kind_heads:
+            self.assertIsNotNone(head.weight.grad)
+            self.assertGreater(float(head.weight.grad.abs().sum().item()), 0.0)
+
     def test_c3_auxiliary_target_rejects_out_of_range_labels(self) -> None:
         torch.manual_seed(20260620)
         vocab = MapperV21Vocab()
