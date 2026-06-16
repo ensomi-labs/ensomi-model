@@ -1,0 +1,398 @@
+{
+  "checkpoint": {
+    "c3_auxiliary_vocab_size": 1536,
+    "completed_steps": 1000,
+    "is_complete": true,
+    "run_name": "c3_kind_heads_reduced_sidecar_1000step",
+    "use_c3_auxiliary_target": true,
+    "use_c3_side_stream_conditioning": false
+  },
+  "checkpoint_path": "artifacts/runs/stage2_mapper_v2_1/c3_kind_heads_reduced_sidecar_1000step/checkpoint.pt",
+  "comparison": {
+    "absolute_lift_at_selected_k": -0.015303430079155675,
+    "model_recall_at_selected_k": 0.07440633245382586,
+    "non_raw_model_recall_at_selected_k": {
+      "REF": 0.06338028169014084,
+      "RES": 0.06737120211360634
+    },
+    "non_raw_recovered": true,
+    "relative_lift_at_selected_k": -0.17058823529411768,
+    "selected_k": 20,
+    "unigram_recall_at_selected_k": 0.08970976253298153
+  },
+  "config_path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_1000step_enabled.yaml",
+  "dataset": {
+    "batch_size": 2,
+    "eval_window_count": 142,
+    "max_batches": null,
+    "train_window_count": 174373
+  },
+  "decision": {
+    "beats_unigram": false,
+    "completed": true,
+    "interpretation": "The auxiliary head does not beat the train-unigram comparator at K=20: model hits 141/1895 positive labels while unigram hits 170/1895. The P13 BCE loss decrease therefore did not translate into useful positive-label recovery; it was likely dominated by absent-label calibration. The current full-vocab bag auxiliary head should not be promoted without changing the objective.",
+    "next_step": "Kill or reformulate the full-vocab bag auxiliary target before spending more training runtime.",
+    "non_raw_recovered": true,
+    "positive_gate_passed": false,
+    "route": "KILL"
+  },
+  "elapsed_s": 11.941544417000841,
+  "metrics": {
+    "available_sample_count": 142,
+    "empty_available_sample_count": 3,
+    "model": {
+      "topk": {
+        "1": {
+          "hits": 11,
+          "kind_hits": {
+            "REF": 11
+          },
+          "kind_recall": {
+            "RAW": 0.0,
+            "REF": 0.03873239436619718,
+            "RES": 0.0
+          },
+          "micro_recall": 0.005804749340369393,
+          "precision": 0.07913669064748201,
+          "predicted_kind_counts": {
+            "RAW": 6,
+            "REF": 126,
+            "RES": 7
+          },
+          "sample_hit_count": 11,
+          "sample_hit_rate": 0.07913669064748201
+        },
+        "10": {
+          "hits": 77,
+          "kind_hits": {
+            "RAW": 33,
+            "REF": 14,
+            "RES": 30
+          },
+          "kind_recall": {
+            "RAW": 0.03864168618266979,
+            "REF": 0.04929577464788732,
+            "RES": 0.03963011889035667
+          },
+          "micro_recall": 0.04063324538258575,
+          "precision": 0.05539568345323741,
+          "predicted_kind_counts": {
+            "RAW": 558,
+            "REF": 170,
+            "RES": 662
+          },
+          "sample_hit_count": 57,
+          "sample_hit_rate": 0.41007194244604317
+        },
+        "20": {
+          "hits": 141,
+          "kind_hits": {
+            "RAW": 72,
+            "REF": 18,
+            "RES": 51
+          },
+          "kind_recall": {
+            "RAW": 0.08430913348946135,
+            "REF": 0.06338028169014084,
+            "RES": 0.06737120211360634
+          },
+          "micro_recall": 0.07440633245382586,
+          "precision": 0.05071942446043166,
+          "predicted_kind_counts": {
+            "RAW": 1165,
+            "REF": 328,
+            "RES": 1287
+          },
+          "sample_hit_count": 88,
+          "sample_hit_rate": 0.6330935251798561
+        },
+        "3": {
+          "hits": 24,
+          "kind_hits": {
+            "RAW": 7,
+            "REF": 12,
+            "RES": 5
+          },
+          "kind_recall": {
+            "RAW": 0.00819672131147541,
+            "REF": 0.04225352112676056,
+            "RES": 0.0066050198150594455
+          },
+          "micro_recall": 0.012664907651715039,
+          "precision": 0.05755395683453238,
+          "predicted_kind_counts": {
+            "RAW": 151,
+            "REF": 138,
+            "RES": 128
+          },
+          "sample_hit_count": 22,
+          "sample_hit_rate": 0.15827338129496402
+        },
+        "5": {
+          "hits": 37,
+          "kind_hits": {
+            "RAW": 13,
+            "REF": 13,
+            "RES": 11
+          },
+          "kind_recall": {
+            "RAW": 0.01522248243559719,
+            "REF": 0.045774647887323945,
+            "RES": 0.01453104359313078
+          },
+          "micro_recall": 0.019525065963060684,
+          "precision": 0.053237410071942444,
+          "predicted_kind_counts": {
+            "RAW": 272,
+            "REF": 141,
+            "RES": 282
+          },
+          "sample_hit_count": 31,
+          "sample_hit_rate": 0.22302158273381295
+        }
+      }
+    },
+    "positive_label_count": 1895,
+    "positive_sample_count": 139,
+    "raw_token_count": 2138,
+    "sample_count": 142,
+    "target_kind_counts": {
+      "RAW": 854,
+      "REF": 284,
+      "RES": 757
+    },
+    "unigram": {
+      "topk": {
+        "1": {
+          "hits": 11,
+          "kind_hits": {
+            "RAW": 11
+          },
+          "kind_recall": {
+            "RAW": 0.01288056206088993,
+            "REF": 0.0,
+            "RES": 0.0
+          },
+          "micro_recall": 0.005804749340369393,
+          "precision": 0.07913669064748201,
+          "predicted_kind_counts": {
+            "RAW": 139
+          },
+          "sample_hit_count": 11,
+          "sample_hit_rate": 0.07913669064748201
+        },
+        "10": {
+          "hits": 102,
+          "kind_hits": {
+            "RAW": 74,
+            "REF": 12,
+            "RES": 16
+          },
+          "kind_recall": {
+            "RAW": 0.08665105386416862,
+            "REF": 0.04225352112676056,
+            "RES": 0.021136063408190225
+          },
+          "micro_recall": 0.05382585751978892,
+          "precision": 0.07338129496402877,
+          "predicted_kind_counts": {
+            "RAW": 834,
+            "REF": 139,
+            "RES": 417
+          },
+          "sample_hit_count": 72,
+          "sample_hit_rate": 0.5179856115107914
+        },
+        "20": {
+          "hits": 170,
+          "kind_hits": {
+            "RAW": 121,
+            "REF": 18,
+            "RES": 31
+          },
+          "kind_recall": {
+            "RAW": 0.14168618266978922,
+            "REF": 0.06338028169014084,
+            "RES": 0.04095112285336856
+          },
+          "micro_recall": 0.08970976253298153,
+          "precision": 0.06115107913669065,
+          "predicted_kind_counts": {
+            "RAW": 1668,
+            "REF": 278,
+            "RES": 834
+          },
+          "sample_hit_count": 92,
+          "sample_hit_rate": 0.6618705035971223
+        },
+        "3": {
+          "hits": 32,
+          "kind_hits": {
+            "RAW": 20,
+            "REF": 12
+          },
+          "kind_recall": {
+            "RAW": 0.0234192037470726,
+            "REF": 0.04225352112676056,
+            "RES": 0.0
+          },
+          "micro_recall": 0.016886543535620052,
+          "precision": 0.07673860911270983,
+          "predicted_kind_counts": {
+            "RAW": 278,
+            "REF": 139
+          },
+          "sample_hit_count": 30,
+          "sample_hit_rate": 0.2158273381294964
+        },
+        "5": {
+          "hits": 57,
+          "kind_hits": {
+            "RAW": 45,
+            "REF": 12
+          },
+          "kind_recall": {
+            "RAW": 0.05269320843091335,
+            "REF": 0.04225352112676056,
+            "RES": 0.0
+          },
+          "micro_recall": 0.03007915567282322,
+          "precision": 0.08201438848920864,
+          "predicted_kind_counts": {
+            "RAW": 556,
+            "REF": 139
+          },
+          "sample_hit_count": 45,
+          "sample_hit_rate": 0.3237410071942446
+        }
+      }
+    }
+  },
+  "schema_version": 1,
+  "unigram_baseline": {
+    "counted_token_count": 2136024,
+    "top_tokens": [
+      {
+        "count": 17362,
+        "kind": "RAW",
+        "token": "RAW|D:12:2:0:0",
+        "token_id": 1
+      },
+      {
+        "count": 16991,
+        "kind": "RAW",
+        "token": "RAW|D:12:4:0:0",
+        "token_id": 2
+      },
+      {
+        "count": 14109,
+        "kind": "REF",
+        "token": "REF|skeleton|2|2",
+        "token_id": 513
+      },
+      {
+        "count": 13689,
+        "kind": "RAW",
+        "token": "RAW|D:12:8:0:0",
+        "token_id": 3
+      },
+      {
+        "count": 13542,
+        "kind": "RAW",
+        "token": "RAW|D:12:1:0:0",
+        "token_id": 4
+      },
+      {
+        "count": 12009,
+        "kind": "RES",
+        "token": "RES|D:12:2:0:0",
+        "token_id": 1025
+      },
+      {
+        "count": 11917,
+        "kind": "RES",
+        "token": "RES|D:12:4:0:0",
+        "token_id": 1026
+      },
+      {
+        "count": 10715,
+        "kind": "RAW",
+        "token": "RAW|D:6:4:0:0",
+        "token_id": 5
+      },
+      {
+        "count": 10670,
+        "kind": "RES",
+        "token": "RES|D:12:8:0:0",
+        "token_id": 1027
+      },
+      {
+        "count": 10580,
+        "kind": "RAW",
+        "token": "RAW|D:6:2:0:0",
+        "token_id": 6
+      },
+      {
+        "count": 10426,
+        "kind": "RES",
+        "token": "RES|D:12:1:0:0",
+        "token_id": 1028
+      },
+      {
+        "count": 10322,
+        "kind": "RAW",
+        "token": "RAW|D:12:0:4:0",
+        "token_id": 7
+      },
+      {
+        "count": 10286,
+        "kind": "REF",
+        "token": "REF|skeleton|3|3",
+        "token_id": 514
+      },
+      {
+        "count": 10273,
+        "kind": "RAW",
+        "token": "RAW|D:12:0:2:0",
+        "token_id": 8
+      },
+      {
+        "count": 8801,
+        "kind": "RES",
+        "token": "RES|D:12:0:2:0",
+        "token_id": 1029
+      },
+      {
+        "count": 8612,
+        "kind": "RES",
+        "token": "RES|D:12:0:4:0",
+        "token_id": 1030
+      },
+      {
+        "count": 8539,
+        "kind": "RAW",
+        "token": "RAW|D:12:3:0:0",
+        "token_id": 9
+      },
+      {
+        "count": 8534,
+        "kind": "RAW",
+        "token": "RAW|D:12:12:0:0",
+        "token_id": 10
+      },
+      {
+        "count": 8444,
+        "kind": "RAW",
+        "token": "RAW|D:12:0:8:0",
+        "token_id": 11
+      },
+      {
+        "count": 7979,
+        "kind": "RAW",
+        "token": "RAW|D:12:0:1:0",
+        "token_id": 12
+      }
+    ],
+    "unique_token_count": 1536
+  }
+}
