@@ -1,0 +1,1211 @@
+{
+  "aggregate": {
+    "case_count": 5,
+    "illegal_case_count": 0,
+    "low_bias_case_count": 3,
+    "overproduced_count": 2,
+    "pass_like_regressed_count": 1,
+    "positive_low_bias_count": 2
+  },
+  "case_results": [
+    {
+      "baseline": {
+        "boundary_event_ratio": 0.02631578947368421,
+        "case_id": "10_graham_kartna_chiltonwalk_temp_nivrad00_nsv",
+        "dominant_spacing_ratio": 0.8648648648648649,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 0.4175824175824176,
+        "generated_event_count": 38,
+        "reference_event_count": 91,
+        "second_window_event_share": 0.05263157894736842,
+        "timing_match_100ms": {
+          "f1": 0.5116279069767442,
+          "matched_generated": 33,
+          "matched_reference": 33,
+          "precision": 0.868421052631579,
+          "recall": 0.3626373626373626,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 3,
+          "boundary_event_ratio": 0.0379746835443038,
+          "dominant_spacing_ms": 200,
+          "dominant_spacing_ratio": 0.48717948717948717,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 0.8681318681318682,
+          "first_12_generated_times": [
+            410,
+            820,
+            1230,
+            1440,
+            1650,
+            1860,
+            2070,
+            2280,
+            2490,
+            2700,
+            2910,
+            3120
+          ],
+          "first_12_reference_times": [
+            120,
+            270,
+            410,
+            560,
+            700,
+            850,
+            990,
+            1280,
+            1570,
+            1850,
+            2140,
+            2430
+          ],
+          "generated_event_count": 79,
+          "last_12_generated_times": [
+            14200,
+            14400,
+            14600,
+            14800,
+            15000,
+            15200,
+            15400,
+            15600,
+            15810,
+            15910,
+            15980,
+            15990
+          ],
+          "last_12_reference_times": [
+            14550,
+            14690,
+            14760,
+            14840,
+            15120,
+            15270,
+            15560,
+            15700,
+            15770,
+            15850,
+            15920,
+            15990
+          ],
+          "reference_event_count": 91,
+          "second_window_event_count": 43,
+          "second_window_event_share": 0.5443037974683544,
+          "spacing_counts": {
+            "10": 2,
+            "100": 1,
+            "200": 38,
+            "210": 33,
+            "40": 1,
+            "410": 2,
+            "70": 1
+          },
+          "timing_match_100ms": {
+            "f1": 0.788235294117647,
+            "matched_generated": 67,
+            "matched_reference": 67,
+            "precision": 0.8481012658227848,
+            "recall": 0.7362637362637363,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 79,
+          "token_count": 196,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_event_gate_smoke/rollouts/10_graham_kartna_chiltonwalk_temp_nivrad00_nsv_selective_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_event_gate_smoke/rollouts/10_graham_kartna_chiltonwalk_temp_nivrad00_nsv_selective_gate_summary.json",
+      "case": {
+        "best_event_margin_median": -1.0483551025390625,
+        "best_event_rank_median": 2.0,
+        "case_id": "10_graham_kartna_chiltonwalk_temp_nivrad00_nsv",
+        "case_index": 10,
+        "classes": [
+          "starved",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.8648648648648649,
+        "event_count_ratio": 0.4175824175824176,
+        "manifest": {
+          "audio_path": "dataset/0/1010184/audio.mp3",
+          "beatmap_path": "dataset/0/1010184/Graham Kartna - chiltonWALK.temp (Nivrad00) [NSV].osu",
+          "case_id": "10_graham_kartna_chiltonwalk_temp_nivrad00_nsv",
+          "case_index": 10,
+          "chart_end_ms": 16000,
+          "difficulty": 2.81,
+          "normalized_difficulty": -0.595,
+          "report_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/10_graham_kartna_chiltonwalk_temp_nivrad00_nsv_16000ms_report.md",
+          "shard": "0",
+          "summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/10_graham_kartna_chiltonwalk_temp_nivrad00_nsv_16000ms_summary.json"
+        },
+        "required_event_bias": 1.0483551025390625,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.05263157894736842
+      },
+      "checks": {
+        "legal": true,
+        "overproduced": false,
+        "pass_like_regressed": false,
+        "positive_low_bias_signal": true
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": 0.01165889407061959,
+        "dominant_spacing_ratio_delta": -0.37768537768537774,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.45054945054945056,
+        "f1_delta": 0.2766073871409028,
+        "second_window_event_share_delta": 0.491672218520986
+      },
+      "gate_stats": {
+        "candidate_count": 33,
+        "examples": [
+          {
+            "argmax_token": "TS_200",
+            "best_event_margin_vs_argmax": -1.1988763809204102,
+            "best_event_rank": 5,
+            "best_event_token": "EV_1001",
+            "current_ms": 8000,
+            "step": 0,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.30814528465271,
+            "best_event_rank": 3,
+            "best_event_token": "EV_0010",
+            "current_ms": 8200,
+            "step": 2,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.010138988494873047,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 9800,
+            "step": 18,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.056963205337524414,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 10000,
+            "step": 20,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.06743907928466797,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 10200,
+            "step": 22,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.11816930770874023,
+            "best_event_rank": 2,
+            "best_event_token": "EV_0100",
+            "current_ms": 10400,
+            "step": 24,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.08510470390319824,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 10600,
+            "step": 26,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.0888521671295166,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 10800,
+            "step": 28,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.13462615013122559,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 11000,
+            "step": 30,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.18905353546142578,
+            "best_event_rank": 2,
+            "best_event_token": "EV_0100",
+            "current_ms": 11200,
+            "step": 32,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.17110466957092285,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 11400,
+            "step": 34,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.15097522735595703,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 11600,
+            "step": 36,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.2051255702972412,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 11800,
+            "step": 38,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.20502567291259766,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 12000,
+            "step": 40,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.23638081550598145,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 12200,
+            "step": 42,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.23875999450683594,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 12400,
+            "step": 44,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.2627851963043213,
+            "best_event_rank": 2,
+            "best_event_token": "EV_0100",
+            "current_ms": 12600,
+            "step": 46,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.23347091674804688,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 12800,
+            "step": 48,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.24038934707641602,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 13000,
+            "step": 50,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.24124836921691895,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 13200,
+            "step": 52,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.2837085723876953,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 13400,
+            "step": 54,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.29906296730041504,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 13600,
+            "step": 56,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.2894859313964844,
+            "best_event_rank": 2,
+            "best_event_token": "EV_0100",
+            "current_ms": 13800,
+            "step": 58,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.30616259574890137,
+            "best_event_rank": 2,
+            "best_event_token": "EV_1001",
+            "current_ms": 14000,
+            "step": 60,
+            "window": "second"
+          }
+        ],
+        "forced_by_window": {
+          "second": 32
+        },
+        "forced_count": 32,
+        "forced_count_by_window_start": {
+          "8000": 32
+        },
+        "skipped_counts": {
+          "argmax_event": 11,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 108,
+          "no_valid_event": 43,
+          "window_budget": 1
+        },
+        "step_count": 196
+      }
+    },
+    {
+      "baseline": {
+        "boundary_event_ratio": 0.061224489795918366,
+        "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+        "dominant_spacing_ratio": 0.9166666666666666,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 0.47115384615384615,
+        "generated_event_count": 49,
+        "reference_event_count": 104,
+        "second_window_event_share": 0.061224489795918366,
+        "timing_match_100ms": {
+          "f1": 0.47058823529411764,
+          "matched_generated": 36,
+          "matched_reference": 36,
+          "precision": 0.7346938775510204,
+          "recall": 0.34615384615384615,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.0136986301369863,
+          "dominant_spacing_ms": 80,
+          "dominant_spacing_ratio": 0.6758620689655173,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.4038461538461537,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            810,
+            1110,
+            2910,
+            2990,
+            3060,
+            3140,
+            3210,
+            3360,
+            3510,
+            3660,
+            3810,
+            3960
+          ],
+          "generated_event_count": 146,
+          "last_12_generated_times": [
+            15100,
+            15180,
+            15260,
+            15340,
+            15420,
+            15500,
+            15580,
+            15660,
+            15740,
+            15820,
+            15900,
+            15980
+          ],
+          "last_12_reference_times": [
+            14310,
+            14460,
+            14610,
+            14760,
+            14910,
+            15060,
+            15210,
+            15360,
+            15510,
+            15660,
+            15810,
+            15960
+          ],
+          "reference_event_count": 104,
+          "second_window_event_count": 100,
+          "second_window_event_share": 0.684931506849315,
+          "spacing_counts": {
+            "120": 1,
+            "160": 44,
+            "70": 1,
+            "80": 98,
+            "90": 1
+          },
+          "timing_match_100ms": {
+            "f1": 0.7999999999999999,
+            "matched_generated": 100,
+            "matched_reference": 100,
+            "precision": 0.684931506849315,
+            "recall": 0.9615384615384616,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 146,
+          "token_count": 341,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_event_gate_smoke/rollouts/23_usao_knight_rider_kuo_kyoka_expert_selective_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_event_gate_smoke/rollouts/23_usao_knight_rider_kuo_kyoka_expert_selective_gate_summary.json",
+      "case": {
+        "best_event_margin_median": -1.5374469757080078,
+        "best_event_rank_median": 4.0,
+        "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+        "case_index": 23,
+        "classes": [
+          "starved",
+          "rigid",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.9166666666666666,
+        "event_count_ratio": 0.47115384615384615,
+        "manifest": {
+          "audio_path": "dataset/0/1008095/Knight Rider.mp3",
+          "beatmap_path": "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Expert].osu",
+          "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+          "case_index": 23,
+          "chart_end_ms": 16000,
+          "difficulty": 4.26,
+          "normalized_difficulty": 0.1299999999999999,
+          "report_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/23_usao_knight_rider_kuo_kyoka_expert_16000ms_report.md",
+          "shard": "0",
+          "summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/23_usao_knight_rider_kuo_kyoka_expert_16000ms_summary.json"
+        },
+        "required_event_bias": 1.5374469757080078,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.061224489795918366
+      },
+      "checks": {
+        "legal": true,
+        "overproduced": true,
+        "pass_like_regressed": false,
+        "positive_low_bias_signal": false
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.047525859658932065,
+        "dominant_spacing_ratio_delta": -0.24080459770114937,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.9326923076923076,
+        "f1_delta": 0.3294117647058823,
+        "second_window_event_share_delta": 0.6237070170533967
+      },
+      "gate_stats": {
+        "candidate_count": 1,
+        "examples": [
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.3752710819244385,
+            "best_event_rank": 3,
+            "best_event_token": "EV_0200",
+            "current_ms": 8070,
+            "step": 1,
+            "window": "second"
+          }
+        ],
+        "forced_by_window": {
+          "second": 1
+        },
+        "forced_count": 1,
+        "forced_count_by_window_start": {
+          "8000": 1
+        },
+        "skipped_counts": {
+          "argmax_event": 99,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 139,
+          "no_valid_event": 100,
+          "rank_too_low": 1
+        },
+        "step_count": 341
+      }
+    },
+    {
+      "baseline": {
+        "boundary_event_ratio": 0.02127659574468085,
+        "case_id": "26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer",
+        "dominant_spacing_ratio": 0.9565217391304348,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 0.34558823529411764,
+        "generated_event_count": 47,
+        "reference_event_count": 136,
+        "second_window_event_share": 0.02127659574468085,
+        "timing_match_100ms": {
+          "f1": 0.4262295081967213,
+          "matched_generated": 39,
+          "matched_reference": 39,
+          "precision": 0.8297872340425532,
+          "recall": 0.2867647058823529,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.0136986301369863,
+          "dominant_spacing_ms": 80,
+          "dominant_spacing_ratio": 0.6758620689655173,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.0735294117647058,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            30,
+            350,
+            590,
+            820,
+            1060,
+            1300,
+            1450,
+            1610,
+            1770,
+            1930,
+            2240,
+            2400
+          ],
+          "generated_event_count": 146,
+          "last_12_generated_times": [
+            15100,
+            15180,
+            15260,
+            15340,
+            15420,
+            15500,
+            15580,
+            15660,
+            15740,
+            15820,
+            15900,
+            15980
+          ],
+          "last_12_reference_times": [
+            15030,
+            15190,
+            15270,
+            15350,
+            15430,
+            15510,
+            15590,
+            15660,
+            15740,
+            15820,
+            15900,
+            15980
+          ],
+          "reference_event_count": 136,
+          "second_window_event_count": 100,
+          "second_window_event_share": 0.684931506849315,
+          "spacing_counts": {
+            "120": 1,
+            "160": 44,
+            "70": 1,
+            "80": 98,
+            "90": 1
+          },
+          "timing_match_100ms": {
+            "f1": 0.9007092198581561,
+            "matched_generated": 127,
+            "matched_reference": 127,
+            "precision": 0.8698630136986302,
+            "recall": 0.9338235294117647,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 146,
+          "token_count": 341,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_event_gate_smoke/rollouts/26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer_selective_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_event_gate_smoke/rollouts/26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer_selective_gate_summary.json",
+      "case": {
+        "best_event_margin_median": -1.8362693786621094,
+        "best_event_rank_median": 4.0,
+        "case_id": "26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer",
+        "case_index": 26,
+        "classes": [
+          "starved",
+          "rigid",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.9565217391304348,
+        "event_count_ratio": 0.34558823529411764,
+        "manifest": {
+          "audio_path": "dataset/0/1000065/audio.mp3",
+          "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+          "case_id": "26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer",
+          "case_index": 26,
+          "chart_end_ms": 16000,
+          "difficulty": 4.49,
+          "normalized_difficulty": 0.2450000000000001,
+          "report_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer_16000ms_report.md",
+          "shard": "0",
+          "summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/26_billx_punishment_dustvoxx_remix_underjoy_4k_equalizer_16000ms_summary.json"
+        },
+        "required_event_bias": 1.8362693786621094,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.02127659574468085
+      },
+      "checks": {
+        "legal": true,
+        "overproduced": false,
+        "pass_like_regressed": false,
+        "positive_low_bias_signal": true
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.00757796560769455,
+        "dominant_spacing_ratio_delta": -0.28065967016491755,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.7279411764705882,
+        "f1_delta": 0.4744797116614348,
+        "second_window_event_share_delta": 0.6636549111046341
+      },
+      "gate_stats": {
+        "candidate_count": 1,
+        "examples": [
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.6516926288604736,
+            "best_event_rank": 4,
+            "best_event_token": "EV_0200",
+            "current_ms": 8070,
+            "step": 1,
+            "window": "second"
+          }
+        ],
+        "forced_by_window": {
+          "second": 1
+        },
+        "forced_count": 1,
+        "forced_count_by_window_start": {
+          "8000": 1
+        },
+        "skipped_counts": {
+          "argmax_event": 99,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 139,
+          "no_valid_event": 100,
+          "rank_too_low": 1
+        },
+        "step_count": 341
+      }
+    },
+    {
+      "baseline": {
+        "boundary_event_ratio": 0.041666666666666664,
+        "case_id": "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 0.5274725274725275,
+        "generated_event_count": 48,
+        "reference_event_count": 91,
+        "second_window_event_share": 0.041666666666666664,
+        "timing_match_100ms": {
+          "f1": 0.6043165467625898,
+          "matched_generated": 42,
+          "matched_reference": 42,
+          "precision": 0.875,
+          "recall": 0.46153846153846156,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.02,
+          "dominant_spacing_ms": 150,
+          "dominant_spacing_ratio": 0.5252525252525253,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.098901098901099,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            400,
+            750,
+            1100,
+            1270,
+            1450,
+            1620,
+            1800,
+            1970,
+            2150,
+            2320,
+            2500,
+            2670
+          ],
+          "generated_event_count": 100,
+          "last_12_generated_times": [
+            14450,
+            14600,
+            14750,
+            14900,
+            15050,
+            15200,
+            15350,
+            15500,
+            15650,
+            15800,
+            15950,
+            15990
+          ],
+          "last_12_reference_times": [
+            14270,
+            14360,
+            14440,
+            14530,
+            14700,
+            14880,
+            15050,
+            15230,
+            15400,
+            15580,
+            15750,
+            15930
+          ],
+          "reference_event_count": 91,
+          "second_window_event_count": 54,
+          "second_window_event_share": 0.54,
+          "spacing_counts": {
+            "130": 1,
+            "150": 52,
+            "160": 45,
+            "40": 1
+          },
+          "timing_match_100ms": {
+            "f1": 0.9005235602094239,
+            "matched_generated": 86,
+            "matched_reference": 86,
+            "precision": 0.86,
+            "recall": 0.945054945054945,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 100,
+          "token_count": 302,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_event_gate_smoke/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_selective_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_event_gate_smoke/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_selective_gate_summary.json",
+      "case": {
+        "best_event_margin_median": -7.450125813484192,
+        "best_event_rank_median": 5.0,
+        "case_id": "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+        "case_index": 17,
+        "classes": [
+          "starved",
+          "rigid",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5274725274725275,
+        "manifest": {
+          "audio_path": "dataset/0/100501/Fantastic future.mp3",
+          "beatmap_path": "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K MX].osu",
+          "case_id": "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+          "case_index": 17,
+          "chart_end_ms": 16000,
+          "difficulty": 3.44,
+          "normalized_difficulty": -0.28,
+          "report_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_16000ms_report.md",
+          "shard": "0",
+          "summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_16000ms_summary.json"
+        },
+        "required_event_bias": 7.450125813484192,
+        "role": "high_bias_starved_control",
+        "second_window_event_share": 0.041666666666666664
+      },
+      "checks": {
+        "legal": true,
+        "overproduced": false,
+        "pass_like_regressed": false,
+        "positive_low_bias_signal": false
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.021666666666666664,
+        "dominant_spacing_ratio_delta": -0.41091768751343216,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.5714285714285715,
+        "f1_delta": 0.2962070134468341,
+        "second_window_event_share_delta": 0.49833333333333335
+      },
+      "gate_stats": {
+        "candidate_count": 1,
+        "examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.0539095401763916,
+            "best_event_rank": 2,
+            "best_event_token": "EV_0010",
+            "current_ms": 8150,
+            "step": 2,
+            "window": "second"
+          }
+        ],
+        "forced_by_window": {
+          "second": 1
+        },
+        "forced_count": 1,
+        "forced_count_by_window_start": {
+          "8000": 1
+        },
+        "skipped_counts": {
+          "argmax_event": 53,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 139,
+          "margin_too_low": 49,
+          "no_valid_event": 54,
+          "rank_too_low": 5
+        },
+        "step_count": 302
+      }
+    },
+    {
+      "baseline": {
+        "boundary_event_ratio": 0.01652892561983471,
+        "case_id": "11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz",
+        "dominant_spacing_ratio": 0.5416666666666666,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 1.1862745098039216,
+        "generated_event_count": 121,
+        "reference_event_count": 102,
+        "second_window_event_share": 0.4462809917355372,
+        "timing_match_100ms": {
+          "f1": 0.8251121076233184,
+          "matched_generated": 92,
+          "matched_reference": 92,
+          "precision": 0.7603305785123967,
+          "recall": 0.9019607843137255,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.013513513513513514,
+          "dominant_spacing_ms": 100,
+          "dominant_spacing_ratio": 0.5306122448979592,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.4509803921568627,
+          "first_12_generated_times": [
+            810,
+            920,
+            1030,
+            1140,
+            1250,
+            1360,
+            1470,
+            1580,
+            1690,
+            1800,
+            1910,
+            2020
+          ],
+          "first_12_reference_times": [
+            240,
+            470,
+            540,
+            620,
+            700,
+            770,
+            850,
+            920,
+            1000,
+            1080,
+            1150,
+            1380
+          ],
+          "generated_event_count": 148,
+          "last_12_generated_times": [
+            14910,
+            15010,
+            15110,
+            15210,
+            15310,
+            15410,
+            15510,
+            15610,
+            15710,
+            15810,
+            15910,
+            15990
+          ],
+          "last_12_reference_times": [
+            14220,
+            14330,
+            14560,
+            14790,
+            15010,
+            15130,
+            15240,
+            15360,
+            15470,
+            15580,
+            15700,
+            15920
+          ],
+          "reference_event_count": 102,
+          "second_window_event_count": 81,
+          "second_window_event_share": 0.5472972972972973,
+          "spacing_counts": {
+            "10": 1,
+            "100": 78,
+            "110": 66,
+            "30": 1,
+            "80": 1
+          },
+          "timing_match_100ms": {
+            "f1": 0.7680000000000001,
+            "matched_generated": 96,
+            "matched_reference": 96,
+            "precision": 0.6486486486486487,
+            "recall": 0.9411764705882353,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 148,
+          "token_count": 365,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_event_gate_smoke/rollouts/11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz_selective_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_event_gate_smoke/rollouts/11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz_selective_gate_summary.json",
+      "case": {
+        "best_event_margin_median": -1.514660120010376,
+        "best_event_rank_median": 3.0,
+        "case_id": "11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz",
+        "case_index": 11,
+        "classes": [
+          "pass_like"
+        ],
+        "dominant_spacing_ratio": 0.5416666666666666,
+        "event_count_ratio": 1.1862745098039216,
+        "manifest": {
+          "audio_path": "dataset/0/1003093/om.mp3",
+          "beatmap_path": "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Muwuscle].osu",
+          "case_id": "11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz",
+          "case_index": 11,
+          "chart_end_ms": 16000,
+          "difficulty": 3.06,
+          "normalized_difficulty": -0.47,
+          "report_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz_16000ms_report.md",
+          "shard": "0",
+          "summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/11_hibiki_sakura_cv_fairouz_ai_naruzo_machio_cv_ishikawa_kaito_onegai_muscle_tv_siz_16000ms_summary.json"
+        },
+        "required_event_bias": 1.514660120010376,
+        "role": "pass_like_control",
+        "second_window_event_share": 0.4462809917355372
+      },
+      "checks": {
+        "legal": true,
+        "overproduced": true,
+        "pass_like_regressed": true,
+        "positive_low_bias_signal": false
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.003015412106321197,
+        "dominant_spacing_ratio_delta": -0.011054421768707412,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.2647058823529411,
+        "f1_delta": -0.05711210762331831,
+        "second_window_event_share_delta": 0.10101630556176006
+      },
+      "gate_stats": {
+        "candidate_count": 5,
+        "examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.1451979875564575,
+            "best_event_rank": 5,
+            "best_event_token": "EV_1001",
+            "current_ms": 8000,
+            "step": 0,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -1.8040192127227783,
+            "best_event_rank": 3,
+            "best_event_token": "EV_0100",
+            "current_ms": 8210,
+            "step": 5,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.8823683261871338,
+            "best_event_rank": 3,
+            "best_event_token": "EV_0010",
+            "current_ms": 8310,
+            "step": 7,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.5387101173400879,
+            "best_event_rank": 2,
+            "best_event_token": "EV_0010",
+            "current_ms": 8410,
+            "step": 9,
+            "window": "second"
+          },
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.08778023719787598,
+            "best_event_rank": 2,
+            "best_event_token": "EV_0100",
+            "current_ms": 8510,
+            "step": 11,
+            "window": "second"
+          }
+        ],
+        "forced_by_window": {
+          "second": 5
+        },
+        "forced_count": 5,
+        "forced_count_by_window_start": {
+          "8000": 5
+        },
+        "skipped_counts": {
+          "argmax_event": 76,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 201,
+          "margin_too_low": 1,
+          "no_valid_event": 81
+        },
+        "step_count": 365
+      }
+    }
+  ],
+  "decision": {
+    "interpretation": "The selective gate affects non-target cases too much.",
+    "next_step": "Pivot to v2.1 grammar improvement or training-side v3 instrumentation.",
+    "reason": "1 pass-like controls regressed",
+    "route": "KILL_SELECTIVE_EVENT_GATE"
+  },
+  "elapsed_s": 150.946756291989,
+  "experiment": "Target grammar v3 selective event-gate smoke",
+  "gate_config": {
+    "gate_start_ms": 8000,
+    "max_event_rank": 5,
+    "max_forced_events_per_window": 32,
+    "min_event_margin": -2.0,
+    "min_forced_event_gap_ms": 80
+  },
+  "inputs": {
+    "baseline_summary": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_500step_fixed_slice_wide_audit_summary.json",
+    "trace_summary": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_low_bias_trace_oracle_summary.json"
+  },
+  "schema_version": 1,
+  "thresholds": {
+    "max_event_count_ratio": 1.25,
+    "max_f1_regression": 0.05,
+    "max_passlike_event_ratio_delta": 0.25,
+    "second_share_delta_signal": 0.15
+  },
+  "work_dir": "artifacts/tmp/mapper_v3_selective_event_gate_smoke"
+}

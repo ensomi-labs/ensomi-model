@@ -124,6 +124,50 @@ def test_v3_window_generation_blocks_repeated_event_at_same_timestamp() -> None:
     assert not window.states_after[2].event_emitted_at_current_ms
 
 
+def test_v3_window_generation_logits_transform_can_rerank_valid_event() -> None:
+    vocab = MapperV3Vocab()
+    event = vocab.encode_event(_actions(LaneAction.TAP))
+    shift_100 = vocab.time_shift_token_id(100)
+    shift_400 = vocab.time_shift_token_id(400)
+
+    def logits_fn(step: MapperV3GenerationStep) -> torch.Tensor:
+        logits = torch.full((vocab.size,), -1000.0)
+        if step.token_index == 0:
+            logits[shift_100] = 10.0
+        elif step.token_index == 1:
+            logits[shift_400] = 10.0
+            logits[event] = 9.0
+        elif step.token_index == 2:
+            logits[shift_400] = 10.0
+        else:
+            logits[vocab.eos_id] = 10.0
+        return logits
+
+    def transform(step: MapperV3GenerationStep, logits: torch.Tensor) -> torch.Tensor:
+        adjusted = logits.clone()
+        if step.token_index == 1:
+            assert bool(step.valid_token_mask[event].item())
+            adjusted[event] = 11.0
+        return adjusted
+
+    window = grammar_constrained_window_generation_v3(
+        vocab=vocab,
+        write_start_ms=0,
+        write_end_ms=8_000,
+        chart_end_ms=500,
+        ln_carry_in=empty_ln_carry_state(0),
+        ln_carry_out=empty_ln_carry_state(500),
+        logits_fn=logits_fn,
+        logits_transform=transform,
+        is_full_chart_start=True,
+        is_full_chart_end=True,
+        max_tokens=8,
+    )
+
+    assert window.completed
+    assert window.tokens == [shift_100, event, shift_400, vocab.eos_id]
+
+
 def test_v3_decoder_input_requires_left_context_for_non_initial_window() -> None:
     vocab = MapperV3Vocab()
     generated = [vocab.time_shift_token_id(10)]

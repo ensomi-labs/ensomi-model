@@ -102,6 +102,7 @@ class MapperV3FullRollout:
 
 
 MapperV3LogitsFn = Callable[[MapperV3GenerationStep], torch.Tensor]
+MapperV3LogitsTransform = Callable[[MapperV3GenerationStep, torch.Tensor], torch.Tensor]
 MapperV3LogitsObserver = Callable[[MapperV3GenerationStep, torch.Tensor], None]
 MapperV3WindowBatchProvider = Callable[[int, int], Mapping[str, Any]]
 
@@ -123,6 +124,7 @@ def grammar_constrained_window_generation_v3(
     top_p: float | None = None,
     top_k: int | None = None,
     generator: torch.Generator | None = None,
+    logits_transform: MapperV3LogitsTransform | None = None,
     logits_observer: MapperV3LogitsObserver | None = None,
 ) -> MapperV3GeneratedWindow:
     write_start_ms = int(write_start_ms)
@@ -213,6 +215,13 @@ def grammar_constrained_window_generation_v3(
     observer: Callable[[MapperV3GenerationStep, torch.Tensor], None] | None = None
     if logits_observer is not None:
         observer = lambda step, logits: _observe_logits_v3(logits_observer, step, logits)
+    transformed_logits_fn: MapperV3LogitsFn | None = logits_fn
+    if logits_transform is not None:
+
+        def transformed_logits_fn(step: MapperV3GenerationStep) -> torch.Tensor:
+            base_logits = _default_generation_logits_v3(step.valid_token_mask, vocab=vocab) if logits_fn is None else logits_fn(step)
+            transformed = logits_transform(step, base_logits)
+            return torch.as_tensor(transformed, dtype=torch.float32, device=base_logits.device).reshape(-1)
 
     result = run_generation_engine(
         initial_state=initial_state,
@@ -223,7 +232,7 @@ def grammar_constrained_window_generation_v3(
         make_step=make_step,
         transition=transition,
         default_logits=lambda mask: _default_generation_logits_v3(mask, vocab=vocab),
-        logits_fn=logits_fn,
+        logits_fn=transformed_logits_fn,
         logits_observer=observer,
         ordinary_block_token_ids=(vocab.bos_id, vocab.eos_id),
         max_tokens=int(max_tokens),
@@ -263,6 +272,7 @@ def generate_full_song_rollout_v3(
     time_shift_length_penalty_alpha: float = 0.0,
     time_shift_delta_penalty_alpha: float = 0.0,
     generator: torch.Generator | None = None,
+    logits_transform: MapperV3LogitsTransform | None = None,
     logits_observer: MapperV3LogitsObserver | None = None,
 ) -> MapperV3FullRollout:
     chart_end_ms = int(chart_end_ms)
@@ -323,6 +333,7 @@ def generate_full_song_rollout_v3(
             temperature=float(temperature),
             top_p=top_p,
             generator=generator,
+            logits_transform=logits_transform,
             logits_observer=logits_observer,
         )
         windows.append(generated)

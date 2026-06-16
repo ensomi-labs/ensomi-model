@@ -13,6 +13,7 @@ import torch
 
 from pulsefield_model.inference.mapper_v3_rollout import (
     MapperV3GenerationStep,
+    MapperV3LogitsTransform,
     generate_full_song_rollout_v3,
     generated_v3_tokens_to_v2_1_tokens,
     rollout_to_timepoints_v3,
@@ -207,6 +208,7 @@ def run_trained_v3_runtime_rollout_smoke(
     collect_logit_diagnostics: bool = False,
     logit_top_k: int = 5,
     logit_max_examples: int = 12,
+    logits_transform: MapperV3LogitsTransform | None = None,
     timepoint_preview_limit: int = 32,
 ) -> dict[str, Any]:
     chart_end_ms = int(chart_end_ms)
@@ -287,6 +289,7 @@ def run_trained_v3_runtime_rollout_smoke(
         time_shift_length_penalty_alpha=float(time_shift_length_penalty_alpha),
         time_shift_delta_penalty_alpha=float(time_shift_delta_penalty_alpha),
         generator=generator,
+        logits_transform=logits_transform,
         logits_observer=None if logit_diagnostics is None else logit_diagnostics.observe,
     )
     timepoints = rollout_to_timepoints_v3(rollout, runtime.vocab)
@@ -335,6 +338,7 @@ def run_trained_v3_runtime_rollout_smoke(
             "collect_logit_diagnostics": bool(collect_logit_diagnostics),
             "logit_top_k": int(logit_top_k),
             "logit_max_examples": int(logit_max_examples),
+            "logits_transform_enabled": logits_transform is not None,
             "timepoint_preview_limit": int(timepoint_preview_limit),
         },
         "runtime": {
