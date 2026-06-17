@@ -18,6 +18,10 @@ from pulsefield_model.osu_core.hitobjects import parse_mania_hit_objects
 
 SUMMARY_SCHEMA_VERSION = 1
 RIGID_DOMINANT_SPACING_RATIO_THRESHOLD = 0.95
+ORIGINAL_BASELINE_STARVED_CASES = 11
+ORIGINAL_BASELINE_RIGID_CASES = 7
+ORIGINAL_BASELINE_MEAN_F1 = 0.6395655017708878
+ORIGINAL_BASELINE_MAX_BOUNDARY = 0.2
 DEFAULT_BASELINE_SUMMARY_PATH = Path(
     "artifacts/reports/audits/mapper_v2_1_grammar/"
     "target_grammar_v3_event_token_ce_weight_training_gate_summary.json",
@@ -54,17 +58,19 @@ def run_v3_ce_antirigid_decode_stress(
     max_tokens_per_window: int = 512,
     seed: int = 1337,
     case_limit: int | None = None,
+    all_cases: bool = False,
+    experiment_card_path: str | Path = DEFAULT_EXPERIMENT_CARD_PATH,
 ) -> dict[str, Any]:
     baseline_summary_path = Path(baseline_summary_path)
     baseline_summary = _read_json(baseline_summary_path)
-    stress_runs = select_rigid_stress_runs(baseline_summary)
+    selected_runs = select_all_runs(baseline_summary) if bool(all_cases) else select_rigid_stress_runs(baseline_summary)
     if case_limit is not None:
         limit = int(case_limit)
         if limit <= 0:
             raise ValueError("case_limit must be positive when provided")
-        stress_runs = stress_runs[:limit]
-    if not stress_runs:
-        raise ValueError("baseline summary has no rigid stress cases")
+        selected_runs = selected_runs[:limit]
+    if not selected_runs:
+        raise ValueError("baseline summary has no selected cases")
 
     mapper_checkpoint = Path(str(baseline_summary.get("checkpoint_path", "")))
     control_checkpoint = Path(str(baseline_summary.get("control_checkpoint_path", "")))
@@ -79,10 +85,11 @@ def run_v3_ce_antirigid_decode_stress(
     vocab = MapperV3Vocab()
     case_results: list[dict[str, Any]] = []
 
-    for index, baseline_row in enumerate(stress_runs, start=1):
+    for index, baseline_row in enumerate(selected_runs, start=1):
         case_id = str(baseline_row["case_id"])
         chart_end_ms = int(baseline_row["chart_end_ms"])
-        print(f"stress rollout {index:02d}/{len(stress_runs)} {case_id}", flush=True)
+        mode_label = "full32" if bool(all_cases) else "stress"
+        print(f"{mode_label} rollout {index:02d}/{len(selected_runs)} {case_id}", flush=True)
         transform = MapperV3AntiRigidSpacingLogitsTransform(
             vocab=vocab,
             min_repeated_spacings=int(min_repeated_spacings),
@@ -150,11 +157,19 @@ def run_v3_ce_antirigid_decode_stress(
                 break
 
     aggregate = aggregate_results(case_results)
-    decision = decision_from_aggregate(aggregate)
+    decision = (
+        full32_decision_from_aggregate(aggregate)
+        if bool(all_cases)
+        else stress_decision_from_aggregate(aggregate)
+    )
     summary = {
         "schema_version": SUMMARY_SCHEMA_VERSION,
-        "experiment": "Target grammar v3 CE anti-rigid decode stress",
-        "experiment_card": DEFAULT_EXPERIMENT_CARD_PATH.as_posix(),
+        "experiment": (
+            "Target grammar v3 CE anti-rigid full-32 decode gate"
+            if bool(all_cases)
+            else "Target grammar v3 CE anti-rigid decode stress"
+        ),
+        "experiment_card": Path(experiment_card_path).as_posix(),
         "baseline_summary_path": baseline_summary_path.as_posix(),
         "output_dir": out_dir.as_posix(),
         "mapper_checkpoint_path": mapper_checkpoint.as_posix(),
@@ -174,11 +189,14 @@ def run_v3_ce_antirigid_decode_stress(
             "max_tokens_per_window": int(max_tokens_per_window),
             "seed": int(seed),
             "case_limit": None if case_limit is None else int(case_limit),
+            "all_cases": bool(all_cases),
         },
-        "stress_case_count": len(stress_runs),
+        "selected_case_count": len(selected_runs),
+        "selection_mode": "all_cases" if bool(all_cases) else "rigid_stress",
         "completed_case_count": len(case_results),
         "decision": decision,
         "aggregate": aggregate,
+        "guard_results": gate_results_from_aggregate(aggregate, all_cases=bool(all_cases)),
         "case_results": case_results,
         "worst_cases": worst_cases(case_results),
         "next_step": decision["next_step"],
@@ -196,6 +214,11 @@ def select_rigid_stress_runs(summary: Mapping[str, Any]) -> list[dict[str, Any]]
             continue
         if (_float(row.get("dominant_spacing_ratio")) or 0.0) >= RIGID_DOMINANT_SPACING_RATIO_THRESHOLD:
             rows.append(dict(row))
+    return sorted(rows, key=lambda item: (int(item.get("case_index") or 0), str(item.get("case_id"))))
+
+
+def select_all_runs(summary: Mapping[str, Any]) -> list[dict[str, Any]]:
+    rows = [dict(row) for row in summary.get("runs", ()) if isinstance(row, Mapping)]
     return sorted(rows, key=lambda item: (int(item.get("case_index") or 0), str(item.get("case_id"))))
 
 
@@ -270,7 +293,7 @@ def aggregate_metrics(rows: Sequence[Mapping[str, Any]], *, legal: Sequence[bool
     }
 
 
-def decision_from_aggregate(aggregate: Mapping[str, Any]) -> dict[str, Any]:
+def stress_decision_from_aggregate(aggregate: Mapping[str, Any]) -> dict[str, Any]:
     dead_end_count = int(aggregate.get("dead_end_count") or 0)
     max_token_count = int(aggregate.get("max_token_count") or 0)
     rigid_reduction = int(aggregate.get("rigid_case_reduction") or 0)
@@ -298,6 +321,90 @@ def decision_from_aggregate(aggregate: Mapping[str, Any]) -> dict[str, Any]:
         "route": "MUTATE",
         "reason": "anti-rigid hard block has partial stress signal but does not pass the positive gate",
         "next_step": "Mutate to finite penalty or tap-only stress probe before a full 32-case run.",
+    }
+
+
+def full32_decision_from_aggregate(aggregate: Mapping[str, Any]) -> dict[str, Any]:
+    candidate = _mapping(aggregate.get("candidate"))
+    dead_end_count = int(aggregate.get("dead_end_count") or 0)
+    max_token_count = int(aggregate.get("max_token_count") or 0)
+    starved = int(candidate.get("starved_count") or 0)
+    rigid = int(candidate.get("rigid_case_count") or 0)
+    mean_f1 = float(candidate.get("mean_f1_100ms") or 0.0)
+    median_event_ratio = float(candidate.get("median_event_count_ratio") or 0.0)
+    max_boundary = float(candidate.get("max_boundary_event_ratio") or 0.0)
+    rigid_reduction = int(aggregate.get("rigid_case_reduction") or 0)
+    starved_delta = int(aggregate.get("starved_case_delta") or 0)
+    mean_f1_delta = float(aggregate.get("mean_f1_delta") or 0.0)
+    all_legal = bool(candidate.get("all_legal"))
+    hard_failure = (
+        not all_legal
+        or dead_end_count > 0
+        or max_token_count > 0
+        or starved >= ORIGINAL_BASELINE_STARVED_CASES
+        or rigid > ORIGINAL_BASELINE_RIGID_CASES
+        or mean_f1 < ORIGINAL_BASELINE_MEAN_F1 - 0.03
+        or not (0.80 <= median_event_ratio <= 1.25)
+    )
+    if hard_failure:
+        return {
+            "route": "KILL",
+            "reason": "full-32 hard-block anti-rigid decode failed an original fixed-slice gate",
+            "next_step": "Do not scale this hard-block policy; inspect full-32 failures or mutate to finite/tap-only decoding.",
+        }
+    if (
+        rigid_reduction >= 4
+        and starved_delta <= 2
+        and mean_f1_delta >= -0.03
+        and max_boundary <= ORIGINAL_BASELINE_MAX_BOUNDARY
+    ):
+        return {
+            "route": "TEST_NEXT",
+            "reason": "full-32 anti-rigid decode passed the original fixed-slice gate and reduced CE rigidity",
+            "next_step": "Run a broader held-out or full-cache v3 inference gate before any default decode change.",
+        }
+    return {
+        "route": "MUTATE",
+        "reason": "full-32 anti-rigid decode passed hard safety but missed the positive CE-delta gate",
+        "next_step": "Mutate to finite penalty or tap-only full-32 policy before broader v3 work.",
+    }
+
+
+# Backward-compatible name used by older tests.
+decision_from_aggregate = stress_decision_from_aggregate
+
+
+def gate_results_from_aggregate(aggregate: Mapping[str, Any], *, all_cases: bool) -> dict[str, bool]:
+    candidate = _mapping(aggregate.get("candidate"))
+    dead_end_count = int(aggregate.get("dead_end_count") or 0)
+    max_token_count = int(aggregate.get("max_token_count") or 0)
+    if bool(all_cases):
+        median_event_ratio = float(candidate.get("median_event_count_ratio") or 0.0)
+        return {
+            "case_coverage": int(candidate.get("case_count") or 0) == 32,
+            "all_legal": bool(candidate.get("all_legal")),
+            "no_dead_end_cases": dead_end_count == 0,
+            "no_max_token_cases": max_token_count == 0,
+            "starved_below_original_baseline": int(candidate.get("starved_count") or 0) < ORIGINAL_BASELINE_STARVED_CASES,
+            "rigid_no_worse_than_original_baseline": int(candidate.get("rigid_case_count") or 0)
+            <= ORIGINAL_BASELINE_RIGID_CASES,
+            "mean_f1_within_original_floor": float(candidate.get("mean_f1_100ms") or 0.0)
+            >= ORIGINAL_BASELINE_MEAN_F1 - 0.03,
+            "median_event_count_ratio_in_range": 0.80 <= median_event_ratio <= 1.25,
+            "max_boundary_no_worse_than_original_baseline": float(candidate.get("max_boundary_event_ratio") or 0.0)
+            <= ORIGINAL_BASELINE_MAX_BOUNDARY,
+            "ce_rigid_reduction_at_least_four": int(aggregate.get("rigid_case_reduction") or 0) >= 4,
+            "ce_starvation_not_materially_worse": int(aggregate.get("starved_case_delta") or 0) <= 2,
+            "ce_mean_f1_not_materially_worse": float(aggregate.get("mean_f1_delta") or 0.0) >= -0.03,
+        }
+    return {
+        "case_coverage": int(candidate.get("case_count") or 0) > 0,
+        "all_legal": bool(candidate.get("all_legal")),
+        "no_dead_end_cases": dead_end_count == 0,
+        "no_max_token_cases": max_token_count == 0,
+        "rigid_reduction_at_least_four": int(aggregate.get("rigid_case_reduction") or 0) >= 4,
+        "starved_not_increased": int(aggregate.get("starved_case_delta") or 0) <= 0,
+        "mean_f1_not_materially_worse": float(aggregate.get("mean_f1_delta") or 0.0) >= -0.03,
     }
 
 
@@ -340,12 +447,23 @@ def write_report(summary: Mapping[str, Any], path: str | Path) -> None:
     baseline = _mapping(aggregate.get("baseline"))
     candidate = _mapping(aggregate.get("candidate"))
     decision = _mapping(summary.get("decision"))
+    selection_mode = str(summary.get("selection_mode") or "rigid_stress")
+    full32 = selection_mode == "all_cases"
     lines = [
-        "# Target Grammar v3 CE Anti-Rigid Decode Stress Result Report",
+        (
+            "# Target Grammar v3 CE Anti-Rigid Full-32 Decode Gate Result Report"
+            if full32
+            else "# Target Grammar v3 CE Anti-Rigid Decode Stress Result Report"
+        ),
         "",
         "## Scope",
         "",
-        "This pass reruns only the rigid cases from the committed CE-weight v3 gate with an opt-in v3 anti-rigid logits transform. It does not change mapper defaults, model weights, tokenization, or training.",
+        (
+            "This pass reruns all 32 committed CE-weight v3 fixed-slice cases with an opt-in v3 "
+            "anti-rigid logits transform. It does not change mapper defaults, model weights, tokenization, or training."
+            if full32
+            else "This pass reruns only the rigid cases from the committed CE-weight v3 gate with an opt-in v3 anti-rigid logits transform. It does not change mapper defaults, model weights, tokenization, or training."
+        ),
         "",
         "## Decision",
         "",
@@ -354,13 +472,26 @@ def write_report(summary: Mapping[str, Any], path: str | Path) -> None:
         "",
         "## Aggregate",
         "",
-        "| Metric | CE baseline stress | Anti-rigid candidate | Delta |",
+        (
+            "| Metric | CE baseline full-32 | Anti-rigid candidate | Delta |"
+            if full32
+            else "| Metric | CE baseline stress | Anti-rigid candidate | Delta |"
+        ),
         "| --- | ---: | ---: | ---: |",
         _metric_row("rigid cases", baseline.get("rigid_case_count"), candidate.get("rigid_case_count"), aggregate.get("rigid_case_delta")),
         _metric_row("starved cases", baseline.get("starved_count"), candidate.get("starved_count"), aggregate.get("starved_case_delta")),
         _metric_row("mean F1@100ms", baseline.get("mean_f1_100ms"), candidate.get("mean_f1_100ms"), aggregate.get("mean_f1_delta")),
         _metric_row("mean dominant spacing", baseline.get("mean_dominant_spacing_ratio"), candidate.get("mean_dominant_spacing_ratio"), aggregate.get("mean_dominant_spacing_ratio_delta")),
         _metric_row("mean event ratio", baseline.get("mean_event_count_ratio"), candidate.get("mean_event_count_ratio"), None),
+        _metric_row("median event ratio", baseline.get("median_event_count_ratio"), candidate.get("median_event_count_ratio"), None),
+        _metric_row("max boundary ratio", baseline.get("max_boundary_event_ratio"), candidate.get("max_boundary_event_ratio"), None),
+        "",
+        "## Gate Results",
+        "",
+        *[
+            f"- {key}: `{str(value).lower()}`"
+            for key, value in _mapping(summary.get("guard_results")).items()
+        ],
         "",
         "## Transform",
         "",
@@ -558,6 +689,8 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--max-tokens-per-window", type=int, default=512)
     parser.add_argument("--seed", type=int, default=1337)
     parser.add_argument("--case-limit", type=int)
+    parser.add_argument("--all-cases", action="store_true")
+    parser.add_argument("--experiment-card", type=Path, default=DEFAULT_EXPERIMENT_CARD_PATH)
     args = parser.parse_args(argv)
     summary = run_v3_ce_antirigid_decode_stress(
         baseline_summary_path=args.baseline_summary,
@@ -576,9 +709,11 @@ def main(argv: Sequence[str] | None = None) -> None:
         max_tokens_per_window=args.max_tokens_per_window,
         seed=args.seed,
         case_limit=args.case_limit,
+        all_cases=args.all_cases,
+        experiment_card_path=args.experiment_card,
     )
     print(
-        "mapper_v3_ce_antirigid_decode_stress_done "
+        "mapper_v3_ce_antirigid_decode_done "
         f"route={summary['decision']['route']} "
         f"cases={summary['completed_case_count']} "
         f"rigid_delta={summary['aggregate']['rigid_case_delta']}",

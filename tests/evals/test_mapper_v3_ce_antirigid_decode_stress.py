@@ -3,6 +3,9 @@ from __future__ import annotations
 from pulsefield_model.evals.mapper_v3_ce_antirigid_decode_stress import (
     aggregate_results,
     decision_from_aggregate,
+    full32_decision_from_aggregate,
+    gate_results_from_aggregate,
+    select_all_runs,
     select_rigid_stress_runs,
 )
 
@@ -19,6 +22,19 @@ def test_select_rigid_stress_runs_filters_and_sorts_case_rows() -> None:
     rows = select_rigid_stress_runs(summary)
 
     assert [row["case_id"] for row in rows] == ["c", "b"]
+
+
+def test_select_all_runs_keeps_non_rigid_rows_and_sorts() -> None:
+    summary = {
+        "runs": [
+            {"case_id": "b", "case_index": 2, "dominant_spacing_ratio": 0.97},
+            {"case_id": "a", "case_index": 1, "dominant_spacing_ratio": 0.10},
+        ]
+    }
+
+    rows = select_all_runs(summary)
+
+    assert [row["case_id"] for row in rows] == ["a", "b"]
 
 
 def test_decision_from_aggregate_passes_when_rigid_drops_without_starvation_or_f1_regression() -> None:
@@ -57,6 +73,75 @@ def test_decision_from_aggregate_kills_dead_end_or_starvation_regression() -> No
 
     assert dead_end["route"] == "KILL"
     assert starved["route"] == "KILL"
+
+
+def test_full32_decision_requires_original_gate_and_ce_rigid_reduction() -> None:
+    decision = full32_decision_from_aggregate(
+        {
+            "dead_end_count": 0,
+            "max_token_count": 0,
+            "rigid_case_reduction": 5,
+            "starved_case_delta": 1,
+            "mean_f1_delta": -0.01,
+            "candidate": {
+                "all_legal": True,
+                "starved_count": 6,
+                "rigid_case_count": 7,
+                "mean_f1_100ms": 0.64,
+                "median_event_count_ratio": 1.1,
+                "max_boundary_event_ratio": 0.05,
+            },
+        }
+    )
+
+    assert decision["route"] == "TEST_NEXT"
+
+
+def test_full32_decision_kills_when_original_rigid_gate_fails() -> None:
+    decision = full32_decision_from_aggregate(
+        {
+            "dead_end_count": 0,
+            "max_token_count": 0,
+            "rigid_case_reduction": 3,
+            "starved_case_delta": 0,
+            "mean_f1_delta": 0.0,
+            "candidate": {
+                "all_legal": True,
+                "starved_count": 4,
+                "rigid_case_count": 8,
+                "mean_f1_100ms": 0.70,
+                "median_event_count_ratio": 1.0,
+                "max_boundary_event_ratio": 0.01,
+            },
+        }
+    )
+
+    assert decision["route"] == "KILL"
+
+
+def test_full32_gate_results_reports_event_ratio_failure() -> None:
+    guards = gate_results_from_aggregate(
+        {
+            "dead_end_count": 0,
+            "max_token_count": 0,
+            "rigid_case_reduction": 11,
+            "starved_case_delta": -4,
+            "mean_f1_delta": 0.01,
+            "candidate": {
+                "case_count": 32,
+                "all_legal": True,
+                "starved_count": 1,
+                "rigid_case_count": 0,
+                "mean_f1_100ms": 0.70,
+                "median_event_count_ratio": 1.41,
+                "max_boundary_event_ratio": 0.05,
+            },
+        },
+        all_cases=True,
+    )
+
+    assert guards["median_event_count_ratio_in_range"] is False
+    assert guards["rigid_no_worse_than_original_baseline"] is True
 
 
 def test_aggregate_results_counts_rigid_starved_and_transform_blocks() -> None:
