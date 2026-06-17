@@ -1,0 +1,1029 @@
+{
+  "audit": {
+    "eval": {
+      "baseline_token_count": 28073,
+      "current_v3_reconstruction_mismatches": 0,
+      "current_v3_token_count": 22471,
+      "event_factor_expansion_ratio": 3.614793678665496,
+      "event_factor_token_count": 32938,
+      "event_token_count": 9112,
+      "factor_reconstruction_mismatches": 0,
+      "factorized_token_count": 46297,
+      "lane_action_token_count": 14714,
+      "mismatch_examples": [],
+      "multi_lane_event_count": 3976,
+      "observed_action_vocab_size": 3,
+      "observed_current_event_vocab_size": 225,
+      "observed_factor_event_vocab_size": 22,
+      "observed_lane_count_vocab_size": 4,
+      "observed_lane_mask_vocab_size": 15,
+      "reconstruction_mismatches": 0,
+      "split": "eval",
+      "top_action_factors": [
+        {
+          "count": 10500,
+          "token": "EV_ACTION_T"
+        },
+        {
+          "count": 2107,
+          "token": "EV_ACTION_E"
+        },
+        {
+          "count": 2107,
+          "token": "EV_ACTION_S"
+        }
+      ],
+      "top_event_signatures": [
+        {
+          "count": 1373,
+          "lane_count": 1,
+          "signature": ".T.."
+        },
+        {
+          "count": 1360,
+          "lane_count": 1,
+          "signature": "..T."
+        },
+        {
+          "count": 1010,
+          "lane_count": 1,
+          "signature": "...T"
+        },
+        {
+          "count": 962,
+          "lane_count": 1,
+          "signature": "T..."
+        },
+        {
+          "count": 427,
+          "lane_count": 2,
+          "signature": "..TT"
+        },
+        {
+          "count": 425,
+          "lane_count": 2,
+          "signature": "TT.."
+        },
+        {
+          "count": 362,
+          "lane_count": 2,
+          "signature": "T..T"
+        },
+        {
+          "count": 193,
+          "lane_count": 2,
+          "signature": "T.T."
+        },
+        {
+          "count": 192,
+          "lane_count": 2,
+          "signature": ".TT."
+        },
+        {
+          "count": 179,
+          "lane_count": 2,
+          "signature": ".T.T"
+        },
+        {
+          "count": 121,
+          "lane_count": 3,
+          "signature": "TT.T"
+        },
+        {
+          "count": 106,
+          "lane_count": 3,
+          "signature": "T.TT"
+        },
+        {
+          "count": 73,
+          "lane_count": 1,
+          "signature": ".S.."
+        },
+        {
+          "count": 67,
+          "lane_count": 1,
+          "signature": "..S."
+        },
+        {
+          "count": 63,
+          "lane_count": 2,
+          "signature": "..SE"
+        },
+        {
+          "count": 58,
+          "lane_count": 3,
+          "signature": "TTT."
+        },
+        {
+          "count": 55,
+          "lane_count": 1,
+          "signature": "..E."
+        },
+        {
+          "count": 54,
+          "lane_count": 1,
+          "signature": ".E.."
+        },
+        {
+          "count": 53,
+          "lane_count": 2,
+          "signature": ".ES."
+        },
+        {
+          "count": 50,
+          "lane_count": 1,
+          "signature": "...E"
+        }
+      ],
+      "top_lane_count_factors": [
+        {
+          "count": 5136,
+          "token": "EV_COUNT_1"
+        },
+        {
+          "count": 2638,
+          "token": "EV_COUNT_2"
+        },
+        {
+          "count": 1050,
+          "token": "EV_COUNT_3"
+        },
+        {
+          "count": 288,
+          "token": "EV_COUNT_4"
+        }
+      ],
+      "top_lane_mask_factors": [
+        {
+          "count": 1500,
+          "token": "EV_MASK_0100"
+        },
+        {
+          "count": 1482,
+          "token": "EV_MASK_0010"
+        },
+        {
+          "count": 1095,
+          "token": "EV_MASK_0001"
+        },
+        {
+          "count": 1059,
+          "token": "EV_MASK_1000"
+        },
+        {
+          "count": 591,
+          "token": "EV_MASK_0011"
+        },
+        {
+          "count": 582,
+          "token": "EV_MASK_1100"
+        },
+        {
+          "count": 493,
+          "token": "EV_MASK_1001"
+        },
+        {
+          "count": 347,
+          "token": "EV_MASK_0110"
+        },
+        {
+          "count": 337,
+          "token": "EV_MASK_1101"
+        },
+        {
+          "count": 324,
+          "token": "EV_MASK_1010"
+        },
+        {
+          "count": 317,
+          "token": "EV_MASK_1011"
+        },
+        {
+          "count": 301,
+          "token": "EV_MASK_0101"
+        },
+        {
+          "count": 288,
+          "token": "EV_MASK_1111"
+        },
+        {
+          "count": 199,
+          "token": "EV_MASK_1110"
+        },
+        {
+          "count": 197,
+          "token": "EV_MASK_0111"
+        }
+      ],
+      "total_token_expansion_ratio": 2.060299942147657,
+      "window_count": 142
+    },
+    "total": {
+      "baseline_token_count": 732684,
+      "current_v3_reconstruction_mismatches": 0,
+      "current_v3_token_count": 589746,
+      "event_factor_expansion_ratio": 3.605733658226507,
+      "event_factor_token_count": 850863,
+      "event_token_count": 235975,
+      "factor_reconstruction_mismatches": 0,
+      "factorized_token_count": 1204634,
+      "lane_action_token_count": 378913,
+      "mismatch_examples": [],
+      "multi_lane_event_count": 107211,
+      "observed_action_vocab_size": 3,
+      "observed_current_event_vocab_size": 255,
+      "observed_factor_event_vocab_size": 22,
+      "observed_lane_count_vocab_size": 4,
+      "observed_lane_mask_vocab_size": 15,
+      "reconstruction_mismatches": 0,
+      "split": "total",
+      "top_action_factors": [
+        {
+          "count": 268896,
+          "token": "EV_ACTION_T"
+        },
+        {
+          "count": 55009,
+          "token": "EV_ACTION_S"
+        },
+        {
+          "count": 55008,
+          "token": "EV_ACTION_E"
+        }
+      ],
+      "top_event_signatures": [
+        {
+          "count": 31247,
+          "lane_count": 1,
+          "signature": ".T.."
+        },
+        {
+          "count": 31239,
+          "lane_count": 1,
+          "signature": "..T."
+        },
+        {
+          "count": 22116,
+          "lane_count": 1,
+          "signature": "...T"
+        },
+        {
+          "count": 21989,
+          "lane_count": 1,
+          "signature": "T..."
+        },
+        {
+          "count": 11637,
+          "lane_count": 2,
+          "signature": "..TT"
+        },
+        {
+          "count": 11617,
+          "lane_count": 2,
+          "signature": "TT.."
+        },
+        {
+          "count": 9580,
+          "lane_count": 2,
+          "signature": "T..T"
+        },
+        {
+          "count": 5096,
+          "lane_count": 2,
+          "signature": ".T.T"
+        },
+        {
+          "count": 5066,
+          "lane_count": 2,
+          "signature": "T.T."
+        },
+        {
+          "count": 4752,
+          "lane_count": 2,
+          "signature": ".TT."
+        },
+        {
+          "count": 3494,
+          "lane_count": 1,
+          "signature": "..S."
+        },
+        {
+          "count": 3146,
+          "lane_count": 1,
+          "signature": ".S.."
+        },
+        {
+          "count": 3092,
+          "lane_count": 3,
+          "signature": "T.TT"
+        },
+        {
+          "count": 3014,
+          "lane_count": 3,
+          "signature": "TT.T"
+        },
+        {
+          "count": 2791,
+          "lane_count": 1,
+          "signature": "..E."
+        },
+        {
+          "count": 2588,
+          "lane_count": 1,
+          "signature": "...S"
+        },
+        {
+          "count": 2562,
+          "lane_count": 1,
+          "signature": "...E"
+        },
+        {
+          "count": 2562,
+          "lane_count": 1,
+          "signature": ".E.."
+        },
+        {
+          "count": 2538,
+          "lane_count": 1,
+          "signature": "S..."
+        },
+        {
+          "count": 2492,
+          "lane_count": 1,
+          "signature": "E..."
+        }
+      ],
+      "top_lane_count_factors": [
+        {
+          "count": 128764,
+          "token": "EV_COUNT_1"
+        },
+        {
+          "count": 76773,
+          "token": "EV_COUNT_2"
+        },
+        {
+          "count": 25149,
+          "token": "EV_COUNT_3"
+        },
+        {
+          "count": 5289,
+          "token": "EV_COUNT_4"
+        }
+      ],
+      "top_lane_mask_factors": [
+        {
+          "count": 37524,
+          "token": "EV_MASK_0010"
+        },
+        {
+          "count": 36955,
+          "token": "EV_MASK_0100"
+        },
+        {
+          "count": 27266,
+          "token": "EV_MASK_0001"
+        },
+        {
+          "count": 27019,
+          "token": "EV_MASK_1000"
+        },
+        {
+          "count": 16929,
+          "token": "EV_MASK_0011"
+        },
+        {
+          "count": 16797,
+          "token": "EV_MASK_1100"
+        },
+        {
+          "count": 14769,
+          "token": "EV_MASK_1001"
+        },
+        {
+          "count": 9536,
+          "token": "EV_MASK_1010"
+        },
+        {
+          "count": 9385,
+          "token": "EV_MASK_0110"
+        },
+        {
+          "count": 9357,
+          "token": "EV_MASK_0101"
+        },
+        {
+          "count": 8166,
+          "token": "EV_MASK_1011"
+        },
+        {
+          "count": 8027,
+          "token": "EV_MASK_1101"
+        },
+        {
+          "count": 5289,
+          "token": "EV_MASK_1111"
+        },
+        {
+          "count": 4483,
+          "token": "EV_MASK_0111"
+        },
+        {
+          "count": 4473,
+          "token": "EV_MASK_1110"
+        }
+      ],
+      "total_token_expansion_ratio": 2.042631912721748,
+      "window_count": 4238
+    },
+    "train": {
+      "baseline_token_count": 704611,
+      "current_v3_reconstruction_mismatches": 0,
+      "current_v3_token_count": 567275,
+      "event_factor_expansion_ratio": 3.6053697606044177,
+      "event_factor_token_count": 817925,
+      "event_token_count": 226863,
+      "factor_reconstruction_mismatches": 0,
+      "factorized_token_count": 1158337,
+      "lane_action_token_count": 364199,
+      "mismatch_examples": [],
+      "multi_lane_event_count": 103235,
+      "observed_action_vocab_size": 3,
+      "observed_current_event_vocab_size": 255,
+      "observed_factor_event_vocab_size": 22,
+      "observed_lane_count_vocab_size": 4,
+      "observed_lane_mask_vocab_size": 15,
+      "reconstruction_mismatches": 0,
+      "split": "train",
+      "top_action_factors": [
+        {
+          "count": 258396,
+          "token": "EV_ACTION_T"
+        },
+        {
+          "count": 52902,
+          "token": "EV_ACTION_S"
+        },
+        {
+          "count": 52901,
+          "token": "EV_ACTION_E"
+        }
+      ],
+      "top_event_signatures": [
+        {
+          "count": 29879,
+          "lane_count": 1,
+          "signature": "..T."
+        },
+        {
+          "count": 29874,
+          "lane_count": 1,
+          "signature": ".T.."
+        },
+        {
+          "count": 21106,
+          "lane_count": 1,
+          "signature": "...T"
+        },
+        {
+          "count": 21027,
+          "lane_count": 1,
+          "signature": "T..."
+        },
+        {
+          "count": 11210,
+          "lane_count": 2,
+          "signature": "..TT"
+        },
+        {
+          "count": 11192,
+          "lane_count": 2,
+          "signature": "TT.."
+        },
+        {
+          "count": 9218,
+          "lane_count": 2,
+          "signature": "T..T"
+        },
+        {
+          "count": 4917,
+          "lane_count": 2,
+          "signature": ".T.T"
+        },
+        {
+          "count": 4873,
+          "lane_count": 2,
+          "signature": "T.T."
+        },
+        {
+          "count": 4560,
+          "lane_count": 2,
+          "signature": ".TT."
+        },
+        {
+          "count": 3427,
+          "lane_count": 1,
+          "signature": "..S."
+        },
+        {
+          "count": 3073,
+          "lane_count": 1,
+          "signature": ".S.."
+        },
+        {
+          "count": 2986,
+          "lane_count": 3,
+          "signature": "T.TT"
+        },
+        {
+          "count": 2893,
+          "lane_count": 3,
+          "signature": "TT.T"
+        },
+        {
+          "count": 2736,
+          "lane_count": 1,
+          "signature": "..E."
+        },
+        {
+          "count": 2553,
+          "lane_count": 1,
+          "signature": "...S"
+        },
+        {
+          "count": 2512,
+          "lane_count": 1,
+          "signature": "...E"
+        },
+        {
+          "count": 2508,
+          "lane_count": 1,
+          "signature": ".E.."
+        },
+        {
+          "count": 2488,
+          "lane_count": 1,
+          "signature": "S..."
+        },
+        {
+          "count": 2445,
+          "lane_count": 1,
+          "signature": "E..."
+        }
+      ],
+      "top_lane_count_factors": [
+        {
+          "count": 123628,
+          "token": "EV_COUNT_1"
+        },
+        {
+          "count": 74135,
+          "token": "EV_COUNT_2"
+        },
+        {
+          "count": 24099,
+          "token": "EV_COUNT_3"
+        },
+        {
+          "count": 5001,
+          "token": "EV_COUNT_4"
+        }
+      ],
+      "top_lane_mask_factors": [
+        {
+          "count": 36042,
+          "token": "EV_MASK_0010"
+        },
+        {
+          "count": 35455,
+          "token": "EV_MASK_0100"
+        },
+        {
+          "count": 26171,
+          "token": "EV_MASK_0001"
+        },
+        {
+          "count": 25960,
+          "token": "EV_MASK_1000"
+        },
+        {
+          "count": 16338,
+          "token": "EV_MASK_0011"
+        },
+        {
+          "count": 16215,
+          "token": "EV_MASK_1100"
+        },
+        {
+          "count": 14276,
+          "token": "EV_MASK_1001"
+        },
+        {
+          "count": 9212,
+          "token": "EV_MASK_1010"
+        },
+        {
+          "count": 9056,
+          "token": "EV_MASK_0101"
+        },
+        {
+          "count": 9038,
+          "token": "EV_MASK_0110"
+        },
+        {
+          "count": 7849,
+          "token": "EV_MASK_1011"
+        },
+        {
+          "count": 7690,
+          "token": "EV_MASK_1101"
+        },
+        {
+          "count": 5001,
+          "token": "EV_MASK_1111"
+        },
+        {
+          "count": 4286,
+          "token": "EV_MASK_0111"
+        },
+        {
+          "count": 4274,
+          "token": "EV_MASK_1110"
+        }
+      ],
+      "total_token_expansion_ratio": 2.0419320435414923,
+      "window_count": 4096
+    }
+  },
+  "baseline": {
+    "name": "v2.1 sparse lane-action target stream",
+    "unigram_nll": {
+      "bits_per_token": 4.23623081996384,
+      "eval_token_count": 28073,
+      "total_bits": 118923.70780884488,
+      "train_token_count": 704611,
+      "vocab_size": 35
+    }
+  },
+  "checks": {
+    "event_bits_reduction_meaningful": false,
+    "exact_current_v3_reconstruction": true,
+    "exact_factor_reconstruction": true,
+    "factorized_below_v2_1": false,
+    "factorized_close_to_current_v3": false,
+    "no_cross_window_side_stream": true,
+    "no_future_target_dependency": true,
+    "online_local_factors": true
+  },
+  "comparators": {
+    "ce_weight_training_gate": {
+      "available": true,
+      "decision_route": "MUTATE",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_token_ce_weight_training_gate_summary.json",
+      "reason": "event CE weighting reduced starvation but worsened rigid-grid cases beyond the baseline gate"
+    },
+    "conditioned_short_rollout": {
+      "available": true,
+      "decision_route": "KILL",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_conditioned_event_distribution_short_rollout_summary.json",
+      "reason": "conditioned objective tripped a hard safety or event-count calibration guard: median_event_count_ratio_in_range"
+    },
+    "full_dataset_audit": {
+      "available": true,
+      "comparison": {
+        "bits_per_baseline_token": 3.9790864029535413,
+        "eval_token_count": 22471,
+        "event_token_count": 9112,
+        "lane_action_token_count": 14714,
+        "multi_lane_event_count": 3976,
+        "reconstruction_mismatches": 0,
+        "token_reduction": 5602,
+        "token_reduction_ratio": 0.1995511701635023,
+        "total_bit_reduction": 6414.936792023844,
+        "total_bit_reduction_ratio": 0.05430872043736522
+      },
+      "dataset": {
+        "audit_window_count": 174515,
+        "eval_scored_window_count": 142,
+        "eval_window_count": 142,
+        "full_dataset_audit": true,
+        "train_scored_window_count": 174373,
+        "train_window_count": 174373
+      },
+      "decision_route": "TEST_NEXT",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_full_dataset_audit_summary.json"
+    }
+  },
+  "comparison": {
+    "current_event_bits_per_event_token": 5.07286767094738,
+    "current_event_bits_per_original_event": 5.07286767094738,
+    "current_event_total_bits": 46223.970217672526,
+    "current_v3_reconstruction_mismatches": 0,
+    "current_v3_total_bit_reduction_ratio_vs_v2_1": 0.05272506077569237,
+    "current_v3_total_bit_reduction_vs_v2_1": 6270.259721892027,
+    "current_v3_total_bits": 112653.44808695285,
+    "event_bits_per_original_event_reduction": -7.460336619535832,
+    "event_bits_per_original_event_reduction_ratio": -1.470634974821368,
+    "event_counts": {
+      "eval_event_token_count": 9112,
+      "eval_lane_action_token_count": 14714,
+      "eval_multi_lane_event_count": 3976
+    },
+    "factor_event_bits_per_factor_token": 3.4671976894432883,
+    "factor_event_bits_per_original_event": 12.533204290483212,
+    "factor_event_total_bits": 114202.55749488303,
+    "factor_reconstruction_mismatches": 0,
+    "factor_vocab": {
+      "action_vocab_size": 3,
+      "event_factor_vocab_size": 22,
+      "full_factorized_vocab_size": 45,
+      "lane_count_vocab_size": 4,
+      "lane_mask_vocab_size": 15
+    },
+    "factorized_total_bit_delta_ratio_vs_current_v3": 0.7653987904977165,
+    "factorized_total_bit_delta_vs_current_v3": 86224.812911151,
+    "factorized_total_bit_reduction_ratio_vs_v2_1": -0.6723180319753906,
+    "factorized_total_bit_reduction_vs_v2_1": -79954.55318925898,
+    "factorized_total_bits": 198878.26099810385,
+    "factorized_total_bits_vs_current_v3_ratio": 1.7653987904977164,
+    "factorized_total_bits_vs_v2_1_ratio": 1.6723180319753905,
+    "reconstruction_mismatches": 0,
+    "token_expansion": {
+      "current_v3_eval_event_token_count": 9112,
+      "current_v3_eval_token_count": 22471,
+      "event_factor_expansion_ratio": 3.614793678665496,
+      "factorized_eval_event_factor_token_count": 32938,
+      "factorized_eval_token_count": 46297,
+      "total_token_expansion_ratio": 2.060299942147657
+    },
+    "v2_1_total_bits": 118923.70780884488
+  },
+  "config_path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_1000step_enabled.yaml",
+  "current_v3": {
+    "event_unigram_nll": {
+      "bits_per_token": 5.07286767094738,
+      "eval_token_count": 9112,
+      "total_bits": 46223.970217672526,
+      "train_token_count": 226863,
+      "vocab_size": 255
+    },
+    "name": "v3 single 4-lane event token",
+    "top_event_signatures": [
+      {
+        "count": 1373,
+        "lane_count": 1,
+        "signature": ".T.."
+      },
+      {
+        "count": 1360,
+        "lane_count": 1,
+        "signature": "..T."
+      },
+      {
+        "count": 1010,
+        "lane_count": 1,
+        "signature": "...T"
+      },
+      {
+        "count": 962,
+        "lane_count": 1,
+        "signature": "T..."
+      },
+      {
+        "count": 427,
+        "lane_count": 2,
+        "signature": "..TT"
+      },
+      {
+        "count": 425,
+        "lane_count": 2,
+        "signature": "TT.."
+      },
+      {
+        "count": 362,
+        "lane_count": 2,
+        "signature": "T..T"
+      },
+      {
+        "count": 193,
+        "lane_count": 2,
+        "signature": "T.T."
+      },
+      {
+        "count": 192,
+        "lane_count": 2,
+        "signature": ".TT."
+      },
+      {
+        "count": 179,
+        "lane_count": 2,
+        "signature": ".T.T"
+      },
+      {
+        "count": 121,
+        "lane_count": 3,
+        "signature": "TT.T"
+      },
+      {
+        "count": 106,
+        "lane_count": 3,
+        "signature": "T.TT"
+      },
+      {
+        "count": 73,
+        "lane_count": 1,
+        "signature": ".S.."
+      },
+      {
+        "count": 67,
+        "lane_count": 1,
+        "signature": "..S."
+      },
+      {
+        "count": 63,
+        "lane_count": 2,
+        "signature": "..SE"
+      },
+      {
+        "count": 58,
+        "lane_count": 3,
+        "signature": "TTT."
+      },
+      {
+        "count": 55,
+        "lane_count": 1,
+        "signature": "..E."
+      },
+      {
+        "count": 54,
+        "lane_count": 1,
+        "signature": ".E.."
+      },
+      {
+        "count": 53,
+        "lane_count": 2,
+        "signature": ".ES."
+      },
+      {
+        "count": 50,
+        "lane_count": 1,
+        "signature": "...E"
+      }
+    ],
+    "unigram_nll": {
+      "bits_per_token": 5.013281477769252,
+      "eval_token_count": 22471,
+      "total_bits": 112653.44808695285,
+      "train_token_count": 567275,
+      "vocab_size": 278
+    }
+  },
+  "dataset": {
+    "audit_window_count": 4238,
+    "bounded_runtime_fallback": true,
+    "bounded_runtime_reason": "The existing full v3 audit artifact does not expose full event-signature counts; this run regenerates a bounded target stream to stay within the card runtime budget.",
+    "eval_scored_window_count": 142,
+    "eval_window_count": 142,
+    "full_dataset_proxy": false,
+    "train_scored_window_count": 4096,
+    "train_window_count": 174373
+  },
+  "decision": {
+    "failed_checks": [
+      "factorized_below_v2_1",
+      "factorized_close_to_current_v3",
+      "event_bits_reduction_meaningful"
+    ],
+    "interpretation": "Exact reconstruction passed, but the factorized stream gave back the current v3 representation advantage and scored worse than v2.1 under the unigram bit proxy. This is not a good target grammar replacement candidate from the current evidence.",
+    "kill_criteria": [
+      "factorized_total_bits_not_below_v2_1",
+      "factorized_bits_exceed_current_v3_margin_without_event_reduction"
+    ],
+    "kill_criteria_triggered": true,
+    "next_step": "Kill factorized event-signature repair and test another target-side or v2.1 grammar repair candidate.",
+    "positive_gate_passed": false,
+    "reason": "factorized event-signature proxy failed the v2.1 total-bit guard",
+    "route": "KILL_FACTORIZE_EVENT_SIGNATURE"
+  },
+  "elapsed_s": 65.11957533299574,
+  "experiment": "Target grammar v3 factorized event-signature proxy",
+  "factorized_proxy": {
+    "event_unigram_nll": {
+      "bits_per_token": 3.4671976894432883,
+      "eval_token_count": 32938,
+      "total_bits": 114202.55749488303,
+      "train_token_count": 817925,
+      "vocab_size": 22
+    },
+    "name": "lane-count plus lane-mask plus active-lane action factors",
+    "top_action_factors": [
+      {
+        "count": 10500,
+        "token": "EV_ACTION_T"
+      },
+      {
+        "count": 2107,
+        "token": "EV_ACTION_E"
+      },
+      {
+        "count": 2107,
+        "token": "EV_ACTION_S"
+      }
+    ],
+    "top_lane_count_factors": [
+      {
+        "count": 5136,
+        "token": "EV_COUNT_1"
+      },
+      {
+        "count": 2638,
+        "token": "EV_COUNT_2"
+      },
+      {
+        "count": 1050,
+        "token": "EV_COUNT_3"
+      },
+      {
+        "count": 288,
+        "token": "EV_COUNT_4"
+      }
+    ],
+    "top_lane_mask_factors": [
+      {
+        "count": 1500,
+        "token": "EV_MASK_0100"
+      },
+      {
+        "count": 1482,
+        "token": "EV_MASK_0010"
+      },
+      {
+        "count": 1095,
+        "token": "EV_MASK_0001"
+      },
+      {
+        "count": 1059,
+        "token": "EV_MASK_1000"
+      },
+      {
+        "count": 591,
+        "token": "EV_MASK_0011"
+      },
+      {
+        "count": 582,
+        "token": "EV_MASK_1100"
+      },
+      {
+        "count": 493,
+        "token": "EV_MASK_1001"
+      },
+      {
+        "count": 347,
+        "token": "EV_MASK_0110"
+      },
+      {
+        "count": 337,
+        "token": "EV_MASK_1101"
+      },
+      {
+        "count": 324,
+        "token": "EV_MASK_1010"
+      },
+      {
+        "count": 317,
+        "token": "EV_MASK_1011"
+      },
+      {
+        "count": 301,
+        "token": "EV_MASK_0101"
+      },
+      {
+        "count": 288,
+        "token": "EV_MASK_1111"
+      },
+      {
+        "count": 199,
+        "token": "EV_MASK_1110"
+      },
+      {
+        "count": 197,
+        "token": "EV_MASK_0111"
+      }
+    ],
+    "unigram_nll": {
+      "bits_per_token": 4.295705142840872,
+      "eval_token_count": 46297,
+      "total_bits": 198878.26099810385,
+      "train_token_count": 1158337,
+      "vocab_size": 45
+    }
+  },
+  "schema_version": 1,
+  "vocab": {
+    "factor_contract": "event_signature_to_lane_count_lane_mask_active_actions",
+    "factor_tokens_are_runtime_vocab": false,
+    "v2_1_vocab_size": 37,
+    "v3_event_token_count": 255,
+    "v3_vocab_size": 280
+  }
+}
