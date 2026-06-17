@@ -201,6 +201,7 @@ def grammar_constrained_window_generation_v2_1(
     generator: torch.Generator | None = None,
     logits_transform: MapperV21LogitsTransform | None = None,
     logits_observer: MapperV21LogitsObserver | None = None,
+    min_ln_duration_ms: int | None = None,
 ) -> MapperV21GeneratedWindow:
     write_start_ms = int(write_start_ms)
     write_end_ms = int(write_end_ms)
@@ -243,6 +244,7 @@ def grammar_constrained_window_generation_v2_1(
             is_full_chart_start=bool(is_full_chart_start),
             is_full_chart_end=bool(is_full_chart_end),
             vocab=vocab,
+            min_ln_duration_ms=min_ln_duration_ms,
         )
 
     def completion_mask(_state: MapperReplayState, generated_tokens: tuple[int, ...]) -> torch.Tensor | None:
@@ -350,6 +352,7 @@ def generate_full_song_rollout_v2_1(
     generator: torch.Generator | None = None,
     logits_transform: MapperV21LogitsTransform | None = None,
     logits_observer: MapperV21LogitsObserver | None = None,
+    min_ln_duration_ms: int | None = None,
 ) -> MapperV21FullRollout:
     chart_end_ms = int(chart_end_ms)
     if chart_end_ms <= 0:
@@ -411,6 +414,7 @@ def generate_full_song_rollout_v2_1(
             generator=generator,
             logits_transform=logits_transform,
             logits_observer=logits_observer,
+            min_ln_duration_ms=min_ln_duration_ms,
         )
         windows.append(generated)
         tokens.extend(generated.tokens)

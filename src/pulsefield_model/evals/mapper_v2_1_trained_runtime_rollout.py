@@ -165,6 +165,7 @@ def run_trained_v21_runtime_rollout_smoke(
     logit_top_k: int = 5,
     logits_transform: MapperV21LogitsTransform | None = None,
     timepoint_preview_limit: int = 32,
+    min_ln_duration_ms: int | None = None,
 ) -> dict[str, Any]:
     chart_end_ms = int(chart_end_ms)
     if chart_end_ms <= 0 or chart_end_ms % 10 != 0:
@@ -246,6 +247,7 @@ def run_trained_v21_runtime_rollout_smoke(
         generator=generator,
         logits_transform=logits_transform,
         logits_observer=None if logit_diagnostics is None else logit_diagnostics.observe,
+        min_ln_duration_ms=min_ln_duration_ms,
     )
     timepoints = rollout_to_timepoints_v2_1(rollout, runtime.vocab)
 
@@ -296,6 +298,7 @@ def run_trained_v21_runtime_rollout_smoke(
             "logit_top_k": int(logit_top_k),
             "logits_transform_enabled": logits_transform is not None,
             "timepoint_preview_limit": int(timepoint_preview_limit),
+            "min_ln_duration_ms": None if min_ln_duration_ms is None else int(min_ln_duration_ms),
         },
         "runtime": {
             "mapper": mapper_metadata,
@@ -483,6 +486,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--collect-logit-diagnostics", action="store_true")
     parser.add_argument("--logit-top-k", type=int, default=5)
     parser.add_argument("--timepoint-preview-limit", type=int, default=32)
+    parser.add_argument("--min-ln-duration-ms", type=int)
     args = parser.parse_args(argv)
     summary = run_trained_v21_runtime_rollout_smoke(
         mapper_checkpoint_path=args.mapper_checkpoint_path,
@@ -507,6 +511,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         collect_logit_diagnostics=args.collect_logit_diagnostics,
         logit_top_k=args.logit_top_k,
         timepoint_preview_limit=args.timepoint_preview_limit,
+        min_ln_duration_ms=args.min_ln_duration_ms,
     )
     print(
         "mapper_v21_trained_runtime_rollout_done "

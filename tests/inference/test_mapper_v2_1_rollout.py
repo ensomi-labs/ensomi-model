@@ -17,7 +17,11 @@ from pulsefield_model.inference.mapper_v2_1_rollout import (
 )
 from pulsefield_model.models.mapper.v2_1 import MapperV21Vocab, empty_ln_carry_state
 from pulsefield_model.models.mapper.v2_1.model import MapperV21Config, MapperV21Model
-from pulsefield_model.models.mapper.v2_1.replay import initial_replay_state, transition_replay_state
+from pulsefield_model.models.mapper.v2_1.replay import (
+    initial_replay_state,
+    ln_carry_state_from_open_starts,
+    transition_replay_state,
+)
 
 
 V21_LEGACY_DEFAULT_DETERMINISTIC_FIXTURE = {
@@ -154,6 +158,89 @@ def test_sparse_window_generation_exports_grouped_timepoints() -> None:
     assert len(timepoints) == 1
     assert timepoints[0].time_ms == 100
     assert [action.value for action in timepoints[0].lane_actions] == ["TAP", "NONE", "TAP", "NONE"]
+
+
+def test_v21_generation_min_ln_duration_blocks_terminal_hold_start_only_when_enabled() -> None:
+    vocab = MapperV21Vocab()
+    ts_90 = vocab.time_shift_token_id(90)
+    ts_10 = vocab.time_shift_token_id(10)
+    hold_start = vocab.lane_action_token_id(0, "HOLD_START")
+    tap = vocab.lane_action_token_id(0, "TAP")
+
+    def logits_fn(step):
+        logits = torch.full((vocab.size,), -1000.0)
+        if step.state.current_ms == 0:
+            logits[ts_90] = 1000.0
+        elif step.state.current_ms == 90:
+            logits[hold_start] = 1000.0
+            logits[tap] = 500.0
+            logits[ts_10] = 100.0
+        else:
+            logits[ts_10] = 1000.0
+        return logits
+
+    def generate(min_ln_duration_ms: int | None):
+        return grammar_constrained_window_generation_v2_1(
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=100,
+            chart_end_ms=200,
+            ln_carry_in=empty_ln_carry_state(0),
+            ln_carry_out=empty_ln_carry_state(100),
+            logits_fn=logits_fn,
+            left_context_tokens=(),
+            is_full_chart_start=True,
+            is_full_chart_end=False,
+            max_tokens=8,
+            min_ln_duration_ms=min_ln_duration_ms,
+        )
+
+    default_window = generate(None)
+    guarded_window = generate(20)
+
+    assert hold_start in default_window.tokens
+    assert hold_start not in guarded_window.tokens
+    assert tap in guarded_window.tokens
+    assert guarded_window.completed
+    assert not guarded_window.dead_end
+
+
+def test_v21_generation_min_ln_duration_allows_matching_terminal_carry_start() -> None:
+    vocab = MapperV21Vocab()
+    ts_90 = vocab.time_shift_token_id(90)
+    ts_10 = vocab.time_shift_token_id(10)
+    hold_start = vocab.lane_action_token_id(0, "HOLD_START")
+    carry_out = ln_carry_state_from_open_starts(100, (90, None, None, None))
+
+    def logits_fn(step):
+        logits = torch.full((vocab.size,), -1000.0)
+        if step.state.current_ms == 0:
+            logits[ts_90] = 1000.0
+        elif step.state.current_ms == 90:
+            logits[hold_start] = 1000.0
+        else:
+            logits[ts_10] = 1000.0
+        return logits
+
+    window = grammar_constrained_window_generation_v2_1(
+        vocab=vocab,
+        write_start_ms=0,
+        write_end_ms=100,
+        chart_end_ms=200,
+        ln_carry_in=empty_ln_carry_state(0),
+        ln_carry_out=carry_out,
+        logits_fn=logits_fn,
+        left_context_tokens=(),
+        is_full_chart_start=True,
+        is_full_chart_end=False,
+        max_tokens=8,
+        min_ln_duration_ms=20,
+    )
+
+    assert hold_start in window.tokens
+    assert window.completed
+    assert not window.dead_end
+    assert window.terminal_state.open_mask[0]
 
 
 def test_zero_control_batch_provider_matches_mapper_v2_1_shapes() -> None:
