@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from dataclasses import dataclass
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, Mapping
 
 import importlib.util
@@ -254,6 +255,50 @@ class MapperTrainingRunnerTests(unittest.TestCase):
 
         self.assertEqual(actual, expected)
         self.assertEqual(len(resume_dataset.loaded_indexes), sum(len(batch) for batch in actual))
+
+    def test_default_metric_finalizer_accounts_for_optional_mapper_losses(self) -> None:
+        metrics = {
+            "loss/token": 1.0,
+            "loss/ln_close": 2.0,
+            "loss/adapter_reg": 3.0,
+            "loss/density": 4.0,
+            "loss/event_budget": 5.0,
+            "loss/conditioned_event_distribution": 6.0,
+            "loss/continuation_jump": 7.0,
+            "loss/time_shift_distance": 8.0,
+            "loss/c3_auxiliary": 9.0,
+            "loss/delta_event_auxiliary": 10.0,
+            "loss/delta_event_factor_target": 11.0,
+        }
+        config = SimpleNamespace(
+            lambda_ln_close=0.1,
+            lambda_adapter_reg=0.2,
+            lambda_density=0.3,
+            lambda_event_budget=0.4,
+            lambda_conditioned_event_distribution=0.5,
+            lambda_continuation_jump=0.6,
+            lambda_time_shift_distance=0.7,
+            lambda_c3_auxiliary=0.8,
+            lambda_delta_event_auxiliary=0.9,
+            lambda_delta_event_factor_target=1.1,
+        )
+
+        finalized = default_mapper_metric_finalizer(dict(metrics), config)
+
+        expected = (
+            1.0
+            + 0.1 * 2.0
+            + 0.2 * 3.0
+            + 0.3 * 4.0
+            + 0.4 * 5.0
+            + 0.5 * 6.0
+            + 0.6 * 7.0
+            + 0.7 * 8.0
+            + 0.8 * 9.0
+            + 0.9 * 10.0
+            + 1.1 * 11.0
+        )
+        self.assertAlmostEqual(finalized["loss/total"], expected)
 
 
 class _TinyModel(nn.Module):

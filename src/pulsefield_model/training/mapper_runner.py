@@ -363,7 +363,15 @@ def default_mapper_metric_finalizer(metrics: dict[str, float], loss_adapter: Any
         + float(getattr(config, "lambda_ln_close", 0.0)) * metrics.get("loss/ln_close", 0.0)
         + float(getattr(config, "lambda_adapter_reg", 0.0)) * metrics.get("loss/adapter_reg", 0.0)
         + float(getattr(config, "lambda_density", 0.0)) * metrics.get("loss/density", 0.0)
+        + float(getattr(config, "lambda_event_budget", 0.0)) * metrics.get("loss/event_budget", 0.0)
+        + float(getattr(config, "lambda_conditioned_event_distribution", 0.0))
+        * metrics.get("loss/conditioned_event_distribution", 0.0)
+        + float(getattr(config, "lambda_continuation_jump", 0.0)) * metrics.get("loss/continuation_jump", 0.0)
+        + float(getattr(config, "lambda_time_shift_distance", 0.0)) * metrics.get("loss/time_shift_distance", 0.0)
         + float(getattr(config, "lambda_c3_auxiliary", 0.0)) * metrics.get("loss/c3_auxiliary", 0.0)
+        + float(getattr(config, "lambda_delta_event_auxiliary", 0.0)) * metrics.get("loss/delta_event_auxiliary", 0.0)
+        + float(getattr(config, "lambda_delta_event_factor_target", 0.0))
+        * metrics.get("loss/delta_event_factor_target", 0.0)
     )
     return metrics
 

@@ -5,6 +5,7 @@ import importlib.util
 
 if importlib.util.find_spec("torch") is None:
     raise unittest.SkipTest("requires torch")
+import torch
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -13,6 +14,7 @@ from pulsefield_model.data.mapper_tuple_windows import MapperTupleWindowFilterRe
 from pulsefield_model.models.control import ControlDemoGlobalEncoderConfig
 from pulsefield_model.models.mapper.v3 import MapperV3Config, MapperV3LossConfig
 from pulsefield_model.training import mapper_v3 as mapper_v3_training
+from pulsefield_model.training.mapper_common import _move_mapper_batch_tensors
 from pulsefield_model.training.mapper_v3 import load_run_config
 
 
@@ -276,6 +278,24 @@ class MapperV3PhaseBTrainingTests(unittest.TestCase):
                 )
 
         dataset.assert_not_called()
+
+    def test_factor_target_batch_survives_training_tensor_move(self) -> None:
+        raw_batch = {
+            "decoder_input_tokens": torch.tensor([[1]], dtype=torch.long),
+            "target_fragment_tokens": torch.tensor([[2]], dtype=torch.long),
+            "delta_event_factor_target": {
+                "input_kind": torch.tensor([[0]], dtype=torch.long),
+                "row_mask": torch.tensor([[True]], dtype=torch.bool),
+            },
+            "unrelated": torch.tensor([99], dtype=torch.long),
+        }
+
+        batch = _move_mapper_batch_tensors(raw_batch, torch.device("cpu"))
+
+        self.assertIn("delta_event_factor_target", batch)
+        self.assertIn("input_kind", batch["delta_event_factor_target"])
+        self.assertEqual(batch["delta_event_factor_target"]["input_kind"].device.type, "cpu")
+        self.assertNotIn("unrelated", batch)
 
 
 def _assert_artifacts_paths(test: unittest.TestCase, config: dict[str, object], keys: tuple[str, ...]) -> None:

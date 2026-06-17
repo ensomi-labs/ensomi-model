@@ -151,6 +151,7 @@ MAPPER_BATCH_TENSOR_KEYS = frozenset(
         "c3_side_stream_available",
         "c3_side_stream_token_count",
         "c3_side_stream_truncated",
+        "delta_event_factor_target",
     )
 )
 
@@ -1242,7 +1243,7 @@ def _phase_b_density_weight(
 
 def _move_mapper_batch_tensors(raw_batch: Mapping[str, Any], device: torch.device) -> dict[str, Any]:
     batch = _move_batch_tensors(raw_batch, device, keys=MAPPER_BATCH_TENSOR_KEYS)
-    for key in ("target_fragment_states", "ln_carry_in", "ln_carry_out"):
+    for key in ("target_fragment_states", "ln_carry_in", "ln_carry_out", "delta_event_factor_target"):
         value = batch.get(key)
         if isinstance(value, Mapping):
             batch[key] = {
