@@ -1,0 +1,143 @@
+{
+  "checks": {
+    "artifact_only": true,
+    "c3_route": {
+      "codec_reconstruction_zero": true,
+      "combined_to_baseline_token_ratio": 1.5668054355510173,
+      "mapper_path_diminishing": true,
+      "ordered_to_exact_token_ratio": 3.1857424567028225,
+      "production_input_legal": false,
+      "reference_cross_mapper_window_span_rate": 0.10350712354509022,
+      "route": "MUTATE_TO_V3_GRAMMAR_REPAIR",
+      "test_delta_bits_per_event": -0.3849096630040947
+    },
+    "negative_signal_observed": false,
+    "no_rollout_rerun": true,
+    "no_tokenizer_or_default_change": true,
+    "no_training": true,
+    "positive_signal_observed": true,
+    "required_artifacts_present": true,
+    "same_slice": {
+      "comparison_available": true,
+      "modes": {
+        "anti_rigid_guard": {
+          "candidate_legal_count": 32,
+          "candidate_starved_count": 2,
+          "case_count": 32,
+          "mean_candidate_f1_100ms": 0.7124360669960993,
+          "mean_dominant_spacing_ratio_delta_vs_v3": -0.029037755774277186,
+          "mean_event_count_ratio_delta_vs_v3": 0.1670971470629941,
+          "mean_f1_delta_vs_v3": 0.0728705652252115,
+          "mean_v3_f1_100ms": 0.6395655017708878,
+          "missing_v3_case_count": 0,
+          "starved_count_delta": -9,
+          "v3_starved_count": 11
+        },
+        "baseline_guard": {
+          "candidate_legal_count": 32,
+          "candidate_starved_count": 1,
+          "case_count": 32,
+          "mean_candidate_f1_100ms": 0.7558420817032462,
+          "mean_dominant_spacing_ratio_delta_vs_v3": 0.20595969900461975,
+          "mean_event_count_ratio_delta_vs_v3": 0.21012149869610006,
+          "mean_f1_delta_vs_v3": 0.11627657993235846,
+          "mean_v3_f1_100ms": 0.6395655017708878,
+          "missing_v3_case_count": 0,
+          "starved_count_delta": -10,
+          "v3_starved_count": 11
+        }
+      },
+      "source_v3_legal_count": 32,
+      "source_v3_mean_f1_100ms": 0.6395655017708878,
+      "source_v3_starved_count": 11
+    },
+    "terminal_guard": {
+      "all_candidate_legal": true,
+      "anti_rigid_blocked_count": 1906,
+      "anti_rigid_guard_starved_count": 2,
+      "baseline_guard_starved_count": 1,
+      "case_count": 32,
+      "full32": true,
+      "full32_passed": true,
+      "max_token_count": 0,
+      "mean_f1_delta_vs_matching_comparator": 0.00807971058648541,
+      "new_starved_count": 0,
+      "primary_case04_baseline_legal": true,
+      "primary_case05_anti_rigid_legal": true,
+      "route": "TEST_NEXT",
+      "run_count": 64
+    },
+    "v3_quality": {
+      "generated_prefix_trace_route": "TEST_BOUNDARY_OR_SPACING_STATE_REPAIR",
+      "next_card": "target_grammar_v3_boundary_or_spacing_state_repair",
+      "pipeline_mechanics_passed": true,
+      "pipeline_route": "TEST_NEXT",
+      "post_teacher_forced_route": "TEST_GENERATED_PREFIX_STATE_TRACE",
+      "quality_ready": false,
+      "repair_route_open": true,
+      "trace_failure_class_counts": {
+        "time_shift_repetition": 6
+      },
+      "trace_mean_dominant_spacing_ratio": 0.9425350063647936,
+      "trace_mean_event_count_ratio": 0.533578976103129,
+      "trace_mean_second_window_event_share": 0.03472222222222222
+    },
+    "v3_representation": {
+      "no_future_lookup": true,
+      "ready": true,
+      "reconstruction_mismatches": 0,
+      "requires_c3_style_backreference_replay": false,
+      "route": "TEST_NEXT",
+      "token_reduction_ratio": 0.1995511701635023,
+      "total_bit_reduction_ratio": 0.05430872043736522
+    }
+  },
+  "decision": {
+    "next_card": "target_grammar_v3_boundary_or_spacing_state_repair",
+    "next_step": "Keep `min_ln_duration_ms` default-off and use the repaired v2.1 guard as the comparator while creating the next v3 boundary/spacing-state repair card.",
+    "reason": "v2.1 terminal guard is now a legal full32 comparator, C3 mapper integration remains diminishing, and v3 remains the lower-bit local target but still has generated-prefix state/timing failures",
+    "route": "TEST_V3_BOUNDARY_OR_SPACING_STATE_REPAIR_KEEP_V21_GUARD_OPT_IN"
+  },
+  "elapsed_s": 0.003493165975669399,
+  "experiment": "Mapper v2.1 terminal guard / v3 route synthesis",
+  "missing_required_count": 0,
+  "next_card": "target_grammar_v3_boundary_or_spacing_state_repair",
+  "schema_version": 1,
+  "sources": {
+    "c3_v3_target_complexity": {
+      "exists": true,
+      "path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_v3_target_complexity_comparison_summary.json",
+      "required": true
+    },
+    "v21_terminal_guard_full32": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/mapper_v21_terminal_ln_start_guard_repair_full32_summary.json",
+      "required": true
+    },
+    "v21_v3_fixed_slice": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/mapper_v21_v3_fixed_slice_decode_comparison_summary.json",
+      "required": true
+    },
+    "v3_full_dataset": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_full_dataset_audit_summary.json",
+      "required": true
+    },
+    "v3_full_pipeline_smoke": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_full_pipeline_replacement_summary.json",
+      "required": true
+    },
+    "v3_generated_prefix_trace": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_generated_prefix_state_trace_audit_summary.json",
+      "required": true
+    },
+    "v3_post_teacher_forced_exposure": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_post_teacher_forced_exposure_route_synthesis_summary.json",
+      "required": true
+    }
+  }
+}
