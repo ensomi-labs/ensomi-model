@@ -104,6 +104,7 @@ class MapperV21ModelLoss(_MapperTupleModelLoss):
             event_budget_loss=loss.event_budget_loss,
             conditioned_event_distribution_loss=loss.conditioned_event_distribution_loss,
             continuation_jump_loss=loss.continuation_jump_loss,
+            time_shift_distance_loss=loss.time_shift_distance_loss,
             adapter_reg_loss=loss.adapter_reg_loss,
             metrics=metrics,
             metric_numerators=metric_numerators,

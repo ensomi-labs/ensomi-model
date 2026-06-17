@@ -19,6 +19,7 @@ class MapperTupleLossConfig:
     lambda_event_budget: float = 0.0
     lambda_conditioned_event_distribution: float = 0.0
     lambda_continuation_jump: float = 0.0
+    lambda_time_shift_distance: float = 0.0
     lambda_ln_close: float = 0.05
     lambda_adapter_reg: float = 1e-5
     event_token_loss_weight: float = 1.0
@@ -32,6 +33,7 @@ class MapperTupleLossConfig:
     density_calibration_scale: float = 1.0
     density_calibration_bias: float = 0.0
     continuation_jump_tolerance_ms: int = 100
+    time_shift_distance_scale_ms: float = 1000.0
 
 
 @dataclass(frozen=True)
@@ -43,6 +45,7 @@ class MapperTupleLossOutput:
     event_budget_loss: torch.Tensor
     conditioned_event_distribution_loss: torch.Tensor
     continuation_jump_loss: torch.Tensor
+    time_shift_distance_loss: torch.Tensor
     adapter_reg_loss: torch.Tensor
     metrics: dict[str, float]
     metric_numerators: dict[str, float] = field(default_factory=dict)
@@ -258,6 +261,22 @@ class MapperTupleModelLoss(nn.Module):
         else:
             continuation_jump_loss_value = disabled_zero
             continuation_jump_weight = logits_final.new_zeros(())
+        if self.config.lambda_time_shift_distance > 0.0:
+            time_shift_distance_loss_value = time_shift_distance_loss(
+                logits_final=logits_final,
+                target_tokens=target,
+                token_spec=self.token_spec,
+                target_mask=target_mask,
+                scale_ms=float(self.config.time_shift_distance_scale_ms),
+            )
+            time_shift_distance_weight = _time_shift_target_count(
+                target,
+                token_spec=self.token_spec,
+                target_mask=target_mask,
+            ).to(device=logits_final.device, dtype=logits_final.dtype)
+        else:
+            time_shift_distance_loss_value = disabled_zero
+            time_shift_distance_weight = logits_final.new_zeros(())
         total_loss = (
             token_loss
             + float(self.config.lambda_ln_close) * ln_close_loss
@@ -266,6 +285,7 @@ class MapperTupleModelLoss(nn.Module):
             + float(self.config.lambda_conditioned_event_distribution)
             * conditioned_event_distribution_loss_value
             + float(self.config.lambda_continuation_jump) * continuation_jump_loss_value
+            + float(self.config.lambda_time_shift_distance) * time_shift_distance_loss_value
             + float(self.config.lambda_adapter_reg) * adapter_reg_loss
         )
 
@@ -283,6 +303,7 @@ class MapperTupleModelLoss(nn.Module):
             conditioned_event_distribution_loss_value,
         )
         _record_scalar(metrics, "loss/continuation_jump", continuation_jump_loss_value)
+        _record_scalar(metrics, "loss/time_shift_distance", time_shift_distance_loss_value)
         _record_scalar(metrics, "loss/adapter_reg", adapter_reg_loss)
         metrics["phase/lambda_density"] = float(self.config.lambda_density)
         metrics["phase/lambda_event_budget"] = float(self.config.lambda_event_budget)
@@ -290,6 +311,7 @@ class MapperTupleModelLoss(nn.Module):
             self.config.lambda_conditioned_event_distribution
         )
         metrics["phase/lambda_continuation_jump"] = float(self.config.lambda_continuation_jump)
+        metrics["phase/lambda_time_shift_distance"] = float(self.config.lambda_time_shift_distance)
         metrics["phase/lambda_ln_close"] = float(self.config.lambda_ln_close)
         metrics["phase/event_token_loss_weight"] = float(self.config.event_token_loss_weight)
         metrics["token/valid_count"] = int(target_mask.sum().detach().cpu())
@@ -319,6 +341,10 @@ class MapperTupleModelLoss(nn.Module):
             (continuation_jump_loss_value.detach() * continuation_jump_weight.clamp_min(1)).cpu()
         )
         denominators["loss/continuation_jump"] = float(continuation_jump_weight.detach().cpu())
+        numerators["loss/time_shift_distance"] = float(
+            (time_shift_distance_loss_value.detach() * time_shift_distance_weight.clamp_min(1)).cpu()
+        )
+        denominators["loss/time_shift_distance"] = float(time_shift_distance_weight.detach().cpu())
 
         return MapperTupleLossOutput(
             total_loss=total_loss,
@@ -328,6 +354,7 @@ class MapperTupleModelLoss(nn.Module):
             event_budget_loss=event_budget_loss_value,
             conditioned_event_distribution_loss=conditioned_event_distribution_loss_value,
             continuation_jump_loss=continuation_jump_loss_value,
+            time_shift_distance_loss=time_shift_distance_loss_value,
             adapter_reg_loss=adapter_reg_loss,
             metrics=metrics,
             metric_numerators=numerators,
@@ -841,6 +868,77 @@ def continuation_jump_guard_loss(
     return (loss * mask_f).sum() / mask_f.sum().clamp_min(torch.finfo(mask_f.dtype).eps)
 
 
+def time_shift_distance_loss(
+    *,
+    logits_final: torch.Tensor,
+    target_tokens: torch.Tensor,
+    vocab: Any | None = None,
+    token_spec: MapperLossTokenSpec | None = None,
+    target_mask: torch.Tensor | None = None,
+    scale_ms: float = 1000.0,
+) -> torch.Tensor:
+    token_spec = _resolve_loss_token_spec(vocab=vocab, token_spec=token_spec)
+    time_shift_token_ids, time_shift_values = _time_shift_token_ids_and_values(token_spec.contract.vocab)
+    if not time_shift_token_ids:
+        raise ValueError("time-shift distance loss requires a vocab with time-shift tokens")
+    _require_positive_finite(scale_ms, "scale_ms")
+    if logits_final.ndim != 3:
+        raise ValueError(f"logits_final must have shape [B,T,V], got {tuple(logits_final.shape)}")
+    if tuple(target_tokens.shape) != tuple(logits_final.shape[:2]):
+        raise ValueError(f"target_tokens must have shape {tuple(logits_final.shape[:2])}, got {tuple(target_tokens.shape)}")
+    if int(logits_final.shape[-1]) != token_spec.vocab_size:
+        raise ValueError(f"logits_final vocab dim must be {token_spec.vocab_size}, got {logits_final.shape[-1]}")
+    target_tokens = target_tokens.to(device=logits_final.device, dtype=torch.long)
+    if target_mask is None:
+        valid = target_tokens != int(token_spec.pad_id)
+    else:
+        if tuple(target_mask.shape) != tuple(target_tokens.shape):
+            raise ValueError(f"target_mask must have shape {tuple(target_tokens.shape)}, got {tuple(target_mask.shape)}")
+        valid = target_mask.to(device=logits_final.device, dtype=torch.bool) & (target_tokens != int(token_spec.pad_id))
+
+    shift_ids = torch.tensor(time_shift_token_ids, dtype=torch.long, device=logits_final.device)
+    shift_values = torch.tensor(time_shift_values, dtype=logits_final.dtype, device=logits_final.device)
+    target_value_lookup = logits_final.new_full((token_spec.vocab_size,), -1.0)
+    target_value_lookup[shift_ids] = shift_values
+    target_shift_values = target_value_lookup[target_tokens.clamp(0, token_spec.vocab_size - 1)]
+    target_shift_mask = valid & (target_shift_values >= 0.0)
+    if not bool(target_shift_mask.any()):
+        return logits_final.reshape(-1)[:0].sum() * 0.0
+
+    shift_logits = logits_final.index_select(dim=-1, index=shift_ids)
+    shift_probs = torch.softmax(shift_logits, dim=-1)
+    expected_shift_ms = (shift_probs * shift_values.reshape(1, 1, -1)).sum(dim=-1)
+    scale = logits_final.new_tensor(float(scale_ms))
+    loss = F.smooth_l1_loss(
+        expected_shift_ms / scale,
+        target_shift_values / scale,
+        reduction="none",
+    )
+    mask_f = target_shift_mask.to(dtype=loss.dtype)
+    return (loss * mask_f).sum() / mask_f.sum().clamp_min(torch.finfo(mask_f.dtype).eps)
+
+
+def _time_shift_target_count(
+    target_tokens: torch.Tensor,
+    *,
+    token_spec: MapperLossTokenSpec,
+    target_mask: torch.Tensor | None = None,
+) -> torch.Tensor:
+    time_shift_token_ids, _ = _time_shift_token_ids_and_values(token_spec.contract.vocab)
+    if not time_shift_token_ids:
+        return target_tokens.reshape(-1)[:0].sum().to(dtype=torch.float32)
+    target_tokens = target_tokens.to(dtype=torch.long)
+    if target_mask is None:
+        valid = target_tokens != int(token_spec.pad_id)
+    else:
+        if tuple(target_mask.shape) != tuple(target_tokens.shape):
+            raise ValueError(f"target_mask must have shape {tuple(target_tokens.shape)}, got {tuple(target_mask.shape)}")
+        valid = target_mask.to(device=target_tokens.device, dtype=torch.bool) & (target_tokens != int(token_spec.pad_id))
+    shift_ids = torch.tensor(time_shift_token_ids, dtype=torch.long, device=target_tokens.device)
+    target_is_shift = (target_tokens.unsqueeze(-1) == shift_ids.reshape(1, 1, -1)).any(dim=-1)
+    return (target_is_shift & valid).to(dtype=torch.float32).sum()
+
+
 def _target_loss_mask(batch: Mapping[str, torch.Tensor], *, target: torch.Tensor, pad_id: int) -> torch.Tensor:
     raw_mask = batch.get("target_fragment_mask")
     if raw_mask is None:
@@ -1003,6 +1101,7 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
         "lambda_event_budget",
         "lambda_conditioned_event_distribution",
         "lambda_continuation_jump",
+        "lambda_time_shift_distance",
         "lambda_ln_close",
         "lambda_adapter_reg",
         "event_token_loss_weight",
@@ -1016,6 +1115,7 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
         "density_calibration_scale",
         "density_calibration_bias",
         "continuation_jump_tolerance_ms",
+        "time_shift_distance_scale_ms",
     ):
         _require_finite_number(getattr(config, name), name)
     if config.lambda_density < 0.0:
@@ -1026,6 +1126,8 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
         raise ValueError("lambda_conditioned_event_distribution must be non-negative")
     if config.lambda_continuation_jump < 0.0:
         raise ValueError("lambda_continuation_jump must be non-negative")
+    if config.lambda_time_shift_distance < 0.0:
+        raise ValueError("lambda_time_shift_distance must be non-negative")
     if config.lambda_ln_close < 0.0:
         raise ValueError("lambda_ln_close must be non-negative")
     if config.lambda_adapter_reg < 0.0:
@@ -1048,6 +1150,8 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
         raise ValueError("density_calibration_scale must be non-negative")
     if int(config.continuation_jump_tolerance_ms) < 0:
         raise ValueError("continuation_jump_tolerance_ms must be non-negative")
+    if config.time_shift_distance_scale_ms <= 0.0:
+        raise ValueError("time_shift_distance_scale_ms must be positive")
 
 
 def _require_finite_number(value: float, name: str) -> None:

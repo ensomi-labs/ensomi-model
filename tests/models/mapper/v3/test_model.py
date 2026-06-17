@@ -22,6 +22,7 @@ from pulsefield_model.models.mapper.shared.loss import (
     conditioned_event_distribution_loss,
     continuation_jump_guard_loss,
     event_budget_auxiliary_loss,
+    time_shift_distance_loss,
 )
 from pulsefield_model.models.mapper.v3.replay import initial_replay_state, transition_replay_state
 from pulsefield_model.models.mapper.v3.vocab import LaneAction
@@ -501,6 +502,85 @@ class MapperV3ModelTests(unittest.TestCase):
         self.assertEqual(on_loss.metrics["phase/lambda_continuation_jump"], 0.5)
         self.assertGreater(float(on_loss.continuation_jump_loss.item()), 0.0)
         self.assertGreater(float(on_loss.total_loss.item()), float(off_loss.total_loss.item()))
+
+    def test_time_shift_distance_loss_prefers_matching_shift_values(self) -> None:
+        vocab = MapperV3Vocab()
+        shift_60 = vocab.time_shift_token_id(60)
+        shift_80 = vocab.time_shift_token_id(80)
+        shift_100 = vocab.time_shift_token_id(100)
+        event = vocab.event_token_id_from_signature("T...")
+        target = torch.tensor([[shift_80, shift_100, shift_60, event]], dtype=torch.long)
+        mask = torch.ones_like(target, dtype=torch.bool)
+        matching_logits = torch.full((1, target.shape[1], vocab.size), -5.0, dtype=torch.float32)
+        rigid_logits = torch.full_like(matching_logits, -5.0)
+        for step, token_id in enumerate(target[0].tolist()):
+            matching_logits[0, step, int(token_id)] = 5.0
+            rigid_logits[0, step, shift_100] = 5.0
+
+        matching = time_shift_distance_loss(
+            logits_final=matching_logits,
+            target_tokens=target,
+            vocab=vocab,
+            target_mask=mask,
+        )
+        rigid = time_shift_distance_loss(
+            logits_final=rigid_logits,
+            target_tokens=target,
+            vocab=vocab,
+            target_mask=mask,
+        )
+
+        self.assertTrue(torch.isfinite(matching).item())
+        self.assertTrue(torch.isfinite(rigid).item())
+        self.assertLess(float(matching.item()), float(rigid.item()))
+
+    def test_time_shift_distance_loss_is_default_off_and_reports_metric_when_enabled(self) -> None:
+        vocab = MapperV3Vocab()
+        tokenized = encode_mapper_window(
+            [
+                MapperTimepoint(80, _actions(LaneAction.TAP)),
+                MapperTimepoint(240, _actions(LaneAction.TAP)),
+            ],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=240,
+        )
+        batch = _batch_for_window(tokenized)
+        logits = torch.zeros((1, tokenized.seq_len, vocab.size), dtype=torch.float32)
+        output = SimpleNamespace(logits_final=logits)
+
+        off_loss = MapperV3ModelLoss(
+            MapperV3LossConfig(
+                lambda_density=0.0,
+                lambda_time_shift_distance=0.0,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+            ),
+            vocab=vocab,
+        )(output, batch)
+        on_loss = MapperV3ModelLoss(
+            MapperV3LossConfig(
+                lambda_density=0.0,
+                lambda_time_shift_distance=0.5,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+            ),
+            vocab=vocab,
+        )(output, batch)
+
+        self.assertEqual(off_loss.metrics["phase/lambda_time_shift_distance"], 0.0)
+        self.assertEqual(float(off_loss.time_shift_distance_loss.item()), 0.0)
+        self.assertEqual(on_loss.metrics["phase/lambda_time_shift_distance"], 0.5)
+        self.assertGreater(float(on_loss.time_shift_distance_loss.item()), 0.0)
+        self.assertGreater(float(on_loss.total_loss.item()), float(off_loss.total_loss.item()))
+
+    def test_time_shift_distance_config_requires_positive_scale(self) -> None:
+        with self.assertRaisesRegex(ValueError, "time_shift_distance_scale_ms must be positive"):
+            MapperV3ModelLoss(
+                MapperV3LossConfig(time_shift_distance_scale_ms=0.0),
+                vocab=MapperV3Vocab(),
+            )
 
     def test_incremental_decode_matches_cached_full_forward_logits(self) -> None:
         torch.manual_seed(20260624)

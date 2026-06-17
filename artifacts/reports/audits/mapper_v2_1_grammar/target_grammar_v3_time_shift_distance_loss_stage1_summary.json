@@ -1,0 +1,57 @@
+{
+  "checks": {
+    "config_fields_present": true,
+    "disabled_default_ok": true,
+    "enabled_metric_positive": true,
+    "gradient_finite": true,
+    "gradient_nonzero": true,
+    "matching_loss_finite": true,
+    "non_time_shift_rows_ignored": true,
+    "rigid_loss_finite": true,
+    "rigid_loss_greater_than_matching": true
+  },
+  "decision": {
+    "interpretation": "Stage 1 proves a local time-shift value calibration loss surface. It does not prove trained rollout timing quality.",
+    "next_card": "target_grammar_v3_time_shift_distance_tiny_training_gate",
+    "next_step": "Create a tiny v3 training/rollout card with rigid-grid and second-window guards.",
+    "reason": "synthetic separation, gradient, disabled-default behavior, and config exposure passed",
+    "route": "TEST_TIME_SHIFT_DISTANCE_TINY_TRAINING_GATE"
+  },
+  "elapsed_s": 0.008672750002006069,
+  "experiment": "Target grammar v3 time-shift distance loss Stage 1 gate",
+  "next_card": "target_grammar_v3_time_shift_distance_tiny_training_gate",
+  "probes": {
+    "config": {
+      "config_fields_present": true,
+      "lambda_time_shift_distance": 0.25,
+      "time_shift_distance_scale_ms": 500.0
+    },
+    "disabled_default": {
+      "disabled_default_ok": true,
+      "enabled_metric_positive": true,
+      "off_lambda": 0.0,
+      "off_time_shift_distance_loss": 0.0,
+      "on_lambda": 0.5,
+      "on_time_shift_distance_loss": 0.00034506627707742155,
+      "total_loss_delta": 0.00017261505126953125
+    },
+    "gradient": {
+      "finite": true,
+      "grad_abs_sum": 2.4627895982121117e-05,
+      "loss": 0.00034506627707742155,
+      "nonzero": true
+    },
+    "matching_vs_rigid": {
+      "gap": 0.0003448871945721521,
+      "matching_finite": true,
+      "matching_loss": 1.7908250526943448e-07,
+      "rigid_finite": true,
+      "rigid_wrong_shift_loss": 0.00034506627707742155
+    },
+    "non_time_shift_ignored": {
+      "ignored": true,
+      "loss": 0.0
+    }
+  },
+  "schema_version": 1
+}
