@@ -1,0 +1,856 @@
+{
+  "checks": {
+    "all_eval_losses_finite": true,
+    "candidate_windows_match_full4k_bit_proxy": true,
+    "checkpoint_exists": true,
+    "completed_requested_steps": true,
+    "control_teacher_cache_dir_exists": true,
+    "control_teacher_cache_file_count_matches_candidates": true,
+    "control_teacher_cache_required": true,
+    "dataset_factor_target_enabled": true,
+    "eval_point_count_sufficient": true,
+    "eval_windows_positive": true,
+    "factor_loss_ratio_within_limit": true,
+    "final_eval_delta_labels_positive": true,
+    "final_eval_end_gap_labels_positive": true,
+    "final_eval_factor_loss_finite": true,
+    "final_eval_kind_labels_positive": true,
+    "final_eval_signature_labels_positive": true,
+    "final_train_factor_loss_finite": true,
+    "full4k_bit_proxy_route_positive": true,
+    "full4k_label_coverage_route_positive": true,
+    "longer_training_route_positive": true,
+    "loss_factor_lambda_positive": true,
+    "loss_total_recomputed_matches": true,
+    "mapper_record_cache_configured": true,
+    "mapper_record_cache_exists": true,
+    "mapper_record_cache_metadata_exists": true,
+    "model_factor_target_enabled": true,
+    "no_inference_rollout_or_c3_change": true,
+    "report_exists": true,
+    "source_matches_full4k_bit_proxy": true,
+    "source_windows_full4k_scale": true,
+    "train_windows_positive": true,
+    "training_marked_complete": true
+  },
+  "config": {
+    "batch_size": 4,
+    "dataset_progress": false,
+    "device": "cpu",
+    "eval_every": 4,
+    "eval_size": 16,
+    "final_train_eval_size": 16,
+    "include_full_song_context": false,
+    "lambda_delta_event_factor_target": 0.25,
+    "learning_rate": 0.0003,
+    "loss": {
+      "lambda_adapter_reg": 0.0,
+      "lambda_delta_event_factor_target": 0.25,
+      "lambda_density": 0.0,
+      "lambda_ln_close": 0.0
+    },
+    "max_cached_maps": 8,
+    "max_factor_loss_ratio": 1.2,
+    "max_steps": 8,
+    "model": {
+      "age_embedding_dim": 4,
+      "d_model": 32,
+      "dropout": 0.0,
+      "ffn_dim": 64,
+      "global_conv_blocks": 0,
+      "heads": 4,
+      "lane_embedding_dim": 4,
+      "layers": 1,
+      "ln_close_hidden_dim": 32,
+      "max_seq_len": 1024,
+      "state_prior_hidden_dim": 32,
+      "use_delta_event_factor_target": true,
+      "use_global_context": false
+    },
+    "no_inference_or_rollout_change": true,
+    "no_mapper_default_change": true,
+    "no_tokenizer_change": true,
+    "seed": 20260703,
+    "uses_c3_backreference": false,
+    "uses_future_lookup": false
+  },
+  "context": {
+    "full4k_bit_proxy": {
+      "metrics": {
+        "audited_window_count": 174515,
+        "candidate_window_count": 180696,
+        "end_reconstruction_mismatches": 0,
+        "end_row_count": 174515,
+        "event_reconstruction_mismatches": 0,
+        "event_row_count": 9720062,
+        "flat_pair_bits_per_row": 9.867582342606154,
+        "flat_pair_total_bit_ratio_vs_v3": 0.7855864879923021,
+        "flat_pair_total_bits": 97635553.29275697,
+        "flat_pair_tractable": false,
+        "label_error_count": 0,
+        "last_source_index": 707766,
+        "limit": null,
+        "max_end_gap_ms": 8000,
+        "max_event_delta_ms": 7980,
+        "proxy_factorized_bits_per_row": 9.957599950761029,
+        "proxy_factorized_total_bit_ratio_vs_v3": 0.792753047560041,
+        "proxy_factorized_total_bits": 98526239.4480012,
+        "proxy_row_count": 9894577,
+        "sequence_length_delta_vs_v3": -14648154,
+        "sequence_length_ratio_vs_v3": 0.4031571303128409,
+        "skipped_stride_window_count": 527071,
+        "source_window_count": 707767,
+        "special_token_counts": {
+          "bos": 0,
+          "eos": 9360,
+          "event": 9720062,
+          "time_shift": 14813309
+        },
+        "top_end_gaps": [
+          {
+            "count": 15186,
+            "value": 20
+          },
+          {
+            "count": 11804,
+            "value": 10
+          },
+          {
+            "count": 11284,
+            "value": 60
+          },
+          {
+            "count": 11073,
+            "value": 50
+          },
+          {
+            "count": 11003,
+            "value": 30
+          },
+          {
+            "count": 10731,
+            "value": 40
+          },
+          {
+            "count": 10583,
+            "value": 70
+          },
+          {
+            "count": 9537,
+            "value": 80
+          },
+          {
+            "count": 9360,
+            "value": 0
+          },
+          {
+            "count": 8083,
+            "value": 90
+          },
+          {
+            "count": 6563,
+            "value": 100
+          },
+          {
+            "count": 6349,
+            "value": 120
+          }
+        ],
+        "top_event_deltas": [
+          {
+            "count": 1188664,
+            "value": 80
+          },
+          {
+            "count": 883375,
+            "value": 90
+          },
+          {
+            "count": 793644,
+            "value": 70
+          },
+          {
+            "count": 630064,
+            "value": 160
+          },
+          {
+            "count": 626043,
+            "value": 150
+          },
+          {
+            "count": 622911,
+            "value": 170
+          },
+          {
+            "count": 577951,
+            "value": 100
+          },
+          {
+            "count": 448828,
+            "value": 60
+          },
+          {
+            "count": 448741,
+            "value": 110
+          },
+          {
+            "count": 360946,
+            "value": 120
+          },
+          {
+            "count": 355143,
+            "value": 140
+          },
+          {
+            "count": 334747,
+            "value": 180
+          }
+        ],
+        "top_event_signatures": [
+          {
+            "count": 1260273,
+            "value": "..T."
+          },
+          {
+            "count": 1258042,
+            "value": ".T.."
+          },
+          {
+            "count": 876807,
+            "value": "T..."
+          },
+          {
+            "count": 869797,
+            "value": "...T"
+          },
+          {
+            "count": 495183,
+            "value": "..TT"
+          },
+          {
+            "count": 492854,
+            "value": "TT.."
+          },
+          {
+            "count": 391601,
+            "value": "T..T"
+          },
+          {
+            "count": 229055,
+            "value": ".TT."
+          },
+          {
+            "count": 222373,
+            "value": ".T.T"
+          },
+          {
+            "count": 219630,
+            "value": "T.T."
+          },
+          {
+            "count": 139012,
+            "value": "T.TT"
+          },
+          {
+            "count": 138082,
+            "value": "TT.T"
+          }
+        ],
+        "top_flat_pairs": [
+          {
+            "count": 186637,
+            "value": "80:.T.."
+          },
+          {
+            "count": 186554,
+            "value": "80:..T."
+          },
+          {
+            "count": 129953,
+            "value": "70:..T."
+          },
+          {
+            "count": 129310,
+            "value": "70:.T.."
+          },
+          {
+            "count": 124973,
+            "value": "90:..T."
+          },
+          {
+            "count": 124827,
+            "value": "90:.T.."
+          },
+          {
+            "count": 115133,
+            "value": "80:T..."
+          },
+          {
+            "count": 115107,
+            "value": "80:...T"
+          },
+          {
+            "count": 83837,
+            "value": "70:T..."
+          },
+          {
+            "count": 83225,
+            "value": "70:...T"
+          },
+          {
+            "count": 81735,
+            "value": "60:.T.."
+          },
+          {
+            "count": 81337,
+            "value": "60:..T."
+          }
+        ],
+        "unique": {
+          "end_gaps": 475,
+          "event_deltas": 680,
+          "event_signatures": 255,
+          "flat_delta_event_pairs": 29453,
+          "kinds": 2,
+          "v3_tokens": 278
+        },
+        "unsupported_window_count": 6181,
+        "v3_token_count": 24542731,
+        "v3_unigram_bits_per_token": 5.063969710754163,
+        "v3_unigram_total_bits": 124283646.40318725,
+        "zero_delta_event_count": 12235
+      },
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_full4k_bit_proxy_summary.json",
+      "route": "TEST_DELTA_EVENT_FACTOR_TARGET_MODEL_CARD",
+      "stability": {}
+    },
+    "full4k_label_coverage": {
+      "metrics": {
+        "audited_window_count": 174515,
+        "candidate_window_count": 180696,
+        "end_gap_label_count": 174515,
+        "eos_count": 9360,
+        "event_label_count": 9720062,
+        "event_token_count": 9720062,
+        "label_error_count": 0,
+        "last_source_index": 707766,
+        "limit": null,
+        "max_end_gap_ms": 8000,
+        "max_event_delta_ms": 7980,
+        "negative_delta_count": 0,
+        "negative_end_gap_count": 0,
+        "out_of_range_delta_count": 0,
+        "out_of_range_end_gap_count": 0,
+        "signature_label_count": 9720062,
+        "skipped_stride_window_count": 527071,
+        "source_window_count": 707767,
+        "time_shift_token_count": 14813309,
+        "top_end_gaps": [
+          {
+            "count": 15186,
+            "value": 20
+          },
+          {
+            "count": 11804,
+            "value": 10
+          },
+          {
+            "count": 11284,
+            "value": 60
+          },
+          {
+            "count": 11073,
+            "value": 50
+          },
+          {
+            "count": 11003,
+            "value": 30
+          },
+          {
+            "count": 10731,
+            "value": 40
+          },
+          {
+            "count": 10583,
+            "value": 70
+          },
+          {
+            "count": 9537,
+            "value": 80
+          },
+          {
+            "count": 9360,
+            "value": 0
+          },
+          {
+            "count": 8083,
+            "value": 90
+          },
+          {
+            "count": 6563,
+            "value": 100
+          },
+          {
+            "count": 6349,
+            "value": 120
+          }
+        ],
+        "top_event_deltas": [
+          {
+            "count": 1188664,
+            "value": 80
+          },
+          {
+            "count": 883375,
+            "value": 90
+          },
+          {
+            "count": 793644,
+            "value": 70
+          },
+          {
+            "count": 630064,
+            "value": 160
+          },
+          {
+            "count": 626043,
+            "value": 150
+          },
+          {
+            "count": 622911,
+            "value": 170
+          },
+          {
+            "count": 577951,
+            "value": 100
+          },
+          {
+            "count": 448828,
+            "value": 60
+          },
+          {
+            "count": 448741,
+            "value": 110
+          },
+          {
+            "count": 360946,
+            "value": 120
+          },
+          {
+            "count": 355143,
+            "value": 140
+          },
+          {
+            "count": 334747,
+            "value": 180
+          }
+        ],
+        "top_event_signatures": [
+          {
+            "count": 1260273,
+            "value": "..T."
+          },
+          {
+            "count": 1258042,
+            "value": ".T.."
+          },
+          {
+            "count": 876807,
+            "value": "T..."
+          },
+          {
+            "count": 869797,
+            "value": "...T"
+          },
+          {
+            "count": 495183,
+            "value": "..TT"
+          },
+          {
+            "count": 492854,
+            "value": "TT.."
+          },
+          {
+            "count": 391601,
+            "value": "T..T"
+          },
+          {
+            "count": 229055,
+            "value": ".TT."
+          },
+          {
+            "count": 222373,
+            "value": ".T.T"
+          },
+          {
+            "count": 219630,
+            "value": "T.T."
+          },
+          {
+            "count": 139012,
+            "value": "T.TT"
+          },
+          {
+            "count": 138082,
+            "value": "TT.T"
+          }
+        ],
+        "unique_end_gap_count": 475,
+        "unique_event_delta_count": 680,
+        "unique_event_signature_count": 255,
+        "unsupported_window_count": 6181,
+        "v3_token_count": 24542731,
+        "zero_delta_event_count": 12235
+      },
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_auxiliary_full4k_label_coverage_summary.json",
+      "route": "TEST_DELTA_EVENT_FULL4K_BIT_PROXY_OR_FACTOR_TARGET_CARD",
+      "stability": {}
+    },
+    "longer_training": {
+      "metrics": {},
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_factor_target_longer_training_summary.json",
+      "route": "TEST_DELTA_EVENT_FACTOR_TARGET_FULL4K_TRAINING_CARD",
+      "stability": {
+        "all_eval_losses_finite": true,
+        "checkpoint_exists": true,
+        "checkpoint_path": "artifacts/runs/stage2_mapper_v3/delta_event_factor_target_longer_training/checkpoint.pt",
+        "completed_steps": 16,
+        "dataset_include_delta_event_factor_target": true,
+        "eval_factor_losses": [
+          20.88144576758669,
+          20.313294929370546,
+          19.778227555124385
+        ],
+        "eval_point_count": 3,
+        "eval_steps": [
+          1,
+          8,
+          16
+        ],
+        "eval_total_losses": [
+          9.79106009015048,
+          9.530598709196086,
+          9.270526674519862
+        ],
+        "factor_loss_ratio": 0.9471675369253033,
+        "factor_loss_ratio_within_limit": true,
+        "final_eval_factor_loss": 19.778227555124385,
+        "final_eval_metrics": {
+          "delta_event_factor/delta_class_count": 9612.0,
+          "delta_event_factor/delta_label_count": 2400.0,
+          "delta_event_factor/end_gap_class_count": 9612.0,
+          "delta_event_factor/end_gap_label_count": 48.0,
+          "delta_event_factor/kind_class_count": 24.0,
+          "delta_event_factor/kind_label_count": 2448.0,
+          "delta_event_factor/signature_class_count": 3060.0,
+          "delta_event_factor/signature_label_count": 2400.0,
+          "ln_close/open_lane_count": 0.0,
+          "ln_close/positive_count": 0.0,
+          "loss/adapter_reg": 0.0,
+          "loss/conditioned_event_distribution": 0.0,
+          "loss/continuation_jump": 0.0,
+          "loss/delta_event_factor_delta": 6.844674596806063,
+          "loss/delta_event_factor_end_gap": 6.759423799049747,
+          "loss/delta_event_factor_kind": 0.521193891015925,
+          "loss/delta_event_factor_signature": 5.635661264539649,
+          "loss/delta_event_factor_target": 19.778227555124385,
+          "loss/density": 0.0,
+          "loss/event_budget": 0.0,
+          "loss/ln_close": 0.0,
+          "loss/time_shift_distance": 0.0,
+          "loss/token": 4.325969785738766,
+          "loss/total": 9.270526674519862,
+          "phase/delta_event_end_gap_loss_weight": 1.0,
+          "phase/delta_event_factor_end_gap_loss_weight": 1.0,
+          "phase/event_token_loss_weight": 1.0,
+          "phase/lambda_conditioned_event_distribution": 0.0,
+          "phase/lambda_continuation_jump": 0.0,
+          "phase/lambda_delta_event_auxiliary": 0.0,
+          "phase/lambda_delta_event_factor_target": 0.25,
+          "phase/lambda_density": 0.0,
+          "phase/lambda_event_budget": 0.0,
+          "phase/lambda_ln_close": 0.0,
+          "phase/lambda_time_shift_distance": 0.0,
+          "token/valid_count": 6337.0
+        },
+        "final_train_metrics": {
+          "delta_event_factor/delta_class_count": 3204.0,
+          "delta_event_factor/delta_label_count": 772.0,
+          "delta_event_factor/end_gap_class_count": 3204.0,
+          "delta_event_factor/end_gap_label_count": 16.0,
+          "delta_event_factor/kind_class_count": 8.0,
+          "delta_event_factor/kind_label_count": 788.0,
+          "delta_event_factor/signature_class_count": 1020.0,
+          "delta_event_factor/signature_label_count": 772.0,
+          "ln_close/open_lane_count": 0.0,
+          "ln_close/positive_count": 0.0,
+          "loss/adapter_reg": 0.0,
+          "loss/conditioned_event_distribution": 0.0,
+          "loss/continuation_jump": 0.0,
+          "loss/delta_event_factor_delta": 6.678269043852463,
+          "loss/delta_event_factor_end_gap": 6.8422297959622265,
+          "loss/delta_event_factor_kind": 0.528723588091066,
+          "loss/delta_event_factor_signature": 5.630280485254457,
+          "loss/delta_event_factor_target": 19.667078697295572,
+          "loss/density": 0.0,
+          "loss/event_budget": 0.0,
+          "loss/ln_close": 0.0,
+          "loss/time_shift_distance": 0.0,
+          "loss/token": 4.3153867390165,
+          "loss/total": 9.232156413340393,
+          "phase/delta_event_end_gap_loss_weight": 1.0,
+          "phase/delta_event_factor_end_gap_loss_weight": 1.0,
+          "phase/event_token_loss_weight": 1.0,
+          "phase/lambda_conditioned_event_distribution": 0.0,
+          "phase/lambda_continuation_jump": 0.0,
+          "phase/lambda_delta_event_auxiliary": 0.0,
+          "phase/lambda_delta_event_factor_target": 0.25,
+          "phase/lambda_density": 0.0,
+          "phase/lambda_event_budget": 0.0,
+          "phase/lambda_ln_close": 0.0,
+          "phase/lambda_time_shift_distance": 0.0,
+          "token/valid_count": 2072.0
+        },
+        "first_eval_factor_loss": 20.88144576758669,
+        "first_eval_metrics": {
+          "delta_event_factor/delta_class_count": 9612.0,
+          "delta_event_factor/delta_label_count": 2400.0,
+          "delta_event_factor/end_gap_class_count": 9612.0,
+          "delta_event_factor/end_gap_label_count": 48.0,
+          "delta_event_factor/kind_class_count": 24.0,
+          "delta_event_factor/kind_label_count": 2448.0,
+          "delta_event_factor/signature_class_count": 3060.0,
+          "delta_event_factor/signature_label_count": 2400.0,
+          "ln_close/open_lane_count": 0.0,
+          "ln_close/positive_count": 0.0,
+          "loss/adapter_reg": 0.0,
+          "loss/conditioned_event_distribution": 0.0,
+          "loss/continuation_jump": 0.0,
+          "loss/delta_event_factor_delta": 7.202855212127483,
+          "loss/delta_event_factor_end_gap": 6.749342102573293,
+          "loss/delta_event_factor_kind": 1.1680261265955005,
+          "loss/delta_event_factor_signature": 5.745975140650904,
+          "loss/delta_event_factor_target": 20.88144576758669,
+          "loss/density": 0.0,
+          "loss/event_budget": 0.0,
+          "loss/ln_close": 0.0,
+          "loss/time_shift_distance": 0.0,
+          "loss/token": 4.570698648253807,
+          "loss/total": 9.79106009015048,
+          "phase/delta_event_end_gap_loss_weight": 1.0,
+          "phase/delta_event_factor_end_gap_loss_weight": 1.0,
+          "phase/event_token_loss_weight": 1.0,
+          "phase/lambda_conditioned_event_distribution": 0.0,
+          "phase/lambda_continuation_jump": 0.0,
+          "phase/lambda_delta_event_auxiliary": 0.0,
+          "phase/lambda_delta_event_factor_target": 0.25,
+          "phase/lambda_density": 0.0,
+          "phase/lambda_event_budget": 0.0,
+          "phase/lambda_ln_close": 0.0,
+          "phase/lambda_time_shift_distance": 0.0,
+          "token/valid_count": 6337.0
+        },
+        "is_complete": true,
+        "loss_lambda_delta_event_factor_target": 0.25,
+        "max_factor_loss_ratio": 1.15,
+        "max_steps": 16,
+        "model_use_delta_event_factor_target": true,
+        "report_exists": true,
+        "report_path": "artifacts/runs/stage2_mapper_v3/delta_event_factor_target_longer_training/report.json"
+      }
+    }
+  },
+  "control_teacher_cache_dir": "artifacts/cache/stage2_mapper_v2_1/control_teacher_d384_l3_stride16_step002000",
+  "dataset": {
+    "candidate_windows_match_full4k_bit_proxy": true,
+    "control_teacher_cache_dir": "artifacts/cache/stage2_mapper_v2_1/control_teacher_d384_l3_stride16_step002000",
+    "control_teacher_cache_dir_exists": true,
+    "control_teacher_cache_file_count": 180696,
+    "eval_window_count": 180,
+    "expected_full4k_audited_window_count": 174515,
+    "expected_full4k_candidate_window_count": 180696,
+    "filter_drop_rate": 0.03420662327887723,
+    "filter_num_dropped_unsupported_action_windows": 6181,
+    "filter_num_mapper_eligible_windows": 174515,
+    "filter_num_total_windows": 180696,
+    "final_train_eval_window_count": 16,
+    "include_delta_event_factor_target": true,
+    "include_full_song_context": false,
+    "mapper_record_cache_existed_before_run": true,
+    "mapper_record_cache_exists": true,
+    "mapper_record_cache_metadata_exists": true,
+    "mapper_record_cache_path": "artifacts/cache/stage2_mapper_v3/window_records/delta_event_factor_target_full4k_training.parquet",
+    "mapper_token_contract": "v3_event_groups",
+    "require_control_teacher_cache": true,
+    "source_matches_full4k_bit_proxy": true,
+    "source_window_count": 174515,
+    "train_window_count": 174335
+  },
+  "decision": {
+    "next_step": "Create a bounded longer-full4k or production-config factor-target card before rollout claims.",
+    "reason": "factor-target enabled v3 training stayed finite on the full4k fixed-cache path",
+    "route": "TEST_DELTA_EVENT_FACTOR_TARGET_FULL4K_LONGER_OR_PRODUCTION_CONFIG_CARD"
+  },
+  "elapsed_s": 73.27292133297306,
+  "experiment": "Target grammar v3 delta-event factor target full4k fixed-cache training",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_factor_target_full4k_training_experiment_card.md",
+  "index_path": "artifacts/indexes/stage2_control_windows_4k_2to6_dense_local_bpm_norm_unique_le3.parquet",
+  "loss_total_check": {
+    "absolute_delta": 0.0,
+    "matches": true,
+    "recomputed": 9.379645035692214,
+    "reported": 9.379645035692214
+  },
+  "mapper_record_cache_path": "artifacts/cache/stage2_mapper_v3/window_records/delta_event_factor_target_full4k_training.parquet",
+  "next_step": "Create a bounded longer-full4k or production-config factor-target card before rollout claims.",
+  "schema_version": 1,
+  "stability": {
+    "all_eval_losses_finite": true,
+    "checkpoint_exists": true,
+    "checkpoint_path": "artifacts/runs/stage2_mapper_v3/delta_event_factor_target_full4k_training/checkpoint.pt",
+    "completed_steps": 8,
+    "dataset_include_delta_event_factor_target": true,
+    "eval_factor_losses": [
+      20.26198637482719,
+      20.02378510422346,
+      19.75098477721688
+    ],
+    "eval_point_count": 3,
+    "eval_steps": [
+      1,
+      4,
+      8
+    ],
+    "eval_total_losses": [
+      9.603167312869363,
+      9.50028764290559,
+      9.379645035692214
+    ],
+    "factor_loss_ratio": 0.974780281253907,
+    "factor_loss_ratio_within_limit": true,
+    "final_eval_factor_loss": 19.75098477721688,
+    "final_eval_metrics": {
+      "delta_event_factor/delta_class_count": 36045.0,
+      "delta_event_factor/delta_label_count": 12719.0,
+      "delta_event_factor/end_gap_class_count": 36045.0,
+      "delta_event_factor/end_gap_label_count": 180.0,
+      "delta_event_factor/kind_class_count": 90.0,
+      "delta_event_factor/kind_label_count": 12899.0,
+      "delta_event_factor/signature_class_count": 11475.0,
+      "delta_event_factor/signature_label_count": 12719.0,
+      "ln_close/open_lane_count": 0.0,
+      "ln_close/positive_count": 0.0,
+      "loss/adapter_reg": 0.0,
+      "loss/conditioned_event_distribution": 0.0,
+      "loss/continuation_jump": 0.0,
+      "loss/delta_event_factor_delta": 6.838171038267498,
+      "loss/delta_event_factor_end_gap": 6.6067114737146495,
+      "loss/delta_event_factor_kind": 0.6378993273202693,
+      "loss/delta_event_factor_signature": 5.678748361829485,
+      "loss/delta_event_factor_target": 19.75098477721688,
+      "loss/density": 0.0,
+      "loss/event_budget": 0.0,
+      "loss/ln_close": 0.0,
+      "loss/time_shift_distance": 0.0,
+      "loss/token": 4.441898841387994,
+      "loss/total": 9.379645035692214,
+      "phase/delta_event_end_gap_loss_weight": 1.0,
+      "phase/delta_event_factor_end_gap_loss_weight": 1.0,
+      "phase/event_token_loss_weight": 1.0,
+      "phase/lambda_conditioned_event_distribution": 0.0,
+      "phase/lambda_continuation_jump": 0.0,
+      "phase/lambda_delta_event_auxiliary": 0.0,
+      "phase/lambda_delta_event_factor_target": 0.25,
+      "phase/lambda_density": 0.0,
+      "phase/lambda_event_budget": 0.0,
+      "phase/lambda_ln_close": 0.0,
+      "phase/lambda_time_shift_distance": 0.0,
+      "token/valid_count": 29143.0
+    },
+    "final_train_metrics": {
+      "delta_event_factor/delta_class_count": 3204.0,
+      "delta_event_factor/delta_label_count": 844.0,
+      "delta_event_factor/end_gap_class_count": 3204.0,
+      "delta_event_factor/end_gap_label_count": 16.0,
+      "delta_event_factor/kind_class_count": 8.0,
+      "delta_event_factor/kind_label_count": 860.0,
+      "delta_event_factor/signature_class_count": 1020.0,
+      "delta_event_factor/signature_label_count": 844.0,
+      "ln_close/open_lane_count": 0.0,
+      "ln_close/positive_count": 0.0,
+      "loss/adapter_reg": 0.0,
+      "loss/conditioned_event_distribution": 0.0,
+      "loss/continuation_jump": 0.0,
+      "loss/delta_event_factor_delta": 6.713234690913128,
+      "loss/delta_event_factor_end_gap": 6.746635024169425,
+      "loss/delta_event_factor_kind": 0.6850906769937376,
+      "loss/delta_event_factor_signature": 5.719689421776566,
+      "loss/delta_event_factor_target": 19.875836019768915,
+      "loss/density": 0.0,
+      "loss/event_budget": 0.0,
+      "loss/ln_close": 0.0,
+      "loss/time_shift_distance": 0.0,
+      "loss/token": 4.480091231148328,
+      "loss/total": 9.449050236090557,
+      "phase/delta_event_end_gap_loss_weight": 1.0,
+      "phase/delta_event_factor_end_gap_loss_weight": 1.0,
+      "phase/event_token_loss_weight": 1.0,
+      "phase/lambda_conditioned_event_distribution": 0.0,
+      "phase/lambda_continuation_jump": 0.0,
+      "phase/lambda_delta_event_auxiliary": 0.0,
+      "phase/lambda_delta_event_factor_target": 0.25,
+      "phase/lambda_density": 0.0,
+      "phase/lambda_event_budget": 0.0,
+      "phase/lambda_ln_close": 0.0,
+      "phase/lambda_time_shift_distance": 0.0,
+      "token/valid_count": 2213.0
+    },
+    "first_eval_factor_loss": 20.26198637482719,
+    "first_eval_metrics": {
+      "delta_event_factor/delta_class_count": 36045.0,
+      "delta_event_factor/delta_label_count": 12719.0,
+      "delta_event_factor/end_gap_class_count": 36045.0,
+      "delta_event_factor/end_gap_label_count": 180.0,
+      "delta_event_factor/kind_class_count": 90.0,
+      "delta_event_factor/kind_label_count": 12899.0,
+      "delta_event_factor/signature_class_count": 11475.0,
+      "delta_event_factor/signature_label_count": 12719.0,
+      "ln_close/open_lane_count": 0.0,
+      "ln_close/positive_count": 0.0,
+      "loss/adapter_reg": 0.0,
+      "loss/conditioned_event_distribution": 0.0,
+      "loss/continuation_jump": 0.0,
+      "loss/delta_event_factor_delta": 6.88428396999159,
+      "loss/delta_event_factor_end_gap": 6.697497547497056,
+      "loss/delta_event_factor_kind": 0.9363787610107978,
+      "loss/delta_event_factor_signature": 5.752908546579435,
+      "loss/delta_event_factor_target": 20.26198637482719,
+      "loss/density": 0.0,
+      "loss/event_budget": 0.0,
+      "loss/ln_close": 0.0,
+      "loss/time_shift_distance": 0.0,
+      "loss/token": 4.537670719162567,
+      "loss/total": 9.603167312869363,
+      "phase/delta_event_end_gap_loss_weight": 1.0,
+      "phase/delta_event_factor_end_gap_loss_weight": 1.0,
+      "phase/event_token_loss_weight": 1.0,
+      "phase/lambda_conditioned_event_distribution": 0.0,
+      "phase/lambda_continuation_jump": 0.0,
+      "phase/lambda_delta_event_auxiliary": 0.0,
+      "phase/lambda_delta_event_factor_target": 0.25,
+      "phase/lambda_density": 0.0,
+      "phase/lambda_event_budget": 0.0,
+      "phase/lambda_ln_close": 0.0,
+      "phase/lambda_time_shift_distance": 0.0,
+      "token/valid_count": 29143.0
+    },
+    "is_complete": true,
+    "loss_lambda_delta_event_factor_target": 0.25,
+    "max_factor_loss_ratio": 1.2,
+    "max_steps": 8,
+    "model_use_delta_event_factor_target": true,
+    "report_exists": true,
+    "report_path": "artifacts/runs/stage2_mapper_v3/delta_event_factor_target_full4k_training/report.json"
+  },
+  "training_output_dir": "artifacts/runs/stage2_mapper_v3/delta_event_factor_target_full4k_training"
+}
