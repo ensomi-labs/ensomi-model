@@ -1,0 +1,202 @@
+{
+  "checks": {
+    "audited_windows_positive": true,
+    "data_contract_route_positive": true,
+    "default_off_batch_lacks_factor_target": true,
+    "default_off_loss_metric_zero": true,
+    "default_off_outputs_absent": true,
+    "delta_head_gradient_nonzero": true,
+    "enabled_delta_labels_match_events": true,
+    "enabled_end_gap_labels_match_windows": true,
+    "enabled_factor_loss_positive": true,
+    "enabled_kind_labels_match_rows": true,
+    "enabled_loss_finite": true,
+    "enabled_outputs_align_rows": true,
+    "enabled_signature_labels_match_events": true,
+    "end_gap_head_gradient_nonzero": true,
+    "end_rows_match_data_contract": true,
+    "event_rows_match_data_contract": true,
+    "kind_head_gradient_nonzero": true,
+    "no_inference_rollout_or_c3_change": true,
+    "reconstruction_mismatches_zero": true,
+    "row_count_matches_data_contract": true,
+    "row_count_positive": true,
+    "row_mask_count_matches_rows": true,
+    "signature_head_gradient_nonzero": true,
+    "tiny_model_route_positive": true
+  },
+  "config": {
+    "batch_size": 4,
+    "d_model": 32,
+    "include_delta_event_factor_target_default": false,
+    "lambda_delta_event_factor_target_default": 0.0,
+    "max_cached_timepoint_maps": 16,
+    "no_inference_or_rollout_change": true,
+    "use_delta_event_factor_target_default": false,
+    "uses_c3_backreference": false,
+    "uses_future_lookup": false,
+    "window_limit": 32
+  },
+  "context": {
+    "data_contract": {
+      "end_row_count": 32,
+      "event_row_count": 1447,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_factor_target_data_contract_summary.json",
+      "route": "TEST_DELTA_EVENT_FACTOR_TARGET_MODEL_LOSS_PLUMBING_CARD",
+      "row_count": 1479
+    },
+    "tiny_model": {
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_factor_target_tiny_model_summary.json",
+      "route": "TEST_DELTA_EVENT_FACTOR_TARGET_PRODUCTION_PLUMBING_CARD"
+    }
+  },
+  "control_teacher_cache_dir": "artifacts/cache/stage2_mapper_v2_1/control_teacher_d384_l3_stride16_step002000",
+  "dataset": {
+    "filter_report": {
+      "cross_window_ln_drop_rate": 0.0,
+      "drop_rate": 0.0,
+      "drop_rate_by_difficulty": {
+        "2.00": 0.0,
+        "2.02": 0.0,
+        "2.09": 0.0,
+        "2.25": 0.0,
+        "2.30": 0.0,
+        "2.31": 0.0,
+        "2.45": 0.0,
+        "2.60": 0.0,
+        "2.66": 0.0,
+        "2.79": 0.0,
+        "2.81": 0.0,
+        "3.06": 0.0,
+        "3.09": 0.0,
+        "3.15": 0.0,
+        "3.19": 0.0,
+        "3.29": 0.0,
+        "3.44": 0.0,
+        "3.47": 0.0,
+        "3.55": 0.0,
+        "3.79": 0.0,
+        "3.84": 0.0,
+        "4.19": 0.0,
+        "4.26": 0.0,
+        "4.28": 0.0,
+        "4.43": 0.0,
+        "4.49": 0.0,
+        "4.61": 0.0,
+        "4.65": 0.0,
+        "4.69": 0.0,
+        "4.75": 0.0,
+        "5.12": 0.0
+      },
+      "drop_rate_by_song": {
+        "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu": 0.0,
+        "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Asha's HD].osu": 0.0,
+        "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Shini's NM].osu": 0.0,
+        "dataset/0/1001794/Phantom Sage - Holystone (UnluckyCroco) [At the Point of No Return].osu": 0.0,
+        "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Asha's Hard].osu": 0.0,
+        "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Muwuscle].osu": 0.0,
+        "dataset/0/1003217/nekodex - circles! (FAMoss) [hard!].osu": 0.0,
+        "dataset/0/1003217/nekodex - circles! (FAMoss) [insane!].osu": 0.0,
+        "dataset/0/1003217/nekodex - circles! (FAMoss) [normal!].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Insane].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Normal].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Hard].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Insane].osu": 0.0,
+        "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K HD].osu": 0.0,
+        "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K MX].osu": 0.0,
+        "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Hard].osu": 0.0,
+        "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Normal].osu": 0.0,
+        "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Poke's Insane].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [CS' Lone Sonorous].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [DnM's Normal].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Expert].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Hard].osu": 0.0,
+        "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [FAMoss' hard].osu": 0.0,
+        "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [Insane].osu": 0.0,
+        "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu": 0.0,
+        "dataset/0/1010184/Graham Kartna - chiltonWALK.temp (Nivrad00) [NSV].osu": 0.0,
+        "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Grimoire of Despair].osu": 0.0,
+        "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Hard].osu": 0.0,
+        "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Normal].osu": 0.0,
+        "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Equatorial].osu": 0.0,
+        "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Synergic Ascent].osu": 0.0,
+        "dataset/0/1011424/Moso Calibration - Sakurairo Diary (TV Size) (Drum-Hitnormal) [Hard].osu": 0.0
+      },
+      "num_dropped_cross_window_ln_windows": 0,
+      "num_dropped_short_windows": 0,
+      "num_dropped_unsupported_action_windows": 0,
+      "num_mapper_eligible_windows": 256,
+      "num_total_windows": 256,
+      "short_drop_rate": 0.0,
+      "unsupported_action_drop_rate": 0.0
+    },
+    "source_window_count": 256
+  },
+  "decision": {
+    "next_step": "Create a bounded short training-smoke card with factor-target loss enabled.",
+    "reason": "default-off behavior held and enabled factor target model/loss produced finite real-batch gradients",
+    "route": "TEST_DELTA_EVENT_FACTOR_TARGET_TRAINING_SMOKE_CARD"
+  },
+  "default_off": {
+    "batch_has_factor_target": false,
+    "factor_outputs_absent": true,
+    "lambda_metric": 0.0,
+    "loss_finite": true
+  },
+  "elapsed_s": 8.782096916984301,
+  "enabled": {
+    "batch_size": 4,
+    "delta_label_count": 316,
+    "end_gap_label_count": 4,
+    "event_row_count": 316,
+    "factor_loss": 19.298215866088867,
+    "gradient_abs": {
+      "delta_head": 39.49965286254883,
+      "end_gap_head": 45.751346588134766,
+      "kind_head": 17.8227481842041,
+      "signature_head": 36.90876770019531
+    },
+    "kind_label_count": 320,
+    "loss_finite": true,
+    "output_shapes": {
+      "delta": [
+        4,
+        97,
+        801
+      ],
+      "end_gap": [
+        4,
+        97,
+        801
+      ],
+      "kind": [
+        4,
+        97,
+        2
+      ],
+      "signature": [
+        4,
+        97,
+        255
+      ]
+    },
+    "outputs_align_rows": true,
+    "row_count": 320,
+    "signature_label_count": 316,
+    "total_loss": 23.99661636352539
+  },
+  "experiment": "Target grammar v3 delta-event factor target model/loss plumbing",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_factor_target_model_loss_plumbing_experiment_card.md",
+  "index_path": "artifacts/tmp/mapper_v3_real_config_cache_backed_comparison/fixed_32song_256_eligible_index.parquet",
+  "next_step": "Create a bounded short training-smoke card with factor-target loss enabled.",
+  "row_metrics": {
+    "audited_window_count": 32,
+    "end_row_count": 32,
+    "event_row_count": 1447,
+    "max_row_len": 97,
+    "reconstruction_mismatch_count": 0,
+    "row_count": 1479,
+    "row_mask_valid_count": 1479
+  },
+  "schema_version": 1
+}

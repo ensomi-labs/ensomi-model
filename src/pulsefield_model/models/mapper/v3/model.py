@@ -48,6 +48,9 @@ class MapperV3Config(MapperV2Config):
     use_delta_event_auxiliary_target: bool = False
     delta_event_delta_max_ms: int = 8000
     delta_event_end_gap_max_ms: int = 8000
+    use_delta_event_factor_target: bool = False
+    delta_event_factor_delta_max_ms: int = 8000
+    delta_event_factor_end_gap_max_ms: int = 8000
 
 
 @dataclass(frozen=True)
@@ -55,6 +58,10 @@ class MapperV3ForwardOutput(MapperV2ForwardOutput):
     delta_event_delta_logits: torch.Tensor | None = None
     delta_event_signature_logits: torch.Tensor | None = None
     delta_event_end_gap_logits: torch.Tensor | None = None
+    delta_event_factor_kind_logits: torch.Tensor | None = None
+    delta_event_factor_delta_logits: torch.Tensor | None = None
+    delta_event_factor_signature_logits: torch.Tensor | None = None
+    delta_event_factor_end_gap_logits: torch.Tensor | None = None
 
 
 MapperV3ModelOutput = MapperV3ForwardOutput
@@ -97,6 +104,17 @@ class MapperV3Model(MapperV2Model):
         self.delta_event_delta_head: nn.Linear | None = None
         self.delta_event_signature_head: nn.Linear | None = None
         self.delta_event_end_gap_head: nn.Linear | None = None
+        self.delta_event_factor_kind_embedding: nn.Embedding | None = None
+        self.delta_event_factor_delta_embedding: nn.Embedding | None = None
+        self.delta_event_factor_signature_embedding: nn.Embedding | None = None
+        self.delta_event_factor_end_gap_embedding: nn.Embedding | None = None
+        self.delta_event_factor_position_embedding: nn.Embedding | None = None
+        self.delta_event_factor_decoder: nn.TransformerEncoder | None = None
+        self.delta_event_factor_norm: nn.LayerNorm | None = None
+        self.delta_event_factor_kind_head: nn.Linear | None = None
+        self.delta_event_factor_delta_head: nn.Linear | None = None
+        self.delta_event_factor_signature_head: nn.Linear | None = None
+        self.delta_event_factor_end_gap_head: nn.Linear | None = None
         if config.use_delta_event_auxiliary_target:
             delta_classes = _delta_event_class_count(
                 config.delta_event_delta_max_ms,
@@ -109,6 +127,34 @@ class MapperV3Model(MapperV2Model):
             self.delta_event_delta_head = nn.Linear(config.d_model, delta_classes)
             self.delta_event_signature_head = nn.Linear(config.d_model, len(self.vocab.event_token_ids))
             self.delta_event_end_gap_head = nn.Linear(config.d_model, end_gap_classes)
+        if config.use_delta_event_factor_target:
+            delta_factor_classes = _delta_event_class_count(
+                config.delta_event_factor_delta_max_ms,
+                name="delta_event_factor_delta_max_ms",
+            )
+            end_gap_factor_classes = _delta_event_class_count(
+                config.delta_event_factor_end_gap_max_ms,
+                name="delta_event_factor_end_gap_max_ms",
+            )
+            self.delta_event_factor_kind_embedding = nn.Embedding(3, config.d_model)
+            self.delta_event_factor_delta_embedding = nn.Embedding(delta_factor_classes, config.d_model)
+            self.delta_event_factor_signature_embedding = nn.Embedding(len(self.vocab.event_token_ids), config.d_model)
+            self.delta_event_factor_end_gap_embedding = nn.Embedding(end_gap_factor_classes, config.d_model)
+            self.delta_event_factor_position_embedding = nn.Embedding(config.max_seq_len, config.d_model)
+            factor_layer = nn.TransformerEncoderLayer(
+                d_model=config.d_model,
+                nhead=config.heads,
+                dim_feedforward=config.ffn_dim,
+                dropout=config.dropout,
+                batch_first=True,
+                activation="gelu",
+            )
+            self.delta_event_factor_decoder = nn.TransformerEncoder(factor_layer, num_layers=1)
+            self.delta_event_factor_norm = nn.LayerNorm(config.d_model)
+            self.delta_event_factor_kind_head = nn.Linear(config.d_model, 2)
+            self.delta_event_factor_delta_head = nn.Linear(config.d_model, delta_factor_classes)
+            self.delta_event_factor_signature_head = nn.Linear(config.d_model, len(self.vocab.event_token_ids))
+            self.delta_event_factor_end_gap_head = nn.Linear(config.d_model, end_gap_factor_classes)
 
     def forward(
         self,
@@ -291,6 +337,12 @@ class MapperV3Model(MapperV2Model):
         delta_event_delta_logits, delta_event_signature_logits, delta_event_end_gap_logits = (
             self._delta_event_auxiliary_logits(decoder_hidden)
         )
+        (
+            delta_event_factor_kind_logits,
+            delta_event_factor_delta_logits,
+            delta_event_factor_signature_logits,
+            delta_event_factor_end_gap_logits,
+        ) = self._delta_event_factor_target_logits(batch, control_memory)
         return MapperV3ForwardOutput(
             decoder_input_tokens=decoder_input,
             loss_target_tokens=loss_target_tokens,
@@ -316,6 +368,10 @@ class MapperV3Model(MapperV2Model):
             delta_event_delta_logits=delta_event_delta_logits,
             delta_event_signature_logits=delta_event_signature_logits,
             delta_event_end_gap_logits=delta_event_end_gap_logits,
+            delta_event_factor_kind_logits=delta_event_factor_kind_logits,
+            delta_event_factor_delta_logits=delta_event_factor_delta_logits,
+            delta_event_factor_signature_logits=delta_event_factor_signature_logits,
+            delta_event_factor_end_gap_logits=delta_event_factor_end_gap_logits,
         )
 
     def _delta_event_auxiliary_logits(
@@ -334,6 +390,86 @@ class MapperV3Model(MapperV2Model):
             self.delta_event_delta_head(decoder_hidden),
             self.delta_event_signature_head(decoder_hidden),
             self.delta_event_end_gap_head(decoder_hidden),
+        )
+
+    def _delta_event_factor_target_logits(
+        self,
+        batch: Mapping[str, Any],
+        control_memory: torch.Tensor,
+    ) -> tuple[torch.Tensor | None, torch.Tensor | None, torch.Tensor | None, torch.Tensor | None]:
+        if not self.config.use_delta_event_factor_target:
+            return None, None, None, None
+        if self.delta_event_factor_kind_embedding is None:
+            raise RuntimeError("delta-event factor kind embedding is not initialized")
+        if self.delta_event_factor_delta_embedding is None:
+            raise RuntimeError("delta-event factor delta embedding is not initialized")
+        if self.delta_event_factor_signature_embedding is None:
+            raise RuntimeError("delta-event factor signature embedding is not initialized")
+        if self.delta_event_factor_end_gap_embedding is None:
+            raise RuntimeError("delta-event factor end-gap embedding is not initialized")
+        if self.delta_event_factor_position_embedding is None:
+            raise RuntimeError("delta-event factor position embedding is not initialized")
+        if self.delta_event_factor_decoder is None:
+            raise RuntimeError("delta-event factor decoder is not initialized")
+        if self.delta_event_factor_norm is None:
+            raise RuntimeError("delta-event factor norm is not initialized")
+        if self.delta_event_factor_kind_head is None:
+            raise RuntimeError("delta-event factor kind head is not initialized")
+        if self.delta_event_factor_delta_head is None:
+            raise RuntimeError("delta-event factor delta head is not initialized")
+        if self.delta_event_factor_signature_head is None:
+            raise RuntimeError("delta-event factor signature head is not initialized")
+        if self.delta_event_factor_end_gap_head is None:
+            raise RuntimeError("delta-event factor end-gap head is not initialized")
+        factor = batch.get("delta_event_factor_target")
+        if not isinstance(factor, Mapping):
+            raise ValueError("delta_event_factor_target batch field is required when use_delta_event_factor_target=True")
+        device = control_memory.device
+        input_kind = _factor_target_tensor(factor, "input_kind", ndim=2, device=device)
+        input_delta = _factor_target_tensor(factor, "input_delta", ndim=2, device=device)
+        input_signature = _factor_target_tensor(factor, "input_signature", ndim=2, device=device)
+        input_end_gap = _factor_target_tensor(factor, "input_end_gap", ndim=2, device=device)
+        row_mask = _factor_target_tensor(factor, "row_mask", ndim=2, device=device).to(dtype=torch.bool)
+        batch_size, row_count = input_kind.shape
+        expected_shape = (batch_size, row_count)
+        if tuple(input_delta.shape) != expected_shape:
+            raise ValueError("delta-event factor input_delta must align with input_kind")
+        if tuple(input_signature.shape) != expected_shape:
+            raise ValueError("delta-event factor input_signature must align with input_kind")
+        if tuple(input_end_gap.shape) != expected_shape:
+            raise ValueError("delta-event factor input_end_gap must align with input_kind")
+        if tuple(row_mask.shape) != expected_shape:
+            raise ValueError("delta-event factor row_mask must align with input_kind")
+        if int(control_memory.shape[0]) != batch_size:
+            raise ValueError("delta-event factor batch size must align with control memory")
+        if row_count > int(self.config.max_seq_len):
+            raise ValueError(
+                f"delta-event factor row count {row_count} exceeds max_seq_len={self.config.max_seq_len}"
+            )
+        positions = torch.arange(row_count, dtype=torch.long, device=device).reshape(1, -1)
+        hidden = (
+            self.delta_event_factor_kind_embedding(input_kind.to(dtype=torch.long))
+            + self.delta_event_factor_delta_embedding(input_delta.to(dtype=torch.long))
+            + self.delta_event_factor_signature_embedding(input_signature.to(dtype=torch.long))
+            + self.delta_event_factor_end_gap_embedding(input_end_gap.to(dtype=torch.long))
+            + self.delta_event_factor_position_embedding(positions.expand(batch_size, -1))
+            + control_memory.mean(dim=1).unsqueeze(1)
+        )
+        causal_mask = torch.triu(
+            torch.ones((row_count, row_count), dtype=torch.bool, device=device),
+            diagonal=1,
+        )
+        hidden = self.delta_event_factor_decoder(
+            hidden,
+            mask=causal_mask,
+            src_key_padding_mask=~row_mask,
+        )
+        hidden = self.delta_event_factor_norm(hidden)
+        return (
+            self.delta_event_factor_kind_head(hidden),
+            self.delta_event_factor_delta_head(hidden),
+            self.delta_event_factor_signature_head(hidden),
+            self.delta_event_factor_end_gap_head(hidden),
         )
 
     def _difficulty(self, batch: Mapping[str, Any], *, device: torch.device) -> torch.Tensor:
@@ -633,6 +769,23 @@ def _delta_event_class_count(max_ms: int, *, name: str) -> int:
     if value <= 0 or value % 10 != 0:
         raise ValueError(f"{name} must be a positive 10ms-grid value")
     return value // 10 + 1
+
+
+def _factor_target_tensor(
+    factor: Mapping[str, Any],
+    key: str,
+    *,
+    ndim: int,
+    device: torch.device,
+) -> torch.Tensor:
+    value = factor.get(key)
+    if not isinstance(value, torch.Tensor):
+        raise ValueError(f"delta_event_factor_target[{key!r}] must be a torch.Tensor")
+    if value.ndim != int(ndim):
+        raise ValueError(
+            f"delta_event_factor_target[{key!r}] must be rank {ndim}, got shape {tuple(value.shape)}"
+        )
+    return value.to(device=device)
 
 
 __all__ = [

@@ -14,6 +14,7 @@ from pulsefield_model.models.mapper.shared.loss import (
     MapperTupleModelLoss,
 )
 
+from .factor_target import IGNORE_INDEX
 from .vocab import MapperV3Vocab
 
 
@@ -21,11 +22,14 @@ from .vocab import MapperV3Vocab
 class MapperV3LossConfig(MapperTupleLossConfig):
     lambda_delta_event_auxiliary: float = 0.0
     delta_event_end_gap_loss_weight: float = 1.0
+    lambda_delta_event_factor_target: float = 0.0
+    delta_event_factor_end_gap_loss_weight: float = 1.0
 
 
 @dataclass(frozen=True)
 class MapperV3LossOutput(MapperTupleLossOutput):
     delta_event_auxiliary_loss: torch.Tensor | None = None
+    delta_event_factor_target_loss: torch.Tensor | None = None
 
 
 class MapperV3ModelLoss(MapperTupleModelLoss):
@@ -53,6 +57,7 @@ class MapperV3ModelLoss(MapperTupleModelLoss):
     def forward(self, output: Any, batch: Mapping[str, torch.Tensor]) -> MapperV3LossOutput:
         loss = super().forward(output, batch)
         delta_event_auxiliary_loss_value = loss.total_loss.new_zeros(())
+        delta_event_factor_target_loss_value = loss.total_loss.new_zeros(())
         total_loss = loss.total_loss
         metrics = dict(loss.metrics)
         metric_numerators = dict(loss.metric_numerators)
@@ -76,6 +81,33 @@ class MapperV3ModelLoss(MapperTupleModelLoss):
         else:
             metrics["phase/lambda_delta_event_auxiliary"] = float(self.config.lambda_delta_event_auxiliary)
             metrics["phase/delta_event_end_gap_loss_weight"] = float(self.config.delta_event_end_gap_loss_weight)
+        if float(self.config.lambda_delta_event_factor_target) > 0.0:
+            delta_event_factor_target_loss_value, factor_metrics, factor_weight = delta_event_factor_target_loss(
+                output,
+                batch,
+                vocab=self.vocab,
+                end_gap_weight=float(self.config.delta_event_factor_end_gap_loss_weight),
+            )
+            total_loss = total_loss + (
+                float(self.config.lambda_delta_event_factor_target) * delta_event_factor_target_loss_value
+            )
+            metrics.update(factor_metrics)
+            metrics["phase/lambda_delta_event_factor_target"] = float(self.config.lambda_delta_event_factor_target)
+            metrics["phase/delta_event_factor_end_gap_loss_weight"] = float(
+                self.config.delta_event_factor_end_gap_loss_weight
+            )
+            metrics["loss/total"] = float(total_loss.detach().cpu())
+            metric_numerators["loss/delta_event_factor_target"] = float(
+                (delta_event_factor_target_loss_value.detach() * factor_weight.clamp_min(1)).cpu()
+            )
+            metric_denominators["loss/delta_event_factor_target"] = float(factor_weight.detach().cpu())
+        else:
+            metrics["phase/lambda_delta_event_factor_target"] = float(
+                self.config.lambda_delta_event_factor_target
+            )
+            metrics["phase/delta_event_factor_end_gap_loss_weight"] = float(
+                self.config.delta_event_factor_end_gap_loss_weight
+            )
         return MapperV3LossOutput(
             total_loss=total_loss,
             token_loss=loss.token_loss,
@@ -90,6 +122,7 @@ class MapperV3ModelLoss(MapperTupleModelLoss):
             metric_numerators=metric_numerators,
             metric_denominators=metric_denominators,
             delta_event_auxiliary_loss=delta_event_auxiliary_loss_value,
+            delta_event_factor_target_loss=delta_event_factor_target_loss_value,
         )
 
 
@@ -169,6 +202,104 @@ def delta_event_auxiliary_loss(
         "delta_event_auxiliary/end_gap_class_count": float(end_gap_logits.shape[-1]),
     }
     return total, metrics, aux_weight
+
+
+def delta_event_factor_target_loss(
+    output: Any,
+    batch: Mapping[str, torch.Tensor],
+    *,
+    vocab: MapperV3Vocab,
+    end_gap_weight: float = 1.0,
+) -> tuple[torch.Tensor, dict[str, float], torch.Tensor]:
+    _require_positive_finite(end_gap_weight, "end_gap_weight")
+    kind_logits = getattr(output, "delta_event_factor_kind_logits", None)
+    delta_logits = getattr(output, "delta_event_factor_delta_logits", None)
+    signature_logits = getattr(output, "delta_event_factor_signature_logits", None)
+    end_gap_logits = getattr(output, "delta_event_factor_end_gap_logits", None)
+    if not isinstance(kind_logits, torch.Tensor):
+        raise ValueError("delta_event_factor_kind_logits are required when lambda_delta_event_factor_target > 0")
+    if not isinstance(delta_logits, torch.Tensor):
+        raise ValueError("delta_event_factor_delta_logits are required when lambda_delta_event_factor_target > 0")
+    if not isinstance(signature_logits, torch.Tensor):
+        raise ValueError("delta_event_factor_signature_logits are required when lambda_delta_event_factor_target > 0")
+    if not isinstance(end_gap_logits, torch.Tensor):
+        raise ValueError("delta_event_factor_end_gap_logits are required when lambda_delta_event_factor_target > 0")
+    if kind_logits.ndim != 3:
+        raise ValueError(f"delta_event_factor_kind_logits must have shape [B,R,K], got {tuple(kind_logits.shape)}")
+    if int(kind_logits.shape[-1]) != 2:
+        raise ValueError("delta_event_factor_kind_logits width must be 2 for EVENT/END labels")
+    if delta_logits.ndim != 3 or tuple(delta_logits.shape[:2]) != tuple(kind_logits.shape[:2]):
+        raise ValueError("delta_event_factor_delta_logits must have shape [B,R,D] matching kind logits")
+    if signature_logits.ndim != 3 or tuple(signature_logits.shape[:2]) != tuple(kind_logits.shape[:2]):
+        raise ValueError("delta_event_factor_signature_logits must have shape [B,R,E] matching kind logits")
+    if end_gap_logits.ndim != 3 or tuple(end_gap_logits.shape[:2]) != tuple(kind_logits.shape[:2]):
+        raise ValueError("delta_event_factor_end_gap_logits must have shape [B,R,G] matching kind logits")
+    if int(signature_logits.shape[-1]) != len(vocab.event_token_ids):
+        raise ValueError(
+            "delta_event_factor_signature_logits width must match v3 event-token count "
+            f"({signature_logits.shape[-1]} != {len(vocab.event_token_ids)})"
+        )
+
+    factor = batch.get("delta_event_factor_target")
+    if not isinstance(factor, Mapping):
+        raise ValueError("batch['delta_event_factor_target'] is required when lambda_delta_event_factor_target > 0")
+    row_mask = _require_factor_target_tensor(factor, "row_mask", ndim=2).to(
+        device=kind_logits.device,
+        dtype=torch.bool,
+    )
+    target_kind = _require_factor_target_tensor(factor, "target_kind", ndim=2).to(
+        device=kind_logits.device,
+        dtype=torch.long,
+    )
+    target_delta = _require_factor_target_tensor(factor, "target_delta", ndim=2).to(
+        device=kind_logits.device,
+        dtype=torch.long,
+    )
+    target_signature = _require_factor_target_tensor(factor, "target_signature", ndim=2).to(
+        device=kind_logits.device,
+        dtype=torch.long,
+    )
+    target_end_gap = _require_factor_target_tensor(factor, "target_end_gap", ndim=2).to(
+        device=kind_logits.device,
+        dtype=torch.long,
+    )
+    expected_shape = tuple(kind_logits.shape[:2])
+    if tuple(row_mask.shape) != expected_shape:
+        raise ValueError("delta_event_factor_target row_mask must align with factor logits")
+    if tuple(target_kind.shape) != expected_shape:
+        raise ValueError("delta_event_factor_target target_kind must align with factor logits")
+    if tuple(target_delta.shape) != expected_shape:
+        raise ValueError("delta_event_factor_target target_delta must align with factor logits")
+    if tuple(target_signature.shape) != expected_shape:
+        raise ValueError("delta_event_factor_target target_signature must align with factor logits")
+    if tuple(target_end_gap.shape) != expected_shape:
+        raise ValueError("delta_event_factor_target target_end_gap must align with factor logits")
+
+    kind_target = target_kind.masked_fill(~row_mask, IGNORE_INDEX)
+    kind_loss, kind_count = _masked_cross_entropy(kind_logits, kind_target)
+    delta_loss, delta_count = _masked_cross_entropy(delta_logits, target_delta)
+    signature_loss, signature_count = _masked_cross_entropy(signature_logits, target_signature)
+    end_gap_loss, end_gap_count = _masked_cross_entropy(end_gap_logits, target_end_gap)
+    total = kind_loss + delta_loss + signature_loss + float(end_gap_weight) * end_gap_loss
+    factor_weight = kind_logits.new_tensor(
+        float(kind_count) + float(delta_count) + float(signature_count) + float(end_gap_weight) * float(end_gap_count)
+    )
+    metrics = {
+        "loss/delta_event_factor_target": float(total.detach().cpu()),
+        "loss/delta_event_factor_kind": float(kind_loss.detach().cpu()),
+        "loss/delta_event_factor_delta": float(delta_loss.detach().cpu()),
+        "loss/delta_event_factor_signature": float(signature_loss.detach().cpu()),
+        "loss/delta_event_factor_end_gap": float(end_gap_loss.detach().cpu()),
+        "delta_event_factor/kind_label_count": float(kind_count),
+        "delta_event_factor/delta_label_count": float(delta_count),
+        "delta_event_factor/signature_label_count": float(signature_count),
+        "delta_event_factor/end_gap_label_count": float(end_gap_count),
+        "delta_event_factor/kind_class_count": float(kind_logits.shape[-1]),
+        "delta_event_factor/delta_class_count": float(delta_logits.shape[-1]),
+        "delta_event_factor/signature_class_count": float(signature_logits.shape[-1]),
+        "delta_event_factor/end_gap_class_count": float(end_gap_logits.shape[-1]),
+    }
+    return total, metrics, factor_weight
 
 
 def _delta_event_auxiliary_labels(
@@ -283,6 +414,17 @@ def _require_fragment_state_tensor(batch: Mapping[str, torch.Tensor], name: str)
     return value
 
 
+def _require_factor_target_tensor(factor: Mapping[str, Any], key: str, *, ndim: int) -> torch.Tensor:
+    value = factor.get(key)
+    if not isinstance(value, torch.Tensor):
+        raise ValueError(f"delta_event_factor_target[{key!r}] must be a torch.Tensor")
+    if value.ndim != int(ndim):
+        raise ValueError(
+            f"delta_event_factor_target[{key!r}] must be rank {ndim}, got shape {tuple(value.shape)}"
+        )
+    return value
+
+
 def _coerce_v3_loss_config(config: MapperTupleLossConfig | MapperV3LossConfig | None) -> MapperV3LossConfig:
     if config is None:
         return MapperV3LossConfig()
@@ -297,8 +439,15 @@ def _coerce_v3_loss_config(config: MapperTupleLossConfig | MapperV3LossConfig | 
 def _validate_v3_loss_config(config: MapperV3LossConfig) -> None:
     _require_finite(config.lambda_delta_event_auxiliary, "lambda_delta_event_auxiliary")
     _require_positive_finite(config.delta_event_end_gap_loss_weight, "delta_event_end_gap_loss_weight")
+    _require_finite(config.lambda_delta_event_factor_target, "lambda_delta_event_factor_target")
+    _require_positive_finite(
+        config.delta_event_factor_end_gap_loss_weight,
+        "delta_event_factor_end_gap_loss_weight",
+    )
     if float(config.lambda_delta_event_auxiliary) < 0.0:
         raise ValueError("lambda_delta_event_auxiliary must be non-negative")
+    if float(config.lambda_delta_event_factor_target) < 0.0:
+        raise ValueError("lambda_delta_event_factor_target must be non-negative")
 
 
 def _require_finite(value: float, name: str) -> None:
@@ -317,4 +466,5 @@ __all__ = [
     "MapperV3LossOutput",
     "MapperV3ModelLoss",
     "delta_event_auxiliary_loss",
+    "delta_event_factor_target_loss",
 ]

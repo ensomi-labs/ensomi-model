@@ -9,6 +9,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from pulsefield_model.data.mapper_tuple_windows import MapperTupleWindowFilterReport
 from pulsefield_model.models.control import ControlDemoGlobalEncoderConfig
 from pulsefield_model.models.mapper.v3 import MapperV3Config, MapperV3LossConfig
 from pulsefield_model.training import mapper_v3 as mapper_v3_training
@@ -170,16 +171,21 @@ class MapperV3PhaseBTrainingTests(unittest.TestCase):
                         "  use_delta_event_auxiliary_target: true",
                         "  delta_event_delta_max_ms: 4000",
                         "  delta_event_end_gap_max_ms: 4000",
+                        "  use_delta_event_factor_target: true",
+                        "  delta_event_factor_delta_max_ms: 4000",
+                        "  delta_event_factor_end_gap_max_ms: 4000",
                         "control_model: {}",
                         "loss:",
                         "  lambda_event_budget: 0.1",
                         "  lambda_conditioned_event_distribution: 0.2",
                         "  lambda_time_shift_distance: 0.3",
                         "  lambda_delta_event_auxiliary: 0.4",
+                        "  lambda_delta_event_factor_target: 0.6",
                         "  event_token_loss_weight: 2.5",
                         "  conditioned_event_high_difficulty_over_weight: 3.0",
                         "  time_shift_distance_scale_ms: 500.0",
                         "  delta_event_end_gap_loss_weight: 0.5",
+                        "  delta_event_factor_end_gap_loss_weight: 0.7",
                     ]
                 ),
                 encoding="utf-8",
@@ -190,25 +196,86 @@ class MapperV3PhaseBTrainingTests(unittest.TestCase):
         self.assertTrue(config["model"]["use_delta_event_auxiliary_target"])
         self.assertEqual(config["model"]["delta_event_delta_max_ms"], 4000)
         self.assertEqual(config["model"]["delta_event_end_gap_max_ms"], 4000)
+        self.assertTrue(config["model"]["use_delta_event_factor_target"])
+        self.assertEqual(config["model"]["delta_event_factor_delta_max_ms"], 4000)
+        self.assertEqual(config["model"]["delta_event_factor_end_gap_max_ms"], 4000)
         self.assertEqual(config["loss"]["lambda_event_budget"], 0.1)
         self.assertEqual(config["loss"]["lambda_conditioned_event_distribution"], 0.2)
         self.assertEqual(config["loss"]["lambda_time_shift_distance"], 0.3)
         self.assertEqual(config["loss"]["lambda_delta_event_auxiliary"], 0.4)
+        self.assertEqual(config["loss"]["lambda_delta_event_factor_target"], 0.6)
         self.assertEqual(config["loss"]["event_token_loss_weight"], 2.5)
         self.assertEqual(config["loss"]["conditioned_event_high_difficulty_over_weight"], 3.0)
         self.assertEqual(config["loss"]["time_shift_distance_scale_ms"], 500.0)
         self.assertEqual(config["loss"]["delta_event_end_gap_loss_weight"], 0.5)
+        self.assertEqual(config["loss"]["delta_event_factor_end_gap_loss_weight"], 0.7)
         self.assertTrue(MapperV3Config(**config["model"]).use_delta_event_auxiliary_target)
         self.assertEqual(MapperV3Config(**config["model"]).delta_event_delta_max_ms, 4000)
         self.assertEqual(MapperV3Config(**config["model"]).delta_event_end_gap_max_ms, 4000)
+        self.assertTrue(MapperV3Config(**config["model"]).use_delta_event_factor_target)
+        self.assertEqual(MapperV3Config(**config["model"]).delta_event_factor_delta_max_ms, 4000)
+        self.assertEqual(MapperV3Config(**config["model"]).delta_event_factor_end_gap_max_ms, 4000)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_event_budget, 0.1)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_conditioned_event_distribution, 0.2)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_time_shift_distance, 0.3)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_delta_event_auxiliary, 0.4)
+        self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_delta_event_factor_target, 0.6)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).event_token_loss_weight, 2.5)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).conditioned_event_high_difficulty_over_weight, 3.0)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).time_shift_distance_scale_ms, 500.0)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).delta_event_end_gap_loss_weight, 0.5)
+        self.assertEqual(MapperV3LossConfig(**config["loss"]).delta_event_factor_end_gap_loss_weight, 0.7)
+
+    def test_factor_target_training_config_requests_dataset_fields_only_when_enabled(self) -> None:
+        train_result = SimpleNamespace(
+            report_path=Path("report.json"),
+            checkpoint_path=Path("checkpoint.pt"),
+            final_loss=0.0,
+            completed_steps=0,
+        )
+        with patch.object(mapper_v3_training, "MapperV3WindowDataset", side_effect=_FakeMapperV3WindowDataset) as dataset:
+            with patch.object(mapper_v3_training, "_run_training", return_value=train_result, autospec=True) as run:
+                mapper_v3_training.run_mapper_v3_phase_b_training(
+                    index_path=Path("train.parquet"),
+                    eval_index_path=Path("eval.parquet"),
+                    max_steps=1,
+                    eval_every=1,
+                    batch_size=1,
+                    num_workers=0,
+                    model_config_overrides={"use_delta_event_factor_target": True},
+                    loss_config_overrides={"lambda_delta_event_factor_target": 1.0},
+                )
+
+        self.assertGreaterEqual(dataset.call_count, 2)
+        self.assertTrue(all(call.kwargs["include_delta_event_factor_target"] for call in dataset.call_args_list))
+        run.assert_called_once()
+        self.assertTrue(run.call_args.kwargs["dataset_report"]["include_delta_event_factor_target"])
+
+        with patch.object(mapper_v3_training, "MapperV3WindowDataset", side_effect=_FakeMapperV3WindowDataset) as dataset:
+            with patch.object(mapper_v3_training, "_run_training", return_value=train_result, autospec=True) as run:
+                mapper_v3_training.run_mapper_v3_phase_b_training(
+                    index_path=Path("train.parquet"),
+                    eval_index_path=Path("eval.parquet"),
+                    max_steps=1,
+                    eval_every=1,
+                    batch_size=1,
+                    num_workers=0,
+                )
+
+        self.assertGreaterEqual(dataset.call_count, 2)
+        self.assertTrue(all(not call.kwargs["include_delta_event_factor_target"] for call in dataset.call_args_list))
+        run.assert_called_once()
+        self.assertFalse(run.call_args.kwargs["dataset_report"]["include_delta_event_factor_target"])
+
+    def test_factor_target_loss_requires_matching_model_branch_before_dataset_construction(self) -> None:
+        with patch.object(mapper_v3_training, "MapperV3WindowDataset", autospec=True) as dataset:
+            with self.assertRaisesRegex(ValueError, "requires use_delta_event_factor_target=True"):
+                mapper_v3_training.run_mapper_v3_phase_b_training(
+                    model_config_overrides={},
+                    loss_config_overrides={"lambda_delta_event_factor_target": 1.0},
+                )
+
+        dataset.assert_not_called()
 
 
 def _assert_artifacts_paths(test: unittest.TestCase, config: dict[str, object], keys: tuple[str, ...]) -> None:
@@ -216,6 +283,32 @@ def _assert_artifacts_paths(test: unittest.TestCase, config: dict[str, object], 
         value = str(config[key])
         test.assertTrue(value.startswith("artifacts/"), msg=f"{key}={value}")
         test.assertNotIn(_STALE_ROOT, value, msg=f"{key}={value}")
+
+
+class _FakeMapperV3WindowDataset:
+    def __init__(self, *args, **kwargs) -> None:
+        self.args = args
+        self.kwargs = kwargs
+        self.records = [object(), object()]
+        self.filter_report = MapperTupleWindowFilterReport(
+            num_total_windows=2,
+            num_mapper_eligible_windows=2,
+            num_dropped_short_windows=0,
+            num_dropped_cross_window_ln_windows=0,
+            num_dropped_unsupported_action_windows=0,
+            drop_rate=0.0,
+            short_drop_rate=0.0,
+            cross_window_ln_drop_rate=0.0,
+            unsupported_action_drop_rate=0.0,
+            drop_rate_by_difficulty={},
+            drop_rate_by_song={},
+        )
+
+    def __len__(self) -> int:
+        return len(self.records)
+
+    def __getitem__(self, index: int):
+        raise AssertionError("fake mapper v3 dataset should not be iterated in this test")
 
 
 if __name__ == "__main__":

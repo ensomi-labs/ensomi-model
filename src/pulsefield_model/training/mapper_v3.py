@@ -161,6 +161,12 @@ def run_mapper_v3_phase_b_training(
     if model_config.use_global_context and not include_full_song_context:
         raise ValueError("Mapper V3 global context requires include_full_song_context=True")
     loss_config = MapperV3LossConfig(**dict(loss_config_overrides or {}))
+    if float(loss_config.lambda_delta_event_factor_target) > 0.0 and not model_config.use_delta_event_factor_target:
+        raise ValueError("lambda_delta_event_factor_target > 0 requires use_delta_event_factor_target=True")
+    include_delta_event_factor_target = bool(
+        model_config.use_delta_event_factor_target
+        or float(loss_config.lambda_delta_event_factor_target) > 0.0
+    )
 
     cache_precompute_reports: list[dict[str, Any]] = []
     source_control_dataset = None
@@ -198,6 +204,7 @@ def run_mapper_v3_phase_b_training(
     dataset_kwargs.update(
         {
             "include_full_song_context": bool(include_full_song_context),
+            "include_delta_event_factor_target": include_delta_event_factor_target,
             "max_cached_maps": DEFAULT_MAX_CACHED_MAPS if max_cached_maps is None else max_cached_maps,
             "progress": bool(dataset_progress),
         }
@@ -219,6 +226,7 @@ def run_mapper_v3_phase_b_training(
             eval_kwargs = {
                 "control_dataset": eval_control_dataset,
                 "include_full_song_context": bool(include_full_song_context),
+                "include_delta_event_factor_target": include_delta_event_factor_target,
                 "max_cached_maps": DEFAULT_MAX_CACHED_MAPS if max_cached_maps is None else max_cached_maps,
                 "progress": bool(dataset_progress),
             }
@@ -311,6 +319,7 @@ def run_mapper_v3_phase_b_training(
             "control_teacher_cache_overwrite": bool(control_teacher_cache_overwrite),
             "control_teacher_cache_precompute": cache_precompute_reports,
             "include_full_song_context": bool(include_full_song_context),
+            "include_delta_event_factor_target": include_delta_event_factor_target,
             "mapper_token_contract": "v3_event_groups",
         },
         init_from_control_checkpoint=init_from_control_checkpoint,

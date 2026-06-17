@@ -18,6 +18,10 @@ from pulsefield_model.models.mapper.v3 import (
     encode_mapper_window,
     ln_carry_state_tensors,
 )
+from pulsefield_model.models.mapper.v3.factor_target import (
+    collate_delta_event_factor_targets,
+    delta_event_factor_target_from_v3_tokens,
+)
 from pulsefield_model.models.mapper.shared.loss import (
     conditioned_event_distribution_loss,
     continuation_jump_guard_loss,
@@ -73,6 +77,21 @@ def _batch_for_window(tokenized: object, *, control_dim: int = 16) -> dict[str, 
         "control_memory_8s": torch.zeros((1, 400, control_dim), dtype=torch.float32),
         "density_teacher_8s": torch.zeros((1, 400, 1), dtype=torch.float32),
     }
+
+
+def _factor_target_for_window(tokenized: object, *, vocab: MapperV3Vocab) -> dict[str, torch.Tensor]:
+    return collate_delta_event_factor_targets(
+        [
+            delta_event_factor_target_from_v3_tokens(
+                tokenized.target_fragment_ids,  # type: ignore[attr-defined]
+                vocab=vocab,
+                write_start_ms=int(tokenized.write_start_ms),  # type: ignore[attr-defined]
+                write_end_ms=int(tokenized.write_end_ms),  # type: ignore[attr-defined]
+                chart_end_ms=int(tokenized.chart_end_ms),  # type: ignore[attr-defined]
+                is_full_chart_end=bool(tokenized.is_full_chart_end),  # type: ignore[attr-defined]
+            ).as_tensor_mapping()
+        ]
+    )
 
 
 def _small_config(**overrides: object) -> MapperV3Config:
@@ -177,8 +196,14 @@ class MapperV3ModelTests(unittest.TestCase):
         self.assertIsNone(output.delta_event_delta_logits)
         self.assertIsNone(output.delta_event_signature_logits)
         self.assertIsNone(output.delta_event_end_gap_logits)
+        self.assertIsNone(output.delta_event_factor_kind_logits)
+        self.assertIsNone(output.delta_event_factor_delta_logits)
+        self.assertIsNone(output.delta_event_factor_signature_logits)
+        self.assertIsNone(output.delta_event_factor_end_gap_logits)
         self.assertEqual(loss.metrics["phase/lambda_delta_event_auxiliary"], 0.0)
+        self.assertEqual(loss.metrics["phase/lambda_delta_event_factor_target"], 0.0)
         self.assertEqual(float(loss.delta_event_auxiliary_loss.item()), 0.0)
+        self.assertEqual(float(loss.delta_event_factor_target_loss.item()), 0.0)
 
     def test_delta_event_auxiliary_target_head_receives_gradients(self) -> None:
         torch.manual_seed(20260627)
@@ -247,6 +272,96 @@ class MapperV3ModelTests(unittest.TestCase):
         self.assertIsNotNone(model.token_embedding.weight.grad)
         self.assertGreater(float(model.token_embedding.weight.grad.abs().sum().item()), 0.0)
 
+    def test_delta_event_factor_target_head_receives_gradients(self) -> None:
+        torch.manual_seed(20260631)
+        vocab = MapperV3Vocab()
+        tokenized = encode_mapper_window(
+            [
+                MapperTimepoint(80, _actions(LaneAction.TAP)),
+                MapperTimepoint(240, _actions(LaneAction.NONE, LaneAction.TAP)),
+            ],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=1000,
+        )
+        batch = _batch_for_window(tokenized)
+        batch["delta_event_factor_target"] = _factor_target_for_window(tokenized, vocab=vocab)
+        model = MapperV3Model(
+            _small_config(
+                use_delta_event_factor_target=True,
+                delta_event_factor_delta_max_ms=8000,
+                delta_event_factor_end_gap_max_ms=8000,
+            ),
+            vocab=vocab,
+        )
+
+        output = model(batch)
+
+        self.assertIsNotNone(output.delta_event_factor_kind_logits)
+        self.assertIsNotNone(output.delta_event_factor_delta_logits)
+        self.assertIsNotNone(output.delta_event_factor_signature_logits)
+        self.assertIsNotNone(output.delta_event_factor_end_gap_logits)
+        assert output.delta_event_factor_kind_logits is not None
+        assert output.delta_event_factor_delta_logits is not None
+        assert output.delta_event_factor_signature_logits is not None
+        assert output.delta_event_factor_end_gap_logits is not None
+        self.assertEqual(tuple(output.delta_event_factor_kind_logits.shape), (1, 3, 2))
+        self.assertEqual(tuple(output.delta_event_factor_delta_logits.shape), (1, 3, 801))
+        self.assertEqual(tuple(output.delta_event_factor_signature_logits.shape), (1, 3, len(vocab.event_token_ids)))
+        self.assertEqual(tuple(output.delta_event_factor_end_gap_logits.shape), (1, 3, 801))
+
+        loss_fn = MapperV3ModelLoss(
+            MapperV3LossConfig(
+                lambda_density=0.0,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+                lambda_delta_event_factor_target=0.5,
+            ),
+            vocab=vocab,
+        )
+        loss = loss_fn(output, batch)
+        loss.total_loss.backward()
+
+        self.assertTrue(torch.isfinite(loss.total_loss).item())
+        self.assertIn("loss/delta_event_factor_target", loss.metrics)
+        self.assertGreater(loss.metrics["loss/delta_event_factor_target"], 0.0)
+        self.assertEqual(loss.metrics["delta_event_factor/kind_label_count"], 3.0)
+        self.assertEqual(loss.metrics["delta_event_factor/delta_label_count"], 2.0)
+        self.assertEqual(loss.metrics["delta_event_factor/signature_label_count"], 2.0)
+        self.assertEqual(loss.metrics["delta_event_factor/end_gap_label_count"], 1.0)
+        self.assertIsNotNone(model.delta_event_factor_kind_head)
+        self.assertIsNotNone(model.delta_event_factor_delta_head)
+        self.assertIsNotNone(model.delta_event_factor_signature_head)
+        self.assertIsNotNone(model.delta_event_factor_end_gap_head)
+        assert model.delta_event_factor_kind_head is not None
+        assert model.delta_event_factor_delta_head is not None
+        assert model.delta_event_factor_signature_head is not None
+        assert model.delta_event_factor_end_gap_head is not None
+        self.assertIsNotNone(model.delta_event_factor_kind_head.weight.grad)
+        self.assertIsNotNone(model.delta_event_factor_delta_head.weight.grad)
+        self.assertIsNotNone(model.delta_event_factor_signature_head.weight.grad)
+        self.assertIsNotNone(model.delta_event_factor_end_gap_head.weight.grad)
+        self.assertGreater(float(model.delta_event_factor_kind_head.weight.grad.abs().sum().item()), 0.0)
+        self.assertGreater(float(model.delta_event_factor_delta_head.weight.grad.abs().sum().item()), 0.0)
+        self.assertGreater(float(model.delta_event_factor_signature_head.weight.grad.abs().sum().item()), 0.0)
+        self.assertGreater(float(model.delta_event_factor_end_gap_head.weight.grad.abs().sum().item()), 0.0)
+
+    def test_delta_event_factor_target_requires_nested_batch_field_when_enabled(self) -> None:
+        vocab = MapperV3Vocab()
+        tokenized = encode_mapper_window(
+            [MapperTimepoint(80, _actions(LaneAction.TAP))],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=80,
+        )
+        batch = _batch_for_window(tokenized)
+        model = MapperV3Model(_small_config(use_delta_event_factor_target=True), vocab=vocab)
+
+        with self.assertRaisesRegex(ValueError, "delta_event_factor_target batch field is required"):
+            model(batch)
+
     def test_delta_event_auxiliary_target_rejects_invalid_config(self) -> None:
         with self.assertRaisesRegex(ValueError, "delta_event_delta_max_ms must be a positive 10ms-grid value"):
             MapperV3Model(
@@ -258,6 +373,16 @@ class MapperV3ModelTests(unittest.TestCase):
             )
         with self.assertRaisesRegex(ValueError, "lambda_delta_event_auxiliary must be non-negative"):
             MapperV3ModelLoss(MapperV3LossConfig(lambda_delta_event_auxiliary=-0.1), vocab=MapperV3Vocab())
+        with self.assertRaisesRegex(ValueError, "delta_event_factor_delta_max_ms must be a positive 10ms-grid value"):
+            MapperV3Model(
+                _small_config(
+                    use_delta_event_factor_target=True,
+                    delta_event_factor_delta_max_ms=805,
+                ),
+                vocab=MapperV3Vocab(),
+            )
+        with self.assertRaisesRegex(ValueError, "lambda_delta_event_factor_target must be non-negative"):
+            MapperV3ModelLoss(MapperV3LossConfig(lambda_delta_event_factor_target=-0.1), vocab=MapperV3Vocab())
 
     def test_event_budget_loss_prefers_matching_event_mass(self) -> None:
         vocab = MapperV3Vocab()
