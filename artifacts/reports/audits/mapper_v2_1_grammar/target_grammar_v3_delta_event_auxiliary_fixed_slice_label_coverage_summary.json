@@ -1,0 +1,341 @@
+{
+  "checks": {
+    "audited_windows_positive": true,
+    "delta_out_of_range_zero": true,
+    "end_gap_labels_match_windows": true,
+    "end_gap_labels_positive": true,
+    "end_gap_out_of_range_zero": true,
+    "event_labels_match_event_tokens": true,
+    "event_labels_positive": true,
+    "label_errors_zero": true,
+    "negative_deltas_zero": true,
+    "negative_end_gaps_zero": true,
+    "no_c3_backreference_or_future_lookup": true,
+    "no_rollout": true,
+    "no_tokenizer_dataset_default_change": true,
+    "no_training": true,
+    "signature_labels_match_event_tokens": true
+  },
+  "config": {
+    "dataset_schema_changed": false,
+    "default_behavior_changed": false,
+    "delta_max_ms": 8000,
+    "end_gap_max_ms": 8000,
+    "limit": null,
+    "max_cached_timepoint_maps": 64,
+    "no_rollout": true,
+    "no_training": true,
+    "tokenizer_changed": false,
+    "uses_c3_backreference": false,
+    "uses_future_lookup": false
+  },
+  "commands": [
+    {
+      "command": "uv run python -m pulsefield_model.evals.mapper_v3_delta_event_auxiliary_fixed_slice_label_coverage",
+      "result": "passed; route=TEST_DELTA_EVENT_AUXILIARY_TINY_REAL_DATA_TRAINING event_labels=11983 end_gap_labels=256"
+    },
+    {
+      "command": "uv run --group dev pytest tests/evals/test_mapper_v3_delta_event_auxiliary_fixed_slice_label_coverage.py tests/evals/test_mapper_v3_delta_event_auxiliary_tiny_training_gate.py tests/evals/test_target_grammar_v3_delta_event_proxy_audit.py tests/models/mapper/v3/test_model.py tests/training/test_mapper_v3.py -q",
+      "result": "40 passed in 1.37s"
+    },
+    {
+      "command": "uv run python -m py_compile src/pulsefield_model/evals/mapper_v3_delta_event_auxiliary_fixed_slice_label_coverage.py",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m json.tool artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_auxiliary_fixed_slice_label_coverage_summary.json >/dev/null",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "context": {
+    "delta_event_auxiliary_tiny_training": {
+      "auxiliary_loss_ratio": 0.01456528534440318,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_auxiliary_tiny_training_gate_summary.json",
+      "route": "TEST_DELTA_EVENT_AUXILIARY_FIXED_SLICE_GATE"
+    },
+    "delta_event_proxy_audit": {
+      "end_row_count": 256,
+      "event_row_count": 11983,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_proxy_audit_summary.json",
+      "route": "TEST_DELTA_EVENT_PROXY_MODEL_HEAD",
+      "unique": {
+        "end_gaps": 33,
+        "event_deltas": 88,
+        "event_signatures": 227,
+        "flat_delta_event_pairs": 2026,
+        "kinds": 2,
+        "v3_tokens": 249
+      }
+    }
+  },
+  "dataset": {
+    "audited_window_count": 256,
+    "filter_report": {
+      "cross_window_ln_drop_rate": 0.0,
+      "drop_rate": 0.0,
+      "drop_rate_by_difficulty": {
+        "2.00": 0.0,
+        "2.02": 0.0,
+        "2.09": 0.0,
+        "2.25": 0.0,
+        "2.30": 0.0,
+        "2.31": 0.0,
+        "2.45": 0.0,
+        "2.60": 0.0,
+        "2.66": 0.0,
+        "2.79": 0.0,
+        "2.81": 0.0,
+        "3.06": 0.0,
+        "3.09": 0.0,
+        "3.15": 0.0,
+        "3.19": 0.0,
+        "3.29": 0.0,
+        "3.44": 0.0,
+        "3.47": 0.0,
+        "3.55": 0.0,
+        "3.79": 0.0,
+        "3.84": 0.0,
+        "4.19": 0.0,
+        "4.26": 0.0,
+        "4.28": 0.0,
+        "4.43": 0.0,
+        "4.49": 0.0,
+        "4.61": 0.0,
+        "4.65": 0.0,
+        "4.69": 0.0,
+        "4.75": 0.0,
+        "5.12": 0.0
+      },
+      "drop_rate_by_song": {
+        "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu": 0.0,
+        "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Asha's HD].osu": 0.0,
+        "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Shini's NM].osu": 0.0,
+        "dataset/0/1001794/Phantom Sage - Holystone (UnluckyCroco) [At the Point of No Return].osu": 0.0,
+        "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Asha's Hard].osu": 0.0,
+        "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Muwuscle].osu": 0.0,
+        "dataset/0/1003217/nekodex - circles! (FAMoss) [hard!].osu": 0.0,
+        "dataset/0/1003217/nekodex - circles! (FAMoss) [insane!].osu": 0.0,
+        "dataset/0/1003217/nekodex - circles! (FAMoss) [normal!].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Insane].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Normal].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Hard].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Insane].osu": 0.0,
+        "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K HD].osu": 0.0,
+        "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K MX].osu": 0.0,
+        "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Hard].osu": 0.0,
+        "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Normal].osu": 0.0,
+        "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Poke's Insane].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [CS' Lone Sonorous].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [DnM's Normal].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Expert].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Hard].osu": 0.0,
+        "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [FAMoss' hard].osu": 0.0,
+        "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [Insane].osu": 0.0,
+        "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu": 0.0,
+        "dataset/0/1010184/Graham Kartna - chiltonWALK.temp (Nivrad00) [NSV].osu": 0.0,
+        "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Grimoire of Despair].osu": 0.0,
+        "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Hard].osu": 0.0,
+        "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Normal].osu": 0.0,
+        "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Equatorial].osu": 0.0,
+        "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Synergic Ascent].osu": 0.0,
+        "dataset/0/1011424/Moso Calibration - Sakurairo Diary (TV Size) (Drum-Hitnormal) [Hard].osu": 0.0
+      },
+      "num_dropped_cross_window_ln_windows": 0,
+      "num_dropped_short_windows": 0,
+      "num_dropped_unsupported_action_windows": 0,
+      "num_mapper_eligible_windows": 256,
+      "num_total_windows": 256,
+      "short_drop_rate": 0.0,
+      "unsupported_action_drop_rate": 0.0
+    },
+    "source_window_count": 256
+  },
+  "decision": {
+    "next_step": "Create a tiny real-data training gate for the default-off delta-event auxiliary objective.",
+    "reason": "fixed-slice label coverage passed for current delta-event auxiliary head ranges",
+    "route": "TEST_DELTA_EVENT_AUXILIARY_TINY_REAL_DATA_TRAINING"
+  },
+  "elapsed_s": 6.986164208006812,
+  "errors": [],
+  "examples": [],
+  "experiment": "Target grammar v3 delta-event auxiliary fixed-slice label coverage",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_auxiliary_fixed_slice_label_coverage_experiment_card.md",
+  "index_path": "artifacts/tmp/mapper_v3_real_config_cache_backed_comparison/fixed_32song_256_eligible_index.parquet",
+  "metrics": {
+    "audited_window_count": 256,
+    "end_gap_label_count": 256,
+    "eos_count": 0,
+    "event_label_count": 11983,
+    "event_token_count": 11983,
+    "label_error_count": 0,
+    "max_end_gap_ms": 8000,
+    "max_event_delta_ms": 5790,
+    "negative_delta_count": 0,
+    "negative_end_gap_count": 0,
+    "out_of_range_delta_count": 0,
+    "out_of_range_end_gap_count": 0,
+    "signature_label_count": 11983,
+    "time_shift_token_count": 19657,
+    "top_end_gaps": [
+      {
+        "count": 34,
+        "value": 100
+      },
+      {
+        "count": 25,
+        "value": 40
+      },
+      {
+        "count": 22,
+        "value": 30
+      },
+      {
+        "count": 16,
+        "value": 80
+      },
+      {
+        "count": 16,
+        "value": 130
+      },
+      {
+        "count": 14,
+        "value": 60
+      },
+      {
+        "count": 12,
+        "value": 10
+      },
+      {
+        "count": 9,
+        "value": 70
+      },
+      {
+        "count": 9,
+        "value": 50
+      },
+      {
+        "count": 9,
+        "value": 150
+      },
+      {
+        "count": 9,
+        "value": 120
+      },
+      {
+        "count": 8,
+        "value": 110
+      }
+    ],
+    "top_event_deltas": [
+      {
+        "count": 2108,
+        "value": 160
+      },
+      {
+        "count": 1912,
+        "value": 80
+      },
+      {
+        "count": 1733,
+        "value": 150
+      },
+      {
+        "count": 812,
+        "value": 170
+      },
+      {
+        "count": 804,
+        "value": 200
+      },
+      {
+        "count": 535,
+        "value": 70
+      },
+      {
+        "count": 441,
+        "value": 90
+      },
+      {
+        "count": 382,
+        "value": 180
+      },
+      {
+        "count": 350,
+        "value": 190
+      },
+      {
+        "count": 306,
+        "value": 100
+      },
+      {
+        "count": 274,
+        "value": 110
+      },
+      {
+        "count": 254,
+        "value": 230
+      }
+    ],
+    "top_event_signatures": [
+      {
+        "count": 1418,
+        "value": ".T.."
+      },
+      {
+        "count": 1416,
+        "value": "..T."
+      },
+      {
+        "count": 911,
+        "value": "T..."
+      },
+      {
+        "count": 852,
+        "value": "...T"
+      },
+      {
+        "count": 671,
+        "value": "..TT"
+      },
+      {
+        "count": 660,
+        "value": "TT.."
+      },
+      {
+        "count": 518,
+        "value": "T..T"
+      },
+      {
+        "count": 286,
+        "value": ".TT."
+      },
+      {
+        "count": 282,
+        "value": "T.T."
+      },
+      {
+        "count": 263,
+        "value": ".T.T"
+      },
+      {
+        "count": 196,
+        "value": "T.TT"
+      },
+      {
+        "count": 188,
+        "value": "TT.T"
+      }
+    ],
+    "unique_end_gap_count": 33,
+    "unique_event_delta_count": 88,
+    "unique_event_signature_count": 227,
+    "v3_token_count": 31640,
+    "zero_delta_event_count": 8
+  },
+  "next_step": "Create a tiny real-data training gate for the default-off delta-event auxiliary objective.",
+  "schema_version": 1
+}
