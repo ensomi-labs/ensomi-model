@@ -157,10 +157,11 @@ def run_v3_ce_antirigid_decode_stress(
                 break
 
     aggregate = aggregate_results(case_results)
+    transform_label = "hard-block" if bool(hard_block) else f"soft-penalty-{float(penalty):g}"
     decision = (
-        full32_decision_from_aggregate(aggregate)
+        full32_decision_from_aggregate(aggregate, transform_label=transform_label)
         if bool(all_cases)
-        else stress_decision_from_aggregate(aggregate)
+        else stress_decision_from_aggregate(aggregate, transform_label=transform_label)
     )
     summary = {
         "schema_version": SUMMARY_SCHEMA_VERSION,
@@ -190,6 +191,7 @@ def run_v3_ce_antirigid_decode_stress(
             "seed": int(seed),
             "case_limit": None if case_limit is None else int(case_limit),
             "all_cases": bool(all_cases),
+            "transform_label": transform_label,
         },
         "selected_case_count": len(selected_runs),
         "selection_mode": "all_cases" if bool(all_cases) else "rigid_stress",
@@ -293,7 +295,11 @@ def aggregate_metrics(rows: Sequence[Mapping[str, Any]], *, legal: Sequence[bool
     }
 
 
-def stress_decision_from_aggregate(aggregate: Mapping[str, Any]) -> dict[str, Any]:
+def stress_decision_from_aggregate(
+    aggregate: Mapping[str, Any],
+    *,
+    transform_label: str = "hard-block",
+) -> dict[str, Any]:
     dead_end_count = int(aggregate.get("dead_end_count") or 0)
     max_token_count = int(aggregate.get("max_token_count") or 0)
     rigid_reduction = int(aggregate.get("rigid_case_reduction") or 0)
@@ -302,29 +308,33 @@ def stress_decision_from_aggregate(aggregate: Mapping[str, Any]) -> dict[str, An
     if dead_end_count > 0 or max_token_count > 0:
         return {
             "route": "KILL",
-            "reason": "anti-rigid hard block created a dead-end or max-token stress failure",
-            "next_step": "Do not scale this hard-block transform; inspect the failing stress rollout.",
+            "reason": f"anti-rigid {transform_label} created a dead-end or max-token stress failure",
+            "next_step": f"Do not scale this {transform_label} transform; inspect the failing stress rollout.",
         }
     if rigid_reduction >= 4 and starved_delta <= 0 and mean_f1_delta >= -0.03:
         return {
             "route": "TEST_NEXT",
-            "reason": "anti-rigid hard block reduced stress rigidity without reviving starvation",
+            "reason": f"anti-rigid {transform_label} reduced stress rigidity without reviving starvation",
             "next_step": "Run the transform on the full 32-case CE-weight fixed slice before any default change.",
         }
     if rigid_reduction < 2 or starved_delta > 0 or mean_f1_delta < -0.03:
         return {
             "route": "KILL",
-            "reason": "anti-rigid hard block failed a stress kill criterion",
-            "next_step": "Stop hard-block decode suppression and mutate to finite penalty, tap-only, grammar-level timing diversity, or v2.1 grammar work.",
+            "reason": f"anti-rigid {transform_label} failed a stress kill criterion",
+            "next_step": "Stop this decode suppression variant and mutate to finite penalty, tap-only, grammar-level timing diversity, or v2.1 grammar work.",
         }
     return {
         "route": "MUTATE",
-        "reason": "anti-rigid hard block has partial stress signal but does not pass the positive gate",
+        "reason": f"anti-rigid {transform_label} has partial stress signal but does not pass the positive gate",
         "next_step": "Mutate to finite penalty or tap-only stress probe before a full 32-case run.",
     }
 
 
-def full32_decision_from_aggregate(aggregate: Mapping[str, Any]) -> dict[str, Any]:
+def full32_decision_from_aggregate(
+    aggregate: Mapping[str, Any],
+    *,
+    transform_label: str = "hard-block",
+) -> dict[str, Any]:
     candidate = _mapping(aggregate.get("candidate"))
     dead_end_count = int(aggregate.get("dead_end_count") or 0)
     max_token_count = int(aggregate.get("max_token_count") or 0)
@@ -349,8 +359,8 @@ def full32_decision_from_aggregate(aggregate: Mapping[str, Any]) -> dict[str, An
     if hard_failure:
         return {
             "route": "KILL",
-            "reason": "full-32 hard-block anti-rigid decode failed an original fixed-slice gate",
-            "next_step": "Do not scale this hard-block policy; inspect full-32 failures or mutate to finite/tap-only decoding.",
+            "reason": f"full-32 {transform_label} anti-rigid decode failed an original fixed-slice gate",
+            "next_step": f"Do not scale this {transform_label} policy; inspect full-32 failures or mutate decode/training strategy.",
         }
     if (
         rigid_reduction >= 4
@@ -360,12 +370,12 @@ def full32_decision_from_aggregate(aggregate: Mapping[str, Any]) -> dict[str, An
     ):
         return {
             "route": "TEST_NEXT",
-            "reason": "full-32 anti-rigid decode passed the original fixed-slice gate and reduced CE rigidity",
+            "reason": f"full-32 {transform_label} anti-rigid decode passed the original fixed-slice gate and reduced CE rigidity",
             "next_step": "Run a broader held-out or full-cache v3 inference gate before any default decode change.",
         }
     return {
         "route": "MUTATE",
-        "reason": "full-32 anti-rigid decode passed hard safety but missed the positive CE-delta gate",
+        "reason": f"full-32 {transform_label} anti-rigid decode passed hard safety but missed the positive CE-delta gate",
         "next_step": "Mutate to finite penalty or tap-only full-32 policy before broader v3 work.",
     }
 
@@ -448,6 +458,8 @@ def write_report(summary: Mapping[str, Any], path: str | Path) -> None:
     candidate = _mapping(aggregate.get("candidate"))
     decision = _mapping(summary.get("decision"))
     selection_mode = str(summary.get("selection_mode") or "rigid_stress")
+    config = _mapping(summary.get("config"))
+    transform_label = str(config.get("transform_label") or "anti-rigid")
     full32 = selection_mode == "all_cases"
     lines = [
         (
@@ -469,6 +481,7 @@ def write_report(summary: Mapping[str, Any], path: str | Path) -> None:
         "",
         f"- route: `{decision.get('route')}`",
         f"- reason: {decision.get('reason')}",
+        f"- transform: `{transform_label}`",
         "",
         "## Aggregate",
         "",
