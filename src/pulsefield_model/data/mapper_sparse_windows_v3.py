@@ -19,6 +19,10 @@ from pulsefield_model.models.mapper.shared.tokenizer import (
     UnsupportedMapperActionError as MapperTupleUnsupportedMapperActionError,
 )
 from pulsefield_model.models.mapper.v3.replay import ln_carry_state_tensors
+from pulsefield_model.models.mapper.v3.factor_target import (
+    collate_delta_event_factor_targets,
+    delta_event_factor_target_from_v3_tokens,
+)
 from pulsefield_model.models.mapper.v3.tokenizer import (
     MAPPER_WRITE_MS,
     TokenizedMapperWindow,
@@ -43,10 +47,17 @@ class MapperV3WindowDataset(MapperTupleWindowDataset):
     state.
     """
 
-    def __init__(self, *args: Any, vocab: MapperV3Vocab | None = None, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *args: Any,
+        vocab: MapperV3Vocab | None = None,
+        include_delta_event_factor_target: bool = False,
+        **kwargs: Any,
+    ) -> None:
         resolved_vocab = MapperV3Vocab() if vocab is None else vocab
         if not isinstance(resolved_vocab, MapperV3Vocab):
             raise TypeError(f"vocab must be a MapperV3Vocab, got {type(resolved_vocab).__name__}")
+        self.include_delta_event_factor_target = bool(include_delta_event_factor_target)
         super().__init__(*args, vocab=resolved_vocab, **kwargs)
 
     def _record_cache_validity_metadata(self) -> dict[str, Any]:
@@ -114,6 +125,15 @@ class MapperV3WindowDataset(MapperTupleWindowDataset):
             "is_full_chart_end": torch.tensor(tokenized.is_full_chart_end, dtype=torch.bool),
             "metadata": metadata,
         }
+        if self.include_delta_event_factor_target:
+            sample["delta_event_factor_target"] = delta_event_factor_target_from_v3_tokens(
+                tokenized.target_fragment_ids,
+                vocab=self.vocab,
+                write_start_ms=int(tokenized.write_start_ms),
+                write_end_ms=int(tokenized.write_end_ms),
+                chart_end_ms=int(tokenized.chart_end_ms),
+                is_full_chart_end=bool(tokenized.is_full_chart_end),
+            ).as_tensor_mapping()
         density_target_8s, density_confidence_8s = extract_mapper_density_8s(
             self._load_control_v3_target_8s(record),
         )
@@ -167,7 +187,15 @@ class MapperV3WindowDataset(MapperTupleWindowDataset):
 
 
 def collate_mapper_v3_windows(samples: Sequence[dict[str, Any]], *, pad_id: int = 0) -> dict[str, Any]:
-    return collate_mapper_tuple_windows(samples, pad_id=pad_id)
+    batch = collate_mapper_tuple_windows(samples, pad_id=pad_id)
+    has_factor_target = ["delta_event_factor_target" in sample for sample in samples]
+    if any(has_factor_target):
+        if not all(has_factor_target):
+            raise ValueError("partial mapper v3 delta-event factor target batch is not supported")
+        batch["delta_event_factor_target"] = collate_delta_event_factor_targets(
+            [sample["delta_event_factor_target"] for sample in samples]
+        )
+    return batch
 
 
 def is_mapper_v3_window_start_allowed(
