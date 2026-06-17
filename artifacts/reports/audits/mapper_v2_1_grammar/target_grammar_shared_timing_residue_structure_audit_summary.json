@@ -1,0 +1,1159 @@
+{
+  "audit": {
+    "eval": {
+      "event_count": 9112,
+      "event_interval_count": 8970,
+      "event_intervals": {
+        "count": 8970,
+        "dominant_window_ratio": {
+          "mean": 0.498223395268476,
+          "median": 0.475,
+          "share_ge_0_80": 0.06382978723404255,
+          "share_ge_0_90": 0.014184397163120567,
+          "share_ge_0_95": 0.0,
+          "window_count": 141
+        },
+        "effective_vocab": 14.035792420822661,
+        "entropy_bits": 3.81103861148586,
+        "share_160_200ms": 0.08193979933110368,
+        "share_160ms": 0.07201783723522855,
+        "share_200ms": 0.009921962095875139,
+        "share_le_200ms": 0.9351170568561873,
+        "top1_share": 0.2657748049052397,
+        "top3_share": 0.45707915273132665,
+        "top_values": [
+          {
+            "count": 2384,
+            "value_ms": 80
+          },
+          {
+            "count": 889,
+            "value_ms": 130
+          },
+          {
+            "count": 827,
+            "value_ms": 60
+          },
+          {
+            "count": 783,
+            "value_ms": 70
+          },
+          {
+            "count": 743,
+            "value_ms": 120
+          },
+          {
+            "count": 646,
+            "value_ms": 160
+          },
+          {
+            "count": 496,
+            "value_ms": 190
+          },
+          {
+            "count": 346,
+            "value_ms": 90
+          },
+          {
+            "count": 218,
+            "value_ms": 110
+          },
+          {
+            "count": 216,
+            "value_ms": 170
+          },
+          {
+            "count": 164,
+            "value_ms": 180
+          },
+          {
+            "count": 153,
+            "value_ms": 100
+          },
+          {
+            "count": 148,
+            "value_ms": 150
+          },
+          {
+            "count": 124,
+            "value_ms": 230
+          },
+          {
+            "count": 119,
+            "value_ms": 50
+          },
+          {
+            "count": 89,
+            "value_ms": 200
+          },
+          {
+            "count": 84,
+            "value_ms": 40
+          },
+          {
+            "count": 58,
+            "value_ms": 30
+          },
+          {
+            "count": 49,
+            "value_ms": 400
+          },
+          {
+            "count": 48,
+            "value_ms": 380
+          },
+          {
+            "count": 47,
+            "value_ms": 240
+          },
+          {
+            "count": 40,
+            "value_ms": 310
+          },
+          {
+            "count": 38,
+            "value_ms": 320
+          },
+          {
+            "count": 37,
+            "value_ms": 280
+          },
+          {
+            "count": 36,
+            "value_ms": 250
+          },
+          {
+            "count": 35,
+            "value_ms": 330
+          },
+          {
+            "count": 34,
+            "value_ms": 370
+          },
+          {
+            "count": 21,
+            "value_ms": 20
+          },
+          {
+            "count": 11,
+            "value_ms": 470
+          },
+          {
+            "count": 11,
+            "value_ms": 560
+          }
+        ],
+        "vocab_size": 62
+      },
+      "event_window_count": 142,
+      "interval_window_count": 141,
+      "mismatch_examples": [],
+      "split": "eval",
+      "time_shift": {
+        "count": 13352,
+        "effective_vocab": 8.482396647964839,
+        "entropy_bits": 3.08447194681931,
+        "share_200ms": 0.027336728579988017,
+        "share_le_100ms": 0.9476482923906531,
+        "top1_share": 0.2799580587177951,
+        "top3_share": 0.5948172558418214,
+        "top_values": [
+          {
+            "count": 3738,
+            "value_ms": 100
+          },
+          {
+            "count": 2674,
+            "value_ms": 80
+          },
+          {
+            "count": 1530,
+            "value_ms": 60
+          },
+          {
+            "count": 1166,
+            "value_ms": 30
+          },
+          {
+            "count": 1052,
+            "value_ms": 70
+          },
+          {
+            "count": 860,
+            "value_ms": 90
+          },
+          {
+            "count": 846,
+            "value_ms": 20
+          },
+          {
+            "count": 365,
+            "value_ms": 200
+          },
+          {
+            "count": 360,
+            "value_ms": 50
+          },
+          {
+            "count": 282,
+            "value_ms": 10
+          },
+          {
+            "count": 214,
+            "value_ms": 300
+          },
+          {
+            "count": 145,
+            "value_ms": 40
+          },
+          {
+            "count": 70,
+            "value_ms": 400
+          },
+          {
+            "count": 27,
+            "value_ms": 500
+          },
+          {
+            "count": 5,
+            "value_ms": 600
+          },
+          {
+            "count": 5,
+            "value_ms": 1000
+          },
+          {
+            "count": 4,
+            "value_ms": 700
+          },
+          {
+            "count": 4,
+            "value_ms": 2000
+          },
+          {
+            "count": 3,
+            "value_ms": 900
+          },
+          {
+            "count": 2,
+            "value_ms": 4000
+          }
+        ],
+        "v3_parity_stats": {
+          "count": 13352,
+          "effective_vocab": 8.482396647964839,
+          "entropy_bits": 3.08447194681931,
+          "top1_share": 0.2799580587177951,
+          "top3_share": 0.5948172558418214,
+          "vocab_size": 20
+        },
+        "v3_top_values": [
+          {
+            "count": 3738,
+            "value_ms": 100
+          },
+          {
+            "count": 2674,
+            "value_ms": 80
+          },
+          {
+            "count": 1530,
+            "value_ms": 60
+          },
+          {
+            "count": 1166,
+            "value_ms": 30
+          },
+          {
+            "count": 1052,
+            "value_ms": 70
+          },
+          {
+            "count": 860,
+            "value_ms": 90
+          },
+          {
+            "count": 846,
+            "value_ms": 20
+          },
+          {
+            "count": 365,
+            "value_ms": 200
+          },
+          {
+            "count": 360,
+            "value_ms": 50
+          },
+          {
+            "count": 282,
+            "value_ms": 10
+          },
+          {
+            "count": 214,
+            "value_ms": 300
+          },
+          {
+            "count": 145,
+            "value_ms": 40
+          },
+          {
+            "count": 70,
+            "value_ms": 400
+          },
+          {
+            "count": 27,
+            "value_ms": 500
+          },
+          {
+            "count": 5,
+            "value_ms": 600
+          },
+          {
+            "count": 5,
+            "value_ms": 1000
+          },
+          {
+            "count": 4,
+            "value_ms": 700
+          },
+          {
+            "count": 4,
+            "value_ms": 2000
+          },
+          {
+            "count": 3,
+            "value_ms": 900
+          },
+          {
+            "count": 2,
+            "value_ms": 4000
+          }
+        ],
+        "vocab_size": 20
+      },
+      "time_shift_parity_mismatches": 0,
+      "v3_reconstruction_mismatches": 0,
+      "window_count": 142
+    },
+    "total": {
+      "event_count": 235975,
+      "event_interval_count": 231784,
+      "event_intervals": {
+        "count": 231784,
+        "dominant_window_ratio": {
+          "mean": 0.5087598888436357,
+          "median": 0.4857142857142857,
+          "share_ge_0_80": 0.07657225156024965,
+          "share_ge_0_90": 0.029044647143542966,
+          "share_ge_0_95": 0.01584253480556889,
+          "window_count": 4166
+        },
+        "effective_vocab": 22.69093057523644,
+        "entropy_bits": 4.504043871317141,
+        "share_160_200ms": 0.09654678493770062,
+        "share_160ms": 0.0687881821005764,
+        "share_200ms": 0.027758602837124217,
+        "share_le_200ms": 0.8863036275152728,
+        "top1_share": 0.12892606909881613,
+        "top3_share": 0.29921392330790736,
+        "top_values": [
+          {
+            "count": 29883,
+            "value_ms": 80
+          },
+          {
+            "count": 19980,
+            "value_ms": 100
+          },
+          {
+            "count": 19490,
+            "value_ms": 70
+          },
+          {
+            "count": 18828,
+            "value_ms": 150
+          },
+          {
+            "count": 15944,
+            "value_ms": 160
+          },
+          {
+            "count": 13406,
+            "value_ms": 170
+          },
+          {
+            "count": 12309,
+            "value_ms": 120
+          },
+          {
+            "count": 11867,
+            "value_ms": 90
+          },
+          {
+            "count": 11754,
+            "value_ms": 110
+          },
+          {
+            "count": 11391,
+            "value_ms": 50
+          },
+          {
+            "count": 10740,
+            "value_ms": 60
+          },
+          {
+            "count": 6434,
+            "value_ms": 200
+          },
+          {
+            "count": 5215,
+            "value_ms": 40
+          },
+          {
+            "count": 5099,
+            "value_ms": 180
+          },
+          {
+            "count": 3954,
+            "value_ms": 130
+          },
+          {
+            "count": 3934,
+            "value_ms": 140
+          },
+          {
+            "count": 3392,
+            "value_ms": 210
+          },
+          {
+            "count": 2479,
+            "value_ms": 30
+          },
+          {
+            "count": 2308,
+            "value_ms": 220
+          },
+          {
+            "count": 2015,
+            "value_ms": 250
+          },
+          {
+            "count": 1974,
+            "value_ms": 230
+          },
+          {
+            "count": 1954,
+            "value_ms": 190
+          },
+          {
+            "count": 1902,
+            "value_ms": 300
+          },
+          {
+            "count": 1576,
+            "value_ms": 330
+          },
+          {
+            "count": 1492,
+            "value_ms": 340
+          },
+          {
+            "count": 1287,
+            "value_ms": 310
+          },
+          {
+            "count": 1161,
+            "value_ms": 240
+          },
+          {
+            "count": 1017,
+            "value_ms": 320
+          },
+          {
+            "count": 915,
+            "value_ms": 290
+          },
+          {
+            "count": 868,
+            "value_ms": 350
+          }
+        ],
+        "vocab_size": 227
+      },
+      "event_window_count": 4191,
+      "interval_window_count": 4166,
+      "mismatch_examples": [],
+      "split": "total",
+      "time_shift": {
+        "count": 353568,
+        "effective_vocab": 9.678684782096457,
+        "entropy_bits": 3.274811015757899,
+        "share_200ms": 0.057496719160104987,
+        "share_le_100ms": 0.9020669291338582,
+        "top1_share": 0.3089448140103177,
+        "top3_share": 0.5102667662231877,
+        "top_values": [
+          {
+            "count": 109233,
+            "value_ms": 100
+          },
+          {
+            "count": 36650,
+            "value_ms": 80
+          },
+          {
+            "count": 34531,
+            "value_ms": 50
+          },
+          {
+            "count": 34342,
+            "value_ms": 70
+          },
+          {
+            "count": 28636,
+            "value_ms": 60
+          },
+          {
+            "count": 20329,
+            "value_ms": 200
+          },
+          {
+            "count": 17848,
+            "value_ms": 10
+          },
+          {
+            "count": 17668,
+            "value_ms": 20
+          },
+          {
+            "count": 15734,
+            "value_ms": 90
+          },
+          {
+            "count": 12889,
+            "value_ms": 40
+          },
+          {
+            "count": 11411,
+            "value_ms": 30
+          },
+          {
+            "count": 9502,
+            "value_ms": 300
+          },
+          {
+            "count": 2064,
+            "value_ms": 400
+          },
+          {
+            "count": 631,
+            "value_ms": 500
+          },
+          {
+            "count": 578,
+            "value_ms": 1000
+          },
+          {
+            "count": 484,
+            "value_ms": 600
+          },
+          {
+            "count": 295,
+            "value_ms": 700
+          },
+          {
+            "count": 228,
+            "value_ms": 800
+          },
+          {
+            "count": 183,
+            "value_ms": 900
+          },
+          {
+            "count": 139,
+            "value_ms": 4000
+          }
+        ],
+        "v3_parity_stats": {
+          "count": 353568,
+          "effective_vocab": 9.678684782096457,
+          "entropy_bits": 3.274811015757899,
+          "top1_share": 0.3089448140103177,
+          "top3_share": 0.5102667662231877,
+          "vocab_size": 22
+        },
+        "v3_top_values": [
+          {
+            "count": 109233,
+            "value_ms": 100
+          },
+          {
+            "count": 36650,
+            "value_ms": 80
+          },
+          {
+            "count": 34531,
+            "value_ms": 50
+          },
+          {
+            "count": 34342,
+            "value_ms": 70
+          },
+          {
+            "count": 28636,
+            "value_ms": 60
+          },
+          {
+            "count": 20329,
+            "value_ms": 200
+          },
+          {
+            "count": 17848,
+            "value_ms": 10
+          },
+          {
+            "count": 17668,
+            "value_ms": 20
+          },
+          {
+            "count": 15734,
+            "value_ms": 90
+          },
+          {
+            "count": 12889,
+            "value_ms": 40
+          },
+          {
+            "count": 11411,
+            "value_ms": 30
+          },
+          {
+            "count": 9502,
+            "value_ms": 300
+          },
+          {
+            "count": 2064,
+            "value_ms": 400
+          },
+          {
+            "count": 631,
+            "value_ms": 500
+          },
+          {
+            "count": 578,
+            "value_ms": 1000
+          },
+          {
+            "count": 484,
+            "value_ms": 600
+          },
+          {
+            "count": 295,
+            "value_ms": 700
+          },
+          {
+            "count": 228,
+            "value_ms": 800
+          },
+          {
+            "count": 183,
+            "value_ms": 900
+          },
+          {
+            "count": 139,
+            "value_ms": 4000
+          }
+        ],
+        "vocab_size": 22
+      },
+      "time_shift_parity_mismatches": 0,
+      "v3_reconstruction_mismatches": 0,
+      "window_count": 4238
+    },
+    "train": {
+      "event_count": 226863,
+      "event_interval_count": 222814,
+      "event_intervals": {
+        "count": 222814,
+        "dominant_window_ratio": {
+          "mean": 0.5091289933390637,
+          "median": 0.4861111111111111,
+          "share_ge_0_80": 0.07701863354037267,
+          "share_ge_0_90": 0.029565217391304348,
+          "share_ge_0_95": 0.01639751552795031,
+          "window_count": 4025
+        },
+        "effective_vocab": 22.69442995123371,
+        "entropy_bits": 4.50426634536379,
+        "share_160_200ms": 0.09713482994784887,
+        "share_160ms": 0.06865816331110254,
+        "share_200ms": 0.028476666636746344,
+        "share_le_200ms": 0.8843385065570386,
+        "top1_share": 0.12341684095254338,
+        "top3_share": 0.2963592951968907,
+        "top_values": [
+          {
+            "count": 27499,
+            "value_ms": 80
+          },
+          {
+            "count": 19827,
+            "value_ms": 100
+          },
+          {
+            "count": 18707,
+            "value_ms": 70
+          },
+          {
+            "count": 18680,
+            "value_ms": 150
+          },
+          {
+            "count": 15298,
+            "value_ms": 160
+          },
+          {
+            "count": 13190,
+            "value_ms": 170
+          },
+          {
+            "count": 11566,
+            "value_ms": 120
+          },
+          {
+            "count": 11536,
+            "value_ms": 110
+          },
+          {
+            "count": 11521,
+            "value_ms": 90
+          },
+          {
+            "count": 11272,
+            "value_ms": 50
+          },
+          {
+            "count": 9913,
+            "value_ms": 60
+          },
+          {
+            "count": 6345,
+            "value_ms": 200
+          },
+          {
+            "count": 5131,
+            "value_ms": 40
+          },
+          {
+            "count": 4935,
+            "value_ms": 180
+          },
+          {
+            "count": 3932,
+            "value_ms": 140
+          },
+          {
+            "count": 3387,
+            "value_ms": 210
+          },
+          {
+            "count": 3065,
+            "value_ms": 130
+          },
+          {
+            "count": 2421,
+            "value_ms": 30
+          },
+          {
+            "count": 2305,
+            "value_ms": 220
+          },
+          {
+            "count": 1979,
+            "value_ms": 250
+          },
+          {
+            "count": 1898,
+            "value_ms": 300
+          },
+          {
+            "count": 1850,
+            "value_ms": 230
+          },
+          {
+            "count": 1541,
+            "value_ms": 330
+          },
+          {
+            "count": 1488,
+            "value_ms": 340
+          },
+          {
+            "count": 1458,
+            "value_ms": 190
+          },
+          {
+            "count": 1247,
+            "value_ms": 310
+          },
+          {
+            "count": 1114,
+            "value_ms": 240
+          },
+          {
+            "count": 979,
+            "value_ms": 320
+          },
+          {
+            "count": 913,
+            "value_ms": 290
+          },
+          {
+            "count": 866,
+            "value_ms": 350
+          }
+        ],
+        "vocab_size": 222
+      },
+      "event_window_count": 4049,
+      "interval_window_count": 4025,
+      "mismatch_examples": [],
+      "split": "train",
+      "time_shift": {
+        "count": 340216,
+        "effective_vocab": 9.666920328862078,
+        "entropy_bits": 3.2730563515502027,
+        "share_200ms": 0.058680367766360195,
+        "share_le_100ms": 0.900278058645096,
+        "top1_share": 0.3100824182284196,
+        "top3_share": 0.5103875185176476,
+        "top_values": [
+          {
+            "count": 105495,
+            "value_ms": 100
+          },
+          {
+            "count": 34171,
+            "value_ms": 50
+          },
+          {
+            "count": 33976,
+            "value_ms": 80
+          },
+          {
+            "count": 33290,
+            "value_ms": 70
+          },
+          {
+            "count": 27106,
+            "value_ms": 60
+          },
+          {
+            "count": 19964,
+            "value_ms": 200
+          },
+          {
+            "count": 17566,
+            "value_ms": 10
+          },
+          {
+            "count": 16822,
+            "value_ms": 20
+          },
+          {
+            "count": 14874,
+            "value_ms": 90
+          },
+          {
+            "count": 12744,
+            "value_ms": 40
+          },
+          {
+            "count": 10245,
+            "value_ms": 30
+          },
+          {
+            "count": 9288,
+            "value_ms": 300
+          },
+          {
+            "count": 1994,
+            "value_ms": 400
+          },
+          {
+            "count": 604,
+            "value_ms": 500
+          },
+          {
+            "count": 573,
+            "value_ms": 1000
+          },
+          {
+            "count": 479,
+            "value_ms": 600
+          },
+          {
+            "count": 291,
+            "value_ms": 700
+          },
+          {
+            "count": 228,
+            "value_ms": 800
+          },
+          {
+            "count": 180,
+            "value_ms": 900
+          },
+          {
+            "count": 137,
+            "value_ms": 4000
+          }
+        ],
+        "v3_parity_stats": {
+          "count": 340216,
+          "effective_vocab": 9.666920328862078,
+          "entropy_bits": 3.2730563515502027,
+          "top1_share": 0.3100824182284196,
+          "top3_share": 0.5103875185176476,
+          "vocab_size": 22
+        },
+        "v3_top_values": [
+          {
+            "count": 105495,
+            "value_ms": 100
+          },
+          {
+            "count": 34171,
+            "value_ms": 50
+          },
+          {
+            "count": 33976,
+            "value_ms": 80
+          },
+          {
+            "count": 33290,
+            "value_ms": 70
+          },
+          {
+            "count": 27106,
+            "value_ms": 60
+          },
+          {
+            "count": 19964,
+            "value_ms": 200
+          },
+          {
+            "count": 17566,
+            "value_ms": 10
+          },
+          {
+            "count": 16822,
+            "value_ms": 20
+          },
+          {
+            "count": 14874,
+            "value_ms": 90
+          },
+          {
+            "count": 12744,
+            "value_ms": 40
+          },
+          {
+            "count": 10245,
+            "value_ms": 30
+          },
+          {
+            "count": 9288,
+            "value_ms": 300
+          },
+          {
+            "count": 1994,
+            "value_ms": 400
+          },
+          {
+            "count": 604,
+            "value_ms": 500
+          },
+          {
+            "count": 573,
+            "value_ms": 1000
+          },
+          {
+            "count": 479,
+            "value_ms": 600
+          },
+          {
+            "count": 291,
+            "value_ms": 700
+          },
+          {
+            "count": 228,
+            "value_ms": 800
+          },
+          {
+            "count": 180,
+            "value_ms": 900
+          },
+          {
+            "count": 137,
+            "value_ms": 4000
+          }
+        ],
+        "vocab_size": 22
+      },
+      "time_shift_parity_mismatches": 0,
+      "v3_reconstruction_mismatches": 0,
+      "window_count": 4096
+    }
+  },
+  "checks": {
+    "comparators_available": true,
+    "generated_rigid_evidence_available": true,
+    "target_timing_residue_rich": true,
+    "time_shift_parity_exact": true,
+    "v3_reconstruction_exact": true
+  },
+  "comparators": {
+    "c3_target_complexity": {
+      "available": true,
+      "decision": {
+        "next_step": "Focus the next bounded experiment on v3/v2.1 grammar repair and trained rollout failure clusters.",
+        "reason": "C3 remains reconstructive but side-stream/state costs are not target-grammar competitive with v3",
+        "route": "MUTATE_TO_V3_GRAMMAR_REPAIR"
+      },
+      "decision_route": "MUTATE_TO_V3_GRAMMAR_REPAIR",
+      "path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_v3_target_complexity_comparison_summary.json"
+    },
+    "factorized_event": {
+      "available": true,
+      "decision_route": "KILL_FACTORIZE_EVENT_SIGNATURE",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_factorized_event_signature_proxy_summary.json"
+    },
+    "generated_state": {
+      "available": true,
+      "baseline_failure_counts": {
+        "boundary_clamped": 10,
+        "dead_end": 0,
+        "late_spill": 9,
+        "max_token": 0,
+        "overgenerated": 6,
+        "rigid": 12,
+        "starved": 11,
+        "undergenerated": 10
+      },
+      "decision_route": "TEST_DECODE_TIMING_CALIBRATION",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_generated_state_continuation_diagnostic_summary.json"
+    },
+    "matched_v2_1": {
+      "available": true,
+      "decision_route": "MUTATE",
+      "mean_dominant_spacing_ratio": 1.0,
+      "mean_f1_100ms": 0.7448020978838702,
+      "min_dominant_spacing_ratio": 1.0,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_matched_v21_timing_baseline_summary.json",
+      "second_window_starved_case_count": 0,
+      "systematic_rigid_grid": true
+    },
+    "v3_decode_policy": {
+      "available": true,
+      "decision_route": "KILL",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_decode_policy_continuation_sweep_summary.json"
+    },
+    "v3_full_dataset": {
+      "available": true,
+      "comparison": {
+        "bits_per_baseline_token": 3.9790864029535413,
+        "eval_token_count": 22471,
+        "event_token_count": 9112,
+        "lane_action_token_count": 14714,
+        "multi_lane_event_count": 3976,
+        "reconstruction_mismatches": 0,
+        "token_reduction": 5602,
+        "token_reduction_ratio": 0.1995511701635023,
+        "total_bit_reduction": 6414.936792023844,
+        "total_bit_reduction_ratio": 0.05430872043736522
+      },
+      "decision_route": "TEST_NEXT",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_full_dataset_audit_summary.json"
+    },
+    "v3_multicase": {
+      "available": true,
+      "decision_route": "MUTATE",
+      "mean_dominant_spacing_ratio": 0.9931972789115646,
+      "mean_f1_100ms": 0.6430931814707186,
+      "min_dominant_spacing_ratio": 0.9795918367346939,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_multicase_timing_quality_summary.json",
+      "second_window_starved_case_count": 2,
+      "systematic_rigid_grid": true
+    }
+  },
+  "comparison": {
+    "event_interval_160_200_share": 0.09654678493770062,
+    "event_interval_effective_vocab": 22.69093057523644,
+    "event_interval_entropy_bits": 4.504043871317141,
+    "event_interval_le_200_share": 0.8863036275152728,
+    "event_interval_top1_share": 0.12892606909881613,
+    "event_interval_top3_share": 0.29921392330790736,
+    "generated_rigid_evidence": true,
+    "generated_v21_mean_dominant_spacing_ratio": 1.0,
+    "generated_v21_systematic_rigid_grid": true,
+    "generated_v3_mean_dominant_spacing_ratio": 0.9931972789115646,
+    "generated_v3_systematic_rigid_grid": true,
+    "missing_comparator_keys": [],
+    "target_mean_window_dominant_interval_ratio": 0.5087598888436357,
+    "target_rigid_window_share_ge_0_90": 0.029044647143542966,
+    "target_rigid_window_share_ge_0_95": 0.01584253480556889,
+    "time_shift_parity_mismatches": 0,
+    "v3_reconstruction_mismatches": 0
+  },
+  "config_path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_kind_heads_1000step_enabled.yaml",
+  "dataset": {
+    "audit_window_count": 4238,
+    "eval_scored_window_count": 142,
+    "eval_window_count": 142,
+    "full_dataset_audit": false,
+    "train_scored_window_count": 4096,
+    "train_window_count": 174373
+  },
+  "decision": {
+    "failed_checks": [],
+    "interpretation": "The target streams already contain timing diversity, and v3 preserves the same time-shift sequence as v2.1. The generated rigid grids therefore look more like calibration/exposure failure than an event-token representation failure.",
+    "kill_criteria": [],
+    "kill_criteria_triggered": false,
+    "next_step": "Create a bounded timing loss or timing-embedding calibration card with rigid-grid and second-window guards.",
+    "positive_gate_passed": true,
+    "reason": "teacher-forcing targets preserve richer timing residue than the generated rigid-grid rollouts",
+    "route": "TEST_TIMING_LOSS_OR_EMBEDDING_CALIBRATION"
+  },
+  "elapsed_s": 64.02962633399875,
+  "experiment": "Target grammar shared timing-residue structure audit",
+  "schema_version": 1,
+  "vocab": {
+    "shared_time_shift_values_ms": [
+      10,
+      20,
+      30,
+      40,
+      50,
+      60,
+      70,
+      80,
+      90,
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900,
+      1000,
+      2000,
+      3000,
+      4000
+    ],
+    "v2_1_vocab_size": 37,
+    "v3_vocab_size": 280
+  }
+}
