@@ -1,0 +1,254 @@
+{
+  "decision": {
+    "next_step": "Create a bounded selective completion/budget signal card with hard primary and sentinel event-ratio guards; do not scale scalar losses or local decode repair.",
+    "reason": "6 primary cases have rank-near event opportunities and 6 have large second-window deficits, while broad spacing release overproduces sentinels",
+    "route": "TEST_SELECTIVE_COMPLETION_BUDGET_SIGNAL"
+  },
+  "elapsed_s": 0.0034144999808631837,
+  "experiment": "target_grammar_v3_generated_prefix_event_budget_calibration_audit",
+  "metrics": {
+    "failed_branch_checks": {
+      "c3_target_side_costly": true,
+      "c3_v3_target_complexity": {
+        "failed_guards": [
+          "c3_combined_sequence_competitive",
+          "c3_cross_window_reference_low",
+          "c3_ordered_bits_not_worse",
+          "c3_ordered_sequence_bounded",
+          "c3_production_input_legal"
+        ],
+        "route": "MUTATE_TO_V3_GRAMMAR_REPAIR"
+      },
+      "conditioned_event_distribution": {
+        "failed_guards": [
+          "median_event_count_ratio_in_range"
+        ],
+        "route": "KILL"
+      },
+      "conditioned_event_distribution_failed": true,
+      "continuation_jump": {
+        "failed_checks": [
+          "all_32_rollouts_legal",
+          "starved_cases_below_baseline_11",
+          "rigid_cases_no_worse_than_baseline_7",
+          "median_event_ratio_in_0_80_1_25",
+          "mean_f1_no_more_than_0_03_below_baseline"
+        ],
+        "rollout_aggregate": {
+          "all_legal": false,
+          "case_count": 32,
+          "dead_end_case_count": 3,
+          "max_boundary_event_ratio": 0.047619047619047616,
+          "max_duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "max_event_count_ratio": 2.159090909090909,
+          "max_token_hit_case_count": 0,
+          "mean_dominant_spacing_ratio": 0.8380619526396432,
+          "mean_event_count_ratio": 0.8701774840573224,
+          "mean_f1_100ms": 0.5695808754101777,
+          "mean_second_window_share": 0.21935032868278298,
+          "median_dominant_spacing_ratio": 0.9361702127659575,
+          "median_event_count_ratio": 0.631578947368421,
+          "median_f1_100ms": 0.574693186627169,
+          "median_second_window_share": 0.041666666666666664,
+          "min_event_count_ratio": 0.23076923076923078,
+          "overgeneration_case_count": 2,
+          "rigid_case_count": 24,
+          "run_count": 32,
+          "second_window_starved_case_count": 19,
+          "undergeneration_case_count_lt_0_7": 17
+        },
+        "route": "MUTATE"
+      },
+      "continuation_jump_failed": true,
+      "event_budget": {
+        "failed_checks": [
+          "all_32_rollouts_legal",
+          "max_boundary_ratio_no_worse_than_baseline_0_200",
+          "median_event_ratio_in_0_80_1_25",
+          "no_max_token_cases",
+          "rigid_cases_no_worse_than_baseline_7",
+          "starved_cases_below_baseline_11"
+        ],
+        "route": "MUTATE"
+      },
+      "event_budget_failed": true,
+      "only_broad_event_pressure_remaining": true,
+      "scalar_or_decode_repairs_failed": true
+    },
+    "guard_results": {
+      "artifact_only": true,
+      "no_rollout_rerun": true,
+      "no_tokenizer_or_default_change": true,
+      "no_training": true,
+      "prior_scalar_decode_repairs_failed": true,
+      "rank_near_primary_signal": true,
+      "required_artifacts_present": true,
+      "second_window_deficit_signal": true,
+      "sentinel_overproduction_guard_needed": true
+    },
+    "negative_signal_observed": false,
+    "positive_signal_observed": true,
+    "primary_trace": {
+      "case_count": 6,
+      "cases": [
+        {
+          "best_event_margin_vs_argmax": -0.334291934967041,
+          "best_event_rank": 2,
+          "candidate_count": 50,
+          "case_id": "14_oomori_seiko_justadice_tv_size_remu_hard",
+          "deficit_over_threshold": true,
+          "event_count_ratio": 0.5517241379310345,
+          "failure_class": "time_shift_repetition",
+          "rank_near_event_opportunity": true,
+          "reference_second_window_event_share": 0.5402298850574713,
+          "second_window_event_share": 0.041666666666666664,
+          "second_window_share_deficit": 0.4985632183908046
+        },
+        {
+          "best_event_margin_vs_argmax": -0.0539095401763916,
+          "best_event_rank": 2,
+          "candidate_count": 74,
+          "case_id": "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+          "deficit_over_threshold": true,
+          "event_count_ratio": 0.5274725274725275,
+          "failure_class": "time_shift_repetition",
+          "rank_near_event_opportunity": true,
+          "reference_second_window_event_share": 0.5494505494505495,
+          "second_window_event_share": 0.041666666666666664,
+          "second_window_share_deficit": 0.5077838827838829
+        },
+        {
+          "best_event_margin_vs_argmax": -0.08916282653808594,
+          "best_event_rank": 2,
+          "candidate_count": 73,
+          "case_id": "19_nekodex_circles_famoss_hard",
+          "deficit_over_threshold": true,
+          "event_count_ratio": 0.5333333333333333,
+          "failure_class": "time_shift_repetition",
+          "rank_near_event_opportunity": true,
+          "reference_second_window_event_share": 0.6111111111111112,
+          "second_window_event_share": 0.041666666666666664,
+          "second_window_share_deficit": 0.5694444444444445
+        },
+        {
+          "best_event_margin_vs_argmax": -1.403039574623108,
+          "best_event_rank": 2,
+          "candidate_count": 50,
+          "case_id": "22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair",
+          "deficit_over_threshold": true,
+          "event_count_ratio": 0.5161290322580645,
+          "failure_class": "time_shift_repetition",
+          "rank_near_event_opportunity": true,
+          "reference_second_window_event_share": 0.5483870967741935,
+          "second_window_event_share": 0.041666666666666664,
+          "second_window_share_deficit": 0.5067204301075269
+        },
+        {
+          "best_event_margin_vs_argmax": -2.685016632080078,
+          "best_event_rank": 4,
+          "candidate_count": 41,
+          "case_id": "31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial",
+          "deficit_over_threshold": true,
+          "event_count_ratio": 0.449438202247191,
+          "failure_class": "time_shift_repetition",
+          "rank_near_event_opportunity": true,
+          "reference_second_window_event_share": 0.7303370786516854,
+          "second_window_event_share": 0.0,
+          "second_window_share_deficit": 0.7303370786516854
+        },
+        {
+          "best_event_margin_vs_argmax": -0.7842600345611572,
+          "best_event_rank": 2,
+          "candidate_count": 48,
+          "case_id": "18_billiummoto_four_veiled_stars_aries_famoss_hard",
+          "deficit_over_threshold": true,
+          "event_count_ratio": 0.6623376623376623,
+          "failure_class": "time_shift_repetition",
+          "rank_near_event_opportunity": true,
+          "reference_second_window_event_share": 0.6233766233766234,
+          "second_window_event_share": 0.041666666666666664,
+          "second_window_share_deficit": 0.5817099567099567
+        }
+      ],
+      "failure_class_counts": {
+        "time_shift_repetition": 6
+      },
+      "mean_best_event_margin_vs_argmax": -0.8916134238243103,
+      "mean_event_count_ratio": 0.5400724825966355,
+      "mean_generated_second_window_share": 0.03472222222222222,
+      "mean_rank_near_candidate_count": 56.0,
+      "mean_reference_second_window_share": 0.6004820574036057,
+      "mean_second_window_share_deficit": 0.5657598351813835,
+      "rank_near_candidate_count_total": 336,
+      "rank_near_case_count": 6,
+      "rank_near_case_share": 1.0,
+      "second_window_deficit_case_count": 6,
+      "second_window_deficit_case_share": 1.0,
+      "secondary_flag_counts": {
+        "boundary_drift": 6,
+        "event_underselection": 6,
+        "time_shift_repetition": 6
+      }
+    },
+    "required_artifacts_present": true,
+    "source_keys": [
+      "c3_v3_target_complexity",
+      "conditioned_event_distribution",
+      "continuation_jump",
+      "event_budget",
+      "generated_prefix_trace",
+      "spacing_escape"
+    ],
+    "spacing_escape": {
+      "all_legal": true,
+      "dead_end_count": 0,
+      "max_token_count": 0,
+      "primary_both_improved_count": 6,
+      "primary_case_count": 6,
+      "primary_event_ratio_over_count": 3,
+      "primary_mean_event_ratio": 1.2229937339428534,
+      "primary_mean_second_window_share_delta": 0.44704661466446516,
+      "primary_recoverable_by_broad_release": true,
+      "primary_second_window_improved_count": 6,
+      "sentinel_case_count": 4,
+      "sentinel_event_ratio_over_count": 4,
+      "sentinel_mean_event_ratio_delta": 0.7999084249084248,
+      "sentinel_median_event_ratio": 1.6349969474969475,
+      "sentinel_overproduction_risk": true
+    }
+  },
+  "missing_required_count": 0,
+  "schema_version": 1,
+  "sources": {
+    "c3_v3_target_complexity": {
+      "exists": true,
+      "path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_v3_target_complexity_comparison_summary.json",
+      "required": true
+    },
+    "conditioned_event_distribution": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_conditioned_event_distribution_short_rollout_summary.json",
+      "required": true
+    },
+    "continuation_jump": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_continuation_jump_training_gate_summary.json",
+      "required": true
+    },
+    "event_budget": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_budget_training_gate_summary.json",
+      "required": true
+    },
+    "generated_prefix_trace": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_generated_prefix_state_trace_audit_summary.json",
+      "required": true
+    },
+    "spacing_escape": {
+      "exists": true,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_trace_conditioned_spacing_escape_summary.json",
+      "required": true
+    }
+  }
+}
