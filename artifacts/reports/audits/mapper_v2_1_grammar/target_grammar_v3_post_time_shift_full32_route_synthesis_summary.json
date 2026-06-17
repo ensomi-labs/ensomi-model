@@ -1,0 +1,76 @@
+{
+  "audit_target": "Can C3's chart-local fallback reference structure become a legal target-side side stream or grammar extension with deterministic reconstruction, bounded sequence/state cost, and no inference-time target leakage, while v3 scalar timing objectives remain gated by full32 rollout quality?",
+  "decision": {
+    "next_step": "Stop the current time-shift-distance objective as-is; keep C3 exploration on legal target-side side-stream or grammar-extension integration.",
+    "reason": "row-filtered time-shift distance trained stably but failed full32 rollout checks, while C3 remains the strongest reconstructive tokenizer-side representation result",
+    "route": "MUTATE_TIME_SHIFT_DISTANCE_AND_TEST_C3_TARGET_SIDE_STREAM"
+  },
+  "experiment": "Target grammar v3 post-time-shift full32 route synthesis",
+  "not_proved": [
+    "v3 replacement readiness",
+    "all timing objectives are bad",
+    "C3 improves mapper-generated chart quality",
+    "C3 can be used as inference-time input conditioning",
+    "active-hold causality"
+  ],
+  "proved": {
+    "c3_hardening": {
+      "baseline_motif_stream_mismatches": 0,
+      "clean_active_hold_trace_delta_bits_per_event": -0.3809793375551669,
+      "delta_bits_per_event": -0.3849096630040947,
+      "dirty_active_hold_trace_delta_bits_per_event": -0.43255187244188775,
+      "fallback_payload_mismatches": 0,
+      "full_chart_mismatches": 0,
+      "full_token_stream_mismatches": 0,
+      "same_song_filtered_delta_bits_per_event": -0.38592890137466185,
+      "selected_variant": "a2_skeleton_residual_all_fallback_w256",
+      "span_boundary_mismatches": 0,
+      "test_charged_bits_per_event": 4.0368045441872065,
+      "transform_inverse_mismatches": 0
+    },
+    "casf_v2": {
+      "baseline_test_charged_bits_per_event": 4.421714207191301,
+      "bootstrap_95_ci": [
+        -0.258092,
+        -0.186757
+      ],
+      "c3_test_charged_bits_per_event": 4.198613101989439,
+      "delta_bits_per_event": -0.2231011052018621,
+      "fallback_payload_reconstruction_mismatches": 0,
+      "same_song_filtered_delta_bits_per_event": -0.22353525270533403
+    },
+    "time_shift_row_filter_plumbing": {
+      "baseline_eval_token_loss": 2.176626054738027,
+      "baseline_eval_total_loss": 2.2627727390410297,
+      "enabled_eval_token_loss": 2.172651960832534,
+      "enabled_eval_total_loss": 2.258821244279302,
+      "enabled_time_shift_distance_loss": 0.017952436666573316,
+      "finite_training_checks_passed": true,
+      "token_loss_delta": -0.003974093905493081,
+      "total_loss_delta": -0.003951494761727847
+    }
+  },
+  "reports": {
+    "experiment_card": "target_grammar_v3_post_time_shift_full32_route_synthesis_experiment_card.md",
+    "result_report": "target_grammar_v3_post_time_shift_full32_route_synthesis_result_report.md"
+  },
+  "rollout_failure": {
+    "baseline_rigid_case_count": 10,
+    "baseline_starved_count": 5,
+    "enabled_rigid_case_count": 13,
+    "enabled_starved_count": 8,
+    "mean_dominant_spacing_ratio_delta": 0.06219724054108845,
+    "mean_f1_delta": -0.030968231114384386,
+    "mean_second_window_share_delta": -0.0343462851188464,
+    "new_starved_count": 3,
+    "rollout_pair_count": 32
+  },
+  "schema_version": 1,
+  "stopped_branch": "current expected-shift time-shift-distance objective at lambda 0.5 and scale 1000ms",
+  "surfaced_issues": [
+    "training loss moved in the right direction while rollout rigidity/starvation worsened",
+    "C3 is side-stream-shaped and often noncontiguous in the main stream",
+    "C3 remains target-history shaped, so target-derived sidecar conditioning is not production input",
+    "active-hold causality remains unproved"
+  ]
+}
