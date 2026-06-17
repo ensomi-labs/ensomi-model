@@ -1,0 +1,138 @@
+{
+  "checks": {
+    "all_losses_finite": true,
+    "auxiliary_loss_decreased": true,
+    "default_off_auxiliary_logits_absent": true,
+    "default_off_lambda_zero": true,
+    "delta_head_gradient_nonzero": true,
+    "end_gap_head_gradient_nonzero": true,
+    "end_gap_labels_positive": true,
+    "event_labels_positive": true,
+    "final_auxiliary_loss_finite": true,
+    "initial_auxiliary_loss_positive": true,
+    "no_c3_backreference_or_future_lookup": true,
+    "no_rollout": true,
+    "no_tokenizer_dataset_default_change": true,
+    "shared_decoder_gradient_nonzero": true,
+    "signature_head_gradient_nonzero": true,
+    "token_loss_not_worse": true,
+    "total_loss_decreased": true
+  },
+  "config": {
+    "dataset_schema_changed": false,
+    "default_behavior_changed": false,
+    "learning_rate": 0.005,
+    "max_aux_loss_ratio": 0.25,
+    "no_rollout": true,
+    "seed": 20260628,
+    "steps": 40,
+    "tokenizer_changed": false,
+    "uses_c3_backreference": false,
+    "uses_future_lookup": false
+  },
+  "commands": [
+    {
+      "command": "uv run python -m pulsefield_model.evals.mapper_v3_delta_event_auxiliary_tiny_training_gate",
+      "result": "passed; route=TEST_DELTA_EVENT_AUXILIARY_FIXED_SLICE_GATE aux_loss_ratio=0.014565"
+    },
+    {
+      "command": "uv run --group dev pytest tests/evals/test_mapper_v3_delta_event_auxiliary_tiny_training_gate.py tests/models/mapper/v3 tests/evals/test_target_grammar_v3_delta_event_proxy_audit.py tests/training/test_mapper_v3.py -q",
+      "result": "44 passed in 1.35s"
+    },
+    {
+      "command": "uv run python -m py_compile src/pulsefield_model/evals/mapper_v3_delta_event_auxiliary_tiny_training_gate.py",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m json.tool artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_auxiliary_tiny_training_gate_summary.json >/dev/null",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "dataset": {
+    "seq_len": 12,
+    "slice": "synthetic_v3_teacher_forced_window",
+    "target_tokens": [
+      "TS_80",
+      "EV_1000",
+      "TS_100",
+      "TS_60",
+      "EV_0100",
+      "TS_100",
+      "TS_60",
+      "EV_2000",
+      "TS_300",
+      "EV_3100",
+      "TS_300",
+      "EOS"
+    ]
+  },
+  "decision": {
+    "next_step": "Create a fixed-slice label coverage or tiny real-data training gate before any rollout or replacement work.",
+    "reason": "synthetic default-off and overfit trainability gates passed",
+    "route": "TEST_DELTA_EVENT_AUXILIARY_FIXED_SLICE_GATE"
+  },
+  "default_off": {
+    "auxiliary_logits_absent": true,
+    "delta_event_auxiliary_loss": 0.0,
+    "lambda_delta_event_auxiliary": 0.0,
+    "total_loss": 4.7632737159729
+  },
+  "elapsed_s": 0.6118802909913938,
+  "experiment": "Target grammar v3 delta-event auxiliary tiny training gate",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_auxiliary_tiny_training_gate_experiment_card.md",
+  "next_step": "Create a fixed-slice label coverage or tiny real-data training gate before any rollout or replacement work.",
+  "schema_version": 1,
+  "training": {
+    "all_losses_finite": true,
+    "auxiliary_loss_ratio": 0.01456528534440318,
+    "end_gap_label_count": 1,
+    "event_label_count": 4,
+    "final_auxiliary_loss": 0.2030915915966034,
+    "final_token_loss": 0.15309615433216095,
+    "final_total_loss": 0.35618776082992554,
+    "first_step_gradients": {
+      "delta_head_grad_abs": 23.144943237304688,
+      "end_gap_head_grad_abs": 49.937259674072266,
+      "signature_head_grad_abs": 22.912656784057617,
+      "token_embedding_grad_abs": 4.266740322113037
+    },
+    "initial_auxiliary_loss": 13.943536758422852,
+    "initial_token_loss": 4.571407318115234,
+    "initial_total_loss": 18.514944076538086,
+    "learning_rate": 0.005,
+    "loss_curve_preview": [
+      {
+        "delta_event_auxiliary_loss": 13.943536758422852,
+        "step": 0.0,
+        "token_loss": 4.571407318115234,
+        "total_loss": 18.514944076538086
+      },
+      {
+        "delta_event_auxiliary_loss": 12.66584587097168,
+        "step": 1.0,
+        "token_loss": 4.24513578414917,
+        "total_loss": 16.910982131958008
+      },
+      {
+        "delta_event_auxiliary_loss": 1.2933648824691772,
+        "step": 20.0,
+        "token_loss": 0.6443430781364441,
+        "total_loss": 1.9377079010009766
+      },
+      {
+        "delta_event_auxiliary_loss": 0.2030915915966034,
+        "step": 39.0,
+        "token_loss": 0.15309615433216095,
+        "total_loss": 0.35618776082992554
+      }
+    ],
+    "min_auxiliary_loss": 0.2030915915966034,
+    "steps": 40,
+    "token_loss_ratio": 0.03348993946032392,
+    "total_loss_ratio": 0.019237852372521198
+  }
+}
