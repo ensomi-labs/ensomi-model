@@ -1,0 +1,411 @@
+{
+  "checks": {
+    "checkpoint_exists": true,
+    "checkpoint_model_v3": true,
+    "dataset_non_empty": true,
+    "faithful_global_context": true,
+    "no_training_or_rollout": true,
+    "rank_metrics_finite": true,
+    "time_shift_rows_positive": true,
+    "training_report_contract_v3": true,
+    "training_report_exists": true
+  },
+  "config": {
+    "batch_size": 2,
+    "checkpoint_path": "artifacts/tmp/mapper_v3_500step_training_horizon_gate/train/run/checkpoint.pt",
+    "device": "cpu",
+    "disable_global_context_for_smoke": false,
+    "max_windows": null,
+    "training_report_path": "artifacts/tmp/mapper_v3_500step_training_horizon_gate/train/run/report.json"
+  },
+  "dataset": {
+    "eval_window_count": 56,
+    "reported_eval_window_count": 56,
+    "source_window_count": 256
+  },
+  "decision": {
+    "interpretation": "The model can rank target shifts under teacher forcing, but generated state still collapses.",
+    "next_step": "Create a generated-state exposure diagnostic on high-leverage fixed-slice cases.",
+    "reason": "teacher-forced time-shift ranks are good enough that free-running state exposure is the likely bottleneck",
+    "route": "TEST_DECODE_STATE_EXPOSURE_DIAGNOSTIC"
+  },
+  "elapsed_s": 6.51131354199606,
+  "experiment": "Target grammar v3 teacher-forced time-shift logit audit",
+  "metrics": {
+    "argmax_200ms_share": 0.048121461657231086,
+    "argmax_rigid_proxy_piece_share_60_100_200": 0.5275347400926402,
+    "argmax_shift_counts": {
+      "10": 43,
+      "20": 65,
+      "30": 24,
+      "40": 29,
+      "50": 391,
+      "60": 621,
+      "70": 183,
+      "80": 907,
+      "90": 135,
+      "100": 1242,
+      "200": 187,
+      "300": 40,
+      "400": 13,
+      "600": 1,
+      "800": 5
+    },
+    "argmax_shift_distribution": {
+      "10": 0.011065362840967576,
+      "100": 0.31960885229027275,
+      "20": 0.016726711271230058,
+      "200": 0.048121461657231086,
+      "30": 0.006176016469377252,
+      "300": 0.010293360782295419,
+      "40": 0.007462686567164179,
+      "400": 0.0033453422542460112,
+      "50": 0.10061760164693773,
+      "60": 0.15980442614513637,
+      "600": 0.0002573340195573855,
+      "70": 0.04709212557900155,
+      "80": 0.23340195573854863,
+      "800": 0.0012866700977869274,
+      "90": 0.03474009264024704
+    },
+    "argmax_top_shift_ms": 100,
+    "argmax_top_shift_share": 0.31960885229027275,
+    "examples": [
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 0,
+        "step_index": 0,
+        "target_rank": 20,
+        "target_shift_ms": 30,
+        "top_shift_ms": [
+          800,
+          600,
+          200,
+          400,
+          80
+        ],
+        "window_start_ms": 0
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 8000,
+        "step_index": 0,
+        "target_rank": 17,
+        "target_shift_ms": 10,
+        "top_shift_ms": [
+          70,
+          80,
+          90,
+          200,
+          100
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 9510,
+        "step_index": 40,
+        "target_rank": 9,
+        "target_shift_ms": 300,
+        "top_shift_ms": [
+          80,
+          70,
+          100,
+          40,
+          60
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 14560,
+        "step_index": 154,
+        "target_rank": 7,
+        "target_shift_ms": 50,
+        "top_shift_ms": [
+          80,
+          100,
+          70,
+          40,
+          60
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 14880,
+        "step_index": 166,
+        "target_rank": 7,
+        "target_shift_ms": 50,
+        "top_shift_ms": [
+          80,
+          70,
+          100,
+          40,
+          60
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 14610,
+        "step_index": 156,
+        "target_rank": 7,
+        "target_shift_ms": 50,
+        "top_shift_ms": [
+          80,
+          70,
+          100,
+          40,
+          60
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 350,
+        "step_index": 5,
+        "target_rank": 6,
+        "target_shift_ms": 200,
+        "top_shift_ms": [
+          100,
+          80,
+          300,
+          70,
+          40
+        ],
+        "window_start_ms": 0
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 11090,
+        "step_index": 70,
+        "target_rank": 6,
+        "target_shift_ms": 70,
+        "top_shift_ms": [
+          80,
+          100,
+          300,
+          40,
+          90
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 14980,
+        "step_index": 170,
+        "target_rank": 6,
+        "target_shift_ms": 50,
+        "top_shift_ms": [
+          80,
+          100,
+          70,
+          40,
+          60
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 14930,
+        "step_index": 168,
+        "target_rank": 6,
+        "target_shift_ms": 50,
+        "top_shift_ms": [
+          80,
+          70,
+          100,
+          40,
+          60
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 14770,
+        "step_index": 162,
+        "target_rank": 6,
+        "target_shift_ms": 50,
+        "top_shift_ms": [
+          80,
+          70,
+          100,
+          40,
+          60
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 14720,
+        "step_index": 160,
+        "target_rank": 6,
+        "target_shift_ms": 50,
+        "top_shift_ms": [
+          80,
+          100,
+          70,
+          40,
+          60
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 14660,
+        "step_index": 158,
+        "target_rank": 5,
+        "target_shift_ms": 60,
+        "top_shift_ms": [
+          80,
+          70,
+          100,
+          40,
+          60
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 14820,
+        "step_index": 164,
+        "target_rank": 5,
+        "target_shift_ms": 60,
+        "top_shift_ms": [
+          80,
+          100,
+          70,
+          40,
+          60
+        ],
+        "window_start_ms": 8000
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 1400,
+        "step_index": 18,
+        "target_rank": 5,
+        "target_shift_ms": 50,
+        "top_shift_ms": [
+          10,
+          20,
+          60,
+          70,
+          50
+        ],
+        "window_start_ms": 0
+      },
+      {
+        "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+        "current_ms": 4340,
+        "step_index": 67,
+        "target_rank": 4,
+        "target_shift_ms": 10,
+        "top_shift_ms": [
+          60,
+          50,
+          70,
+          10,
+          20
+        ],
+        "window_start_ms": 0
+      }
+    ],
+    "js_divergence_target_vs_argmax": 0.03141207771884881,
+    "rank": {
+      "count": 3886,
+      "max": 22,
+      "mean": 2.167524446731858,
+      "median": 1.0,
+      "p90": 5.0
+    },
+    "recall_at_k": {
+      "1": 0.5810602161605765,
+      "3": 0.8638703036541431,
+      "5": 0.9233144621718992
+    },
+    "scored_token_count": 6366,
+    "target_200ms_share": 0.03988677303139475,
+    "target_rigid_proxy_piece_share_60_100_200": 0.5028306742151313,
+    "target_shift_counts": {
+      "10": 58,
+      "20": 58,
+      "30": 52,
+      "40": 116,
+      "50": 281,
+      "60": 657,
+      "70": 250,
+      "80": 624,
+      "90": 283,
+      "100": 1142,
+      "200": 155,
+      "300": 138,
+      "400": 16,
+      "500": 12,
+      "600": 8,
+      "700": 7,
+      "800": 3,
+      "900": 4,
+      "1000": 2,
+      "2000": 1,
+      "3000": 1,
+      "4000": 18
+    },
+    "target_shift_distribution": {
+      "10": 0.014925373134328358,
+      "100": 0.2938754503345342,
+      "1000": 0.000514668039114771,
+      "20": 0.014925373134328358,
+      "200": 0.03988677303139475,
+      "2000": 0.0002573340195573855,
+      "30": 0.013381369016984045,
+      "300": 0.035512094698919194,
+      "3000": 0.0002573340195573855,
+      "40": 0.029850746268656716,
+      "400": 0.004117344312918168,
+      "4000": 0.004632012352032939,
+      "50": 0.07231085949562532,
+      "500": 0.003088008234688626,
+      "60": 0.16906845084920227,
+      "600": 0.002058672156459084,
+      "70": 0.06433350488934637,
+      "700": 0.0018013381369016985,
+      "80": 0.16057642820380855,
+      "800": 0.0007720020586721565,
+      "90": 0.07282552753474009,
+      "900": 0.001029336078229542
+    },
+    "target_time_shift_nll": 1.2873708923269165,
+    "target_time_shift_prob_mean": 0.4790820146496712,
+    "time_shift_row_count": 3886,
+    "time_shift_values_ms": [
+      10,
+      20,
+      30,
+      40,
+      50,
+      60,
+      70,
+      80,
+      90,
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      700,
+      800,
+      900,
+      1000,
+      2000,
+      3000,
+      4000
+    ],
+    "time_shift_vocab_has_160": false,
+    "time_shift_vocab_size": 22,
+    "window_count": 56
+  },
+  "schema_version": 1
+}
