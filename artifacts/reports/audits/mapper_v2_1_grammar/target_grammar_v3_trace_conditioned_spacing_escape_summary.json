@@ -1,0 +1,4888 @@
+{
+  "aggregate": {
+    "all_legal": true,
+    "case_count": 10,
+    "dead_end_count": 0,
+    "max_token_count": 0,
+    "overall": {
+      "baseline": {
+        "case_count": 10,
+        "max_boundary_event_ratio": 0.09803921568627451,
+        "mean_dominant_spacing_ratio": 0.8340915996896291,
+        "mean_event_count_ratio": 0.6984547925407129,
+        "mean_f1_100ms": 0.5256421881439135,
+        "mean_second_window_share": 0.14384793917567026,
+        "median_dominant_spacing_ratio": 0.926418439716312,
+        "median_event_count_ratio": 0.542528735632184,
+        "median_f1_100ms": 0.5516497070613631,
+        "median_second_window_share": 0.041666666666666664
+      },
+      "candidate": {
+        "case_count": 10,
+        "max_boundary_event_ratio": 0.02912621359223301,
+        "mean_dominant_spacing_ratio": 0.5936966150095684,
+        "mean_event_count_ratio": 1.4281709133118137,
+        "mean_f1_100ms": 0.7688622116879831,
+        "mean_second_window_share": 0.5187637199412414,
+        "median_dominant_spacing_ratio": 0.5252525252525253,
+        "median_event_count_ratio": 1.3229617604617605,
+        "median_f1_100ms": 0.8080688542227004,
+        "median_second_window_share": 0.5385714285714286
+      }
+    },
+    "primary": {
+      "activation_count": 103,
+      "baseline": {
+        "case_count": 6,
+        "max_boundary_event_ratio": 0.09803921568627451,
+        "mean_dominant_spacing_ratio": 0.9331733042371341,
+        "mean_event_count_ratio": 0.5400724825966355,
+        "mean_f1_100ms": 0.5079100639661,
+        "mean_second_window_share": 0.04411764705882353,
+        "median_dominant_spacing_ratio": 0.9361702127659575,
+        "median_event_count_ratio": 0.5304029304029304,
+        "median_f1_100ms": 0.5516497070613631,
+        "median_second_window_share": 0.041666666666666664
+      },
+      "both_improved_count": 6,
+      "boundary_activation_count": 7,
+      "candidate": {
+        "case_count": 6,
+        "max_boundary_event_ratio": 0.02912621359223301,
+        "mean_dominant_spacing_ratio": 0.5139718620978382,
+        "mean_event_count_ratio": 1.2229937339428534,
+        "mean_f1_100ms": 0.825051193998864,
+        "mean_second_window_share": 0.4911642617232887,
+        "median_dominant_spacing_ratio": 0.5175282234105764,
+        "median_event_count_ratio": 1.215162081880408,
+        "median_f1_100ms": 0.8537806270308247,
+        "median_second_window_share": 0.54
+      },
+      "case_count": 6,
+      "event_ratio_over_count": 3,
+      "max_boundary_ratio_delta": -0.0689130020940415,
+      "mean_f1_delta": 0.3171411300327642,
+      "rigidity_improved_count": 6,
+      "second_window_improved_count": 6,
+      "spacing_activation_count": 96
+    },
+    "primary_case_count": 6,
+    "sentinel": {
+      "activation_count": 55,
+      "baseline": {
+        "case_count": 4,
+        "max_boundary_event_ratio": 0.061224489795918366,
+        "mean_dominant_spacing_ratio": 0.6854690428683717,
+        "mean_event_count_ratio": 0.9360282574568289,
+        "mean_f1_100ms": 0.5522403744106338,
+        "mean_second_window_share": 0.2934433773509404,
+        "median_dominant_spacing_ratio": 0.7381081081081081,
+        "median_event_count_ratio": 1.0412414965986394,
+        "median_f1_100ms": 0.5831202046035806,
+        "median_second_window_share": 0.20727891156462586
+      },
+      "both_improved_count": 2,
+      "boundary_activation_count": 7,
+      "candidate": {
+        "case_count": 4,
+        "max_boundary_event_ratio": 0.01,
+        "mean_dominant_spacing_ratio": 0.7132837443771636,
+        "mean_event_count_ratio": 1.7359366823652538,
+        "mean_f1_100ms": 0.6845787382216617,
+        "mean_second_window_share": 0.5601629072681704,
+        "median_dominant_spacing_ratio": 0.743549484482127,
+        "median_event_count_ratio": 1.6349969474969475,
+        "median_f1_100ms": 0.6697891241726587,
+        "median_second_window_share": 0.5185714285714286
+      },
+      "case_count": 4,
+      "event_ratio_over_count": 4,
+      "max_boundary_ratio_delta": -0.051224489795918364,
+      "mean_f1_delta": 0.13233836381102787,
+      "rigidity_improved_count": 2,
+      "second_window_improved_count": 4,
+      "spacing_activation_count": 48
+    },
+    "sentinel_case_count": 4,
+    "total_activation_count": 158,
+    "total_boundary_activation_count": 14,
+    "total_candidate_count": 840,
+    "total_spacing_activation_count": 144
+  },
+  "baseline_summary_path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_500step_fixed_slice_wide_audit_summary.json",
+  "case_results": [
+    {
+      "audio_path": "dataset/0/1010916/audio.mp3",
+      "baseline_metrics": {
+        "boundary_event_ratio": 0.041666666666666664,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5517241379310345,
+        "generated_event_count": 48,
+        "reference_event_count": 87,
+        "second_window_event_share": 0.041666666666666664,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.6074074074074075,
+          "matched_generated": 41,
+          "matched_reference": 41,
+          "precision": 0.8541666666666666,
+          "recall": 0.47126436781609193,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Hard].osu",
+      "candidate_legal": true,
+      "candidate_metrics": {
+        "boundary_event_count": 2,
+        "boundary_event_ratio": 0.02,
+        "dominant_spacing_ms": 150,
+        "dominant_spacing_ratio": 0.5252525252525253,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 1.1494252873563218,
+        "first_12_generated_times": [
+          820,
+          980,
+          1140,
+          1300,
+          1460,
+          1620,
+          1780,
+          1940,
+          2100,
+          2260,
+          2420,
+          2580
+        ],
+        "first_12_reference_times": [
+          730,
+          890,
+          1050,
+          1220,
+          1380,
+          1540,
+          1700,
+          1870,
+          2190,
+          2350,
+          2510,
+          2680
+        ],
+        "generated_event_count": 100,
+        "last_12_generated_times": [
+          14450,
+          14600,
+          14750,
+          14900,
+          15050,
+          15200,
+          15350,
+          15500,
+          15650,
+          15800,
+          15950,
+          15990
+        ],
+        "last_12_reference_times": [
+          14190,
+          14350,
+          14510,
+          14680,
+          14840,
+          15000,
+          15160,
+          15320,
+          15490,
+          15650,
+          15810,
+          15970
+        ],
+        "reference_event_count": 87,
+        "reference_second_window_event_count": 47,
+        "reference_second_window_event_share": 0.5402298850574713,
+        "second_window_event_count": 54,
+        "second_window_event_share": 0.54,
+        "spacing_counts": {
+          "100": 1,
+          "150": 52,
+          "160": 44,
+          "190": 1,
+          "40": 1
+        },
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.9304812834224598,
+          "matched_generated": 87,
+          "matched_reference": 87,
+          "precision": 0.87,
+          "recall": 1.0,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate_rollout": {
+        "completed": true,
+        "dead_end": false,
+        "max_tokens_exceeded": false,
+        "terminal_ms": 16000,
+        "timepoint_count": 100,
+        "token_count": 301,
+        "window_count": 2
+      },
+      "case_id": "14_oomori_seiko_justadice_tv_size_remu_hard",
+      "case_index": 14,
+      "chart_end_ms": 16000,
+      "comparison": {
+        "dominant_spacing_improved": true,
+        "dominant_spacing_ratio_delta": -0.41091768751343216,
+        "event_count_ratio_delta": 0.5977011494252873,
+        "event_ratio_ok": true,
+        "f1_delta": 0.32307387601505233,
+        "second_window_event_share_delta": 0.49833333333333335,
+        "second_window_improved": true
+      },
+      "difficulty": 3.19,
+      "group": "primary",
+      "normalized_difficulty": -0.405,
+      "summary_path": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape/rollouts/14_oomori_seiko_justadice_tv_size_remu_hard_16000ms_spacing_escape_summary.json",
+      "transform": {
+        "activation_count": 17,
+        "boundary_activation_count": 1,
+        "boundary_event_boost": 1.5,
+        "boundary_event_margin_floor": -2.0,
+        "boundary_event_rank_limit": 5,
+        "boundary_near_ms": 200,
+        "candidate_count": 90,
+        "enabled": true,
+        "examples": [
+          {
+            "current_ms": 1460,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              820,
+              980,
+              1140,
+              1300,
+              1460
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1620,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              980,
+              1140,
+              1300,
+              1460,
+              1620
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1780,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1140,
+              1300,
+              1460,
+              1620,
+              1780
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 21,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1940,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1300,
+              1460,
+              1620,
+              1780,
+              1940
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 24,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2100,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1460,
+              1620,
+              1780,
+              1940,
+              2100
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 27,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2260,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1620,
+              1780,
+              1940,
+              2100,
+              2260
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 30,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2420,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1780,
+              1940,
+              2100,
+              2260,
+              2420
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 33,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2580,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1940,
+              2100,
+              2260,
+              2420,
+              2580
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 36,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "argmax_token": "TS_30",
+            "boost": 1.5,
+            "current_ms": 7960,
+            "event_margin_vs_argmax": -1.4206395149230957,
+            "event_rank": 4,
+            "event_signature": "T...",
+            "mode": "boundary_event_boost",
+            "token_id": 25,
+            "token_index": 136,
+            "token_name": "EV_1000",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 8750,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8150,
+              8300,
+              8450,
+              8600,
+              8750
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8900,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8300,
+              8450,
+              8600,
+              8750,
+              8900
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9050,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8450,
+              8600,
+              8750,
+              8900,
+              9050
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 21,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9200,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8600,
+              8750,
+              8900,
+              9050,
+              9200
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 24,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9350,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8750,
+              8900,
+              9050,
+              9200,
+              9350
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 27,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9500,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8900,
+              9050,
+              9200,
+              9350,
+              9500
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 30,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9650,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9050,
+              9200,
+              9350,
+              9500,
+              9650
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 33,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9800,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9200,
+              9350,
+              9500,
+              9650,
+              9800
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 36,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          }
+        ],
+        "max_boundary_activations_per_window": 8,
+        "max_spacing_activations_per_window": 8,
+        "max_spacing_ms": 400,
+        "max_total_activations": 32,
+        "min_repeated_spacings": 4,
+        "min_spacing_ms": 40,
+        "spacing_activation_count": 16,
+        "spacing_penalty": 2.0,
+        "window_boundary_counts": {
+          "0": 1
+        },
+        "window_spacing_counts": {
+          "0": 8,
+          "8000": 8
+        }
+      }
+    },
+    {
+      "audio_path": "dataset/0/100501/Fantastic future.mp3",
+      "baseline_metrics": {
+        "boundary_event_ratio": 0.041666666666666664,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5274725274725275,
+        "generated_event_count": 48,
+        "reference_event_count": 91,
+        "second_window_event_share": 0.041666666666666664,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.6043165467625898,
+          "matched_generated": 42,
+          "matched_reference": 42,
+          "precision": 0.875,
+          "recall": 0.46153846153846156,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K MX].osu",
+      "candidate_legal": true,
+      "candidate_metrics": {
+        "boundary_event_count": 0,
+        "boundary_event_ratio": 0.0,
+        "dominant_spacing_ms": 150,
+        "dominant_spacing_ratio": 0.5050505050505051,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 1.098901098901099,
+        "first_12_generated_times": [
+          820,
+          980,
+          1140,
+          1300,
+          1460,
+          1620,
+          1780,
+          1940,
+          2100,
+          2260,
+          2420,
+          2580
+        ],
+        "first_12_reference_times": [
+          400,
+          750,
+          1100,
+          1270,
+          1450,
+          1620,
+          1800,
+          1970,
+          2150,
+          2320,
+          2500,
+          2670
+        ],
+        "generated_event_count": 100,
+        "last_12_generated_times": [
+          14210,
+          14360,
+          14510,
+          14660,
+          14810,
+          14960,
+          15110,
+          15260,
+          15410,
+          15560,
+          15710,
+          15860
+        ],
+        "last_12_reference_times": [
+          14270,
+          14360,
+          14440,
+          14530,
+          14700,
+          14880,
+          15050,
+          15230,
+          15400,
+          15580,
+          15750,
+          15930
+        ],
+        "reference_event_count": 91,
+        "reference_second_window_event_count": 50,
+        "reference_second_window_event_share": 0.5494505494505495,
+        "second_window_event_count": 54,
+        "second_window_event_share": 0.54,
+        "spacing_counts": {
+          "130": 1,
+          "150": 50,
+          "160": 45,
+          "70": 3
+        },
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.8900523560209425,
+          "matched_generated": 85,
+          "matched_reference": 85,
+          "precision": 0.85,
+          "recall": 0.9340659340659341,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate_rollout": {
+        "completed": true,
+        "dead_end": false,
+        "max_tokens_exceeded": false,
+        "terminal_ms": 16000,
+        "timepoint_count": 100,
+        "token_count": 301,
+        "window_count": 2
+      },
+      "case_id": "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+      "case_index": 17,
+      "chart_end_ms": 16000,
+      "comparison": {
+        "dominant_spacing_improved": true,
+        "dominant_spacing_ratio_delta": -0.4311197077154524,
+        "event_count_ratio_delta": 0.5714285714285715,
+        "event_ratio_ok": true,
+        "f1_delta": 0.2857358092583526,
+        "second_window_event_share_delta": 0.49833333333333335,
+        "second_window_improved": true
+      },
+      "difficulty": 3.44,
+      "group": "primary",
+      "normalized_difficulty": -0.28,
+      "summary_path": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_16000ms_spacing_escape_summary.json",
+      "transform": {
+        "activation_count": 18,
+        "boundary_activation_count": 2,
+        "boundary_event_boost": 1.5,
+        "boundary_event_margin_floor": -2.0,
+        "boundary_event_rank_limit": 5,
+        "boundary_near_ms": 200,
+        "candidate_count": 81,
+        "enabled": true,
+        "examples": [
+          {
+            "current_ms": 1460,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              820,
+              980,
+              1140,
+              1300,
+              1460
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1620,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              980,
+              1140,
+              1300,
+              1460,
+              1620
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1780,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1140,
+              1300,
+              1460,
+              1620,
+              1780
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 21,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1940,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1300,
+              1460,
+              1620,
+              1780,
+              1940
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 24,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2100,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1460,
+              1620,
+              1780,
+              1940,
+              2100
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 27,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2260,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1620,
+              1780,
+              1940,
+              2100,
+              2260
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 30,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2420,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1780,
+              1940,
+              2100,
+              2260,
+              2420
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 33,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2580,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1940,
+              2100,
+              2260,
+              2420,
+              2580
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 36,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "argmax_token": "TS_30",
+            "boost": 1.5,
+            "current_ms": 7960,
+            "event_margin_vs_argmax": -1.9521289467811584,
+            "event_rank": 5,
+            "event_signature": "..TT",
+            "mode": "boundary_event_boost",
+            "token_id": 104,
+            "token_index": 136,
+            "token_name": "EV_0011",
+            "write_start_ms": 0
+          },
+          {
+            "argmax_token": "TS_100",
+            "boost": 1.5,
+            "current_ms": 8150,
+            "event_margin_vs_argmax": -0.0539095401763916,
+            "event_rank": 2,
+            "event_signature": "..T.",
+            "mode": "boundary_event_boost",
+            "token_id": 40,
+            "token_index": 2,
+            "token_name": "EV_0010",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8750,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8150,
+              8300,
+              8450,
+              8600,
+              8750
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8900,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8300,
+              8450,
+              8600,
+              8750,
+              8900
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9570,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8970,
+              9120,
+              9270,
+              9420,
+              9570
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 32,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9720,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9120,
+              9270,
+              9420,
+              9570,
+              9720
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 35,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10390,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9790,
+              9940,
+              10090,
+              10240,
+              10390
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 49,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10540,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9940,
+              10090,
+              10240,
+              10390,
+              10540
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 52,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10690,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              10090,
+              10240,
+              10390,
+              10540,
+              10690
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 55,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10840,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              10240,
+              10390,
+              10540,
+              10690,
+              10840
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 58,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          }
+        ],
+        "max_boundary_activations_per_window": 8,
+        "max_spacing_activations_per_window": 8,
+        "max_spacing_ms": 400,
+        "max_total_activations": 32,
+        "min_repeated_spacings": 4,
+        "min_spacing_ms": 40,
+        "spacing_activation_count": 16,
+        "spacing_penalty": 2.0,
+        "window_boundary_counts": {
+          "0": 1,
+          "8000": 1
+        },
+        "window_spacing_counts": {
+          "0": 8,
+          "8000": 8
+        }
+      }
+    },
+    {
+      "audio_path": "dataset/0/1003217/nekodex - circles! (FAMoss) [audio!].mp3",
+      "baseline_metrics": {
+        "boundary_event_ratio": 0.041666666666666664,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5333333333333333,
+        "generated_event_count": 48,
+        "reference_event_count": 90,
+        "second_window_event_share": 0.041666666666666664,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.5217391304347827,
+          "matched_generated": 36,
+          "matched_reference": 36,
+          "precision": 0.75,
+          "recall": 0.4,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1003217/nekodex - circles! (FAMoss) [hard!].osu",
+      "candidate_legal": true,
+      "candidate_metrics": {
+        "boundary_event_count": 3,
+        "boundary_event_ratio": 0.02912621359223301,
+        "dominant_spacing_ms": 150,
+        "dominant_spacing_ratio": 0.5098039215686274,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 1.1444444444444444,
+        "first_12_generated_times": [
+          820,
+          980,
+          1140,
+          1300,
+          1460,
+          1620,
+          1780,
+          1940,
+          2100,
+          2260,
+          2420,
+          2580
+        ],
+        "first_12_reference_times": [
+          2590,
+          2750,
+          2920,
+          3080,
+          3240,
+          3400,
+          3570,
+          3730,
+          3890,
+          4060,
+          4220,
+          4380
+        ],
+        "generated_event_count": 103,
+        "last_12_generated_times": [
+          14590,
+          14740,
+          14890,
+          15040,
+          15190,
+          15340,
+          15490,
+          15640,
+          15790,
+          15940,
+          15980,
+          15990
+        ],
+        "last_12_reference_times": [
+          14170,
+          14330,
+          14490,
+          14650,
+          14820,
+          14980,
+          15140,
+          15310,
+          15470,
+          15630,
+          15800,
+          15960
+        ],
+        "reference_event_count": 90,
+        "reference_second_window_event_count": 55,
+        "reference_second_window_event_share": 0.6111111111111112,
+        "second_window_event_count": 57,
+        "second_window_event_share": 0.5533980582524272,
+        "spacing_counts": {
+          "10": 2,
+          "130": 1,
+          "150": 52,
+          "160": 44,
+          "40": 1,
+          "70": 2
+        },
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.8601036269430052,
+          "matched_generated": 83,
+          "matched_reference": 83,
+          "precision": 0.8058252427184466,
+          "recall": 0.9222222222222223,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate_rollout": {
+        "completed": true,
+        "dead_end": false,
+        "max_tokens_exceeded": false,
+        "terminal_ms": 16000,
+        "timepoint_count": 103,
+        "token_count": 306,
+        "window_count": 2
+      },
+      "case_id": "19_nekodex_circles_famoss_hard",
+      "case_index": 19,
+      "chart_end_ms": 16000,
+      "comparison": {
+        "dominant_spacing_improved": true,
+        "dominant_spacing_ratio_delta": -0.42636629119733005,
+        "event_count_ratio_delta": 0.611111111111111,
+        "event_ratio_ok": true,
+        "f1_delta": 0.33836449650822253,
+        "second_window_event_share_delta": 0.5117313915857605,
+        "second_window_improved": true
+      },
+      "difficulty": 3.55,
+      "group": "primary",
+      "normalized_difficulty": -0.2250000000000001,
+      "summary_path": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape/rollouts/19_nekodex_circles_famoss_hard_16000ms_spacing_escape_summary.json",
+      "transform": {
+        "activation_count": 18,
+        "boundary_activation_count": 2,
+        "boundary_event_boost": 1.5,
+        "boundary_event_margin_floor": -2.0,
+        "boundary_event_rank_limit": 5,
+        "boundary_near_ms": 200,
+        "candidate_count": 85,
+        "enabled": true,
+        "examples": [
+          {
+            "current_ms": 1460,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              820,
+              980,
+              1140,
+              1300,
+              1460
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1620,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              980,
+              1140,
+              1300,
+              1460,
+              1620
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1780,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1140,
+              1300,
+              1460,
+              1620,
+              1780
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 21,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1940,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1300,
+              1460,
+              1620,
+              1780,
+              1940
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 24,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2100,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1460,
+              1620,
+              1780,
+              1940,
+              2100
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 27,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2260,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1620,
+              1780,
+              1940,
+              2100,
+              2260
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 30,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2420,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1780,
+              1940,
+              2100,
+              2260,
+              2420
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 33,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2580,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1940,
+              2100,
+              2260,
+              2420,
+              2580
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 36,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "argmax_token": "TS_30",
+            "boost": 1.5,
+            "current_ms": 7960,
+            "event_margin_vs_argmax": -1.7123512625694275,
+            "event_rank": 5,
+            "event_signature": "..TT",
+            "mode": "boundary_event_boost",
+            "token_id": 104,
+            "token_index": 136,
+            "token_name": "EV_0011",
+            "write_start_ms": 0
+          },
+          {
+            "argmax_token": "TS_100",
+            "boost": 1.5,
+            "current_ms": 8000,
+            "event_margin_vs_argmax": -1.2856800556182861,
+            "event_rank": 5,
+            "event_signature": "TT.T",
+            "mode": "boundary_event_boost",
+            "token_id": 93,
+            "token_index": 0,
+            "token_name": "EV_1101",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8600,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8000,
+              8150,
+              8300,
+              8450,
+              8600
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 13,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8750,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8150,
+              8300,
+              8450,
+              8600,
+              8750
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 16,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8900,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8300,
+              8450,
+              8600,
+              8750,
+              8900
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 19,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9050,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8450,
+              8600,
+              8750,
+              8900,
+              9050
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 22,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9720,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9120,
+              9270,
+              9420,
+              9570,
+              9720
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 36,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9870,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9270,
+              9420,
+              9570,
+              9720,
+              9870
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 39,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10020,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9420,
+              9570,
+              9720,
+              9870,
+              10020
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 42,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10690,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              10090,
+              10240,
+              10390,
+              10540,
+              10690
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 56,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          }
+        ],
+        "max_boundary_activations_per_window": 8,
+        "max_spacing_activations_per_window": 8,
+        "max_spacing_ms": 400,
+        "max_total_activations": 32,
+        "min_repeated_spacings": 4,
+        "min_spacing_ms": 40,
+        "spacing_activation_count": 16,
+        "spacing_penalty": 2.0,
+        "window_boundary_counts": {
+          "0": 1,
+          "8000": 1
+        },
+        "window_spacing_counts": {
+          "0": 8,
+          "8000": 8
+        }
+      }
+    },
+    {
+      "audio_path": "dataset/0/1010916/audio.mp3",
+      "baseline_metrics": {
+        "boundary_event_ratio": 0.041666666666666664,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5161290322580645,
+        "generated_event_count": 48,
+        "reference_event_count": 93,
+        "second_window_event_share": 0.041666666666666664,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.5815602836879433,
+          "matched_generated": 41,
+          "matched_reference": 41,
+          "precision": 0.8541666666666666,
+          "recall": 0.44086021505376344,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Grimoire of Despair].osu",
+      "candidate_legal": true,
+      "candidate_metrics": {
+        "boundary_event_count": 1,
+        "boundary_event_ratio": 0.007874015748031496,
+        "dominant_spacing_ms": 80,
+        "dominant_spacing_ratio": 0.5317460317460317,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 1.3655913978494623,
+        "first_12_generated_times": [
+          820,
+          980,
+          1140,
+          1300,
+          1460,
+          1540,
+          1620,
+          1700,
+          1780,
+          1940,
+          2020,
+          2100
+        ],
+        "first_12_reference_times": [
+          620,
+          680,
+          730,
+          890,
+          1050,
+          1220,
+          1380,
+          1540,
+          1700,
+          1870,
+          2190,
+          2350
+        ],
+        "generated_event_count": 127,
+        "last_12_generated_times": [
+          14120,
+          14290,
+          14460,
+          14630,
+          14800,
+          14970,
+          15140,
+          15310,
+          15480,
+          15650,
+          15820,
+          15990
+        ],
+        "last_12_reference_times": [
+          14270,
+          14350,
+          14510,
+          14680,
+          14840,
+          15000,
+          15160,
+          15320,
+          15490,
+          15650,
+          15810,
+          15970
+        ],
+        "reference_event_count": 93,
+        "reference_second_window_event_count": 51,
+        "reference_second_window_event_share": 0.5483870967741935,
+        "second_window_event_count": 47,
+        "second_window_event_share": 0.3700787401574803,
+        "spacing_counts": {
+          "160": 11,
+          "170": 46,
+          "190": 1,
+          "40": 1,
+          "80": 67
+        },
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.7818181818181819,
+          "matched_generated": 86,
+          "matched_reference": 86,
+          "precision": 0.6771653543307087,
+          "recall": 0.9247311827956989,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate_rollout": {
+        "completed": true,
+        "dead_end": false,
+        "max_tokens_exceeded": false,
+        "terminal_ms": 16000,
+        "timepoint_count": 127,
+        "token_count": 316,
+        "window_count": 2
+      },
+      "case_id": "22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair",
+      "case_index": 22,
+      "chart_end_ms": 16000,
+      "comparison": {
+        "dominant_spacing_improved": true,
+        "dominant_spacing_ratio_delta": -0.4044241810199257,
+        "event_count_ratio_delta": 0.8494623655913978,
+        "event_ratio_ok": false,
+        "f1_delta": 0.20025789813023853,
+        "second_window_event_share_delta": 0.32841207349081364,
+        "second_window_improved": true
+      },
+      "difficulty": 4.19,
+      "group": "primary",
+      "normalized_difficulty": 0.0950000000000002,
+      "summary_path": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape/rollouts/22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair_16000ms_spacing_escape_summary.json",
+      "transform": {
+        "activation_count": 16,
+        "boundary_activation_count": 0,
+        "boundary_event_boost": 1.5,
+        "boundary_event_margin_floor": -2.0,
+        "boundary_event_rank_limit": 5,
+        "boundary_near_ms": 200,
+        "candidate_count": 85,
+        "enabled": true,
+        "examples": [
+          {
+            "current_ms": 1460,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              820,
+              980,
+              1140,
+              1300,
+              1460
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1780,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1460,
+              1540,
+              1620,
+              1700,
+              1780
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 23,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2260,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1940,
+              2020,
+              2100,
+              2180,
+              2260
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 34,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2740,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              2420,
+              2500,
+              2580,
+              2660,
+              2740
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 45,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 3220,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              2900,
+              2980,
+              3060,
+              3140,
+              3220
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 56,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 3700,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              3380,
+              3460,
+              3540,
+              3620,
+              3700
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 67,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 4180,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              3860,
+              3940,
+              4020,
+              4100,
+              4180
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 78,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 4660,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              4340,
+              4420,
+              4500,
+              4580,
+              4660
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 89,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 8850,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8170,
+              8340,
+              8510,
+              8680,
+              8850
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9020,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8340,
+              8510,
+              8680,
+              8850,
+              9020
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9190,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8510,
+              8680,
+              8850,
+              9020,
+              9190
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 21,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9360,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8680,
+              8850,
+              9020,
+              9190,
+              9360
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 24,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9530,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8850,
+              9020,
+              9190,
+              9360,
+              9530
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 27,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9700,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9020,
+              9190,
+              9360,
+              9530,
+              9700
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 30,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9870,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9190,
+              9360,
+              9530,
+              9700,
+              9870
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 33,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10040,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9360,
+              9530,
+              9700,
+              9870,
+              10040
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 36,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          }
+        ],
+        "max_boundary_activations_per_window": 8,
+        "max_spacing_activations_per_window": 8,
+        "max_spacing_ms": 400,
+        "max_total_activations": 32,
+        "min_repeated_spacings": 4,
+        "min_spacing_ms": 40,
+        "spacing_activation_count": 16,
+        "spacing_penalty": 2.0,
+        "window_boundary_counts": {},
+        "window_spacing_counts": {
+          "0": 8,
+          "8000": 8
+        }
+      }
+    },
+    {
+      "audio_path": "dataset/0/1011337/audio.mp3",
+      "baseline_metrics": {
+        "boundary_event_ratio": 0.0,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9743589743589743,
+        "event_count_ratio": 0.449438202247191,
+        "generated_event_count": 40,
+        "reference_event_count": 89,
+        "second_window_event_share": 0.0,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.248062015503876,
+          "matched_generated": 16,
+          "matched_reference": 16,
+          "precision": 0.4,
+          "recall": 0.1797752808988764,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Equatorial].osu",
+      "candidate_legal": true,
+      "candidate_metrics": {
+        "boundary_event_count": 1,
+        "boundary_event_ratio": 0.008771929824561403,
+        "dominant_spacing_ms": 80,
+        "dominant_spacing_ratio": 0.48672566371681414,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 1.2808988764044944,
+        "first_12_generated_times": [
+          1780,
+          1940,
+          2100,
+          2260,
+          2420,
+          2500,
+          2580,
+          2660,
+          2740,
+          2900,
+          2980,
+          3060
+        ],
+        "first_12_reference_times": [
+          5100,
+          5620,
+          5790,
+          5870,
+          6130,
+          6220,
+          6300,
+          6470,
+          6520,
+          6560,
+          6650,
+          6730
+        ],
+        "generated_event_count": 114,
+        "last_12_generated_times": [
+          14120,
+          14290,
+          14460,
+          14630,
+          14800,
+          14970,
+          15140,
+          15310,
+          15480,
+          15650,
+          15820,
+          15990
+        ],
+        "last_12_reference_times": [
+          14450,
+          14700,
+          14750,
+          14790,
+          14870,
+          14960,
+          15050,
+          15130,
+          15220,
+          15300,
+          15730,
+          15820
+        ],
+        "reference_event_count": 89,
+        "reference_second_window_event_count": 65,
+        "reference_second_window_event_share": 0.7303370786516854,
+        "second_window_event_count": 46,
+        "second_window_event_share": 0.40350877192982454,
+        "spacing_counts": {
+          "160": 11,
+          "170": 45,
+          "360": 1,
+          "40": 1,
+          "80": 55
+        },
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.6403940886699507,
+          "matched_generated": 65,
+          "matched_reference": 65,
+          "precision": 0.5701754385964912,
+          "recall": 0.7303370786516854,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate_rollout": {
+        "completed": true,
+        "dead_end": false,
+        "max_tokens_exceeded": false,
+        "terminal_ms": 16000,
+        "timepoint_count": 114,
+        "token_count": 294,
+        "window_count": 2
+      },
+      "case_id": "31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial",
+      "case_index": 31,
+      "chart_end_ms": 16000,
+      "comparison": {
+        "dominant_spacing_improved": true,
+        "dominant_spacing_ratio_delta": -0.4876333106421602,
+        "event_count_ratio_delta": 0.8314606741573034,
+        "event_ratio_ok": false,
+        "f1_delta": 0.39233207316607477,
+        "second_window_event_share_delta": 0.40350877192982454,
+        "second_window_improved": true
+      },
+      "difficulty": 5.12,
+      "group": "primary",
+      "normalized_difficulty": 0.56,
+      "summary_path": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_16000ms_spacing_escape_summary.json",
+      "transform": {
+        "activation_count": 17,
+        "boundary_activation_count": 1,
+        "boundary_event_boost": 1.5,
+        "boundary_event_margin_floor": -2.0,
+        "boundary_event_rank_limit": 5,
+        "boundary_near_ms": 200,
+        "candidate_count": 73,
+        "enabled": true,
+        "examples": [
+          {
+            "current_ms": 2420,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1780,
+              1940,
+              2100,
+              2260,
+              2420
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2740,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              2420,
+              2500,
+              2580,
+              2660,
+              2740
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 26,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 3220,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              2900,
+              2980,
+              3060,
+              3140,
+              3220
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 37,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 3700,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              3380,
+              3460,
+              3540,
+              3620,
+              3700
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 48,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 4180,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              3860,
+              3940,
+              4020,
+              4100,
+              4180
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 59,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 4660,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              4340,
+              4420,
+              4500,
+              4580,
+              4660
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 70,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 5140,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              4820,
+              4900,
+              4980,
+              5060,
+              5140
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 81,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 5620,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              5300,
+              5380,
+              5460,
+              5540,
+              5620
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 92,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "argmax_token": "TS_100",
+            "boost": 1.5,
+            "current_ms": 8340,
+            "event_margin_vs_argmax": -0.8780016899108887,
+            "event_rank": 2,
+            "event_signature": "T...",
+            "mode": "boundary_event_boost",
+            "token_id": 25,
+            "token_index": 4,
+            "token_name": "EV_1000",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9020,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8340,
+              8510,
+              8680,
+              8850,
+              9020
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 17,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9190,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8510,
+              8680,
+              8850,
+              9020,
+              9190
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 20,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9360,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8680,
+              8850,
+              9020,
+              9190,
+              9360
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 23,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9530,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8850,
+              9020,
+              9190,
+              9360,
+              9530
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 26,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9700,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9020,
+              9190,
+              9360,
+              9530,
+              9700
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 29,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9870,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9190,
+              9360,
+              9530,
+              9700,
+              9870
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 32,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10040,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9360,
+              9530,
+              9700,
+              9870,
+              10040
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 35,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10210,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9530,
+              9700,
+              9870,
+              10040,
+              10210
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 38,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          }
+        ],
+        "max_boundary_activations_per_window": 8,
+        "max_spacing_activations_per_window": 8,
+        "max_spacing_ms": 400,
+        "max_total_activations": 32,
+        "min_repeated_spacings": 4,
+        "min_spacing_ms": 40,
+        "spacing_activation_count": 16,
+        "spacing_penalty": 2.0,
+        "window_boundary_counts": {
+          "8000": 1
+        },
+        "window_spacing_counts": {
+          "0": 8,
+          "8000": 8
+        }
+      }
+    },
+    {
+      "audio_path": "dataset/0/1008419/audio.mp3",
+      "baseline_metrics": {
+        "boundary_event_ratio": 0.09803921568627451,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.88,
+        "event_count_ratio": 0.6623376623376623,
+        "generated_event_count": 51,
+        "reference_event_count": 77,
+        "second_window_event_share": 0.09803921568627451,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.48437499999999994,
+          "matched_generated": 31,
+          "matched_reference": 31,
+          "precision": 0.6078431372549019,
+          "recall": 0.4025974025974026,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [FAMoss' hard].osu",
+      "candidate_legal": true,
+      "candidate_metrics": {
+        "boundary_event_count": 2,
+        "boundary_event_ratio": 0.02,
+        "dominant_spacing_ms": 150,
+        "dominant_spacing_ratio": 0.5252525252525253,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 1.2987012987012987,
+        "first_12_generated_times": [
+          820,
+          980,
+          1140,
+          1300,
+          1460,
+          1620,
+          1780,
+          1940,
+          2100,
+          2260,
+          2420,
+          2580
+        ],
+        "first_12_reference_times": [
+          3380,
+          3540,
+          3700,
+          3860,
+          4020,
+          4180,
+          4340,
+          4500,
+          4660,
+          4820,
+          4990,
+          5150
+        ],
+        "generated_event_count": 100,
+        "last_12_generated_times": [
+          14450,
+          14600,
+          14750,
+          14900,
+          15050,
+          15200,
+          15350,
+          15500,
+          15650,
+          15800,
+          15950,
+          15990
+        ],
+        "last_12_reference_times": [
+          13650,
+          13810,
+          14130,
+          14290,
+          14610,
+          14690,
+          14770,
+          14930,
+          15090,
+          15410,
+          15570,
+          15890
+        ],
+        "reference_event_count": 77,
+        "reference_second_window_event_count": 48,
+        "reference_second_window_event_share": 0.6233766233766234,
+        "second_window_event_count": 54,
+        "second_window_event_share": 0.54,
+        "spacing_counts": {
+          "100": 1,
+          "150": 52,
+          "160": 44,
+          "190": 1,
+          "40": 1
+        },
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.8474576271186441,
+          "matched_generated": 75,
+          "matched_reference": 75,
+          "precision": 0.75,
+          "recall": 0.974025974025974,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate_rollout": {
+        "completed": true,
+        "dead_end": false,
+        "max_tokens_exceeded": false,
+        "terminal_ms": 16000,
+        "timepoint_count": 100,
+        "token_count": 301,
+        "window_count": 2
+      },
+      "case_id": "18_billiummoto_four_veiled_stars_aries_famoss_hard",
+      "case_index": 18,
+      "chart_end_ms": 16000,
+      "comparison": {
+        "dominant_spacing_improved": true,
+        "dominant_spacing_ratio_delta": -0.3547474747474747,
+        "event_count_ratio_delta": 0.6363636363636364,
+        "event_ratio_ok": false,
+        "f1_delta": 0.3630826271186442,
+        "second_window_event_share_delta": 0.44196078431372554,
+        "second_window_improved": true
+      },
+      "difficulty": 3.47,
+      "group": "primary",
+      "normalized_difficulty": -0.2649999999999999,
+      "summary_path": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape/rollouts/18_billiummoto_four_veiled_stars_aries_famoss_hard_16000ms_spacing_escape_summary.json",
+      "transform": {
+        "activation_count": 17,
+        "boundary_activation_count": 1,
+        "boundary_event_boost": 1.5,
+        "boundary_event_margin_floor": -2.0,
+        "boundary_event_rank_limit": 5,
+        "boundary_near_ms": 200,
+        "candidate_count": 90,
+        "enabled": true,
+        "examples": [
+          {
+            "current_ms": 1460,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              820,
+              980,
+              1140,
+              1300,
+              1460
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1620,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              980,
+              1140,
+              1300,
+              1460,
+              1620
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1780,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1140,
+              1300,
+              1460,
+              1620,
+              1780
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 21,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1940,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1300,
+              1460,
+              1620,
+              1780,
+              1940
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 24,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2100,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1460,
+              1620,
+              1780,
+              1940,
+              2100
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 27,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2260,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1620,
+              1780,
+              1940,
+              2100,
+              2260
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 30,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2420,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1780,
+              1940,
+              2100,
+              2260,
+              2420
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 33,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2580,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1940,
+              2100,
+              2260,
+              2420,
+              2580
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 36,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "argmax_token": "TS_30",
+            "boost": 1.5,
+            "current_ms": 7960,
+            "event_margin_vs_argmax": -0.6196081638336182,
+            "event_rank": 3,
+            "event_signature": "T...",
+            "mode": "boundary_event_boost",
+            "token_id": 25,
+            "token_index": 136,
+            "token_name": "EV_1000",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 8750,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8150,
+              8300,
+              8450,
+              8600,
+              8750
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8900,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8300,
+              8450,
+              8600,
+              8750,
+              8900
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9050,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8450,
+              8600,
+              8750,
+              8900,
+              9050
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 21,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9200,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8600,
+              8750,
+              8900,
+              9050,
+              9200
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 24,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9350,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8750,
+              8900,
+              9050,
+              9200,
+              9350
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 27,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9500,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8900,
+              9050,
+              9200,
+              9350,
+              9500
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 30,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9650,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9050,
+              9200,
+              9350,
+              9500,
+              9650
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 33,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9800,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9200,
+              9350,
+              9500,
+              9650,
+              9800
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 36,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          }
+        ],
+        "max_boundary_activations_per_window": 8,
+        "max_spacing_activations_per_window": 8,
+        "max_spacing_ms": 400,
+        "max_total_activations": 32,
+        "min_repeated_spacings": 4,
+        "min_spacing_ms": 40,
+        "spacing_activation_count": 16,
+        "spacing_penalty": 2.0,
+        "window_boundary_counts": {
+          "0": 1
+        },
+        "window_spacing_counts": {
+          "0": 8,
+          "8000": 8
+        }
+      }
+    },
+    {
+      "audio_path": "dataset/0/1008095/Knight Rider.mp3",
+      "baseline_metrics": {
+        "boundary_event_ratio": 0.061224489795918366,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9166666666666666,
+        "event_count_ratio": 0.47115384615384615,
+        "generated_event_count": 49,
+        "reference_event_count": 104,
+        "second_window_event_share": 0.061224489795918366,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.47058823529411764,
+          "matched_generated": 36,
+          "matched_reference": 36,
+          "precision": 0.7346938775510204,
+          "recall": 0.34615384615384615,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Expert].osu",
+      "candidate_legal": true,
+      "candidate_metrics": {
+        "boundary_event_count": 1,
+        "boundary_event_ratio": 0.005714285714285714,
+        "dominant_spacing_ms": 80,
+        "dominant_spacing_ratio": 0.8793103448275862,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 1.6826923076923077,
+        "first_12_generated_times": [
+          820,
+          980,
+          1140,
+          1300,
+          1460,
+          1620,
+          1780,
+          1860,
+          1940,
+          2020,
+          2100,
+          2260
+        ],
+        "first_12_reference_times": [
+          810,
+          1110,
+          2910,
+          2990,
+          3060,
+          3140,
+          3210,
+          3360,
+          3510,
+          3660,
+          3810,
+          3960
+        ],
+        "generated_event_count": 175,
+        "last_12_generated_times": [
+          15040,
+          15120,
+          15200,
+          15280,
+          15360,
+          15440,
+          15520,
+          15600,
+          15680,
+          15760,
+          15840,
+          15920
+        ],
+        "last_12_reference_times": [
+          14310,
+          14460,
+          14610,
+          14760,
+          14910,
+          15060,
+          15210,
+          15360,
+          15510,
+          15660,
+          15810,
+          15960
+        ],
+        "reference_event_count": 104,
+        "reference_second_window_event_count": 66,
+        "reference_second_window_event_share": 0.6346153846153846,
+        "second_window_event_count": 94,
+        "second_window_event_share": 0.5371428571428571,
+        "spacing_counts": {
+          "160": 10,
+          "170": 5,
+          "40": 1,
+          "70": 4,
+          "80": 153,
+          "90": 1
+        },
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.7383512544802867,
+          "matched_generated": 103,
+          "matched_reference": 103,
+          "precision": 0.5885714285714285,
+          "recall": 0.9903846153846154,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate_rollout": {
+        "completed": true,
+        "dead_end": false,
+        "max_tokens_exceeded": false,
+        "terminal_ms": 16000,
+        "timepoint_count": 175,
+        "token_count": 369,
+        "window_count": 2
+      },
+      "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+      "case_index": 23,
+      "chart_end_ms": 16000,
+      "comparison": {
+        "dominant_spacing_improved": false,
+        "dominant_spacing_ratio_delta": -0.03735632183908044,
+        "event_count_ratio_delta": 1.2115384615384617,
+        "event_ratio_ok": false,
+        "f1_delta": 0.26776301918616907,
+        "second_window_event_share_delta": 0.47591836734693876,
+        "second_window_improved": true
+      },
+      "difficulty": 4.26,
+      "group": "sentinel",
+      "normalized_difficulty": 0.1299999999999999,
+      "summary_path": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape/rollouts/23_usao_knight_rider_kuo_kyoka_expert_16000ms_spacing_escape_summary.json",
+      "transform": {
+        "activation_count": 17,
+        "boundary_activation_count": 1,
+        "boundary_event_boost": 1.5,
+        "boundary_event_margin_floor": -2.0,
+        "boundary_event_rank_limit": 5,
+        "boundary_near_ms": 200,
+        "candidate_count": 113,
+        "enabled": true,
+        "examples": [
+          {
+            "current_ms": 1460,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              820,
+              980,
+              1140,
+              1300,
+              1460
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1620,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              980,
+              1140,
+              1300,
+              1460,
+              1620
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 1780,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1140,
+              1300,
+              1460,
+              1620,
+              1780
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 21,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2100,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1780,
+              1860,
+              1940,
+              2020,
+              2100
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 29,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2580,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              2260,
+              2340,
+              2420,
+              2500,
+              2580
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 40,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 3060,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              2740,
+              2820,
+              2900,
+              2980,
+              3060
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 51,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 3140,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              2820,
+              2900,
+              2980,
+              3060,
+              3140
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 53,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 3620,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              3300,
+              3380,
+              3460,
+              3540,
+              3620
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 64,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "argmax_token": "TS_80",
+            "boost": 1.5,
+            "current_ms": 8070,
+            "event_margin_vs_argmax": -1.3752710819244385,
+            "event_rank": 3,
+            "event_signature": ".S..",
+            "mode": "boundary_event_boost",
+            "token_id": 32,
+            "token_index": 1,
+            "token_name": "EV_0200",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8540,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8220,
+              8300,
+              8380,
+              8460,
+              8540
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 14,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8930,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8610,
+              8690,
+              8770,
+              8850,
+              8930
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 24,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9320,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9000,
+              9080,
+              9160,
+              9240,
+              9320
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 34,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9710,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9390,
+              9470,
+              9550,
+              9630,
+              9710
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 44,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10200,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9880,
+              9960,
+              10040,
+              10120,
+              10200
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 55,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10690,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              10370,
+              10450,
+              10530,
+              10610,
+              10690
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 66,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 11180,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              10860,
+              10940,
+              11020,
+              11100,
+              11180
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 77,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 11670,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              11350,
+              11430,
+              11510,
+              11590,
+              11670
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 88,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          }
+        ],
+        "max_boundary_activations_per_window": 8,
+        "max_spacing_activations_per_window": 8,
+        "max_spacing_ms": 400,
+        "max_total_activations": 32,
+        "min_repeated_spacings": 4,
+        "min_spacing_ms": 40,
+        "spacing_activation_count": 16,
+        "spacing_penalty": 2.0,
+        "window_boundary_counts": {
+          "8000": 1
+        },
+        "window_spacing_counts": {
+          "0": 8,
+          "8000": 8
+        }
+      }
+    },
+    {
+      "audio_path": "dataset/0/1011337/audio.mp3",
+      "baseline_metrics": {
+        "boundary_event_ratio": 0.0392156862745098,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.76,
+        "event_count_ratio": 1.0408163265306123,
+        "generated_event_count": 51,
+        "reference_event_count": 49,
+        "second_window_event_share": 0.0392156862745098,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.24,
+          "matched_generated": 12,
+          "matched_reference": 12,
+          "precision": 0.23529411764705882,
+          "recall": 0.24489795918367346,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Synergic Ascent].osu",
+      "candidate_legal": true,
+      "candidate_metrics": {
+        "boundary_event_count": 1,
+        "boundary_event_ratio": 0.008771929824561403,
+        "dominant_spacing_ms": 80,
+        "dominant_spacing_ratio": 0.48672566371681414,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 2.326530612244898,
+        "first_12_generated_times": [
+          1780,
+          1940,
+          2100,
+          2260,
+          2420,
+          2580,
+          2660,
+          2740,
+          2820,
+          2900,
+          3060,
+          3140
+        ],
+        "first_12_reference_times": [
+          5790,
+          6130,
+          6470,
+          6560,
+          6650,
+          6820,
+          6990,
+          7330,
+          7500,
+          7670,
+          7850,
+          7930
+        ],
+        "generated_event_count": 114,
+        "last_12_generated_times": [
+          14120,
+          14290,
+          14460,
+          14630,
+          14800,
+          14970,
+          15140,
+          15310,
+          15480,
+          15650,
+          15820,
+          15990
+        ],
+        "last_12_reference_times": [
+          13500,
+          13670,
+          13850,
+          14190,
+          14360,
+          14450,
+          14700,
+          14790,
+          14870,
+          15050,
+          15220,
+          15730
+        ],
+        "reference_event_count": 49,
+        "reference_second_window_event_count": 37,
+        "reference_second_window_event_share": 0.7551020408163265,
+        "second_window_event_count": 46,
+        "second_window_event_share": 0.40350877192982454,
+        "spacing_counts": {
+          "160": 11,
+          "170": 45,
+          "360": 1,
+          "40": 1,
+          "80": 55
+        },
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.5644171779141104,
+          "matched_generated": 46,
+          "matched_reference": 46,
+          "precision": 0.40350877192982454,
+          "recall": 0.9387755102040817,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate_rollout": {
+        "completed": true,
+        "dead_end": false,
+        "max_tokens_exceeded": false,
+        "terminal_ms": 16000,
+        "timepoint_count": 114,
+        "token_count": 294,
+        "window_count": 2
+      },
+      "case_id": "29_camellia_beyond_the_geostationary_orbit_level_leniane_synergic_ascent",
+      "case_index": 29,
+      "chart_end_ms": 16000,
+      "comparison": {
+        "dominant_spacing_improved": true,
+        "dominant_spacing_ratio_delta": -0.27327433628318587,
+        "event_count_ratio_delta": 1.2857142857142856,
+        "event_ratio_ok": false,
+        "f1_delta": 0.3244171779141104,
+        "second_window_event_share_delta": 0.3642930856553147,
+        "second_window_improved": true
+      },
+      "difficulty": 4.69,
+      "group": "sentinel",
+      "normalized_difficulty": 0.3450000000000002,
+      "summary_path": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape/rollouts/29_camellia_beyond_the_geostationary_orbit_level_leniane_synergic_ascent_16000ms_spacing_escape_summary.json",
+      "transform": {
+        "activation_count": 18,
+        "boundary_activation_count": 2,
+        "boundary_event_boost": 1.5,
+        "boundary_event_margin_floor": -2.0,
+        "boundary_event_rank_limit": 5,
+        "boundary_near_ms": 200,
+        "candidate_count": 78,
+        "enabled": true,
+        "examples": [
+          {
+            "current_ms": 2420,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1780,
+              1940,
+              2100,
+              2260,
+              2420
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 18,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2580,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              1940,
+              2100,
+              2260,
+              2420,
+              2580
+            ],
+            "spacing_ms": 160,
+            "token_id": 12,
+            "token_index": 21,
+            "token_name": "TS_100",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 2900,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              2580,
+              2660,
+              2740,
+              2820,
+              2900
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 29,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 3380,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              3060,
+              3140,
+              3220,
+              3300,
+              3380
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 40,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 3860,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              3540,
+              3620,
+              3700,
+              3780,
+              3860
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 51,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 4340,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              4020,
+              4100,
+              4180,
+              4260,
+              4340
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 62,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 4820,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              4500,
+              4580,
+              4660,
+              4740,
+              4820
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 73,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "current_ms": 5300,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              4980,
+              5060,
+              5140,
+              5220,
+              5300
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 84,
+            "token_name": "TS_80",
+            "write_start_ms": 0
+          },
+          {
+            "argmax_token": "TS_100",
+            "boost": 1.5,
+            "current_ms": 8170,
+            "event_margin_vs_argmax": -1.5278445482254028,
+            "event_rank": 2,
+            "event_signature": "T...",
+            "mode": "boundary_event_boost",
+            "token_id": 25,
+            "token_index": 2,
+            "token_name": "EV_1000",
+            "write_start_ms": 8000
+          },
+          {
+            "argmax_token": "TS_100",
+            "boost": 1.5,
+            "current_ms": 8340,
+            "event_margin_vs_argmax": -0.21400141716003418,
+            "event_rank": 2,
+            "event_signature": "T...",
+            "mode": "boundary_event_boost",
+            "token_id": 25,
+            "token_index": 4,
+            "token_name": "EV_1000",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9020,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8340,
+              8510,
+              8680,
+              8850,
+              9020
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 17,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9190,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8510,
+              8680,
+              8850,
+              9020,
+              9190
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 20,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9360,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8680,
+              8850,
+              9020,
+              9190,
+              9360
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 23,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9530,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8850,
+              9020,
+              9190,
+              9360,
+              9530
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 26,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9700,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9020,
+              9190,
+              9360,
+              9530,
+              9700
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 29,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9870,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9190,
+              9360,
+              9530,
+              9700,
+              9870
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 32,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10040,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9360,
+              9530,
+              9700,
+              9870,
+              10040
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 35,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10210,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9530,
+              9700,
+              9870,
+              10040,
+              10210
+            ],
+            "spacing_ms": 170,
+            "token_id": 12,
+            "token_index": 38,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          }
+        ],
+        "max_boundary_activations_per_window": 8,
+        "max_spacing_activations_per_window": 8,
+        "max_spacing_ms": 400,
+        "max_total_activations": 32,
+        "min_repeated_spacings": 4,
+        "min_spacing_ms": 40,
+        "spacing_activation_count": 16,
+        "spacing_penalty": 2.0,
+        "window_boundary_counts": {
+          "8000": 2
+        },
+        "window_spacing_counts": {
+          "0": 8,
+          "8000": 8
+        }
+      }
+    },
+    {
+      "audio_path": "dataset/0/1008095/Knight Rider.mp3",
+      "baseline_metrics": {
+        "boundary_event_ratio": 0.0,
+        "dominant_spacing_ms": 150,
+        "dominant_spacing_ratio": 0.348993288590604,
+        "event_count_ratio": 1.0416666666666667,
+        "generated_event_count": 150,
+        "reference_event_count": 144,
+        "second_window_event_share": 0.35333333333333333,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.802721088435374,
+          "matched_generated": 118,
+          "matched_reference": 118,
+          "precision": 0.7866666666666666,
+          "recall": 0.8194444444444444,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [CS' Lone Sonorous].osu",
+      "candidate_legal": true,
+      "candidate_metrics": {
+        "boundary_event_count": 1,
+        "boundary_event_ratio": 0.005154639175257732,
+        "dominant_spacing_ms": 80,
+        "dominant_spacing_ratio": 0.689119170984456,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 1.3472222222222223,
+        "first_12_generated_times": [
+          820,
+          900,
+          970,
+          1050,
+          1120,
+          1200,
+          1270,
+          1350,
+          1420,
+          1500,
+          1570,
+          1650
+        ],
+        "first_12_reference_times": [
+          810,
+          1000,
+          1040,
+          1070,
+          1110,
+          2910,
+          3140,
+          3210,
+          3360,
+          3440,
+          3510,
+          3590
+        ],
+        "generated_event_count": 194,
+        "last_12_generated_times": [
+          15090,
+          15170,
+          15250,
+          15330,
+          15410,
+          15490,
+          15570,
+          15650,
+          15730,
+          15810,
+          15890,
+          15970
+        ],
+        "last_12_reference_times": [
+          14910,
+          14990,
+          15060,
+          15210,
+          15290,
+          15360,
+          15510,
+          15590,
+          15660,
+          15810,
+          15890,
+          15960
+        ],
+        "reference_event_count": 144,
+        "reference_second_window_event_count": 80,
+        "reference_second_window_event_share": 0.5555555555555556,
+        "second_window_event_count": 97,
+        "second_window_event_share": 0.5,
+        "spacing_counts": {
+          "10": 1,
+          "150": 5,
+          "40": 1,
+          "70": 53,
+          "80": 133
+        },
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.8343195266272189,
+          "matched_generated": 141,
+          "matched_reference": 141,
+          "precision": 0.7268041237113402,
+          "recall": 0.9791666666666666,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate_rollout": {
+        "completed": true,
+        "dead_end": false,
+        "max_tokens_exceeded": false,
+        "terminal_ms": 16000,
+        "timepoint_count": 194,
+        "token_count": 396,
+        "window_count": 2
+      },
+      "case_id": "28_usao_knight_rider_kuo_kyoka_cs_lone_sonorous",
+      "case_index": 28,
+      "chart_end_ms": 16000,
+      "comparison": {
+        "dominant_spacing_improved": true,
+        "dominant_spacing_ratio_delta": 0.34012588239385194,
+        "event_count_ratio_delta": 0.3055555555555556,
+        "event_ratio_ok": false,
+        "f1_delta": 0.031598438191844824,
+        "second_window_event_share_delta": 0.14666666666666667,
+        "second_window_improved": true
+      },
+      "difficulty": 4.65,
+      "group": "sentinel",
+      "normalized_difficulty": 0.3250000000000002,
+      "summary_path": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape/rollouts/28_usao_knight_rider_kuo_kyoka_cs_lone_sonorous_16000ms_spacing_escape_summary.json",
+      "transform": {
+        "activation_count": 9,
+        "boundary_activation_count": 1,
+        "boundary_event_boost": 1.5,
+        "boundary_event_margin_floor": -2.0,
+        "boundary_event_rank_limit": 5,
+        "boundary_near_ms": 200,
+        "candidate_count": 66,
+        "enabled": true,
+        "examples": [
+          {
+            "argmax_token": "TS_50",
+            "boost": 1.5,
+            "current_ms": 8000,
+            "event_margin_vs_argmax": -0.9187772274017334,
+            "event_rank": 3,
+            "event_signature": "TT.T",
+            "mode": "boundary_event_boost",
+            "token_id": 93,
+            "token_index": 0,
+            "token_name": "EV_1101",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8600,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8000,
+              8150,
+              8300,
+              8450,
+              8600
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 13,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8750,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8150,
+              8300,
+              8450,
+              8600,
+              8750
+            ],
+            "spacing_ms": 150,
+            "token_id": 12,
+            "token_index": 16,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9070,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8750,
+              8830,
+              8910,
+              8990,
+              9070
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 24,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9460,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9140,
+              9220,
+              9300,
+              9380,
+              9460
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 34,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9850,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9530,
+              9610,
+              9690,
+              9770,
+              9850
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 44,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10240,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              9920,
+              10000,
+              10080,
+              10160,
+              10240
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 54,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 10630,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              10310,
+              10390,
+              10470,
+              10550,
+              10630
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 64,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 11020,
+            "first_piece_ms": 80,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              10700,
+              10780,
+              10860,
+              10940,
+              11020
+            ],
+            "spacing_ms": 80,
+            "token_id": 10,
+            "token_index": 74,
+            "token_name": "TS_80",
+            "write_start_ms": 8000
+          }
+        ],
+        "max_boundary_activations_per_window": 8,
+        "max_spacing_activations_per_window": 8,
+        "max_spacing_ms": 400,
+        "max_total_activations": 32,
+        "min_repeated_spacings": 4,
+        "min_spacing_ms": 40,
+        "spacing_activation_count": 8,
+        "spacing_penalty": 2.0,
+        "window_boundary_counts": {
+          "8000": 1
+        },
+        "window_spacing_counts": {
+          "8000": 8
+        }
+      }
+    },
+    {
+      "audio_path": "dataset/0/1008060/A M D.mp3",
+      "baseline_metrics": {
+        "boundary_event_ratio": 0.02666666666666667,
+        "dominant_spacing_ms": 150,
+        "dominant_spacing_ratio": 0.7162162162162162,
+        "event_count_ratio": 1.1904761904761905,
+        "generated_event_count": 75,
+        "reference_event_count": 63,
+        "second_window_event_share": 0.72,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.6956521739130435,
+          "matched_generated": 48,
+          "matched_reference": 48,
+          "precision": 0.64,
+          "recall": 0.7619047619047619,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Normal].osu",
+      "candidate_legal": true,
+      "candidate_metrics": {
+        "boundary_event_count": 1,
+        "boundary_event_ratio": 0.01,
+        "dominant_spacing_ms": 100,
+        "dominant_spacing_ratio": 0.797979797979798,
+        "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+        "event_count_ratio": 1.5873015873015872,
+        "first_12_generated_times": [
+          410,
+          820,
+          1230,
+          1640,
+          2050,
+          2460,
+          2870,
+          3280,
+          3690,
+          4100,
+          4510,
+          4920
+        ],
+        "first_12_reference_times": [
+          260,
+          1870,
+          3480,
+          4280,
+          4680,
+          5090,
+          5490,
+          5890,
+          6300,
+          6700,
+          6900,
+          7000
+        ],
+        "generated_event_count": 100,
+        "last_12_generated_times": [
+          14800,
+          14900,
+          15000,
+          15100,
+          15200,
+          15300,
+          15400,
+          15500,
+          15600,
+          15700,
+          15800,
+          15900
+        ],
+        "last_12_reference_times": [
+          13950,
+          14150,
+          14250,
+          14450,
+          14550,
+          14750,
+          14950,
+          15150,
+          15360,
+          15560,
+          15760,
+          15960
+        ],
+        "reference_event_count": 63,
+        "reference_second_window_event_count": 46,
+        "reference_second_window_event_share": 0.7301587301587301,
+        "second_window_event_count": 80,
+        "second_window_event_share": 0.8,
+        "spacing_counts": {
+          "10": 1,
+          "100": 79,
+          "200": 1,
+          "410": 18
+        },
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.6012269938650306,
+          "matched_generated": 49,
+          "matched_reference": 49,
+          "precision": 0.49,
+          "recall": 0.7777777777777778,
+          "tolerance_ms": 100
+        }
+      },
+      "candidate_rollout": {
+        "completed": true,
+        "dead_end": false,
+        "max_tokens_exceeded": false,
+        "terminal_ms": 16000,
+        "timepoint_count": 100,
+        "token_count": 221,
+        "window_count": 2
+      },
+      "case_id": "01_hatsuki_yura_guren_yasha_a_m_d_normal",
+      "case_index": 1,
+      "chart_end_ms": 16000,
+      "comparison": {
+        "dominant_spacing_improved": false,
+        "dominant_spacing_ratio_delta": 0.08176358176358178,
+        "event_count_ratio_delta": 0.39682539682539675,
+        "event_ratio_ok": false,
+        "f1_delta": -0.09442518004801281,
+        "second_window_event_share_delta": 0.08000000000000007,
+        "second_window_improved": true
+      },
+      "difficulty": 2.02,
+      "group": "sentinel",
+      "normalized_difficulty": -0.99,
+      "summary_path": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape/rollouts/01_hatsuki_yura_guren_yasha_a_m_d_normal_16000ms_spacing_escape_summary.json",
+      "transform": {
+        "activation_count": 11,
+        "boundary_activation_count": 3,
+        "boundary_event_boost": 1.5,
+        "boundary_event_margin_floor": -2.0,
+        "boundary_event_rank_limit": 5,
+        "boundary_near_ms": 200,
+        "candidate_count": 79,
+        "enabled": true,
+        "examples": [
+          {
+            "argmax_token": "TS_50",
+            "boost": 1.5,
+            "current_ms": 8100,
+            "event_margin_vs_argmax": -1.3148398399353027,
+            "event_rank": 3,
+            "event_signature": ".T..",
+            "mode": "boundary_event_boost",
+            "token_id": 28,
+            "token_index": 2,
+            "token_name": "EV_0100",
+            "write_start_ms": 8000
+          },
+          {
+            "argmax_token": "TS_50",
+            "boost": 1.5,
+            "current_ms": 8200,
+            "event_margin_vs_argmax": -0.33138036727905273,
+            "event_rank": 3,
+            "event_signature": ".T..",
+            "mode": "boundary_event_boost",
+            "token_id": 28,
+            "token_index": 4,
+            "token_name": "EV_0100",
+            "write_start_ms": 8000
+          },
+          {
+            "argmax_token": "TS_50",
+            "boost": 1.5,
+            "current_ms": 8300,
+            "event_margin_vs_argmax": -0.3811798095703125,
+            "event_rank": 3,
+            "event_signature": "..T.",
+            "mode": "boundary_event_boost",
+            "token_id": 40,
+            "token_index": 6,
+            "token_name": "EV_0010",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8400,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8000,
+              8100,
+              8200,
+              8300,
+              8400
+            ],
+            "spacing_ms": 100,
+            "token_id": 12,
+            "token_index": 9,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8500,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8100,
+              8200,
+              8300,
+              8400,
+              8500
+            ],
+            "spacing_ms": 100,
+            "token_id": 12,
+            "token_index": 11,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8600,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8200,
+              8300,
+              8400,
+              8500,
+              8600
+            ],
+            "spacing_ms": 100,
+            "token_id": 12,
+            "token_index": 13,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8700,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8300,
+              8400,
+              8500,
+              8600,
+              8700
+            ],
+            "spacing_ms": 100,
+            "token_id": 12,
+            "token_index": 15,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8800,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8400,
+              8500,
+              8600,
+              8700,
+              8800
+            ],
+            "spacing_ms": 100,
+            "token_id": 12,
+            "token_index": 17,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 8900,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8500,
+              8600,
+              8700,
+              8800,
+              8900
+            ],
+            "spacing_ms": 100,
+            "token_id": 12,
+            "token_index": 19,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9000,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8600,
+              8700,
+              8800,
+              8900,
+              9000
+            ],
+            "spacing_ms": 100,
+            "token_id": 12,
+            "token_index": 21,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          },
+          {
+            "current_ms": 9100,
+            "first_piece_ms": 100,
+            "mode": "spacing_penalty",
+            "penalty": 2.0,
+            "recent_event_times": [
+              8700,
+              8800,
+              8900,
+              9000,
+              9100
+            ],
+            "spacing_ms": 100,
+            "token_id": 12,
+            "token_index": 23,
+            "token_name": "TS_100",
+            "write_start_ms": 8000
+          }
+        ],
+        "max_boundary_activations_per_window": 8,
+        "max_spacing_activations_per_window": 8,
+        "max_spacing_ms": 400,
+        "max_total_activations": 32,
+        "min_repeated_spacings": 4,
+        "min_spacing_ms": 40,
+        "spacing_activation_count": 8,
+        "spacing_penalty": 2.0,
+        "window_boundary_counts": {
+          "8000": 3
+        },
+        "window_spacing_counts": {
+          "8000": 8
+        }
+      }
+    }
+  ],
+  "code_commit": "d6b9c23e8931303fb99a62286bb2cb8b7d9df440",
+  "code_dirty": true,
+  "config": {
+    "boundary_event_boost": 1.5,
+    "boundary_event_margin_floor": -2.0,
+    "boundary_event_rank_limit": 5,
+    "case_limit": null,
+    "decode_defaults_changed": false,
+    "device": "auto",
+    "grammar_defaults_changed": false,
+    "max_boundary_activations_per_window": 8,
+    "max_examples": 20,
+    "max_spacing_activations_per_window": 8,
+    "max_tokens_per_window": 512,
+    "max_total_activations": 32,
+    "no_training": true,
+    "seed": 1337,
+    "spacing_penalty": 2.0,
+    "target_leakage": false,
+    "tokenizer_changed": false
+  },
+  "control_checkpoint_path": "artifacts/runs/stage2_control_demo/stage2_control_demo_global_d384_l3_stride16_b6/checkpoints/checkpoint_step_002000.pt",
+  "decision": {
+    "next_step": "Stop this local decode repair and pivot to training-side state/objective work or v2.1 grammar mutation.",
+    "reason": "trace-conditioned spacing escape failed overproduction guards: ['primary_event_ratio_guard', 'sentinel_median_event_ratio_guard']",
+    "route": "KILL_OVERPRODUCTION"
+  },
+  "experiment": "Target grammar v3 trace-conditioned spacing escape smoke",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_trace_conditioned_spacing_escape_experiment_card.md",
+  "guard_results": {
+    "all_legal": true,
+    "case_coverage": true,
+    "max_boundary_ratio_guard": true,
+    "mean_f1_guard": true,
+    "no_dead_end_cases": true,
+    "no_max_token_cases": true,
+    "no_target_leakage": true,
+    "no_tokenizer_or_default_decode_change": true,
+    "no_training": true,
+    "primary_event_ratio_guard": false,
+    "sentinel_median_event_ratio_guard": false
+  },
+  "interpretation": "The smoke repeated the known anti-rigid overproduction failure mode. This argues against local decode repair.",
+  "mapper_checkpoint_path": "artifacts/tmp/mapper_v3_500step_training_horizon_gate/train/run/checkpoint.pt",
+  "next_step": "Stop this local decode repair and pivot to training-side state/objective work or v2.1 grammar mutation.",
+  "output_dir": "artifacts/tmp/mapper_v3_trace_conditioned_spacing_escape",
+  "schema_version": 1,
+  "worst_cases": {
+    "highest_event_ratio": [
+      {
+        "activations": 18,
+        "baseline_dominant_spacing": 0.76,
+        "baseline_event_ratio": 1.0408163265306123,
+        "baseline_second_share": 0.0392156862745098,
+        "boundary_activations": 2,
+        "candidate_dominant_spacing": 0.48672566371681414,
+        "candidate_event_ratio": 2.326530612244898,
+        "candidate_second_share": 0.40350877192982454,
+        "case_id": "29_camellia_beyond_the_geostationary_orbit_level_leniane_synergic_ascent",
+        "f1_delta": 0.3244171779141104,
+        "group": "sentinel",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 17,
+        "baseline_dominant_spacing": 0.9166666666666666,
+        "baseline_event_ratio": 0.47115384615384615,
+        "baseline_second_share": 0.061224489795918366,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.8793103448275862,
+        "candidate_event_ratio": 1.6826923076923077,
+        "candidate_second_share": 0.5371428571428571,
+        "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+        "f1_delta": 0.26776301918616907,
+        "group": "sentinel",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 11,
+        "baseline_dominant_spacing": 0.7162162162162162,
+        "baseline_event_ratio": 1.1904761904761905,
+        "baseline_second_share": 0.72,
+        "boundary_activations": 3,
+        "candidate_dominant_spacing": 0.797979797979798,
+        "candidate_event_ratio": 1.5873015873015872,
+        "candidate_second_share": 0.8,
+        "case_id": "01_hatsuki_yura_guren_yasha_a_m_d_normal",
+        "f1_delta": -0.09442518004801281,
+        "group": "sentinel",
+        "spacing_activations": 8
+      },
+      {
+        "activations": 16,
+        "baseline_dominant_spacing": 0.9361702127659575,
+        "baseline_event_ratio": 0.5161290322580645,
+        "baseline_second_share": 0.041666666666666664,
+        "boundary_activations": 0,
+        "candidate_dominant_spacing": 0.5317460317460317,
+        "candidate_event_ratio": 1.3655913978494623,
+        "candidate_second_share": 0.3700787401574803,
+        "case_id": "22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair",
+        "f1_delta": 0.20025789813023853,
+        "group": "primary",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 9,
+        "baseline_dominant_spacing": 0.348993288590604,
+        "baseline_event_ratio": 1.0416666666666667,
+        "baseline_second_share": 0.35333333333333333,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.689119170984456,
+        "candidate_event_ratio": 1.3472222222222223,
+        "candidate_second_share": 0.5,
+        "case_id": "28_usao_knight_rider_kuo_kyoka_cs_lone_sonorous",
+        "f1_delta": 0.031598438191844824,
+        "group": "sentinel",
+        "spacing_activations": 8
+      },
+      {
+        "activations": 17,
+        "baseline_dominant_spacing": 0.88,
+        "baseline_event_ratio": 0.6623376623376623,
+        "baseline_second_share": 0.09803921568627451,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.5252525252525253,
+        "candidate_event_ratio": 1.2987012987012987,
+        "candidate_second_share": 0.54,
+        "case_id": "18_billiummoto_four_veiled_stars_aries_famoss_hard",
+        "f1_delta": 0.3630826271186442,
+        "group": "primary",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 17,
+        "baseline_dominant_spacing": 0.9743589743589743,
+        "baseline_event_ratio": 0.449438202247191,
+        "baseline_second_share": 0.0,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.48672566371681414,
+        "candidate_event_ratio": 1.2808988764044944,
+        "candidate_second_share": 0.40350877192982454,
+        "case_id": "31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial",
+        "f1_delta": 0.39233207316607477,
+        "group": "primary",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 17,
+        "baseline_dominant_spacing": 0.9361702127659575,
+        "baseline_event_ratio": 0.5517241379310345,
+        "baseline_second_share": 0.041666666666666664,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.5252525252525253,
+        "candidate_event_ratio": 1.1494252873563218,
+        "candidate_second_share": 0.54,
+        "case_id": "14_oomori_seiko_justadice_tv_size_remu_hard",
+        "f1_delta": 0.32307387601505233,
+        "group": "primary",
+        "spacing_activations": 16
+      }
+    ],
+    "largest_f1_regression": [
+      {
+        "activations": 11,
+        "baseline_dominant_spacing": 0.7162162162162162,
+        "baseline_event_ratio": 1.1904761904761905,
+        "baseline_second_share": 0.72,
+        "boundary_activations": 3,
+        "candidate_dominant_spacing": 0.797979797979798,
+        "candidate_event_ratio": 1.5873015873015872,
+        "candidate_second_share": 0.8,
+        "case_id": "01_hatsuki_yura_guren_yasha_a_m_d_normal",
+        "f1_delta": -0.09442518004801281,
+        "group": "sentinel",
+        "spacing_activations": 8
+      },
+      {
+        "activations": 9,
+        "baseline_dominant_spacing": 0.348993288590604,
+        "baseline_event_ratio": 1.0416666666666667,
+        "baseline_second_share": 0.35333333333333333,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.689119170984456,
+        "candidate_event_ratio": 1.3472222222222223,
+        "candidate_second_share": 0.5,
+        "case_id": "28_usao_knight_rider_kuo_kyoka_cs_lone_sonorous",
+        "f1_delta": 0.031598438191844824,
+        "group": "sentinel",
+        "spacing_activations": 8
+      },
+      {
+        "activations": 16,
+        "baseline_dominant_spacing": 0.9361702127659575,
+        "baseline_event_ratio": 0.5161290322580645,
+        "baseline_second_share": 0.041666666666666664,
+        "boundary_activations": 0,
+        "candidate_dominant_spacing": 0.5317460317460317,
+        "candidate_event_ratio": 1.3655913978494623,
+        "candidate_second_share": 0.3700787401574803,
+        "case_id": "22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair",
+        "f1_delta": 0.20025789813023853,
+        "group": "primary",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 17,
+        "baseline_dominant_spacing": 0.9166666666666666,
+        "baseline_event_ratio": 0.47115384615384615,
+        "baseline_second_share": 0.061224489795918366,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.8793103448275862,
+        "candidate_event_ratio": 1.6826923076923077,
+        "candidate_second_share": 0.5371428571428571,
+        "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+        "f1_delta": 0.26776301918616907,
+        "group": "sentinel",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 18,
+        "baseline_dominant_spacing": 0.9361702127659575,
+        "baseline_event_ratio": 0.5274725274725275,
+        "baseline_second_share": 0.041666666666666664,
+        "boundary_activations": 2,
+        "candidate_dominant_spacing": 0.5050505050505051,
+        "candidate_event_ratio": 1.098901098901099,
+        "candidate_second_share": 0.54,
+        "case_id": "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+        "f1_delta": 0.2857358092583526,
+        "group": "primary",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 17,
+        "baseline_dominant_spacing": 0.9361702127659575,
+        "baseline_event_ratio": 0.5517241379310345,
+        "baseline_second_share": 0.041666666666666664,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.5252525252525253,
+        "candidate_event_ratio": 1.1494252873563218,
+        "candidate_second_share": 0.54,
+        "case_id": "14_oomori_seiko_justadice_tv_size_remu_hard",
+        "f1_delta": 0.32307387601505233,
+        "group": "primary",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 18,
+        "baseline_dominant_spacing": 0.76,
+        "baseline_event_ratio": 1.0408163265306123,
+        "baseline_second_share": 0.0392156862745098,
+        "boundary_activations": 2,
+        "candidate_dominant_spacing": 0.48672566371681414,
+        "candidate_event_ratio": 2.326530612244898,
+        "candidate_second_share": 0.40350877192982454,
+        "case_id": "29_camellia_beyond_the_geostationary_orbit_level_leniane_synergic_ascent",
+        "f1_delta": 0.3244171779141104,
+        "group": "sentinel",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 18,
+        "baseline_dominant_spacing": 0.9361702127659575,
+        "baseline_event_ratio": 0.5333333333333333,
+        "baseline_second_share": 0.041666666666666664,
+        "boundary_activations": 2,
+        "candidate_dominant_spacing": 0.5098039215686274,
+        "candidate_event_ratio": 1.1444444444444444,
+        "candidate_second_share": 0.5533980582524272,
+        "case_id": "19_nekodex_circles_famoss_hard",
+        "f1_delta": 0.33836449650822253,
+        "group": "primary",
+        "spacing_activations": 16
+      }
+    ],
+    "lowest_second_window_share": [
+      {
+        "activations": 16,
+        "baseline_dominant_spacing": 0.9361702127659575,
+        "baseline_event_ratio": 0.5161290322580645,
+        "baseline_second_share": 0.041666666666666664,
+        "boundary_activations": 0,
+        "candidate_dominant_spacing": 0.5317460317460317,
+        "candidate_event_ratio": 1.3655913978494623,
+        "candidate_second_share": 0.3700787401574803,
+        "case_id": "22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair",
+        "f1_delta": 0.20025789813023853,
+        "group": "primary",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 17,
+        "baseline_dominant_spacing": 0.9743589743589743,
+        "baseline_event_ratio": 0.449438202247191,
+        "baseline_second_share": 0.0,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.48672566371681414,
+        "candidate_event_ratio": 1.2808988764044944,
+        "candidate_second_share": 0.40350877192982454,
+        "case_id": "31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial",
+        "f1_delta": 0.39233207316607477,
+        "group": "primary",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 18,
+        "baseline_dominant_spacing": 0.76,
+        "baseline_event_ratio": 1.0408163265306123,
+        "baseline_second_share": 0.0392156862745098,
+        "boundary_activations": 2,
+        "candidate_dominant_spacing": 0.48672566371681414,
+        "candidate_event_ratio": 2.326530612244898,
+        "candidate_second_share": 0.40350877192982454,
+        "case_id": "29_camellia_beyond_the_geostationary_orbit_level_leniane_synergic_ascent",
+        "f1_delta": 0.3244171779141104,
+        "group": "sentinel",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 9,
+        "baseline_dominant_spacing": 0.348993288590604,
+        "baseline_event_ratio": 1.0416666666666667,
+        "baseline_second_share": 0.35333333333333333,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.689119170984456,
+        "candidate_event_ratio": 1.3472222222222223,
+        "candidate_second_share": 0.5,
+        "case_id": "28_usao_knight_rider_kuo_kyoka_cs_lone_sonorous",
+        "f1_delta": 0.031598438191844824,
+        "group": "sentinel",
+        "spacing_activations": 8
+      },
+      {
+        "activations": 17,
+        "baseline_dominant_spacing": 0.9166666666666666,
+        "baseline_event_ratio": 0.47115384615384615,
+        "baseline_second_share": 0.061224489795918366,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.8793103448275862,
+        "candidate_event_ratio": 1.6826923076923077,
+        "candidate_second_share": 0.5371428571428571,
+        "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+        "f1_delta": 0.26776301918616907,
+        "group": "sentinel",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 17,
+        "baseline_dominant_spacing": 0.9361702127659575,
+        "baseline_event_ratio": 0.5517241379310345,
+        "baseline_second_share": 0.041666666666666664,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.5252525252525253,
+        "candidate_event_ratio": 1.1494252873563218,
+        "candidate_second_share": 0.54,
+        "case_id": "14_oomori_seiko_justadice_tv_size_remu_hard",
+        "f1_delta": 0.32307387601505233,
+        "group": "primary",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 18,
+        "baseline_dominant_spacing": 0.9361702127659575,
+        "baseline_event_ratio": 0.5274725274725275,
+        "baseline_second_share": 0.041666666666666664,
+        "boundary_activations": 2,
+        "candidate_dominant_spacing": 0.5050505050505051,
+        "candidate_event_ratio": 1.098901098901099,
+        "candidate_second_share": 0.54,
+        "case_id": "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+        "f1_delta": 0.2857358092583526,
+        "group": "primary",
+        "spacing_activations": 16
+      },
+      {
+        "activations": 17,
+        "baseline_dominant_spacing": 0.88,
+        "baseline_event_ratio": 0.6623376623376623,
+        "baseline_second_share": 0.09803921568627451,
+        "boundary_activations": 1,
+        "candidate_dominant_spacing": 0.5252525252525253,
+        "candidate_event_ratio": 1.2987012987012987,
+        "candidate_second_share": 0.54,
+        "case_id": "18_billiummoto_four_veiled_stars_aries_famoss_hard",
+        "f1_delta": 0.3630826271186442,
+        "group": "primary",
+        "spacing_activations": 16
+      }
+    ]
+  }
+}
