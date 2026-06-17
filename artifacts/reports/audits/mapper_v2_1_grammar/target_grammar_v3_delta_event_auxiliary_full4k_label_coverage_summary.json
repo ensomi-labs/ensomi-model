@@ -1,0 +1,905 @@
+{
+  "checks": {
+    "audited_windows_match_full_v3_audit": true,
+    "audited_windows_positive": true,
+    "candidate_windows_positive": true,
+    "delta_out_of_range_zero": true,
+    "end_gap_labels_match_audited_windows": true,
+    "end_gap_labels_positive": true,
+    "end_gap_out_of_range_zero": true,
+    "event_labels_match_event_tokens": true,
+    "event_labels_positive": true,
+    "fixed_slice_label_coverage_positive": true,
+    "full_scope": true,
+    "full_v3_representation_audit_positive": true,
+    "label_errors_zero": true,
+    "negative_deltas_zero": true,
+    "negative_end_gaps_zero": true,
+    "no_c3_backreference_or_future_lookup": true,
+    "no_rollout": true,
+    "no_tokenizer_dataset_default_change": true,
+    "no_training": true,
+    "signature_labels_match_event_tokens": true,
+    "tiny_real_data_training_positive": true
+  },
+  "config": {
+    "dataset_progress": false,
+    "dataset_schema_changed": false,
+    "default_behavior_changed": false,
+    "delta_max_ms": 8000,
+    "end_gap_max_ms": 8000,
+    "limit": null,
+    "max_cached_timepoint_maps": 64,
+    "no_rollout": true,
+    "no_training": true,
+    "progress_interval": 5000,
+    "tokenizer_changed": false,
+    "uses_c3_backreference": false,
+    "uses_future_lookup": false
+  },
+  "context": {
+    "fixed_slice_label_coverage": {
+      "end_gap_label_count": 256,
+      "event_label_count": 11983,
+      "max_end_gap_ms": 8000,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_auxiliary_fixed_slice_label_coverage_summary.json",
+      "route": "TEST_DELTA_EVENT_AUXILIARY_TINY_REAL_DATA_TRAINING"
+    },
+    "tiny_real_data_training": {
+      "auxiliary_loss_ratio": 0.33106080939188104,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_auxiliary_tiny_real_data_training_summary.json",
+      "route": "TEST_DELTA_EVENT_AUXILIARY_FULL_SLICE_OR_FULL4K_LABEL_COVERAGE",
+      "token_loss_ratio": 0.5669521666645495
+    },
+    "v3_full_dataset_audit": {
+      "audit": {
+        "eval": {
+          "baseline_token_count": 28073,
+          "candidate_token_count": 22471,
+          "cross_window_ln_window_count": 61,
+          "event_token_count": 9112,
+          "full_chart_end_window_count": 7,
+          "lane_action_token_count": 14714,
+          "ln_carry_in_window_count": 43,
+          "ln_carry_out_window_count": 43,
+          "mismatch_examples": [],
+          "multi_lane_event_count": 3976,
+          "observed_event_vocab_size": 225,
+          "reconstruction_mismatches": 0,
+          "split": "eval",
+          "terminal_event_at_chart_end_window_count": 7,
+          "token_reduction": 5602,
+          "token_reduction_ratio": 0.1995511701635023,
+          "top_event_signatures": [
+            {
+              "count": 1373,
+              "lane_count": 1,
+              "signature": ".T.."
+            },
+            {
+              "count": 1360,
+              "lane_count": 1,
+              "signature": "..T."
+            },
+            {
+              "count": 1010,
+              "lane_count": 1,
+              "signature": "...T"
+            },
+            {
+              "count": 962,
+              "lane_count": 1,
+              "signature": "T..."
+            },
+            {
+              "count": 427,
+              "lane_count": 2,
+              "signature": "..TT"
+            },
+            {
+              "count": 425,
+              "lane_count": 2,
+              "signature": "TT.."
+            },
+            {
+              "count": 362,
+              "lane_count": 2,
+              "signature": "T..T"
+            },
+            {
+              "count": 193,
+              "lane_count": 2,
+              "signature": "T.T."
+            },
+            {
+              "count": 192,
+              "lane_count": 2,
+              "signature": ".TT."
+            },
+            {
+              "count": 179,
+              "lane_count": 2,
+              "signature": ".T.T"
+            },
+            {
+              "count": 121,
+              "lane_count": 3,
+              "signature": "TT.T"
+            },
+            {
+              "count": 106,
+              "lane_count": 3,
+              "signature": "T.TT"
+            },
+            {
+              "count": 73,
+              "lane_count": 1,
+              "signature": ".S.."
+            },
+            {
+              "count": 67,
+              "lane_count": 1,
+              "signature": "..S."
+            },
+            {
+              "count": 63,
+              "lane_count": 2,
+              "signature": "..SE"
+            },
+            {
+              "count": 58,
+              "lane_count": 3,
+              "signature": "TTT."
+            },
+            {
+              "count": 55,
+              "lane_count": 1,
+              "signature": "..E."
+            },
+            {
+              "count": 54,
+              "lane_count": 1,
+              "signature": ".E.."
+            },
+            {
+              "count": 53,
+              "lane_count": 2,
+              "signature": ".ES."
+            },
+            {
+              "count": 50,
+              "lane_count": 1,
+              "signature": "...E"
+            }
+          ],
+          "window_count": 142
+        },
+        "total": {
+          "baseline_token_count": 30888365,
+          "candidate_token_count": 24542731,
+          "cross_window_ln_window_count": 80316,
+          "event_token_count": 9720062,
+          "full_chart_end_window_count": 9360,
+          "lane_action_token_count": 16065696,
+          "ln_carry_in_window_count": 53098,
+          "ln_carry_out_window_count": 53061,
+          "mismatch_examples": [],
+          "multi_lane_event_count": 4670193,
+          "observed_event_vocab_size": 255,
+          "reconstruction_mismatches": 0,
+          "split": "total",
+          "terminal_event_at_chart_end_window_count": 9360,
+          "token_reduction": 6345634,
+          "token_reduction_ratio": 0.20543767855631076,
+          "top_event_signatures": [
+            {
+              "count": 1260273,
+              "lane_count": 1,
+              "signature": "..T."
+            },
+            {
+              "count": 1258042,
+              "lane_count": 1,
+              "signature": ".T.."
+            },
+            {
+              "count": 876807,
+              "lane_count": 1,
+              "signature": "T..."
+            },
+            {
+              "count": 869797,
+              "lane_count": 1,
+              "signature": "...T"
+            },
+            {
+              "count": 495183,
+              "lane_count": 2,
+              "signature": "..TT"
+            },
+            {
+              "count": 492854,
+              "lane_count": 2,
+              "signature": "TT.."
+            },
+            {
+              "count": 391601,
+              "lane_count": 2,
+              "signature": "T..T"
+            },
+            {
+              "count": 229055,
+              "lane_count": 2,
+              "signature": ".TT."
+            },
+            {
+              "count": 222373,
+              "lane_count": 2,
+              "signature": ".T.T"
+            },
+            {
+              "count": 219630,
+              "lane_count": 2,
+              "signature": "T.T."
+            },
+            {
+              "count": 139012,
+              "lane_count": 3,
+              "signature": "T.TT"
+            },
+            {
+              "count": 138082,
+              "lane_count": 3,
+              "signature": "TT.T"
+            },
+            {
+              "count": 126019,
+              "lane_count": 1,
+              "signature": "..S."
+            },
+            {
+              "count": 123592,
+              "lane_count": 1,
+              "signature": ".S.."
+            },
+            {
+              "count": 99792,
+              "lane_count": 1,
+              "signature": "...S"
+            },
+            {
+              "count": 96822,
+              "lane_count": 1,
+              "signature": "S..."
+            },
+            {
+              "count": 88751,
+              "lane_count": 1,
+              "signature": "..E."
+            },
+            {
+              "count": 87741,
+              "lane_count": 1,
+              "signature": ".E.."
+            },
+            {
+              "count": 82279,
+              "lane_count": 1,
+              "signature": "...E"
+            },
+            {
+              "count": 79954,
+              "lane_count": 1,
+              "signature": "E..."
+            }
+          ],
+          "window_count": 174515
+        },
+        "train": {
+          "baseline_token_count": 30860292,
+          "candidate_token_count": 24520260,
+          "cross_window_ln_window_count": 80255,
+          "event_token_count": 9710950,
+          "full_chart_end_window_count": 9353,
+          "lane_action_token_count": 16050982,
+          "ln_carry_in_window_count": 53055,
+          "ln_carry_out_window_count": 53018,
+          "mismatch_examples": [],
+          "multi_lane_event_count": 4666217,
+          "observed_event_vocab_size": 255,
+          "reconstruction_mismatches": 0,
+          "split": "train",
+          "terminal_event_at_chart_end_window_count": 9353,
+          "token_reduction": 6340032,
+          "token_reduction_ratio": 0.20544303339709163,
+          "top_event_signatures": [
+            {
+              "count": 1258913,
+              "lane_count": 1,
+              "signature": "..T."
+            },
+            {
+              "count": 1256669,
+              "lane_count": 1,
+              "signature": ".T.."
+            },
+            {
+              "count": 875845,
+              "lane_count": 1,
+              "signature": "T..."
+            },
+            {
+              "count": 868787,
+              "lane_count": 1,
+              "signature": "...T"
+            },
+            {
+              "count": 494756,
+              "lane_count": 2,
+              "signature": "..TT"
+            },
+            {
+              "count": 492429,
+              "lane_count": 2,
+              "signature": "TT.."
+            },
+            {
+              "count": 391239,
+              "lane_count": 2,
+              "signature": "T..T"
+            },
+            {
+              "count": 228863,
+              "lane_count": 2,
+              "signature": ".TT."
+            },
+            {
+              "count": 222194,
+              "lane_count": 2,
+              "signature": ".T.T"
+            },
+            {
+              "count": 219437,
+              "lane_count": 2,
+              "signature": "T.T."
+            },
+            {
+              "count": 138906,
+              "lane_count": 3,
+              "signature": "T.TT"
+            },
+            {
+              "count": 137961,
+              "lane_count": 3,
+              "signature": "TT.T"
+            },
+            {
+              "count": 125952,
+              "lane_count": 1,
+              "signature": "..S."
+            },
+            {
+              "count": 123519,
+              "lane_count": 1,
+              "signature": ".S.."
+            },
+            {
+              "count": 99757,
+              "lane_count": 1,
+              "signature": "...S"
+            },
+            {
+              "count": 96772,
+              "lane_count": 1,
+              "signature": "S..."
+            },
+            {
+              "count": 88696,
+              "lane_count": 1,
+              "signature": "..E."
+            },
+            {
+              "count": 87687,
+              "lane_count": 1,
+              "signature": ".E.."
+            },
+            {
+              "count": 82229,
+              "lane_count": 1,
+              "signature": "...E"
+            },
+            {
+              "count": 79907,
+              "lane_count": 1,
+              "signature": "E..."
+            }
+          ],
+          "window_count": 174373
+        }
+      },
+      "comparison": {
+        "bits_per_baseline_token": 3.9790864029535413,
+        "eval_token_count": 22471,
+        "event_token_count": 9112,
+        "lane_action_token_count": 14714,
+        "multi_lane_event_count": 3976,
+        "reconstruction_mismatches": 0,
+        "token_reduction": 5602,
+        "token_reduction_ratio": 0.1995511701635023,
+        "total_bit_reduction": 6414.936792023844,
+        "total_bit_reduction_ratio": 0.05430872043736522
+      },
+      "dataset": {
+        "audit_window_count": 174515,
+        "eval_scored_window_count": 142,
+        "eval_window_count": 142,
+        "full_dataset_audit": true,
+        "train_scored_window_count": 174373,
+        "train_window_count": 174373
+      },
+      "decision": {
+        "interpretation": "The v3 event-token grammar passed the audit gate: exact reconstruction holds on the audited scope, target streams are shorter, and the simple total-bit proxy improves. This permits the next representation gate, but trained mapper quality still needs full-pipeline validation.",
+        "kill_criteria_triggered": false,
+        "next_step": "Create the v3 dataset/model/training/inference replacement Experiment Card.",
+        "positive_gate_passed": true,
+        "route": "TEST_NEXT"
+      },
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_full_dataset_audit_summary.json"
+    }
+  },
+  "dataset": {
+    "control_filtered_map_count": 9242,
+    "control_filtered_row_count": 707767,
+    "control_source_map_count": 9242,
+    "control_source_row_count": 707767
+  },
+  "dataset_root": "dataset",
+  "decision": {
+    "next_step": "Create a full4k delta-event bit-proxy or factor-target card before changing mapper defaults.",
+    "reason": "full4k delta-event auxiliary label coverage passed under current head ranges",
+    "route": "TEST_DELTA_EVENT_FULL4K_BIT_PROXY_OR_FACTOR_TARGET_CARD"
+  },
+  "elapsed_s": 3160.0908507499844,
+  "errors": [],
+  "examples": [],
+  "experiment": "Target grammar v3 delta-event auxiliary full4k label coverage",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_auxiliary_full4k_label_coverage_experiment_card.md",
+  "index_path": "artifacts/indexes/stage2_control_windows_4k_2to6_dense_local_bpm_norm_unique_le3.parquet",
+  "metrics": {
+    "audited_window_count": 174515,
+    "candidate_window_count": 180696,
+    "end_gap_label_count": 174515,
+    "eos_count": 9360,
+    "event_label_count": 9720062,
+    "event_token_count": 9720062,
+    "label_error_count": 0,
+    "last_source_index": 707766,
+    "limit": null,
+    "max_end_gap_ms": 8000,
+    "max_event_delta_ms": 7980,
+    "negative_delta_count": 0,
+    "negative_end_gap_count": 0,
+    "out_of_range_delta_count": 0,
+    "out_of_range_end_gap_count": 0,
+    "signature_label_count": 9720062,
+    "skipped_stride_window_count": 527071,
+    "source_window_count": 707767,
+    "time_shift_token_count": 14813309,
+    "top_end_gaps": [
+      {
+        "count": 15186,
+        "value": 20
+      },
+      {
+        "count": 11804,
+        "value": 10
+      },
+      {
+        "count": 11284,
+        "value": 60
+      },
+      {
+        "count": 11073,
+        "value": 50
+      },
+      {
+        "count": 11003,
+        "value": 30
+      },
+      {
+        "count": 10731,
+        "value": 40
+      },
+      {
+        "count": 10583,
+        "value": 70
+      },
+      {
+        "count": 9537,
+        "value": 80
+      },
+      {
+        "count": 9360,
+        "value": 0
+      },
+      {
+        "count": 8083,
+        "value": 90
+      },
+      {
+        "count": 6563,
+        "value": 100
+      },
+      {
+        "count": 6349,
+        "value": 120
+      }
+    ],
+    "top_event_deltas": [
+      {
+        "count": 1188664,
+        "value": 80
+      },
+      {
+        "count": 883375,
+        "value": 90
+      },
+      {
+        "count": 793644,
+        "value": 70
+      },
+      {
+        "count": 630064,
+        "value": 160
+      },
+      {
+        "count": 626043,
+        "value": 150
+      },
+      {
+        "count": 622911,
+        "value": 170
+      },
+      {
+        "count": 577951,
+        "value": 100
+      },
+      {
+        "count": 448828,
+        "value": 60
+      },
+      {
+        "count": 448741,
+        "value": 110
+      },
+      {
+        "count": 360946,
+        "value": 120
+      },
+      {
+        "count": 355143,
+        "value": 140
+      },
+      {
+        "count": 334747,
+        "value": 180
+      }
+    ],
+    "top_event_signatures": [
+      {
+        "count": 1260273,
+        "value": "..T."
+      },
+      {
+        "count": 1258042,
+        "value": ".T.."
+      },
+      {
+        "count": 876807,
+        "value": "T..."
+      },
+      {
+        "count": 869797,
+        "value": "...T"
+      },
+      {
+        "count": 495183,
+        "value": "..TT"
+      },
+      {
+        "count": 492854,
+        "value": "TT.."
+      },
+      {
+        "count": 391601,
+        "value": "T..T"
+      },
+      {
+        "count": 229055,
+        "value": ".TT."
+      },
+      {
+        "count": 222373,
+        "value": ".T.T"
+      },
+      {
+        "count": 219630,
+        "value": "T.T."
+      },
+      {
+        "count": 139012,
+        "value": "T.TT"
+      },
+      {
+        "count": 138082,
+        "value": "TT.T"
+      }
+    ],
+    "unique_end_gap_count": 475,
+    "unique_event_delta_count": 680,
+    "unique_event_signature_count": 255,
+    "unsupported_window_count": 6181,
+    "v3_token_count": 24542731,
+    "zero_delta_event_count": 12235
+  },
+  "next_step": "Create a full4k delta-event bit-proxy or factor-target card before changing mapper defaults.",
+  "schema_version": 1,
+  "unsupported_examples": [
+    {
+      "beatmap_path": "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu",
+      "candidate_window_index": 35,
+      "error": "mapper v3 write window starts after chart_end_ms: 280000 > 272880",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 140,
+      "target_start_ms": 280000
+    },
+    {
+      "beatmap_path": "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Asha's HD].osu",
+      "candidate_window_index": 47,
+      "error": "mapper v3 write window starts after chart_end_ms: 88000 > 87110",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 186,
+      "target_start_ms": 88000
+    },
+    {
+      "beatmap_path": "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Shini's NM].osu",
+      "candidate_window_index": 59,
+      "error": "mapper v3 write window starts after chart_end_ms: 88000 > 87110",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 231,
+      "target_start_ms": 88000
+    },
+    {
+      "beatmap_path": "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Asha's Hard].osu",
+      "candidate_window_index": 122,
+      "error": "mapper v3 write window starts after chart_end_ms: 88000 > 87910",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 479,
+      "target_start_ms": 88000
+    },
+    {
+      "beatmap_path": "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Muwuscle].osu",
+      "candidate_window_index": 134,
+      "error": "mapper v3 write window starts after chart_end_ms: 88000 > 87910",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 525,
+      "target_start_ms": 88000
+    },
+    {
+      "beatmap_path": "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Insane].osu",
+      "candidate_window_index": 207,
+      "error": "mapper v3 write window starts after chart_end_ms: 144000 > 141280",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 809,
+      "target_start_ms": 144000
+    },
+    {
+      "beatmap_path": "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Normal].osu",
+      "candidate_window_index": 226,
+      "error": "mapper v3 write window starts after chart_end_ms: 144000 > 141280",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 882,
+      "target_start_ms": 144000
+    },
+    {
+      "beatmap_path": "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Hard].osu",
+      "candidate_window_index": 245,
+      "error": "mapper v3 write window starts after chart_end_ms: 144000 > 141280",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 955,
+      "target_start_ms": 144000
+    },
+    {
+      "beatmap_path": "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Insane].osu",
+      "candidate_window_index": 264,
+      "error": "mapper v3 write window starts after chart_end_ms: 144000 > 141280",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 1028,
+      "target_start_ms": 144000
+    },
+    {
+      "beatmap_path": "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [FAMoss' hard].osu",
+      "candidate_window_index": 466,
+      "error": "mapper v3 write window starts after chart_end_ms: 152000 > 146960",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 1821,
+      "target_start_ms": 152000
+    },
+    {
+      "beatmap_path": "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [Insane].osu",
+      "candidate_window_index": 486,
+      "error": "mapper v3 write window starts after chart_end_ms: 152000 > 146960",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 1898,
+      "target_start_ms": 152000
+    },
+    {
+      "beatmap_path": "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu",
+      "candidate_window_index": 539,
+      "error": "mapper v3 write window starts after chart_end_ms: 416000 > 410930",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2107,
+      "target_start_ms": 416000
+    },
+    {
+      "beatmap_path": "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu",
+      "candidate_window_index": 540,
+      "error": "mapper v3 write window starts after chart_end_ms: 424000 > 410930",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2111,
+      "target_start_ms": 424000
+    },
+    {
+      "beatmap_path": "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu",
+      "candidate_window_index": 541,
+      "error": "mapper v3 write window starts after chart_end_ms: 432000 > 410930",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2115,
+      "target_start_ms": 432000
+    },
+    {
+      "beatmap_path": "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu",
+      "candidate_window_index": 542,
+      "error": "mapper v3 write window starts after chart_end_ms: 440000 > 410930",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2119,
+      "target_start_ms": 440000
+    },
+    {
+      "beatmap_path": "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu",
+      "candidate_window_index": 543,
+      "error": "mapper v3 write window starts after chart_end_ms: 448000 > 410930",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2123,
+      "target_start_ms": 448000
+    },
+    {
+      "beatmap_path": "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu",
+      "candidate_window_index": 544,
+      "error": "mapper v3 write window starts after chart_end_ms: 456000 > 410930",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2127,
+      "target_start_ms": 456000
+    },
+    {
+      "beatmap_path": "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu",
+      "candidate_window_index": 545,
+      "error": "mapper v3 write window starts after chart_end_ms: 464000 > 410930",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2131,
+      "target_start_ms": 464000
+    },
+    {
+      "beatmap_path": "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu",
+      "candidate_window_index": 546,
+      "error": "mapper v3 write window starts after chart_end_ms: 472000 > 410930",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2135,
+      "target_start_ms": 472000
+    },
+    {
+      "beatmap_path": "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu",
+      "candidate_window_index": 547,
+      "error": "mapper v3 write window starts after chart_end_ms: 480000 > 410930",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2139,
+      "target_start_ms": 480000
+    },
+    {
+      "beatmap_path": "dataset/0/1010184/Graham Kartna - chiltonWALK.temp (Nivrad00) [NSV].osu",
+      "candidate_window_index": 562,
+      "error": "mapper v3 write window starts after chart_end_ms: 112000 > 110750",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2198,
+      "target_start_ms": 112000
+    },
+    {
+      "beatmap_path": "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Equatorial].osu",
+      "candidate_window_index": 636,
+      "error": "mapper v3 write window starts after chart_end_ms: 296000 > 293100",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2489,
+      "target_start_ms": 296000
+    },
+    {
+      "beatmap_path": "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Synergic Ascent].osu",
+      "candidate_window_index": 674,
+      "error": "mapper v3 write window starts after chart_end_ms: 296000 > 293100",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 2639,
+      "target_start_ms": 296000
+    },
+    {
+      "beatmap_path": "dataset/0/1012608/PANDORA feat. Beverly - Be The One (TV Size) (RiP46) [Build Up!].osu",
+      "candidate_window_index": 787,
+      "error": "mapper v3 write window starts after chart_end_ms: 80000 > 74000",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 3080,
+      "target_start_ms": 80000
+    },
+    {
+      "beatmap_path": "dataset/0/1012608/PANDORA feat. Beverly - Be The One (TV Size) (RiP46) [Hard].osu",
+      "candidate_window_index": 798,
+      "error": "mapper v3 write window starts after chart_end_ms: 80000 > 74000",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 3124,
+      "target_start_ms": 80000
+    },
+    {
+      "beatmap_path": "dataset/0/1012649/aran & Kobaryo - While Shining feat. yukacco (Spy) [While Shining...].osu",
+      "candidate_window_index": 830,
+      "error": "mapper v3 write window starts after chart_end_ms: 248000 > 242730",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 3252,
+      "target_start_ms": 248000
+    },
+    {
+      "beatmap_path": "dataset/0/1014868/PSYQUI - Update (KeppSado) [advanced].osu",
+      "candidate_window_index": 857,
+      "error": "mapper v3 write window starts after chart_end_ms: 112000 > 110750",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 3355,
+      "target_start_ms": 112000
+    },
+    {
+      "beatmap_path": "dataset/0/1014868/PSYQUI - Update (KeppSado) [amelioration].osu",
+      "candidate_window_index": 872,
+      "error": "mapper v3 write window starts after chart_end_ms: 112000 > 110750",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 3413,
+      "target_start_ms": 112000
+    },
+    {
+      "beatmap_path": "dataset/0/1017088/YUC'e - Chemical Cookie (Rhezie) [Cookie].osu",
+      "candidate_window_index": 901,
+      "error": "mapper v3 write window starts after chart_end_ms: 104000 > 103490",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 3527,
+      "target_start_ms": 104000
+    },
+    {
+      "beatmap_path": "dataset/0/1017088/YUC'e - Chemical Cookie (Rhezie) [Hard].osu",
+      "candidate_window_index": 915,
+      "error": "mapper v3 write window starts after chart_end_ms: 104000 > 103490",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 3581,
+      "target_start_ms": 104000
+    },
+    {
+      "beatmap_path": "dataset/0/1017088/YUC'e - Chemical Cookie (Rhezie) [Prot's Insane].osu",
+      "candidate_window_index": 929,
+      "error": "mapper v3 write window starts after chart_end_ms: 104000 > 100820",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 3635,
+      "target_start_ms": 104000
+    },
+    {
+      "beatmap_path": "dataset/0/1017310/THE ORAL CIGARETTES - Sesshoku (Cut Ver.) (-[ Peachy ]-) [Eternity].osu",
+      "candidate_window_index": 951,
+      "error": "mapper v3 write window starts after chart_end_ms: 168000 > 164490",
+      "error_type": "UnsupportedMapperActionError",
+      "source_index": 3721,
+      "target_start_ms": 168000
+    }
+  ]
+}
