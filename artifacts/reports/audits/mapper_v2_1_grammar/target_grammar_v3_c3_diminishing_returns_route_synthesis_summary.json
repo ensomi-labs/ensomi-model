@@ -1,0 +1,67 @@
+{
+  "decision": {
+    "next_card": "target_grammar_v3_teacher_forced_time_shift_logit_audit",
+    "next_step": "Run an artifact-only teacher-forced v3 timing-logit audit before adding another C3 mapper-side mutation or timing loss.",
+    "reason": "C3 mapper-side follow-ups are now mostly MUTATE while v3 timing-collapse diagnostics point to a smaller timing-logit calibration question.",
+    "route": "MUTATE_C3_MAPPER_PATH_TEST_V3_TIMING_LOGIT_AUDIT"
+  },
+  "experiment": "Target grammar v3 / C3 diminishing-returns route synthesis",
+  "next_audit_target": "Audit teacher-forced v3 time-shift logits on the fixed-slice checkpoint before adding new training losses or C3 grammar integration.",
+  "not_proved": [
+    "C3 should be permanently abandoned",
+    "v3 replacement readiness",
+    "all timing objectives are bad",
+    "teacher-forced timing-logit audit will improve rollout quality",
+    "active-hold causality"
+  ],
+  "proved_or_supported": {
+    "c3_auxiliary_initial_signal": {
+      "p13_aux_loss_final": 0.546028,
+      "p13_aux_loss_first": 0.684974,
+      "p13_aux_loss_relative_drop": -0.20285,
+      "p13_final_eval_token_loss_delta": 0.000188
+    },
+    "c3_codec": {
+      "casf_delta_bits_per_event": -0.2231011052018621,
+      "clean_active_hold_trace_delta_bits_per_event": -0.3809793375551669,
+      "full_chart_mismatches": 0,
+      "hardening_delta_bits_per_event": -0.3849096630040947,
+      "selected_variant": "a2_skeleton_residual_all_fallback_w256"
+    },
+    "v3_grammar": {
+      "eval_token_reduction": 0.1996,
+      "eval_total_bit_reduction": 0.0543,
+      "full_audit_reconstruction_mismatches": 0,
+      "full_audit_token_reduction": 0.2054,
+      "full_audit_windows": 174515
+    }
+  },
+  "schema_version": 1,
+  "surfaced_issues": {
+    "c3_mapper_side": {
+      "kind_heads_1000_recall_at_20": 0.074406,
+      "ordered_raw_sequence_ratio": 3.185742,
+      "p19_reduced_unigram_recall_at_20": 0.08971,
+      "p20_model_minus_unigram_raw_recall_at_20": -0.05737704918032786,
+      "p21_heldout_hit_delta_vs_identity": -4,
+      "p22_improved_fields_at_3": [
+        "field_3"
+      ],
+      "p23_supported_positive_context_buckets": 1
+    },
+    "time_shift_objective": {
+      "enabled_minus_baseline_rigid_cases": 3,
+      "mean_dominant_spacing_ratio_delta": 0.06219724054108845,
+      "mean_f1_delta": -0.030968231114384386,
+      "new_starved_count": 3
+    },
+    "v3_timing": {
+      "generated_state_route": "TEST_DECODE_TIMING_CALIBRATION",
+      "shared_timing_route": "TEST_TIMING_LOSS_OR_EMBEDDING_CALIBRATION",
+      "target_interval_160_200_share": 0.0965,
+      "target_interval_effective_vocab": 22.690931,
+      "target_rigid_window_share_ge_0_95": 0.0158,
+      "v3_generated_mean_dominant_spacing_ratio": 0.993197
+    }
+  }
+}
