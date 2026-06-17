@@ -1,0 +1,367 @@
+{
+  "checks": {
+    "end_reconstruction_zero": true,
+    "event_reconstruction_zero": true,
+    "factorized_bits_not_worse_than_v3": true,
+    "flat_pair_vocab_tractable": true,
+    "no_c3_backreference": true,
+    "no_future_lookup": true,
+    "no_rollout": true,
+    "no_tokenizer_or_default_change": true,
+    "no_training": true,
+    "sequence_shorter_than_v3": true
+  },
+  "config": {
+    "flat_pair_tractable_limit": 4096,
+    "grammar_defaults_changed": false,
+    "limit": null,
+    "max_cached_timepoint_maps": 64,
+    "no_rollout": true,
+    "no_training": true,
+    "tokenizer_changed": false,
+    "uses_c3_backreference": false,
+    "uses_future_lookup": false
+  },
+  "context": {
+    "v21_terminal_guard_v3_route": {
+      "decision_route": "TEST_V3_BOUNDARY_OR_SPACING_STATE_REPAIR_KEEP_V21_GUARD_OPT_IN",
+      "next_card": "target_grammar_v3_boundary_or_spacing_state_repair",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/mapper_v21_terminal_guard_v3_route_synthesis_summary.json"
+    },
+    "v3_full_dataset": {
+      "decision_route": "TEST_NEXT",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_full_dataset_audit_summary.json",
+      "reconstruction_mismatches": 0,
+      "token_reduction_ratio": 0.1995511701635023,
+      "total_bit_reduction_ratio": 0.05430872043736522
+    }
+  },
+  "dataset": {
+    "audited_window_count": 256,
+    "filter_report": {
+      "cross_window_ln_drop_rate": 0.0,
+      "drop_rate": 0.0,
+      "drop_rate_by_difficulty": {
+        "2.00": 0.0,
+        "2.02": 0.0,
+        "2.09": 0.0,
+        "2.25": 0.0,
+        "2.30": 0.0,
+        "2.31": 0.0,
+        "2.45": 0.0,
+        "2.60": 0.0,
+        "2.66": 0.0,
+        "2.79": 0.0,
+        "2.81": 0.0,
+        "3.06": 0.0,
+        "3.09": 0.0,
+        "3.15": 0.0,
+        "3.19": 0.0,
+        "3.29": 0.0,
+        "3.44": 0.0,
+        "3.47": 0.0,
+        "3.55": 0.0,
+        "3.79": 0.0,
+        "3.84": 0.0,
+        "4.19": 0.0,
+        "4.26": 0.0,
+        "4.28": 0.0,
+        "4.43": 0.0,
+        "4.49": 0.0,
+        "4.61": 0.0,
+        "4.65": 0.0,
+        "4.69": 0.0,
+        "4.75": 0.0,
+        "5.12": 0.0
+      },
+      "drop_rate_by_song": {
+        "dataset/0/1000065/Billx - Punishment (Dustvoxx Remix) (_underjoy) [4K Equalizer].osu": 0.0,
+        "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Asha's HD].osu": 0.0,
+        "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Shini's NM].osu": 0.0,
+        "dataset/0/1001794/Phantom Sage - Holystone (UnluckyCroco) [At the Point of No Return].osu": 0.0,
+        "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Asha's Hard].osu": 0.0,
+        "dataset/0/1003093/Hibiki Sakura (CV Fairouz Ai) & Naruzo Machio (CV Ishikawa Kaito) - Onegai Muscle (TV Size) (Syadow-) [Muwuscle].osu": 0.0,
+        "dataset/0/1003217/nekodex - circles! (FAMoss) [hard!].osu": 0.0,
+        "dataset/0/1003217/nekodex - circles! (FAMoss) [insane!].osu": 0.0,
+        "dataset/0/1003217/nekodex - circles! (FAMoss) [normal!].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Insane].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Normal].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Hard].osu": 0.0,
+        "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Insane].osu": 0.0,
+        "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K HD].osu": 0.0,
+        "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K MX].osu": 0.0,
+        "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Hard].osu": 0.0,
+        "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Normal].osu": 0.0,
+        "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Poke's Insane].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [CS' Lone Sonorous].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [DnM's Normal].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Expert].osu": 0.0,
+        "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Hard].osu": 0.0,
+        "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [FAMoss' hard].osu": 0.0,
+        "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [Insane].osu": 0.0,
+        "dataset/0/1010164/goreshit - one way to hannover (Cokiiplay) [Autophobia].osu": 0.0,
+        "dataset/0/1010184/Graham Kartna - chiltonWALK.temp (Nivrad00) [NSV].osu": 0.0,
+        "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Grimoire of Despair].osu": 0.0,
+        "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Hard].osu": 0.0,
+        "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Normal].osu": 0.0,
+        "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Equatorial].osu": 0.0,
+        "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Synergic Ascent].osu": 0.0,
+        "dataset/0/1011424/Moso Calibration - Sakurairo Diary (TV Size) (Drum-Hitnormal) [Hard].osu": 0.0
+      },
+      "num_dropped_cross_window_ln_windows": 0,
+      "num_dropped_short_windows": 0,
+      "num_dropped_unsupported_action_windows": 0,
+      "num_mapper_eligible_windows": 256,
+      "num_total_windows": 256,
+      "short_drop_rate": 0.0,
+      "unsupported_action_drop_rate": 0.0
+    },
+    "source_window_count": 256
+  },
+  "decision": {
+    "next_step": "Create a bounded factorized delta-event model/loss plumbing card before any training-scale run.",
+    "reason": "delta-event proxy passed reconstruction, sequence, and factorized-bit gates on the bounded slice (row ratio=0.386820, bit ratio=0.747341)",
+    "route": "TEST_DELTA_EVENT_PROXY_MODEL_HEAD"
+  },
+  "elapsed_s": 6.986428208008874,
+  "experiment": "Target grammar v3 delta-event proxy audit",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_proxy_audit_experiment_card.md",
+  "index_path": "artifacts/tmp/mapper_v3_real_config_cache_backed_comparison/fixed_32song_256_eligible_index.parquet",
+  "metrics": {
+    "end_reconstruction_mismatches": 0,
+    "end_row_count": 256,
+    "event_reconstruction_mismatches": 0,
+    "event_row_count": 11983,
+    "flat_pair_bits_per_row": 9.075326931523053,
+    "flat_pair_total_bit_ratio_vs_v3": 0.7033297202688095,
+    "flat_pair_total_bits": 111072.92631491066,
+    "flat_pair_tractable": true,
+    "proxy_factorized_bits_per_row": 9.643223964135492,
+    "proxy_factorized_total_bit_ratio_vs_v3": 0.7473412323721823,
+    "proxy_factorized_total_bits": 118023.41809705428,
+    "proxy_row_count": 12239,
+    "sequence_length_delta_vs_v3": -19401,
+    "sequence_length_ratio_vs_v3": 0.3868204804045512,
+    "special_token_counts": {
+      "bos": 0,
+      "eos": 0,
+      "event": 11983,
+      "time_shift": 19657
+    },
+    "top_end_gaps": [
+      {
+        "count": 34,
+        "value": 100
+      },
+      {
+        "count": 25,
+        "value": 40
+      },
+      {
+        "count": 22,
+        "value": 30
+      },
+      {
+        "count": 16,
+        "value": 80
+      },
+      {
+        "count": 16,
+        "value": 130
+      },
+      {
+        "count": 14,
+        "value": 60
+      },
+      {
+        "count": 12,
+        "value": 10
+      },
+      {
+        "count": 9,
+        "value": 70
+      },
+      {
+        "count": 9,
+        "value": 50
+      },
+      {
+        "count": 9,
+        "value": 150
+      },
+      {
+        "count": 9,
+        "value": 120
+      },
+      {
+        "count": 8,
+        "value": 110
+      }
+    ],
+    "top_event_deltas": [
+      {
+        "count": 2108,
+        "value": 160
+      },
+      {
+        "count": 1912,
+        "value": 80
+      },
+      {
+        "count": 1733,
+        "value": 150
+      },
+      {
+        "count": 812,
+        "value": 170
+      },
+      {
+        "count": 804,
+        "value": 200
+      },
+      {
+        "count": 535,
+        "value": 70
+      },
+      {
+        "count": 441,
+        "value": 90
+      },
+      {
+        "count": 382,
+        "value": 180
+      },
+      {
+        "count": 350,
+        "value": 190
+      },
+      {
+        "count": 306,
+        "value": 100
+      },
+      {
+        "count": 274,
+        "value": 110
+      },
+      {
+        "count": 254,
+        "value": 230
+      }
+    ],
+    "top_event_signatures": [
+      {
+        "count": 1418,
+        "value": ".T.."
+      },
+      {
+        "count": 1416,
+        "value": "..T."
+      },
+      {
+        "count": 911,
+        "value": "T..."
+      },
+      {
+        "count": 852,
+        "value": "...T"
+      },
+      {
+        "count": 671,
+        "value": "..TT"
+      },
+      {
+        "count": 660,
+        "value": "TT.."
+      },
+      {
+        "count": 518,
+        "value": "T..T"
+      },
+      {
+        "count": 286,
+        "value": ".TT."
+      },
+      {
+        "count": 282,
+        "value": "T.T."
+      },
+      {
+        "count": 263,
+        "value": ".T.T"
+      },
+      {
+        "count": 196,
+        "value": "T.TT"
+      },
+      {
+        "count": 188,
+        "value": "TT.T"
+      }
+    ],
+    "top_flat_pairs": [
+      {
+        "count": 330,
+        "value": "80:..T."
+      },
+      {
+        "count": 311,
+        "value": "80:.T.."
+      },
+      {
+        "count": 248,
+        "value": "160:..T."
+      },
+      {
+        "count": 242,
+        "value": "160:.T.."
+      },
+      {
+        "count": 169,
+        "value": "160:..TT"
+      },
+      {
+        "count": 165,
+        "value": "160:T..."
+      },
+      {
+        "count": 160,
+        "value": "150:.T.."
+      },
+      {
+        "count": 155,
+        "value": "80:T..."
+      },
+      {
+        "count": 155,
+        "value": "150:..T."
+      },
+      {
+        "count": 148,
+        "value": "160:TT.."
+      },
+      {
+        "count": 143,
+        "value": "160:...T"
+      },
+      {
+        "count": 143,
+        "value": "80:...T"
+      }
+    ],
+    "unique": {
+      "end_gaps": 33,
+      "event_deltas": 88,
+      "event_signatures": 227,
+      "flat_delta_event_pairs": 2026,
+      "kinds": 2,
+      "v3_tokens": 249
+    },
+    "v3_token_count": 31640,
+    "v3_unigram_bits_per_token": 4.991289607580359,
+    "v3_unigram_total_bits": 157924.40318384254,
+    "window_count": 256,
+    "zero_delta_event_count": 8
+  },
+  "next_step": "Create a bounded factorized delta-event model/loss plumbing card before any training-scale run.",
+  "schema_version": 1
+}
