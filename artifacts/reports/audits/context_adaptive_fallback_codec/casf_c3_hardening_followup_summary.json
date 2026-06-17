@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "experiment": "CASF/C3 hardening follow-up synthesis",
+  "date": "2026-06-17",
+  "decision": {
+    "route": "TEST_NEXT",
+    "scope": "representation family and offline fallback side-stream path only",
+    "reason": "CASF v2 and C3 hardening prove charged chart-local fallback-substream compression with zero hard reconstruction mismatches, but mapper-side learnability and default production legality are not proved."
+  },
+  "verified_commands": [
+    {
+      "command": "uv run --group dev pytest tests/osu_core/test_context_adaptive_fallback_codec_audit.py -q",
+      "result": "8 passed in 0.75s"
+    },
+    {
+      "command": "python3 -m json.tool artifacts/reports/audits/context_adaptive_fallback_codec/c3_lz_hardening_report.json >/dev/null",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m json.tool artifacts/reports/audits/context_adaptive_fallback_codec/casf_c3_final_audit_synthesis_summary.json >/dev/null",
+      "result": "passed"
+    },
+    {
+      "command": "uv run python -m pulsefield_model.osu_core.context_adaptive_fallback_codec_audit --c3-hardening --c3-wide-sweep",
+      "result": "interrupted after more than 12 minutes; no completed wide-sweep report produced",
+      "interrupt_stack": "_lz_candidate_options_by_record -> _lz_match_length -> _mirror_atom_key -> _mirror_mask_4"
+    }
+  ],
+  "casf_v2": {
+    "baseline_r0_delta_test_charged_bits_per_event": 4.421714207191301,
+    "c3_test_charged_bits_per_event": 4.198613101989439,
+    "c3_delta_bits_per_event": -0.2231011052018621,
+    "same_song_filtered_delta_bits_per_event": -0.22353525270533403,
+    "bootstrap_mean_delta_bits_per_event": -0.22282466691710426,
+    "bootstrap_95pct_delta_bits_per_event": [
+      -0.2580919949410291,
+      -0.18675671602064908
+    ],
+    "fallback_payload_reconstruction_mismatches": 0
+  },
+  "c3_hardening": {
+    "selected_variant": "a2_skeleton_residual_all_fallback_w256",
+    "research_promotion_pass": true,
+    "engineering_promotion_pass": true,
+    "selected_test_charged_bits_per_event": 4.0368045441872065,
+    "selected_test_delta_bits_per_event": -0.3849096630040947,
+    "same_song_filtered_delta_bits_per_event": -0.38592890137466185,
+    "clean_trace_test_delta_bits_per_event": -0.3809793375551669,
+    "dirty_trace_test_delta_bits_per_event": -0.43255187244188775,
+    "bootstrap_95pct_delta_bits_per_event": [
+      -0.4235772949889358,
+      -0.34584630062559635
+    ],
+    "hard_reconstruction_mismatches": 0,
+    "variant_deltas": {
+      "c3_active_all_fixed_w256": -0.24256829527744017,
+      "a1_exact_only_all_fallback_w256": -0.2785859452434707,
+      "a2_skeleton_residual_all_fallback_w256": -0.3849096630040947,
+      "a3_mirror_only_all_fallback_w256": -0.2900851303531917,
+      "a5_non_active_all_fixed_w256": -0.09266425164250869,
+      "a6_active_all_fixed_w128": -0.23783549837040585
+    }
+  },
+  "surfaced_issues": {
+    "active_hold_causality_not_proved": true,
+    "invalid_active_hold_transitions": 1789,
+    "segment_state_resets": 1788,
+    "dirty_trace_source_count": 711,
+    "clean_test_source_count": 904,
+    "dirty_test_source_count": 61,
+    "wide_sweep_runtime_bottleneck": true,
+    "wide_sweep_bottleneck_stack": "_lz_candidate_options_by_record -> _lz_match_length -> _mirror_atom_key -> _mirror_mask_4",
+    "completed_hardening_report_code_dirty_caveat": "The audit writes output CSVs before building JSON report metadata, so code_dirty=true should not be read as current source-code dirtiness for this follow-up."
+  },
+  "proved_claim": "The remaining compressible structure is chart-local fallback-payload repetition under a charged online fallback-substream codec.",
+  "unsupported_claims": [
+    "C3 proves active-hold causality",
+    "C3 is ready as a production/default mapper format",
+    "C3 is a simple global tokenizer replacement",
+    "C3 mapper-side learnability or generated chart quality is already proved"
+  ],
+  "next_audit_target": "Can C3's chart-local fallback reference structure be exposed as a legal mapper-side target or auxiliary target without target leakage, while preserving deterministic reconstruction and acceptable sequence/state cost?"
+}
