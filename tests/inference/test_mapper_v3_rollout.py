@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import torch
 
 from pulsefield_model.inference.mapper_v3_rollout import (
+    MapperV3AntiRigidSpacingLogitsTransform,
     MapperV3FullRollout,
     MapperV3GenerationError,
     MapperV3GenerationStep,
@@ -18,7 +19,7 @@ from pulsefield_model.inference.mapper_v3_rollout import (
 )
 from pulsefield_model.models.mapper.v2_1 import MapperV21Vocab
 from pulsefield_model.models.mapper.v3 import MapperV3Config, MapperV3Model, MapperV3Vocab
-from pulsefield_model.models.mapper.v3.replay import empty_ln_carry_state, initial_replay_state
+from pulsefield_model.models.mapper.v3.replay import empty_ln_carry_state, initial_replay_state, transition_replay_state
 from pulsefield_model.models.mapper.v3.vocab import LaneAction
 
 
@@ -166,6 +167,171 @@ def test_v3_window_generation_logits_transform_can_rerank_valid_event() -> None:
 
     assert window.completed
     assert window.tokens == [shift_100, event, shift_400, vocab.eos_id]
+
+
+def test_v3_anti_rigid_spacing_transform_blocks_first_canonical_piece_after_repeated_spacing() -> None:
+    vocab = MapperV3Vocab()
+    ts_100 = vocab.time_shift_token_id(100)
+    ts_90 = vocab.time_shift_token_id(90)
+    ts_60 = vocab.time_shift_token_id(60)
+    tap = vocab.encode_event(_actions(LaneAction.TAP))
+    generated = tuple(token for _ in range(5) for token in (ts_100, ts_60, tap))
+    carry_in = empty_ln_carry_state(0)
+    carry_out = empty_ln_carry_state(2_000)
+    state = initial_replay_state(carry_in)
+    for position, token_id in enumerate(generated):
+        state = transition_replay_state(
+            state,
+            token_id,
+            position=position,
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=2_000,
+            chart_end_ms=2_000,
+            ln_carry_out=carry_out,
+            is_full_chart_start=True,
+            is_full_chart_end=False,
+        )
+    valid_mask = torch.zeros(vocab.size, dtype=torch.bool)
+    valid_mask[ts_100] = True
+    valid_mask[ts_90] = True
+    logits = torch.zeros(vocab.size, dtype=torch.float32)
+    logits[ts_100] = 10.0
+    logits[ts_90] = 9.0
+    step = MapperV3GenerationStep(
+        decoder_input_tokens=torch.tensor([vocab.bos_id, *generated], dtype=torch.long),
+        generated_tokens=generated,
+        state=state,
+        valid_token_mask=valid_mask,
+        token_index=len(generated),
+        write_start_ms=0,
+        write_end_ms=2_000,
+        chart_end_ms=2_000,
+        ln_carry_in=carry_in,
+        ln_carry_out=carry_out,
+        is_full_chart_start=True,
+        is_full_chart_end=False,
+    )
+    transform = MapperV3AntiRigidSpacingLogitsTransform(vocab=vocab, min_repeated_spacings=4)
+
+    transformed = transform(step, logits)
+
+    assert torch.isneginf(transformed[ts_100])
+    assert transformed[ts_90].item() == 9.0
+    assert transform.blocked_count == 1
+    assert transform.examples[0]["spacing_ms"] == 160
+    assert transform.examples[0]["token_name"] == "TS_100"
+
+
+def test_v3_anti_rigid_spacing_transform_tap_only_mode_skips_ln_spacing_run() -> None:
+    vocab = MapperV3Vocab()
+    ts_100 = vocab.time_shift_token_id(100)
+    ts_90 = vocab.time_shift_token_id(90)
+    ts_60 = vocab.time_shift_token_id(60)
+    hold_start = vocab.encode_event(_actions(LaneAction.HOLD_START))
+    hold_end = vocab.encode_event(_actions(LaneAction.HOLD_END))
+    generated = tuple(
+        token
+        for action in (hold_start, hold_end, hold_start, hold_end, hold_start)
+        for token in (ts_100, ts_60, action)
+    )
+    carry_in = empty_ln_carry_state(0)
+    carry_out = empty_ln_carry_state(2_000)
+    state = initial_replay_state(carry_in)
+    for position, token_id in enumerate(generated):
+        state = transition_replay_state(
+            state,
+            token_id,
+            position=position,
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=2_000,
+            chart_end_ms=2_000,
+            ln_carry_out=carry_out,
+            is_full_chart_start=True,
+            is_full_chart_end=False,
+        )
+    valid_mask = torch.zeros(vocab.size, dtype=torch.bool)
+    valid_mask[ts_100] = True
+    valid_mask[ts_90] = True
+    logits = torch.zeros(vocab.size, dtype=torch.float32)
+    logits[ts_100] = 10.0
+    logits[ts_90] = 9.0
+    step = MapperV3GenerationStep(
+        decoder_input_tokens=torch.tensor([vocab.bos_id, *generated], dtype=torch.long),
+        generated_tokens=generated,
+        state=state,
+        valid_token_mask=valid_mask,
+        token_index=len(generated),
+        write_start_ms=0,
+        write_end_ms=2_000,
+        chart_end_ms=2_000,
+        ln_carry_in=carry_in,
+        ln_carry_out=carry_out,
+        is_full_chart_start=True,
+        is_full_chart_end=False,
+    )
+    default_transform = MapperV3AntiRigidSpacingLogitsTransform(vocab=vocab, min_repeated_spacings=4)
+    tap_only_transform = MapperV3AntiRigidSpacingLogitsTransform(
+        vocab=vocab,
+        min_repeated_spacings=4,
+        require_tap_only_run=True,
+    )
+
+    default_transformed = default_transform(step, logits)
+    tap_only_transformed = tap_only_transform(step, logits)
+
+    assert torch.isneginf(default_transformed[ts_100])
+    assert tap_only_transformed[ts_100].item() == 10.0
+    assert tap_only_transform.blocked_count == 0
+
+
+def test_v3_anti_rigid_spacing_transform_keeps_token_when_no_time_shift_alternative_exists() -> None:
+    vocab = MapperV3Vocab()
+    ts_100 = vocab.time_shift_token_id(100)
+    ts_60 = vocab.time_shift_token_id(60)
+    tap = vocab.encode_event(_actions(LaneAction.TAP))
+    generated = tuple(token for _ in range(5) for token in (ts_100, ts_60, tap))
+    carry_in = empty_ln_carry_state(0)
+    carry_out = empty_ln_carry_state(2_000)
+    state = initial_replay_state(carry_in)
+    for position, token_id in enumerate(generated):
+        state = transition_replay_state(
+            state,
+            token_id,
+            position=position,
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=2_000,
+            chart_end_ms=2_000,
+            ln_carry_out=carry_out,
+            is_full_chart_start=True,
+            is_full_chart_end=False,
+        )
+    valid_mask = torch.zeros(vocab.size, dtype=torch.bool)
+    valid_mask[ts_100] = True
+    logits = torch.zeros(vocab.size, dtype=torch.float32)
+    logits[ts_100] = 10.0
+    step = MapperV3GenerationStep(
+        decoder_input_tokens=torch.tensor([vocab.bos_id, *generated], dtype=torch.long),
+        generated_tokens=generated,
+        state=state,
+        valid_token_mask=valid_mask,
+        token_index=len(generated),
+        write_start_ms=0,
+        write_end_ms=2_000,
+        chart_end_ms=2_000,
+        ln_carry_in=carry_in,
+        ln_carry_out=carry_out,
+        is_full_chart_start=True,
+        is_full_chart_end=False,
+    )
+    transform = MapperV3AntiRigidSpacingLogitsTransform(vocab=vocab, min_repeated_spacings=4)
+
+    transformed = transform(step, logits)
+
+    assert transformed[ts_100].item() == 10.0
+    assert transform.blocked_count == 0
 
 
 def test_v3_decoder_input_requires_left_context_for_non_initial_window() -> None:
