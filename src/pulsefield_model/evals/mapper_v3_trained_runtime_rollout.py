@@ -14,6 +14,7 @@ import torch
 from pulsefield_model.inference.mapper_v3_rollout import (
     MapperV3GenerationStep,
     MapperV3LogitsTransform,
+    MapperV3WindowBatchObserver,
     generate_full_song_rollout_v3,
     generated_v3_tokens_to_v2_1_tokens,
     rollout_to_timepoints_v3,
@@ -209,6 +210,7 @@ def run_trained_v3_runtime_rollout_smoke(
     logit_top_k: int = 5,
     logit_max_examples: int = 12,
     logits_transform: MapperV3LogitsTransform | None = None,
+    window_batch_observer: MapperV3WindowBatchObserver | None = None,
     timepoint_preview_limit: int = 32,
 ) -> dict[str, Any]:
     chart_end_ms = int(chart_end_ms)
@@ -291,6 +293,7 @@ def run_trained_v3_runtime_rollout_smoke(
         generator=generator,
         logits_transform=logits_transform,
         logits_observer=None if logit_diagnostics is None else logit_diagnostics.observe,
+        window_batch_observer=window_batch_observer,
     )
     timepoints = rollout_to_timepoints_v3(rollout, runtime.vocab)
     expanded_v2_1_tokens = generated_v3_tokens_to_v2_1_tokens(rollout.tokens, source_vocab=runtime.vocab)
@@ -339,6 +342,7 @@ def run_trained_v3_runtime_rollout_smoke(
             "logit_top_k": int(logit_top_k),
             "logit_max_examples": int(logit_max_examples),
             "logits_transform_enabled": logits_transform is not None,
+            "window_batch_observer_enabled": window_batch_observer is not None,
             "timepoint_preview_limit": int(timepoint_preview_limit),
         },
         "runtime": {

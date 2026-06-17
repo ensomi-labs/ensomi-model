@@ -1,0 +1,2092 @@
+{
+  "aggregate": {
+    "boundary_regression_count": 0,
+    "budget_source_missing_count": 0,
+    "case_count": 10,
+    "duplicate_regression_count": 0,
+    "illegal_case_count": 1,
+    "primary_case_count": 6,
+    "primary_event_ratio_over_count": 2,
+    "primary_mean_f1_delta": 0.25775187892927065,
+    "primary_mean_second_window_share_delta": 0.4224615346688731,
+    "primary_positive_count": 3,
+    "sentinel_case_count": 4,
+    "sentinel_event_ratio_over_count": 2,
+    "sentinel_median_event_count_ratio": 1.2297008547008548,
+    "total_forced_count": 11
+  },
+  "aggregate_checks": {
+    "boundary_guard": true,
+    "budget_source_available": true,
+    "case_coverage": true,
+    "duplicate_guard": true,
+    "legality_guard": false,
+    "mean_primary_f1_guard": true,
+    "primary_event_ratio_guard": false,
+    "primary_positive_count": false,
+    "sentinel_event_ratio_guard": false,
+    "sentinel_median_event_ratio_guard": true
+  },
+  "case_results": [
+    {
+      "audio_path": "dataset/0/1010916/audio.mp3",
+      "baseline": {
+        "boundary_event_ratio": 0.041666666666666664,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5517241379310345,
+        "generated_event_count": 48,
+        "reference_event_count": 87,
+        "second_window_event_share": 0.041666666666666664,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.6074074074074075,
+          "matched_generated": 41,
+          "matched_reference": 41,
+          "precision": 0.8541666666666666,
+          "recall": 0.47126436781609193,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Hard].osu",
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 1,
+          "boundary_event_ratio": 0.007936507936507936,
+          "dominant_spacing_ms": 100,
+          "dominant_spacing_ratio": 0.632,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.4482758620689655,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            730,
+            890,
+            1050,
+            1220,
+            1380,
+            1540,
+            1700,
+            1870,
+            2190,
+            2350,
+            2510,
+            2680
+          ],
+          "generated_event_count": 126,
+          "last_12_generated_times": [
+            14800,
+            14900,
+            15000,
+            15100,
+            15200,
+            15300,
+            15400,
+            15500,
+            15600,
+            15700,
+            15800,
+            15900
+          ],
+          "last_12_reference_times": [
+            14190,
+            14350,
+            14510,
+            14680,
+            14840,
+            15000,
+            15160,
+            15320,
+            15490,
+            15650,
+            15810,
+            15970
+          ],
+          "reference_event_count": 87,
+          "second_window_event_count": 80,
+          "second_window_event_share": 0.6349206349206349,
+          "spacing_counts": {
+            "10": 1,
+            "100": 79,
+            "130": 1,
+            "160": 44
+          },
+          "timing_match_100ms": {
+            "f1": 0.8169014084507042,
+            "matched_generated": 87,
+            "matched_reference": 87,
+            "precision": 0.6904761904761905,
+            "recall": 1.0,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 126,
+          "token_count": 300,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/14_oomori_seiko_justadice_tv_size_remu_hard_budget_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/14_oomori_seiko_justadice_tv_size_remu_hard_budget_gate_summary.json",
+      "case_id": "14_oomori_seiko_justadice_tv_size_remu_hard",
+      "chart_end_ms": 16000,
+      "checks": {
+        "boundary_regressed": false,
+        "budget_source_missing": false,
+        "duplicate_regressed": false,
+        "event_ratio_over_cap": true,
+        "illegal": false,
+        "positive_primary_signal": false
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.03373015873015873,
+        "dominant_spacing_ratio_delta": -0.30417021276595746,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.896551724137931,
+        "f1_delta": 0.20949400104329674,
+        "second_window_event_share_delta": 0.5932539682539683
+      },
+      "difficulty": 3.19,
+      "gate_stats": {
+        "budget_by_window": {
+          "8000": {
+            "budget_slack_events": 4,
+            "current_density_sigmoid_mass": 360.8053894042969,
+            "density_ratio": 1.048866926584103,
+            "event_budget": 53,
+            "previous_density_sigmoid_mass": 343.9953918457031,
+            "previous_window_event_count": 46,
+            "previous_window_start_ms": 0,
+            "raw_event_budget": 52.24787862286874,
+            "window_start_ms": 8000
+          }
+        },
+        "candidate_count": 2,
+        "density_stats_by_window": {
+          "0": {
+            "frame_count": 400,
+            "max": 2.031378746032715,
+            "mean": 1.821203589439392,
+            "min": 1.3888226747512817,
+            "positive_mass": 728.4814453125,
+            "sigmoid_mass": 343.9953918457031,
+            "write_end_ms": 8000,
+            "write_start_ms": 0
+          },
+          "8000": {
+            "frame_count": 400,
+            "max": 2.3805859088897705,
+            "mean": 2.2284653186798096,
+            "min": 1.9693584442138672,
+            "positive_mass": 891.3861083984375,
+            "sigmoid_mass": 360.8053894042969,
+            "write_end_ms": 16000,
+            "write_start_ms": 8000
+          }
+        },
+        "event_count_seen_by_window": {
+          "0": 46,
+          "8000": 80
+        },
+        "examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.5340145826339722,
+            "best_event_rank": 4,
+            "best_event_token": "EV_0010",
+            "current_ms": 8000,
+            "event_budget": 53,
+            "generated_events_in_window": 0,
+            "step": 0,
+            "write_start_ms": 8000
+          },
+          {
+            "argmax_token": "TS_50",
+            "best_event_margin_vs_argmax": -0.761378288269043,
+            "best_event_rank": 2,
+            "best_event_token": "EV_0100",
+            "current_ms": 8100,
+            "event_budget": 53,
+            "generated_events_in_window": 1,
+            "step": 2,
+            "write_start_ms": 8000
+          }
+        ],
+        "forced_count": 2,
+        "forced_count_by_window_start": {
+          "8000": 2
+        },
+        "skipped_counts": {
+          "argmax_event": 51,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 139,
+          "budget_exhausted": 55,
+          "no_valid_event": 52
+        },
+        "step_count": 300,
+        "under_budget_candidate_count": 2
+      },
+      "group": "primary"
+    },
+    {
+      "audio_path": "dataset/0/100501/Fantastic future.mp3",
+      "baseline": {
+        "boundary_event_ratio": 0.041666666666666664,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5274725274725275,
+        "generated_event_count": 48,
+        "reference_event_count": 91,
+        "second_window_event_share": 0.041666666666666664,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.6043165467625898,
+          "matched_generated": 42,
+          "matched_reference": 42,
+          "precision": 0.875,
+          "recall": 0.46153846153846156,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/100501/Tamura Yukari - Fantastic future (TV Size) (victorica_db) [4K MX].osu",
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.02,
+          "dominant_spacing_ms": 150,
+          "dominant_spacing_ratio": 0.5252525252525253,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.098901098901099,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            400,
+            750,
+            1100,
+            1270,
+            1450,
+            1620,
+            1800,
+            1970,
+            2150,
+            2320,
+            2500,
+            2670
+          ],
+          "generated_event_count": 100,
+          "last_12_generated_times": [
+            14450,
+            14600,
+            14750,
+            14900,
+            15050,
+            15200,
+            15350,
+            15500,
+            15650,
+            15800,
+            15950,
+            15990
+          ],
+          "last_12_reference_times": [
+            14270,
+            14360,
+            14440,
+            14530,
+            14700,
+            14880,
+            15050,
+            15230,
+            15400,
+            15580,
+            15750,
+            15930
+          ],
+          "reference_event_count": 91,
+          "second_window_event_count": 54,
+          "second_window_event_share": 0.54,
+          "spacing_counts": {
+            "130": 1,
+            "150": 52,
+            "160": 45,
+            "40": 1
+          },
+          "timing_match_100ms": {
+            "f1": 0.9005235602094239,
+            "matched_generated": 86,
+            "matched_reference": 86,
+            "precision": 0.86,
+            "recall": 0.945054945054945,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 100,
+          "token_count": 302,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_budget_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx_budget_gate_summary.json",
+      "case_id": "17_tamura_yukari_fantastic_future_tv_size_victorica_db_4k_mx",
+      "chart_end_ms": 16000,
+      "checks": {
+        "boundary_regressed": false,
+        "budget_source_missing": false,
+        "duplicate_regressed": false,
+        "event_ratio_over_cap": false,
+        "illegal": false,
+        "positive_primary_signal": true
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.021666666666666664,
+        "dominant_spacing_ratio_delta": -0.41091768751343216,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.5714285714285715,
+        "f1_delta": 0.2962070134468341,
+        "second_window_event_share_delta": 0.49833333333333335
+      },
+      "difficulty": 3.44,
+      "gate_stats": {
+        "budget_by_window": {
+          "8000": {
+            "budget_slack_events": 4,
+            "current_density_sigmoid_mass": 368.9024658203125,
+            "density_ratio": 1.0266527924707007,
+            "event_budget": 52,
+            "previous_density_sigmoid_mass": 359.325439453125,
+            "previous_window_event_count": 46,
+            "previous_window_start_ms": 0,
+            "raw_event_budget": 51.22602845365223,
+            "window_start_ms": 8000
+          }
+        },
+        "candidate_count": 1,
+        "density_stats_by_window": {
+          "0": {
+            "frame_count": 400,
+            "max": 2.4141342639923096,
+            "mean": 2.183335065841675,
+            "min": 1.9014253616333008,
+            "positive_mass": 873.3340454101562,
+            "sigmoid_mass": 359.325439453125,
+            "write_end_ms": 8000,
+            "write_start_ms": 0
+          },
+          "8000": {
+            "frame_count": 400,
+            "max": 2.5550198554992676,
+            "mean": 2.475334644317627,
+            "min": 2.2620716094970703,
+            "positive_mass": 990.1338500976562,
+            "sigmoid_mass": 368.9024658203125,
+            "write_end_ms": 16000,
+            "write_start_ms": 8000
+          }
+        },
+        "event_count_seen_by_window": {
+          "0": 46,
+          "8000": 54
+        },
+        "examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.0539095401763916,
+            "best_event_rank": 2,
+            "best_event_token": "EV_0010",
+            "current_ms": 8150,
+            "event_budget": 52,
+            "generated_events_in_window": 0,
+            "step": 2,
+            "write_start_ms": 8000
+          }
+        ],
+        "forced_count": 1,
+        "forced_count_by_window_start": {
+          "8000": 1
+        },
+        "skipped_counts": {
+          "argmax_event": 51,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 139,
+          "budget_exhausted": 6,
+          "margin_too_low": 48,
+          "no_valid_event": 51,
+          "rank_too_low": 5
+        },
+        "step_count": 302,
+        "under_budget_candidate_count": 1
+      },
+      "group": "primary"
+    },
+    {
+      "audio_path": "dataset/0/1003217/nekodex - circles! (FAMoss) [audio!].mp3",
+      "baseline": {
+        "boundary_event_ratio": 0.041666666666666664,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5333333333333333,
+        "generated_event_count": 48,
+        "reference_event_count": 90,
+        "second_window_event_share": 0.041666666666666664,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.5217391304347827,
+          "matched_generated": 36,
+          "matched_reference": 36,
+          "precision": 0.75,
+          "recall": 0.4,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1003217/nekodex - circles! (FAMoss) [hard!].osu",
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.019801980198019802,
+          "dominant_spacing_ms": 150,
+          "dominant_spacing_ratio": 0.53,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.1222222222222222,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            2590,
+            2750,
+            2920,
+            3080,
+            3240,
+            3400,
+            3570,
+            3730,
+            3890,
+            4060,
+            4220,
+            4380
+          ],
+          "generated_event_count": 101,
+          "last_12_generated_times": [
+            14450,
+            14600,
+            14750,
+            14900,
+            15050,
+            15200,
+            15350,
+            15500,
+            15650,
+            15800,
+            15950,
+            15990
+          ],
+          "last_12_reference_times": [
+            14170,
+            14330,
+            14490,
+            14650,
+            14820,
+            14980,
+            15140,
+            15310,
+            15470,
+            15630,
+            15800,
+            15960
+          ],
+          "reference_event_count": 90,
+          "second_window_event_count": 55,
+          "second_window_event_share": 0.5445544554455446,
+          "spacing_counts": {
+            "10": 1,
+            "130": 1,
+            "150": 53,
+            "160": 44,
+            "40": 1
+          },
+          "timing_match_100ms": {
+            "f1": 0.869109947643979,
+            "matched_generated": 83,
+            "matched_reference": 83,
+            "precision": 0.8217821782178217,
+            "recall": 0.9222222222222223,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 101,
+          "token_count": 303,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/19_nekodex_circles_famoss_hard_budget_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/19_nekodex_circles_famoss_hard_budget_gate_summary.json",
+      "case_id": "19_nekodex_circles_famoss_hard",
+      "chart_end_ms": 16000,
+      "checks": {
+        "boundary_regressed": false,
+        "budget_source_missing": false,
+        "duplicate_regressed": false,
+        "event_ratio_over_cap": false,
+        "illegal": false,
+        "positive_primary_signal": true
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.021864686468646862,
+        "dominant_spacing_ratio_delta": -0.40617021276595744,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.5888888888888889,
+        "f1_delta": 0.34737081720919627,
+        "second_window_event_share_delta": 0.502887788778878
+      },
+      "difficulty": 3.55,
+      "gate_stats": {
+        "budget_by_window": {
+          "8000": {
+            "budget_slack_events": 4,
+            "current_density_sigmoid_mass": 369.7763977050781,
+            "density_ratio": 1.0233346660430465,
+            "event_budget": 52,
+            "previous_density_sigmoid_mass": 361.34454345703125,
+            "previous_window_event_count": 46,
+            "previous_window_start_ms": 0,
+            "raw_event_budget": 51.07339463798014,
+            "window_start_ms": 8000
+          }
+        },
+        "candidate_count": 1,
+        "density_stats_by_window": {
+          "0": {
+            "frame_count": 400,
+            "max": 2.4431748390197754,
+            "mean": 2.24185848236084,
+            "min": 2.0268971920013428,
+            "positive_mass": 896.743408203125,
+            "sigmoid_mass": 361.34454345703125,
+            "write_end_ms": 8000,
+            "write_start_ms": 0
+          },
+          "8000": {
+            "frame_count": 400,
+            "max": 2.5883896350860596,
+            "mean": 2.505645513534546,
+            "min": 2.406031370162964,
+            "positive_mass": 1002.2581787109375,
+            "sigmoid_mass": 369.7763977050781,
+            "write_end_ms": 16000,
+            "write_start_ms": 8000
+          }
+        },
+        "event_count_seen_by_window": {
+          "0": 46,
+          "8000": 55
+        },
+        "examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.2856800556182861,
+            "best_event_rank": 5,
+            "best_event_token": "EV_1101",
+            "current_ms": 8000,
+            "event_budget": 52,
+            "generated_events_in_window": 0,
+            "step": 0,
+            "write_start_ms": 8000
+          }
+        ],
+        "forced_count": 1,
+        "forced_count_by_window_start": {
+          "8000": 1
+        },
+        "skipped_counts": {
+          "argmax_event": 51,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 139,
+          "budget_exhausted": 9,
+          "margin_too_low": 46,
+          "no_valid_event": 51,
+          "rank_too_low": 5
+        },
+        "step_count": 303,
+        "under_budget_candidate_count": 1
+      },
+      "group": "primary"
+    },
+    {
+      "audio_path": "dataset/0/1010916/audio.mp3",
+      "baseline": {
+        "boundary_event_ratio": 0.041666666666666664,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5161290322580645,
+        "generated_event_count": 48,
+        "reference_event_count": 93,
+        "second_window_event_share": 0.041666666666666664,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.5815602836879433,
+          "matched_generated": 41,
+          "matched_reference": 41,
+          "precision": 0.8541666666666666,
+          "recall": 0.44086021505376344,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Grimoire of Despair].osu",
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.02,
+          "dominant_spacing_ms": 150,
+          "dominant_spacing_ratio": 0.5252525252525253,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.075268817204301,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            620,
+            680,
+            730,
+            890,
+            1050,
+            1220,
+            1380,
+            1540,
+            1700,
+            1870,
+            2190,
+            2350
+          ],
+          "generated_event_count": 100,
+          "last_12_generated_times": [
+            14450,
+            14600,
+            14750,
+            14900,
+            15050,
+            15200,
+            15350,
+            15500,
+            15650,
+            15800,
+            15950,
+            15990
+          ],
+          "last_12_reference_times": [
+            14270,
+            14350,
+            14510,
+            14680,
+            14840,
+            15000,
+            15160,
+            15320,
+            15490,
+            15650,
+            15810,
+            15970
+          ],
+          "reference_event_count": 93,
+          "second_window_event_count": 54,
+          "second_window_event_share": 0.54,
+          "spacing_counts": {
+            "130": 1,
+            "150": 52,
+            "160": 45,
+            "40": 1
+          },
+          "timing_match_100ms": {
+            "f1": 0.911917098445596,
+            "matched_generated": 88,
+            "matched_reference": 88,
+            "precision": 0.88,
+            "recall": 0.946236559139785,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 100,
+          "token_count": 302,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair_budget_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair_budget_gate_summary.json",
+      "case_id": "22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair",
+      "chart_end_ms": 16000,
+      "checks": {
+        "boundary_regressed": false,
+        "budget_source_missing": false,
+        "duplicate_regressed": false,
+        "event_ratio_over_cap": false,
+        "illegal": false,
+        "positive_primary_signal": true
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.021666666666666664,
+        "dominant_spacing_ratio_delta": -0.41091768751343216,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.5591397849462365,
+        "f1_delta": 0.33035681475765266,
+        "second_window_event_share_delta": 0.49833333333333335
+      },
+      "difficulty": 4.19,
+      "gate_stats": {
+        "budget_by_window": {
+          "8000": {
+            "budget_slack_events": 4,
+            "current_density_sigmoid_mass": 367.54107666015625,
+            "density_ratio": 1.044835697755877,
+            "event_budget": 53,
+            "previous_density_sigmoid_mass": 351.7692565917969,
+            "previous_window_event_count": 46,
+            "previous_window_start_ms": 0,
+            "raw_event_budget": 52.06244209677034,
+            "window_start_ms": 8000
+          }
+        },
+        "candidate_count": 1,
+        "density_stats_by_window": {
+          "0": {
+            "frame_count": 400,
+            "max": 2.2128920555114746,
+            "mean": 1.9921705722808838,
+            "min": 1.620793104171753,
+            "positive_mass": 796.8682250976562,
+            "sigmoid_mass": 351.7692565917969,
+            "write_end_ms": 8000,
+            "write_start_ms": 0
+          },
+          "8000": {
+            "frame_count": 400,
+            "max": 2.61118221282959,
+            "mean": 2.4362356662750244,
+            "min": 2.152904748916626,
+            "positive_mass": 974.4942626953125,
+            "sigmoid_mass": 367.54107666015625,
+            "write_end_ms": 16000,
+            "write_start_ms": 8000
+          }
+        },
+        "event_count_seen_by_window": {
+          "0": 46,
+          "8000": 54
+        },
+        "examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.403039574623108,
+            "best_event_rank": 2,
+            "best_event_token": "EV_2000",
+            "current_ms": 8150,
+            "event_budget": 53,
+            "generated_events_in_window": 0,
+            "step": 2,
+            "write_start_ms": 8000
+          }
+        ],
+        "forced_count": 1,
+        "forced_count_by_window_start": {
+          "8000": 1
+        },
+        "skipped_counts": {
+          "argmax_event": 52,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 139,
+          "budget_exhausted": 3,
+          "margin_too_low": 49,
+          "no_valid_event": 52,
+          "rank_too_low": 5
+        },
+        "step_count": 302,
+        "under_budget_candidate_count": 1
+      },
+      "group": "primary"
+    },
+    {
+      "audio_path": "dataset/0/1011337/audio.mp3",
+      "baseline": {
+        "boundary_event_ratio": 0.0,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9743589743589743,
+        "event_count_ratio": 0.449438202247191,
+        "generated_event_count": 40,
+        "reference_event_count": 89,
+        "second_window_event_share": 0.0,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.248062015503876,
+          "matched_generated": 16,
+          "matched_reference": 16,
+          "precision": 0.4,
+          "recall": 0.1797752808988764,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Equatorial].osu",
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 0,
+          "boundary_event_ratio": 0.0,
+          "dominant_spacing_ms": 160,
+          "dominant_spacing_ratio": 0.9743589743589743,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 0.449438202247191,
+          "first_12_generated_times": [
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580,
+            2740,
+            2900,
+            3060,
+            3220,
+            3380,
+            3540
+          ],
+          "first_12_reference_times": [
+            5100,
+            5620,
+            5790,
+            5870,
+            6130,
+            6220,
+            6300,
+            6470,
+            6520,
+            6560,
+            6650,
+            6730
+          ],
+          "generated_event_count": 40,
+          "last_12_generated_times": [
+            6260,
+            6420,
+            6580,
+            6740,
+            6900,
+            7060,
+            7220,
+            7380,
+            7540,
+            7700,
+            7860,
+            7960
+          ],
+          "last_12_reference_times": [
+            14450,
+            14700,
+            14750,
+            14790,
+            14870,
+            14960,
+            15050,
+            15130,
+            15220,
+            15300,
+            15730,
+            15820
+          ],
+          "reference_event_count": 89,
+          "second_window_event_count": 0,
+          "second_window_event_share": 0.0,
+          "spacing_counts": {
+            "100": 1,
+            "160": 38
+          },
+          "timing_match_100ms": {
+            "f1": 0.248062015503876,
+            "matched_generated": 16,
+            "matched_reference": 16,
+            "precision": 0.4,
+            "recall": 0.1797752808988764,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 40,
+          "token_count": 224,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_budget_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_budget_gate_summary.json",
+      "case_id": "31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial",
+      "chart_end_ms": 16000,
+      "checks": {
+        "boundary_regressed": false,
+        "budget_source_missing": false,
+        "duplicate_regressed": false,
+        "event_ratio_over_cap": false,
+        "illegal": false,
+        "positive_primary_signal": false
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": 0.0,
+        "dominant_spacing_ratio_delta": 0.0,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.0,
+        "f1_delta": 0.0,
+        "second_window_event_share_delta": 0.0
+      },
+      "difficulty": 5.12,
+      "gate_stats": {
+        "budget_by_window": {
+          "8000": {
+            "budget_slack_events": 4,
+            "current_density_sigmoid_mass": 350.34991455078125,
+            "density_ratio": 1.0592628126079249,
+            "event_budget": 47,
+            "previous_density_sigmoid_mass": 330.7488098144531,
+            "previous_window_event_count": 40,
+            "previous_window_start_ms": 0,
+            "raw_event_budget": 46.37051250431699,
+            "window_start_ms": 8000
+          }
+        },
+        "candidate_count": 0,
+        "density_stats_by_window": {
+          "0": {
+            "frame_count": 400,
+            "max": 1.856094479560852,
+            "mean": 1.5681484937667847,
+            "min": 1.369126558303833,
+            "positive_mass": 627.2593994140625,
+            "sigmoid_mass": 330.7488098144531,
+            "write_end_ms": 8000,
+            "write_start_ms": 0
+          },
+          "8000": {
+            "frame_count": 400,
+            "max": 2.097839117050171,
+            "mean": 1.9550678730010986,
+            "min": 1.8202929496765137,
+            "positive_mass": 782.0271606445312,
+            "sigmoid_mass": 350.34991455078125,
+            "write_end_ms": 16000,
+            "write_start_ms": 8000
+          }
+        },
+        "event_count_seen_by_window": {
+          "0": 40,
+          "8000": 0
+        },
+        "examples": [],
+        "forced_count": 0,
+        "forced_count_by_window_start": {},
+        "skipped_counts": {
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 123,
+          "margin_too_low": 49,
+          "rank_too_low": 51
+        },
+        "step_count": 224,
+        "under_budget_candidate_count": 0
+      },
+      "group": "primary"
+    },
+    {
+      "audio_path": "dataset/0/1008419/audio.mp3",
+      "baseline": {
+        "boundary_event_ratio": 0.09803921568627451,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.88,
+        "event_count_ratio": 0.6623376623376623,
+        "generated_event_count": 51,
+        "reference_event_count": 77,
+        "second_window_event_share": 0.09803921568627451,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.48437499999999994,
+          "matched_generated": 31,
+          "matched_reference": 31,
+          "precision": 0.6078431372549019,
+          "recall": 0.4025974025974026,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [FAMoss' hard].osu",
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.02,
+          "dominant_spacing_ms": 150,
+          "dominant_spacing_ratio": 0.5252525252525253,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.2987012987012987,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            3380,
+            3540,
+            3700,
+            3860,
+            4020,
+            4180,
+            4340,
+            4500,
+            4660,
+            4820,
+            4990,
+            5150
+          ],
+          "generated_event_count": 100,
+          "last_12_generated_times": [
+            14450,
+            14600,
+            14750,
+            14900,
+            15050,
+            15200,
+            15350,
+            15500,
+            15650,
+            15800,
+            15950,
+            15990
+          ],
+          "last_12_reference_times": [
+            13650,
+            13810,
+            14130,
+            14290,
+            14610,
+            14690,
+            14770,
+            14930,
+            15090,
+            15410,
+            15570,
+            15890
+          ],
+          "reference_event_count": 77,
+          "second_window_event_count": 54,
+          "second_window_event_share": 0.54,
+          "spacing_counts": {
+            "130": 1,
+            "150": 52,
+            "160": 45,
+            "40": 1
+          },
+          "timing_match_100ms": {
+            "f1": 0.8474576271186441,
+            "matched_generated": 75,
+            "matched_reference": 75,
+            "precision": 0.75,
+            "recall": 0.974025974025974,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 100,
+          "token_count": 302,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/18_billiummoto_four_veiled_stars_aries_famoss_hard_budget_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/18_billiummoto_four_veiled_stars_aries_famoss_hard_budget_gate_summary.json",
+      "case_id": "18_billiummoto_four_veiled_stars_aries_famoss_hard",
+      "chart_end_ms": 16000,
+      "checks": {
+        "boundary_regressed": false,
+        "budget_source_missing": false,
+        "duplicate_regressed": false,
+        "event_ratio_over_cap": true,
+        "illegal": false,
+        "positive_primary_signal": false
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.0780392156862745,
+        "dominant_spacing_ratio_delta": -0.3547474747474747,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.6363636363636364,
+        "f1_delta": 0.3630826271186442,
+        "second_window_event_share_delta": 0.44196078431372554
+      },
+      "difficulty": 3.47,
+      "gate_stats": {
+        "budget_by_window": {
+          "8000": {
+            "budget_slack_events": 4,
+            "current_density_sigmoid_mass": 362.9122619628906,
+            "density_ratio": 1.0781999218453209,
+            "event_budget": 54,
+            "previous_density_sigmoid_mass": 336.59088134765625,
+            "previous_window_event_count": 46,
+            "previous_window_start_ms": 0,
+            "raw_event_budget": 53.59719640488476,
+            "window_start_ms": 8000
+          }
+        },
+        "candidate_count": 1,
+        "density_stats_by_window": {
+          "0": {
+            "frame_count": 400,
+            "max": 2.0579771995544434,
+            "mean": 1.6984034776687622,
+            "min": 1.1828150749206543,
+            "positive_mass": 679.3613891601562,
+            "sigmoid_mass": 336.59088134765625,
+            "write_end_ms": 8000,
+            "write_start_ms": 0
+          },
+          "8000": {
+            "frame_count": 400,
+            "max": 2.4068655967712402,
+            "mean": 2.2831344604492188,
+            "min": 2.136889934539795,
+            "positive_mass": 913.2537841796875,
+            "sigmoid_mass": 362.9122619628906,
+            "write_end_ms": 16000,
+            "write_start_ms": 8000
+          }
+        },
+        "event_count_seen_by_window": {
+          "0": 46,
+          "8000": 54
+        },
+        "examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.7842600345611572,
+            "best_event_rank": 2,
+            "best_event_token": "EV_0010",
+            "current_ms": 8150,
+            "event_budget": 54,
+            "generated_events_in_window": 0,
+            "step": 2,
+            "write_start_ms": 8000
+          }
+        ],
+        "forced_count": 1,
+        "forced_count_by_window_start": {
+          "8000": 1
+        },
+        "skipped_counts": {
+          "argmax_event": 53,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 139,
+          "budget_exhausted": 1,
+          "margin_too_low": 50,
+          "no_valid_event": 53,
+          "rank_too_low": 4
+        },
+        "step_count": 302,
+        "under_budget_candidate_count": 1
+      },
+      "group": "primary"
+    },
+    {
+      "audio_path": "dataset/0/1008095/Knight Rider.mp3",
+      "baseline": {
+        "boundary_event_ratio": 0.061224489795918366,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.9166666666666666,
+        "event_count_ratio": 0.47115384615384615,
+        "generated_event_count": 49,
+        "reference_event_count": 104,
+        "second_window_event_share": 0.061224489795918366,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.47058823529411764,
+          "matched_generated": 36,
+          "matched_reference": 36,
+          "precision": 0.7346938775510204,
+          "recall": 0.34615384615384615,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [Expert].osu",
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.0136986301369863,
+          "dominant_spacing_ms": 80,
+          "dominant_spacing_ratio": 0.6758620689655173,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.4038461538461537,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            810,
+            1110,
+            2910,
+            2990,
+            3060,
+            3140,
+            3210,
+            3360,
+            3510,
+            3660,
+            3810,
+            3960
+          ],
+          "generated_event_count": 146,
+          "last_12_generated_times": [
+            15100,
+            15180,
+            15260,
+            15340,
+            15420,
+            15500,
+            15580,
+            15660,
+            15740,
+            15820,
+            15900,
+            15980
+          ],
+          "last_12_reference_times": [
+            14310,
+            14460,
+            14610,
+            14760,
+            14910,
+            15060,
+            15210,
+            15360,
+            15510,
+            15660,
+            15810,
+            15960
+          ],
+          "reference_event_count": 104,
+          "second_window_event_count": 100,
+          "second_window_event_share": 0.684931506849315,
+          "spacing_counts": {
+            "120": 1,
+            "160": 44,
+            "70": 1,
+            "80": 98,
+            "90": 1
+          },
+          "timing_match_100ms": {
+            "f1": 0.7999999999999999,
+            "matched_generated": 100,
+            "matched_reference": 100,
+            "precision": 0.684931506849315,
+            "recall": 0.9615384615384616,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 146,
+          "token_count": 341,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/23_usao_knight_rider_kuo_kyoka_expert_budget_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/23_usao_knight_rider_kuo_kyoka_expert_budget_gate_summary.json",
+      "case_id": "23_usao_knight_rider_kuo_kyoka_expert",
+      "chart_end_ms": 16000,
+      "checks": {
+        "boundary_regressed": false,
+        "budget_source_missing": false,
+        "duplicate_regressed": false,
+        "event_ratio_over_cap": true,
+        "illegal": false,
+        "positive_primary_signal": false
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.047525859658932065,
+        "dominant_spacing_ratio_delta": -0.24080459770114937,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.9326923076923076,
+        "f1_delta": 0.3294117647058823,
+        "second_window_event_share_delta": 0.6237070170533967
+      },
+      "difficulty": 4.26,
+      "gate_stats": {
+        "budget_by_window": {
+          "8000": {
+            "budget_slack_events": 4,
+            "current_density_sigmoid_mass": 374.4266052246094,
+            "density_ratio": 1.041155086076901,
+            "event_budget": 52,
+            "previous_density_sigmoid_mass": 359.62615966796875,
+            "previous_window_event_count": 46,
+            "previous_window_start_ms": 0,
+            "raw_event_budget": 51.893133959537444,
+            "window_start_ms": 8000
+          }
+        },
+        "candidate_count": 1,
+        "density_stats_by_window": {
+          "0": {
+            "frame_count": 400,
+            "max": 2.5924363136291504,
+            "mean": 2.2054545879364014,
+            "min": 1.6952588558197021,
+            "positive_mass": 882.1818237304688,
+            "sigmoid_mass": 359.62615966796875,
+            "write_end_ms": 8000,
+            "write_start_ms": 0
+          },
+          "8000": {
+            "frame_count": 400,
+            "max": 2.797123908996582,
+            "mean": 2.6868462562561035,
+            "min": 2.433947801589966,
+            "positive_mass": 1074.738525390625,
+            "sigmoid_mass": 374.4266052246094,
+            "write_end_ms": 16000,
+            "write_start_ms": 8000
+          }
+        },
+        "event_count_seen_by_window": {
+          "0": 46,
+          "8000": 100
+        },
+        "examples": [
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -1.3752710819244385,
+            "best_event_rank": 3,
+            "best_event_token": "EV_0200",
+            "current_ms": 8070,
+            "event_budget": 52,
+            "generated_events_in_window": 0,
+            "step": 1,
+            "write_start_ms": 8000
+          }
+        ],
+        "forced_count": 1,
+        "forced_count_by_window_start": {
+          "8000": 1
+        },
+        "skipped_counts": {
+          "argmax_event": 51,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 139,
+          "budget_exhausted": 97,
+          "no_valid_event": 51,
+          "rank_too_low": 1
+        },
+        "step_count": 341,
+        "under_budget_candidate_count": 1
+      },
+      "group": "sentinel"
+    },
+    {
+      "audio_path": "dataset/0/1011337/audio.mp3",
+      "baseline": {
+        "boundary_event_ratio": 0.0392156862745098,
+        "dominant_spacing_ms": 160,
+        "dominant_spacing_ratio": 0.76,
+        "event_count_ratio": 1.0408163265306123,
+        "generated_event_count": 51,
+        "reference_event_count": 49,
+        "second_window_event_share": 0.0392156862745098,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.24,
+          "matched_generated": 12,
+          "matched_reference": 12,
+          "precision": 0.23529411764705882,
+          "recall": 0.24489795918367346,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Synergic Ascent].osu",
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 0,
+          "boundary_event_ratio": 0.0,
+          "dominant_spacing_ms": 160,
+          "dominant_spacing_ratio": 0.9743589743589743,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 0.8163265306122449,
+          "first_12_generated_times": [
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580,
+            2740,
+            2900,
+            3060,
+            3220,
+            3380,
+            3540
+          ],
+          "first_12_reference_times": [
+            5790,
+            6130,
+            6470,
+            6560,
+            6650,
+            6820,
+            6990,
+            7330,
+            7500,
+            7670,
+            7850,
+            7930
+          ],
+          "generated_event_count": 40,
+          "last_12_generated_times": [
+            6260,
+            6420,
+            6580,
+            6740,
+            6900,
+            7060,
+            7220,
+            7380,
+            7540,
+            7700,
+            7860,
+            7990
+          ],
+          "last_12_reference_times": [
+            13500,
+            13670,
+            13850,
+            14190,
+            14360,
+            14450,
+            14700,
+            14790,
+            14870,
+            15050,
+            15220,
+            15730
+          ],
+          "reference_event_count": 49,
+          "second_window_event_count": 0,
+          "second_window_event_share": 0.0,
+          "spacing_counts": {
+            "130": 1,
+            "160": 38
+          },
+          "timing_match_100ms": {
+            "f1": 0.2696629213483146,
+            "matched_generated": 12,
+            "matched_reference": 12,
+            "precision": 0.3,
+            "recall": 0.24489795918367346,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": false,
+          "dead_end": true,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 40,
+          "token_count": 123,
+          "window_count": 1
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/29_camellia_beyond_the_geostationary_orbit_level_leniane_synergic_ascent_budget_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/29_camellia_beyond_the_geostationary_orbit_level_leniane_synergic_ascent_budget_gate_summary.json",
+      "case_id": "29_camellia_beyond_the_geostationary_orbit_level_leniane_synergic_ascent",
+      "chart_end_ms": 16000,
+      "checks": {
+        "boundary_regressed": false,
+        "budget_source_missing": false,
+        "duplicate_regressed": false,
+        "event_ratio_over_cap": false,
+        "illegal": true,
+        "positive_primary_signal": false
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.0392156862745098,
+        "dominant_spacing_ratio_delta": 0.21435897435897433,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": -0.22448979591836737,
+        "f1_delta": 0.029662921348314608,
+        "second_window_event_share_delta": -0.0392156862745098
+      },
+      "difficulty": 4.69,
+      "gate_stats": {
+        "budget_by_window": {},
+        "candidate_count": 0,
+        "density_stats_by_window": {
+          "0": {
+            "frame_count": 400,
+            "max": 1.8208293914794922,
+            "mean": 1.5223926305770874,
+            "min": 1.3294042348861694,
+            "positive_mass": 608.95703125,
+            "sigmoid_mass": 328.06927490234375,
+            "write_end_ms": 8000,
+            "write_start_ms": 0
+          }
+        },
+        "event_count_seen_by_window": {
+          "0": 39
+        },
+        "examples": [],
+        "forced_count": 0,
+        "forced_count_by_window_start": {},
+        "skipped_counts": {
+          "before_gate_start": 123
+        },
+        "step_count": 123,
+        "under_budget_candidate_count": 0
+      },
+      "group": "sentinel"
+    },
+    {
+      "audio_path": "dataset/0/1008095/Knight Rider.mp3",
+      "baseline": {
+        "boundary_event_ratio": 0.0,
+        "dominant_spacing_ms": 150,
+        "dominant_spacing_ratio": 0.348993288590604,
+        "event_count_ratio": 1.0416666666666667,
+        "generated_event_count": 150,
+        "reference_event_count": 144,
+        "second_window_event_share": 0.35333333333333333,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.802721088435374,
+          "matched_generated": 118,
+          "matched_reference": 118,
+          "precision": 0.7866666666666666,
+          "recall": 0.8194444444444444,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1008095/USAO - Knight Rider (Kuo Kyoka) [CS' Lone Sonorous].osu",
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.013157894736842105,
+          "dominant_spacing_ms": 150,
+          "dominant_spacing_ratio": 0.3509933774834437,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.0555555555555556,
+          "first_12_generated_times": [
+            820,
+            900,
+            970,
+            1050,
+            1120,
+            1200,
+            1270,
+            1350,
+            1420,
+            1500,
+            1570,
+            1650
+          ],
+          "first_12_reference_times": [
+            810,
+            1000,
+            1040,
+            1070,
+            1110,
+            2910,
+            3140,
+            3210,
+            3360,
+            3440,
+            3510,
+            3590
+          ],
+          "generated_event_count": 152,
+          "last_12_generated_times": [
+            14450,
+            14600,
+            14750,
+            14900,
+            15050,
+            15200,
+            15350,
+            15500,
+            15650,
+            15800,
+            15950,
+            15990
+          ],
+          "last_12_reference_times": [
+            14910,
+            14990,
+            15060,
+            15210,
+            15290,
+            15360,
+            15510,
+            15590,
+            15660,
+            15810,
+            15890,
+            15960
+          ],
+          "reference_event_count": 144,
+          "second_window_event_count": 55,
+          "second_window_event_share": 0.3618421052631579,
+          "spacing_counts": {
+            "10": 1,
+            "150": 53,
+            "40": 2,
+            "70": 47,
+            "80": 48
+          },
+          "timing_match_100ms": {
+            "f1": 0.8108108108108109,
+            "matched_generated": 120,
+            "matched_reference": 120,
+            "precision": 0.7894736842105263,
+            "recall": 0.8333333333333334,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 152,
+          "token_count": 360,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/28_usao_knight_rider_kuo_kyoka_cs_lone_sonorous_budget_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/28_usao_knight_rider_kuo_kyoka_cs_lone_sonorous_budget_gate_summary.json",
+      "case_id": "28_usao_knight_rider_kuo_kyoka_cs_lone_sonorous",
+      "chart_end_ms": 16000,
+      "checks": {
+        "boundary_regressed": false,
+        "budget_source_missing": false,
+        "duplicate_regressed": false,
+        "event_ratio_over_cap": false,
+        "illegal": false,
+        "positive_primary_signal": false
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": 0.013157894736842105,
+        "dominant_spacing_ratio_delta": 0.002000088892839702,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.01388888888888884,
+        "f1_delta": 0.008089722375436814,
+        "second_window_event_share_delta": 0.008508771929824577
+      },
+      "difficulty": 4.65,
+      "gate_stats": {
+        "budget_by_window": {
+          "8000": {
+            "budget_slack_events": 4,
+            "current_density_sigmoid_mass": 376.2515869140625,
+            "density_ratio": 1.0402770514380177,
+            "event_budget": 96,
+            "previous_density_sigmoid_mass": 361.68402099609375,
+            "previous_window_event_count": 97,
+            "previous_window_start_ms": 0,
+            "raw_event_budget": 104.90687398948772,
+            "window_start_ms": 8000
+          }
+        },
+        "candidate_count": 1,
+        "density_stats_by_window": {
+          "0": {
+            "frame_count": 400,
+            "max": 2.669475555419922,
+            "mean": 2.2639477252960205,
+            "min": 1.7512634992599487,
+            "positive_mass": 905.5791015625,
+            "sigmoid_mass": 361.68402099609375,
+            "write_end_ms": 8000,
+            "write_start_ms": 0
+          },
+          "8000": {
+            "frame_count": 400,
+            "max": 2.8849573135375977,
+            "mean": 2.7660675048828125,
+            "min": 2.506213665008545,
+            "positive_mass": 1106.427001953125,
+            "sigmoid_mass": 376.2515869140625,
+            "write_end_ms": 16000,
+            "write_start_ms": 8000
+          }
+        },
+        "event_count_seen_by_window": {
+          "0": 97,
+          "8000": 55
+        },
+        "examples": [
+          {
+            "argmax_token": "TS_50",
+            "best_event_margin_vs_argmax": -0.9187772274017334,
+            "best_event_rank": 3,
+            "best_event_token": "EV_1101",
+            "current_ms": 8000,
+            "event_budget": 96,
+            "generated_events_in_window": 0,
+            "step": 0,
+            "write_start_ms": 8000
+          }
+        ],
+        "forced_count": 1,
+        "forced_count_by_window_start": {
+          "8000": 1
+        },
+        "skipped_counts": {
+          "argmax_event": 54,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 196,
+          "margin_too_low": 53,
+          "no_valid_event": 55
+        },
+        "step_count": 360,
+        "under_budget_candidate_count": 1
+      },
+      "group": "sentinel"
+    },
+    {
+      "audio_path": "dataset/0/1008060/A M D.mp3",
+      "baseline": {
+        "boundary_event_ratio": 0.02666666666666667,
+        "dominant_spacing_ms": 150,
+        "dominant_spacing_ratio": 0.7162162162162162,
+        "event_count_ratio": 1.1904761904761905,
+        "generated_event_count": 75,
+        "reference_event_count": 63,
+        "second_window_event_share": 0.72,
+        "starved": false,
+        "timing_match_100ms": {
+          "f1": 0.6956521739130435,
+          "matched_generated": 48,
+          "matched_reference": 48,
+          "precision": 0.64,
+          "recall": 0.7619047619047619,
+          "tolerance_ms": 100
+        }
+      },
+      "beatmap_path": "dataset/0/1008060/Hatsuki Yura - Guren Yasha (A M D) [Normal].osu",
+      "candidate": {
+        "metrics": {
+          "boundary_event_count": 1,
+          "boundary_event_ratio": 0.01,
+          "dominant_spacing_ms": 100,
+          "dominant_spacing_ratio": 0.797979797979798,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.5873015873015872,
+          "first_12_generated_times": [
+            410,
+            820,
+            1230,
+            1640,
+            2050,
+            2460,
+            2870,
+            3280,
+            3690,
+            4100,
+            4510,
+            4920
+          ],
+          "first_12_reference_times": [
+            260,
+            1870,
+            3480,
+            4280,
+            4680,
+            5090,
+            5490,
+            5890,
+            6300,
+            6700,
+            6900,
+            7000
+          ],
+          "generated_event_count": 100,
+          "last_12_generated_times": [
+            14800,
+            14900,
+            15000,
+            15100,
+            15200,
+            15300,
+            15400,
+            15500,
+            15600,
+            15700,
+            15800,
+            15900
+          ],
+          "last_12_reference_times": [
+            13950,
+            14150,
+            14250,
+            14450,
+            14550,
+            14750,
+            14950,
+            15150,
+            15360,
+            15560,
+            15760,
+            15960
+          ],
+          "reference_event_count": 63,
+          "second_window_event_count": 80,
+          "second_window_event_share": 0.8,
+          "spacing_counts": {
+            "10": 1,
+            "100": 79,
+            "200": 1,
+            "410": 18
+          },
+          "timing_match_100ms": {
+            "f1": 0.6012269938650306,
+            "matched_generated": 49,
+            "matched_reference": 49,
+            "precision": 0.49,
+            "recall": 0.7777777777777778,
+            "tolerance_ms": 100
+          }
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 100,
+          "token_count": 221,
+          "window_count": 2
+        }
+      },
+      "candidate_report_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/01_hatsuki_yura_guren_yasha_a_m_d_normal_budget_gate_report.md",
+      "candidate_summary_path": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke/rollouts/01_hatsuki_yura_guren_yasha_a_m_d_normal_budget_gate_summary.json",
+      "case_id": "01_hatsuki_yura_guren_yasha_a_m_d_normal",
+      "chart_end_ms": 16000,
+      "checks": {
+        "boundary_regressed": false,
+        "budget_source_missing": false,
+        "duplicate_regressed": false,
+        "event_ratio_over_cap": true,
+        "illegal": false,
+        "positive_primary_signal": false
+      },
+      "comparison": {
+        "boundary_event_ratio_delta": -0.01666666666666667,
+        "dominant_spacing_ratio_delta": 0.08176358176358178,
+        "duplicate_or_nonincreasing_spacing_ratio_delta": 0.0,
+        "event_count_ratio_delta": 0.39682539682539675,
+        "f1_delta": -0.09442518004801281,
+        "second_window_event_share_delta": 0.08000000000000007
+      },
+      "difficulty": 2.02,
+      "gate_stats": {
+        "budget_by_window": {
+          "8000": {
+            "budget_slack_events": 4,
+            "current_density_sigmoid_mass": 352.4853515625,
+            "density_ratio": 1.038028997344139,
+            "event_budget": 25,
+            "previous_density_sigmoid_mass": 339.57177734375,
+            "previous_window_event_count": 20,
+            "previous_window_start_ms": 0,
+            "raw_event_budget": 24.76057994688278,
+            "window_start_ms": 8000
+          }
+        },
+        "candidate_count": 3,
+        "density_stats_by_window": {
+          "0": {
+            "frame_count": 400,
+            "max": 1.9977960586547852,
+            "mean": 1.7344874143600464,
+            "min": 1.4776248931884766,
+            "positive_mass": 693.7949829101562,
+            "sigmoid_mass": 339.57177734375,
+            "write_end_ms": 8000,
+            "write_start_ms": 0
+          },
+          "8000": {
+            "frame_count": 400,
+            "max": 2.0488412380218506,
+            "mean": 2.0041048526763916,
+            "min": 1.9446215629577637,
+            "positive_mass": 801.6419677734375,
+            "sigmoid_mass": 352.4853515625,
+            "write_end_ms": 16000,
+            "write_start_ms": 8000
+          }
+        },
+        "event_count_seen_by_window": {
+          "0": 20,
+          "8000": 80
+        },
+        "examples": [
+          {
+            "argmax_token": "TS_50",
+            "best_event_margin_vs_argmax": -1.3148398399353027,
+            "best_event_rank": 3,
+            "best_event_token": "EV_0100",
+            "current_ms": 8100,
+            "event_budget": 25,
+            "generated_events_in_window": 1,
+            "step": 2,
+            "write_start_ms": 8000
+          },
+          {
+            "argmax_token": "TS_50",
+            "best_event_margin_vs_argmax": -0.33138036727905273,
+            "best_event_rank": 3,
+            "best_event_token": "EV_0100",
+            "current_ms": 8200,
+            "event_budget": 25,
+            "generated_events_in_window": 2,
+            "step": 4,
+            "write_start_ms": 8000
+          },
+          {
+            "argmax_token": "TS_50",
+            "best_event_margin_vs_argmax": -0.3811798095703125,
+            "best_event_rank": 3,
+            "best_event_token": "EV_0010",
+            "current_ms": 8300,
+            "event_budget": 25,
+            "generated_events_in_window": 3,
+            "step": 6,
+            "write_start_ms": 8000
+          }
+        ],
+        "forced_count": 3,
+        "forced_count_by_window_start": {
+          "8000": 3
+        },
+        "skipped_counts": {
+          "argmax_event": 22,
+          "at_or_after_chart_end": 1,
+          "before_gate_start": 60,
+          "budget_exhausted": 111,
+          "no_valid_event": 24
+        },
+        "step_count": 221,
+        "under_budget_candidate_count": 3
+      },
+      "group": "sentinel"
+    }
+  ],
+  "decision": {
+    "failed_checks": [
+      "primary_positive_count",
+      "primary_event_ratio_guard",
+      "sentinel_event_ratio_guard",
+      "legality_guard"
+    ],
+    "interpretation": "The online budget-conditioned local decode repair is not strong enough as configured.",
+    "next_step": "Pivot to v2.1 grammar improvement or a structural v3 grammar mutation card.",
+    "reason": "event-ratio cap failed: primary_over=2, sentinel_over=2",
+    "route": "KILL_SELECTIVE_COMPLETION_BUDGET_SIGNAL"
+  },
+  "elapsed_s": 280.68828412500443,
+  "experiment": "Target grammar v3 selective completion-budget signal smoke",
+  "gate_config": {
+    "budget_slack_events": 4,
+    "budget_source": "previous_window_generated_events_scaled_by_online_density_teacher_8s_sigmoid_mass",
+    "gate_start_ms": 8000,
+    "max_event_rank": 5,
+    "max_forced_events_per_window": 48,
+    "min_event_margin": -2.0,
+    "min_forced_event_gap_ms": 80
+  },
+  "inputs": {
+    "baseline_summary": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_500step_fixed_slice_wide_audit_summary.json",
+    "case_summary": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_trace_conditioned_spacing_escape_summary.json"
+  },
+  "schema_version": 1,
+  "thresholds": {
+    "boundary_ratio_tolerance": 0.05,
+    "max_event_count_ratio": 1.25,
+    "max_f1_regression": 0.05,
+    "second_share_delta_signal": 0.15
+  },
+  "work_dir": "artifacts/tmp/mapper_v3_selective_completion_budget_signal_smoke"
+}

@@ -105,6 +105,7 @@ MapperV3LogitsFn = Callable[[MapperV3GenerationStep], torch.Tensor]
 MapperV3LogitsTransform = Callable[[MapperV3GenerationStep, torch.Tensor], torch.Tensor]
 MapperV3LogitsObserver = Callable[[MapperV3GenerationStep, torch.Tensor], None]
 MapperV3WindowBatchProvider = Callable[[int, int], Mapping[str, Any]]
+MapperV3WindowBatchObserver = Callable[[int, int, Mapping[str, Any]], None]
 
 
 class MapperV3AntiRigidSpacingLogitsTransform:
@@ -352,6 +353,7 @@ def generate_full_song_rollout_v3(
     generator: torch.Generator | None = None,
     logits_transform: MapperV3LogitsTransform | None = None,
     logits_observer: MapperV3LogitsObserver | None = None,
+    window_batch_observer: MapperV3WindowBatchObserver | None = None,
 ) -> MapperV3FullRollout:
     chart_end_ms = int(chart_end_ms)
     if chart_end_ms <= 0:
@@ -380,6 +382,8 @@ def generate_full_song_rollout_v3(
         target_end_ms = chart_end_ms if is_full_chart_end else write_end_ms
         carry_out = empty_ln_carry_state(target_end_ms)
         control_batch = dict(window_batch_provider(write_start_ms, write_end_ms))
+        if window_batch_observer is not None:
+            window_batch_observer(write_start_ms, write_end_ms, control_batch)
         logits_fn = mapper_v3_logits_fn(
             model=model,
             vocab=vocab,
@@ -864,6 +868,7 @@ __all__ = [
     "MapperV3GenerationError",
     "MapperV3GenerationStep",
     "MapperV3LogitsObserver",
+    "MapperV3WindowBatchObserver",
     "decoder_input_tokens_for_generation_v3",
     "generate_full_song_rollout_v3",
     "generated_v3_tokens_to_v2_1_tokens",
