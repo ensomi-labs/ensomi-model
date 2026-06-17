@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "experiment": "Target grammar v3 time-shift distance row-filtered repair",
+  "date": "2026-06-17",
+  "decision": {
+    "route": "TEST_ROLLOUT_GATE",
+    "repair_result": "PASS",
+    "reason": "row-filtered loss repair passed the real-batch diagnostic and matched 80-step tiny training gate",
+    "next_step": "Run a 2-4 case rollout-pair diagnostic with full timepoint previews before full32 escalation."
+  },
+  "selected_variant": "Filter time_shift_distance_loss to valid target time-shift rows before softmax.",
+  "rejected_variants": [
+    "Feed pre-mask logits to the auxiliary",
+    "Clamp all-nonfinite non-target rows to finite sentinels",
+    "Disable the time-shift distance auxiliary"
+  ],
+  "diagnostic": {
+    "summary_path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_row_filtered_repair_diagnostic_summary.json",
+    "report_path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_row_filtered_repair_diagnostic_report.md",
+    "route": "PASS_ROW_FILTERED_TIME_SHIFT_DISTANCE_REPAIR",
+    "target_time_shift_rows": 185,
+    "target_all_nonfinite_masked_rows": 0,
+    "any_row_all_nonfinite_masked_rows": 71,
+    "invalid_all_nonfinite_masked_rows": 71,
+    "masked_loss_values": [
+      0.07376536726951599
+    ],
+    "row_filtered_masked_gradient_abs_sums": [
+      0.17154835164546967
+    ],
+    "row_filtered_masked_gradient_all_finite": true,
+    "row_filtered_masked_gradient_any_nonzero": true
+  },
+  "training_gate": {
+    "summary_path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_row_filtered_repair_training_gate_summary.json",
+    "report_path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_row_filtered_repair_training_gate_report.md",
+    "route": "TEST_ROLLOUT_GATE",
+    "baseline_completed_steps": 80,
+    "enabled_completed_steps": 80,
+    "baseline_final_eval_total_loss": 2.5338865707935243,
+    "enabled_final_eval_total_loss": 2.5338356302999174,
+    "baseline_final_eval_token_loss": 2.448845825890419,
+    "enabled_final_eval_token_loss": 2.448784779948032,
+    "enabled_time_shift_distance_loss": 0.018967516809448838,
+    "token_loss_delta": -0.00006104594238731664,
+    "total_loss_delta": -0.00005094049360687691,
+    "valid_tokens": 6366.0,
+    "all_training_checks_passed": true,
+    "rollout_pairs_supplied": false
+  },
+  "commands": [
+    {
+      "command": "uv run --group dev pytest tests/evals/test_mapper_v3_time_shift_distance_nan_diagnostic.py tests/evals/test_mapper_v3_time_shift_distance_tiny_training_gate.py tests/models/mapper/v3/test_model.py -q",
+      "result": "34 passed"
+    },
+    {
+      "command": "uv run python -m pulsefield_model.evals.mapper_v3_time_shift_distance_nan_diagnostic --config artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_tiny_training_gate_enabled.yaml --batch-limit 1 --summary-output artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_row_filtered_repair_diagnostic_summary.json --report-output artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_row_filtered_repair_diagnostic_report.md",
+      "result": "route=PASS_ROW_FILTERED_TIME_SHIFT_DISTANCE_REPAIR target_rows=185 all_nonfinite=0 all_nonfinite_any=71"
+    },
+    {
+      "command": "uv run python -m pulsefield_model.training.mapper_v3 --config artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_tiny_training_gate_baseline.yaml",
+      "result": "steps=80 final_loss=2.533887"
+    },
+    {
+      "command": "uv run python -m pulsefield_model.training.mapper_v3 --config artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_tiny_training_gate_enabled.yaml",
+      "result": "steps=80 final_loss=2.533836"
+    },
+    {
+      "command": "uv run python -m pulsefield_model.evals.mapper_v3_time_shift_distance_tiny_training_gate --baseline-report artifacts/tmp/mapper_v3_time_shift_distance_tiny_training_gate/train/baseline/report.json --enabled-report artifacts/tmp/mapper_v3_time_shift_distance_tiny_training_gate/train/enabled/report.json --summary-output artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_row_filtered_repair_training_gate_summary.json --report-output artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_row_filtered_repair_training_gate_report.md",
+      "result": "route=TEST_ROLLOUT_GATE token_loss_delta=-0.000061"
+    },
+    {
+      "command": "uv run --group dev pytest tests/evals/test_mapper_v3_time_shift_distance_nan_diagnostic.py tests/evals/test_mapper_v3_time_shift_distance_tiny_training_gate.py tests/training/test_mapper_v3.py tests/models/mapper/v3/test_model.py -q",
+      "result": "40 passed"
+    }
+  ],
+  "interpretation": {
+    "supports": "The time-shift distance auxiliary can train on the current v3 grammar surface after row-filtering the auxiliary loss before softmax.",
+    "does_not_support": "This does not prove rollout quality, full32 readiness, full-dataset stability, or final v3 replacement readiness.",
+    "next_loop_action": "TEST"
+  }
+}

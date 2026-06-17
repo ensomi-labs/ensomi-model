@@ -171,6 +171,7 @@ def run_time_shift_distance_nan_diagnostic(
     )
     aggregate["row_filtered_masked_gradient_any_nonzero"] = any(value > 0.0 for value in row_filtered_grad_abs_sums)
     aggregate["masked_loss_any_nonfinite"] = any(not math.isfinite(value) for value in masked_losses)
+    aggregate["masked_loss_all_finite"] = bool(masked_losses) and all(math.isfinite(value) for value in masked_losses)
     aggregate["pre_mask_loss_all_finite"] = bool(pre_mask_losses) and all(math.isfinite(value) for value in pre_mask_losses)
     aggregate["skip_masked_loss_all_finite"] = bool(skip_masked_losses) and all(
         math.isfinite(value) for value in skip_masked_losses
@@ -289,10 +290,25 @@ def diagnostic_decision(aggregate: Mapping[str, Any]) -> dict[str, Any]:
     row_filtered_grad_ok = bool(aggregate.get("row_filtered_masked_gradient_all_finite"))
     row_filtered_grad_nonzero = bool(aggregate.get("row_filtered_masked_gradient_any_nonzero"))
     masked_loss_nonfinite = bool(aggregate.get("masked_loss_any_nonfinite"))
+    masked_loss_finite = bool(aggregate.get("masked_loss_all_finite"))
     if target_rows <= 0:
         route = "MUTATE_TIME_SHIFT_DISTANCE_DIAGNOSTIC"
         reason = "no target time-shift rows were observed on this diagnostic slice"
         next_step = "Increase batch_limit or choose a slice with target time-shift rows before changing the objective."
+    elif (
+        masked_loss_finite
+        and all_nonfinite_any > 0
+        and all_nonfinite == 0
+        and row_filtered_loss_ok
+        and row_filtered_grad_ok
+        and row_filtered_grad_nonzero
+    ):
+        route = "PASS_ROW_FILTERED_TIME_SHIFT_DISTANCE_REPAIR"
+        reason = (
+            "masked loss is finite after row filtering despite all-nonfinite non-target or padded rows; "
+            "target time-shift rows retain finite nonzero gradients"
+        )
+        next_step = "Run the bounded tiny training gate and record whether enabled training remains finite."
     elif (
         masked_loss_nonfinite
         and all_nonfinite_any > 0
@@ -372,6 +388,7 @@ def report_markdown(summary: Mapping[str, Any]) -> str:
         f"- finite pre-mask candidate share: `{_fmt_ratio(aggregate.get('finite_pre_mask_candidate_share'))}`",
         f"- gold masked finite share: `{_fmt_ratio(aggregate.get('gold_masked_finite_share'))}`",
         f"- masked loss values: `{aggregate.get('masked_loss_values')}`",
+        f"- masked loss all finite: `{aggregate.get('masked_loss_all_finite')}`",
         f"- pre-mask loss values: `{aggregate.get('pre_mask_loss_values')}`",
         f"- skip-masked loss values: `{aggregate.get('skip_masked_loss_values')}`",
         f"- row-filtered masked loss values: `{aggregate.get('row_filtered_masked_loss_values')}`",
@@ -644,6 +661,12 @@ def _fmt_ratio(value: object) -> str:
 
 
 def _interpretation(route: str) -> str:
+    if route == "PASS_ROW_FILTERED_TIME_SHIFT_DISTANCE_REPAIR":
+        return (
+            "The row-filtered repair is active on this diagnostic slice. Target time-shift rows remain finite, "
+            "padded or non-target all -inf rows are no longer allowed to poison the auxiliary softmax, and the "
+            "next required evidence is an enabled tiny training gate."
+        )
     if route == "TEST_ROW_FILTERED_TIME_SHIFT_DISTANCE_REPAIR":
         return (
             "The real-batch diagnostic supports a row-filtering repair rather than a tokenizer or global "

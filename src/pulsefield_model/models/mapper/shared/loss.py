@@ -905,17 +905,17 @@ def time_shift_distance_loss(
     if not bool(target_shift_mask.any()):
         return logits_final.reshape(-1)[:0].sum() * 0.0
 
-    shift_logits = logits_final.index_select(dim=-1, index=shift_ids)
+    selected_logits = logits_final[target_shift_mask]
+    selected_target_shift_values = target_shift_values[target_shift_mask]
+    shift_logits = selected_logits.index_select(dim=-1, index=shift_ids)
     shift_probs = torch.softmax(shift_logits, dim=-1)
-    expected_shift_ms = (shift_probs * shift_values.reshape(1, 1, -1)).sum(dim=-1)
+    expected_shift_ms = (shift_probs * shift_values.reshape(1, -1)).sum(dim=-1)
     scale = logits_final.new_tensor(float(scale_ms))
-    loss = F.smooth_l1_loss(
+    return F.smooth_l1_loss(
         expected_shift_ms / scale,
-        target_shift_values / scale,
-        reduction="none",
+        selected_target_shift_values / scale,
+        reduction="mean",
     )
-    mask_f = target_shift_mask.to(dtype=loss.dtype)
-    return (loss * mask_f).sum() / mask_f.sum().clamp_min(torch.finfo(mask_f.dtype).eps)
 
 
 def _time_shift_target_count(

@@ -97,7 +97,7 @@ def test_analyze_surfaces_counts_all_nonfinite_non_target_rows() -> None:
     assert summary["all_nonfinite_masked_valid_non_target_rows"] == 1
     assert summary["all_nonfinite_masked_invalid_rows"] == 0
     assert summary["finite_masked_candidate_rows"] == 1
-    assert torch.isnan(masked_loss)
+    assert torch.isfinite(masked_loss)
 
 
 def test_analyze_surfaces_reports_no_target_time_shift_rows() -> None:
@@ -153,6 +153,23 @@ def test_decision_routes_to_row_filtered_repair_when_non_target_rows_create_nan(
     assert decision["route"] == "TEST_ROW_FILTERED_TIME_SHIFT_DISTANCE_REPAIR"
 
 
+def test_decision_routes_to_pass_when_row_filtered_repair_makes_masked_loss_finite() -> None:
+    decision = diagnostic_decision(
+        {
+            "target_time_shift_rows": 4,
+            "all_nonfinite_masked_rows": 0,
+            "all_nonfinite_masked_rows_any": 3,
+            "row_filtered_masked_loss_all_finite": True,
+            "row_filtered_masked_gradient_all_finite": True,
+            "row_filtered_masked_gradient_any_nonzero": True,
+            "masked_loss_any_nonfinite": False,
+            "masked_loss_all_finite": True,
+        }
+    )
+
+    assert decision["route"] == "PASS_ROW_FILTERED_TIME_SHIFT_DISTANCE_REPAIR"
+
+
 def test_decision_mutates_when_slice_has_no_target_rows() -> None:
     decision = diagnostic_decision(
         {
@@ -201,6 +218,7 @@ def test_writers_emit_report_and_summary(tmp_path: Path) -> None:
             "finite_pre_mask_candidate_share": 1.0,
             "gold_masked_finite_share": 0.0,
             "masked_loss_values": [float("nan")],
+            "masked_loss_all_finite": False,
             "pre_mask_loss_values": [0.01],
             "skip_masked_loss_values": [0.0],
             "row_filtered_masked_loss_values": [0.02],

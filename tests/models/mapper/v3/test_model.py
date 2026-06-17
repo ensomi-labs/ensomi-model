@@ -534,6 +534,35 @@ class MapperV3ModelTests(unittest.TestCase):
         self.assertTrue(torch.isfinite(rigid).item())
         self.assertLess(float(matching.item()), float(rigid.item()))
 
+    def test_time_shift_distance_loss_filters_non_target_rows_before_softmax(self) -> None:
+        vocab = MapperV3Vocab()
+        shift_80 = vocab.time_shift_token_id(80)
+        shift_100 = vocab.time_shift_token_id(100)
+        event = vocab.event_token_id_from_signature("T...")
+        target = torch.tensor([[shift_80, event, vocab.pad_id]], dtype=torch.long)
+        mask = torch.tensor([[True, True, False]], dtype=torch.bool)
+        logits = torch.zeros((1, target.shape[1], vocab.size), dtype=torch.float32)
+        logits[:, :, list(vocab.time_shift_token_ids)] = -torch.inf
+        logits[0, 0, shift_80] = 2.0
+        logits[0, 0, shift_100] = 0.0
+        logits.requires_grad_(True)
+
+        loss = time_shift_distance_loss(
+            logits_final=logits,
+            target_tokens=target,
+            vocab=vocab,
+            target_mask=mask,
+        )
+        loss.backward()
+
+        self.assertTrue(torch.isfinite(loss).item())
+        self.assertGreater(float(loss.item()), 0.0)
+        self.assertIsNotNone(logits.grad)
+        self.assertTrue(torch.isfinite(logits.grad).all().item())
+        self.assertGreater(float(logits.grad[0, 0].abs().sum().item()), 0.0)
+        self.assertEqual(float(logits.grad[0, 1].abs().sum().item()), 0.0)
+        self.assertEqual(float(logits.grad[0, 2].abs().sum().item()), 0.0)
+
     def test_time_shift_distance_loss_is_default_off_and_reports_metric_when_enabled(self) -> None:
         vocab = MapperV3Vocab()
         tokenized = encode_mapper_window(
