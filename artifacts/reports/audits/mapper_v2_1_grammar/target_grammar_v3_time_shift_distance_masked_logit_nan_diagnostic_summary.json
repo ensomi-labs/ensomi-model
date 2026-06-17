@@ -1,0 +1,262 @@
+{
+  "aggregate": {
+    "all_nonfinite_masked_any_row_share": 0.18112244897959184,
+    "all_nonfinite_masked_invalid_rows": 71,
+    "all_nonfinite_masked_row_share": 0.0,
+    "all_nonfinite_masked_rows": 0,
+    "all_nonfinite_masked_rows_any": 71,
+    "all_nonfinite_masked_valid_non_target_rows": 0,
+    "all_nonfinite_masked_valid_row_share": 0.0,
+    "all_nonfinite_masked_valid_rows": 0,
+    "batch_count": 1,
+    "finite_masked_candidate_rows": 185,
+    "finite_masked_candidate_share": 1.0,
+    "finite_pre_mask_candidate_rows": 185,
+    "finite_pre_mask_candidate_share": 1.0,
+    "gold_masked_finite_rows": 185,
+    "gold_masked_finite_share": 1.0,
+    "gold_pre_mask_finite_rows": 185,
+    "masked_loss_any_nonfinite": true,
+    "masked_loss_values": [
+      NaN
+    ],
+    "pre_mask_gradient_abs_sums": [
+      0.2623143792152405
+    ],
+    "pre_mask_gradient_all_finite": true,
+    "pre_mask_gradient_any_nonzero": true,
+    "pre_mask_loss_all_finite": true,
+    "pre_mask_loss_values": [
+      0.11251014471054077
+    ],
+    "row_filtered_masked_gradient_abs_sums": [
+      0.17154835164546967
+    ],
+    "row_filtered_masked_gradient_all_finite": true,
+    "row_filtered_masked_gradient_any_nonzero": true,
+    "row_filtered_masked_loss_all_finite": true,
+    "row_filtered_masked_loss_values": [
+      0.07376536726951599
+    ],
+    "skip_masked_loss_all_finite": false,
+    "skip_masked_loss_values": [
+      NaN
+    ],
+    "target_time_shift_rows": 185,
+    "total_rows": 392,
+    "valid_rows": 321
+  },
+  "batch_summaries": [
+    {
+      "all_nonfinite_masked_invalid_rows": 71,
+      "all_nonfinite_masked_rows": 0,
+      "all_nonfinite_masked_rows_any": 71,
+      "all_nonfinite_masked_valid_non_target_rows": 0,
+      "all_nonfinite_masked_valid_rows": 0,
+      "batch_index": 0,
+      "examples": [
+        {
+          "batch_index": 0,
+          "current_ms": 0,
+          "finite_masked_time_shift_count": 22,
+          "finite_pre_mask_time_shift_count": 22,
+          "gold_masked_finite": true,
+          "gold_pre_mask_finite": true,
+          "step": 0,
+          "target_token": "TS_30",
+          "target_token_id": 5
+        },
+        {
+          "batch_index": 0,
+          "current_ms": 30,
+          "finite_masked_time_shift_count": 22,
+          "finite_pre_mask_time_shift_count": 22,
+          "gold_masked_finite": true,
+          "gold_pre_mask_finite": true,
+          "step": 2,
+          "target_token": "TS_300",
+          "target_token_id": 14
+        },
+        {
+          "batch_index": 0,
+          "current_ms": 330,
+          "finite_masked_time_shift_count": 22,
+          "finite_pre_mask_time_shift_count": 22,
+          "gold_masked_finite": true,
+          "gold_pre_mask_finite": true,
+          "step": 3,
+          "target_token": "TS_20",
+          "target_token_id": 4
+        },
+        {
+          "batch_index": 0,
+          "current_ms": 350,
+          "finite_masked_time_shift_count": 22,
+          "finite_pre_mask_time_shift_count": 22,
+          "gold_masked_finite": true,
+          "gold_pre_mask_finite": true,
+          "step": 5,
+          "target_token": "TS_200",
+          "target_token_id": 13
+        },
+        {
+          "batch_index": 0,
+          "current_ms": 550,
+          "finite_masked_time_shift_count": 22,
+          "finite_pre_mask_time_shift_count": 22,
+          "gold_masked_finite": true,
+          "gold_pre_mask_finite": true,
+          "step": 6,
+          "target_token": "TS_40",
+          "target_token_id": 6
+        },
+        {
+          "batch_index": 0,
+          "current_ms": 590,
+          "finite_masked_time_shift_count": 22,
+          "finite_pre_mask_time_shift_count": 22,
+          "gold_masked_finite": true,
+          "gold_pre_mask_finite": true,
+          "step": 8,
+          "target_token": "TS_200",
+          "target_token_id": 13
+        },
+        {
+          "batch_index": 0,
+          "current_ms": 790,
+          "finite_masked_time_shift_count": 22,
+          "finite_pre_mask_time_shift_count": 22,
+          "gold_masked_finite": true,
+          "gold_pre_mask_finite": true,
+          "step": 9,
+          "target_token": "TS_30",
+          "target_token_id": 5
+        },
+        {
+          "batch_index": 0,
+          "current_ms": 820,
+          "finite_masked_time_shift_count": 22,
+          "finite_pre_mask_time_shift_count": 22,
+          "gold_masked_finite": true,
+          "gold_pre_mask_finite": true,
+          "step": 11,
+          "target_token": "TS_200",
+          "target_token_id": 13
+        }
+      ],
+      "finite_masked_candidate_rows": 185,
+      "finite_pre_mask_candidate_rows": 185,
+      "gold_masked_finite_rows": 185,
+      "gold_pre_mask_finite_rows": 185,
+      "target_time_shift_rows": 185,
+      "total_rows": 392,
+      "valid_rows": 321
+    }
+  ],
+  "config": {
+    "batch_limit": 1,
+    "config_path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_time_shift_distance_tiny_training_gate_enabled.yaml",
+    "device": "mps",
+    "max_examples": 8,
+    "seed": 1337
+  },
+  "decision": {
+    "next_step": "Create/execute a bounded repair card that computes time-shift distance only on target time-shift rows.",
+    "reason": "masked loss is non-finite because non-target or padded rows are softmaxed before masking; row-filtered masked candidate loss has finite nonzero gradients",
+    "route": "TEST_ROW_FILTERED_TIME_SHIFT_DISTANCE_REPAIR"
+  },
+  "examples": [
+    {
+      "batch_index": 0,
+      "current_ms": 0,
+      "finite_masked_time_shift_count": 22,
+      "finite_pre_mask_time_shift_count": 22,
+      "gold_masked_finite": true,
+      "gold_pre_mask_finite": true,
+      "step": 0,
+      "target_token": "TS_30",
+      "target_token_id": 5
+    },
+    {
+      "batch_index": 0,
+      "current_ms": 30,
+      "finite_masked_time_shift_count": 22,
+      "finite_pre_mask_time_shift_count": 22,
+      "gold_masked_finite": true,
+      "gold_pre_mask_finite": true,
+      "step": 2,
+      "target_token": "TS_300",
+      "target_token_id": 14
+    },
+    {
+      "batch_index": 0,
+      "current_ms": 330,
+      "finite_masked_time_shift_count": 22,
+      "finite_pre_mask_time_shift_count": 22,
+      "gold_masked_finite": true,
+      "gold_pre_mask_finite": true,
+      "step": 3,
+      "target_token": "TS_20",
+      "target_token_id": 4
+    },
+    {
+      "batch_index": 0,
+      "current_ms": 350,
+      "finite_masked_time_shift_count": 22,
+      "finite_pre_mask_time_shift_count": 22,
+      "gold_masked_finite": true,
+      "gold_pre_mask_finite": true,
+      "step": 5,
+      "target_token": "TS_200",
+      "target_token_id": 13
+    },
+    {
+      "batch_index": 0,
+      "current_ms": 550,
+      "finite_masked_time_shift_count": 22,
+      "finite_pre_mask_time_shift_count": 22,
+      "gold_masked_finite": true,
+      "gold_pre_mask_finite": true,
+      "step": 6,
+      "target_token": "TS_40",
+      "target_token_id": 6
+    },
+    {
+      "batch_index": 0,
+      "current_ms": 590,
+      "finite_masked_time_shift_count": 22,
+      "finite_pre_mask_time_shift_count": 22,
+      "gold_masked_finite": true,
+      "gold_pre_mask_finite": true,
+      "step": 8,
+      "target_token": "TS_200",
+      "target_token_id": 13
+    },
+    {
+      "batch_index": 0,
+      "current_ms": 790,
+      "finite_masked_time_shift_count": 22,
+      "finite_pre_mask_time_shift_count": 22,
+      "gold_masked_finite": true,
+      "gold_pre_mask_finite": true,
+      "step": 9,
+      "target_token": "TS_30",
+      "target_token_id": 5
+    },
+    {
+      "batch_index": 0,
+      "current_ms": 820,
+      "finite_masked_time_shift_count": 22,
+      "finite_pre_mask_time_shift_count": 22,
+      "gold_masked_finite": true,
+      "gold_pre_mask_finite": true,
+      "step": 11,
+      "target_token": "TS_200",
+      "target_token_id": 13
+    }
+  ],
+  "experiment": "Target grammar v3 time-shift distance masked-logit NaN diagnostic",
+  "interpretation": "The real-batch diagnostic supports a row-filtering repair rather than a tokenizer or global pre-mask surface change. Target time-shift rows have finite masked candidates, but other rows can be all -inf after grammar masking and make the full softmax non-finite before the target mask is applied.",
+  "next_step": "Create/execute a bounded repair card that computes time-shift distance only on target time-shift rows.",
+  "schema_version": 1
+}
