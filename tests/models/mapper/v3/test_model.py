@@ -226,6 +226,42 @@ class MapperV3ModelTests(unittest.TestCase):
         self.assertEqual(on_loss.metrics["phase/lambda_event_budget"], 0.5)
         self.assertGreater(float(on_loss.total_loss.item()), float(off_loss.total_loss.item()))
 
+    def test_event_token_loss_weight_increases_event_error_pressure(self) -> None:
+        vocab = MapperV3Vocab()
+        event_id = vocab.event_token_id_from_signature("T...")
+        time_shift_id = vocab.time_shift_token_id(100)
+        target = torch.tensor([[event_id, time_shift_id]], dtype=torch.long)
+        logits = torch.full((1, 2, vocab.size), -5.0, dtype=torch.float32)
+        logits[0, 0, time_shift_id] = 5.0
+        logits[0, 1, time_shift_id] = 5.0
+        output = SimpleNamespace(logits_final=logits)
+        batch = {
+            "target_fragment_tokens": target,
+            "target_fragment_mask": torch.ones_like(target, dtype=torch.bool),
+        }
+
+        default_loss = MapperV3ModelLoss(
+            MapperV3LossConfig(lambda_density=0.0, lambda_ln_close=0.0, lambda_adapter_reg=0.0),
+            vocab=vocab,
+        )(output, batch)
+        weighted_loss = MapperV3ModelLoss(
+            MapperV3LossConfig(
+                lambda_density=0.0,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+                event_token_loss_weight=4.0,
+            ),
+            vocab=vocab,
+        )(output, batch)
+
+        self.assertGreater(float(weighted_loss.token_loss.item()), float(default_loss.token_loss.item()))
+        self.assertEqual(weighted_loss.metrics["phase/event_token_loss_weight"], 4.0)
+        self.assertTrue(torch.equal(weighted_loss.total_loss, weighted_loss.token_loss))
+
+    def test_event_token_loss_weight_must_be_positive(self) -> None:
+        with self.assertRaisesRegex(ValueError, "event_token_loss_weight must be positive"):
+            MapperV3ModelLoss(MapperV3LossConfig(event_token_loss_weight=0.0), vocab=MapperV3Vocab())
+
     def test_event_budget_loss_ignores_padded_all_invalid_rows(self) -> None:
         vocab = MapperV3Vocab()
         tokenized = encode_mapper_window(

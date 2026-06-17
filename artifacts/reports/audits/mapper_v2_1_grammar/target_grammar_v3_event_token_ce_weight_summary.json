@@ -1,0 +1,40 @@
+{
+  "experiment": "target_grammar_v3_event_token_ce_weight",
+  "decision": "TEST_NEXT",
+  "selected_variant_result": "PASS_OBJECTIVE_PLUMBING_GATE",
+  "source_code_changed": true,
+  "training_rerun": false,
+  "rollout_rerun": false,
+  "defaults_changed": false,
+  "config_field": "event_token_loss_weight",
+  "default_value": 1.0,
+  "controlled_losses": [
+    {
+      "event_token_loss_weight": 1.0,
+      "token_loss": 5.012589,
+      "total_loss": 5.012589
+    },
+    {
+      "event_token_loss_weight": 2.0,
+      "token_loss": 6.679255,
+      "total_loss": 6.679255
+    },
+    {
+      "event_token_loss_weight": 4.0,
+      "token_loss": 8.012589,
+      "total_loss": 8.012589
+    }
+  ],
+  "checks": {
+    "default_off": true,
+    "directional_controlled_loss": true,
+    "config_loads": true,
+    "nonpositive_weight_rejected": true,
+    "focused_tests_passed": true
+  },
+  "focused_tests": {
+    "command": "uv run --group dev pytest tests/models/mapper/shared/test_loss_contract.py tests/models/mapper/v3/test_model.py tests/training/test_mapper_v3.py -q",
+    "result": "26 passed in 0.82s"
+  },
+  "next_step": "target_grammar_v3_event_token_ce_weight_training_gate"
+}

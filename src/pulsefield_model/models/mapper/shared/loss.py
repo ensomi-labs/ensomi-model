@@ -20,6 +20,7 @@ class MapperTupleLossConfig:
     lambda_continuation_jump: float = 0.0
     lambda_ln_close: float = 0.05
     lambda_adapter_reg: float = 1e-5
+    event_token_loss_weight: float = 1.0
     ln_close_pos_weight: float = 1.0
     ln_close_focal_gamma: float = 1.5
     density_calibration_scale: float = 1.0
@@ -122,11 +123,13 @@ class MapperTupleModelLoss(nn.Module):
 
         target = target.to(device=logits_final.device, dtype=torch.long)
         target_mask = _target_loss_mask(batch, target=target, pad_id=self.token_spec.pad_id)
+        token_class_weights = self._token_class_weights(logits_final)
         token_loss = token_cross_entropy(
             logits_final,
             target,
             pad_id=self.token_spec.pad_id,
             target_mask=target_mask,
+            class_weights=token_class_weights,
         )
 
         disabled_zero = logits_final.new_zeros(())
@@ -246,6 +249,7 @@ class MapperTupleModelLoss(nn.Module):
         metrics["phase/lambda_event_budget"] = float(self.config.lambda_event_budget)
         metrics["phase/lambda_continuation_jump"] = float(self.config.lambda_continuation_jump)
         metrics["phase/lambda_ln_close"] = float(self.config.lambda_ln_close)
+        metrics["phase/event_token_loss_weight"] = float(self.config.event_token_loss_weight)
         metrics["token/valid_count"] = int(target_mask.sum().detach().cpu())
         metrics["ln_close/open_lane_count"] = close_open_count
         metrics["ln_close/positive_count"] = close_positive_count
@@ -278,6 +282,15 @@ class MapperTupleModelLoss(nn.Module):
             metric_denominators=denominators,
         )
 
+    def _token_class_weights(self, logits: torch.Tensor) -> torch.Tensor | None:
+        event_weight = float(self.config.event_token_loss_weight)
+        if event_weight == 1.0 or not self.token_spec.event_token_ids:
+            return None
+        weights = logits.new_ones((self.token_spec.vocab_size,))
+        event_ids = torch.tensor(tuple(int(token_id) for token_id in self.token_spec.event_token_ids), device=logits.device)
+        weights[event_ids] = event_weight
+        return weights
+
 
 def token_cross_entropy(
     logits: torch.Tensor,
@@ -286,6 +299,7 @@ def token_cross_entropy(
     pad_id: int | None = None,
     target_mask: torch.Tensor | None = None,
     grammar_mask: torch.Tensor | None = None,
+    class_weights: torch.Tensor | None = None,
 ) -> torch.Tensor:
     if logits.ndim != 3:
         raise ValueError(f"logits must have shape [B,T,V], got {tuple(logits.shape)}")
@@ -310,9 +324,15 @@ def token_cross_entropy(
     flat_valid = valid.reshape(-1)
     flat_logits = logits.reshape(-1, logits.shape[-1])
     flat_target = target.reshape(-1)
+    resolved_class_weights = None
+    if class_weights is not None:
+        if class_weights.ndim != 1 or int(class_weights.shape[0]) != int(logits.shape[-1]):
+            raise ValueError(f"class_weights must have shape [{logits.shape[-1]}], got {tuple(class_weights.shape)}")
+        resolved_class_weights = class_weights.to(device=logits.device, dtype=logits.dtype)
     return F.cross_entropy(
         flat_logits[flat_valid],
         flat_target[flat_valid],
+        weight=resolved_class_weights,
         reduction="mean",
     )
 
@@ -841,6 +861,7 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
         "lambda_continuation_jump",
         "lambda_ln_close",
         "lambda_adapter_reg",
+        "event_token_loss_weight",
         "ln_close_pos_weight",
         "ln_close_focal_gamma",
         "density_calibration_scale",
@@ -858,6 +879,8 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
         raise ValueError("lambda_ln_close must be non-negative")
     if config.lambda_adapter_reg < 0.0:
         raise ValueError("lambda_adapter_reg must be non-negative")
+    if config.event_token_loss_weight <= 0.0:
+        raise ValueError("event_token_loss_weight must be positive")
     if config.ln_close_pos_weight <= 0.0:
         raise ValueError("ln_close_pos_weight must be positive")
     if config.ln_close_focal_gamma < 0.0:

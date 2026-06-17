@@ -160,7 +160,7 @@ class MapperV3PhaseBTrainingTests(unittest.TestCase):
             "artifacts/cache/stage2_mapper_v3/window_records/test.parquet",
         )
 
-    def test_run_config_accepts_event_budget_loss_weight(self) -> None:
+    def test_run_config_accepts_v3_loss_weights(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             path = Path(tmpdir) / "mapper_v3_event_budget.yaml"
             path.write_text(
@@ -170,6 +170,7 @@ class MapperV3PhaseBTrainingTests(unittest.TestCase):
                         "control_model: {}",
                         "loss:",
                         "  lambda_event_budget: 0.1",
+                        "  event_token_loss_weight: 2.5",
                     ]
                 ),
                 encoding="utf-8",
@@ -178,7 +179,9 @@ class MapperV3PhaseBTrainingTests(unittest.TestCase):
             config = load_run_config(path)
 
         self.assertEqual(config["loss"]["lambda_event_budget"], 0.1)
+        self.assertEqual(config["loss"]["event_token_loss_weight"], 2.5)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_event_budget, 0.1)
+        self.assertEqual(MapperV3LossConfig(**config["loss"]).event_token_loss_weight, 2.5)
 
 
 def _assert_artifacts_paths(test: unittest.TestCase, config: dict[str, object], keys: tuple[str, ...]) -> None:
