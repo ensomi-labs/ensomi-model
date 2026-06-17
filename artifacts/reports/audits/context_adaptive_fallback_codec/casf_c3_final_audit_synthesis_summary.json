@@ -1,0 +1,108 @@
+{
+  "report": "casf_c3_final_audit_synthesis_report.md",
+  "scope": "Synthesis of CASF v2, C3 hardening, and C3 side-stream pipeline artifacts.",
+  "decision": {
+    "route": "TEST_NEXT",
+    "scope": "representation family and side-stream artifact path",
+    "not_promoted_as": [
+      "global tokenizer replacement",
+      "active-hold semantic model",
+      "production/default mapper format"
+    ]
+  },
+  "recommended_name": "r0_delta + LZ fallback-substream codec",
+  "proved": {
+    "casf_v2_research_gate": {
+      "baseline_test_charged_bits_per_event": 4.421714207191301,
+      "c3_test_charged_bits_per_event": 4.198613101989439,
+      "delta_bits_per_event": -0.2231011052018621,
+      "same_song_filtered_delta_bits_per_event": -0.22353525270533403,
+      "bootstrap_mean_delta_bits_per_event": -0.22282466691710426,
+      "bootstrap_95_ci_bits_per_event": [
+        -0.2580919949410291,
+        -0.18675671602064908
+      ],
+      "fallback_payload_reconstruction_mismatches": 0
+    },
+    "c3_hardening_gate": {
+      "selected_variant": "a2_skeleton_residual_all_fallback_w256",
+      "selected_test_charged_bits_per_event": 4.0368045441872065,
+      "delta_bits_per_event": -0.3849096630040947,
+      "same_song_filtered_delta_bits_per_event": -0.38592890137466185,
+      "clean_active_hold_trace_delta_bits_per_event": -0.3809793375551669,
+      "dirty_active_hold_trace_delta_bits_per_event": -0.43255187244188775,
+      "bootstrap_95_ci_bits_per_event": [
+        -0.4235772949889358,
+        -0.34584630062559635
+      ],
+      "research_promotion_pass": true,
+      "engineering_promotion_pass": true,
+      "hard_reconstruction_mismatches": {
+        "fallback_payload": 0,
+        "full_token_stream": 0,
+        "full_chart": 0,
+        "span_boundary": 0,
+        "transform_inverse": 0,
+        "baseline_motif_stream": 0
+      }
+    },
+    "local_repetition_ablations": {
+      "exact_only_delta_bits_per_event": -0.2785859452434707,
+      "mirror_only_delta_bits_per_event": -0.2900851303531917,
+      "active_fixed_window_delta_bits_per_event": -0.24256829527744017,
+      "active_128_record_window_delta_bits_per_event": -0.23783549837040585,
+      "skeleton_residual_delta_bits_per_event": -0.3849096630040947,
+      "non_active_delta_bits_per_event": -0.09266425164250869
+    },
+    "p0_side_stream_artifact": {
+      "side_stream_reference_errors": 0,
+      "side_stream_payload_mismatches": 0,
+      "full_token_stream_mismatches": 0,
+      "group_signature_mismatches": 0,
+      "mapper_timepoint_compatible_mismatches": 0,
+      "side_stream_tokens": 3203904,
+      "fallback_placeholders": 2786696,
+      "combined_main_side_tokens": 8856468,
+      "combined_main_baseline_token_ratio": 1.566805
+    }
+  },
+  "failed_or_deferred": {
+    "c1_bitplane": {
+      "c1a_delta_bits_per_event": 1.0176756781547605,
+      "c1b_delta_bits_per_event": 1.0152451725879983,
+      "table_model_cost_bits": 2683934,
+      "decision": "do_not_promote_as_implemented"
+    },
+    "c2_ppm_ctw": {
+      "c2a_delta_bits_per_event": 227.67500573862475,
+      "c2b_delta_bits_per_event": 225.29754649980495,
+      "table_model_cost_bits": 380332350,
+      "decision": "kill_or_defer_current_formulation"
+    },
+    "c4_dynamic_patch_c1": {
+      "delta_bits_per_event": 1.309988256498733,
+      "fallback_payload_delta_bits_per_fallback_event": -0.840208,
+      "decision": "defer_unless_rebuilt_with_c3_style_payload_codec"
+    },
+    "s1_selector": {
+      "delta_bits_per_event": 225.94302312901377,
+      "fallback_payload_delta_bits_per_fallback_event": -1.003025,
+      "decision": "selector_logic_not_disproved_but_current_candidate_family_failed"
+    }
+  },
+  "not_proved": [
+    "active-hold causality",
+    "end-to-end mapper loss improvement",
+    "generated chart quality improvement",
+    "autoregressive C3 reference emission or use",
+    "global tokenizer replacement readiness",
+    "production/default enablement"
+  ],
+  "surfaced_issue": "How to expose chart-local fallback backreferences to the mapper without target leakage, illegal decode order, impractical replay state, or unacceptable sequence/state cost.",
+  "current_audit_target": "Can C3's chart-local fallback reference structure be turned into a legal mapper-side target or auxiliary target without target leakage, while preserving deterministic reconstruction and acceptable sequence/state cost?",
+  "next_bounded_direction": [
+    "keep v3 as the simpler current teacher-forcing target-grammar route",
+    "preserve C3 as a codec-side and target-side representation family",
+    "revisit C3 through auxiliary target, emitted target grammar, or a two-stage predicted C3 plan only after a bounded Experiment Card defines the legal decode path and metrics"
+  ]
+}
