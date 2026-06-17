@@ -17,10 +17,16 @@ from .vocab import MapperTupleVocab
 class MapperTupleLossConfig:
     lambda_density: float = 0.0
     lambda_event_budget: float = 0.0
+    lambda_conditioned_event_distribution: float = 0.0
     lambda_continuation_jump: float = 0.0
     lambda_ln_close: float = 0.05
     lambda_adapter_reg: float = 1e-5
     event_token_loss_weight: float = 1.0
+    conditioned_event_under_weight: float = 1.0
+    conditioned_event_over_weight: float = 1.0
+    conditioned_event_zero_target_over_weight: float = 2.0
+    conditioned_event_high_difficulty_over_weight: float = 2.0
+    conditioned_event_high_difficulty_min: float = 0.75
     ln_close_pos_weight: float = 1.0
     ln_close_focal_gamma: float = 1.5
     density_calibration_scale: float = 1.0
@@ -35,6 +41,7 @@ class MapperTupleLossOutput:
     ln_close_loss: torch.Tensor
     density_loss: torch.Tensor
     event_budget_loss: torch.Tensor
+    conditioned_event_distribution_loss: torch.Tensor
     continuation_jump_loss: torch.Tensor
     adapter_reg_loss: torch.Tensor
     metrics: dict[str, float]
@@ -213,6 +220,31 @@ class MapperTupleModelLoss(nn.Module):
         else:
             event_budget_loss_value = disabled_zero
             event_budget_weight = logits_final.new_zeros(())
+        if self.config.lambda_conditioned_event_distribution > 0.0:
+            normalized_difficulty = batch.get("normalized_difficulty")
+            if not isinstance(normalized_difficulty, torch.Tensor):
+                raise ValueError(
+                    "normalized_difficulty is required when lambda_conditioned_event_distribution > 0"
+                )
+            conditioned_event_distribution_loss_value = conditioned_event_distribution_loss(
+                logits_final=logits_final,
+                target_tokens=target,
+                current_ms=_require_fragment_state_tensor(batch, "current_ms").to(device=logits_final.device),
+                write_start_ms=_require_batch_tensor(batch, "write_start_ms").to(device=logits_final.device),
+                write_end_ms=_require_batch_tensor(batch, "write_end_ms").to(device=logits_final.device),
+                normalized_difficulty=normalized_difficulty.to(device=logits_final.device),
+                token_spec=self.token_spec,
+                target_mask=target_mask,
+                under_weight=float(self.config.conditioned_event_under_weight),
+                over_weight=float(self.config.conditioned_event_over_weight),
+                zero_target_over_weight=float(self.config.conditioned_event_zero_target_over_weight),
+                high_difficulty_over_weight=float(self.config.conditioned_event_high_difficulty_over_weight),
+                high_difficulty_min=float(self.config.conditioned_event_high_difficulty_min),
+            )
+            conditioned_event_distribution_weight = logits_final.new_tensor(float(logits_final.shape[0] * 2))
+        else:
+            conditioned_event_distribution_loss_value = disabled_zero
+            conditioned_event_distribution_weight = logits_final.new_zeros(())
         if self.config.lambda_continuation_jump > 0.0:
             continuation_jump_loss_value = continuation_jump_guard_loss(
                 logits_final=logits_final,
@@ -231,6 +263,8 @@ class MapperTupleModelLoss(nn.Module):
             + float(self.config.lambda_ln_close) * ln_close_loss
             + float(self.config.lambda_density) * density_loss
             + float(self.config.lambda_event_budget) * event_budget_loss_value
+            + float(self.config.lambda_conditioned_event_distribution)
+            * conditioned_event_distribution_loss_value
             + float(self.config.lambda_continuation_jump) * continuation_jump_loss_value
             + float(self.config.lambda_adapter_reg) * adapter_reg_loss
         )
@@ -243,10 +277,18 @@ class MapperTupleModelLoss(nn.Module):
         _record_scalar(metrics, "loss/ln_close", ln_close_loss)
         _record_scalar(metrics, "loss/density", density_loss)
         _record_scalar(metrics, "loss/event_budget", event_budget_loss_value)
+        _record_scalar(
+            metrics,
+            "loss/conditioned_event_distribution",
+            conditioned_event_distribution_loss_value,
+        )
         _record_scalar(metrics, "loss/continuation_jump", continuation_jump_loss_value)
         _record_scalar(metrics, "loss/adapter_reg", adapter_reg_loss)
         metrics["phase/lambda_density"] = float(self.config.lambda_density)
         metrics["phase/lambda_event_budget"] = float(self.config.lambda_event_budget)
+        metrics["phase/lambda_conditioned_event_distribution"] = float(
+            self.config.lambda_conditioned_event_distribution
+        )
         metrics["phase/lambda_continuation_jump"] = float(self.config.lambda_continuation_jump)
         metrics["phase/lambda_ln_close"] = float(self.config.lambda_ln_close)
         metrics["phase/event_token_loss_weight"] = float(self.config.event_token_loss_weight)
@@ -264,6 +306,15 @@ class MapperTupleModelLoss(nn.Module):
         denominators["loss/density"] = float(density_weight.detach().cpu())
         numerators["loss/event_budget"] = float((event_budget_loss_value.detach() * event_budget_weight.clamp_min(1)).cpu())
         denominators["loss/event_budget"] = float(event_budget_weight.detach().cpu())
+        numerators["loss/conditioned_event_distribution"] = float(
+            (
+                conditioned_event_distribution_loss_value.detach()
+                * conditioned_event_distribution_weight.clamp_min(1)
+            ).cpu()
+        )
+        denominators["loss/conditioned_event_distribution"] = float(
+            conditioned_event_distribution_weight.detach().cpu()
+        )
         numerators["loss/continuation_jump"] = float(
             (continuation_jump_loss_value.detach() * continuation_jump_weight.clamp_min(1)).cpu()
         )
@@ -275,6 +326,7 @@ class MapperTupleModelLoss(nn.Module):
             ln_close_loss=ln_close_loss,
             density_loss=density_loss,
             event_budget_loss=event_budget_loss_value,
+            conditioned_event_distribution_loss=conditioned_event_distribution_loss_value,
             continuation_jump_loss=continuation_jump_loss_value,
             adapter_reg_loss=adapter_reg_loss,
             metrics=metrics,
@@ -587,6 +639,76 @@ def event_budget_auxiliary_loss(
     return F.smooth_l1_loss(predicted, target, reduction="mean")
 
 
+def conditioned_event_distribution_loss(
+    *,
+    logits_final: torch.Tensor,
+    target_tokens: torch.Tensor,
+    current_ms: torch.Tensor,
+    write_start_ms: torch.Tensor,
+    write_end_ms: torch.Tensor,
+    normalized_difficulty: torch.Tensor,
+    vocab: Any | None = None,
+    token_spec: MapperLossTokenSpec | None = None,
+    target_mask: torch.Tensor | None = None,
+    under_weight: float = 1.0,
+    over_weight: float = 1.0,
+    zero_target_over_weight: float = 2.0,
+    high_difficulty_over_weight: float = 2.0,
+    high_difficulty_min: float = 0.75,
+) -> torch.Tensor:
+    _require_positive_finite(under_weight, "under_weight")
+    _require_positive_finite(over_weight, "over_weight")
+    _require_positive_finite(zero_target_over_weight, "zero_target_over_weight")
+    _require_positive_finite(high_difficulty_over_weight, "high_difficulty_over_weight")
+    _require_finite_number(high_difficulty_min, "high_difficulty_min")
+    predicted, target = event_budget_by_half_from_logits(
+        logits_final=logits_final,
+        target_tokens=target_tokens,
+        current_ms=current_ms,
+        write_start_ms=write_start_ms,
+        write_end_ms=write_end_ms,
+        vocab=vocab,
+        token_spec=token_spec,
+        target_mask=target_mask,
+    )
+    difficulty = _difficulty_vector(
+        normalized_difficulty,
+        batch_size=int(predicted.shape[0]),
+        device=predicted.device,
+        dtype=predicted.dtype,
+    )
+
+    zero_target = target <= 0.0
+    sparse_target = target <= 1.0
+    high_difficulty = difficulty.reshape(-1, 1) >= float(high_difficulty_min)
+
+    under_error = (target - predicted).clamp_min(0.0)
+    over_error = (predicted - target).clamp_min(0.0)
+    under_loss = F.smooth_l1_loss(under_error, torch.zeros_like(under_error), reduction="none")
+    over_loss = F.smooth_l1_loss(over_error, torch.zeros_like(over_error), reduction="none")
+
+    under_weights = torch.where(
+        target > 0.0,
+        predicted.new_full(predicted.shape, float(under_weight)),
+        predicted.new_zeros(predicted.shape),
+    )
+    over_weights = predicted.new_full(predicted.shape, float(over_weight))
+    over_weights = torch.where(
+        zero_target,
+        over_weights * float(zero_target_over_weight),
+        over_weights,
+    )
+    over_weights = torch.where(
+        high_difficulty & sparse_target,
+        over_weights * float(high_difficulty_over_weight),
+        over_weights,
+    )
+
+    weighted = under_loss * under_weights + over_loss * over_weights
+    context_count = weighted.new_tensor(float(max(int(weighted.numel()), 1)))
+    return weighted.sum() / context_count
+
+
 def event_budget_by_half_from_logits(
     *,
     logits_final: torch.Tensor,
@@ -843,6 +965,27 @@ def _time_shift_token_ids_and_values(vocab: Any) -> tuple[tuple[int, ...], tuple
     return normalized_ids, values
 
 
+def _difficulty_vector(
+    normalized_difficulty: torch.Tensor,
+    *,
+    batch_size: int,
+    device: torch.device,
+    dtype: torch.dtype,
+) -> torch.Tensor:
+    if normalized_difficulty.ndim == 1:
+        value = normalized_difficulty
+    elif normalized_difficulty.ndim == 2 and int(normalized_difficulty.shape[1]) == 1:
+        value = normalized_difficulty[:, 0]
+    else:
+        raise ValueError(
+            "normalized_difficulty must have shape [B] or [B,1], "
+            f"got {tuple(normalized_difficulty.shape)}"
+        )
+    if int(value.shape[0]) != int(batch_size):
+        raise ValueError(f"normalized_difficulty batch size must be {batch_size}, got {value.shape[0]}")
+    return value.to(device=device, dtype=dtype)
+
+
 def _density_onset_weight(contract: MapperTokenContract, token_id: int) -> float:
     weight = getattr(contract.vocab, "event_onset_weight", None)
     if not callable(weight):
@@ -858,10 +1001,16 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
     for name in (
         "lambda_density",
         "lambda_event_budget",
+        "lambda_conditioned_event_distribution",
         "lambda_continuation_jump",
         "lambda_ln_close",
         "lambda_adapter_reg",
         "event_token_loss_weight",
+        "conditioned_event_under_weight",
+        "conditioned_event_over_weight",
+        "conditioned_event_zero_target_over_weight",
+        "conditioned_event_high_difficulty_over_weight",
+        "conditioned_event_high_difficulty_min",
         "ln_close_pos_weight",
         "ln_close_focal_gamma",
         "density_calibration_scale",
@@ -873,6 +1022,8 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
         raise ValueError("lambda_density must be non-negative")
     if config.lambda_event_budget < 0.0:
         raise ValueError("lambda_event_budget must be non-negative")
+    if config.lambda_conditioned_event_distribution < 0.0:
+        raise ValueError("lambda_conditioned_event_distribution must be non-negative")
     if config.lambda_continuation_jump < 0.0:
         raise ValueError("lambda_continuation_jump must be non-negative")
     if config.lambda_ln_close < 0.0:
@@ -881,6 +1032,14 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
         raise ValueError("lambda_adapter_reg must be non-negative")
     if config.event_token_loss_weight <= 0.0:
         raise ValueError("event_token_loss_weight must be positive")
+    if config.conditioned_event_under_weight <= 0.0:
+        raise ValueError("conditioned_event_under_weight must be positive")
+    if config.conditioned_event_over_weight <= 0.0:
+        raise ValueError("conditioned_event_over_weight must be positive")
+    if config.conditioned_event_zero_target_over_weight <= 0.0:
+        raise ValueError("conditioned_event_zero_target_over_weight must be positive")
+    if config.conditioned_event_high_difficulty_over_weight <= 0.0:
+        raise ValueError("conditioned_event_high_difficulty_over_weight must be positive")
     if config.ln_close_pos_weight <= 0.0:
         raise ValueError("ln_close_pos_weight must be positive")
     if config.ln_close_focal_gamma < 0.0:
@@ -894,3 +1053,9 @@ def _validate_config(config: MapperTupleLossConfig) -> None:
 def _require_finite_number(value: float, name: str) -> None:
     if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(float(value)):
         raise ValueError(f"{name} must be finite numeric")
+
+
+def _require_positive_finite(value: float, name: str) -> None:
+    _require_finite_number(value, name)
+    if float(value) <= 0.0:
+        raise ValueError(f"{name} must be positive")

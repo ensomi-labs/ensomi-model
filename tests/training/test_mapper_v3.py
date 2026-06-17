@@ -170,7 +170,9 @@ class MapperV3PhaseBTrainingTests(unittest.TestCase):
                         "control_model: {}",
                         "loss:",
                         "  lambda_event_budget: 0.1",
+                        "  lambda_conditioned_event_distribution: 0.2",
                         "  event_token_loss_weight: 2.5",
+                        "  conditioned_event_high_difficulty_over_weight: 3.0",
                     ]
                 ),
                 encoding="utf-8",
@@ -179,9 +181,13 @@ class MapperV3PhaseBTrainingTests(unittest.TestCase):
             config = load_run_config(path)
 
         self.assertEqual(config["loss"]["lambda_event_budget"], 0.1)
+        self.assertEqual(config["loss"]["lambda_conditioned_event_distribution"], 0.2)
         self.assertEqual(config["loss"]["event_token_loss_weight"], 2.5)
+        self.assertEqual(config["loss"]["conditioned_event_high_difficulty_over_weight"], 3.0)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_event_budget, 0.1)
+        self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_conditioned_event_distribution, 0.2)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).event_token_loss_weight, 2.5)
+        self.assertEqual(MapperV3LossConfig(**config["loss"]).conditioned_event_high_difficulty_over_weight, 3.0)
 
 
 def _assert_artifacts_paths(test: unittest.TestCase, config: dict[str, object], keys: tuple[str, ...]) -> None:

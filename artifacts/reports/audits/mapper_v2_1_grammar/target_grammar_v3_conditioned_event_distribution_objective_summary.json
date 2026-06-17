@@ -1,0 +1,50 @@
+{
+  "checks": {
+    "config_fields_present": true,
+    "disabled_default_ok": true,
+    "enabled_metric_positive": true,
+    "high_difficulty_overproduction_conditioned": true,
+    "high_difficulty_overproduction_finite": true,
+    "high_difficulty_overproduction_ratio": 4.0,
+    "underproduction_finite": true,
+    "underproduction_gap": 1.4321379861248715,
+    "underproduction_penalized": true
+  },
+  "decision": {
+    "interpretation": "Stage 1 proves the objective is a real conditioned loss surface, but not that it improves trained chart quality.",
+    "next_card": "target_grammar_v3_conditioned_event_distribution_short_rollout_gate",
+    "next_step": "Run the short v3 conditioned-objective training/rollout gate with overgeneration guards.",
+    "reason": "synthetic conditioning, disabled-default behavior, and config exposure passed",
+    "route": "TEST_SHORT_ROLLOUT_GATE"
+  },
+  "elapsed_s": 0.002833375008776784,
+  "experiment": "Target grammar v3 conditioned event-distribution objective Stage 1 gate",
+  "next_card": "target_grammar_v3_conditioned_event_distribution_short_rollout_gate",
+  "probes": {
+    "config": {
+      "config_fields_present": true,
+      "missing_fields": []
+    },
+    "disabled_default": {
+      "disabled_default_ok": true,
+      "enabled_metric_positive": true,
+      "off_conditioned_loss": 0.0,
+      "off_lambda": 0.0,
+      "on_conditioned_loss": 0.0019929828122258186,
+      "on_lambda": 0.5
+    },
+    "high_difficulty_overproduction": {
+      "finite": true,
+      "high_difficulty_loss": 1.1054679155349731,
+      "low_difficulty_loss": 0.2763669788837433,
+      "ratio": 4.0
+    },
+    "underproduction": {
+      "finite": true,
+      "gap": 1.4321379861248715,
+      "matching_loss": 5.314737427397631e-05,
+      "suppressed_loss": 1.4321911334991455
+    }
+  },
+  "schema_version": 1
+}

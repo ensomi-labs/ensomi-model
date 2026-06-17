@@ -18,7 +18,11 @@ from pulsefield_model.models.mapper.v3 import (
     encode_mapper_window,
     ln_carry_state_tensors,
 )
-from pulsefield_model.models.mapper.shared.loss import continuation_jump_guard_loss, event_budget_auxiliary_loss
+from pulsefield_model.models.mapper.shared.loss import (
+    conditioned_event_distribution_loss,
+    continuation_jump_guard_loss,
+    event_budget_auxiliary_loss,
+)
 from pulsefield_model.models.mapper.v3.replay import initial_replay_state, transition_replay_state
 from pulsefield_model.models.mapper.v3.vocab import LaneAction
 from pulsefield_model.training.mapper_v3 import _mapper_v3_training_spec
@@ -225,6 +229,114 @@ class MapperV3ModelTests(unittest.TestCase):
         self.assertGreater(float(on_loss.event_budget_loss.item()), 0.0)
         self.assertEqual(on_loss.metrics["phase/lambda_event_budget"], 0.5)
         self.assertGreater(float(on_loss.total_loss.item()), float(off_loss.total_loss.item()))
+
+    def test_conditioned_event_distribution_penalizes_high_difficulty_overproduction(self) -> None:
+        vocab = MapperV3Vocab()
+        event_id = vocab.event_token_id_from_signature("T...")
+        shift_id = vocab.time_shift_token_id(100)
+        target = torch.tensor([[shift_id, shift_id, shift_id, shift_id]], dtype=torch.long)
+        current_ms = torch.tensor([[1000, 2000, 5000, 6000]], dtype=torch.long)
+        write_start_ms = torch.tensor([0], dtype=torch.long)
+        write_end_ms = torch.tensor([8000], dtype=torch.long)
+        mask = torch.ones_like(target, dtype=torch.bool)
+        logits = torch.full((1, target.shape[1], vocab.size), -5.0, dtype=torch.float32)
+        logits[:, :, shift_id] = 5.0
+        logits[:, 2, event_id] = 6.0
+
+        low_difficulty_loss = conditioned_event_distribution_loss(
+            logits_final=logits,
+            target_tokens=target,
+            current_ms=current_ms,
+            write_start_ms=write_start_ms,
+            write_end_ms=write_end_ms,
+            normalized_difficulty=torch.tensor([[0.1]], dtype=torch.float32),
+            vocab=vocab,
+            target_mask=mask,
+            zero_target_over_weight=2.0,
+            high_difficulty_over_weight=4.0,
+            high_difficulty_min=0.75,
+        )
+        high_difficulty_loss = conditioned_event_distribution_loss(
+            logits_final=logits,
+            target_tokens=target,
+            current_ms=current_ms,
+            write_start_ms=write_start_ms,
+            write_end_ms=write_end_ms,
+            normalized_difficulty=torch.tensor([[0.9]], dtype=torch.float32),
+            vocab=vocab,
+            target_mask=mask,
+            zero_target_over_weight=2.0,
+            high_difficulty_over_weight=4.0,
+            high_difficulty_min=0.75,
+        )
+
+        self.assertTrue(torch.isfinite(high_difficulty_loss).item())
+        self.assertGreater(float(high_difficulty_loss.item()), float(low_difficulty_loss.item()))
+
+    def test_conditioned_event_distribution_loss_is_default_off_and_reports_metric_when_enabled(self) -> None:
+        vocab = MapperV3Vocab()
+        tokenized = encode_mapper_window(
+            [MapperTimepoint(1000, _actions(LaneAction.TAP))],
+            vocab=vocab,
+            write_start_ms=0,
+            write_end_ms=8000,
+            chart_end_ms=1000,
+        )
+        batch = _batch_for_window(tokenized)
+        logits = torch.zeros((1, tokenized.seq_len, vocab.size), dtype=torch.float32)
+        output = SimpleNamespace(logits_final=logits)
+
+        off_loss = MapperV3ModelLoss(
+            MapperV3LossConfig(
+                lambda_density=0.0,
+                lambda_event_budget=0.0,
+                lambda_conditioned_event_distribution=0.0,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+            ),
+            vocab=vocab,
+        )(output, batch)
+        on_loss = MapperV3ModelLoss(
+            MapperV3LossConfig(
+                lambda_density=0.0,
+                lambda_event_budget=0.0,
+                lambda_conditioned_event_distribution=0.5,
+                lambda_ln_close=0.0,
+                lambda_adapter_reg=0.0,
+            ),
+            vocab=vocab,
+        )(output, batch)
+
+        self.assertEqual(off_loss.metrics["phase/lambda_conditioned_event_distribution"], 0.0)
+        self.assertEqual(float(off_loss.conditioned_event_distribution_loss.item()), 0.0)
+        self.assertEqual(on_loss.metrics["phase/lambda_conditioned_event_distribution"], 0.5)
+        self.assertGreater(float(on_loss.conditioned_event_distribution_loss.item()), 0.0)
+        self.assertGreater(float(on_loss.total_loss.item()), float(off_loss.total_loss.item()))
+
+    def test_conditioned_event_distribution_requires_normalized_difficulty_when_enabled(self) -> None:
+        vocab = MapperV3Vocab()
+        event_id = vocab.event_token_id_from_signature("T...")
+        output = SimpleNamespace(logits_final=torch.zeros((1, 1, vocab.size), dtype=torch.float32))
+        batch = {
+            "target_fragment_tokens": torch.tensor([[event_id]], dtype=torch.long),
+            "target_fragment_mask": torch.ones((1, 1), dtype=torch.bool),
+            "target_fragment_states": {
+                "current_ms": torch.tensor([[1000]], dtype=torch.long),
+            },
+            "write_start_ms": torch.tensor([0], dtype=torch.long),
+            "write_end_ms": torch.tensor([8000], dtype=torch.long),
+        }
+
+        with self.assertRaisesRegex(ValueError, "normalized_difficulty is required"):
+            MapperV3ModelLoss(
+                MapperV3LossConfig(
+                    lambda_density=0.0,
+                    lambda_conditioned_event_distribution=0.5,
+                    lambda_ln_close=0.0,
+                    lambda_adapter_reg=0.0,
+                ),
+                vocab=vocab,
+            )(output, batch)
 
     def test_event_token_loss_weight_increases_event_error_pressure(self) -> None:
         vocab = MapperV3Vocab()
