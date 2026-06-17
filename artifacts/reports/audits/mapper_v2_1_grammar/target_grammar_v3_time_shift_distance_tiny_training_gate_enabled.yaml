@@ -1,0 +1,75 @@
+dataset_root: dataset
+index_path: artifacts/tmp/mapper_v3_real_config_cache_backed_comparison/fixed_32song_256_eligible_index.parquet
+control_v3_timeseries_path: artifacts/features/control_v3_timeseries_4k_no_timing_anomalies_2to6_dense_local_bpm_norm_unique_le3.parquet
+output_dir: artifacts/tmp/mapper_v3_time_shift_distance_tiny_training_gate/train/enabled
+run_name: mapper_v3_time_shift_distance_tiny_training_gate_enabled
+init_from_control_checkpoint: artifacts/runs/stage2_control_demo/stage2_control_demo_global_d384_l3_stride16_b6/checkpoints/checkpoint_step_002000.pt
+max_steps: 80
+eval_every: 40
+skip_first_eval_pass: true
+save_every: 80
+log_every: 20
+mps_cleanup_every: 20
+batch_size: 2
+learning_rate: 0.0002
+weight_decay: 0.01
+seed: 1337
+device: mps
+eval_fraction: 0.25
+eval_size: 32
+final_train_eval_size: 16
+num_workers: 0
+max_cached_maps: 8
+mapper_record_cache_path: artifacts/tmp/mapper_v3_500step_training_horizon_gate/train/fixed_32song_256_v3_window_records.parquet
+control_teacher_cache_dir: artifacts/cache/stage2_mapper_v2_1/control_teacher_d384_l3_stride16_step002000
+precompute_control_teacher_cache: false
+precompute_control_teacher_cache_only: false
+control_teacher_precompute_batch_size: 12
+control_teacher_cache_overwrite: false
+require_control_teacher_cache: true
+include_full_song_context: true
+control_model:
+  d_model: 384
+  heads: 8
+  layers: 3
+  ffn_dim: 1536
+  dropout: 0.1
+  conv_blocks: 2
+  conv_kernel_size: 5
+  use_global_memory: true
+  global_stride: 16
+  global_layers: 2
+  global_ffn_dim: 1536
+  global_conv_blocks: 1
+  global_fusion_start_layer: 1
+  global_gate_init: -2.94
+model:
+  control_dim: 384
+  d_model: 384
+  heads: 8
+  layers: 4
+  ffn_dim: 1536
+  dropout: 0.1
+  max_seq_len: 1024
+  use_global_context: true
+  global_stride: 16
+  global_layers: 1
+  global_ffn_dim: 1536
+  global_conv_blocks: 1
+  global_conv_kernel_size: 5
+  global_gate_init: -2.94
+  state_prior_adapter_scale: 0.03
+  state_prior_max_bias: 1.5
+  close_scale: 0.05
+  skip_scale: 0.0
+loss:
+  lambda_ln_close: 0.05
+  lambda_adapter_reg: 1.0e-05
+  lambda_density: 0.05
+  lambda_event_budget: 0.0
+  lambda_continuation_jump: 0.0
+  lambda_time_shift_distance: 0.5
+  time_shift_distance_scale_ms: 1000.0
+  event_token_loss_weight: 2.0
+eval_index_path: null
+dataset_progress: false
