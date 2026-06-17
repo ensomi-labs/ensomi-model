@@ -117,6 +117,7 @@ class MapperV21AntiRigidSpacingLogitsTransform:
         hard_block: bool = True,
         penalty: float = 8.0,
         require_time_shift_alternative: bool = True,
+        require_tap_only_run: bool = False,
         max_examples: int = 12,
     ) -> None:
         self.vocab = vocab
@@ -132,6 +133,7 @@ class MapperV21AntiRigidSpacingLogitsTransform:
         if self.penalty < 0.0:
             raise ValueError("penalty must be non-negative")
         self.require_time_shift_alternative = bool(require_time_shift_alternative)
+        self.require_tap_only_run = bool(require_tap_only_run)
         self.max_examples = int(max_examples)
         if self.max_examples < 0:
             raise ValueError("max_examples must be non-negative")
@@ -149,6 +151,7 @@ class MapperV21AntiRigidSpacingLogitsTransform:
             min_spacing_ms=self.min_spacing_ms,
             max_spacing_ms=self.max_spacing_ms,
             require_time_shift_alternative=self.require_time_shift_alternative,
+            require_tap_only_run=self.require_tap_only_run,
         )
         if candidate is None:
             return transformed
@@ -172,6 +175,7 @@ class MapperV21AntiRigidSpacingLogitsTransform:
             "hard_block": bool(self.hard_block),
             "penalty": float(self.penalty),
             "require_time_shift_alternative": bool(self.require_time_shift_alternative),
+            "require_tap_only_run": bool(self.require_tap_only_run),
             "candidate_count": int(self.candidate_count),
             "blocked_count": int(self.blocked_count),
             "examples": list(self.examples),
@@ -628,6 +632,7 @@ def _anti_rigid_spacing_candidate_v2_1(
     min_spacing_ms: int,
     max_spacing_ms: int,
     require_time_shift_alternative: bool,
+    require_tap_only_run: bool,
 ) -> dict[str, int | str | bool] | None:
     if not any(bool(value) for value in step.state.emitted_lane_mask):
         return None
@@ -643,6 +648,11 @@ def _anti_rigid_spacing_candidate_v2_1(
     spacing_ms = int(recent[0])
     if spacing_ms < int(min_spacing_ms) or spacing_ms > int(max_spacing_ms):
         return None
+    recent_times = event_times[-(int(min_repeated_spacings) + 1) :]
+    if bool(require_tap_only_run):
+        recent_actions = _generated_event_action_names_v2_1(step, vocab=vocab, event_times=recent_times)
+        if not recent_actions or any(action != "TAP" for action in recent_actions):
+            return None
     try:
         first_piece_ms = int(vocab.decompose_time_shift_delta(spacing_ms)[0])
         token_id = int(vocab.time_shift_token_id(first_piece_ms))
@@ -670,6 +680,7 @@ def _anti_rigid_spacing_candidate_v2_1(
         "current_ms": int(step.state.current_ms),
         "token_index": int(step.token_index),
         "required_alternative": bool(require_time_shift_alternative),
+        "tap_only_run": bool(require_tap_only_run),
     }
 
 
@@ -693,6 +704,37 @@ def _generated_event_times_v2_1(step: MapperV21GenerationStep, *, vocab: MapperV
             is_full_chart_end=bool(step.is_full_chart_end),
         )
     return tuple(event_times)
+
+
+def _generated_event_action_names_v2_1(
+    step: MapperV21GenerationStep,
+    *,
+    vocab: MapperV21Vocab,
+    event_times: Sequence[int],
+) -> tuple[str, ...]:
+    requested_times = {int(time_ms) for time_ms in event_times}
+    if not requested_times:
+        return ()
+    state = _initial_replay_state(step.ln_carry_in)
+    action_names: list[str] = []
+    for position, token_id in enumerate(step.generated_tokens):
+        token = int(token_id)
+        if vocab.is_lane_action_token(token) and int(state.current_ms) in requested_times:
+            _lane, action = vocab.decode_lane_action(token)
+            action_names.append(str(action.name))
+        state = transition_replay_state(
+            state,
+            token,
+            position=position,
+            vocab=vocab,
+            write_start_ms=step.write_start_ms,
+            write_end_ms=step.write_end_ms,
+            chart_end_ms=step.chart_end_ms,
+            ln_carry_out=step.ln_carry_out,
+            is_full_chart_start=bool(step.is_full_chart_start),
+            is_full_chart_end=bool(step.is_full_chart_end),
+        )
+    return tuple(action_names)
 
 
 def _target_fragment_state_batch_v2_1(
