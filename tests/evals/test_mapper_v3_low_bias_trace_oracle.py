@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
 from pulsefield_model.evals.mapper_v3_low_bias_trace_oracle import (
     analyze_trace_summary,
+    run_low_bias_trace_oracle,
     select_trace_cases,
     summarize_trace_oracle,
 )
@@ -36,6 +39,73 @@ class MapperV3LowBiasTraceOracleTests(unittest.TestCase):
             "high_bias_starved_control",
             "pass_like_control",
         ])
+
+    def test_select_trace_cases_accepts_custom_threshold_without_duplicate_control(self) -> None:
+        margin_summary = {
+            "baseline": "baseline",
+            "variants": {
+                "baseline": {
+                    "case_rows": [
+                        _case_row("low", starved=True, pass_like=False, required_bias=1.0, second_share=0.05),
+                        _case_row("medium", starved=True, pass_like=False, required_bias=3.5, second_share=0.04),
+                        _case_row("pass", starved=False, pass_like=True, required_bias=1.0, second_share=0.50),
+                    ]
+                }
+            },
+        }
+        manifest = [{"case_id": case_id, "summary_path": f"{case_id}.json"} for case_id in ("low", "medium", "pass")]
+
+        selected = select_trace_cases(
+            margin_summary=margin_summary,
+            manifest=manifest,
+            low_bias_limit=5,
+            low_bias_threshold=4.0,
+            high_bias_threshold=3.0,
+        )
+
+        self.assertEqual([row["case_id"] for row in selected], ["low", "medium", "pass"])
+        self.assertEqual([row["role"] for row in selected], ["low_bias_starved", "low_bias_starved", "pass_like_control"])
+
+    def test_run_oracle_accepts_runs_manifest_and_records_thresholds(self) -> None:
+        margin_summary = {
+            "baseline": "baseline",
+            "variants": {
+                "baseline": {
+                    "case_rows": [
+                        _case_row("medium", starved=True, pass_like=False, required_bias=3.5, second_share=0.04),
+                        _case_row("pass", starved=False, pass_like=True, required_bias=1.0, second_share=0.50),
+                    ]
+                }
+            },
+        }
+        manifest_summary = {
+            "runs": [
+                {"case_id": "medium", "summary_path": "medium.json"},
+                {"case_id": "pass", "summary_path": "pass.json"},
+            ]
+        }
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp = Path(tmp_dir)
+            margin_path = tmp / "margin.json"
+            manifest_path = tmp / "manifest_summary.json"
+            summary_path = tmp / "summary.json"
+            report_path = tmp / "report.md"
+            margin_path.write_text(json.dumps(margin_summary), encoding="utf-8")
+            manifest_path.write_text(json.dumps(manifest_summary), encoding="utf-8")
+
+            summary = run_low_bias_trace_oracle(
+                margin_summary_path=margin_path,
+                manifest_path=manifest_path,
+                summary_output_path=summary_path,
+                report_output_path=report_path,
+                work_dir=tmp / "work",
+                low_bias_limit=5,
+                low_bias_threshold=4.0,
+                dry_run=True,
+            )
+
+        self.assertEqual(summary["thresholds"]["low_bias"], 4.0)
+        self.assertEqual(summary["selection"]["case_ids"], ["medium", "pass"])
 
     def test_analyze_trace_summary_counts_second_window_opportunities(self) -> None:
         summary = {

@@ -1,0 +1,2006 @@
+{
+  "aggregate": {
+    "illegal_case_count": 0,
+    "incomplete_trace_count": 0,
+    "low_bias_case_count": 5,
+    "positive_low_bias_count": 1
+  },
+  "case_results": [
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 280,
+        "first_window_opportunity_count": 1,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -0.2338414192199707,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0202",
+            "current_ms": 820,
+            "step": 2
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_80",
+            "best_event_margin_vs_argmax": -0.2338414192199707,
+            "best_event_rank": 3.0,
+            "best_event_token": "EV_0202",
+            "current_ms": 820,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.8729760646820068,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0120",
+            "current_ms": 8170,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.08239388465881348,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 8340,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.5853393077850342,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 8510,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.13122797012329102,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 8680,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.2180471420288086,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 8850,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.44958949089050293,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9020,
+            "step": 12
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.17320871353149414,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9190,
+            "step": 14
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.6111009120941162,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9360,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.4794297218322754,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9530,
+            "step": 18
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.5540475845336914,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9700,
+            "step": 20
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.36913084983825684,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9870,
+            "step": 22
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.5501077175140381,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 10040,
+            "step": 24
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.41395115852355957,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 10210,
+            "step": 26
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.43131113052368164,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 10380,
+            "step": 28
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.5728423595428467,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 10550,
+            "step": 30
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.9781520366668701,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 10720,
+            "step": 32
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.874903678894043,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 10890,
+            "step": 34
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.6777305603027344,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 11060,
+            "step": 36
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.0767748355865479,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 11230,
+            "step": 38
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.8696210384368896,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 11400,
+            "step": 40
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.127211570739746,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 11570,
+            "step": 42
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.0529236793518066,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 11740,
+            "step": 44
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.2868003845214844,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 11910,
+            "step": 46
+          }
+        ],
+        "positive_signal": true,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 39,
+        "second_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.8729760646820068,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0120",
+            "current_ms": 8170,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.08239388465881348,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 8340,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.5853393077850342,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 8510,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.13122797012329102,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 8680,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.2180471420288086,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 8850,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.44958949089050293,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9020,
+            "step": 12
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.17320871353149414,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9190,
+            "step": 14
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.6111009120941162,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9360,
+            "step": 16
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.4794297218322754,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9530,
+            "step": 18
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.5540475845336914,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9700,
+            "step": 20
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.36913084983825684,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 9870,
+            "step": 22
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.5501077175140381,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 10040,
+            "step": 24
+          }
+        ],
+        "step_count": 280,
+        "timepoint_count": 91,
+        "windows": {
+          "first": {
+            "event_argmax_count": 90,
+            "event_argmax_share": 0.4918032786885246,
+            "event_margin_near_count": 92,
+            "event_rank_near_count": 91,
+            "opportunity_count": 1,
+            "opportunity_share": 0.00546448087431694,
+            "step_count": 183
+          },
+          "second": {
+            "event_argmax_count": 1,
+            "event_argmax_share": 0.010309278350515464,
+            "event_margin_near_count": 40,
+            "event_rank_near_count": 47,
+            "opportunity_count": 39,
+            "opportunity_share": 0.4020618556701031,
+            "step_count": 97
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -0.19562792778015137,
+        "best_event_rank_median": 2.0,
+        "case_id": "31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial",
+        "case_index": 31,
+        "classes": [
+          "starved",
+          "rigid"
+        ],
+        "dominant_spacing_ratio": 0.9777777777777777,
+        "event_count_ratio": 1.0224719101123596,
+        "manifest": {
+          "audio_family": "1011337",
+          "audio_path": "dataset/0/1011337/audio.mp3",
+          "baseline": {
+            "dominant_spacing_ratio": 0.9743589743589743,
+            "event_count_ratio": 0.449438202247191,
+            "f1_100ms": 0.248062015503876,
+            "generated_event_count": 40,
+            "second_window_event_share": 0.0,
+            "starved": false
+          },
+          "beatmap_path": "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Equatorial].osu",
+          "best_event_margin_median": -0.19562792778015137,
+          "best_event_rank_median": 2.0,
+          "boundary_event_count": 1,
+          "boundary_event_ratio": 0.01098901098901099,
+          "case_id": "31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial",
+          "case_index": 31,
+          "chart_end_ms": 16000,
+          "completed": true,
+          "dead_end": false,
+          "delta_vs_baseline": {
+            "dominant_spacing_ratio": 0.0034188034188034067,
+            "event_count_ratio": 0.5730337078651686,
+            "f1_100ms": 0.01860465116279067,
+            "second_window_event_share": 0.01098901098901099
+          },
+          "difficulty": 5.12,
+          "difficulty_band": "high_>=4",
+          "dominant_spacing_ms": 80,
+          "dominant_spacing_ratio": 0.9777777777777777,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 1.0224719101123596,
+          "event_top1_step_count": 91,
+          "event_top1_step_ratio": 0.325,
+          "event_topk_step_count": 138,
+          "event_topk_step_ratio": 0.4928571428571429,
+          "event_valid_step_count": 188,
+          "event_valid_step_ratio": 0.6714285714285714,
+          "first_12_generated_times": [
+            900,
+            980,
+            1060,
+            1140,
+            1220,
+            1300,
+            1380,
+            1460,
+            1540,
+            1620,
+            1700,
+            1780
+          ],
+          "first_12_reference_times": [
+            5100,
+            5620,
+            5790,
+            5870,
+            6130,
+            6220,
+            6300,
+            6470,
+            6520,
+            6560,
+            6650,
+            6730
+          ],
+          "generated_event_count": 91,
+          "last_12_generated_times": [
+            7220,
+            7300,
+            7380,
+            7460,
+            7540,
+            7620,
+            7700,
+            7780,
+            7860,
+            7940,
+            7980,
+            15990
+          ],
+          "last_12_reference_times": [
+            14450,
+            14700,
+            14750,
+            14790,
+            14870,
+            14960,
+            15050,
+            15130,
+            15220,
+            15300,
+            15730,
+            15820
+          ],
+          "legal": true,
+          "logit_step_count": 280,
+          "max_tokens_exceeded": false,
+          "normalized_difficulty": 0.56,
+          "reference_event_count": 89,
+          "reference_second_window_event_count": 65,
+          "reference_second_window_event_share": 0.7303370786516854,
+          "report_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_16000ms_report.md",
+          "second_window_event_count": 1,
+          "second_window_event_share": 0.01098901098901099,
+          "spacing_counts": {
+            "40": 1,
+            "80": 88,
+            "8010": 1
+          },
+          "starved": true,
+          "summary_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_16000ms_summary.json",
+          "terminal_ms": 16000,
+          "timepoint_count": 91,
+          "timing_match_100ms": {
+            "f1": 0.26666666666666666,
+            "matched_generated": 24,
+            "matched_reference": 24,
+            "precision": 0.26373626373626374,
+            "recall": 0.2696629213483146,
+            "tolerance_ms": 100
+          },
+          "token_count": 280,
+          "window_count": 2
+        },
+        "required_event_bias": 0.19562792778015137,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.01098901098901099
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 188,
+            "max": 0.0,
+            "mean": -1.8615898715054735,
+            "median": -0.19562792778015137,
+            "min": -6.220042705535889
+          },
+          "best_event_rank": {
+            "count": 188,
+            "max": 19.0,
+            "mean": 3.7074468085106385,
+            "median": 2.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 91,
+          "event_topk_step_count": 138,
+          "event_valid_step_count": 188,
+          "example_count": 280,
+          "step_count": 280
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 91,
+          "token_count": 280,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_trace_summary.json"
+    },
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 250,
+        "first_window_opportunity_count": 1,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_30",
+            "best_event_margin_vs_argmax": -1.0826094150543213,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 7960,
+            "step": 136
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_30",
+            "best_event_margin_vs_argmax": -1.0826094150543213,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_1000",
+            "current_ms": 7960,
+            "step": 136
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.6522847414016724,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.794366717338562,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.7775603532791138,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8450,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.5898168087005615,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8600,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.8501555919647217,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8750,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9745250940322876,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 9050,
+            "step": 14
+          }
+        ],
+        "positive_signal": false,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 6,
+        "second_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.6522847414016724,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.794366717338562,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_0010",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.7775603532791138,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8450,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.5898168087005615,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8600,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.8501555919647217,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8750,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9745250940322876,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 9050,
+            "step": 14
+          }
+        ],
+        "step_count": 250,
+        "timepoint_count": 48,
+        "windows": {
+          "first": {
+            "event_argmax_count": 46,
+            "event_argmax_share": 0.33093525179856115,
+            "event_margin_near_count": 47,
+            "event_rank_near_count": 48,
+            "opportunity_count": 1,
+            "opportunity_share": 0.007194244604316547,
+            "step_count": 139
+          },
+          "second": {
+            "event_argmax_count": 2,
+            "event_argmax_share": 0.018018018018018018,
+            "event_margin_near_count": 8,
+            "event_rank_near_count": 54,
+            "opportunity_count": 6,
+            "opportunity_share": 0.05405405405405406,
+            "step_count": 111
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -3.233065366744995,
+        "best_event_rank_median": 4.0,
+        "case_id": "12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd",
+        "case_index": 12,
+        "classes": [
+          "starved",
+          "rigid"
+        ],
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.8421052631578947,
+        "manifest": {
+          "audio_family": "1000722",
+          "audio_path": "dataset/0/1000722/audio.mp3",
+          "baseline": {
+            "dominant_spacing_ratio": 0.5819672131147541,
+            "event_count_ratio": 2.1578947368421053,
+            "f1_100ms": 0.5888888888888889,
+            "generated_event_count": 123,
+            "second_window_event_share": 0.4065040650406504,
+            "starved": false
+          },
+          "beatmap_path": "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Asha's HD].osu",
+          "best_event_margin_median": -3.233065366744995,
+          "best_event_rank_median": 4.0,
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.041666666666666664,
+          "case_id": "12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd",
+          "case_index": 12,
+          "chart_end_ms": 16000,
+          "completed": true,
+          "dead_end": false,
+          "delta_vs_baseline": {
+            "dominant_spacing_ratio": 0.3542029996512034,
+            "event_count_ratio": -1.3157894736842106,
+            "f1_100ms": -0.07460317460317467,
+            "second_window_event_share": -0.3648373983739837
+          },
+          "difficulty": 3.09,
+          "difficulty_band": "mid_3to4",
+          "dominant_spacing_ms": 160,
+          "dominant_spacing_ratio": 0.9361702127659575,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 0.8421052631578947,
+          "event_top1_step_count": 48,
+          "event_top1_step_ratio": 0.192,
+          "event_topk_step_count": 102,
+          "event_topk_step_ratio": 0.408,
+          "event_valid_step_count": 201,
+          "event_valid_step_ratio": 0.804,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            480,
+            550,
+            610,
+            1390,
+            1780,
+            2170,
+            2560,
+            2950,
+            3150,
+            3340,
+            3540,
+            3730
+          ],
+          "generated_event_count": 48,
+          "last_12_generated_times": [
+            6580,
+            6740,
+            6900,
+            7060,
+            7220,
+            7380,
+            7540,
+            7700,
+            7860,
+            7990,
+            15950,
+            15990
+          ],
+          "last_12_reference_times": [
+            12690,
+            13080,
+            13470,
+            13730,
+            13800,
+            13860,
+            14450,
+            15220,
+            15320,
+            15420,
+            15810,
+            16000
+          ],
+          "legal": true,
+          "logit_step_count": 250,
+          "max_tokens_exceeded": false,
+          "normalized_difficulty": -0.45500000000000007,
+          "reference_event_count": 57,
+          "reference_second_window_event_count": 29,
+          "reference_second_window_event_share": 0.5087719298245614,
+          "report_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd_16000ms_report.md",
+          "second_window_event_count": 2,
+          "second_window_event_share": 0.041666666666666664,
+          "spacing_counts": {
+            "130": 1,
+            "160": 44,
+            "40": 1,
+            "7960": 1
+          },
+          "starved": true,
+          "summary_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd_16000ms_summary.json",
+          "terminal_ms": 16000,
+          "timepoint_count": 48,
+          "timing_match_100ms": {
+            "f1": 0.5142857142857142,
+            "matched_generated": 27,
+            "matched_reference": 27,
+            "precision": 0.5625,
+            "recall": 0.47368421052631576,
+            "tolerance_ms": 100
+          },
+          "token_count": 250,
+          "window_count": 2
+        },
+        "required_event_bias": 3.233065366744995,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.041666666666666664
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 201,
+            "max": 0.0,
+            "mean": -4.0416789384030585,
+            "median": -3.233065366744995,
+            "min": -7.235191345214844
+          },
+          "best_event_rank": {
+            "count": 201,
+            "max": 21.0,
+            "mean": 5.582089552238806,
+            "median": 4.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 48,
+          "event_topk_step_count": 102,
+          "event_valid_step_count": 201,
+          "example_count": 250,
+          "step_count": 250
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 48,
+          "token_count": 250,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd_trace_summary.json"
+    },
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 250,
+        "first_window_opportunity_count": 1,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_30",
+            "best_event_margin_vs_argmax": -1.7246487140655518,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_3000",
+            "current_ms": 7960,
+            "step": 136
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_30",
+            "best_event_margin_vs_argmax": -1.7246487140655518,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_3000",
+            "current_ms": 7960,
+            "step": 136
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.6509726047515869,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.7293165922164917,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.7177047729492188,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8450,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.5031301975250244,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8600,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.8173526525497437,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8750,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9640936851501465,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 9050,
+            "step": 14
+          }
+        ],
+        "positive_signal": false,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 6,
+        "second_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.6509726047515869,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.7293165922164917,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.7177047729492188,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8450,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.5031301975250244,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8600,
+            "step": 8
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.8173526525497437,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8750,
+            "step": 10
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9640936851501465,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 9050,
+            "step": 14
+          }
+        ],
+        "step_count": 250,
+        "timepoint_count": 48,
+        "windows": {
+          "first": {
+            "event_argmax_count": 46,
+            "event_argmax_share": 0.33093525179856115,
+            "event_margin_near_count": 47,
+            "event_rank_near_count": 47,
+            "opportunity_count": 1,
+            "opportunity_share": 0.007194244604316547,
+            "step_count": 139
+          },
+          "second": {
+            "event_argmax_count": 2,
+            "event_argmax_share": 0.018018018018018018,
+            "event_margin_near_count": 8,
+            "event_rank_near_count": 54,
+            "opportunity_count": 6,
+            "opportunity_share": 0.05405405405405406,
+            "step_count": 111
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -3.260576009750366,
+        "best_event_rank_median": 4.0,
+        "case_id": "22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair",
+        "case_index": 22,
+        "classes": [
+          "starved",
+          "rigid",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5161290322580645,
+        "manifest": {
+          "audio_family": "1010916",
+          "audio_path": "dataset/0/1010916/audio.mp3",
+          "baseline": {
+            "dominant_spacing_ratio": 0.9361702127659575,
+            "event_count_ratio": 0.5161290322580645,
+            "f1_100ms": 0.5815602836879433,
+            "generated_event_count": 48,
+            "second_window_event_share": 0.041666666666666664,
+            "starved": false
+          },
+          "beatmap_path": "dataset/0/1010916/Oomori Seiko - JUSTadICE (TV Size) (Remu) [Grimoire of Despair].osu",
+          "best_event_margin_median": -3.260576009750366,
+          "best_event_rank_median": 4.0,
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.041666666666666664,
+          "case_id": "22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair",
+          "case_index": 22,
+          "chart_end_ms": 16000,
+          "completed": true,
+          "dead_end": false,
+          "delta_vs_baseline": {
+            "dominant_spacing_ratio": 0.0,
+            "event_count_ratio": 0.0,
+            "f1_100ms": 0.0,
+            "second_window_event_share": 0.0
+          },
+          "difficulty": 4.19,
+          "difficulty_band": "high_>=4",
+          "dominant_spacing_ms": 160,
+          "dominant_spacing_ratio": 0.9361702127659575,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 0.5161290322580645,
+          "event_top1_step_count": 48,
+          "event_top1_step_ratio": 0.192,
+          "event_topk_step_count": 101,
+          "event_topk_step_ratio": 0.404,
+          "event_valid_step_count": 201,
+          "event_valid_step_ratio": 0.804,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            620,
+            680,
+            730,
+            890,
+            1050,
+            1220,
+            1380,
+            1540,
+            1700,
+            1870,
+            2190,
+            2350
+          ],
+          "generated_event_count": 48,
+          "last_12_generated_times": [
+            6580,
+            6740,
+            6900,
+            7060,
+            7220,
+            7380,
+            7540,
+            7700,
+            7860,
+            7990,
+            15950,
+            15990
+          ],
+          "last_12_reference_times": [
+            14270,
+            14350,
+            14510,
+            14680,
+            14840,
+            15000,
+            15160,
+            15320,
+            15490,
+            15650,
+            15810,
+            15970
+          ],
+          "legal": true,
+          "logit_step_count": 250,
+          "max_tokens_exceeded": false,
+          "normalized_difficulty": 0.0950000000000002,
+          "reference_event_count": 93,
+          "reference_second_window_event_count": 51,
+          "reference_second_window_event_share": 0.5483870967741935,
+          "report_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair_16000ms_report.md",
+          "second_window_event_count": 2,
+          "second_window_event_share": 0.041666666666666664,
+          "spacing_counts": {
+            "130": 1,
+            "160": 44,
+            "40": 1,
+            "7960": 1
+          },
+          "starved": true,
+          "summary_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair_16000ms_summary.json",
+          "terminal_ms": 16000,
+          "timepoint_count": 48,
+          "timing_match_100ms": {
+            "f1": 0.5815602836879433,
+            "matched_generated": 41,
+            "matched_reference": 41,
+            "precision": 0.8541666666666666,
+            "recall": 0.44086021505376344,
+            "tolerance_ms": 100
+          },
+          "token_count": 250,
+          "window_count": 2
+        },
+        "required_event_bias": 3.260576009750366,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.041666666666666664
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 201,
+            "max": 0.0,
+            "mean": -4.181758467830829,
+            "median": -3.260576009750366,
+            "min": -7.712485074996948
+          },
+          "best_event_rank": {
+            "count": 201,
+            "max": 23.0,
+            "mean": 5.611940298507463,
+            "median": 4.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 48,
+          "event_topk_step_count": 101,
+          "event_valid_step_count": 201,
+          "example_count": 250,
+          "step_count": 250
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 48,
+          "token_count": 250,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair_trace_summary.json"
+    },
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 250,
+        "first_window_opportunity_count": 1,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_30",
+            "best_event_margin_vs_argmax": -0.8078958988189697,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0130",
+            "current_ms": 7960,
+            "step": 136
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_30",
+            "best_event_margin_vs_argmax": -0.8078958988189697,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0130",
+            "current_ms": 7960,
+            "step": 136
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.8437106609344482,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.9739168882369995,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9202311038970947,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8450,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.7312734127044678,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8600,
+            "step": 8
+          }
+        ],
+        "positive_signal": false,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 4,
+        "second_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.8437106609344482,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8150,
+            "step": 2
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -0.9739168882369995,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8300,
+            "step": 4
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.9202311038970947,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8450,
+            "step": 6
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.7312734127044678,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_2000",
+            "current_ms": 8600,
+            "step": 8
+          }
+        ],
+        "step_count": 250,
+        "timepoint_count": 48,
+        "windows": {
+          "first": {
+            "event_argmax_count": 46,
+            "event_argmax_share": 0.33093525179856115,
+            "event_margin_near_count": 48,
+            "event_rank_near_count": 47,
+            "opportunity_count": 1,
+            "opportunity_share": 0.007194244604316547,
+            "step_count": 139
+          },
+          "second": {
+            "event_argmax_count": 2,
+            "event_argmax_share": 0.018018018018018018,
+            "event_margin_near_count": 6,
+            "event_rank_near_count": 54,
+            "opportunity_count": 4,
+            "opportunity_share": 0.036036036036036036,
+            "step_count": 111
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -3.3063477277755737,
+        "best_event_rank_median": 4.0,
+        "case_id": "27_billiummoto_four_veiled_stars_aries_insane",
+        "case_index": 27,
+        "classes": [
+          "starved",
+          "rigid",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.9361702127659575,
+        "event_count_ratio": 0.5161290322580645,
+        "manifest": {
+          "audio_family": "1008419",
+          "audio_path": "dataset/0/1008419/audio.mp3",
+          "baseline": {
+            "dominant_spacing_ratio": 0.4891304347826087,
+            "event_count_ratio": 1.0,
+            "f1_100ms": 0.8172043010752688,
+            "generated_event_count": 93,
+            "second_window_event_share": 0.4946236559139785,
+            "starved": false
+          },
+          "beatmap_path": "dataset/0/1008419/BilliumMoto - four veiled stars (- Aries -) [Insane].osu",
+          "best_event_margin_median": -3.3063477277755737,
+          "best_event_rank_median": 4.0,
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.041666666666666664,
+          "case_id": "27_billiummoto_four_veiled_stars_aries_insane",
+          "case_index": 27,
+          "chart_end_ms": 16000,
+          "completed": true,
+          "dead_end": false,
+          "delta_vs_baseline": {
+            "dominant_spacing_ratio": 0.44703977798334876,
+            "event_count_ratio": -0.4838709677419355,
+            "f1_100ms": -0.3774879890185312,
+            "second_window_event_share": -0.4529569892473118
+          },
+          "difficulty": 4.61,
+          "difficulty_band": "high_>=4",
+          "dominant_spacing_ms": 160,
+          "dominant_spacing_ratio": 0.9361702127659575,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 0.5161290322580645,
+          "event_top1_step_count": 48,
+          "event_top1_step_ratio": 0.192,
+          "event_topk_step_count": 101,
+          "event_topk_step_ratio": 0.404,
+          "event_valid_step_count": 201,
+          "event_valid_step_ratio": 0.804,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            3380,
+            3540,
+            3700,
+            3860,
+            3940,
+            4020,
+            4180,
+            4340,
+            4500,
+            4580,
+            4660,
+            4820
+          ],
+          "generated_event_count": 48,
+          "last_12_generated_times": [
+            6580,
+            6740,
+            6900,
+            7060,
+            7220,
+            7380,
+            7540,
+            7700,
+            7860,
+            7990,
+            15950,
+            15990
+          ],
+          "last_12_reference_times": [
+            14290,
+            14450,
+            14610,
+            14690,
+            14770,
+            14930,
+            15090,
+            15250,
+            15410,
+            15570,
+            15730,
+            15890
+          ],
+          "legal": true,
+          "logit_step_count": 250,
+          "max_tokens_exceeded": false,
+          "normalized_difficulty": 0.30500000000000016,
+          "reference_event_count": 93,
+          "reference_second_window_event_count": 57,
+          "reference_second_window_event_share": 0.6129032258064516,
+          "report_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/27_billiummoto_four_veiled_stars_aries_insane_16000ms_report.md",
+          "second_window_event_count": 2,
+          "second_window_event_share": 0.041666666666666664,
+          "spacing_counts": {
+            "130": 1,
+            "160": 44,
+            "40": 1,
+            "7960": 1
+          },
+          "starved": true,
+          "summary_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/27_billiummoto_four_veiled_stars_aries_insane_16000ms_summary.json",
+          "terminal_ms": 16000,
+          "timepoint_count": 48,
+          "timing_match_100ms": {
+            "f1": 0.43971631205673756,
+            "matched_generated": 31,
+            "matched_reference": 31,
+            "precision": 0.6458333333333334,
+            "recall": 0.3333333333333333,
+            "tolerance_ms": 100
+          },
+          "token_count": 250,
+          "window_count": 2
+        },
+        "required_event_bias": 3.3063477277755737,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.041666666666666664
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 201,
+            "max": 0.0,
+            "mean": -4.094344446315101,
+            "median": -3.3063477277755737,
+            "min": -7.679432511329651
+          },
+          "best_event_rank": {
+            "count": 201,
+            "max": 22.0,
+            "mean": 5.482587064676617,
+            "median": 4.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 48,
+          "event_topk_step_count": 101,
+          "event_valid_step_count": 201,
+          "example_count": 250,
+          "step_count": 250
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 48,
+          "token_count": 250,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/27_billiummoto_four_veiled_stars_aries_insane_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/27_billiummoto_four_veiled_stars_aries_insane_trace_summary.json"
+    },
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 220,
+        "first_window_opportunity_count": 1,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_30",
+            "best_event_margin_vs_argmax": -0.37421441078186035,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_3001",
+            "current_ms": 7960,
+            "step": 136
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_30",
+            "best_event_margin_vs_argmax": -0.37421441078186035,
+            "best_event_rank": 2.0,
+            "best_event_token": "EV_3001",
+            "current_ms": 7960,
+            "step": 136
+          }
+        ],
+        "positive_signal": false,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 0,
+        "second_window_opportunity_examples": [],
+        "step_count": 220,
+        "timepoint_count": 46,
+        "windows": {
+          "first": {
+            "event_argmax_count": 46,
+            "event_argmax_share": 0.33093525179856115,
+            "event_margin_near_count": 48,
+            "event_rank_near_count": 47,
+            "opportunity_count": 1,
+            "opportunity_share": 0.007194244604316547,
+            "step_count": 139
+          },
+          "second": {
+            "event_argmax_count": 0,
+            "event_argmax_share": 0.0,
+            "event_margin_near_count": 0,
+            "event_rank_near_count": 0,
+            "opportunity_count": 0,
+            "opportunity_share": 0.0,
+            "step_count": 81
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -3.9904235005378723,
+        "best_event_rank_median": 9.0,
+        "case_id": "15_phantom_sage_holystone_unluckycroco_at_the_point_of_no_return",
+        "case_index": 15,
+        "classes": [
+          "starved",
+          "rigid",
+          "undergenerated"
+        ],
+        "dominant_spacing_ratio": 0.9777777777777777,
+        "event_count_ratio": 0.5227272727272727,
+        "manifest": {
+          "audio_family": "1001794",
+          "audio_path": "dataset/0/1001794/audio.mp3",
+          "baseline": {
+            "dominant_spacing_ratio": 0.9565217391304348,
+            "event_count_ratio": 0.5340909090909091,
+            "f1_100ms": 0.6222222222222222,
+            "generated_event_count": 47,
+            "second_window_event_share": 0.02127659574468085,
+            "starved": false
+          },
+          "beatmap_path": "dataset/0/1001794/Phantom Sage - Holystone (UnluckyCroco) [At the Point of No Return].osu",
+          "best_event_margin_median": -3.9904235005378723,
+          "best_event_rank_median": 9.0,
+          "boundary_event_count": 0,
+          "boundary_event_ratio": 0.0,
+          "case_id": "15_phantom_sage_holystone_unluckycroco_at_the_point_of_no_return",
+          "case_index": 15,
+          "chart_end_ms": 16000,
+          "completed": true,
+          "dead_end": false,
+          "delta_vs_baseline": {
+            "dominant_spacing_ratio": 0.021256038647342934,
+            "event_count_ratio": -0.011363636363636354,
+            "f1_100ms": -0.010281923714759555,
+            "second_window_event_share": -0.02127659574468085
+          },
+          "difficulty": 3.29,
+          "difficulty_band": "mid_3to4",
+          "dominant_spacing_ms": 160,
+          "dominant_spacing_ratio": 0.9777777777777777,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 0.5227272727272727,
+          "event_top1_step_count": 46,
+          "event_top1_step_ratio": 0.20909090909090908,
+          "event_topk_step_count": 47,
+          "event_topk_step_ratio": 0.21363636363636362,
+          "event_valid_step_count": 173,
+          "event_valid_step_ratio": 0.7863636363636364,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            30,
+            210,
+            390,
+            570,
+            750,
+            940,
+            1120,
+            1300,
+            1480,
+            1660,
+            1850,
+            2030
+          ],
+          "generated_event_count": 46,
+          "last_12_generated_times": [
+            6260,
+            6420,
+            6580,
+            6740,
+            6900,
+            7060,
+            7220,
+            7380,
+            7540,
+            7700,
+            7860,
+            7990
+          ],
+          "last_12_reference_times": [
+            13850,
+            14030,
+            14210,
+            14390,
+            14570,
+            14750,
+            14940,
+            15120,
+            15300,
+            15480,
+            15660,
+            15850
+          ],
+          "legal": true,
+          "logit_step_count": 220,
+          "max_tokens_exceeded": false,
+          "normalized_difficulty": -0.355,
+          "reference_event_count": 88,
+          "reference_second_window_event_count": 44,
+          "reference_second_window_event_share": 0.5,
+          "report_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/15_phantom_sage_holystone_unluckycroco_at_the_point_of_no_return_16000ms_report.md",
+          "second_window_event_count": 0,
+          "second_window_event_share": 0.0,
+          "spacing_counts": {
+            "130": 1,
+            "160": 44
+          },
+          "starved": true,
+          "summary_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/15_phantom_sage_holystone_unluckycroco_at_the_point_of_no_return_16000ms_summary.json",
+          "terminal_ms": 16000,
+          "timepoint_count": 46,
+          "timing_match_100ms": {
+            "f1": 0.6119402985074627,
+            "matched_generated": 41,
+            "matched_reference": 41,
+            "precision": 0.8913043478260869,
+            "recall": 0.4659090909090909,
+            "tolerance_ms": 100
+          },
+          "token_count": 220,
+          "window_count": 2
+        },
+        "required_event_bias": 3.9904235005378723,
+        "role": "low_bias_starved",
+        "second_window_event_share": 0.0
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 173,
+            "max": 0.0,
+            "mean": -3.241122268872454,
+            "median": -3.9904235005378723,
+            "min": -5.819834351539612
+          },
+          "best_event_rank": {
+            "count": 173,
+            "max": 20.0,
+            "mean": 6.878612716763006,
+            "median": 9.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 46,
+          "event_topk_step_count": 47,
+          "event_valid_step_count": 173,
+          "example_count": 220,
+          "step_count": 220
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 46,
+          "token_count": 220,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/15_phantom_sage_holystone_unluckycroco_at_the_point_of_no_return_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/15_phantom_sage_holystone_unluckycroco_at_the_point_of_no_return_trace_summary.json"
+    },
+    {
+      "analysis": {
+        "dead_end": false,
+        "example_count": 302,
+        "first_window_opportunity_count": 1,
+        "first_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.34032154083251953,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 7960,
+            "step": 136
+          }
+        ],
+        "full_trace": true,
+        "max_tokens_exceeded": false,
+        "opportunity_examples": [
+          {
+            "argmax_token": "TS_10",
+            "best_event_margin_vs_argmax": -0.34032154083251953,
+            "best_event_rank": 4.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 7960,
+            "step": 136
+          },
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.6078534126281738,
+            "best_event_rank": 5.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8000,
+            "step": 0
+          }
+        ],
+        "positive_signal": false,
+        "rollout_completed": true,
+        "second_window_opportunity_count": 1,
+        "second_window_opportunity_examples": [
+          {
+            "argmax_token": "TS_100",
+            "best_event_margin_vs_argmax": -1.6078534126281738,
+            "best_event_rank": 5.0,
+            "best_event_token": "EV_0011",
+            "current_ms": 8000,
+            "step": 0
+          }
+        ],
+        "step_count": 302,
+        "timepoint_count": 100,
+        "windows": {
+          "first": {
+            "event_argmax_count": 46,
+            "event_argmax_share": 0.33093525179856115,
+            "event_margin_near_count": 47,
+            "event_rank_near_count": 47,
+            "opportunity_count": 1,
+            "opportunity_share": 0.007194244604316547,
+            "step_count": 139
+          },
+          "second": {
+            "event_argmax_count": 54,
+            "event_argmax_share": 0.3312883435582822,
+            "event_margin_near_count": 56,
+            "event_rank_near_count": 55,
+            "opportunity_count": 1,
+            "opportunity_share": 0.006134969325153374,
+            "step_count": 163
+          }
+        }
+      },
+      "case": {
+        "best_event_margin_median": -0.34032154083251953,
+        "best_event_rank_median": 4.0,
+        "case_id": "25_nekodex_circles_famoss_insane",
+        "case_index": 25,
+        "classes": [
+          "pass_like"
+        ],
+        "dominant_spacing_ratio": 0.5252525252525253,
+        "event_count_ratio": 0.9803921568627451,
+        "manifest": {
+          "audio_family": "1003217",
+          "audio_path": "dataset/0/1003217/nekodex - circles! (FAMoss) [audio!].mp3",
+          "baseline": {
+            "dominant_spacing_ratio": 0.5,
+            "event_count_ratio": 0.9117647058823529,
+            "f1_100ms": 0.8205128205128205,
+            "generated_event_count": 93,
+            "second_window_event_share": 0.5053763440860215,
+            "starved": false
+          },
+          "beatmap_path": "dataset/0/1003217/nekodex - circles! (FAMoss) [insane!].osu",
+          "best_event_margin_median": -0.34032154083251953,
+          "best_event_rank_median": 4.0,
+          "boundary_event_count": 2,
+          "boundary_event_ratio": 0.02,
+          "case_id": "25_nekodex_circles_famoss_insane",
+          "case_index": 25,
+          "chart_end_ms": 16000,
+          "completed": true,
+          "dead_end": false,
+          "delta_vs_baseline": {
+            "dominant_spacing_ratio": 0.025252525252525304,
+            "event_count_ratio": 0.06862745098039214,
+            "f1_100ms": 0.03097232800203098,
+            "second_window_event_share": 0.034623655913978535
+          },
+          "difficulty": 4.43,
+          "difficulty_band": "high_>=4",
+          "dominant_spacing_ms": 150,
+          "dominant_spacing_ratio": 0.5252525252525253,
+          "duplicate_or_nonincreasing_spacing_ratio": 0.0,
+          "event_count_ratio": 0.9803921568627451,
+          "event_top1_step_count": 100,
+          "event_top1_step_ratio": 0.33112582781456956,
+          "event_topk_step_count": 102,
+          "event_topk_step_ratio": 0.33774834437086093,
+          "event_valid_step_count": 201,
+          "event_valid_step_ratio": 0.6655629139072847,
+          "first_12_generated_times": [
+            820,
+            980,
+            1140,
+            1300,
+            1460,
+            1620,
+            1780,
+            1940,
+            2100,
+            2260,
+            2420,
+            2580
+          ],
+          "first_12_reference_times": [
+            2430,
+            2510,
+            2590,
+            2750,
+            2920,
+            3080,
+            3240,
+            3400,
+            3570,
+            3730,
+            3890,
+            4060
+          ],
+          "generated_event_count": 100,
+          "last_12_generated_times": [
+            14450,
+            14600,
+            14750,
+            14900,
+            15050,
+            15200,
+            15350,
+            15500,
+            15650,
+            15800,
+            15950,
+            15990
+          ],
+          "last_12_reference_times": [
+            14820,
+            14900,
+            14980,
+            15140,
+            15220,
+            15310,
+            15470,
+            15550,
+            15630,
+            15800,
+            15880,
+            15960
+          ],
+          "legal": true,
+          "logit_step_count": 302,
+          "max_tokens_exceeded": false,
+          "normalized_difficulty": 0.21499999999999986,
+          "reference_event_count": 102,
+          "reference_second_window_event_count": 65,
+          "reference_second_window_event_share": 0.6372549019607843,
+          "report_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/25_nekodex_circles_famoss_insane_16000ms_report.md",
+          "second_window_event_count": 54,
+          "second_window_event_share": 0.54,
+          "spacing_counts": {
+            "110": 1,
+            "150": 52,
+            "160": 44,
+            "180": 1,
+            "40": 1
+          },
+          "starved": false,
+          "summary_path": "artifacts/tmp/mapper_v3_event_token_ce_weight_training_gate/rollouts/25_nekodex_circles_famoss_insane_16000ms_summary.json",
+          "terminal_ms": 16000,
+          "timepoint_count": 100,
+          "timing_match_100ms": {
+            "f1": 0.8514851485148515,
+            "matched_generated": 86,
+            "matched_reference": 86,
+            "precision": 0.86,
+            "recall": 0.8431372549019608,
+            "tolerance_ms": 100
+          },
+          "token_count": 302,
+          "window_count": 2
+        },
+        "required_event_bias": 0.34032154083251953,
+        "role": "pass_like_control",
+        "second_window_event_share": 0.54
+      },
+      "trace": {
+        "decision": {
+          "reason": "all trained runtime rollout gates passed",
+          "route": "TEST_NEXT"
+        },
+        "logit_diagnostics": {
+          "best_event_margin_vs_argmax": {
+            "count": 201,
+            "max": 0.0,
+            "mean": -3.5684790720987083,
+            "median": -0.34032154083251953,
+            "min": -8.803602874279022
+          },
+          "best_event_rank": {
+            "count": 201,
+            "max": 22.0,
+            "mean": 4.54726368159204,
+            "median": 4.0,
+            "min": 1.0
+          },
+          "event_top1_step_count": 100,
+          "event_topk_step_count": 102,
+          "event_valid_step_count": 201,
+          "example_count": 302,
+          "step_count": 302
+        },
+        "rollout": {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "timepoint_count": 100,
+          "token_count": 302,
+          "window_count": 2
+        }
+      },
+      "trace_report_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/25_nekodex_circles_famoss_insane_trace_report.md",
+      "trace_summary_path": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle/rollouts/25_nekodex_circles_famoss_insane_trace_summary.json"
+    }
+  ],
+  "decision": {
+    "interpretation": "A simple selective gate is weakly supported at best. More context features are needed before changing decode behavior.",
+    "next_step": "Either add density/control-aware trace fields or pivot to v2.1 grammar improvement.",
+    "reason": "only 1/5 low-bias starved cases have enough second-window opportunities",
+    "route": "TEST_DENSITY_AWARE_TRACE"
+  },
+  "dry_run": false,
+  "elapsed_s": 145.23288016597508,
+  "experiment": "Target grammar v3 low-bias trace oracle",
+  "inputs": {
+    "manifest": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_token_ce_weight_training_gate_summary.json",
+    "margin_summary": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_ce_event_margin_viability_summary.json"
+  },
+  "schema_version": 1,
+  "selection": {
+    "case_count": 6,
+    "case_ids": [
+      "31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial",
+      "12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd",
+      "22_oomori_seiko_justadice_tv_size_remu_grimoire_of_despair",
+      "27_billiummoto_four_veiled_stars_aries_insane",
+      "15_phantom_sage_holystone_unluckycroco_at_the_point_of_no_return",
+      "25_nekodex_circles_famoss_insane"
+    ],
+    "low_bias_case_count": 5
+  },
+  "thresholds": {
+    "high_bias": 6.0,
+    "low_bias": 4.0,
+    "opportunity_max_rank": 5,
+    "opportunity_min_margin": -2.0,
+    "positive_opportunity_count": 10,
+    "second_window_start_ms": 8000
+  },
+  "work_dir": "artifacts/tmp/mapper_v3_ce_selective_trace_oracle"
+}

@@ -28,6 +28,8 @@ def run_low_bias_trace_oracle(
     work_dir: Path,
     device: str = "auto",
     low_bias_limit: int = 3,
+    low_bias_threshold: float = LOW_BIAS_THRESHOLD,
+    high_bias_threshold: float = HIGH_BIAS_THRESHOLD,
     include_controls: bool = True,
     logit_top_k: int = 5,
     logit_max_examples: int = 2048,
@@ -35,11 +37,13 @@ def run_low_bias_trace_oracle(
 ) -> dict[str, Any]:
     start = time.monotonic()
     margin_summary = _load_json_object(margin_summary_path)
-    manifest = _load_json_list(manifest_path)
+    manifest = _load_manifest_rows(manifest_path)
     cases = select_trace_cases(
         margin_summary=margin_summary,
         manifest=manifest,
         low_bias_limit=int(low_bias_limit),
+        low_bias_threshold=float(low_bias_threshold),
+        high_bias_threshold=float(high_bias_threshold),
         include_controls=bool(include_controls),
     )
     case_results: list[dict[str, Any]] = []
@@ -64,6 +68,8 @@ def run_low_bias_trace_oracle(
         work_dir=work_dir,
         elapsed_s=time.monotonic() - start,
         dry_run=bool(dry_run),
+        low_bias_threshold=float(low_bias_threshold),
+        high_bias_threshold=float(high_bias_threshold),
     )
     write_summary_json(summary, summary_output_path)
     write_report(summary, report_output_path)
@@ -75,6 +81,8 @@ def select_trace_cases(
     margin_summary: Mapping[str, Any],
     manifest: Sequence[Mapping[str, Any]],
     low_bias_limit: int = 3,
+    low_bias_threshold: float = LOW_BIAS_THRESHOLD,
+    high_bias_threshold: float = HIGH_BIAS_THRESHOLD,
     include_controls: bool = True,
 ) -> list[dict[str, Any]]:
     baseline_name = str(margin_summary.get("baseline") or "")
@@ -110,27 +118,37 @@ def select_trace_cases(
         (
             row
             for row in case_rows
-            if bool(row.get("starved")) and (_float(row.get("required_event_bias")) or math.inf) <= LOW_BIAS_THRESHOLD
+            if bool(row.get("starved"))
+            and (required_bias := _float(row.get("required_event_bias"))) is not None
+            and required_bias <= float(low_bias_threshold)
         ),
         key=lambda row: (_float(row.get("required_event_bias")) or math.inf, str(row.get("case_id"))),
     )
     selected = [with_manifest(row, "low_bias_starved") for row in low_bias_starved[: int(low_bias_limit)]]
+    selected_case_ids = {str(row["case_id"]) for row in selected}
     if include_controls:
         high_bias_starved = sorted(
             (
                 row
                 for row in case_rows
-                if bool(row.get("starved")) and (_float(row.get("required_event_bias")) or 0.0) >= HIGH_BIAS_THRESHOLD
+                if bool(row.get("starved"))
+                and str(row.get("case_id") or "") not in selected_case_ids
+                and (required_bias := _float(row.get("required_event_bias"))) is not None
+                and required_bias >= float(high_bias_threshold)
             ),
             key=lambda row: (-(_float(row.get("required_event_bias")) or 0.0), str(row.get("case_id"))),
         )
         if high_bias_starved:
-            selected.append(with_manifest(high_bias_starved[0], "high_bias_starved_control"))
+            control = with_manifest(high_bias_starved[0], "high_bias_starved_control")
+            selected.append(control)
+            selected_case_ids.add(str(control["case_id"]))
         pass_like = sorted(
             (
                 row
                 for row in case_rows
-                if bool(row.get("pass_like")) and (_float(row.get("second_window_event_share")) or 0.0) >= 0.40
+                if bool(row.get("pass_like"))
+                and str(row.get("case_id") or "") not in selected_case_ids
+                and (_float(row.get("second_window_event_share")) or 0.0) >= 0.40
             ),
             key=lambda row: (_float(row.get("required_event_bias")) or math.inf, str(row.get("case_id"))),
         )
@@ -276,6 +294,8 @@ def summarize_trace_oracle(
     work_dir: Path,
     elapsed_s: float,
     dry_run: bool,
+    low_bias_threshold: float = LOW_BIAS_THRESHOLD,
+    high_bias_threshold: float = HIGH_BIAS_THRESHOLD,
 ) -> dict[str, Any]:
     low_bias_results = [
         result
@@ -319,8 +339,8 @@ def summarize_trace_oracle(
             "case_ids": [str(case["case_id"]) for case in cases],
         },
         "thresholds": {
-            "low_bias": LOW_BIAS_THRESHOLD,
-            "high_bias": HIGH_BIAS_THRESHOLD,
+            "low_bias": float(low_bias_threshold),
+            "high_bias": float(high_bias_threshold),
             "second_window_start_ms": SECOND_WINDOW_START_MS,
             "opportunity_max_rank": OPPORTUNITY_MAX_RANK,
             "opportunity_min_margin": OPPORTUNITY_MIN_MARGIN,
@@ -358,6 +378,7 @@ def write_report(summary: Mapping[str, Any], path: Path) -> None:
         "",
         f"- Reason: {decision.get('reason')}",
         f"- Recommended next step: {decision.get('next_step')}",
+        f"- Low-bias threshold: `{_mapping(summary.get('thresholds')).get('low_bias')}`",
         f"- Positive low-bias cases: `{aggregate.get('positive_low_bias_count')}` / `{aggregate.get('low_bias_case_count')}`",
         f"- Incomplete traces: `{aggregate.get('incomplete_trace_count')}`",
         f"- Illegal cases: `{aggregate.get('illegal_case_count')}`",
@@ -529,14 +550,19 @@ def _load_json_object(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _load_json_list(path: Path) -> list[dict[str, Any]]:
+def _load_manifest_rows(path: Path) -> list[dict[str, Any]]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         raise ValueError(f"invalid JSON: {path}") from exc
-    if not isinstance(payload, list):
-        raise ValueError(f"expected JSON list: {path}")
-    return [dict(row) for row in payload if isinstance(row, Mapping)]
+    if isinstance(payload, Mapping):
+        rows = payload.get("runs")
+        if not isinstance(rows, list):
+            raise ValueError(f"expected JSON list or object with runs list: {path}")
+        return [dict(row) for row in rows if isinstance(row, Mapping)]
+    if isinstance(payload, list):
+        return [dict(row) for row in payload if isinstance(row, Mapping)]
+    raise ValueError(f"expected JSON list or object with runs list: {path}")
 
 
 def _mapping(value: object) -> Mapping[str, Any]:
@@ -587,6 +613,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--work-dir", default="artifacts/tmp/mapper_v3_low_bias_trace_oracle")
     parser.add_argument("--device", default="auto", choices=("auto", "cpu", "cuda", "mps"))
     parser.add_argument("--low-bias-limit", type=int, default=3)
+    parser.add_argument("--low-bias-threshold", type=float, default=LOW_BIAS_THRESHOLD)
+    parser.add_argument("--high-bias-threshold", type=float, default=HIGH_BIAS_THRESHOLD)
     parser.add_argument("--no-controls", action="store_true")
     parser.add_argument("--logit-top-k", type=int, default=5)
     parser.add_argument("--logit-max-examples", type=int, default=2048)
@@ -600,6 +628,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         work_dir=Path(args.work_dir),
         device=str(args.device),
         low_bias_limit=int(args.low_bias_limit),
+        low_bias_threshold=float(args.low_bias_threshold),
+        high_bias_threshold=float(args.high_bias_threshold),
         include_controls=not bool(args.no_controls),
         logit_top_k=int(args.logit_top_k),
         logit_max_examples=int(args.logit_max_examples),
