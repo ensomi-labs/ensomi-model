@@ -1,17 +1,21 @@
 import json
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 import pandas as pd
 
 from pulsefield_model.osu_core.context_adaptive_fallback_codec_audit import (
     _FallbackRecord,
+    _LzPolicy,
     _build_explicit_selector_plan,
     _build_lz_span_plan,
     _build_oracle_plan,
     _c1_bit_context,
+    _filter_lz_candidate_options_for_policy,
     _lz_candidates_by_record,
+    _lz_candidate_options_by_record,
     _mirror_order_signature_4,
     _mirror_mask_4,
     audit_c3_lz_hardening,
@@ -125,6 +129,37 @@ class ContextAdaptiveFallbackCodecAuditTests(unittest.TestCase):
         self.assertEqual(plan.reconstruction_mismatch_count, 0)
         self.assertEqual(plan.mode_codes[1], "lz_exact")
         self.assertLess(plan.replacement_bits[1], records[1].raw_bits)
+
+    def test_c3_policy_option_filter_matches_direct_smaller_window(self) -> None:
+        records = [_record(index, raw_bits=20.0, tap=1) for index in range(6)]
+        policy = _policy(window_fallbacks=2)
+        superset = _lz_candidate_options_by_record(
+            records,
+            policy=_policy(window_fallbacks=None),
+            max_span=2,
+        )
+        filtered = _filter_lz_candidate_options_for_policy(records, superset, policy=policy)
+        direct = _lz_candidate_options_by_record(records, policy=policy, max_span=2)
+
+        self.assertEqual(_candidate_signature(filtered), _candidate_signature(direct))
+
+    def test_c3_policy_option_filter_matches_direct_phase_filter(self) -> None:
+        records = [
+            replace(_record(0, raw_bits=20.0, tap=1), absolute_units=0, offset_units=0),
+            replace(_record(1, raw_bits=20.0, tap=1), absolute_units=24, offset_units=24),
+            replace(_record(2, raw_bits=20.0, tap=1), absolute_units=48, offset_units=0),
+            replace(_record(3, raw_bits=20.0, tap=1), absolute_units=72, offset_units=24),
+        ]
+        policy = _policy(window_fallbacks=8, phase_filter="same_offset")
+        superset = _lz_candidate_options_by_record(
+            records,
+            policy=_policy(window_fallbacks=None),
+            max_span=2,
+        )
+        filtered = _filter_lz_candidate_options_for_policy(records, superset, policy=policy)
+        direct = _lz_candidate_options_by_record(records, policy=policy, max_span=2)
+
+        self.assertEqual(_candidate_signature(filtered), _candidate_signature(direct))
 
     def test_c3_hardening_small_audit_writes_report_and_guard_rows(self) -> None:
         rows = [
@@ -253,6 +288,33 @@ def _record(
         title="t",
         version="v",
     )
+
+
+def _policy(*, window_fallbacks: int | None, phase_filter: str = "none") -> _LzPolicy:
+    return _LzPolicy(
+        name="test_policy",
+        label="test policy",
+        allowed_match_types=("exact", "mirror", "skeleton"),
+        activation="all",
+        window_fallbacks=window_fallbacks,
+        pointer_code="fixed_width",
+        phase_filter=phase_filter,
+    )
+
+
+def _candidate_signature(candidates: dict[int, tuple[object, ...]]) -> dict[int, list[tuple[str, int, int, float]]]:
+    return {
+        record_id: sorted(
+            (
+                candidate.match_type,
+                int(candidate.length),
+                int(candidate.distance),
+                float(candidate.residual_bits),
+            )
+            for candidate in values
+        )
+        for record_id, values in sorted(candidates.items())
+    }
 
 
 if __name__ == "__main__":

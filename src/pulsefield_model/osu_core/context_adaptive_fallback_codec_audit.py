@@ -1395,23 +1395,24 @@ def _build_c3_hardening_plans(
     policies = _c3_hardening_policies(window_fallbacks=window_fallbacks, wide_sweep=wide_sweep)
     plans: list[_CostPlan] = []
     diagnostic_rows: list[dict[str, Any]] = []
+    cached_match_types = ("exact", "mirror", "skeleton")
+    superset_policy = _LzPolicy(
+        name="c3_policy_option_superset",
+        label="C3 policy option superset",
+        allowed_match_types=cached_match_types,
+        activation="all",
+        window_fallbacks=_widest_policy_window(policies),
+        pointer_code="fixed_width",
+        phase_filter="none",
+    )
+    superset_options = _lz_candidate_options_by_record(records, policy=superset_policy, max_span=max_span)
     options_cache: dict[tuple[tuple[str, ...], int | None, str], dict[int, tuple[_LzCandidate, ...]]] = {}
     pointer_model_cache: dict[str, _C3PointerModel] = {}
     for policy in policies:
-        cached_match_types = ("exact", "mirror", "skeleton")
-        cache_key = (cached_match_types, policy.window_fallbacks, policy.phase_filter)
+        cache_key = (policy.allowed_match_types, policy.window_fallbacks, policy.phase_filter)
         options = options_cache.get(cache_key)
         if options is None:
-            option_policy = _LzPolicy(
-                name=f"{policy.name}_option_superset",
-                label=policy.label,
-                allowed_match_types=cached_match_types,
-                activation=policy.activation,
-                window_fallbacks=policy.window_fallbacks,
-                pointer_code=policy.pointer_code,
-                phase_filter=policy.phase_filter,
-            )
-            options = _lz_candidate_options_by_record(records, policy=option_policy, max_span=max_span)
+            options = _filter_lz_candidate_options_for_policy(records, superset_options, policy=policy)
             options_cache[cache_key] = options
         pointer_model = None
         table_model_cost_bits = policy.table_model_cost_bits
@@ -1445,6 +1446,12 @@ def _build_c3_hardening_plans(
             }
         )
     return plans, diagnostic_rows
+
+
+def _widest_policy_window(policies: Sequence[_LzPolicy]) -> int | None:
+    if any(policy.window_fallbacks is None for policy in policies):
+        return None
+    return max(int(policy.window_fallbacks) for policy in policies)
 
 
 def _c3_hardening_policies(*, window_fallbacks: int, wide_sweep: bool) -> list[_LzPolicy]:
@@ -1660,6 +1667,34 @@ def _lz_candidate_options_by_record(
             _append_index_candidate_for_policy(mirror_index[_mirror_atom_key(record)], index, policy.window_fallbacks)
             _append_index_candidate_for_policy(skeleton_index[_skeleton_key(record)], index, policy.window_fallbacks)
     return {record_id: tuple(candidates) for record_id, candidates in options.items()}
+
+
+def _filter_lz_candidate_options_for_policy(
+    records: Sequence[_FallbackRecord],
+    options_by_record: Mapping[int, Sequence[_LzCandidate]],
+    *,
+    policy: _LzPolicy,
+) -> dict[int, tuple[_LzCandidate, ...]]:
+    filtered: dict[int, list[_LzCandidate]] = defaultdict(list)
+    by_source: dict[int, list[_FallbackRecord]] = defaultdict(list)
+    for record in records:
+        by_source[record.source_row_index].append(record)
+    for source_records in by_source.values():
+        source_records.sort(key=lambda item: (item.segment_id, item.absolute_units, item.chunk_index, item.group_index))
+        for index, record in enumerate(source_records):
+            for candidate in options_by_record.get(record.id, ()):
+                if candidate.match_type not in policy.allowed_match_types:
+                    continue
+                if policy.window_fallbacks is not None and int(candidate.distance) > int(policy.window_fallbacks):
+                    continue
+                previous_index = index - int(candidate.distance)
+                if previous_index < 0:
+                    continue
+                previous = source_records[previous_index]
+                if not _lz_phase_filter_ok(record, previous, policy.phase_filter):
+                    continue
+                filtered[record.id].append(candidate)
+    return {record_id: tuple(candidates) for record_id, candidates in filtered.items()}
 
 
 def _recent_index_candidates_for_policy(indexes: deque[int], current_index: int, window_fallbacks: int | None) -> list[int]:
