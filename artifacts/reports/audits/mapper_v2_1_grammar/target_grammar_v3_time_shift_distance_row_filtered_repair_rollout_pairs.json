@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "pairs": [
+    {
+      "case_id": "31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial",
+      "beatmap_path": "dataset/0/1011337/Camellia - Beyond the Geostationary Orbit Level (Leniane) [Equatorial].osu",
+      "audio_path": "dataset/0/1011337/audio.mp3",
+      "chart_end_ms": 16000,
+      "normalized_difficulty": 0.56,
+      "source_v3_500step_summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_16000ms_summary.json",
+      "baseline_summary_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_16000ms_baseline_summary.json",
+      "baseline_report_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_16000ms_baseline_report.md",
+      "enabled_summary_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_16000ms_enabled_summary.json",
+      "enabled_report_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/31_camellia_beyond_the_geostationary_orbit_level_leniane_equatorial_16000ms_enabled_report.md"
+    },
+    {
+      "case_id": "03_namirin_kanzen_shouriesper_girl_tailsdk_ash_s_normal",
+      "beatmap_path": "dataset/0/1004416/namirin - Kanzen ShouriEsper Girl (tailsdk) [Ash's Normal].osu",
+      "audio_path": "dataset/0/1004416/audio.mp3",
+      "chart_end_ms": 16000,
+      "normalized_difficulty": -0.875,
+      "source_v3_500step_summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/03_namirin_kanzen_shouriesper_girl_tailsdk_ash_s_normal_16000ms_summary.json",
+      "baseline_summary_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/03_namirin_kanzen_shouriesper_girl_tailsdk_ash_s_normal_16000ms_baseline_summary.json",
+      "baseline_report_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/03_namirin_kanzen_shouriesper_girl_tailsdk_ash_s_normal_16000ms_baseline_report.md",
+      "enabled_summary_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/03_namirin_kanzen_shouriesper_girl_tailsdk_ash_s_normal_16000ms_enabled_summary.json",
+      "enabled_report_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/03_namirin_kanzen_shouriesper_girl_tailsdk_ash_s_normal_16000ms_enabled_report.md"
+    },
+    {
+      "case_id": "12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd",
+      "beatmap_path": "dataset/0/1000722/Ohara Yuiko - Zero Centimeters (TV Size) (-Mikan) [Asha's HD].osu",
+      "audio_path": "dataset/0/1000722/audio.mp3",
+      "chart_end_ms": 16000,
+      "normalized_difficulty": -0.45500000000000007,
+      "source_v3_500step_summary_path": "artifacts/tmp/mapper_v3_500step_fixed_slice_wide_audit/rollouts/12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd_16000ms_summary.json",
+      "baseline_summary_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd_16000ms_baseline_summary.json",
+      "baseline_report_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd_16000ms_baseline_report.md",
+      "enabled_summary_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd_16000ms_enabled_summary.json",
+      "enabled_report_path": "artifacts/tmp/mapper_v3_time_shift_distance_row_filtered_repair_rollout_gate/rollouts/12_ohara_yuiko_zero_centimeters_tv_size_mikan_asha_s_hd_16000ms_enabled_report.md"
+    }
+  ]
+}
