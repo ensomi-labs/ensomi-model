@@ -166,15 +166,20 @@ class MapperV3PhaseBTrainingTests(unittest.TestCase):
             path.write_text(
                 "\n".join(
                     [
-                        "model: {}",
+                        "model:",
+                        "  use_delta_event_auxiliary_target: true",
+                        "  delta_event_delta_max_ms: 4000",
+                        "  delta_event_end_gap_max_ms: 4000",
                         "control_model: {}",
                         "loss:",
                         "  lambda_event_budget: 0.1",
                         "  lambda_conditioned_event_distribution: 0.2",
                         "  lambda_time_shift_distance: 0.3",
+                        "  lambda_delta_event_auxiliary: 0.4",
                         "  event_token_loss_weight: 2.5",
                         "  conditioned_event_high_difficulty_over_weight: 3.0",
                         "  time_shift_distance_scale_ms: 500.0",
+                        "  delta_event_end_gap_loss_weight: 0.5",
                     ]
                 ),
                 encoding="utf-8",
@@ -182,18 +187,28 @@ class MapperV3PhaseBTrainingTests(unittest.TestCase):
 
             config = load_run_config(path)
 
+        self.assertTrue(config["model"]["use_delta_event_auxiliary_target"])
+        self.assertEqual(config["model"]["delta_event_delta_max_ms"], 4000)
+        self.assertEqual(config["model"]["delta_event_end_gap_max_ms"], 4000)
         self.assertEqual(config["loss"]["lambda_event_budget"], 0.1)
         self.assertEqual(config["loss"]["lambda_conditioned_event_distribution"], 0.2)
         self.assertEqual(config["loss"]["lambda_time_shift_distance"], 0.3)
+        self.assertEqual(config["loss"]["lambda_delta_event_auxiliary"], 0.4)
         self.assertEqual(config["loss"]["event_token_loss_weight"], 2.5)
         self.assertEqual(config["loss"]["conditioned_event_high_difficulty_over_weight"], 3.0)
         self.assertEqual(config["loss"]["time_shift_distance_scale_ms"], 500.0)
+        self.assertEqual(config["loss"]["delta_event_end_gap_loss_weight"], 0.5)
+        self.assertTrue(MapperV3Config(**config["model"]).use_delta_event_auxiliary_target)
+        self.assertEqual(MapperV3Config(**config["model"]).delta_event_delta_max_ms, 4000)
+        self.assertEqual(MapperV3Config(**config["model"]).delta_event_end_gap_max_ms, 4000)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_event_budget, 0.1)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_conditioned_event_distribution, 0.2)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_time_shift_distance, 0.3)
+        self.assertEqual(MapperV3LossConfig(**config["loss"]).lambda_delta_event_auxiliary, 0.4)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).event_token_loss_weight, 2.5)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).conditioned_event_high_difficulty_over_weight, 3.0)
         self.assertEqual(MapperV3LossConfig(**config["loss"]).time_shift_distance_scale_ms, 500.0)
+        self.assertEqual(MapperV3LossConfig(**config["loss"]).delta_event_end_gap_loss_weight, 0.5)
 
 
 def _assert_artifacts_paths(test: unittest.TestCase, config: dict[str, object], keys: tuple[str, ...]) -> None:

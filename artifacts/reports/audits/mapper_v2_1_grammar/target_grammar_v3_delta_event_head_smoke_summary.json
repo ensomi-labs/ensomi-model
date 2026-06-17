@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "experiment": "Target grammar v3 delta-event auxiliary head smoke",
+  "experiment_card": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_delta_event_head_smoke_experiment_card.md",
+  "date": "2026-06-17",
+  "decision": {
+    "route": "TEST_DELTA_EVENT_AUXILIARY_TINY_TRAINING_GATE",
+    "reason": "default-off v3 delta-event auxiliary model/loss plumbing passed focused smoke checks with finite loss and nonzero gradients",
+    "next_step": "Create a bounded tiny-training auxiliary objective gate before replacing v3 target grammar or touching rollout."
+  },
+  "scope": {
+    "dataset_slice": "tiny synthetic v3 teacher-forced unit-test window",
+    "training_run": false,
+    "rollout_run": false,
+    "tokenizer_changed": false,
+    "dataset_schema_changed": false,
+    "default_behavior_changed": false,
+    "uses_c3_backreference": false,
+    "uses_future_lookup": false
+  },
+  "checks": {
+    "experiment_card_exists_before_code": true,
+    "default_off_auxiliary_logits_absent": true,
+    "enabled_auxiliary_logits_shape_valid": true,
+    "enabled_auxiliary_loss_finite": true,
+    "event_labels_positive": true,
+    "end_gap_labels_positive": true,
+    "delta_head_gradient_nonzero": true,
+    "signature_head_gradient_nonzero": true,
+    "end_gap_head_gradient_nonzero": true,
+    "shared_decoder_gradient_nonzero": true,
+    "training_config_accepts_v3_model_and_loss_fields": true,
+    "focused_tests_pass": true,
+    "py_compile_pass": true
+  },
+  "metrics": {
+    "seq_len": 8,
+    "target_tokens": [
+      "TS_80",
+      "EV_1000",
+      "TS_100",
+      "TS_60",
+      "EV_0100",
+      "TS_700",
+      "TS_60",
+      "EOS"
+    ],
+    "delta_logits_shape": [
+      1,
+      8,
+      801
+    ],
+    "signature_logits_shape": [
+      1,
+      8,
+      255
+    ],
+    "end_gap_logits_shape": [
+      1,
+      8,
+      801
+    ],
+    "delta_class_count": 801,
+    "signature_class_count": 255,
+    "end_gap_class_count": 801,
+    "event_label_count": 2,
+    "end_gap_label_count": 1,
+    "loss_total": 8.43400764465332,
+    "loss_delta_event_auxiliary": 13.809816360473633,
+    "delta_head_grad_abs": 2.958763360977173,
+    "signature_head_grad_abs": 2.948093891143799,
+    "end_gap_head_grad_abs": 6.343822479248047,
+    "token_embedding_grad_abs": 1.6204383373260498
+  },
+  "commands": [
+    {
+      "command": "uv run python -m py_compile src/pulsefield_model/models/mapper/v3/model.py src/pulsefield_model/models/mapper/v3/loss.py src/pulsefield_model/training/mapper_v3.py",
+      "result": "passed"
+    },
+    {
+      "command": "uv run --group dev pytest tests/models/mapper/v3/test_model.py tests/training/test_mapper_v3.py -q",
+      "result": "27 passed in 0.90s"
+    },
+    {
+      "command": "uv run --group dev pytest tests/models/mapper/v3 tests/evals/test_target_grammar_v3_delta_event_proxy_audit.py tests/training/test_mapper_v3.py -q",
+      "result": "40 passed in 0.83s"
+    }
+  ],
+  "what_passed": [
+    "The auxiliary heads are default-off and absent from normal v3 forward output.",
+    "When enabled, delta/event/end-gap logits have expected shapes.",
+    "Teacher-forced labels can be derived from existing v3 target fragments and replay state.",
+    "Auxiliary loss is finite and produces nonzero gradients for all new heads and the shared decoder path.",
+    "Mapper v3 run config accepts the new model/loss knobs."
+  ],
+  "what_surfaced": [
+    "The current v3 sequence still includes standalone time-shift rows; the auxiliary labels are only attached to event rows and a sample end row.",
+    "This is a plumbing smoke only. It does not prove learnability, rollout behavior, full-dataset label coverage, or target replacement readiness.",
+    "The next useful gate is a tiny training run for the auxiliary objective, not direct rollout or default grammar replacement."
+  ]
+}

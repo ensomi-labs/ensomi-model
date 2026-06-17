@@ -45,11 +45,16 @@ class MapperV3Config(MapperV2Config):
     """
 
     max_seq_len: int = 1024
+    use_delta_event_auxiliary_target: bool = False
+    delta_event_delta_max_ms: int = 8000
+    delta_event_end_gap_max_ms: int = 8000
 
 
 @dataclass(frozen=True)
 class MapperV3ForwardOutput(MapperV2ForwardOutput):
-    pass
+    delta_event_delta_logits: torch.Tensor | None = None
+    delta_event_signature_logits: torch.Tensor | None = None
+    delta_event_end_gap_logits: torch.Tensor | None = None
 
 
 MapperV3ModelOutput = MapperV3ForwardOutput
@@ -89,6 +94,21 @@ class MapperV3Model(MapperV2Model):
         super().__init__(config, vocab=resolved_vocab, control_encoder=control_encoder)
         self.config: MapperV3Config = config
         self.vocab: MapperV3Vocab = resolved_vocab
+        self.delta_event_delta_head: nn.Linear | None = None
+        self.delta_event_signature_head: nn.Linear | None = None
+        self.delta_event_end_gap_head: nn.Linear | None = None
+        if config.use_delta_event_auxiliary_target:
+            delta_classes = _delta_event_class_count(
+                config.delta_event_delta_max_ms,
+                name="delta_event_delta_max_ms",
+            )
+            end_gap_classes = _delta_event_class_count(
+                config.delta_event_end_gap_max_ms,
+                name="delta_event_end_gap_max_ms",
+            )
+            self.delta_event_delta_head = nn.Linear(config.d_model, delta_classes)
+            self.delta_event_signature_head = nn.Linear(config.d_model, len(self.vocab.event_token_ids))
+            self.delta_event_end_gap_head = nn.Linear(config.d_model, end_gap_classes)
 
     def forward(
         self,
@@ -268,6 +288,9 @@ class MapperV3Model(MapperV2Model):
         else:
             grammar_mask = torch.zeros_like(base_logits)
         logits_final = base_logits + state_prior.vocab_bias + ln_close.event_bias + ln_close.time_shift_bias + grammar_mask
+        delta_event_delta_logits, delta_event_signature_logits, delta_event_end_gap_logits = (
+            self._delta_event_auxiliary_logits(decoder_hidden)
+        )
         return MapperV3ForwardOutput(
             decoder_input_tokens=decoder_input,
             loss_target_tokens=loss_target_tokens,
@@ -290,6 +313,27 @@ class MapperV3Model(MapperV2Model):
             global_memory_padding_mask=global_memory_padding_mask,
             global_attention_gates=self._global_attention_gates(device=device, enabled=global_memory is not None),
             global_position_features=global_position_features,
+            delta_event_delta_logits=delta_event_delta_logits,
+            delta_event_signature_logits=delta_event_signature_logits,
+            delta_event_end_gap_logits=delta_event_end_gap_logits,
+        )
+
+    def _delta_event_auxiliary_logits(
+        self,
+        decoder_hidden: torch.Tensor,
+    ) -> tuple[torch.Tensor | None, torch.Tensor | None, torch.Tensor | None]:
+        if not self.config.use_delta_event_auxiliary_target:
+            return None, None, None
+        if self.delta_event_delta_head is None:
+            raise RuntimeError("delta-event delta head is not initialized")
+        if self.delta_event_signature_head is None:
+            raise RuntimeError("delta-event signature head is not initialized")
+        if self.delta_event_end_gap_head is None:
+            raise RuntimeError("delta-event end-gap head is not initialized")
+        return (
+            self.delta_event_delta_head(decoder_hidden),
+            self.delta_event_signature_head(decoder_hidden),
+            self.delta_event_end_gap_head(decoder_hidden),
         )
 
     def _difficulty(self, batch: Mapping[str, Any], *, device: torch.device) -> torch.Tensor:
@@ -582,6 +626,13 @@ class MapperV3Model(MapperV2Model):
             grammar_mask=grammar_mask[:, 0],
             global_attention_gates=self._global_attention_gates(device=device, enabled=global_memory is not None),
         )
+
+
+def _delta_event_class_count(max_ms: int, *, name: str) -> int:
+    value = int(max_ms)
+    if value <= 0 or value % 10 != 0:
+        raise ValueError(f"{name} must be a positive 10ms-grid value")
+    return value // 10 + 1
 
 
 __all__ = [
