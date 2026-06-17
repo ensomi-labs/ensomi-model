@@ -1,0 +1,330 @@
+{
+  "checks": {
+    "antirigid_decode_killed": true,
+    "broad_antirigid_median_event_ratio": 1.4123306233062332,
+    "c3_as_target_killed": true,
+    "c3_route": "MUTATE_TO_V3_GRAMMAR_REPAIR",
+    "ce_density_positive_cases": 1,
+    "ce_weight_partial_not_promoted": true,
+    "ce_weight_route": "MUTATE",
+    "event_budget_max_token_count": 4,
+    "event_budget_route": "MUTATE",
+    "global_event_budget_failed": true,
+    "killed_decode_family_count": 4,
+    "killed_decode_keys": [
+      "ce_density_trace",
+      "ce_antirigid_full32",
+      "ce_antirigid_soft_full32",
+      "ce_tap_only_antirigid_full32"
+    ],
+    "pipeline_mechanics_ready": true,
+    "real_audio_quality_ready": false,
+    "representation_ready": true,
+    "required_present": true,
+    "scalar_objective_not_solved": true,
+    "selective_trace_narrow": true,
+    "simple_decode_family_killed": true,
+    "tap_only_dead_end_count": 1,
+    "tap_only_median_event_ratio": 1.3935272045028142,
+    "tap_only_route": "KILL"
+  },
+  "decision": {
+    "interpretation": "The next smallest v3 repair is not another selector. It should test a conditioned event-distribution objective with explicit overgeneration and legality guards before redesigning the grammar.",
+    "next_card": "target_grammar_v3_conditioned_event_distribution_objective",
+    "next_step": "Create a conditioned event-distribution objective plumbing card with high-difficulty overgeneration guards.",
+    "reason": "representation and pipeline mechanics passed, simple decode branches are killed, and global scalar event-distribution objectives did not solve the rollout gates",
+    "route": "TEST_CONDITIONED_EVENT_DISTRIBUTION_OBJECTIVE"
+  },
+  "elapsed_s": 0.004491625004447997,
+  "evidence": [
+    {
+      "exists": true,
+      "family": "representation",
+      "key": "v3_full_dataset",
+      "metrics": {
+        "reconstruction_zero": true
+      },
+      "next_step": "Create the v3 dataset/model/training/inference replacement Experiment Card.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_full_dataset_audit_summary.json",
+      "raw": {
+        "decision": {
+          "interpretation": "The v3 event-token grammar passed the audit gate: exact reconstruction holds on the audited scope, target streams are shorter, and the simple total-bit proxy improves. This permits the next representation gate, but trained mapper quality still needs full-pipeline validation.",
+          "kill_criteria_triggered": false,
+          "next_step": "Create the v3 dataset/model/training/inference replacement Experiment Card.",
+          "positive_gate_passed": true,
+          "route": "TEST_NEXT"
+        }
+      },
+      "reason": null,
+      "required": true,
+      "route": "TEST_NEXT"
+    },
+    {
+      "exists": true,
+      "family": "pipeline",
+      "key": "v3_real_config",
+      "metrics": {},
+      "next_step": "Run a longer cache-backed v3 real-config training/inference comparison or a trained full-song inference/session-runtime gate.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_real_config_cache_backed_comparison_summary.json",
+      "raw": {
+        "decision": "TEST_NEXT"
+      },
+      "reason": "all real-config cache-backed comparison gates passed",
+      "required": true,
+      "route": "TEST_NEXT"
+    },
+    {
+      "exists": true,
+      "family": "pipeline",
+      "key": "v3_real_audio",
+      "metrics": {
+        "completed": true,
+        "timepoint_count": 0
+      },
+      "next_step": "Run longer v3 training and compare real-song v3 inference against v2.1; do not replace defaults until event generation quality improves.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_real_audio_session_rollout_summary.json",
+      "raw": {
+        "decision": "TEST_NEXT"
+      },
+      "reason": "20-step real-config v3 training and real-audio session rollout gates passed",
+      "required": true,
+      "route": "TEST_NEXT"
+    },
+    {
+      "exists": true,
+      "family": "training_objective",
+      "key": "density_loss",
+      "metrics": {},
+      "next_step": null,
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_density_loss_effectiveness_diagnostic_summary.json",
+      "raw": {
+        "decision": {
+          "reason": "Density loss was active but eval density did not improve while token loss improved; next mutation needs stronger event-distribution calibration with rollout gates.",
+          "recommended_next_card": "v3 event-distribution calibration: density-weight/count-continuity sweep on fixed-slice clusters",
+          "route": "TEST_NEXT"
+        }
+      },
+      "reason": "Density loss was active but eval density did not improve while token loss improved; next mutation needs stronger event-distribution calibration with rollout gates.",
+      "required": true,
+      "route": "TEST_NEXT"
+    },
+    {
+      "exists": true,
+      "family": "training_objective",
+      "key": "event_budget_0_05",
+      "metrics": {
+        "max_token_hit_case_count": 4,
+        "median_event_count_ratio": 0.7164179104477612,
+        "second_window_starved_case_count": 18
+      },
+      "next_step": "Do not scale lambda_event_budget=0.05. Mutate to a lower or conditioned event-budget objective with high-difficulty overgeneration guards.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_budget_training_gate_summary.json",
+      "raw": {
+        "decision": {
+          "next_step": "Do not scale lambda_event_budget=0.05. Mutate to a lower or conditioned event-budget objective with high-difficulty overgeneration guards.",
+          "reason": "failed checks: all_32_rollouts_legal, no_max_token_cases, starved_cases_below_baseline_11, rigid_cases_no_worse_than_baseline_7, median_event_ratio_in_0_80_1_25, max_boundary_ratio_no_worse_than_baseline_0_200",
+          "route": "MUTATE",
+          "selected_variant_result": "FAIL_ROLLOUT_GATE"
+        }
+      },
+      "reason": "failed checks: all_32_rollouts_legal, no_max_token_cases, starved_cases_below_baseline_11, rigid_cases_no_worse_than_baseline_7, median_event_ratio_in_0_80_1_25, max_boundary_ratio_no_worse_than_baseline_0_200",
+      "required": true,
+      "route": "MUTATE"
+    },
+    {
+      "exists": true,
+      "family": "training_objective",
+      "key": "ce_weight",
+      "metrics": {
+        "median_event_count_ratio": 1.1561079925153703,
+        "rigid_case_count": 11,
+        "second_window_starved_case_count": 5
+      },
+      "next_step": "Mutate v3 toward timing-diversity or grammar-level anti-rigid continuation while keeping CE weighting as a possible ingredient, not a standalone promotion.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_event_token_ce_weight_training_gate_summary.json",
+      "raw": {
+        "decision": {
+          "reason": "event CE weighting reduced starvation but worsened rigid-grid cases beyond the baseline gate",
+          "route": "MUTATE"
+        }
+      },
+      "reason": "event CE weighting reduced starvation but worsened rigid-grid cases beyond the baseline gate",
+      "required": true,
+      "route": "MUTATE"
+    },
+    {
+      "exists": true,
+      "family": "trace_oracle",
+      "key": "ce_residual_cluster",
+      "metrics": {},
+      "next_step": "Create a bounded event-ranking calibration card on the fixed 32-case slice.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_ce_residual_cluster_diagnostic_summary.json",
+      "raw": {
+        "decision": {
+          "interpretation": "The evidence favors event-ranking calibration. Test a decode-time or target-side rank objective before changing the v3 grammar.",
+          "next_step": "Create a bounded event-ranking calibration card on the fixed 32-case slice.",
+          "reason": "event candidates are often rank-near but underselected",
+          "route": "TEST_EVENT_RANKING_CALIBRATION"
+        }
+      },
+      "reason": "event candidates are often rank-near but underselected",
+      "required": true,
+      "route": "TEST_EVENT_RANKING_CALIBRATION"
+    },
+    {
+      "exists": true,
+      "family": "trace_oracle",
+      "key": "ce_margin",
+      "metrics": {},
+      "next_step": "Add per-step trace/oracle instrumentation for the low-bias starved cases.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_ce_event_margin_viability_summary.json",
+      "raw": {
+        "decision": {
+          "interpretation": "A global event bonus is not well supported, but some starved cases may be close enough for a selective state-aware selector. The current summaries are too coarse to define that selector safely.",
+          "next_step": "Add per-step trace/oracle instrumentation for the low-bias starved cases.",
+          "reason": "5/5 starved cases are low-bias, but the class is mixed",
+          "rigid_gt4_share": 0.0,
+          "route": "TEST_SELECTIVE_TRACE_ORACLE",
+          "starved_gt4_share": 0.0,
+          "starved_gt6_share": 0.0
+        }
+      },
+      "reason": "5/5 starved cases are low-bias, but the class is mixed",
+      "required": true,
+      "route": "TEST_SELECTIVE_TRACE_ORACLE"
+    },
+    {
+      "exists": true,
+      "family": "decode_selector",
+      "key": "ce_selective_trace",
+      "metrics": {},
+      "next_step": "Either add density/control-aware trace fields or pivot to v2.1 grammar improvement.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_ce_selective_trace_oracle_summary.json",
+      "raw": {
+        "decision": {
+          "interpretation": "A simple selective gate is weakly supported at best. More context features are needed before changing decode behavior.",
+          "next_step": "Either add density/control-aware trace fields or pivot to v2.1 grammar improvement.",
+          "reason": "only 1/5 low-bias starved cases have enough second-window opportunities",
+          "route": "TEST_DENSITY_AWARE_TRACE"
+        }
+      },
+      "reason": "only 1/5 low-bias starved cases have enough second-window opportunities",
+      "required": true,
+      "route": "TEST_DENSITY_AWARE_TRACE"
+    },
+    {
+      "exists": true,
+      "family": "decode_selector",
+      "key": "ce_density_trace",
+      "metrics": {
+        "low_bias_starved_case_count": 5,
+        "positive_low_bias_starved_case_count": 1
+      },
+      "next_step": "Pivot to target-grammar/training repair, or add richer control/audio trace fields only if they define a concrete guard.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_ce_density_trace_diagnostic_summary.json",
+      "raw": {
+        "decision": {
+          "interpretation": "Density context explains a narrow subset, but not enough of the remaining CE-starved failures to justify another simple selector.",
+          "next_step": "Pivot to target-grammar/training repair, or add richer control/audio trace fields only if they define a concrete guard.",
+          "reason": "only 1/5 CE-starved cases have sparse-context opportunity coverage",
+          "route": "MUTATE_TO_TARGET_GRAMMAR_OR_TRAINING_REPAIR"
+        }
+      },
+      "reason": "only 1/5 CE-starved cases have sparse-context opportunity coverage",
+      "required": true,
+      "route": "MUTATE_TO_TARGET_GRAMMAR_OR_TRAINING_REPAIR"
+    },
+    {
+      "exists": true,
+      "family": "decode_policy",
+      "key": "ce_antirigid_full32",
+      "metrics": {
+        "dead_end_count": 0,
+        "median_event_count_ratio": 1.4123306233062332,
+        "rigid_case_count": 0,
+        "starved_count": 1
+      },
+      "next_step": "Do not scale this hard-block policy; inspect full-32 failures or mutate to finite/tap-only decoding.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_ce_antirigid_full32_summary.json",
+      "raw": {
+        "decision": {
+          "next_step": "Do not scale this hard-block policy; inspect full-32 failures or mutate to finite/tap-only decoding.",
+          "reason": "full-32 hard-block anti-rigid decode failed an original fixed-slice gate",
+          "route": "KILL"
+        }
+      },
+      "reason": "full-32 hard-block anti-rigid decode failed an original fixed-slice gate",
+      "required": true,
+      "route": "KILL"
+    },
+    {
+      "exists": true,
+      "family": "decode_policy",
+      "key": "ce_antirigid_soft_full32",
+      "metrics": {
+        "dead_end_count": 0,
+        "median_event_count_ratio": 1.4123306233062332,
+        "rigid_case_count": 0,
+        "starved_count": 1
+      },
+      "next_step": "Do not scale this soft-penalty-4 policy; inspect full-32 failures or mutate decode/training strategy.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_ce_antirigid_soft_full32_summary.json",
+      "raw": {
+        "decision": {
+          "next_step": "Do not scale this soft-penalty-4 policy; inspect full-32 failures or mutate decode/training strategy.",
+          "reason": "full-32 soft-penalty-4 anti-rigid decode failed an original fixed-slice gate",
+          "route": "KILL"
+        }
+      },
+      "reason": "full-32 soft-penalty-4 anti-rigid decode failed an original fixed-slice gate",
+      "required": true,
+      "route": "KILL"
+    },
+    {
+      "exists": true,
+      "family": "decode_policy",
+      "key": "ce_tap_only_antirigid_full32",
+      "metrics": {
+        "dead_end_count": 1,
+        "median_event_count_ratio": 1.3935272045028142,
+        "rigid_case_count": 1,
+        "starved_count": 5
+      },
+      "next_step": "Do not scale this hard-block policy; inspect full-32 failures or mutate decode/training strategy.",
+      "path": "artifacts/reports/audits/mapper_v2_1_grammar/target_grammar_v3_ce_tap_only_antirigid_full32_summary.json",
+      "raw": {
+        "decision": {
+          "next_step": "Do not scale this hard-block policy; inspect full-32 failures or mutate decode/training strategy.",
+          "reason": "full-32 hard-block anti-rigid decode failed an original fixed-slice gate",
+          "route": "KILL"
+        }
+      },
+      "reason": "full-32 hard-block anti-rigid decode failed an original fixed-slice gate",
+      "required": true,
+      "route": "KILL"
+    },
+    {
+      "exists": true,
+      "family": "c3_route",
+      "key": "c3_v3_complexity",
+      "metrics": {},
+      "next_step": "Focus the next bounded experiment on v3/v2.1 grammar repair and trained rollout failure clusters.",
+      "path": "artifacts/reports/audits/context_adaptive_fallback_codec/c3_v3_target_complexity_comparison_summary.json",
+      "raw": {
+        "decision": {
+          "next_step": "Focus the next bounded experiment on v3/v2.1 grammar repair and trained rollout failure clusters.",
+          "reason": "C3 remains reconstructive but side-stream/state costs are not target-grammar competitive with v3",
+          "route": "MUTATE_TO_V3_GRAMMAR_REPAIR"
+        }
+      },
+      "reason": "C3 remains reconstructive but side-stream/state costs are not target-grammar competitive with v3",
+      "required": true,
+      "route": "MUTATE_TO_V3_GRAMMAR_REPAIR"
+    }
+  ],
+  "experiment": "Target grammar v3 post-CE route synthesis",
+  "missing_required_count": 0,
+  "next_card": "target_grammar_v3_conditioned_event_distribution_objective",
+  "schema_version": 1,
+  "source_count": 14
+}
