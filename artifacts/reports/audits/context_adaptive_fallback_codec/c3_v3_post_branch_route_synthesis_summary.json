@@ -1,0 +1,45 @@
+{
+  "experiment": "c3_v3_post_branch_route_synthesis",
+  "decision": "TEST_NEXT_C3_SIDE_STREAM",
+  "artifact_only": true,
+  "training_rerun": false,
+  "rollout_rerun": false,
+  "source_code_changed": false,
+  "c3": {
+    "status": "promote_to_side_stream_integration_audit",
+    "name": "r0_delta + LZ fallback-substream codec",
+    "baseline_bits_per_event": 4.421714207191301,
+    "selected_variant": "a2_skeleton_residual_all_fallback_w256",
+    "selected_bits_per_event": 4.0368045441872065,
+    "delta_bits_per_event": -0.3849096630040947,
+    "same_song_filtered_delta_bits_per_event": -0.38592890137466185,
+    "bootstrap_ci_95": [-0.4235772949889358, -0.34584630062559635],
+    "clean_active_hold_trace_delta_bits_per_event": -0.3809793375551669,
+    "dirty_active_hold_trace_delta_bits_per_event": -0.43255187244188775,
+    "full_reconstruction_guards_zero": true,
+    "exact_only_delta_bits_per_event": -0.2785859452434707,
+    "side_stream_shaped": true
+  },
+  "v3": {
+    "status": "keep_as_local_target_grammar_candidate_not_replacement_ready",
+    "full_dataset_reconstruction_mismatches": 0,
+    "token_reduction_percent": 20.54,
+    "eval_total_bit_reduction_percent": 5.43,
+    "fixed_slice_starved_cases": 11,
+    "fixed_slice_rigid_cases": 7,
+    "failed_mutations": [
+      "density_weight_0_20",
+      "event_budget_0_05",
+      "continuation_jump_0_05",
+      "selective_event_gate",
+      "global_event_bonus"
+    ]
+  },
+  "v21_anti_rigid": {
+    "status": "close_branch_for_now",
+    "hard_block_fixed_slice_mean_f1_delta": -0.036,
+    "hard_block_rigid_improved_cases": "30/32",
+    "known_failure": "simple suppression cannot choose between skipping LN suppression and intervening on LN-pattern dead-end cases"
+  },
+  "next_audit_target": "legal pipeline-facing C3 target-side side stream or grammar extension with deterministic reconstruction, bounded sequence/state cost, and no inference-time target leakage"
+}
