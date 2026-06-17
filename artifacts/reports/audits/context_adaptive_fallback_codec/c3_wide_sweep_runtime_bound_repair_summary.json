@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "experiment": "C3 wide-sweep runtime-bound repair",
+  "decision": {
+    "route": "TEST_NEXT",
+    "reason": "Shared largest-window candidate options made the full A6/A7/A8 wide sweep complete within the 20 minute audit budget while preserving hardening gates."
+  },
+  "code_commit": "c71c22141768d97bac03b695a8e0021f4e4ea12f",
+  "audit_harness_changed": true,
+  "mapper_tokenizer_behavior_changed": false,
+  "mapper_defaults_changed": false,
+  "tests": {
+    "focused": "10 passed in 0.86s",
+    "broader_guard": "21 passed in 0.91s"
+  },
+  "limited_wide_smoke": {
+    "completed": true,
+    "elapsed_s": 3.366161124984501,
+    "all_wide_variant_families_present": true
+  },
+  "full_wide_audit": {
+    "completed": true,
+    "elapsed_s": 819.0450222920044,
+    "limited": false,
+    "c3_wide_sweep": true,
+    "selected_variant": "a2_skeleton_residual_all_fallback_w256",
+    "research_promotion_pass": true,
+    "engineering_promotion_pass": true,
+    "hard_reconstruction_mismatches": 0,
+    "selected_test_delta_bits_per_event": -0.3849096630040947,
+    "same_song_filtered_delta_bits_per_event": -0.38592890137466185,
+    "clean_trace_test_delta_bits_per_event": -0.3809793375551669,
+    "bootstrap_95pct_delta_bits_per_event": [
+      -0.4235772949889358,
+      -0.34584630062559635
+    ]
+  },
+  "a6_window_sweep_delta_bits_per_event": {
+    "a6_active_all_fixed_w16": -0.17160129504005273,
+    "a6_active_all_fixed_w32": -0.20256685167133437,
+    "a6_active_all_fixed_w64": -0.22649303830854528,
+    "a6_active_all_fixed_w128": -0.23783549837040585,
+    "a6_active_all_fixed_w512": -0.2440259369618829,
+    "a6_active_all_fixed_w1024": -0.23841577518529888,
+    "a6_active_all_fixed_full_history": -0.2682654572065113
+  },
+  "a7_pointer_code_delta_bits_per_event": {
+    "a7_active_all_elias_gamma_w256": -0.24825851104511987,
+    "a7_active_all_elias_delta_w256": -0.24476655201139685,
+    "a7_active_all_power_bucket_w256": -0.2351306921141303,
+    "a7_active_all_train_fitted_w256": -0.24349222205415888,
+    "a7_active_all_online_adaptive_w256": -0.09853275142624174
+  },
+  "a8_source_filter_delta_bits_per_event": {
+    "a8_active_all_fixed_same_offset_w256": -0.20670045531494186,
+    "a8_active_all_fixed_same_bar_phase_w256": -0.21168230393201704
+  },
+  "next_loop": "Move from codec-side verification to one legal mapper-facing C3 exposure path."
+}
