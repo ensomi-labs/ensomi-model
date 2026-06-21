@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - /schema/training/mapper_tuple@_global_
+  - /hydra/default
+  - _self_
+

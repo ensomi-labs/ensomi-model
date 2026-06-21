@@ -122,7 +122,12 @@ class TimingMockOsuExportTests(unittest.TestCase):
                 return_value=_timing_report(),
             ):
                 with contextlib.redirect_stdout(stdout):
-                    exit_code = main([audio_path.as_posix(), "--output-dir", (root / "out").as_posix()])
+                    exit_code = main(
+                        [
+                            f"audio_path={audio_path.as_posix()}",
+                            f"output_dir={(root / 'out').as_posix()}",
+                        ]
+                    )
 
         payload = json.loads(stdout.getvalue())
         self.assertEqual(exit_code, 0)

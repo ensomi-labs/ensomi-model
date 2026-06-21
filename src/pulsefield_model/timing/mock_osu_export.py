@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import json
 import math
 import os
@@ -9,11 +8,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Sequence
 
+import hydra
+from omegaconf import DictConfig
+
+from pulsefield_model.cli.configs import MockOsuExportTimingConfig, register_configs
+from pulsefield_model.cli.hydra_utils import compose_cli_config, to_config_object
 from pulsefield_model.events.canonical import CanonicalTimepoint
 from pulsefield_model.events.canonical import LaneAction as CanonicalLaneAction
 from pulsefield_model.inference.osu_export import OsuExportMetadata, format_osu_export
 from pulsefield_model.timing.canonicalization import (
-    TIMING_CANONICALIZATION_CHOICES,
     TIMING_CANONICALIZATION_NONE,
 )
 from pulsefield_model.timing.fit_audio import fit_audio_file
@@ -27,6 +30,9 @@ from pulsefield_model.timing.schema import FittedTimingGrid, TimingSegment
 
 DEFAULT_OUTPUT_DIR = Path("artifacts/timing_mock_beatmaps")
 MOCK_PATTERN_LABEL = "[0011] [1100]"
+_CONFIG_NAME = "timing/mock_osu_export"
+
+register_configs()
 _MOCK_PATTERNS = (
     (
         CanonicalLaneAction.NONE,
@@ -186,74 +192,52 @@ def build_mock_beat_grid_timepoints(
     )
 
 
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> int:
+    return run_mock_osu_export_from_config(config)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = _build_arg_parser()
-    args = parser.parse_args(argv)
+    if argv is None:
+        return _hydra_main()
+    return run_mock_osu_export_from_config(compose_cli_config(_CONFIG_NAME, argv))
+
+
+def run_mock_osu_export_from_config(config: MockOsuExportTimingConfig | DictConfig) -> int:
+    cfg = to_config_object(config, MockOsuExportTimingConfig)
     result = create_timing_mock_beatmap(
-        args.audio_path,
-        output_dir=args.output_dir,
-        checkpoint_path=args.checkpoint,
-        device=args.device,
-        float16=args.float16,
-        fitter_config=_fitter_config_from_args(args),
-        start_ms=args.start_ms,
-        end_ms=args.end_ms,
-        max_beats=args.max_beats,
-        title=args.title,
-        artist=args.artist,
-        creator=args.creator,
-        version=args.version,
+        cfg.audio_path,
+        output_dir=Path(cfg.output_dir),
+        checkpoint_path=cfg.checkpoint,
+        device=cfg.device,
+        float16=cfg.float16,
+        fitter_config=_fitter_config_from_config(cfg),
+        start_ms=cfg.start_ms,
+        end_ms=cfg.end_ms,
+        max_beats=cfg.max_beats,
+        title=cfg.title,
+        artist=cfg.artist,
+        creator=cfg.creator,
+        version=cfg.version,
     )
     print(json.dumps(result, allow_nan=False, indent=2, sort_keys=True))
     return 0
 
 
-def _build_arg_parser() -> argparse.ArgumentParser:
-    default_config = GridFitterConfig()
-    parser = argparse.ArgumentParser(
-        description="Fit audio timing and write a mock osu!mania map with [0011] [1100] taps on the beat grid.",
-    )
-    parser.add_argument("audio_path", type=Path)
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    parser.add_argument("--checkpoint", default=DEFAULT_BEATTHIS_CHECKPOINT)
-    parser.add_argument("--device", default=DEFAULT_BEATTHIS_DEVICE)
-    parser.add_argument("--float16", action="store_true")
-    parser.add_argument("--start-ms", type=int, default=0)
-    parser.add_argument("--end-ms", type=int, default=None)
-    parser.add_argument("--max-beats", type=int, default=None)
-    parser.add_argument("--title", default=None)
-    parser.add_argument("--artist", default="Unknown Artist")
-    parser.add_argument("--creator", default="Pulsefield Timing Mock")
-    parser.add_argument("--version", default="Timing grid mock [0011] [1100]")
-    parser.add_argument("--min-bpm", type=float, default=default_config.min_bpm)
-    parser.add_argument("--max-bpm", type=float, default=default_config.max_bpm)
-    parser.add_argument("--max-segments", type=int, default=default_config.max_segments)
-    parser.add_argument("--double-tempo-score-ratio-threshold", type=float, default=None)
-    parser.add_argument(
-        "--canonicalization",
-        nargs="?",
-        const=default_config.canonicalization,
-        default=default_config.canonicalization,
-        choices=TIMING_CANONICALIZATION_CHOICES,
-        help="Fold fitted BPMs into the default canonical band; pass 'none' to leave timing unchanged.",
-    )
-    return parser
-
-
-def _fitter_config_from_args(args: argparse.Namespace) -> GridFitterConfig:
+def _fitter_config_from_config(config: MockOsuExportTimingConfig) -> GridFitterConfig:
     default_config = GridFitterConfig()
     double_tempo_threshold = (
         default_config.double_tempo_score_ratio_threshold
-        if args.double_tempo_score_ratio_threshold is None
-        else args.double_tempo_score_ratio_threshold
+        if config.double_tempo_score_ratio_threshold is None
+        else config.double_tempo_score_ratio_threshold
     )
     return GridFitterConfig(
-        min_bpm=args.min_bpm,
-        max_bpm=args.max_bpm,
-        max_segments=args.max_segments,
+        min_bpm=config.min_bpm,
+        max_bpm=config.max_bpm,
+        max_segments=config.max_segments,
         double_tempo_score_ratio_threshold=double_tempo_threshold,
-        canonicalization=args.canonicalization,
-        canonicalize_tempo_aliases=args.canonicalization == TIMING_CANONICALIZATION_NONE,
+        canonicalization=config.canonicalization,
+        canonicalize_tempo_aliases=config.canonicalization == TIMING_CANONICALIZATION_NONE,
     )
 
 

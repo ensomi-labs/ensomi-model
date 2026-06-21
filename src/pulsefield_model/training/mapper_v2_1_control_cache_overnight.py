@@ -1,17 +1,19 @@
 from __future__ import annotations
 
-import argparse
 import signal
 import shlex
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Mapping, Sequence
 
+import hydra
 import yaml
+from omegaconf import DictConfig, OmegaConf
 
-from pulsefield_model.training.overnight import load_config
+from pulsefield_model.cli.configs import MapperV21ControlCacheOvernightConfig
+from pulsefield_model.cli.hydra_utils import compose_cli_config, compose_config, to_config_object
 from pulsefield_model.training.overnight import sleep_until_stop_or_timeout
 from pulsefield_model.training.overnight import terminate_process_group
 
@@ -20,6 +22,7 @@ DEFAULT_CONFIG_PATH = Path("configs/training/stage2_mapper_v2_1_phase_b_sparse_g
 DEFAULT_UV_COMMAND = "uv run --extra mps python -m pulsefield_model.training.mapper_v2_1"
 DEFAULT_CONTROL_TEACHER_PRECOMPUTE_BATCH_SIZE = 24
 DEFAULT_MAX_RUNS = 16000
+_CONFIG_NAME = "training/mapper_v2_1_control_cache_overnight"
 
 
 def write_cache_child_config(
@@ -37,9 +40,8 @@ def write_cache_child_config(
     config_path.write_text(yaml.safe_dump(child_config, sort_keys=False), encoding="utf-8")
 
 
-def run_supervisor(args: argparse.Namespace, trainer_args: Sequence[str]) -> int:
-    config_path = Path(args.config)
-    base_config = load_config(config_path)
+def run_supervisor(args: MapperV21ControlCacheOvernightConfig, trainer_args: Sequence[str]) -> int:
+    base_config = _load_training_config(args)
     output_dir = Path(args.output_dir or base_config.get("output_dir", "artifacts/runs/stage2_mapper_v2_1/overnight"))
     output_dir.mkdir(parents=True, exist_ok=True)
     supervisor_dir = output_dir / "overnight_control_cache_supervisor"
@@ -81,9 +83,8 @@ def run_supervisor(args: argparse.Namespace, trainer_args: Sequence[str]) -> int
         log_path = log_dir / f"attempt_{run_count:04d}_{stamp}.log"
         command = [
             *shlex.split(args.uv_command),
-            "--config",
-            child_config_path.as_posix(),
-            "--precompute-control-teacher-cache-only",
+            *_child_config_args(child_config_path),
+            "precompute_control_teacher_cache_only=true",
             *trainer_args,
         ]
         if args.dry_run:
@@ -126,37 +127,42 @@ def run_supervisor(args: argparse.Namespace, trainer_args: Sequence[str]) -> int
         sleep_until_stop_or_timeout(float(args.restart_delay_seconds), should_stop)
 
 
-def parse_args(argv: Sequence[str] | None = None) -> tuple[argparse.Namespace, list[str]]:
-    parser = argparse.ArgumentParser(
-        description=(
-            "Run Stage 2 mapper v2.1 control-teacher cache precompute in retryable child processes. "
-            "The cache writer skips existing entries, so reruns are restart-safe unless overwrite is requested."
-        )
+def _load_training_config(config: MapperV21ControlCacheOvernightConfig) -> dict[str, Any]:
+    composed = compose_config(
+        config.training_config_name,
+        overrides=config.training_config_overrides,
+        config_dir=config.training_config_dir,
     )
-    parser.add_argument("--config", default=DEFAULT_CONFIG_PATH.as_posix())
-    parser.add_argument("--output-dir", default=None)
-    parser.add_argument("--poll-seconds", type=float, default=30.0)
-    parser.add_argument("--terminate-timeout-seconds", type=float, default=60.0)
-    parser.add_argument("--restart-delay-seconds", type=float, default=20.0)
-    parser.add_argument("--max-runs", type=int, default=DEFAULT_MAX_RUNS, help="0 means retry until success")
-    parser.add_argument("--max-consecutive-failures", type=int, default=3)
-    parser.add_argument(
-        "--control-teacher-precompute-batch-size",
-        type=int,
-        default=DEFAULT_CONTROL_TEACHER_PRECOMPUTE_BATCH_SIZE,
-    )
-    parser.add_argument("--log-dir", default=None)
-    parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument(
-        "--uv-command",
-        default=DEFAULT_UV_COMMAND,
-        help="Command prefix used to launch the mapper v2.1 cache-only precompute.",
-    )
-    args, trainer_args = parser.parse_known_args(argv)
-    return args, trainer_args
+    loaded = OmegaConf.to_container(composed, resolve=True)
+    if not isinstance(loaded, Mapping):
+        raise ValueError(f"training config must compose to a mapping: {config.training_config_name}")
+    return dict(loaded)
+
+
+def _child_config_args(config_path: Path) -> list[str]:
+    return [
+        "--config-dir",
+        config_path.parent.resolve().as_posix(),
+        "--config-name",
+        config_path.stem,
+    ]
+
+
+def parse_args(argv: Sequence[str] | None = None) -> tuple[MapperV21ControlCacheOvernightConfig, list[str]]:
+    config = to_config_object(compose_cli_config(_CONFIG_NAME, argv), MapperV21ControlCacheOvernightConfig)
+    return config, list(config.trainer_overrides)
+
+
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> None:
+    typed_config = to_config_object(config, MapperV21ControlCacheOvernightConfig)
+    raise SystemExit(run_supervisor(typed_config, typed_config.trainer_overrides))
 
 
 def main(argv: Sequence[str] | None = None) -> None:
+    if argv is None:
+        _hydra_main()
+        return
     args, trainer_args = parse_args(argv)
     raise SystemExit(run_supervisor(args, trainer_args))
 

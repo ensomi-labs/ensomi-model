@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - /schema/training/mapper_v2_1_control_cache_overnight@_global_
+  - /hydra/default
+  - _self_
+

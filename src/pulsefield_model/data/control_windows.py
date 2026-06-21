@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import json
 import math
 import shlex
@@ -15,8 +14,12 @@ from typing import Any, Callable, Mapping, Sequence
 import numpy as np
 import pandas as pd
 import torch
+import hydra
+from omegaconf import DictConfig
 from torch.utils.data import Dataset
 
+from pulsefield_model.cli.configs import ControlWindowsDataConfig, register_configs
+from pulsefield_model.cli.hydra_utils import compose_cli_config, to_config_object
 from pulsefield_model.features.control_v3_targets import CONFIDENCE_FEATURE_NAMES
 from pulsefield_model.features.control_v3_targets import DEFAULT_TIMESERIES_PATH as DEFAULT_CONTROL_V3_TIMESERIES_PATH
 from pulsefield_model.features.control_v3_targets import MODEL_FEATURE_NAMES
@@ -40,6 +43,9 @@ DEFAULT_CONTROL_V3_SUMMARY_PATH = Path(
 DEFAULT_DATASET_ROOT = Path("dataset")
 DEFAULT_INDEX_PATH = DEFAULT_CONTROL_WINDOW_INDEX_PATH
 DEFAULT_MAX_CACHED_MAPS = 16
+_CONFIG_NAME = "data/control_windows"
+
+register_configs()
 
 DIFFICULTY_MIN = 2.0
 DIFFICULTY_MAX = 6.0
@@ -1041,27 +1047,30 @@ def _target_selector(record: ControlWindowRecord) -> tuple[str, int]:
     )
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Build the Stage 2 control-window training index.")
-    parser.add_argument("--source-index-path", type=Path, default=DEFAULT_MAP_INDEX_PATH)
-    parser.add_argument("--dataset-root", type=Path, default=DEFAULT_DATASET_ROOT)
-    parser.add_argument(
-        "--control-v3-summary-path",
-        type=Path,
-        default=DEFAULT_CONTROL_V3_SUMMARY_PATH,
-    )
-    parser.add_argument("--output-path", type=Path, default=DEFAULT_CONTROL_WINDOW_INDEX_PATH)
-    parser.add_argument("--report-path", type=Path, default=DEFAULT_CONTROL_WINDOW_INDEX_REPORT_PATH)
-    parser.add_argument("--progress-every", type=int, default=100)
-    args = parser.parse_args(argv)
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> int:
+    return run_control_windows_from_config(config)
 
+
+def main(argv: Sequence[str] | None = None) -> int:
+    if argv is None:
+        return _hydra_main()
+    return run_control_windows_from_config(compose_cli_config(_CONFIG_NAME, argv), argv=argv)
+
+
+def run_control_windows_from_config(
+    config: ControlWindowsDataConfig | DictConfig,
+    *,
+    argv: Sequence[str] | None = None,
+) -> int:
+    cfg = to_config_object(config, ControlWindowsDataConfig)
     report = build_control_window_index(
-        source_index_path=args.source_index_path,
-        dataset_root=args.dataset_root,
-        control_v3_summary_path=args.control_v3_summary_path,
-        output_path=args.output_path,
-        report_path=args.report_path,
-        progress_every=args.progress_every,
+        source_index_path=Path(cfg.source_index_path),
+        dataset_root=Path(cfg.dataset_root),
+        control_v3_summary_path=Path(cfg.control_v3_summary_path),
+        output_path=Path(cfg.output_path),
+        report_path=Path(cfg.report_path) if cfg.report_path is not None else None,
+        progress_every=cfg.progress_every,
         command=_format_command(argv),
     )
     print(

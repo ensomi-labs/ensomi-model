@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import asyncio
 import concurrent.futures
 import json
@@ -14,8 +13,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, TypeVar
 
+import hydra
 import torch
+from omegaconf import DictConfig
 
+from pulsefield_model.cli.configs import StreamWithCacheInferenceConfig
+from pulsefield_model.cli.hydra_utils import compose_cli_config, to_config_object
 from pulsefield_model.data.control_windows import normalize_difficulty
 from pulsefield_model.events.canonical import CanonicalTimepoint, LaneAction as CanonicalLaneAction
 from pulsefield_model.inference.model_runtime import (
@@ -45,7 +48,6 @@ from pulsefield_model.models.mapper.shared.replay import LNCarryState, empty_ln_
 from pulsefield_model.models.mapper.shared.tokenizer import MAPPER_WRITE_MS
 from pulsefield_model.models.mapper.shared.vocab import MapperTupleVocab
 from pulsefield_model.timing.canonicalization import (
-    TIMING_CANONICALIZATION_BPM_80_160,
     TIMING_CANONICALIZATION_CHOICES,
     TIMING_CANONICALIZATION_NONE,
 )
@@ -66,6 +68,7 @@ DEFAULT_TIME_SHIFT_LENGTH_PENALTY = 5.2
 DEFAULT_INDEX_PATH = Path("artifacts/indexes/stage2_control_windows_4k_2to6_dense_local_bpm_norm_unique_le3.parquet")
 DEFAULT_DATASET_ROOT = Path("dataset")
 DEFAULT_OUTPUT_DIR = Path("artifacts/inference/mapper_v2_cached_stream_random_diff4")
+_CONFIG_NAME = "inference/stream_with_cache"
 T = TypeVar("T")
 
 
@@ -624,29 +627,28 @@ class CandidateMap:
     duration_s: float
 
 
-def run_cached_stream_sample(argv: Sequence[str] | None = None) -> int:
-    args = _parse_args(argv)
-    difficulty = float(args.difficulty)
+def run_cached_stream_sample(config: StreamWithCacheInferenceConfig) -> int:
+    difficulty = float(config.difficulty)
     normalize_difficulty(difficulty)
 
-    seed = int(args.seed if args.seed is not None else time.time_ns() % (2**32))
-    output_dir = Path(args.output_dir)
+    seed = int(config.seed if config.seed is not None else time.time_ns() % (2**32))
+    output_dir = Path(config.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     candidates = load_candidate_maps(
-        index_path=Path(args.index_path),
-        dataset_root=Path(args.dataset_root),
-        min_duration_s=args.min_duration_s,
-        max_duration_s=args.max_duration_s,
+        index_path=Path(config.index_path),
+        dataset_root=Path(config.dataset_root),
+        min_duration_s=config.min_duration_s,
+        max_duration_s=config.max_duration_s,
     )
-    if len(candidates) < int(args.count):
-        raise ValueError(f"not enough candidate maps after filtering: {len(candidates)} < {args.count}")
-    sampled = sample_candidates(candidates, count=int(args.count), seed=seed)
+    if len(candidates) < int(config.count):
+        raise ValueError(f"not enough candidate maps after filtering: {len(candidates)} < {config.count}")
+    sampled = sample_candidates(candidates, count=int(config.count), seed=seed)
 
     print(
         "inference_progress "
         f"status=sampled seed={seed} count={len(sampled)} pool={len(candidates)} "
-        f"difficulty={difficulty:.3f} max_duration_s={args.max_duration_s}",
+        f"difficulty={difficulty:.3f} max_duration_s={config.max_duration_s}",
         flush=True,
     )
     for index, candidate in enumerate(sampled, start=1):
@@ -658,40 +660,40 @@ def run_cached_stream_sample(argv: Sequence[str] | None = None) -> int:
             flush=True,
         )
 
-    device = str(args.device)
+    device = str(config.device)
     runtime = run_with_heartbeat(
         "runtime_load",
         lambda: load_model_runtime(
             ModelRuntimeConfig(
-                mapper_checkpoint_path=Path(args.mapper_checkpoint_path),
-                control_checkpoint_path=Path(args.control_checkpoint_path),
+                mapper_checkpoint_path=Path(config.mapper_checkpoint_path),
+                control_checkpoint_path=Path(config.control_checkpoint_path),
                 device=device,
-                beatthis_device=args.beatthis_device,
-                beatthis_float16=bool(args.beatthis_float16),
-                eager_load_beatthis=bool(args.eager_load_beatthis),
+                beatthis_device=config.beatthis_device,
+                beatthis_float16=bool(config.beatthis_float16),
+                eager_load_beatthis=bool(config.eager_load_beatthis),
             ),
         ),
-        interval_s=float(args.progress_interval_s),
+        interval_s=float(config.progress_interval_s),
     )
-    config = StreamWithCacheConfig(
-        mapper_checkpoint_path=Path(args.mapper_checkpoint_path),
-        control_checkpoint_path=Path(args.control_checkpoint_path),
+    stream_config = StreamWithCacheConfig(
+        mapper_checkpoint_path=Path(config.mapper_checkpoint_path),
+        control_checkpoint_path=Path(config.control_checkpoint_path),
         device=device,
-        beatthis_device=args.beatthis_device,
-        beatthis_float16=bool(args.beatthis_float16),
-        eager_load_beatthis=bool(args.eager_load_beatthis),
+        beatthis_device=config.beatthis_device,
+        beatthis_float16=bool(config.beatthis_float16),
+        eager_load_beatthis=bool(config.eager_load_beatthis),
         default_difficulty=difficulty,
-        max_control_batch_size=int(args.control_batch_size),
-        max_tokens=int(args.max_tokens),
-        temperature=float(args.temperature),
-        top_p=args.top_p,
-        use_incremental_mapper_decode=bool(args.use_incremental_mapper_decode),
-        time_shift_length_penalty_alpha=float(args.time_shift_length_penalty_alpha),
-        seed=args.generation_seed,
+        max_control_batch_size=int(config.control_batch_size),
+        max_tokens=int(config.max_tokens),
+        temperature=float(config.temperature),
+        top_p=config.top_p,
+        use_incremental_mapper_decode=bool(config.use_incremental_mapper_decode),
+        time_shift_length_penalty_alpha=float(config.time_shift_length_penalty_alpha),
+        seed=config.generation_seed,
         token_send_interval_s=0.0,
-        canonicalization=args.canonicalization,
+        canonicalization=config.canonicalization,
     )
-    stream = StreamWithCache(config)
+    stream = StreamWithCache(stream_config)
     stream.model_runtime = runtime
     stream.models_ready = True
 
@@ -704,9 +706,9 @@ def run_cached_stream_sample(argv: Sequence[str] | None = None) -> int:
             difficulty=difficulty,
             output_dir=output_dir,
             device=device,
-            control_batch_size=int(args.control_batch_size),
-            precompute_full_control=bool(args.precompute_full_control),
-            progress_interval_s=float(args.progress_interval_s),
+            control_batch_size=int(config.control_batch_size),
+            precompute_full_control=bool(config.precompute_full_control),
+            progress_interval_s=float(config.progress_interval_s),
         )
         for index, candidate in enumerate(sampled, start=1)
     ]
@@ -717,10 +719,10 @@ def run_cached_stream_sample(argv: Sequence[str] | None = None) -> int:
             {
                 "seed": seed,
                 "difficulty": difficulty,
-                "mapper_checkpoint_path": Path(args.mapper_checkpoint_path).as_posix(),
-                "control_checkpoint_path": Path(args.control_checkpoint_path).as_posix(),
+                "mapper_checkpoint_path": Path(config.mapper_checkpoint_path).as_posix(),
+                "control_checkpoint_path": Path(config.control_checkpoint_path).as_posix(),
                 "device": device,
-                "canonicalization": args.canonicalization,
+                "canonicalization": config.canonicalization,
                 "count": len(reports),
                 "reports": reports,
             },
@@ -1047,57 +1049,46 @@ def relative_audio_filename(audio_path: Path, output_path: Path) -> str:
     return os.path.relpath(audio_path, start=output_path.parent).replace(os.sep, "/")
 
 
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> int:
+    return run_cached_stream_sample_from_config(config)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    return run_cached_stream_sample(argv)
+    if argv is None:
+        return _hydra_main()
+    return run_cached_stream_sample_from_config(compose_cli_config(_CONFIG_NAME, argv))
 
 
-def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run Mapper V2 cached full-song inference on indexed maps.")
-    parser.add_argument("--count", type=int, default=5)
-    parser.add_argument("--difficulty", type=float, default=4.0)
-    parser.add_argument("--seed", type=int, default=None)
-    parser.add_argument("--index-path", type=Path, default=DEFAULT_INDEX_PATH)
-    parser.add_argument("--dataset-root", type=Path, default=DEFAULT_DATASET_ROOT)
-    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    parser.add_argument("--mapper-checkpoint-path", type=Path, default=DEFAULT_MAPPER_CHECKPOINT_PATH)
-    parser.add_argument("--control-checkpoint-path", type=Path, default=DEFAULT_CONTROL_CHECKPOINT_PATH)
-    parser.add_argument("--device", default="auto")
-    parser.add_argument("--beatthis-device", default=DEFAULT_BEATTHIS_DEVICE)
-    parser.add_argument("--beatthis-float16", action=argparse.BooleanOptionalAction, default=False)
-    parser.add_argument("--eager-load-beatthis", action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument(
-        "--canonicalization",
-        nargs="?",
-        const=TIMING_CANONICALIZATION_BPM_80_160,
-        default=TIMING_CANONICALIZATION_NONE,
-        choices=TIMING_CANONICALIZATION_CHOICES,
-        help="Fold fitted timing BPMs into [80, 160); pass 'none' to leave timing unchanged.",
-    )
-    parser.add_argument("--min-duration-s", type=float, default=45.0)
-    parser.add_argument("--max-duration-s", type=float, default=120.0)
-    parser.add_argument("--control-batch-size", type=int, default=4)
-    parser.add_argument("--precompute-full-control", action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--max-tokens", type=int, default=512)
-    parser.add_argument("--temperature", type=float, default=0.0)
-    parser.add_argument("--top-p", type=float, default=None)
-    parser.add_argument("--generation-seed", type=int, default=None)
-    parser.add_argument("--use-incremental-mapper-decode", action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--time-shift-length-penalty-alpha", type=float, default=DEFAULT_TIME_SHIFT_LENGTH_PENALTY)
-    parser.add_argument("--progress-interval-s", type=float, default=15.0)
-    args = parser.parse_args(argv)
-    if int(args.count) <= 0:
-        raise ValueError("--count must be positive")
-    if int(args.control_batch_size) <= 0:
-        raise ValueError("--control-batch-size must be positive")
-    if int(args.max_tokens) <= 0:
-        raise ValueError("--max-tokens must be positive")
-    if args.top_p is not None and not 0.0 < float(args.top_p) <= 1.0:
-        raise ValueError("--top-p must be in (0, 1]")
-    if args.min_duration_s is not None and float(args.min_duration_s) <= 0:
-        raise ValueError("--min-duration-s must be positive")
-    if args.max_duration_s is not None and float(args.max_duration_s) <= 0:
-        raise ValueError("--max-duration-s must be positive")
-    return args
+def run_cached_stream_sample_from_config(config: StreamWithCacheInferenceConfig | DictConfig) -> int:
+    cfg = _normalize_stream_with_cache_inference_config(config)
+    return run_cached_stream_sample(cfg)
+
+
+def _normalize_stream_with_cache_inference_config(
+    config: StreamWithCacheInferenceConfig | DictConfig,
+) -> StreamWithCacheInferenceConfig:
+    cfg = to_config_object(config, StreamWithCacheInferenceConfig)
+    _validate_stream_with_cache_inference_config(cfg)
+    return cfg
+
+
+def _validate_stream_with_cache_inference_config(config: StreamWithCacheInferenceConfig) -> None:
+    if int(config.count) <= 0:
+        raise ValueError("count must be positive")
+    if int(config.control_batch_size) <= 0:
+        raise ValueError("control_batch_size must be positive")
+    if int(config.max_tokens) <= 0:
+        raise ValueError("max_tokens must be positive")
+    if config.top_p is not None and not 0.0 < float(config.top_p) <= 1.0:
+        raise ValueError("top_p must be in (0, 1]")
+    if config.min_duration_s is not None and float(config.min_duration_s) <= 0:
+        raise ValueError("min_duration_s must be positive")
+    if config.max_duration_s is not None and float(config.max_duration_s) <= 0:
+        raise ValueError("max_duration_s must be positive")
+    if config.canonicalization not in TIMING_CANONICALIZATION_CHOICES:
+        choices = ", ".join(TIMING_CANONICALIZATION_CHOICES)
+        raise ValueError(f"canonicalization must be one of: {choices}")
 
 
 def _grid_fitter_config_for_canonicalization(canonicalization: str) -> GridFitterConfig:

@@ -1,17 +1,20 @@
 from __future__ import annotations
 
-import argparse
 import signal
 import shlex
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Mapping, Sequence
 
+import hydra
+from omegaconf import DictConfig, OmegaConf
+
+from pulsefield_model.cli.configs import MapperV21OvernightConfig
+from pulsefield_model.cli.hydra_utils import compose_cli_config, compose_config, to_config_object
 from pulsefield_model.training.overnight import checkpoint_saved_after
 from pulsefield_model.training.overnight import existing_resume_checkpoint
-from pulsefield_model.training.overnight import load_config
 from pulsefield_model.training.overnight import next_saved_step_target
 from pulsefield_model.training.overnight import read_progress
 from pulsefield_model.training.overnight import sleep_until_stop_or_timeout
@@ -21,11 +24,11 @@ from pulsefield_model.training.overnight import write_child_config
 
 DEFAULT_CONFIG_PATH = Path("configs/training/stage2_mapper_v2_1_phase_b_sparse_global_mps.yaml")
 DEFAULT_UV_COMMAND = "uv run --extra mps python -m pulsefield_model.training.mapper_v2_1"
+_CONFIG_NAME = "training/mapper_v2_1_overnight"
 
 
-def run_supervisor(args: argparse.Namespace, trainer_args: Sequence[str]) -> int:
-    config_path = Path(args.config)
-    base_config = load_config(config_path)
+def run_supervisor(args: MapperV21OvernightConfig, trainer_args: Sequence[str]) -> int:
+    base_config = _load_training_config(args)
     output_dir = Path(args.output_dir or base_config.get("output_dir", "artifacts/runs/stage2_mapper_v2_1/overnight"))
     max_steps = int(args.max_steps or base_config.get("max_steps", 5000))
     save_every = int(args.save_every or base_config.get("save_every") or base_config.get("eval_every", 100))
@@ -92,7 +95,11 @@ def run_supervisor(args: argparse.Namespace, trainer_args: Sequence[str]) -> int
         run_count += 1
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
         log_path = log_dir / f"attempt_{run_count:04d}_{stamp}.log"
-        command = [*shlex.split(args.uv_command), "--config", child_config_path.as_posix(), *trainer_args]
+        command = [
+            *shlex.split(args.uv_command),
+            *_child_config_args(child_config_path),
+            *trainer_args,
+        ]
         if args.dry_run:
             print("overnight_dry_run " + " ".join(command), flush=True)
             return 0
@@ -168,42 +175,42 @@ def run_supervisor(args: argparse.Namespace, trainer_args: Sequence[str]) -> int
         sleep_until_stop_or_timeout(float(args.restart_delay_seconds), should_stop)
 
 
-def parse_args(argv: Sequence[str] | None = None) -> tuple[argparse.Namespace, list[str]]:
-    parser = argparse.ArgumentParser(
-        description=(
-            "Run Stage 2 mapper v2.1 training in disposable child processes, "
-            "restarting each child after a durable checkpoint save."
-        )
+def _load_training_config(config: MapperV21OvernightConfig) -> dict[str, Any]:
+    composed = compose_config(
+        config.training_config_name,
+        overrides=config.training_config_overrides,
+        config_dir=config.training_config_dir,
     )
-    parser.add_argument("--config", default=DEFAULT_CONFIG_PATH.as_posix())
-    parser.add_argument("--output-dir", default=None)
-    parser.add_argument("--max-steps", type=int, default=None)
-    parser.add_argument("--save-every", type=int, default=None)
-    parser.add_argument("--steps-per-process", type=int, default=None)
-    parser.add_argument("--poll-seconds", type=float, default=30.0)
-    parser.add_argument("--post-save-grace-seconds", type=float, default=3.0)
-    parser.add_argument("--terminate-timeout-seconds", type=float, default=60.0)
-    parser.add_argument("--restart-delay-seconds", type=float, default=20.0)
-    parser.add_argument("--max-runs", type=int, default=0, help="0 means run until max_steps is complete")
-    parser.add_argument("--max-consecutive-failures", type=int, default=3)
-    parser.add_argument("--log-dir", default=None)
-    parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument(
-        "--stop-when-complete",
-        action=argparse.BooleanOptionalAction,
-        default=True,
-        help="Exit when report.json says the configured max_steps run is complete.",
-    )
-    parser.add_argument(
-        "--uv-command",
-        default=DEFAULT_UV_COMMAND,
-        help="Command prefix used to launch the mapper v2.1 trainer.",
-    )
-    args, trainer_args = parser.parse_known_args(argv)
-    return args, trainer_args
+    loaded = OmegaConf.to_container(composed, resolve=True)
+    if not isinstance(loaded, Mapping):
+        raise ValueError(f"training config must compose to a mapping: {config.training_config_name}")
+    return dict(loaded)
+
+
+def _child_config_args(config_path: Path) -> list[str]:
+    return [
+        "--config-dir",
+        config_path.parent.resolve().as_posix(),
+        "--config-name",
+        config_path.stem,
+    ]
+
+
+def parse_args(argv: Sequence[str] | None = None) -> tuple[MapperV21OvernightConfig, list[str]]:
+    config = to_config_object(compose_cli_config(_CONFIG_NAME, argv), MapperV21OvernightConfig)
+    return config, list(config.trainer_overrides)
+
+
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> None:
+    typed_config = to_config_object(config, MapperV21OvernightConfig)
+    raise SystemExit(run_supervisor(typed_config, typed_config.trainer_overrides))
 
 
 def main(argv: Sequence[str] | None = None) -> None:
+    if argv is None:
+        _hydra_main()
+        return
     args, trainer_args = parse_args(argv)
     raise SystemExit(run_supervisor(args, trainer_args))
 

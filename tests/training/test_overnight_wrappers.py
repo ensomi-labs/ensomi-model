@@ -118,11 +118,10 @@ class OvernightWrapperTests(unittest.TestCase):
             )
             args, trainer_args = parse_mapper_args(
                 [
-                    "--config",
-                    config.as_posix(),
-                    "--dry-run",
-                    "--uv-command",
-                    "python -m pulsefield_model.training.mapper_v2_1",
+                    f"training_config_dir={temp_dir}",
+                    "training_config_name=config",
+                    "dry_run=true",
+                    "uv_command='python -m pulsefield_model.training.mapper_v2_1'",
                 ]
             )
             stdout = io.StringIO()
@@ -130,7 +129,8 @@ class OvernightWrapperTests(unittest.TestCase):
                 exit_code = run_mapper_supervisor(args, trainer_args)
 
         self.assertEqual(exit_code, 0)
-        self.assertIn("overnight_dry_run python -m pulsefield_model.training.mapper_v2_1 --config", stdout.getvalue())
+        self.assertIn("overnight_dry_run python -m pulsefield_model.training.mapper_v2_1 --config-dir", stdout.getvalue())
+        self.assertIn("--config-name mapper_v2_1_child", stdout.getvalue())
 
     def test_control_cache_overnight_dry_run_forces_cache_only(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -150,11 +150,10 @@ class OvernightWrapperTests(unittest.TestCase):
             )
             args, trainer_args = parse_cache_args(
                 [
-                    "--config",
-                    config.as_posix(),
-                    "--dry-run",
-                    "--uv-command",
-                    "python -m pulsefield_model.training.mapper_v2_1",
+                    f"training_config_dir={temp_dir}",
+                    "training_config_name=config",
+                    "dry_run=true",
+                    "uv_command='python -m pulsefield_model.training.mapper_v2_1'",
                 ]
             )
             self.assertEqual(args.max_runs, 16000)
@@ -172,8 +171,9 @@ class OvernightWrapperTests(unittest.TestCase):
         self.assertEqual(child_config["control_teacher_precompute_batch_size"], 24)
         self.assertTrue(child_config["precompute_control_teacher_cache_only"])
         output = stdout.getvalue()
-        self.assertIn("overnight_cache_dry_run python -m pulsefield_model.training.mapper_v2_1 --config", output)
-        self.assertIn("--precompute-control-teacher-cache-only", output)
+        self.assertIn("overnight_cache_dry_run python -m pulsefield_model.training.mapper_v2_1 --config-dir", output)
+        self.assertIn("--config-name mapper_v2_1_control_cache_child", output)
+        self.assertIn("precompute_control_teacher_cache_only=true", output)
 
 
 if __name__ == "__main__":

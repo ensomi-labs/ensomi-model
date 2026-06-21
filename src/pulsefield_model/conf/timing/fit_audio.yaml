@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - /schema/timing/fit_audio@_global_
+  - /hydra/default
+  - _self_
+

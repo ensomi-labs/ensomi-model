@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import json
 import math
 from bisect import bisect_right
@@ -10,6 +9,11 @@ from fractions import Fraction
 from pathlib import Path
 from typing import Any, Final, Sequence
 
+import hydra
+from omegaconf import DictConfig
+
+from pulsefield_model.cli.configs import BeatRepresentationOsuCoreConfig, register_configs
+from pulsefield_model.cli.hydra_utils import compose_cli_config, to_config_object
 from pulsefield_model.osu_core.hitobjects import ManiaHitObject, ManiaHitObjectKind, parse_mania_hit_objects
 from pulsefield_model.osu_core.timing import (
     MissingRedTimingError,
@@ -29,6 +33,9 @@ from pulsefield_model.timing.canonicalization import (
 DEFAULT_SNAP_DENOMINATOR: Final[int] = 48
 DEFAULT_BEAT_REPRESENTATION_TIMING_CANONICALIZATION: Final[str] = TIMING_CANONICALIZATION_BPM_80_160
 DEFAULT_SNAP_DIAGNOSTIC_SUBDIVISIONS: Final[tuple[int, ...]] = (1, 2, 3, 4, 6, 8, 12, 16, 24, 48)
+_CONFIG_NAME = "osu_core/beat_representation"
+
+register_configs()
 
 
 class BeatEventKind(str, Enum):
@@ -411,17 +418,6 @@ def _validate_diagnostic_subdivisions(subdivisions: Sequence[int]) -> tuple[int,
     return tuple(sorted(unique))
 
 
-def _parse_diagnostic_subdivisions(value: str) -> tuple[int, ...]:
-    try:
-        subdivisions = tuple(int(part.strip()) for part in value.split(",") if part.strip())
-    except ValueError as exc:
-        raise argparse.ArgumentTypeError(f"diagnostic subdivisions must be comma-separated integers: {value}") from exc
-    try:
-        return _validate_diagnostic_subdivisions(subdivisions)
-    except ValueError as exc:
-        raise argparse.ArgumentTypeError(str(exc)) from exc
-
-
 def _limit_events(events: Sequence[BeatEvent], limit_events: int | None) -> list[BeatEvent]:
     if limit_events is None:
         return list(events)
@@ -431,68 +427,31 @@ def _limit_events(events: Sequence[BeatEvent], limit_events: int | None) -> list
     return list(events[:limit_events])
 
 
-def _build_arg_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Convert osu!mania .osu hitobjects to redline-relative snapped beat events.",
-    )
-    parser.add_argument("beatmaps", nargs="+", help=".osu beatmap path(s) to convert.")
-    parser.add_argument(
-        "--snap-denominator",
-        type=int,
-        default=DEFAULT_SNAP_DENOMINATOR,
-        help="Number of snap divisions per beat. Default: %(default)s.",
-    )
-    parser.add_argument(
-        "--timing-canonicalization",
-        choices=TIMING_CANONICALIZATION_CHOICES,
-        default=DEFAULT_BEAT_REPRESENTATION_TIMING_CANONICALIZATION,
-        help="Normalize redline beat lengths before snapping. Default: %(default)s.",
-    )
-    parser.add_argument(
-        "--diagnostics",
-        action="store_true",
-        help="Include per-event snap diagnostics in the JSON output.",
-    )
-    parser.add_argument(
-        "--diagnostic-subdivisions",
-        type=_parse_diagnostic_subdivisions,
-        default=DEFAULT_SNAP_DIAGNOSTIC_SUBDIVISIONS,
-        help="Comma-separated subdivision denominators for diagnostics. Default: %(default)s.",
-    )
-    parser.add_argument(
-        "--expected-key-count",
-        type=int,
-        default=4,
-        help="Expected osu!mania key count. Ignored when --any-key-count is set. Default: %(default)s.",
-    )
-    parser.add_argument(
-        "--any-key-count",
-        action="store_true",
-        help="Accept any osu!mania key count instead of requiring --expected-key-count.",
-    )
-    parser.add_argument(
-        "--limit-events",
-        type=int,
-        default=None,
-        help="Limit printed events per beatmap while keeping full summary counts.",
-    )
-    return parser
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> int:
+    return run_beat_representation_from_config(config)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = _build_arg_parser().parse_args(argv)
-    expected_key_count = None if args.any_key_count else args.expected_key_count
+    if argv is None:
+        return _hydra_main()
+    return run_beat_representation_from_config(compose_cli_config(_CONFIG_NAME, argv))
+
+
+def run_beat_representation_from_config(config: BeatRepresentationOsuCoreConfig | DictConfig) -> int:
+    cfg = to_config_object(config, BeatRepresentationOsuCoreConfig)
+    expected_key_count = None if cfg.any_key_count else cfg.expected_key_count
     summaries = [
         beatmap_to_beat_representation(
             beatmap,
-            snap_denominator=args.snap_denominator,
+            snap_denominator=cfg.snap_denominator,
             expected_key_count=expected_key_count,
-            limit_events=args.limit_events,
-            timing_canonicalization=args.timing_canonicalization,
-            include_diagnostics=args.diagnostics,
-            diagnostic_subdivisions=args.diagnostic_subdivisions,
+            limit_events=cfg.limit_events,
+            timing_canonicalization=cfg.timing_canonicalization,
+            include_diagnostics=cfg.diagnostics,
+            diagnostic_subdivisions=cfg.diagnostic_subdivisions,
         )
-        for beatmap in args.beatmaps
+        for beatmap in cfg.beatmaps
     ]
     print(json.dumps(summaries, indent=2, sort_keys=True))
     return 0

@@ -1,14 +1,17 @@
 from __future__ import annotations
 
-import argparse
 import json
 import time
 from dataclasses import asdict
 from pathlib import Path
 from typing import Sequence
 
+import hydra
 import numpy as np
+from omegaconf import DictConfig
 
+from pulsefield_model.cli.configs import FitAudioTimingConfig, register_configs
+from pulsefield_model.cli.hydra_utils import compose_cli_config, to_config_object
 from pulsefield_model.timing.canonicalization import (
     TIMING_CANONICALIZATION_BPM_80_160,
     TIMING_CANONICALIZATION_CHOICES,
@@ -32,6 +35,9 @@ from pulsefield_model.timing.schema import FrameTimingPrediction
 
 DEFAULT_SUPER_TIMING_SHIFT_MS = (0.0, 5.0, 10.0, 15.0)
 SUPER_TIMING_ALIGNMENT = "segment offsets subtract shift_ms to align shifted runs back to the original audio"
+_CONFIG_NAME = "timing/fit_audio"
+
+register_configs()
 
 
 def fit_audio_file(
@@ -114,21 +120,31 @@ def _fit_prediction(
     return fit_result, fit_seconds
 
 
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> int:
+    return run_fit_audio_from_config(config)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = _build_arg_parser()
-    args = parser.parse_args(argv)
+    if argv is None:
+        return _hydra_main()
+    return run_fit_audio_from_config(compose_cli_config(_CONFIG_NAME, argv))
+
+
+def run_fit_audio_from_config(config: FitAudioTimingConfig | DictConfig) -> int:
+    cfg = to_config_object(config, FitAudioTimingConfig)
     report = fit_audio_file(
-        args.audio_path,
-        checkpoint_path=args.checkpoint,
-        device=args.device,
-        float16=args.float16,
-        fitter_config=_fitter_config_from_args(args),
-        super_timing_shift_ms=_super_timing_shift_ms_from_args(args),
-        ramp_beat_grid=args.ramp_beat_grid,
-        ramp_beat_grid_hint=_ramp_beat_grid_hint_from_args(args),
-        ramp_beat_grid_allow_no_hint=args.ramp_beat_grid_allow_no_hint,
+        Path(cfg.audio_path),
+        checkpoint_path=cfg.checkpoint,
+        device=cfg.device,
+        float16=cfg.float16,
+        fitter_config=_fitter_config_from_config(cfg),
+        super_timing_shift_ms=_super_timing_shift_ms_from_config(cfg),
+        ramp_beat_grid=cfg.ramp_beat_grid,
+        ramp_beat_grid_hint=_ramp_beat_grid_hint_from_config(cfg),
+        ramp_beat_grid_allow_no_hint=cfg.ramp_beat_grid_allow_no_hint,
     )
-    if args.emit_json:
+    if cfg.emit_json:
         print(json.dumps(report, allow_nan=False, indent=2, sort_keys=True))
     else:
         print(format_timing_report(report))
@@ -213,99 +229,50 @@ def _run_segments(run: dict[str, object]) -> list[dict[str, object]]:
     return segments
 
 
-def _build_arg_parser() -> argparse.ArgumentParser:
-    default_config = GridFitterConfig()
-    parser = argparse.ArgumentParser(description="Fit timing segments from an audio file with BeatThis.")
-    parser.add_argument("audio_path", type=Path)
-    parser.add_argument("--checkpoint", default=DEFAULT_BEATTHIS_CHECKPOINT)
-    parser.add_argument("--device", default=DEFAULT_BEATTHIS_DEVICE)
-    parser.add_argument("--float16", action="store_true")
-    parser.add_argument("--json", action="store_true", dest="emit_json")
-    parser.add_argument(
-        "--super-timing-shifts",
-        action="store_true",
-        help="Run extra BeatThis passes at 0, 5, 10, and 15 ms and include aligned BPM segments.",
-    )
-    parser.add_argument(
-        "--super-timing-shift-ms",
-        action="append",
-        type=float,
-        default=None,
-        help="Add a custom non-negative shifted BeatThis pass in milliseconds. Repeat to run multiple shifts.",
-    )
-    parser.add_argument(
-        "--ramp-beat-grid",
-        action="store_true",
-        help="Run an opt-in BPM-ramp grid pass and include its auxiliary output.",
-    )
-    parser.add_argument(
-        "--ramp-beat-grid-allow-no-hint",
-        action="store_true",
-        help="Allow exploratory no-hint ramp beat-grid mining. By default, ramp beat-grid output requires detector hints.",
-    )
-    parser.add_argument("--ramp-hint-start-ms", type=float, default=None)
-    parser.add_argument("--ramp-hint-end-ms", type=float, default=None)
-    parser.add_argument("--ramp-hint-start-bpm", type=float, default=None)
-    parser.add_argument("--ramp-hint-end-bpm", type=float, default=None)
-    parser.add_argument("--min-bpm", type=float, default=default_config.min_bpm)
-    parser.add_argument("--max-bpm", type=float, default=default_config.max_bpm)
-    parser.add_argument("--max-segments", type=int, default=default_config.max_segments)
-    parser.add_argument("--double-tempo-score-ratio-threshold", type=float, default=None)
-    parser.add_argument(
-        "--canonicalization",
-        nargs="?",
-        const=TIMING_CANONICALIZATION_BPM_80_160,
-        default=default_config.canonicalization,
-        choices=TIMING_CANONICALIZATION_CHOICES,
-        help="Fold fitted BPMs into [80, 160); pass 'none' to leave timing unchanged.",
-    )
-    return parser
-
-
-def _super_timing_shift_ms_from_args(args: argparse.Namespace) -> Sequence[float] | None:
-    if args.super_timing_shift_ms is not None:
-        return args.super_timing_shift_ms
-    if args.super_timing_shifts:
+def _super_timing_shift_ms_from_config(config: FitAudioTimingConfig) -> Sequence[float] | None:
+    if config.super_timing_shift_ms is not None:
+        return config.super_timing_shift_ms
+    if config.super_timing_shifts:
         return DEFAULT_SUPER_TIMING_SHIFT_MS
     return None
 
 
-def _fitter_config_from_args(args: argparse.Namespace) -> GridFitterConfig:
+def _fitter_config_from_config(config: FitAudioTimingConfig) -> GridFitterConfig:
     default_config = GridFitterConfig()
     double_tempo_threshold = (
         default_config.double_tempo_score_ratio_threshold
-        if args.double_tempo_score_ratio_threshold is None
-        else args.double_tempo_score_ratio_threshold
+        if config.double_tempo_score_ratio_threshold is None
+        else config.double_tempo_score_ratio_threshold
     )
     return GridFitterConfig(
-        min_bpm=args.min_bpm,
-        max_bpm=args.max_bpm,
-        max_segments=args.max_segments,
+        min_bpm=config.min_bpm,
+        max_bpm=config.max_bpm,
+        max_segments=config.max_segments,
         double_tempo_score_ratio_threshold=double_tempo_threshold,
-        canonicalization=args.canonicalization,
-        canonicalize_tempo_aliases=args.canonicalization == TIMING_CANONICALIZATION_NONE,
+        canonicalization=config.canonicalization,
+        canonicalize_tempo_aliases=config.canonicalization == TIMING_CANONICALIZATION_NONE,
     )
 
 
-def _ramp_beat_grid_hint_from_args(args: argparse.Namespace) -> RampBeatGridHint | None:
+def _ramp_beat_grid_hint_from_config(config: FitAudioTimingConfig) -> RampBeatGridHint | None:
     values = (
-        args.ramp_hint_start_ms,
-        args.ramp_hint_end_ms,
-        args.ramp_hint_start_bpm,
-        args.ramp_hint_end_bpm,
+        config.ramp_hint_start_ms,
+        config.ramp_hint_end_ms,
+        config.ramp_hint_start_bpm,
+        config.ramp_hint_end_bpm,
     )
     if all(value is None for value in values):
         return None
     if not all(value is not None for value in values):
         raise ValueError(
-            "ramp hint requires --ramp-hint-start-ms, --ramp-hint-end-ms, "
-            "--ramp-hint-start-bpm, and --ramp-hint-end-bpm"
+            "ramp hint requires ramp_hint_start_ms, ramp_hint_end_ms, "
+            "ramp_hint_start_bpm, and ramp_hint_end_bpm"
         )
     return RampBeatGridHint(
-        start_ms=float(args.ramp_hint_start_ms),
-        end_ms=float(args.ramp_hint_end_ms),
-        start_bpm=float(args.ramp_hint_start_bpm),
-        end_bpm=float(args.ramp_hint_end_bpm),
+        start_ms=float(config.ramp_hint_start_ms),
+        end_ms=float(config.ramp_hint_end_ms),
+        start_bpm=float(config.ramp_hint_start_bpm),
+        end_bpm=float(config.ramp_hint_end_bpm),
     )
 
 

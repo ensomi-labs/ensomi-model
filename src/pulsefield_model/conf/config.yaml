@@ -1,0 +1,13 @@
+defaults:
+  - config_schema
+  - training: null
+  - inference: null
+  - timing: null
+  - data: null
+  - osu_core: null
+  - _self_
+
+hydra:
+  job:
+    chdir: false
+

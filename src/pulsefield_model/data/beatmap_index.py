@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import hashlib
 import json
 import math
@@ -12,9 +11,13 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Mapping, Protocol, Sequence, TypeAlias, cast, runtime_checkable
 
+import hydra
 import numpy as np
 import pandas as pd
+from omegaconf import DictConfig
 
+from pulsefield_model.cli.configs import BeatmapIndexDataConfig, register_configs
+from pulsefield_model.cli.hydra_utils import compose_cli_config, to_config_object
 from pulsefield_model.osu_core.difficulty import calculate_mania_difficulties
 from pulsefield_model.osu_core.metadata import parse_osu_metadata
 from pulsefield_model.osu_core.timing import InvalidRedTimingError, MissingRedTimingError, require_red_timing_points
@@ -44,6 +47,9 @@ DEFAULT_DENSE_TIMING_V2_LOCAL_BPM_NORM_UNIQUE_REPORT_PATH = (
 )
 DEFAULT_MAX_LOCAL_BPM_NORM_UNIQUE_PER_BEATMAPSET = 3
 DEFAULT_BPM_ROUND_DECIMALS = 6
+_CONFIG_NAME = "data/beatmap_index"
+
+register_configs()
 SR_SPEEDS = (0.5, 0.75, 1.0, 1.25, 1.5)
 NULLABLE_INT_COLUMNS = (
     "audio_lead_in",
@@ -639,11 +645,13 @@ def _git_stdout(*args: str) -> str | None:
     return completed.stdout.strip()
 
 
-def _format_command(argv: Sequence[str] | None, subcommand: str) -> str:
+def _format_command(argv: Sequence[str] | None, command: str) -> str:
     args = list(sys.argv[1:] if argv is None else argv)
+    if not any(part.startswith("command=") for part in args):
+        args.insert(0, f"command={command}")
     return " ".join(
         shlex.quote(part)
-        for part in ["python", "-m", "pulsefield_model.data.beatmap_index", subcommand, *args]
+        for part in ["python", "-m", "pulsefield_model.data.beatmap_index", *args]
     )
 
 
@@ -653,77 +661,65 @@ def _json_scalar(value: object) -> object:
     return value
 
 
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> int:
+    return run_beatmap_index_from_config(config)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Build Pulsefield beatmap indexes.")
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    if argv is None:
+        return _hydra_main()
+    return run_beatmap_index_from_config(compose_cli_config(_CONFIG_NAME, argv), argv=argv)
 
-    build_4k_parser = subparsers.add_parser("build-4k")
-    build_4k_parser.add_argument("--dataset-root", type=Path, default=DEFAULT_DATASET_ROOT)
-    build_4k_parser.add_argument("--shard", default=DEFAULT_SHARD)
-    build_4k_parser.add_argument("--output-path", type=Path, default=DEFAULT_4K_INDEX_PATH)
 
-    clean_parser = subparsers.add_parser("drop-timing-anomalies")
-    clean_parser.add_argument("--source-index-path", type=Path, default=DEFAULT_4K_INDEX_PATH)
-    clean_parser.add_argument("--dataset-root", type=Path, default=DEFAULT_DATASET_ROOT)
-    clean_parser.add_argument("--output-path", type=Path, default=DEFAULT_4K_NO_TIMING_ANOMALY_INDEX_PATH)
-
-    difficulty_parser = subparsers.add_parser("filter-difficulty")
-    difficulty_parser.add_argument("--source-index-path", type=Path, default=DEFAULT_4K_NO_TIMING_ANOMALY_INDEX_PATH)
-    difficulty_parser.add_argument("--output-path", type=Path, default=DEFAULT_4K_NO_TIMING_ANOMALY_2TO6_INDEX_PATH)
-    difficulty_parser.add_argument("--min-difficulty", type=float, default=DIFFICULTY_MIN)
-    difficulty_parser.add_argument("--max-difficulty", type=float, default=DIFFICULTY_MAX)
-
-    dense_parser = subparsers.add_parser("filter-local-bpm-unique")
-    dense_parser.add_argument("--source-index-path", type=Path, default=DEFAULT_4K_NO_TIMING_ANOMALY_2TO6_INDEX_PATH)
-    dense_parser.add_argument("--dataset-root", type=Path, default=DEFAULT_DATASET_ROOT)
-    dense_parser.add_argument("--output-path", type=Path, default=DEFAULT_DENSE_TIMING_V2_LOCAL_BPM_NORM_UNIQUE_INDEX_PATH)
-    dense_parser.add_argument("--report-path", type=Path, default=DEFAULT_DENSE_TIMING_V2_LOCAL_BPM_NORM_UNIQUE_REPORT_PATH)
-    dense_parser.add_argument(
-        "--max-local-bpm-norm-unique-per-beatmapset",
-        "--max-localbpmnorm-unique-per-beatmapset",
-        dest="max_local_bpm_norm_unique_per_beatmapset",
-        type=int,
-        default=DEFAULT_MAX_LOCAL_BPM_NORM_UNIQUE_PER_BEATMAPSET,
-    )
-    dense_parser.add_argument("--bpm-round-decimals", type=int, default=DEFAULT_BPM_ROUND_DECIMALS)
-    dense_parser.add_argument("--dropped-example-limit", type=int, default=20)
-    dense_parser.add_argument("--progress-every", type=int, default=0)
-
-    args = parser.parse_args(argv)
-    if args.command == "build-4k":
-        output_path = build_4k_index(args.dataset_root / args.shard, args.output_path)
+def run_beatmap_index_from_config(
+    config: BeatmapIndexDataConfig | DictConfig,
+    *,
+    argv: Sequence[str] | None = None,
+) -> int:
+    cfg = to_config_object(config, BeatmapIndexDataConfig)
+    command = str(cfg.command).replace("-", "_")
+    if command == "build_4k":
+        command_config = cfg.build_4k
+        output_path = build_4k_index(
+            Path(command_config.dataset_root) / command_config.shard,
+            Path(command_config.output_path),
+        )
         print(f"index_path {output_path}")
         return 0
-    if args.command == "drop-timing-anomalies":
+    if command == "drop_timing_anomalies":
+        command_config = cfg.drop_timing_anomalies
         report = build_4k_no_timing_anomaly_index(
-            source_index_path=args.source_index_path,
-            dataset_root=args.dataset_root,
-            output_path=args.output_path,
+            source_index_path=Path(command_config.source_index_path),
+            dataset_root=Path(command_config.dataset_root),
+            output_path=Path(command_config.output_path),
         )
         print(f"clean_map_count {report.clean_map_count}")
         print(f"index_path {report.output_path}")
         return 0
-    if args.command == "filter-difficulty":
+    if command == "filter_difficulty":
+        command_config = cfg.filter_difficulty
         report = build_difficulty_filtered_index(
-            source_index_path=args.source_index_path,
-            output_path=args.output_path,
-            min_difficulty=args.min_difficulty,
-            max_difficulty=args.max_difficulty,
+            source_index_path=Path(command_config.source_index_path),
+            output_path=Path(command_config.output_path),
+            min_difficulty=command_config.min_difficulty,
+            max_difficulty=command_config.max_difficulty,
         )
         print(f"retained_map_count {report.retained_map_count}")
         print(f"index_path {report.output_path}")
         return 0
-    if args.command == "filter-local-bpm-unique":
+    if command == "filter_local_bpm_unique":
+        command_config = cfg.filter_local_bpm_unique
         report = build_dense_timing_v2_local_bpm_norm_unique_index(
-            source_index_path=args.source_index_path,
-            dataset_root=args.dataset_root,
-            output_path=args.output_path,
-            report_path=args.report_path,
-            max_local_bpm_norm_unique_per_beatmapset=args.max_local_bpm_norm_unique_per_beatmapset,
-            bpm_round_decimals=args.bpm_round_decimals,
-            dropped_example_limit=args.dropped_example_limit,
-            progress_every=args.progress_every,
-            command=_format_command(argv, "filter-local-bpm-unique"),
+            source_index_path=Path(command_config.source_index_path),
+            dataset_root=Path(command_config.dataset_root),
+            output_path=Path(command_config.output_path),
+            report_path=Path(command_config.report_path),
+            max_local_bpm_norm_unique_per_beatmapset=command_config.max_local_bpm_norm_unique_per_beatmapset,
+            bpm_round_decimals=command_config.bpm_round_decimals,
+            dropped_example_limit=command_config.dropped_example_limit,
+            progress_every=command_config.progress_every,
+            command=_format_command(argv, command),
         )
         print(
             "retained "
@@ -731,7 +727,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"dropped {report.dropped_beatmapset_count} beatmapsets",
         )
         return 0
-    raise AssertionError(f"unhandled command: {args.command}")
+    raise ValueError(
+        "command must be one of build_4k, drop_timing_anomalies, "
+        f"filter_difficulty, filter_local_bpm_unique; got {cfg.command!r}"
+    )
 
 
 if __name__ == "__main__":

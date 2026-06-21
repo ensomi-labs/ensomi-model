@@ -1,13 +1,21 @@
 from __future__ import annotations
 
-import argparse
 import math
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Iterable, Sequence, TypeVar
 
+import hydra
+from omegaconf import DictConfig
+
+from pulsefield_model.cli.configs import DifficultyOsuCoreConfig, register_configs
+from pulsefield_model.cli.hydra_utils import compose_cli_config, to_config_object
+
 T = TypeVar("T")
+_CONFIG_NAME = "osu_core/difficulty"
+
+register_configs()
 
 
 def definitely_bigger(value1: float, value2: float, acceptable_difference: float = 1.0) -> bool:
@@ -558,15 +566,21 @@ def calculate_mania_difficulty(osu_path: str | Path, audio_path: str | Path, spe
     return calculate_mania_difficulties(osu_path, audio_path, [speed])[0]
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Print official 20241007 osu!mania difficulty as a single .2f float.")
-    parser.add_argument("osu", type=Path, help="Path to the osu!mania .osu file.")
-    parser.add_argument("audio", type=Path, help="Path to the chart audio file. Must match AudioFilename in the .osu.")
-    parser.add_argument("--speed", type=float, default=1.0, help="Clock-rate multiplier, e.g. 1.0, 1.25, 1.5.")
-    args = parser.parse_args(argv)
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> int:
+    return run_difficulty_from_config(config)
 
+
+def main(argv: list[str] | None = None) -> int:
+    if argv is None:
+        return _hydra_main()
+    return run_difficulty_from_config(compose_cli_config(_CONFIG_NAME, argv))
+
+
+def run_difficulty_from_config(config: DifficultyOsuCoreConfig | DictConfig) -> int:
+    cfg = to_config_object(config, DifficultyOsuCoreConfig)
     try:
-        difficulty = calculate_mania_difficulty(args.osu, args.audio, speed=args.speed)
+        difficulty = calculate_mania_difficulty(Path(cfg.osu), Path(cfg.audio), speed=cfg.speed)
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1

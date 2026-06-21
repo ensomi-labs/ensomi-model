@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import json
 import math
 import os
@@ -9,11 +8,15 @@ import time
 from pathlib import Path
 from typing import Any, Sequence
 
+import hydra
 import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+from omegaconf import DictConfig
 
+from pulsefield_model.cli.configs import ControlV3ArtifactDataConfig, register_configs
+from pulsefield_model.cli.hydra_utils import compose_cli_config, to_config_object
 from .control import mania_hit_objects_to_control_hits
 from .control import red_timing_points_to_beat_length_fn
 from .control_v2_artifact import (
@@ -70,6 +73,9 @@ DEFAULT_SUMMARY_PATH = Path(
 DEFAULT_METADATA_PATH = Path(
     f"artifacts/features/control_v3_artifact_metadata_{CONTROL_V3_ARTIFACT_FAMILY}.json"
 )
+_CONFIG_NAME = "data/control_v3_artifact"
+
+register_configs()
 
 
 def build_timeseries_frame(
@@ -363,38 +369,37 @@ def build_control_v3_artifacts(
     return summary_df, metadata
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Build Stage 1 Control Feature V3 parquet artifacts.")
-    parser.add_argument("--index-path", default=DEFAULT_INDEX_PATH.as_posix())
-    parser.add_argument("--source-index-path", default=DEFAULT_SOURCE_INDEX_PATH.as_posix())
-    parser.add_argument("--dataset-root", default=DEFAULT_DATASET_ROOT.as_posix())
-    parser.add_argument("--timeseries-path", default=DEFAULT_TIMESERIES_PATH.as_posix())
-    parser.add_argument("--summary-path", default=DEFAULT_SUMMARY_PATH.as_posix())
-    parser.add_argument("--metadata-path", default=DEFAULT_METADATA_PATH.as_posix())
-    parser.add_argument("--limit", type=int, default=None)
-    parser.add_argument("--start", type=int, default=0)
-    parser.add_argument("--batch-maps", type=int, default=32)
-    parser.add_argument("--progress-every", type=int, default=25)
-    args = parser.parse_args(argv)
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> int:
+    return run_control_v3_artifact_from_config(config)
 
+
+def main(argv: Sequence[str] | None = None) -> int:
+    if argv is None:
+        return _hydra_main()
+    return run_control_v3_artifact_from_config(compose_cli_config(_CONFIG_NAME, argv))
+
+
+def run_control_v3_artifact_from_config(config: ControlV3ArtifactDataConfig | DictConfig) -> int:
+    cfg = to_config_object(config, ControlV3ArtifactDataConfig)
     summary_df, metadata = build_control_v3_artifacts(
-        index_path=args.index_path,
-        source_index_path=args.source_index_path,
-        dataset_root=args.dataset_root,
-        timeseries_path=args.timeseries_path,
-        summary_path=args.summary_path,
-        metadata_path=args.metadata_path,
-        limit=args.limit,
-        start=args.start,
-        batch_maps=args.batch_maps,
-        progress_every=args.progress_every,
+        index_path=cfg.index_path,
+        source_index_path=cfg.source_index_path,
+        dataset_root=cfg.dataset_root,
+        timeseries_path=cfg.timeseries_path,
+        summary_path=cfg.summary_path,
+        metadata_path=cfg.metadata_path,
+        limit=cfg.limit,
+        start=cfg.start,
+        batch_maps=cfg.batch_maps,
+        progress_every=cfg.progress_every,
     )
     print(f"map_count {len(summary_df)}")
     print(f"timeseries_rows {metadata['timeseries_rows']}")
     print(f"error_count {metadata['error_count']}")
-    print(f"timeseries_path {args.timeseries_path}")
-    print(f"summary_path {args.summary_path}")
-    print(f"metadata_path {args.metadata_path}")
+    print(f"timeseries_path {cfg.timeseries_path}")
+    print(f"summary_path {cfg.summary_path}")
+    print(f"metadata_path {cfg.metadata_path}")
     return 0
 
 

@@ -1,0 +1,7 @@
+# @package _global_
+defaults:
+  - /schema/data/beatmap_index@_global_
+  - /hydra/default
+  - _self_
+
+command: build_4k

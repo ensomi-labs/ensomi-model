@@ -1,0 +1,2 @@
+"""Inference Hydra config group."""
+

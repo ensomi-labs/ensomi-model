@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-import argparse
 import asyncio
 import json
 import traceback
 from collections.abc import Mapping, Sequence
-from pathlib import Path
 from typing import Any
 
+import hydra
+from omegaconf import DictConfig
+
+from pulsefield_model.cli.configs import WsServerInferenceConfig
+from pulsefield_model.cli.hydra_utils import compose_cli_config, to_config_object
+from pulsefield_model.data.control_windows import normalize_difficulty
 from pulsefield_model.inference.errors import (
     PeerDisconnected,
     ProtocolError,
@@ -21,10 +25,6 @@ from pulsefield_model.inference.service_models import (
     ServiceEvent,
     StopCommand,
 )
-from pulsefield_model.inference.stream_with_cache import (
-    DEFAULT_CONTROL_CHECKPOINT_PATH,
-    DEFAULT_MAPPER_CHECKPOINT_PATH,
-)
 from pulsefield_model.inference.ws_framing import (
     accept_websocket_handshake,
     close_writer,
@@ -34,19 +34,15 @@ from pulsefield_model.inference.ws_framing import (
     send_http_error,
 )
 from pulsefield_model.inference.ws_endpoint import (
-    DEFAULT_HOST,
-    DEFAULT_PORT,
     PULSEFIELD_WS_URL,
     InferenceEndpoint,
     InferenceError,
     WsEndpointConfig,
 )
-from pulsefield_model.timing.canonicalization import (
-    TIMING_CANONICALIZATION_BPM_80_160,
-    TIMING_CANONICALIZATION_CHOICES,
-    TIMING_CANONICALIZATION_NONE,
-)
-from pulsefield_model.timing.providers.beatthis import DEFAULT_BEATTHIS_DEVICE
+from pulsefield_model.timing.canonicalization import TIMING_CANONICALIZATION_CHOICES
+
+
+_CONFIG_NAME = "inference/ws_server"
 
 
 async def serve_forever(endpoint: InferenceEndpoint | None = None) -> None:
@@ -189,39 +185,53 @@ async def _stop_owned_sessions(
     owned_session_ids.clear()
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=f"Run Mapper V2 local WS server at {PULSEFIELD_WS_URL}.")
-    parser.add_argument("--host", default=DEFAULT_HOST)
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT)
-    parser.add_argument("--device", default="auto")
-    parser.add_argument("--beatthis-device", default=DEFAULT_BEATTHIS_DEVICE)
-    parser.add_argument(
-        "--canonicalization",
-        nargs="?",
-        const=TIMING_CANONICALIZATION_BPM_80_160,
-        default=TIMING_CANONICALIZATION_NONE,
-        choices=TIMING_CANONICALIZATION_CHOICES,
-        help="Fold fitted timing BPMs into [80, 160); pass 'none' to leave timing unchanged.",
-    )
-    parser.add_argument("--difficulty", type=float, default=4.0)
-    parser.add_argument("--max-tokens", type=int, default=512)
-    parser.add_argument("--mapper-checkpoint-path", type=Path, default=DEFAULT_MAPPER_CHECKPOINT_PATH)
-    parser.add_argument("--control-checkpoint-path", type=Path, default=DEFAULT_CONTROL_CHECKPOINT_PATH)
-    args = parser.parse_args(argv)
+@hydra.main(version_base=None, config_path="../conf", config_name=_CONFIG_NAME)
+def _hydra_main(config: DictConfig) -> int:
+    return run_ws_server_from_config(config)
 
-    config = WsEndpointConfig(
-        host=args.host,
-        port=args.port,
-        mapper_checkpoint_path=args.mapper_checkpoint_path,
-        control_checkpoint_path=args.control_checkpoint_path,
-        device=args.device,
-        beatthis_device=args.beatthis_device,
-        canonicalization=args.canonicalization,
-        default_difficulty=float(args.difficulty),
-        max_tokens=int(args.max_tokens),
-    )
-    asyncio.run(serve_forever(InferenceEndpoint(config=config)))
+
+def main(argv: Sequence[str] | None = None) -> int:
+    if argv is None:
+        return _hydra_main()
+    return run_ws_server_from_config(compose_cli_config(_CONFIG_NAME, argv))
+
+
+def run_ws_server_from_config(config: WsServerInferenceConfig | DictConfig) -> int:
+    cfg = _normalize_ws_server_inference_config(config)
+    endpoint_config = ws_endpoint_config_from_inference_config(cfg)
+    asyncio.run(serve_forever(InferenceEndpoint(config=endpoint_config)))
     return 0
+
+
+def ws_endpoint_config_from_inference_config(config: WsServerInferenceConfig) -> WsEndpointConfig:
+    return WsEndpointConfig(
+        host=config.host,
+        port=int(config.port),
+        mapper_checkpoint_path=config.mapper_checkpoint_path,
+        control_checkpoint_path=config.control_checkpoint_path,
+        device=config.device,
+        beatthis_device=config.beatthis_device,
+        canonicalization=config.canonicalization,
+        default_difficulty=float(config.difficulty),
+        max_tokens=int(config.max_tokens),
+    )
+
+
+def _normalize_ws_server_inference_config(config: WsServerInferenceConfig | DictConfig) -> WsServerInferenceConfig:
+    cfg = to_config_object(config, WsServerInferenceConfig)
+    _validate_ws_server_inference_config(cfg)
+    return cfg
+
+
+def _validate_ws_server_inference_config(config: WsServerInferenceConfig) -> None:
+    if int(config.port) <= 0:
+        raise ValueError("port must be positive")
+    if int(config.max_tokens) <= 0:
+        raise ValueError("max_tokens must be positive")
+    if config.canonicalization not in TIMING_CANONICALIZATION_CHOICES:
+        choices = ", ".join(TIMING_CANONICALIZATION_CHOICES)
+        raise ValueError(f"canonicalization must be one of: {choices}")
+    normalize_difficulty(float(config.difficulty))
 
 
 if __name__ == "__main__":

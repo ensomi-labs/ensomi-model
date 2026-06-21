@@ -158,8 +158,8 @@ Important entry points:
 Example CLI:
 
 ```sh
-uv run python -m pulsefield_model.timing.fit_audio path/to/audio.mp3 --device mps --json
+uv run python -m pulsefield_model.timing.fit_audio audio_path=path/to/audio.mp3 device=mps emit_json=true
 ```
 
-Use `--super-timing-shifts` only when you want diagnostic shifted evidence, not
+Use `super_timing_shifts=true` only when you want diagnostic shifted evidence, not
 the normal latency path.

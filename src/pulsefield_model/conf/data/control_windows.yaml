@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - /schema/data/control_windows@_global_
+  - /hydra/default
+  - _self_
+

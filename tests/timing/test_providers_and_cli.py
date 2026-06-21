@@ -263,7 +263,7 @@ class TimingProviderCliTests(unittest.TestCase):
         stdout = io.StringIO()
         with mock.patch.object(fit_audio, "BeatThisTimingProvider", _FakeBeatThisTimingProvider):
             with contextlib.redirect_stdout(stdout):
-                exit_code = fit_audio.main(["song.mp3", "--json"])
+                exit_code = fit_audio.main(["audio_path=song.mp3", "emit_json=true"])
 
         self.assertEqual(exit_code, 0)
         report = json.loads(stdout.getvalue())
@@ -280,7 +280,9 @@ class TimingProviderCliTests(unittest.TestCase):
         stdout = io.StringIO()
         with mock.patch.object(fit_audio, "BeatThisTimingProvider", _FakeShiftBeatThisTimingProvider):
             with contextlib.redirect_stdout(stdout):
-                exit_code = fit_audio.main(["song.mp3", "--json", "--super-timing-shifts"])
+                exit_code = fit_audio.main(
+                    ["audio_path=song.mp3", "emit_json=true", "super_timing_shifts=true"]
+                )
 
         self.assertEqual(exit_code, 0)
         report = json.loads(stdout.getvalue())
@@ -305,13 +307,11 @@ class TimingProviderCliTests(unittest.TestCase):
             with contextlib.redirect_stdout(stdout):
                 exit_code = fit_audio.main(
                     [
-                        "song.mp3",
-                        "--json",
-                        "--min-bpm",
-                        "200",
-                        "--max-bpm",
-                        "260",
-                        "--canonicalization",
+                        "audio_path=song.mp3",
+                        "emit_json=true",
+                        "min_bpm=200",
+                        "max_bpm=260",
+                        "canonicalization=bpm-80-160",
                     ]
                 )
 

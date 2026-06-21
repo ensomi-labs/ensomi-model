@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - /schema/inference/stream_with_cache@_global_
+  - /hydra/default
+  - _self_
+

@@ -1,0 +1,5 @@
+# @package _global_
+defaults:
+  - /schema/osu_core/difficulty@_global_
+  - /hydra/default
+  - _self_

@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - /schema/training/control_demo_global@_global_
+  - /hydra/default
+  - _self_
+

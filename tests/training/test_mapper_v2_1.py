@@ -101,12 +101,10 @@ class MapperV21PhaseBTrainingTests(unittest.TestCase):
         ) as train:
             mapper_v2_1_training.main(
                 [
-                    "--config",
-                    "configs/training/stage2_mapper_v2_1_phase_b_sparse_global_mps.yaml",
-                    "--max-steps",
-                    "1",
-                    "--resume-from",
-                    "artifacts/runs/stage2_mapper_v2_1/example/checkpoint.pt",
+                    "--config-name",
+                    "training/stage2_mapper_v2_1_phase_b_sparse_global_mps",
+                    "max_steps=1",
+                    "resume_from=artifacts/runs/stage2_mapper_v2_1/example/checkpoint.pt",
                 ],
             )
 
@@ -143,9 +141,9 @@ class MapperV21PhaseBTrainingTests(unittest.TestCase):
             with patch.object(mapper_v2_1_training, "run_mapper_v2_1_phase_b_training", autospec=True) as train:
                 mapper_v2_1_training.main(
                     [
-                        "--config",
-                        "configs/training/stage2_mapper_v2_1_phase_b_sparse_global_mps.yaml",
-                        "--precompute-control-teacher-cache-only",
+                        "--config-name",
+                        "training/stage2_mapper_v2_1_phase_b_sparse_global_mps",
+                        "precompute_control_teacher_cache_only=true",
                     ],
                 )
 

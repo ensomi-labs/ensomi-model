@@ -199,7 +199,9 @@ class BeatMaterializationTests(unittest.TestCase):
         stdout = io.StringIO()
         with mock.patch.object(fit_audio, "BeatThisTimingProvider", _FakeRampBeatProvider):
             with contextlib.redirect_stdout(stdout):
-                exit_code = fit_audio.main(["song.mp3", "--json", "--ramp-beat-grid"])
+                exit_code = fit_audio.main(
+                    ["audio_path=song.mp3", "emit_json=true", "ramp_beat_grid=true"]
+                )
 
         self.assertEqual(exit_code, 0)
         report = json.loads(stdout.getvalue())
@@ -214,7 +216,12 @@ class BeatMaterializationTests(unittest.TestCase):
         with mock.patch.object(fit_audio, "BeatThisTimingProvider", _FakeRampBeatProvider):
             with contextlib.redirect_stdout(stdout):
                 exit_code = fit_audio.main(
-                    ["song.mp3", "--json", "--ramp-beat-grid", "--ramp-beat-grid-allow-no-hint"]
+                    [
+                        "audio_path=song.mp3",
+                        "emit_json=true",
+                        "ramp_beat_grid=true",
+                        "ramp_beat_grid_allow_no_hint=true",
+                    ]
                 )
 
         self.assertEqual(exit_code, 0)
@@ -230,17 +237,13 @@ class BeatMaterializationTests(unittest.TestCase):
             with contextlib.redirect_stdout(stdout):
                 exit_code = fit_audio.main(
                     [
-                        "song.mp3",
-                        "--json",
-                        "--ramp-beat-grid",
-                        "--ramp-hint-start-ms",
-                        "1000",
-                        "--ramp-hint-end-ms",
-                        "15000",
-                        "--ramp-hint-start-bpm",
-                        "120",
-                        "--ramp-hint-end-bpm",
-                        "260",
+                        "audio_path=song.mp3",
+                        "emit_json=true",
+                        "ramp_beat_grid=true",
+                        "ramp_hint_start_ms=1000",
+                        "ramp_hint_end_ms=15000",
+                        "ramp_hint_start_bpm=120",
+                        "ramp_hint_end_bpm=260",
                     ]
                 )
 
@@ -258,11 +261,10 @@ class BeatMaterializationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             fit_audio.main(
                 [
-                    "song.mp3",
-                    "--json",
-                    "--ramp-beat-grid",
-                    "--ramp-hint-start-ms",
-                    "1000",
+                    "audio_path=song.mp3",
+                    "emit_json=true",
+                    "ramp_beat_grid=true",
+                    "ramp_hint_start_ms=1000",
                 ]
             )
 
@@ -272,7 +274,7 @@ class BeatMaterializationTests(unittest.TestCase):
         stdout = io.StringIO()
         with mock.patch.object(fit_audio, "BeatThisTimingProvider", _FakeRampBeatProvider):
             with contextlib.redirect_stdout(stdout):
-                exit_code = fit_audio.main(["song.mp3", "--json"])
+                exit_code = fit_audio.main(["audio_path=song.mp3", "emit_json=true"])
 
         self.assertEqual(exit_code, 0)
         report = json.loads(stdout.getvalue())

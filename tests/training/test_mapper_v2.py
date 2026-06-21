@@ -95,10 +95,9 @@ class MapperV2PhaseBTrainingTests(unittest.TestCase):
         ) as train:
             mapper_v2_training.main(
                 [
-                    "--config",
-                    "configs/training/stage2_mapper_v2_phase_b_global_mps.yaml",
-                    "--max-steps",
-                    "1",
+                    "--config-name",
+                    "training/stage2_mapper_v2_phase_b_global_mps",
+                    "max_steps=1",
                 ]
             )
 
@@ -133,9 +132,8 @@ class MapperV2PhaseBTrainingTests(unittest.TestCase):
                 with patch.object(mapper_v2_training, "run_mapper_v2_phase_b_training", autospec=True) as train:
                     mapper_v2_training.main(
                         [
-                            "--precompute-control-teacher-cache-only",
-                            "--control-teacher-cache-dir",
-                            str(Path(temp_dir) / "cache"),
+                            "precompute_control_teacher_cache_only=true",
+                            f"control_teacher_cache_dir={Path(temp_dir) / 'cache'}",
                         ]
                     )
 

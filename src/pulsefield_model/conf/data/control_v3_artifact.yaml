@@ -1,0 +1,6 @@
+# @package _global_
+defaults:
+  - /schema/data/control_v3_artifact@_global_
+  - /hydra/default
+  - _self_
+

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import argparse
 import math
 import pickle
 import time
@@ -8,10 +7,14 @@ from dataclasses import asdict, fields
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+import hydra
 import torch
 import yaml
+from omegaconf import DictConfig
 from torch.utils.data import DataLoader, Dataset, Sampler, Subset
 
+from pulsefield_model.cli.configs import ControlDemoGlobalTrainingConfig
+from pulsefield_model.cli.hydra_utils import compose_cli_config, run_hydra_entrypoint, to_config_object
 from pulsefield_model.data.control_demo_global_windows import (
     CONTROL_DEMO_CONFIDENCE_FEATURE_NAMES,
     CONTROL_DEMO_TARGET_FEATURE_NAMES,
@@ -37,6 +40,7 @@ from pulsefield_model.training.common import (
     _advance_training_iterator,
     _atomic_torch_save,
     _capture_rng_state,
+    _config_section_overrides,
     _copy_file_atomically,
     _infinite_loader,
     _json_metrics,
@@ -47,6 +51,7 @@ from pulsefield_model.training.common import (
     _move_optimizer_state_to_device,
     _normalize_config_mapping,
     _normalized_section,
+    _optional_path,
     _restore_rng_state,
     _safe_float_div,
     _set_deterministic_seed,
@@ -920,129 +925,51 @@ def _strict_resume_dataset_report(dataset_report: Mapping[str, Any]) -> dict[str
     }
 
 
-def main(argv: Sequence[str] | None = None) -> None:
-    config_parser = argparse.ArgumentParser(add_help=False)
-    config_parser.add_argument("--config", default=None, help="YAML run config; CLI flags override config values")
-    config_args, _ = config_parser.parse_known_args(argv)
-    config_defaults = load_run_config(config_args.config) if config_args.config is not None else {"model": {}, "loss": {}}
-    model_defaults = config_defaults["model"]
-    loss_defaults = config_defaults["loss"]
-
-    parser = argparse.ArgumentParser(
-        description="Train the Stage 2 density-only global control demo encoder.",
-        parents=[config_parser],
-    )
-    parser.add_argument("--dataset-root", default=config_defaults.get("dataset_root", "dataset"))
-    parser.add_argument("--index-path", default=config_defaults.get("index_path"))
-    parser.add_argument("--eval-index-path", default=config_defaults.get("eval_index_path"))
-    parser.add_argument("--control-v3-timeseries-path", default=config_defaults.get("control_v3_timeseries_path"))
-    parser.add_argument("--output-dir", default=config_defaults.get("output_dir", DEFAULT_OUTPUT_DIR.as_posix()))
-    parser.add_argument("--max-steps", type=int, default=config_defaults.get("max_steps", 5000))
-    parser.add_argument("--eval-every", type=int, default=config_defaults.get("eval_every", 100))
-    parser.add_argument("--save-every", type=int, default=config_defaults.get("save_every"))
-    parser.add_argument("--log-every", type=int, default=config_defaults.get("log_every"))
-    parser.add_argument("--batch-size", type=int, default=config_defaults.get("batch_size", 8))
-    parser.add_argument("--global-attention-budget", type=int, default=config_defaults.get("global_attention_budget"))
-    parser.add_argument("--learning-rate", type=float, default=config_defaults.get("learning_rate", 3e-4))
-    parser.add_argument("--weight-decay", type=float, default=config_defaults.get("weight_decay", 0.01))
-    parser.add_argument("--seed", type=int, default=config_defaults.get("seed", 1337))
-    parser.add_argument("--device", default=config_defaults.get("device", "auto"), choices=("auto", "cpu", "cuda", "mps"))
-    parser.add_argument("--run-name", default=config_defaults.get("run_name", "control_demo_global_encoder"))
-    parser.add_argument("--resume-from", default=config_defaults.get("resume_from"))
-    parser.add_argument("--init-from-control-checkpoint", default=config_defaults.get("init_from_control_checkpoint"))
-    parser.add_argument("--eval-fraction", type=float, default=config_defaults.get("eval_fraction", 0.1))
-    parser.add_argument("--eval-size", type=int, default=config_defaults.get("eval_size"))
-    parser.add_argument(
-        "--final-train-eval-size",
-        type=int,
-        default=config_defaults.get("final_train_eval_size", DEFAULT_FINAL_TRAIN_EVAL_SIZE),
-    )
-    parser.add_argument("--num-workers", type=int, default=config_defaults.get("num_workers", 0))
-    parser.add_argument("--max-cached-maps", type=int, default=config_defaults.get("max_cached_maps"))
-    parser.add_argument("--d-model", type=int, default=model_defaults.get("d_model"))
-    parser.add_argument("--heads", type=int, default=model_defaults.get("heads"))
-    parser.add_argument("--layers", type=int, default=model_defaults.get("layers"))
-    parser.add_argument("--ffn-dim", type=int, default=model_defaults.get("ffn_dim"))
-    parser.add_argument("--dropout", type=float, default=model_defaults.get("dropout"))
-    parser.add_argument("--conv-blocks", type=int, default=model_defaults.get("conv_blocks"))
-    parser.add_argument("--conv-kernel-size", type=int, default=model_defaults.get("conv_kernel_size"))
-    parser.add_argument(
-        "--use-global-memory",
-        action=argparse.BooleanOptionalAction,
-        default=model_defaults.get("use_global_memory"),
-    )
-    parser.add_argument("--global-stride", type=int, default=model_defaults.get("global_stride"))
-    parser.add_argument("--global-layers", type=int, default=model_defaults.get("global_layers"))
-    parser.add_argument("--global-ffn-dim", type=int, default=model_defaults.get("global_ffn_dim"))
-    parser.add_argument("--global-conv-blocks", type=int, default=model_defaults.get("global_conv_blocks"))
-    parser.add_argument("--global-fusion-start-layer", type=int, default=model_defaults.get("global_fusion_start_layer"))
-    parser.add_argument("--global-gate-init", type=float, default=model_defaults.get("global_gate_init"))
-    parser.add_argument("--density-loss-weight", type=float, default=loss_defaults.get("density_loss_weight"))
-    parser.add_argument("--smooth-l1-delta", type=float, default=loss_defaults.get("smooth_l1_delta"))
-    args = parser.parse_args(argv)
-
-    model_overrides = dict(model_defaults)
-    for key in (
-        "d_model",
-        "heads",
-        "layers",
-        "ffn_dim",
-        "dropout",
-        "conv_blocks",
-        "conv_kernel_size",
-        "use_global_memory",
-        "global_stride",
-        "global_layers",
-        "global_ffn_dim",
-        "global_conv_blocks",
-        "global_fusion_start_layer",
-        "global_gate_init",
-    ):
-        value = getattr(args, key)
-        if value is not None:
-            model_overrides[key] = value
-    loss_overrides = dict(loss_defaults)
-    if args.density_loss_weight is not None:
-        loss_overrides["density_loss_weight"] = args.density_loss_weight
-    if args.smooth_l1_delta is not None:
-        loss_overrides["smooth_l1_delta"] = args.smooth_l1_delta
-
-    init_from = Path(args.init_from_control_checkpoint) if args.init_from_control_checkpoint is not None else None
+def _run_control_demo_global_training_from_config(config: DictConfig | ControlDemoGlobalTrainingConfig) -> None:
+    typed_config = to_config_object(config, ControlDemoGlobalTrainingConfig)
     result = run_control_demo_global_training(
-        dataset_root=Path(args.dataset_root),
-        index_path=Path(args.index_path) if args.index_path is not None else None,
-        eval_index_path=Path(args.eval_index_path) if args.eval_index_path is not None else None,
-        control_v3_timeseries_path=(
-            Path(args.control_v3_timeseries_path)
-            if args.control_v3_timeseries_path is not None
-            else None
-        ),
-        output_dir=Path(args.output_dir),
-        max_steps=args.max_steps,
-        eval_every=args.eval_every,
-        save_every=args.save_every,
-        log_every=args.log_every,
-        batch_size=args.batch_size,
-        global_attention_budget=args.global_attention_budget,
-        learning_rate=args.learning_rate,
-        weight_decay=args.weight_decay,
-        seed=args.seed,
-        device_name=args.device,
-        run_name=args.run_name,
-        resume_from=Path(args.resume_from) if args.resume_from is not None else None,
-        init_from_control_checkpoint=init_from,
-        eval_fraction=args.eval_fraction,
-        eval_size=args.eval_size,
-        final_train_eval_size=args.final_train_eval_size,
-        num_workers=args.num_workers,
-        max_cached_maps=args.max_cached_maps,
-        model_config_overrides=model_overrides,
-        loss_config_overrides=loss_overrides,
+        dataset_root=Path(typed_config.dataset_root),
+        index_path=_optional_path(typed_config.index_path),
+        eval_index_path=_optional_path(typed_config.eval_index_path),
+        control_v3_timeseries_path=_optional_path(typed_config.control_v3_timeseries_path),
+        output_dir=Path(typed_config.output_dir),
+        max_steps=typed_config.max_steps,
+        eval_every=typed_config.eval_every,
+        save_every=typed_config.save_every,
+        log_every=typed_config.log_every,
+        batch_size=typed_config.batch_size,
+        global_attention_budget=typed_config.global_attention_budget,
+        learning_rate=typed_config.learning_rate,
+        weight_decay=typed_config.weight_decay,
+        seed=typed_config.seed,
+        device_name=typed_config.device,
+        run_name=typed_config.run_name,
+        resume_from=_optional_path(typed_config.resume_from),
+        init_from_control_checkpoint=_optional_path(typed_config.init_from_control_checkpoint),
+        eval_fraction=typed_config.eval_fraction,
+        eval_size=typed_config.eval_size,
+        final_train_eval_size=typed_config.final_train_eval_size,
+        num_workers=typed_config.num_workers,
+        max_cached_maps=typed_config.max_cached_maps,
+        model_config_overrides=_config_section_overrides(typed_config.model),
+        loss_config_overrides=_config_section_overrides(typed_config.loss),
     )
     print(f"report_path {result.report_path}")
     print(f"checkpoint_path {result.checkpoint_path}")
     print(f"final_loss {result.final_loss:.6f}")
     print(f"completed_steps {result.completed_steps}")
+
+
+@hydra.main(version_base=None, config_path="../conf", config_name="training/control_demo_global")
+def _hydra_main(config: DictConfig) -> None:
+    _run_control_demo_global_training_from_config(config)
+
+
+def main(argv: Sequence[str] | None = None) -> None:
+    if argv is None:
+        run_hydra_entrypoint("training/control_demo_global", _hydra_main, argv)
+        return
+    _run_control_demo_global_training_from_config(compose_cli_config("training/control_demo_global", argv))
 
 
 if __name__ == "__main__":
