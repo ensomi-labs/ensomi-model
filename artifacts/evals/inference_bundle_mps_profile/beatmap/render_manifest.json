@@ -1,0 +1,65 @@
+{
+  "audio_length_ms": 47151,
+  "audio_path": "/Users/l/projects/Pulsefield-model/dataset/0/1086533/audio.mp3",
+  "beatmap_path": "/Users/l/projects/Pulsefield-model/artifacts/evals/inference_bundle_mps_profile/beatmap/oyasumi_bundle_v2_1_sparse_diff4_seed0.osu",
+  "canonical_timepoint_count": 472,
+  "expected_protocol_token_sha256": "219e9f6518bbd57a6af196c0405e0891596dd7881ae2099a03f4dbc1de6ad531",
+  "first_hitobject_ms": 0.0,
+  "hash_matches_profile_run": true,
+  "hitobject_count": 1615,
+  "hold_count": 0,
+  "lane_hitobject_counts": [
+    409,
+    367,
+    367,
+    472
+  ],
+  "last_hitobject_end_ms": 47100.0,
+  "protocol_token_count": 472,
+  "protocol_token_sha256": "219e9f6518bbd57a6af196c0405e0891596dd7881ae2099a03f4dbc1de6ad531",
+  "protocol_tokens_path": "/Users/l/projects/Pulsefield-model/artifacts/evals/inference_bundle_mps_profile/beatmap/protocol_tokens.json",
+  "rendered_spans": {
+    "first_30s": {
+      "end_ms": 30000.0,
+      "path": "/Users/l/projects/Pulsefield-model/artifacts/evals/inference_bundle_mps_profile/beatmap/reamber/oyasumi_bundle_v2_1_sparse_diff4_seed0__first_30s.png",
+      "start_ms": 0.0
+    },
+    "last_30s": {
+      "end_ms": 47100.0,
+      "path": "/Users/l/projects/Pulsefield-model/artifacts/evals/inference_bundle_mps_profile/beatmap/reamber/oyasumi_bundle_v2_1_sparse_diff4_seed0__last_30s.png",
+      "start_ms": 17100.0
+    },
+    "longest_empty_span": {
+      "end_ms": 30000.0,
+      "path": "/Users/l/projects/Pulsefield-model/artifacts/evals/inference_bundle_mps_profile/beatmap/reamber/oyasumi_bundle_v2_1_sparse_diff4_seed0__longest_empty_span.png",
+      "start_ms": 0.0
+    },
+    "middle_30s": {
+      "end_ms": 38550.0,
+      "path": "/Users/l/projects/Pulsefield-model/artifacts/evals/inference_bundle_mps_profile/beatmap/reamber/oyasumi_bundle_v2_1_sparse_diff4_seed0__middle_30s.png",
+      "start_ms": 8550.0
+    },
+    "most_repetitive_span": {
+      "end_ms": 38100.0,
+      "path": "/Users/l/projects/Pulsefield-model/artifacts/evals/inference_bundle_mps_profile/beatmap/reamber/oyasumi_bundle_v2_1_sparse_diff4_seed0__most_repetitive_span.png",
+      "start_ms": 8100.0
+    }
+  },
+  "schema_version": 1,
+  "source_beatmap_metadata": "/Users/l/projects/Pulsefield-model/dataset/0/1086533/Shiggy Jr. - Oyasumi (Cut Ver.) (Pairoxd) [Hard].osu",
+  "source_summary": "/Users/l/projects/Pulsefield-model/artifacts/evals/inference_bundle_mps_profile/summary.json",
+  "status": "ok",
+  "tap_count": 1615,
+  "timing_segments": [
+    {
+      "beat_length_ms": 300.16675914387616,
+      "meter": 4,
+      "offset_ms": 460.0
+    },
+    {
+      "beat_length_ms": 599.2509363295881,
+      "meter": 4,
+      "offset_ms": 29285.0
+    }
+  ]
+}

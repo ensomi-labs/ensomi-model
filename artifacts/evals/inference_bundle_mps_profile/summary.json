@@ -1,0 +1,1497 @@
+{
+  "aggregate": {
+    "audio_seconds_per_compute_second": {
+      "count": 3,
+      "max": 2.7488093628757357,
+      "mean": 2.6489522362854885,
+      "min": 2.502442721334795,
+      "p50": 2.695604624645935,
+      "p95": 2.743488889052756,
+      "p99": 2.7477452681111396
+    },
+    "expected_window_count_per_session": 6,
+    "first_protocol_token_ms": {
+      "count": 3,
+      "max": 2504.2219168972224,
+      "mean": 2226.740805665031,
+      "min": 2068.696000147611,
+      "p50": 2107.30449995026,
+      "p95": 2464.530175202526,
+      "p99": 2496.283568558283
+    },
+    "guards": {
+      "all_passed": true,
+      "expected_protocol_token_sha256": "219e9f6518bbd57a6af196c0405e0891596dd7881ae2099a03f4dbc1de6ad531",
+      "expected_raw_token_sha256": "4cf134ebd0ed770699948255d568e3ae040a8e4c722ad4243470f9f93d238e8a",
+      "outputs_stable": true,
+      "protocol_matches_expected": true,
+      "protocol_output_hashes": [
+        "219e9f6518bbd57a6af196c0405e0891596dd7881ae2099a03f4dbc1de6ad531"
+      ],
+      "raw_matches_expected": true,
+      "raw_output_hashes": [
+        "4cf134ebd0ed770699948255d568e3ae040a8e4c722ad4243470f9f93d238e8a"
+      ],
+      "rows": [
+        {
+          "all_windows_completed": true,
+          "no_dead_end": true,
+          "no_max_tokens_exceeded": true,
+          "session_id": "bundle-profile-measured-0",
+          "terminal_reaches_audio_end": true,
+          "window_count_matches": true
+        },
+        {
+          "all_windows_completed": true,
+          "no_dead_end": true,
+          "no_max_tokens_exceeded": true,
+          "session_id": "bundle-profile-measured-1",
+          "terminal_reaches_audio_end": true,
+          "window_count_matches": true
+        },
+        {
+          "all_windows_completed": true,
+          "no_dead_end": true,
+          "no_max_tokens_exceeded": true,
+          "session_id": "bundle-profile-measured-2",
+          "terminal_reaches_audio_end": true,
+          "window_count_matches": true
+        }
+      ]
+    },
+    "prepare_audio_ms": {
+      "count": 3,
+      "max": 1192.6506659947336,
+      "mean": 1074.02026366132,
+      "min": 1007.5958750676364,
+      "p50": 1021.8142499215901,
+      "p95": 1175.5670243874192,
+      "p99": 1189.2339376732707
+    },
+    "protocol_tokens_per_stream_second": {
+      "count": 3,
+      "max": 29.259649203217055,
+      "mean": 28.21210588151052,
+      "min": 26.743211112853178,
+      "p50": 28.633457328461326,
+      "p95": 29.197030015741483,
+      "p99": 29.24712536572194
+    },
+    "raw_tokens_per_stream_second": {
+      "count": 3,
+      "max": 129.43675325490935,
+      "mean": 124.8027056792245,
+      "min": 118.30471356702846,
+      "p50": 126.6666502157357,
+      "p95": 129.15974295099198,
+      "p99": 129.38135119412587
+    },
+    "request_compute_ms": {
+      "count": 3,
+      "max": 18841.98970790021,
+      "mean": 17829.014360982303,
+      "min": 17153.24483276345,
+      "p50": 17491.808542283252,
+      "p95": 18706.971591338515,
+      "p99": 18814.986084587872
+    },
+    "request_compute_rtf": {
+      "count": 3,
+      "max": 0.39960954609446697,
+      "mean": 0.3781259010621684,
+      "min": 0.36379387145051956,
+      "p50": 0.3709742856415188,
+      "p95": 0.3967460200491722,
+      "p99": 0.39903684088540803
+    },
+    "session_count": 3,
+    "stream_ms": {
+      "count": 3,
+      "max": 17649.339041905478,
+      "mean": 16754.994097320985,
+      "min": 16131.430582841858,
+      "p50": 16484.212667215616,
+      "p95": 17532.82640443649,
+      "p99": 17626.03651441168
+    },
+    "warm_metrics_eligible": true,
+    "warm_request_compute_rtf": {
+      "count": 3,
+      "max": 0.39960954609446697,
+      "mean": 0.3781259010621684,
+      "min": 0.36379387145051956,
+      "p50": 0.3709742856415188,
+      "p95": 0.3967460200491722,
+      "p99": 0.39903684088540803
+    },
+    "warmup_count": 1,
+    "window_latency_ms": {
+      "count": 18,
+      "max": 3458.442207891494,
+      "mean": 2791.6883495248235,
+      "min": 2067.6703329663724,
+      "p50": 2906.1664999462664,
+      "p95": 3449.1146275307983,
+      "p99": 3456.576691819355
+    }
+  },
+  "config": {
+    "audio_length_ms": 47151,
+    "audio_path": "/Users/l/projects/Pulsefield-model/dataset/0/1086533/audio.mp3",
+    "beatthis_checkpoint": "final0",
+    "beatthis_device": "cpu",
+    "control_checkpoint_path": "/Users/l/projects/Pulsefield-model/artifacts/runs/stage2_control_demo/stage2_control_demo_global_d384_l3_stride16_b6/checkpoints/checkpoint_step_002000.pt",
+    "device": "mps",
+    "difficulty": 4.0,
+    "expected_protocol_token_sha256": "219e9f6518bbd57a6af196c0405e0891596dd7881ae2099a03f4dbc1de6ad531",
+    "expected_raw_token_sha256": "4cf134ebd0ed770699948255d568e3ae040a8e4c722ad4243470f9f93d238e8a",
+    "mapper_checkpoint_path": "/Users/l/projects/Pulsefield-model/artifacts/runs/stage2_mapper_v2_1/stage2_mapper_v2_1_phase_b_sparse_global_d384_l4_b2/checkpoint.pt",
+    "mapper_profile": "v2_1_sparse",
+    "max_tokens": 512,
+    "mel_cache_hit_after_run": true,
+    "mel_cache_hit_before_run": true,
+    "mel_cache_path": "artifacts/cache/mel_sr16000_hop10_mel80_v2/aa2ebd5981a774a8/f8ce075f664d96263027a31e98b10e726fd6cfcc432fb4e70cc44e6028f7ac9a.npy",
+    "repeat": 3,
+    "seed": 0,
+    "temperature": 0.0,
+    "token_send_interval_s": 0.0,
+    "use_incremental_mapper_decode": true,
+    "warmup": 1
+  },
+  "created_unix_s": 1784056235.365506,
+  "diagnostic": {
+    "caveat": "MPS exposes CPU-only torch.profiler activity; synchronized wall time is the device timing source.",
+    "control_audio_seconds_per_compute_second": {
+      "count": 6,
+      "max": 105.42898953844043,
+      "mean": 94.31018940309467,
+      "min": 81.46750180533336,
+      "p50": 94.89731998332684,
+      "p95": 103.37929325331848,
+      "p99": 105.01905028141604
+    },
+    "control_logical_windows_per_second": {
+      "count": 6,
+      "max": 13.178623692305054,
+      "mean": 11.788773675386834,
+      "min": 10.18343772566667,
+      "p50": 11.862164997915855,
+      "p95": 12.92241165666481,
+      "p99": 13.127381285177005
+    },
+    "derived_window_breakdown": [
+      {
+        "control_ms": 0.0,
+        "excluded_reason": null,
+        "latency_breakdown_eligible": true,
+        "mapper_context_setup_ms": 6.363000022247434,
+        "mapper_decode_ms": 2084.026833763346,
+        "profiler_active": false,
+        "window_start_ms": 0,
+        "window_total_ms": 2090.3898337855935
+      },
+      {
+        "control_ms": 75.88045787997544,
+        "excluded_reason": "torch_profiler_overhead",
+        "latency_breakdown_eligible": false,
+        "mapper_context_setup_ms": null,
+        "mapper_decode_ms": null,
+        "profiler_active": true,
+        "window_start_ms": 8000,
+        "window_total_ms": 14737.646790919825
+      },
+      {
+        "control_ms": 85.476916981861,
+        "excluded_reason": null,
+        "latency_breakdown_eligible": true,
+        "mapper_context_setup_ms": 6.715708179399371,
+        "mapper_decode_ms": 3379.714374896139,
+        "profiler_active": false,
+        "window_start_ms": 16000,
+        "window_total_ms": 3471.9070000573993
+      },
+      {
+        "control_ms": 83.15824996680021,
+        "excluded_reason": null,
+        "latency_breakdown_eligible": true,
+        "mapper_context_setup_ms": 7.097332971170545,
+        "mapper_decode_ms": 3445.785626070574,
+        "profiler_active": false,
+        "window_start_ms": 24000,
+        "window_total_ms": 3536.0412090085447
+      },
+      {
+        "control_ms": 82.27895898744464,
+        "excluded_reason": null,
+        "latency_breakdown_eligible": true,
+        "mapper_context_setup_ms": 6.408583140000701,
+        "mapper_decode_ms": 2854.89391698502,
+        "profiler_active": false,
+        "window_start_ms": 32000,
+        "window_total_ms": 2943.5814591124654
+      },
+      {
+        "control_ms": 98.19866600446403,
+        "excluded_reason": null,
+        "latency_breakdown_eligible": true,
+        "mapper_context_setup_ms": 7.286126026883721,
+        "mapper_decode_ms": 2986.4513750653714,
+        "profiler_active": false,
+        "window_start_ms": 40000,
+        "window_total_ms": 3091.936167096719
+      }
+    ],
+    "enabled": true,
+    "headline_metrics_eligible": false,
+    "online_control_audio_seconds_per_compute_second": {
+      "count": 5,
+      "max": 105.42898953844043,
+      "mean": 94.78426714167601,
+      "min": 81.46750180533336,
+      "p50": 96.20212069390458,
+      "p95": 103.78923251034286,
+      "p99": 105.10103813282093
+    },
+    "profiler_events": [
+      {
+        "count": 1,
+        "cpu_time_total_us": 3421639.61,
+        "key": "bundle.mapper.generate_window",
+        "self_cpu_time_total_us": 654912.9820000557
+      },
+      {
+        "count": 1,
+        "cpu_time_total_us": 75869.138,
+        "key": "bundle.control.prepare_control_batch",
+        "self_cpu_time_total_us": 3060.220999999976
+      },
+      {
+        "count": 1,
+        "cpu_time_total_us": 81621.57900000001,
+        "key": "bundle.mapper.prepare_window",
+        "self_cpu_time_total_us": 549.1170000000129
+      },
+      {
+        "count": 36487,
+        "cpu_time_total_us": 950250.8870000188,
+        "key": "aten::copy_",
+        "self_cpu_time_total_us": 948451.4680000055
+      },
+      {
+        "count": 3652,
+        "cpu_time_total_us": 613084.8710000105,
+        "key": "aten::_local_scalar_dense",
+        "self_cpu_time_total_us": 612304.4100000187
+      },
+      {
+        "count": 19964,
+        "cpu_time_total_us": 443746.61699996353,
+        "key": "aten::linear",
+        "self_cpu_time_total_us": 436646.06199995993
+      },
+      {
+        "count": 4784,
+        "cpu_time_total_us": 219247.5079999901,
+        "key": "aten::_scaled_dot_product_attention_math_for_mps",
+        "self_cpu_time_total_us": 215219.52099999046
+      },
+      {
+        "count": 3201,
+        "cpu_time_total_us": 48344.3069999959,
+        "key": "aten::gelu",
+        "self_cpu_time_total_us": 48344.3069999959
+      },
+      {
+        "count": 1990,
+        "cpu_time_total_us": 46994.936999994534,
+        "key": "aten::index_select",
+        "self_cpu_time_total_us": 45710.439999989336
+      },
+      {
+        "count": 3200,
+        "cpu_time_total_us": 68779.7969999945,
+        "key": "aten::arange",
+        "self_cpu_time_total_us": 34132.761999995615
+      },
+      {
+        "count": 1194,
+        "cpu_time_total_us": 34625.21399999951,
+        "key": "aten::where",
+        "self_cpu_time_total_us": 33870.808000002246
+      },
+      {
+        "count": 1600,
+        "cpu_time_total_us": 31586.565000002447,
+        "key": "aten::sum",
+        "self_cpu_time_total_us": 31586.565000002447
+      },
+      {
+        "count": 1203,
+        "cpu_time_total_us": 27628.576999996447,
+        "key": "aten::ge",
+        "self_cpu_time_total_us": 27005.320999997617
+      },
+      {
+        "count": 64397,
+        "cpu_time_total_us": 21035.805999958357,
+        "key": "aten::empty",
+        "self_cpu_time_total_us": 21035.805999958357
+      },
+      {
+        "count": 398,
+        "cpu_time_total_us": 17839.893999999404,
+        "key": "aten::argmax",
+        "self_cpu_time_total_us": 17839.893999999404
+      },
+      {
+        "count": 9991,
+        "cpu_time_total_us": 16673.004000010493,
+        "key": "aten::add",
+        "self_cpu_time_total_us": 16662.8790000105
+      },
+      {
+        "count": 806,
+        "cpu_time_total_us": 16902.15500000342,
+        "key": "aten::lt",
+        "self_cpu_time_total_us": 16632.346000004196
+      },
+      {
+        "count": 4396,
+        "cpu_time_total_us": 16482.544999998805,
+        "key": "aten::zero_",
+        "self_cpu_time_total_us": 16482.544999998805
+      },
+      {
+        "count": 4784,
+        "cpu_time_total_us": 15377.951999995083,
+        "key": "aten::cat",
+        "self_cpu_time_total_us": 15377.951999995083
+      },
+      {
+        "count": 796,
+        "cpu_time_total_us": 14098.054999999658,
+        "key": "aten::floor",
+        "self_cpu_time_total_us": 13936.91399999804
+      },
+      {
+        "count": 5993,
+        "cpu_time_total_us": 13460.080000016356,
+        "key": "aten::mul",
+        "self_cpu_time_total_us": 11971.689000021977
+      },
+      {
+        "count": 6793,
+        "cpu_time_total_us": 19692.597999996793,
+        "key": "aten::native_layer_norm",
+        "self_cpu_time_total_us": 11597.52100001929
+      },
+      {
+        "count": 4793,
+        "cpu_time_total_us": 14202.098999992391,
+        "key": "aten::div",
+        "self_cpu_time_total_us": 11325.616999998761
+      },
+      {
+        "count": 38010,
+        "cpu_time_total_us": 13710.371999970903,
+        "key": "aten::select",
+        "self_cpu_time_total_us": 10937.644999976754
+      },
+      {
+        "count": 14,
+        "cpu_time_total_us": 15504.756000000003,
+        "key": "aten::nonzero",
+        "self_cpu_time_total_us": 9820.730999999992
+      },
+      {
+        "count": 96564,
+        "cpu_time_total_us": 9639.055000082266,
+        "key": "aten::as_strided",
+        "self_cpu_time_total_us": 9639.055000082266
+      },
+      {
+        "count": 803,
+        "cpu_time_total_us": 8807.875000001419,
+        "key": "aten::fill_",
+        "self_cpu_time_total_us": 8807.875000001419
+      },
+      {
+        "count": 48810,
+        "cpu_time_total_us": 8138.536000015189,
+        "key": "aten::view",
+        "self_cpu_time_total_us": 8138.536000015189
+      },
+      {
+        "count": 18418,
+        "cpu_time_total_us": 7571.444000012158,
+        "key": "aten::empty_strided",
+        "self_cpu_time_total_us": 7571.444000012158
+      },
+      {
+        "count": 403,
+        "cpu_time_total_us": 7671.185000002315,
+        "key": "aten::gt",
+        "self_cpu_time_total_us": 7551.851000003202
+      },
+      {
+        "count": 2798,
+        "cpu_time_total_us": 6922.895999997874,
+        "key": "aten::sub",
+        "self_cpu_time_total_us": 6913.603999997869
+      },
+      {
+        "count": 1220,
+        "cpu_time_total_us": 22708.694999999003,
+        "key": "aten::index",
+        "self_cpu_time_total_us": 6414.745999992929
+      },
+      {
+        "count": 2021,
+        "cpu_time_total_us": 6359.695000000549,
+        "key": "aten::masked_fill_",
+        "self_cpu_time_total_us": 6353.653000000551
+      },
+      {
+        "count": 15579,
+        "cpu_time_total_us": 943347.0870000129,
+        "key": "aten::_to_copy",
+        "self_cpu_time_total_us": 6167.917999999247
+      },
+      {
+        "count": 3583,
+        "cpu_time_total_us": 6229.741000007063,
+        "key": "aten::clamp",
+        "self_cpu_time_total_us": 5989.2340000149925
+      },
+      {
+        "count": 54255,
+        "cpu_time_total_us": 948791.0659999789,
+        "key": "aten::to",
+        "self_cpu_time_total_us": 5443.978999966129
+      },
+      {
+        "count": 1203,
+        "cpu_time_total_us": 6112.285000007051,
+        "key": "aten::bitwise_and",
+        "self_cpu_time_total_us": 5222.752000000964
+      },
+      {
+        "count": 16385,
+        "cpu_time_total_us": 6016.320999958552,
+        "key": "aten::slice",
+        "self_cpu_time_total_us": 4411.084999908766
+      },
+      {
+        "count": 3186,
+        "cpu_time_total_us": 4253.969000003184,
+        "key": "aten::sigmoid",
+        "self_cpu_time_total_us": 4253.969000003184
+      },
+      {
+        "count": 411,
+        "cpu_time_total_us": 4024.827000000907,
+        "key": "aten::bitwise_not",
+        "self_cpu_time_total_us": 4024.827000000907
+      },
+      {
+        "count": 14860,
+        "cpu_time_total_us": 5558.198000005213,
+        "key": "aten::expand",
+        "self_cpu_time_total_us": 3536.8290000107954
+      },
+      {
+        "count": 1602,
+        "cpu_time_total_us": 3506.7530000002953,
+        "key": "aten::clamp_min",
+        "self_cpu_time_total_us": 3477.0650000029054
+      }
+    ],
+    "session": {
+      "audio_seconds_per_compute_second": 1.3753632729268288,
+      "first_protocol_token_ms": 2091.324791079387,
+      "memory_after_prepare": {
+        "current_allocated_bytes": 122353408,
+        "driver_allocated_bytes": 1406091264,
+        "recommended_max_bytes": 19069665280
+      },
+      "memory_after_stream": {
+        "current_allocated_bytes": 131236096,
+        "driver_allocated_bytes": 2219786240,
+        "recommended_max_bytes": 19069665280
+      },
+      "phase": "diagnostic",
+      "prepare_audio_ms": 1073.8234168384224,
+      "protocol_token_count": 472,
+      "protocol_token_sha256": "219e9f6518bbd57a6af196c0405e0891596dd7881ae2099a03f4dbc1de6ad531",
+      "protocol_tokens_per_stream_second": 14.213119170197587,
+      "raw_token_count": 2088,
+      "raw_token_sha256": "4cf134ebd0ed770699948255d568e3ae040a8e4c722ad4243470f9f93d238e8a",
+      "raw_tokens_per_stream_second": 62.87498480375543,
+      "request_compute_ms": 34282.5789579656,
+      "request_compute_rtf": 0.7270806336655765,
+      "reset_ms": 1009.9121250677854,
+      "run_index": 0,
+      "session_id": "bundle-profile-diagnostic-0",
+      "stream_ms": 33208.755541127175,
+      "window_count": 6,
+      "windows": [
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 132221184,
+            "driver_allocated_bytes": 1850687488,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "diagnostic",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-diagnostic-0",
+          "terminal_ms": 8000,
+          "token_count": 289,
+          "token_sha256": "1d52f9e2d1a120389c2156731f0d6793429a268d1a8531bb02d227bde0b55508",
+          "wall_ms": 2090.3898337855935,
+          "window_end_ms": 8000,
+          "window_index": 0,
+          "window_start_ms": 0
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129683200,
+            "driver_allocated_bytes": 2098151424,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "diagnostic",
+          "profiler_active": true,
+          "run_index": 0,
+          "session_id": "bundle-profile-diagnostic-0",
+          "terminal_ms": 16000,
+          "token_count": 398,
+          "token_sha256": "fab6f6ce386b41edc1138dc81e1161c31b03c80f7534fa573bb4d2b6d367f0b5",
+          "wall_ms": 14737.646790919825,
+          "window_end_ms": 16000,
+          "window_index": 1,
+          "window_start_ms": 8000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129683200,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "diagnostic",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-diagnostic-0",
+          "terminal_ms": 24000,
+          "token_count": 400,
+          "token_sha256": "5223556e170b94c7599707060be97bebf27487313095b5a81ac4eea60aaca15c",
+          "wall_ms": 3471.9070000573993,
+          "window_end_ms": 24000,
+          "window_index": 2,
+          "window_start_ms": 16000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129025792,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "diagnostic",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-diagnostic-0",
+          "terminal_ms": 32000,
+          "token_count": 400,
+          "token_sha256": "5223556e170b94c7599707060be97bebf27487313095b5a81ac4eea60aaca15c",
+          "wall_ms": 3536.0412090085447,
+          "window_end_ms": 32000,
+          "window_index": 3,
+          "window_start_ms": 24000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129025792,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "diagnostic",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-diagnostic-0",
+          "terminal_ms": 40000,
+          "token_count": 319,
+          "token_sha256": "7b5b236769555b41a836d7d579072decca355580f4e887c29a5f4257d6c00158",
+          "wall_ms": 2943.5814591124654,
+          "window_end_ms": 40000,
+          "window_index": 4,
+          "window_start_ms": 32000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 131236096,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "diagnostic",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-diagnostic-0",
+          "terminal_ms": 47160,
+          "token_count": 282,
+          "token_sha256": "aaaecc59313f4895635cba7fab1e05f126a124eda8121406e0797f7b83c756ab",
+          "wall_ms": 3091.936167096719,
+          "window_end_ms": 48000,
+          "window_index": 5,
+          "window_start_ms": 40000
+        }
+      ]
+    },
+    "stage_summaries_ms": {
+      "control.prepare_control_batch": {
+        "count": 6,
+        "max": 98.19866600446403,
+        "mean": 85.33445132585864,
+        "min": 75.88045787997544,
+        "p50": 84.3175834743306,
+        "p95": 95.40236403699964,
+        "p99": 97.63940561097115
+      },
+      "mapper.prepare_window": {
+        "count": 6,
+        "max": 105.48479203134775,
+        "mean": 77.43550022132695,
+        "min": 6.363000022247434,
+        "p50": 89.47156253270805,
+        "p95": 102.1617503138259,
+        "p99": 104.82018368784338
+      }
+    },
+    "synchronized_stage_samples": [
+      {
+        "logical_batch_size": 1,
+        "operation": "prepare_audio",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "control.prepare_control_batch",
+        "start_ms_values": [
+          0
+        ],
+        "synchronized": true,
+        "wall_ms": 87.01345813460648
+      },
+      {
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "mapper.prepare_window",
+        "synchronized": true,
+        "wall_ms": 6.363000022247434,
+        "window_end_ms": 8000,
+        "window_start_ms": 0
+      },
+      {
+        "logical_batch_size": 1,
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "control.prepare_control_batch",
+        "start_ms_values": [
+          8000
+        ],
+        "synchronized": true,
+        "wall_ms": 75.88045787997544
+      },
+      {
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "mapper.prepare_window",
+        "synchronized": true,
+        "wall_ms": 81.62945904769003,
+        "window_end_ms": 16000,
+        "window_start_ms": 8000
+      },
+      {
+        "logical_batch_size": 1,
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "control.prepare_control_batch",
+        "start_ms_values": [
+          16000
+        ],
+        "synchronized": true,
+        "wall_ms": 85.476916981861
+      },
+      {
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "mapper.prepare_window",
+        "synchronized": true,
+        "wall_ms": 92.19262516126037,
+        "window_end_ms": 24000,
+        "window_start_ms": 16000
+      },
+      {
+        "logical_batch_size": 1,
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "control.prepare_control_batch",
+        "start_ms_values": [
+          24000
+        ],
+        "synchronized": true,
+        "wall_ms": 83.15824996680021
+      },
+      {
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "mapper.prepare_window",
+        "synchronized": true,
+        "wall_ms": 90.25558293797076,
+        "window_end_ms": 32000,
+        "window_start_ms": 24000
+      },
+      {
+        "logical_batch_size": 1,
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "control.prepare_control_batch",
+        "start_ms_values": [
+          32000
+        ],
+        "synchronized": true,
+        "wall_ms": 82.27895898744464
+      },
+      {
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "mapper.prepare_window",
+        "synchronized": true,
+        "wall_ms": 88.68754212744534,
+        "window_end_ms": 40000,
+        "window_start_ms": 32000
+      },
+      {
+        "logical_batch_size": 1,
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "control.prepare_control_batch",
+        "start_ms_values": [
+          40000
+        ],
+        "synchronized": true,
+        "wall_ms": 98.19866600446403
+      },
+      {
+        "operation": "stream",
+        "phase": "diagnostic",
+        "run_index": 0,
+        "session_id": "bundle-profile-diagnostic-0",
+        "stage": "mapper.prepare_window",
+        "synchronized": true,
+        "wall_ms": 105.48479203134775,
+        "window_end_ms": 48000,
+        "window_start_ms": 40000
+      }
+    ],
+    "trace_path": "/Users/l/projects/Pulsefield-model/artifacts/evals/inference_bundle_mps_profile/bundle_diagnostic_cpu_trace.json"
+  },
+  "experiment": "inference_bundle_mps_profile",
+  "lifecycle": {
+    "cold_bundle_mount_ms": 622.1663749311119,
+    "memory_after_mount": {
+      "current_allocated_bytes": 119890432,
+      "driver_allocated_bytes": 168247296,
+      "recommended_max_bytes": 19069665280
+    },
+    "memory_before_mount": {
+      "current_allocated_bytes": 0,
+      "driver_allocated_bytes": 458752,
+      "recommended_max_bytes": 19069665280
+    },
+    "registry_startup_ms": 0.0011669471859931946,
+    "shutdown_ms": 39.83479202724993
+  },
+  "machine": {
+    "device": "mps",
+    "machine": "arm64",
+    "mps_available": true,
+    "mps_built": true,
+    "platform": "macOS-26.5.1-arm64-arm-64bit",
+    "process_max_rss_bytes": 3479191552,
+    "profiler_supported_activities": [
+      "ProfilerActivity.CPU"
+    ],
+    "python": "3.10.20",
+    "torch": "2.11.0"
+  },
+  "measured_sessions": [
+    {
+      "audio_seconds_per_compute_second": 2.502442721334795,
+      "first_protocol_token_ms": 2504.2219168972224,
+      "memory_after_prepare": {
+        "current_allocated_bytes": 122353408,
+        "driver_allocated_bytes": 1406091264,
+        "recommended_max_bytes": 19069665280
+      },
+      "memory_after_stream": {
+        "current_allocated_bytes": 131236096,
+        "driver_allocated_bytes": 2219786240,
+        "recommended_max_bytes": 19069665280
+      },
+      "phase": "measured",
+      "prepare_audio_ms": 1192.6506659947336,
+      "protocol_token_count": 472,
+      "protocol_token_sha256": "219e9f6518bbd57a6af196c0405e0891596dd7881ae2099a03f4dbc1de6ad531",
+      "protocol_tokens_per_stream_second": 26.743211112853178,
+      "raw_token_count": 2088,
+      "raw_token_sha256": "4cf134ebd0ed770699948255d568e3ae040a8e4c722ad4243470f9f93d238e8a",
+      "raw_tokens_per_stream_second": 118.30471356702846,
+      "request_compute_ms": 18841.98970790021,
+      "request_compute_rtf": 0.39960954609446697,
+      "reset_ms": 70.7664170768112,
+      "run_index": 0,
+      "session_id": "bundle-profile-measured-0",
+      "stream_ms": 17649.339041905478,
+      "window_count": 6,
+      "windows": [
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 132221184,
+            "driver_allocated_bytes": 1850687488,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-measured-0",
+          "terminal_ms": 8000,
+          "token_count": 289,
+          "token_sha256": "1d52f9e2d1a120389c2156731f0d6793429a268d1a8531bb02d227bde0b55508",
+          "wall_ms": 2502.5817081332207,
+          "window_end_ms": 8000,
+          "window_index": 0,
+          "window_start_ms": 0
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129683200,
+            "driver_allocated_bytes": 2211397632,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-measured-0",
+          "terminal_ms": 16000,
+          "token_count": 398,
+          "token_sha256": "fab6f6ce386b41edc1138dc81e1161c31b03c80f7534fa573bb4d2b6d367f0b5",
+          "wall_ms": 3447.4685839377344,
+          "window_end_ms": 16000,
+          "window_index": 1,
+          "window_start_ms": 8000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129683200,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-measured-0",
+          "terminal_ms": 24000,
+          "token_count": 400,
+          "token_sha256": "5223556e170b94c7599707060be97bebf27487313095b5a81ac4eea60aaca15c",
+          "wall_ms": 3458.442207891494,
+          "window_end_ms": 24000,
+          "window_index": 2,
+          "window_start_ms": 16000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129025792,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-measured-0",
+          "terminal_ms": 32000,
+          "token_count": 400,
+          "token_sha256": "5223556e170b94c7599707060be97bebf27487313095b5a81ac4eea60aaca15c",
+          "wall_ms": 3411.8693340569735,
+          "window_end_ms": 32000,
+          "window_index": 3,
+          "window_start_ms": 24000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129025792,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-measured-0",
+          "terminal_ms": 40000,
+          "token_count": 319,
+          "token_sha256": "7b5b236769555b41a836d7d579072decca355580f4e887c29a5f4257d6c00158",
+          "wall_ms": 2723.9905828610063,
+          "window_end_ms": 40000,
+          "window_index": 4,
+          "window_start_ms": 32000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 131236096,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-measured-0",
+          "terminal_ms": 47160,
+          "token_count": 282,
+          "token_sha256": "aaaecc59313f4895635cba7fab1e05f126a124eda8121406e0797f7b83c756ab",
+          "wall_ms": 2099.572000093758,
+          "window_end_ms": 48000,
+          "window_index": 5,
+          "window_start_ms": 40000
+        }
+      ]
+    },
+    {
+      "audio_seconds_per_compute_second": 2.7488093628757357,
+      "first_protocol_token_ms": 2107.30449995026,
+      "memory_after_prepare": {
+        "current_allocated_bytes": 122353408,
+        "driver_allocated_bytes": 1406091264,
+        "recommended_max_bytes": 19069665280
+      },
+      "memory_after_stream": {
+        "current_allocated_bytes": 131236096,
+        "driver_allocated_bytes": 2219786240,
+        "recommended_max_bytes": 19069665280
+      },
+      "phase": "measured",
+      "prepare_audio_ms": 1021.8142499215901,
+      "protocol_token_count": 472,
+      "protocol_token_sha256": "219e9f6518bbd57a6af196c0405e0891596dd7881ae2099a03f4dbc1de6ad531",
+      "protocol_tokens_per_stream_second": 29.259649203217055,
+      "raw_token_count": 2088,
+      "raw_token_sha256": "4cf134ebd0ed770699948255d568e3ae040a8e4c722ad4243470f9f93d238e8a",
+      "raw_tokens_per_stream_second": 129.43675325490935,
+      "request_compute_ms": 17153.24483276345,
+      "request_compute_rtf": 0.36379387145051956,
+      "reset_ms": 72.77566683478653,
+      "run_index": 1,
+      "session_id": "bundle-profile-measured-1",
+      "stream_ms": 16131.430582841858,
+      "window_count": 6,
+      "windows": [
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 132221184,
+            "driver_allocated_bytes": 1850687488,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 1,
+          "session_id": "bundle-profile-measured-1",
+          "terminal_ms": 8000,
+          "token_count": 289,
+          "token_sha256": "1d52f9e2d1a120389c2156731f0d6793429a268d1a8531bb02d227bde0b55508",
+          "wall_ms": 2106.3497920986265,
+          "window_end_ms": 8000,
+          "window_index": 0,
+          "window_start_ms": 0
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129683200,
+            "driver_allocated_bytes": 2211397632,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 1,
+          "session_id": "bundle-profile-measured-1",
+          "terminal_ms": 16000,
+          "token_count": 398,
+          "token_sha256": "fab6f6ce386b41edc1138dc81e1161c31b03c80f7534fa573bb4d2b6d367f0b5",
+          "wall_ms": 3125.6034169346094,
+          "window_end_ms": 16000,
+          "window_index": 1,
+          "window_start_ms": 8000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129683200,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 1,
+          "session_id": "bundle-profile-measured-1",
+          "terminal_ms": 24000,
+          "token_count": 400,
+          "token_sha256": "5223556e170b94c7599707060be97bebf27487313095b5a81ac4eea60aaca15c",
+          "wall_ms": 3088.3424170315266,
+          "window_end_ms": 24000,
+          "window_index": 2,
+          "window_start_ms": 16000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129025792,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 1,
+          "session_id": "bundle-profile-measured-1",
+          "terminal_ms": 32000,
+          "token_count": 400,
+          "token_sha256": "5223556e170b94c7599707060be97bebf27487313095b5a81ac4eea60aaca15c",
+          "wall_ms": 3101.692416938022,
+          "window_end_ms": 32000,
+          "window_index": 3,
+          "window_start_ms": 24000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129025792,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 1,
+          "session_id": "bundle-profile-measured-1",
+          "terminal_ms": 40000,
+          "token_count": 319,
+          "token_sha256": "7b5b236769555b41a836d7d579072decca355580f4e887c29a5f4257d6c00158",
+          "wall_ms": 2549.685499863699,
+          "window_end_ms": 40000,
+          "window_index": 4,
+          "window_start_ms": 32000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 131236096,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 1,
+          "session_id": "bundle-profile-measured-1",
+          "terminal_ms": 47160,
+          "token_count": 282,
+          "token_sha256": "aaaecc59313f4895635cba7fab1e05f126a124eda8121406e0797f7b83c756ab",
+          "wall_ms": 2155.169208999723,
+          "window_end_ms": 48000,
+          "window_index": 5,
+          "window_start_ms": 40000
+        }
+      ]
+    },
+    {
+      "audio_seconds_per_compute_second": 2.695604624645935,
+      "first_protocol_token_ms": 2068.696000147611,
+      "memory_after_prepare": {
+        "current_allocated_bytes": 122353408,
+        "driver_allocated_bytes": 1406091264,
+        "recommended_max_bytes": 19069665280
+      },
+      "memory_after_stream": {
+        "current_allocated_bytes": 131236096,
+        "driver_allocated_bytes": 2219786240,
+        "recommended_max_bytes": 19069665280
+      },
+      "phase": "measured",
+      "prepare_audio_ms": 1007.5958750676364,
+      "protocol_token_count": 472,
+      "protocol_token_sha256": "219e9f6518bbd57a6af196c0405e0891596dd7881ae2099a03f4dbc1de6ad531",
+      "protocol_tokens_per_stream_second": 28.633457328461326,
+      "raw_token_count": 2088,
+      "raw_token_sha256": "4cf134ebd0ed770699948255d568e3ae040a8e4c722ad4243470f9f93d238e8a",
+      "raw_tokens_per_stream_second": 126.6666502157357,
+      "request_compute_ms": 17491.808542283252,
+      "request_compute_rtf": 0.3709742856415188,
+      "reset_ms": 108.51504188030958,
+      "run_index": 2,
+      "session_id": "bundle-profile-measured-2",
+      "stream_ms": 16484.212667215616,
+      "window_count": 6,
+      "windows": [
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 132221184,
+            "driver_allocated_bytes": 1850687488,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 2,
+          "session_id": "bundle-profile-measured-2",
+          "terminal_ms": 8000,
+          "token_count": 289,
+          "token_sha256": "1d52f9e2d1a120389c2156731f0d6793429a268d1a8531bb02d227bde0b55508",
+          "wall_ms": 2067.6703329663724,
+          "window_end_ms": 8000,
+          "window_index": 0,
+          "window_start_ms": 0
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129683200,
+            "driver_allocated_bytes": 2211397632,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 2,
+          "session_id": "bundle-profile-measured-2",
+          "terminal_ms": 16000,
+          "token_count": 398,
+          "token_sha256": "fab6f6ce386b41edc1138dc81e1161c31b03c80f7534fa573bb4d2b6d367f0b5",
+          "wall_ms": 3289.1914579086006,
+          "window_end_ms": 16000,
+          "window_index": 1,
+          "window_start_ms": 8000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129683200,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 2,
+          "session_id": "bundle-profile-measured-2",
+          "terminal_ms": 24000,
+          "token_count": 400,
+          "token_sha256": "5223556e170b94c7599707060be97bebf27487313095b5a81ac4eea60aaca15c",
+          "wall_ms": 3131.274790968746,
+          "window_end_ms": 24000,
+          "window_index": 2,
+          "window_start_ms": 16000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129025792,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 2,
+          "session_id": "bundle-profile-measured-2",
+          "terminal_ms": 32000,
+          "token_count": 400,
+          "token_sha256": "5223556e170b94c7599707060be97bebf27487313095b5a81ac4eea60aaca15c",
+          "wall_ms": 3156.2867499887943,
+          "window_end_ms": 32000,
+          "window_index": 3,
+          "window_start_ms": 24000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129025792,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 2,
+          "session_id": "bundle-profile-measured-2",
+          "terminal_ms": 40000,
+          "token_count": 319,
+          "token_sha256": "7b5b236769555b41a836d7d579072decca355580f4e887c29a5f4257d6c00158",
+          "wall_ms": 2267.928124871105,
+          "window_end_ms": 40000,
+          "window_index": 4,
+          "window_start_ms": 32000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 131236096,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "measured",
+          "profiler_active": false,
+          "run_index": 2,
+          "session_id": "bundle-profile-measured-2",
+          "terminal_ms": 47160,
+          "token_count": 282,
+          "token_sha256": "aaaecc59313f4895635cba7fab1e05f126a124eda8121406e0797f7b83c756ab",
+          "wall_ms": 2567.2716659028083,
+          "window_end_ms": 48000,
+          "window_index": 5,
+          "window_start_ms": 40000
+        }
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "status": "ok",
+  "warmup_sessions": [
+    {
+      "audio_seconds_per_compute_second": 2.129297308958893,
+      "first_protocol_token_ms": 4574.820084031671,
+      "memory_after_prepare": {
+        "current_allocated_bytes": 122353408,
+        "driver_allocated_bytes": 1398964224,
+        "recommended_max_bytes": 19069665280
+      },
+      "memory_after_stream": {
+        "current_allocated_bytes": 131236096,
+        "driver_allocated_bytes": 2219786240,
+        "recommended_max_bytes": 19069665280
+      },
+      "phase": "warmup",
+      "prepare_audio_ms": 1792.485916055739,
+      "protocol_token_count": 472,
+      "protocol_token_sha256": "219e9f6518bbd57a6af196c0405e0891596dd7881ae2099a03f4dbc1de6ad531",
+      "protocol_tokens_per_stream_second": 23.192463053730766,
+      "raw_token_count": 2088,
+      "raw_token_sha256": "4cf134ebd0ed770699948255d568e3ae040a8e4c722ad4243470f9f93d238e8a",
+      "raw_tokens_per_stream_second": 102.59716706819881,
+      "request_compute_ms": 22143.925041193143,
+      "request_compute_rtf": 0.46963850270817464,
+      "reset_ms": 100.85837496444583,
+      "run_index": 0,
+      "session_id": "bundle-profile-warmup-0",
+      "stream_ms": 20351.439125137404,
+      "window_count": 6,
+      "windows": [
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 132221184,
+            "driver_allocated_bytes": 1848672256,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "warmup",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-warmup-0",
+          "terminal_ms": 8000,
+          "token_count": 289,
+          "token_sha256": "1d52f9e2d1a120389c2156731f0d6793429a268d1a8531bb02d227bde0b55508",
+          "wall_ms": 4573.314417153597,
+          "window_end_ms": 8000,
+          "window_index": 0,
+          "window_start_ms": 0
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129683200,
+            "driver_allocated_bytes": 2211168256,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "warmup",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-warmup-0",
+          "terminal_ms": 16000,
+          "token_count": 398,
+          "token_sha256": "fab6f6ce386b41edc1138dc81e1161c31b03c80f7534fa573bb4d2b6d367f0b5",
+          "wall_ms": 4198.510790942237,
+          "window_end_ms": 16000,
+          "window_index": 1,
+          "window_start_ms": 8000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129683200,
+            "driver_allocated_bytes": 2219573248,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "warmup",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-warmup-0",
+          "terminal_ms": 24000,
+          "token_count": 400,
+          "token_sha256": "5223556e170b94c7599707060be97bebf27487313095b5a81ac4eea60aaca15c",
+          "wall_ms": 3138.708333019167,
+          "window_end_ms": 24000,
+          "window_index": 2,
+          "window_start_ms": 16000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129025792,
+            "driver_allocated_bytes": 2219573248,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "warmup",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-warmup-0",
+          "terminal_ms": 32000,
+          "token_count": 400,
+          "token_sha256": "5223556e170b94c7599707060be97bebf27487313095b5a81ac4eea60aaca15c",
+          "wall_ms": 3376.2963751796633,
+          "window_end_ms": 32000,
+          "window_index": 3,
+          "window_start_ms": 24000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 129025792,
+            "driver_allocated_bytes": 2219573248,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "warmup",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-warmup-0",
+          "terminal_ms": 40000,
+          "token_count": 319,
+          "token_sha256": "7b5b236769555b41a836d7d579072decca355580f4e887c29a5f4257d6c00158",
+          "wall_ms": 2695.808583172038,
+          "window_end_ms": 40000,
+          "window_index": 4,
+          "window_start_ms": 32000
+        },
+        {
+          "completed": true,
+          "dead_end": false,
+          "max_tokens_exceeded": false,
+          "mps_memory": {
+            "current_allocated_bytes": 131236096,
+            "driver_allocated_bytes": 2219786240,
+            "recommended_max_bytes": 19069665280
+          },
+          "phase": "warmup",
+          "profiler_active": false,
+          "run_index": 0,
+          "session_id": "bundle-profile-warmup-0",
+          "terminal_ms": 47160,
+          "token_count": 282,
+          "token_sha256": "aaaecc59313f4895635cba7fab1e05f126a124eda8121406e0797f7b83c756ab",
+          "wall_ms": 2363.546167034656,
+          "window_end_ms": 48000,
+          "window_index": 5,
+          "window_start_ms": 40000
+        }
+      ]
+    }
+  ]
+}
