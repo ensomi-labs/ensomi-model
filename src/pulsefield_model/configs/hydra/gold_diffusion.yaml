@@ -1,0 +1,38 @@
+defaults:
+  - gold_diffusion_schema
+  - override hydra/job_logging: disabled
+  - override hydra/hydra_logging: disabled
+  - _self_
+
+lens_root: ../beatmap-lens
+output: ""
+device: mps
+seed: 73
+max_rows: 512
+holdout_fraction: 0.1
+width: 128
+heads: 4
+layers: 4
+dropout: 0.1
+condition_dropout: 0.15
+batch_size: 4
+learning_rate: 0.0003
+weight_decay: 0.01
+steps: 3000
+eval_every: 100
+log_every: 25
+patience: 8
+max_seconds: 7200
+sampling_steps: 16
+sample_scopes: 3
+sample_seeds: 2
+temperature: 1.0
+final_test: true
+cpu_threads: 4
+
+hydra:
+  run:
+    dir: .
+  job:
+    chdir: false
+  output_subdir: null
