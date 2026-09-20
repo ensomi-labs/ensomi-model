@@ -24,6 +24,7 @@ from ..oracle_time_continuation.storage import file_digest
 from ..scoped_style_modeling.dataset import ContractError
 from ..source_action_modeling.actions import parse_source
 from .condition import GenerationCondition, exact_fields, pinned_bytes
+from .calibration import FORMAT as CALIBRATION_FORMAT
 from .contract import Arm
 from .generate_config import GenerateConfig
 from .generation import RawEvent, Rollout
@@ -33,7 +34,7 @@ from .smoke_run import save_json, source_revision
 from .verification import verify_complete
 
 FORMAT = 'bounded-typed/generation-run-v1'
-MODEL_FORMATS = ('bounded-typed/corpus-training-v1', 'bounded-typed/learning-check-v1')
+MODEL_FORMATS = ('bounded-typed/corpus-training-v1', 'bounded-typed/learning-check-v1', CALIBRATION_FORMAT)
 IDENTITY_FIELDS = ('checkpoint_sha256', 'condition_sha256', 'presentation_sha256',
                    'device', 'cpu_threads', 'seed', 'candidate_budget', 'score_endpoints')
 
@@ -45,10 +46,21 @@ def _load(path, digest, limit):
 def _model(config):
     payload = _load(config.checkpoint_file, config.checkpoint_sha256, config.resources.checkpoint_max_bytes)
     if payload.get('format') not in MODEL_FORMATS:
-        raise ContractError('Generation requires a bounded corpus-training or learning-check checkpoint')
+        raise ContractError('Generation requires bounded training weights or a response-calibration bundle')
     settings = dict(payload['config']['model'])
     settings['arm'] = Arm(settings['arm'])
     model_config = ModelConfig(**settings)
+    calibrated = payload['format'] == CALIBRATION_FORMAT
+    if calibrated != (model_config.response_calibration is not None):
+        raise ContractError('Response calibration coefficients require their explicit model-only bundle format')
+    if calibrated:
+        metadata = payload.get('calibration', {})
+        for field in ('parent_checkpoint_sha256', 'data_sha256'):
+            value = metadata.get(field)
+            if not isinstance(value, str) or len(value) != 64 or any(c not in '0123456789abcdef' for c in value):
+                raise ContractError('Response calibration bundle must pin its base checkpoint and fitting data')
+        if metadata.get('fit', {}).get('weights') != list(model_config.response_calibration):
+            raise ContractError('Response calibration coefficients differ from the recorded fit')
     if (model_config.hidden > 128 or model_config.levels > 8 or model_config.expansion > 4 or
             model_config.coupling_rank > 16):
         raise ContractError('Checkpoint model exceeds the bounded generation envelope')
@@ -58,6 +70,8 @@ def _model(config):
         raise ContractError('Checkpoint contains nonfinite model parameters')
     provenance = dict(format=payload['format'], source_revision=payload['source_revision'],
                       model_config=asdict(model_config))
+    if calibrated:
+        provenance['calibration'] = metadata
     del payload
     return model.to(config.device).eval(), provenance
 

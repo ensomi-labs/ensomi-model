@@ -60,6 +60,8 @@ def model_signature(model):
 def model_digest(model):
     """Device-independent identity of configuration and exact parameter bytes."""
     config = asdict(model.config)
+    if config['response_calibration'] is None:
+        config.pop('response_calibration')
     # Preserve the identity of checkpoints predating optional seed conditioning.
     if config['seed_context'] == 'none':
         config.pop('seed_context')
@@ -320,6 +322,9 @@ class Rollout:
         config.setdefault('routing_hidden', 512)
         config.setdefault('release_routing', 'none')
         config.setdefault('release_hidden', 512)
+        config.setdefault('response_calibration', None)
+        if config['response_calibration'] is not None:
+            config['response_calibration'] = tuple(config['response_calibration'])
         if (snapshot['format'] != 'bounded-typed/rollout-v1' or config != asdict(model.config) or
                 snapshot['parameter_sha256'] != model_digest(model) or snapshot['timing_sha256'] != timing_digest(timing)):
             raise ContractError('Rollout checkpoint differs from its model parameters, configuration or timing condition')

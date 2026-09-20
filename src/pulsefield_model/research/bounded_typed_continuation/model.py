@@ -43,6 +43,7 @@ class ModelConfig:
     routing_hidden: int = 512
     release_routing: str = 'none'
     release_hidden: int = 512
+    response_calibration: tuple[float, ...] | None = None
 
     def __post_init__(self):
         if not isinstance(self.arm, Arm):
@@ -71,6 +72,12 @@ class ModelConfig:
             raise ContractError('Release-routing width must be a positive integer')
         if any(type(n) is not int or n <= 0 for n in (self.memory_hidden, self.memory_stride)):
             raise ContractError('Long-memory width and onset stride must be positive integers')
+        if self.response_calibration is not None:
+            if (self.arm != Arm.R1 or not isinstance(self.response_calibration, (list, tuple)) or
+                    len(self.response_calibration) != 2 or any(type(w) not in (int, float) or
+                    not math.isfinite(w) or w < 0 for w in self.response_calibration)):
+                raise ContractError('Response calibration requires R1 and two finite nonnegative coefficients')
+            object.__setattr__(self, 'response_calibration', tuple(float(w) for w in self.response_calibration))
 
 
 class JointHead(nn.Module):
@@ -301,7 +308,12 @@ class BoundedModel(nn.Module):
         if self.release_residual is not None:
             occupied = torch.tensor([any(s.replay.occupancy) for s in states], device=hands.device)
             scores = scores + self.release_residual(hands, occupied)
-        return scores.masked_fill(~mask, -torch.inf).log_softmax(-1)
+        probabilities = scores.masked_fill(~mask, -torch.inf).log_softmax(-1)
+        if self.config.response_calibration is not None:
+            from .calibration import calibrate, response_features
+            probabilities = calibrate(probabilities, probabilities.new_tensor(response_features(states)),
+                                      probabilities.new_tensor(self.config.response_calibration))
+        return probabilities
 
     def endpoint_log_probs(self, hands: Tensor, states: Sequence[Schedule], heads, endpoints,
                            views: Sequence[TimingView], *, candidate_budget=8192, recompute=True, ledger=None):

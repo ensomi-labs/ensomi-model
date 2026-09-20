@@ -51,6 +51,8 @@ class SmokeConfig:
     resources: SmokeResources = field(default_factory=SmokeResources)
 
     def validate(self):
+        if self.model.response_calibration is not None:
+            raise ContractError('Learning checks require an uncalibrated base; fit response calibration separately')
         if self.device not in ('cpu', 'mps', 'cuda'):
             raise ContractError('Smoke device must be cpu, mps or cuda')
         for name in ('cpu_threads', 'updates', 'batch_size', 'report_every', 'candidate_budget'):

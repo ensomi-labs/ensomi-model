@@ -46,6 +46,8 @@ class TrainConfig:
     resources: SmokeResources = field(default_factory=SmokeResources)
 
     def validate(self):
+        if self.model.response_calibration is not None:
+            raise ContractError('Corpus training requires an uncalibrated base; fit response calibration separately')
         if (self.trainable not in ('all', 'routing', 'release', 'consequence') or
                 self.trainable == 'routing' and self.model.head_routing != 'residual' or
                 self.trainable == 'release' and self.model.release_routing != 'residual' or

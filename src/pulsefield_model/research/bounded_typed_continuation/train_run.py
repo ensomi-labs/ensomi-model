@@ -38,6 +38,8 @@ EXECUTION_FIELDS = {'output_dir', 'resume_from', 'stop_after_checkpoint', 'plan_
 
 def training_identity(config):
     result = deepcopy({key: value for key, value in config.items() if key not in EXECUTION_FIELDS})
+    if result['model'].get('response_calibration') is None:
+        result['model'].pop('response_calibration', None)
     if result.get('trainable', 'all') == 'all':
         result.pop('trainable', None)
     if not result.get('source_kl_weight', 0.):

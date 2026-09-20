@@ -410,6 +410,33 @@ Local outputs belong to `row-response-recovery-20260920-v1/` under
 scoped semantic review:
 `781e908bbe028a309c4d0d4e519b3f7aa629bfac97d34baab8d1f1de43c304c5`.
 
+### Conditional response calibration
+
+An optional R1 `response_calibration` pair contains two fitted nonnegative cost
+coefficients. The costs are the immediate below-30ms head count and the additional
+optimistic count over the next two required onsets. Scoring exponentially tilts
+the frozen policy within each complete-row head-count/LN-start-count composition
+and retains the original probability mass of every composition. Legal support
+and equal-cost within-composition odds remain unchanged. Zero coefficients recover
+the base exactly. These are fixed-state properties; later LN duration, composition
+and organization may change after different actions are sampled.
+
+`calibration.fit` uses cached TRAIN source probabilities and supported native
+families with both zero- and positive-cost alternatives. It fits only the two
+coefficients with source likelihood, group-mean native preference likelihood and
+quadratic regularization. Callers own data identity, split checks and resource
+limits. Fitting needs a compatible SciPy optimizer; inference does not import it.
+On macOS 27, Python 3.10's SciPy 1.15.3 wheel failed to load its PROPACK library;
+the pure-array fitting owner was verified separately with Python 3.11/SciPy 1.17.1.
+
+Generation accepts the explicit model-only format
+`bounded-typed/response-calibration-v1`. It contains the frozen `model` tensors,
+`config.model`, `source_revision`, and `calibration` metadata with the parent
+checkpoint SHA-256, fitting-data SHA-256 and fit result. The recorded fit weights
+must equal the model configuration. It is not an optimizer checkpoint and cannot
+resume ordinary training. Corpus and learning-check entrypoints reject enabled
+calibration. No native quality result is established by this mechanism alone.
+
 ## Exact state and bounded learned context
 
 Exact state retains real LN starts, current occupancy, last attack/release clocks,
@@ -760,8 +787,9 @@ uv run --python 3.10 --extra mps python -m pulsefield_model.research.bounded_typ
   output_dir=artifacts/bounded-typed-continuation/generated-example device=cpu cpu_threads=1 seed=17
 ```
 
-Supported model formats are `bounded-typed/corpus-training-v1` and
-`bounded-typed/learning-check-v1`; their arm must match the condition. The runner
+Supported model formats are `bounded-typed/corpus-training-v1`,
+`bounded-typed/learning-check-v1` and the model-only
+`bounded-typed/response-calibration-v1`; their arm must match the condition. The runner
 loads the saved architecture and strict parameter state, within the supported
 128-hidden/eight-level/four-expansion/16-coupling-rank envelope. It retains native
 temperature-one sampling. `candidate_budget` bounds endpoint scoring work,
