@@ -578,3 +578,36 @@ small model begins to learn a transferable joint distribution from available
 paired charts. Even good source-conditioned NLL can coexist with bad generated
 history. New architecture, memory and BeatThis remain deferred pending that
 failure attribution. No human playability acceptance implied.
+
+
+### Lens review of the completed memorization outputs
+
+Two of six outputs were reviewed through actual frozen Lens calls and viewed
+time-proportional renders. Report:artifacts/joint-audio/20260923-v1/lens-review/
+memorize-review.md; identities/traces:memorize-review-identities.json. Bundles
+memorize-case1-v1 and memorize-scars-v1 retain204 historical human examples
+unchanged; each has25 traced harness calls, all145 manifest files reverified.
+Generated and source charts passed the canonical Lens bridge with0diagnostics.
+
+Imaginary Waltz generatedSHA50f9a7c1f7f515e816e75d7803af1e8eb5036ee7337b6bf4f227402c93d5d21a
+has36attackrows in4600–4900ms. Column1 repeats4836→4846→4856; columns0/1
+repeat8846→8849, withcolumns2/3at8847. Scars generatedSHA
+e9a40e97129fa21b4474c7ec9ccc84054f2e2dbc6e38faeb6de0671917702d5e
+repeats the same columns0/1chord2717→2719 andcolumn1at21325→21326. These
+repeated1–10ms individual-key demands reject both inspected samples as playable
+candidates. They are not merely dense, irregular, Jack-like or different from
+the source. No assertion is made that the architecture inherently requires this
+failure. Repeated3/7ms spacings and10msrecurrences are observations, not a causal
+claim about binning.
+
+Scars source has staggered LN/tap control absent from the sampled generated
+scopes; this is missing observed organization, not a blanket requirement to copy
+LN fraction. Human short-LN and independent-release examples were opened again
+as guards against indiscriminate sparsification. No listening/playtesting or
+whole-chart visual acceptance occurred. The root also viewed both the Imaginary
+Waltz300mszoom and its8500–10000ms dense image.
+
+Revision2 random-query training started from the same pinned R1 initialization.
+Atupdate400, fixedVALjointNLL10.4942→6.40574, time7.15130→4.69706 andevent-row
+3.56572→1.82260; both components improve. The2400-update bounded run is ongoing.
+No model-size, architecture, checkpoint-resume or dataset change was introduced.
