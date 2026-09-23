@@ -4,8 +4,8 @@ Note ID: 2026-09-23-audio-skeleton-r1-integration
 Status: proposed
 Kind: research
 Created: 2026-09-23
-Updated: 2026-09-23
-Product revision: 16209eaf9000867de72ba9c5f04989e1b1e990f6
+Updated: 2026-09-24
+Product revision: 10a16fe64d65fa273d49921aeb6779976ee1117f
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -1496,3 +1496,82 @@ Bound execution to600 seconds, CPU one thread,2 GiB available RAM and40 GiB free
 disk. Stop on source/hash/causal-state mismatch or nonfinite scores. Persist fresh
 artifacts under diagnostics/recovery-conditioning-v1. This probe is exploratory,
 acceptance none; it tests a mechanism rather than a quality gate.
+
+
+### Recovery probe result and external research question
+
+The fixed coverage-v1 recovery panel completed in13.58 seconds on CPU with one
+thread. All18 baseline charts contributed eight distinct eligible prefixes,
+144 total, plus the separately identified failed student SCREW prefix. Every
+translated content tensor was byte-equivalent to its original. No optimization
+or new weights were produced. Fresh results are in
+`diagnostics/recovery-conditioning-v1/result.json`; the consistent BOS supplement
+is `bos-drive.json`. Their numerical summaries and all selected-prefix condition
+values are now exported to a tracked evidence JSON named below.
+
+For actual encoded histories, conditional on an uncommitted4-second wait, the
+next8-second integrated hazard has median3.249924 and median no-event probability
+.038777. Moving all past timestamps forward3800 ms, preserving content and
+occupancy, changes these to16.846483 and4.8275e-8. All144 hazard ratios exceed2;
+the median ratio is5.592885, and28 exceed10. This identifies sensitivity to elapsed
+clocks while holding future audio and content fixed, not a musically approved
+prefix transformation or evidence for a particular replacement architecture.
+
+The nonphysical learned-BOS-history/old-exact-state condition strongly suppresses
+hazard (median next8-second no-event probability .98134); it cannot justify a
+physical reset. A separate **consistent** BOS condition, with both history and
+exact past absent, has median integrated hazard4.871687 and no-event probability
+.007664. Its hazard exceeds the aged condition in116/144 contexts, with median
+ratio1.60695. It is a different conditioning event, not a way to erase committed
+notes or holds. At the named failed student SCREW prefix, evaluated with the
+coverage weights, consistent BOS has8-second hazard2.241745 versus aged .099481.
+
+There are26/144 contexts with conditional no-event probability above.5 after the
+hypothetical4-second wait. Crucially, the initial4-second survival probability
+has median9.2106e-10 and exceeds.01 only2/144 times. These are edge-state probes,
+not an estimate that18% of ordinary charts will stop. The earlier121-second
+SCREW survival calculation is a different horizon and remains separately reported.
+
+On2026-09-24 the user requested a self-contained question for a stronger external
+model, specifying that it can access GitHub repositories but not local untracked
+material. This redirects the immediate work to a concrete expert-review brief.
+The user also clarified that both training and inference should use complete
+audio, redline timing has little reference value, and final note placement is
+the target. The current crop/full-encoding equivalence only covers the finite
+local audio encoder; it does not mean the model uses whole-song musical context.
+New full-audio conditioning must be consistent across training and inference.
+Deferring long-term generated-chart memory does not forbid full-song audio context.
+The real source-history/generated-history mismatch is a separate issue.
+
+Product commit10a16fe64d65fa273d49921aeb6779976ee1117f adds
+`docs/research/audio_joint_expert_question.md`, tracked numeric evidence and two
+unchanged generated Lens PNGs under `docs/research/assets/audio_joint_expert_question/`,
+a README entry and the clarified audio-information contract in the study document.
+The brief states the model, masks, losses, query mixture, actual2000-step checkpoint
+exposure (32000 logical/33862 physical queries), limited48-song training scope,
+failed paired distillation, rare-tail caveat, runtime scope and open architecture
+choices. No local artifact or note path is required to understand it. No music
+files, full dataset, checkpoints or private absolute paths were published.
+
+The GitHub-only delivery requirement was fulfilled by publishing the review
+snapshot, including referenced tracked implementation, to the new branch
+`codex/audio-joint-expert-review` in ensomi-labs/ensomi-model. Product main and the
+agent-notes remote were not updated. The remote branch head equals the exact
+commit above; GitHub API blob hashes for the brief, evidence, two figures and
+model source equal local Git objects. Anonymous web access to the immutable
+Markdown URL also succeeded:
+https://github.com/ensomi-labs/ensomi-model/blob/10a16fe64d65fa273d49921aeb6779976ee1117f/docs/research/audio_joint_expert_question.md
+No pull request or message to the external model was sent; the user will deliver
+this link.
+
+Before publication, the outgoing scope was checked against fetched origin/main
+5c56e28bbf1ab92abaa0436b33c0d33a6c30eead. No outgoing commit or tree tracks
+artifacts/agent-notes. A scoped credential-pattern scan covered71 outgoing code
+history blobs and the new text evidence, with no findings; gitleaks was absent,
+so this is not a claim of a full secret-scanner run. All15 local brief links
+resolve, figures match their inspected PNG bytes and numerical identities were
+checked. `uv run --extra mps --group dev pytest -q tests/research/audio_skeleton
+tests/research/joint_audio_continuation tests/test_package_layout.py` passed141
+tests and22 subtests in5.37 s; the packaged joint-audio `--cfg job` also resolved.
+The final product worktree is clean. The Note remains proposed, acceptance none.
+The broad playability goal remains active, with no live training process.
