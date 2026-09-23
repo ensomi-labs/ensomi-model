@@ -1459,3 +1459,40 @@ Implementation and curated evidence were locally committed. The latter adds a
 self-contained objective, paired result and silent-tail finding to
 `docs/research/audio_conditioned_choreography.md`. No remote push, new release,
 or human-annotation modification occurred.
+
+
+## Recovery conditioning probe
+
+The preceding goal turn made progress: paired checkpoints, native/Lens evidence
+and an independently verified silent-tail mechanism changed the next research
+action. Product HEAD16209eaf9000867de72ba9c5f04989e1b1e990f6 and Note HEAD94ef006
+were revalidated clean. No training job remains live.
+
+A read-only exploratory probe will distinguish sensitivity to elapsed clocks
+from sensitivity to encoded action history, before choosing a new architecture.
+Use the pinned coverage-v1 checkpoint and its existing six TRAIN/twelve VAL native
+charts. Select up to eight unique prefixes per chart near uniform audio-time
+positions, requiring at least30 heads, no occupied lanes and12 seconds remaining.
+No chart futures label these prefixes. Forecast the next12 seconds without
+committing hypothetical rows, reporting survival through4 seconds and conditional
+survival over the next8 seconds separately. These are conditional-risk probes,
+not prevalence estimates of naturally occurring4-second gaps.
+
+Over the latter8 seconds, compare true elapsed clocks to clocks after translating
+the complete observed prefix forward by3800 ms. At the first scored time this
+changes the last-event age from4001 to201 ms. Translation preserves occupancy,
+action order and every content-token gap, while changing relation to the audio;
+verify the content equality. Compare each clock condition with the actual encoded
+history and with the learned BOS history vector. BOS-history/non-BOS-exact pairs
+are explicitly nonphysical network interventions, never a proposed renderer reset.
+The actual and translated full histories are valid alternative physical prefixes,
+but translation carries no human musical-quality label.
+
+Add the already named eight-row SCREW failure as a separate diagnostic, without
+mixing it into the baseline cohort aggregate. Use identical future Mel encodings
+across interventions. Record per-case values, unique-prefix counts, pins, runtime
+and exclusions. No optimization, model-size change or inference-default change.
+Bound execution to600 seconds, CPU one thread,2 GiB available RAM and40 GiB free
+disk. Stop on source/hash/causal-state mismatch or nonfinite scores. Persist fresh
+artifacts under diagnostics/recovery-conditioning-v1. This probe is exploratory,
+acceptance none; it tests a mechanism rather than a quality gate.
