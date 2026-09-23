@@ -476,7 +476,7 @@ No sampled sequence is declared BAD solely for disagreeing with its source.
 
 Clean intervention source:09b919cdeab90e3856fee03a9198d59b4dc527af. Added only
 the joint research owner, packaged schema, focused tests and scoped design-doc
-update. Prior R1 and audio-pilot code unchanged. Local checks cover97 owner tests
+update. Prior R1 and audio-pilot code unchanged. Local checks cover96 owner tests, one package-layout test
 and22 package-resource subtests, with one test fixture corrected while the
 initial combined test process was running; its final focused parity test passed.
 An MPS CPU/float64 conversion bug was found and fixed before commit. These are
@@ -484,3 +484,42 @@ contract/implementation checks, not generation quality evidence.
 
 Preparation launched with the recorded command and clean source. It writes
 canonical features freshly; the old experimental Mel cache is not reused.
+
+
+### Exploratory Result: joint-mel-hazard-rows-v1 memorization
+
+Preparation completed in20.99s with121 TRAIN charts across48 groups and12 VAL
+charts across12 groups. ManifestSHA
+4b995029a5344569d4506ff6b11249f61585d2bf7649285754340909bb06c21b.
+Thirty alternative candidates had different audio bytes, five had unreadable
+paired audio and one failed the inherited admitted-cache minimum-seed rule.
+All60 base songs were retained. New generation itself requires no source seed.
+
+The six TRAIN groups contain14 arrangements (3,3,3,3,1,1). The seeded32-query
+diagnostic happened to contain32 events and no censored examples; this limits
+its ability to demonstrate learned silence/long-rest survival. Survival/state
+mechanics were tested separately.
+
+The300-update fit completed in74.14s. Fixed TRAIN query jointNLL9.6190→0.001238;
+timeNLL5.87993→0.0009102; rowNLL3.73911→0.0003279. Fixed VAL jointNLL10.4942→
+45.3490; timeNLL7.1513→38.2366; event-rowNLL3.5657→7.5866. Thus the gradient
+path and representational memorization gate passed while generalization strongly
+worsened. This is expected evidence of overfitting, not a playable candidate.
+Best/last update300; chosen by TRAIN diagnostic score. Best checkpointSHA
+cd935cb876b0716b34459425fcfd27314971c6ceaf1cc14cb038cb05e2bfa42c.
+Observed MPS driver allocation1.31GB, RSS~0.98GB, availableRAM~7.2GB.
+No resource guard or nonfinite failure. Raw freeze/evaluations/update logs and
+checkpoints remain under artifacts/joint-audio/20260923-v1/training/memorize-v1.
+
+Native six-TRAIN-case generation launched using the explicit checkpoint pin,
+deviceCPU, one thread, seed17+case index,900s aggregate bound,4s query chunks,
+no source rows. First complete case0e5557107b9f covered278.23s in35.04s with
+4083rows/4114heads. Its8s coverage took1.793s, stepP99 was12.50ms, including
+whole-song learned encoding but excluding decode/Mel/cache verification. About
+272/1000heads followed a same-lane attack/release within20ms; Lens inspection
+is pending to characterize actual organization. No threshold alone is a BAD
+label. This case is a diagnostic overfit rollout, not a final quality result.
+
+Current research recommendation: REFINE through randomized paired-chart training
+if native inspection confirms sampling/coverage failure rather than a broken
+state/probability contract. Do not enlarge the encoder before that comparison.
