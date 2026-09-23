@@ -1575,3 +1575,29 @@ tests/research/joint_audio_continuation tests/test_package_layout.py` passed141
 tests and22 subtests in5.37 s; the packaged joint-audio `--cfg job` also resolved.
 The final product worktree is clean. The Note remains proposed, acceptance none.
 The broad playability goal remains active, with no live training process.
+
+
+## Paired-audio expansion audit
+
+The preceding goal turn delivered new recovery evidence and the published expert
+brief, so it was progress. Product10a16fe and Note5048abd were revalidated clean;
+no training remains live. The immediate independent work is data preparation,
+without committing to a new architecture before the external feedback arrives.
+
+Audit the existing pinned13216-entry TRAIN/VAL catalog and its admitted source
+cache. Verify source/cache identities; locate each paired audio through the source
+header and hash unique audio paths. Report exact-byte audio collisions across
+splits and metadata groups, missing audio and source eligibility. Compute note
+placement statistics relevant to coverage: event/head counts, head-row density,
+LN fraction and durations, opening waits and later event/head gaps. These are
+sampling descriptors, not Tech/Jack/LN-coordination labels. No TEST entries or
+human labels are used, and no model generation or fit selects the new candidates.
+
+The audit writes fresh metadata only under
+`artifacts/joint-audio/20260924-data-audit-v1`, at most900 seconds, with one CPU
+thread,2 GiB available memory and40 GiB free disk guards. Canonical Mel and decoded
+waveforms are not computed during this first identity pass; equal encoded audio
+bytes prove an identity, but unequal bytes do not prove different recordings.
+A candidate expanded cohort will be selected only after the audit, preserving
+named baseline identities where compatible with the stronger split boundary.
+No checkpoint or published expert-review snapshot changes in this pass.
