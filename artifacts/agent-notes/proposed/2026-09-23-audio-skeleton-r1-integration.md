@@ -470,3 +470,17 @@ broader paired training, not retaining this architecture by default. Failure to
 fit directs gradient/representation analysis before scale. Good likelihood with
 poor native outputs directs investigation of feedback and multimodal choices.
 No sampled sequence is declared BAD solely for disagreeing with its source.
+
+
+### Execution start: joint-mel-hazard-rows-v1
+
+Clean intervention source:09b919cdeab90e3856fee03a9198d59b4dc527af. Added only
+the joint research owner, packaged schema, focused tests and scoped design-doc
+update. Prior R1 and audio-pilot code unchanged. Local checks cover97 owner tests
+and22 package-resource subtests, with one test fixture corrected while the
+initial combined test process was running; its final focused parity test passed.
+An MPS CPU/float64 conversion bug was found and fixed before commit. These are
+contract/implementation checks, not generation quality evidence.
+
+Preparation launched with the recorded command and clean source. It writes
+canonical features freshly; the old experimental Mel cache is not reused.
