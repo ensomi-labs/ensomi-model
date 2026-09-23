@@ -523,3 +523,58 @@ label. This case is a diagnostic overfit rollout, not a final quality result.
 Current research recommendation: REFINE through randomized paired-chart training
 if native inspection confirms sampling/coverage failure rather than a broken
 state/probability contract. Do not enlarge the encoder before that comparison.
+
+
+### Native completion and next bounded comparison
+
+All six memorization native TRAIN cases completed in140.60s total, CPU1; every
+case passed exact mechanics/export/reparse.8s cached-Mel coverage ranged0.554–
+2.169s. Their same-lane <20ms relation counts ranged196–333 per1000heads. This
+consistent local pressure and the held-out likelihood regression reject using
+the32-query fit as a candidate. Lens inspection runs separately on these actual
+outputs; no numerical relation threshold is treated as universal playability.
+
+## Experiment Card: joint-mel-hazard-rows-v1 (revision 2)
+
+Owning Note and standing authority unchanged; proposed, acceptance none.
+Revision1 is completed exploratory evidence above. Revision2 keeps the exact
+representation/model and pinned canonical corpus, changing only training exposure
+from32fixedqueries to fresh group→chart→query sampling across all48 TRAIN groups
+and121arrangements. This is a necessary full-distribution baseline after the
+memorization check, not evidence for a larger architecture. Baseline source and
+intervention source are both09b919cdeab90e3856fee03a9198d59b4dc527af; no code
+changes. Same R1 checkpoint and initial random seed230923. Same12VAL groups and
+48fixedVALqueries; their untrained baseline jointNLL10.4942 (time7.1513,
+event-row3.5657), descriptive single-seed evidence.
+
+Exact command: uv run --extra mps python -m
+ensomi_model.research.joint_audio_continuation.hydra mode=train
+run_name=random-v1 fixed_train_queries=0 train_groups=0 updates=2400
+validation_every=400 batch_size=16 cpu_threads=2 max_seconds=1200.
+All other schema defaults and optimizer/objective/query mixture remain fixed.
+Fresh output training/random-v1; no resume/overwrite. Bound1200s, unchanged
+2GiBavailableRAM/40GiBdisk/nonfinite/PAUSE guards. Paired fixed48VALqueries compare
+update0 and selected checkpoint; fresh48TRAINprobe queries are descriptive only.
+
+Learning gate: VAL jointNLL improves at least10% over update0, with both time and
+rowNLL finite and neither >10% worse. This is a development learning gate, not
+a model quality metric. A failure warrants investigating objective/data fit
+before more parameters. A pass proceeds to native BOS generation on the same
+six TRAIN songs (seed17+index) and six VAL songs, identical sampling and900s
+aggregate bound percohort, pinned best checkpoint, CPU1. Preserve all output
+rows, timings, mechanics and source-render context.
+
+Primary adoption evidence remains native organization: inspect opening, dense
+passages and independent-release passages using Lens, compare the actual local
+relationships to source/human examples. Long constant-spacing/jack organization,
+complex fractions and asynchronous releases must remain available; global
+sparsity/regularity is not a goal. Generated density differences alone remain
+ambiguous. Compare rates of suspicious local relationships descriptively and
+review concrete examples rather than declaring a threshold-based win.
+
+This comparison changes exposure and batch size, so it cannot isolate a single
+optimizer effect or prove architectural superiority. It asks whether the chosen
+small model begins to learn a transferable joint distribution from available
+paired charts. Even good source-conditioned NLL can coexist with bad generated
+history. New architecture, memory and BeatThis remain deferred pending that
+failure attribution. No human playability acceptance implied.
