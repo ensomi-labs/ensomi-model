@@ -1636,3 +1636,132 @@ slice, not a product duration limit. The corpus and evaluation identity must be
 frozen before any model fit or native quality selection. No new training or
 architecture choice is authorized by a favorable data audit alone; the existing
 user research authority remains the execution basis for subsequent scoped work.
+
+
+## Expert feedback and the first discriminating experiment
+
+The user supplied external-model feedback on2026-09-24, attachment SHA
+6f4997ad9e900e85fa7c8815f467e60a0cc8cd116ea54383a77bfcb160ed109a.
+Its technical recommendations are treated as research input, not acceptance of
+an exact Experiment Card. The standing user authority covers implementation and
+bounded experiments. The primary adopted order is: increase paired-song coverage
+with the current model/objective; then separate full-song coarse audio from bounded
+history modulation in a2x2 experiment; consider a persistent small latent only if
+composition consistency remains a demonstrated bottleneck.
+
+Two corrections are material. Hazard times conditional-row likelihood is a valid
+chain factorization; absence of a gradient through a sampled time is not itself
+a defective likelihood. A marked-intensity reparameterization need not enlarge
+the support. Also, the144 recovery probes deliberately required>=30 heads and
+free lanes, so they do not cover the10-head SCREW failure or held-note prefixes.
+The next evaluation must retain BOS,1–29-head and mature states, with held/free
+subgroups, and count failed early generations instead of conditioning them away.
+
+### Expanded paired corpus
+
+All660 requested VAL/core waveforms decoded successfully in about199 seconds,
+and all60 existing canonical waveform hashes reproduced. No additional different-
+file/same-PCM pair was found in that scope. A metadata reconciliation attaches all
+catalog owners of those already decoded hashes: the known ASGORE cross-split
+identity remains one; no original core TRAIN audio crosses VAL. The first decoder
+receipt listed only requested VAL/core owner occurrences, so its zero cross-split
+count did not include the ASGORE TRAIN owners. The reconciled receipt corrects
+ownership without repeating or changing audio computation.
+
+Deterministic selection with seed230924 retained all60 base charts and chose240
+TRAIN plus36 VAL base groups, six density/LN strata with40/6 groups each. Each new
+TRAIN PCM was checked against every decoded VAL identity;192 new TRAIN audios
+were decoded. Selection took53.86 s and had two candidate exclusions. The selected
+true decoded duration slice is30–720 seconds. This is a preparation slice, not a
+runtime duration limit or an automatic style judgment.
+
+Canonical preparation completed in95.86 s. Corpus root
+`artifacts/joint-audio/20260924-expanded-v1` has585 separate TRAIN arrangements
+from240 groups and36 VAL songs. Manifest SHA
+cc60dd39920c626f3be5498ab8ba7aa342dd0956c0a548cc393d85a1b03f5173.
+Selection SHA bbf550fdfbd1d2d7dc42a4233c448b536695db9cf52465e223a9133743cd138c.
+All133 charts of the previous corpus are retained. Encoded and decoded audio
+identities are disjoint across the selected splits, and the known global collision
+is absent. The98 alternative exclusions are75 different-audio arrangements,
+22 missing local audio and one insufficient-seed source. No source audio was
+fabricated or time-padded to accommodate target notes.
+
+The released R1 checkpoint has6750000 source-onset exposures and10338 nonempty
+source-coverage bitsets; all corresponding catalog sources are TRAIN, with zero
+overlap with the36 selected VAL source identities. Its response and release plans
+both use the same pinned catalog/split and11563 source owners. Native recovery
+pool ownership is being separately verified. Exact identities do not establish
+perceptual/crop/speed de-duplication or that a song was never used in earlier
+model selection.
+
+### Experiment Card: paired-song-coverage-v1
+
+Revision1. Proposed, acceptance none. Question: does increasing paired training
+coverage improve held-out audio-conditioned likelihood and native generation
+without changing the event representation or introducing a new model component?
+This tests the data-coverage branch before the suggested audio/history2x2.
+
+Baseline is the coverage-v1 **last2400-update** checkpoint, not its selected
+best2000 checkpoint. SHA8edd5b723e5bb25673ffe53102e66fb6db2d6cb56ce4bfc4d56a38af6e2a61fd;
+its source is608f092e6cd534638e8e47432bcb98973b79a5a4. Model, data, batching,
+sampling and training files are byte-identical between that source and current
+10a16fe64d65fa273d49921aeb6779976ee1117f, before the explicit normalizer option
+below. Reuse that recorded control rather than rerun the same deterministic
+training recipe. Its original48-song/121-arrangement corpus manifest is
+4b995029a5344569d4506ff6b11249f61585d2bf7649285754340909bb06c21b.
+
+The intervention changes supervised paired data to the frozen240-group/585-chart
+corpus above. Start from the same released R1, torch/sample seed230923 and2.95M
+architecture. Use the same2400 updates,batch16, new/inherited LR3e-4/3e-5,
+AdamW weight decay .01, gradient clipping1, full waiting likelihood, query mixture
+and once-per-long-transition coverage policy. Different numbers of long waits
+can expand the same logical budget into different physical query counts; record
+both counts and wall time. The causal change is data coverage and its source-
+determined coverage examples, not a new loss or decoder rule.
+
+Freeze the existing48-TRAIN audio normalizer for both arms, SHA
+9cf461a0e825f974f0a80a364123c7afedf1683af76e60fe09b0fbe51c2c8287,
+so a changed data-dependent standardization does not change the initial raw-Mel
+function. Add an explicit pinned TRAIN-only normalization override to the
+packaged training config, validate that its audio identities are a subset of
+current TRAIN, and record the actual normalizer in the run freeze. Defaults retain
+existing behavior. This is the only required training-owner change; add focused
+config, ownership and consumption tests and commit before the run.
+
+Evaluate the fixed final2400 endpoint. A common36-song validation panel uses four
+baseline-policy queries per song with seed230926; report old12 and additional24
+separately. Freeze the panel before evaluating either endpoint. Add true-source
+BOS and1–29/mature held/free prefix panels as diagnostics with explicit missing
+strata; they do not alter training. Report each arm's native full outputs from
+BOS on the same36 VAL songs and six original TRAIN examples, seeds17 and19,
+500 ms queries and no head-spacing prior. Retain early failures, capped outputs,
+zero/low-head cases and missing first30 latency as outcomes, never exclusions.
+Per-chart caps are30000 rows and90 seconds, whole-cohort cap900 seconds. Stop and
+record resource/numerical/mechanical failures rather than invent endpoints.
+
+Primary quantitative evidence is new24-song paired per-song joint NLL and native
+early-generation/activity behavior. A>=3% reduction in new-panel mean NLL with
+no>5% old-panel increase is a learning signal, not enough for adoption. Preserve
+or improve the fraction of completed songs reaching30 heads; inspect full-song
+head activity, local rates, LN-head share, occupied-lane time and duration
+quantiles, including per-chart outliers. Flag median head-count ratios outside
+[.75,1.25] or total LN-head ratios outside[.7,1.3] as composition regressions
+requiring actual Lens adjudication, not automatic BAD labels. Report<=10/20 ms
+TAP relations both as absolute counts and per eligible consecutive TAP-to-TAP
+transition. Compare held/free and early/mature behavior without turning a
+conditional tail probability into failure incidence.
+
+Lens review must cover persistent/new failures and surviving expressive patterns;
+source-density agreement and universal anti-repetition scores do not define
+success. If source likelihood improves but native quality does not, shift priority
+to the proposed full-audio/history experiment. If the larger corpus remains
+underfit, this matched-budget stage cannot refute data scaling: record its curves
+and define an explicit continuation before spending a larger training budget.
+No latent, interval-objective change or unknown-history auxiliary enters this Card.
+
+Run on this Mac with MPS, one CPU thread, FP32, at most3600 seconds for the new
+training arm;2 GiB available RAM,40 GiB free disk and root PAUSE guards remain.
+Fresh output is expanded-v1/training/coverage-240-v1; no overwrite or implicit
+resume. Source-normalization provenance and the common evaluation freeze are
+required before generation. Inference profiles exclude/include audio preprocessing
+explicitly. No TEST or new architecture-default adoption follows automatically.
