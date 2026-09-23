@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-23
-Product revision: fa64def92e1a4b57d0ac47e1792b5774c6390f3d
+Product revision: 3a5cea9a2739a8658905a155c612817f2d1d0fc2
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -1288,3 +1288,42 @@ pressure contexts, changed trajectories under paired random seeds, and previousl
 inspected validation songs. No conclusion substitutes for musical listening or
 player feedback. More fitting of this teacher cannot independently discover
 musical arrangement preferences absent from it.
+
+
+### Native distillation preflight and Card revision 2
+
+Implementation commit 3a5cea9a2739a8658905a155c612817f2d1d0fc2 adds only the
+native-window distribution/KL owner and its tests. Twenty-two selected tests
+pass, including six new CPU/MPS tests covering normalized marked/censor mass,
+forced terminal closure, no future-row/LN-endpoint input leak, and gradients
+through shared audio, history, timing and row modules. Architecture, parameter
+count and inference remain unchanged.
+
+Revision 1 preflight ran with artifact diagnostics/native_distill_v1.py, SHA
+9c5ae38298049b71556b76d9b0a548b5609c312e70fda30a355dbc33b891542d,
+command `uv run --extra mps python artifacts/joint-audio/20260923-v1/diagnostics/native_distill_v1.py prepare`.
+It completed in 11.77 s and prepared normalized teacher targets. Source batch
+joint NLL was 4.92971; source gradient norm 15.8977. On the four selected native
+pressure contexts, KL was .220887 and the coefficient-32 gradient norm 408.001.
+Peak observed driver allocation was 2.46 GB and available RAM 7.66 GB. Receipt:
+training/native-distill-v1/preflight.json; targets SHA
+da2e688dd7fdcb8cd5540506470495370446f0267b95cfb4e5baf4fc0b6cf2f4.
+No optimizer update or main arm ran under revision 1.
+
+This preflight changes a protected field before the paired experiment: Card
+native-joint-distillation-v1 revision 2 uses native coefficient **1**, not 32.
+The unweighted pressure-gradient norm is 12.7500, comparable to the source batch;
+this avoids an initially 25.66-fold dominant correction gradient. This is a
+TRAIN-gradient calibration, not validation or sample-quality tuning. Other
+hypotheses, seeds, context selections, learning rates, update counts, metrics,
+guards and resource bounds remain identical to revision 1. No coefficient sweep
+is authorized by this amendment.
+
+Fresh outputs change to training/native-distill-v2 and
+ generation/native-distill-v2-{control,student}-{train,val}; revision 1 artifacts
+remain intact. The revision 2 runner is diagnostics/native_distill_v2.py; pin its
+printed SHA in the next preflight freeze. Commands are
+`uv run --extra mps python artifacts/joint-audio/20260923-v1/diagnostics/native_distill_v2.py prepare`,
+then the same command with `control` and `student`, serially. Both main arms
+require a successful frozen preflight, exact runner bytes and a clean pinned
+implementation commit. The Card and owning Note remain proposed, acceptance none.
