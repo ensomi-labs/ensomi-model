@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-23
-Product revision: 78222bc803069afbfac59107cb8f447a2db533e6
+Product revision: fa64def92e1a4b57d0ac47e1792b5774c6390f3d
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -1125,3 +1125,64 @@ pressure sites, and positive ordinary Jack/LN/Tech-like figures, through Lens.
 Do not call an improvement merely because counts fall. If rate saturation,
 loss of organization, or little benefit occurs, reject the prior and investigate
 history/demand modeling or training; do not tune a threshold grid until it passes.
+
+
+### Result: marked-head-spacing-v1
+
+The clean intervention was a5abc256a964521596b108248818a27c62b80ecf. It adds only
+an optional decoder prior, typed configuration, execution accounting and focused
+tests; all network weights and the canonical audio frontend remain unchanged.
+Scale zero preserves the original row probability/RNG path. Tests cover active
+CPU/MPS terminal normalization and partition invariance, head-vs-release clocks,
+positive mathematical support, rejected-row exclusion from exact and learned
+history, and proposal limits. Nine head-spacing tests pass; existing native
+sampling, source-free inference and configuration tests also pass in the scoped
+runs. A later tests/documentation commit records this evidence without changing
+the generated run's implementation.
+
+Both frozen cohorts completed: six TRAIN cases in 27.649 s and twelve VAL cases
+in 59.489 s on CPU with one thread. All 18 pass exact replay, export/reparse and
+the strict Lens bridge. There are 188 rejected proposals out of 40,889. Consecutive
+same-lane TAP intervals <=10 ms fall from 42 to zero; <=20 ms fall from 157 to10.
+Total heads are 50,901 versus 52,265. Per-chart head ratios have median0.9866 and
+range0.8734–1.0368; this is not a uniform density reduction. No four-interval
+same-lane run in the24–30 ms band was found. That selector tests an obvious form
+of saturation, not global stability or a quality label. YOASOBI and glacia row
+bytes remain identical to the baseline; the reviewed YOASOBI `.osu` is also
+unchanged. Per-chart step P99 is2.138–2.183 ms in this desktop probe.
+
+Eight scoped generated/source action sequences were read through all pages.
+All11 requested generated image pages were viewed, including old and fresh
+pressure scopes, Fffire's chord repetition and its LN-rich ending. The source
+render pages were saved but not viewed in this pass; source actions/times and
+complete endpoints were read. The TRAIN/VAL bundles have26/28 traced calls and
+155/167 frozen files respectively, all byte-verified after inspection. Report:
+lens-review/spacing-prior-review.md; identities:
+lens-review/spacing-prior-review-identity.json; numerical comparison:
+diagnostics/spacing-comparison-v1.json.
+
+The former severe witnesses are absent from the new inspected scopes. Scars
+now has a held column0 under81/89 ms column1 repetitions in the old four-key
+chord-to-8ms-repeat scope. GR4VITY preserves separate54/64 ms LNs, release-only
+rows and different-column heads two milliseconds apart; its ordinary72/83 ms
+same-key figure survives. Fffire retains recurring two-/three-note chords near
+200 ms and an accelerating chord passage. Its ending has staggered LN roles,
+including a39 ms hold. The unchanged YOASOBI candidate provides a complete
+positive-sequence regression guard, not a new independent success sample.
+
+Limits remain visible: Waltz's opening retains15/21 ms same-key pairs, its fresh
+scope has a19 ms repeat, and a fresh GR4VITY scope has another19 ms repeat.
+These are local pressure questions, distinct from short LN tail gaps. No complete
+musical-fit or player-demand judgment is available for the changed charts.
+The predeclared diagnostic, mechanics and specific preservation guards pass,
+but the full playability objective is not complete.
+
+Decision: retain the prior as an explicit experimental option, still disabled
+by default. Do not tune an exponent grid until the current witnesses disappear
+or label every sub-threshold interval universally BAD. The next research branch
+should investigate learning the corrected joint local distribution on native
+histories while retaining source likelihood and expressive-pattern guards;
+original source futures cannot simply be attached to altered generated prefixes.
+The positive template supports local calibration, not a larger encoder, a new
+long-term memory module or a claim of universal stability. No remote publication
+or canonical annotation changes occurred.
