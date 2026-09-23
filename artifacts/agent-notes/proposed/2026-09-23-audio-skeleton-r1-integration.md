@@ -1000,3 +1000,128 @@ question links the concrete archive and asks for time-local musical/physical
 feedback. Work did not wait for that answer. The ultimate reliability goal
 remains active: existing negative samples still require targeted correction;
 new long-term musical memory and explicit style/difficulty controls are deferred.
+
+
+## Head spacing audit and marked-process recovery branch
+
+The previous goal turn made progress: commits, trained checkpoints, a source-free
+inference path and native/Lens evidence changed the available baseline. The
+current continuation revalidated clean product HEAD
+78222bc803069afbfac59107cb8f447a2db533e6 and committed Note HEAD 047a6d5.
+No training or generation process remained live at entry.
+
+An action-specific audit separates consecutive same-lane head types from the
+last release clock. The 121 TRAIN charts contain 179,541 heads and no TAP→TAP
+interval at or below 20 ms. The 18 coverage-v1 outputs contain 52,265 heads,
+157 TAP→TAP intervals at or below 20 ms, including 42 at or below 10 ms.
+These counts locate a distribution mismatch; they do not assign a universal
+human BAD threshold. Receipt: diagnostics/head-interval-audit-v1.json.
+
+A deterministic broader TRAIN-only sample of 256 song groups, up to two charts
+per group, admitted all 440 selected charts and 691,698 heads. It contains no
+same-lane consecutive heads at or below 40 ms. This prompted a full audit of the
+pinned catalog's TRAIN partition, without opening validation or TEST sources.
+All 11,564 TRAIN charts passed their source/cache identity and byte checks,
+covering 16,078,013 heads. None has consecutive same-lane heads at or below
+20 ms. The minimum is 27 ms for TAP→TAP in Laur — A Lasting Promise [HS];
+TAP→LN minimum is 30 ms, LN→TAP and LN→LN minima are 64 ms. There are 130
+TAP→TAP and three TAP→LN intervals at or below 40 ms. This audit completed in
+10.10 s with no exclusions. Receipt and exact selection/pins:
+diagnostics/all-train-head-interval-audit-v1.json. It describes this corpus,
+not a universal motor limit, and includes no playability labels.
+
+A useful analogue is history-dependent point-process recovery: stimulus drive
+and recent-event feedback can be modeled separately. Gerhard, Deger and Truccolo
+(2017), https://doi.org/10.1371/journal.pcbi.1005390, demonstrate that fitted
+point-process models may sample unrealistically high rates despite ordinary
+fit checks; an absolute refractory bound alone may merely produce saturation
+at its boundary. Their GLM/neuronal assumptions and stability theorem do not
+transfer to our finite TCN or beatmap quality. The transferable warning is to
+inspect native dynamics and boundary pileup, not just add a cutoff.
+Paninski's cascade point-process work (2004),
+https://www.cns.nyu.edu/~lcv/pubs/makeAbs.php?loc=Paninski04b,
+provides the stimulus/history modeling analogy. Mark-dependent thinning is the
+closest implementation primitive; our discrete probability calculation is
+stated below rather than importing a Poisson assumption.
+
+### Experiment Card: marked-head-spacing-v1
+
+Revision: 1. Proposed; acceptance none. Execution uses the standing research and
+local-experiment authority. Owning Note and lifecycle are unchanged. This is one
+bounded decoder-prior probe, not an adopted architecture or a new model-size run.
+
+Baseline: product source 78222bc803069afbfac59107cb8f447a2db533e6; frozen
+coverage-v1 best checkpoint
+85f643077d127f9fe3e5256dc7b88512912d9ce8be39d6dbe164ef3ef4c9327e;
+canonical corpus manifest
+4b995029a5344569d4506ff6b11249f61585d2bf7649285754340909bb06c21b.
+Native baseline is the completed six-TRAIN/twelve-VAL cohort, seed 17 + case index,
+500 ms queries, CPU with one thread. The observed 42 TAP→TAP intervals <=10 ms
+across 52,265 generated heads are a diagnostic baseline, not the whole quality
+metric. The reviewed YOASOBI positive sample is a specific regression guard.
+
+Hypothesis: a direct same-key head-history factor can suppress unsupported
+instant rearticulation while preserving close different-key events, all observed
+TRAIN head spacings, and LN tail semantics. Use one scale tau=27 ms, derived from
+the minimum observed TRAIN same-key head spacing. For a proposed row m at t,
+let d_j be time since the last head on each newly pressed lane. Set
+
+    a(m,t) = product_j min(1, (d_j / tau)^4).
+
+A lane with no previous head contributes one. Only TAP/LN_START contribute;
+CLOSE and EMPTY do not. This reads head-to-head time, never tail-to-head reset.
+The exponent four is a fixed smooth-ramp hypothesis, not a fitted physiological
+constant. All observed TRAIN event rows have acceptance exactly one at their
+actual source prefixes. Every positive native head interval retains positive
+mathematical support; there is no global event-spacing or beat-lattice rule.
+Ordinary jacks, short LNs, asynchronous releases and fast distinct-lane figures
+remain representable. This does not prove that every suppressed novel interval
+would be undesirable.
+
+For base hazard h_t and conditional complete-row distribution q_t(m), define
+
+    P(new event m at t | actual history) = h_t q_t(m) a(m,t)
+    P(no accepted event at t | actual history) = 1 - h_t sum_m q_t(m) a(m,t).
+
+Implement by sampling a base proposal and accepting it with probability a.
+Rejected proposals advance fixed-through time but never enter physical replay
+or learned history. Draw a fresh base waiting threshold after rejection; retain
+ordinary residual survival across empty scheduler chunks. Use an independent
+acceptance RNG so accepted-only trajectories preserve the baseline RNG stream.
+At the true terminal with open holds, force closure and normalize legal rows
+with the factor; do not reject a required terminal close into an open-ended map.
+Scale zero must be byte-equivalent to the baseline path. Proposal count is bounded
+as well as committed rows, and capped runs retain partial evidence without
+inventing endpoints.
+
+This is a changed generative distribution, not neutral postprocessing. It uses
+additional TRAIN-only spacing evidence while keeping all network weights fixed.
+A row-only reranker cannot solve the case where every lane has just been pressed;
+a global event cutoff would erase distinct-lane flams. The marked factor instead
+changes time and lane choice jointly. It is a simple candidate to reject or
+retain through evidence, not a claim that it solves all playability.
+
+Implementation owner: joint_audio_continuation/head_spacing.py, optional typed
+config and generator integration, focused probability/state tests and scoped
+documentation. Default remains disabled. Required checks: product probability,
+positive support, exact zero-scale identity, LN close/near-tail head separation,
+no rejected-row history mutation, forced terminal closure, and query partition
+invariance. Record a clean intervention commit before native runs.
+
+Run head_spacing_ms=27 against the unchanged six TRAIN cases and twelve VAL
+cases, same checkpoint/seeds/500 ms query settings, fresh generation/spacing-v1-*
+outputs, at most 900 s per cohort. No training, parameter expansion or network
+access. Existing 2 GiB available-RAM/40 GiB disk/PAUSE guards remain. One CPU
+thread; model and audio preparation scopes stay explicit. Count proposals and
+rejections, timing overhead, head/type rates, and head-interval histograms.
+
+Decision gates: reduce <=10 ms consecutive TAP→TAP relations by at least 90%
+without relying on source-density matching; no mechanical/export/Lens admission
+failure; no persistent new pileup at the 27 ms knee; reviewed YOASOBI candidate
+must remain byte-identical if its proposals all have >=27 ms same-key head ages.
+Record all deviations, including composition/rate changes. Inspect complete
+local episodes in the previously failing TRAIN and VAL scopes plus fresh
+pressure sites, and positive ordinary Jack/LN/Tech-like figures, through Lens.
+Do not call an improvement merely because counts fall. If rate saturation,
+loss of organization, or little benefit occurs, reject the prior and investigate
+history/demand modeling or training; do not tune a threshold grid until it passes.
