@@ -5,8 +5,8 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-23
-Product revision: e2bca3e592800c1a49a1a82b31ae488fa7021e47
-Scope: Released R1 sensitivity to candidate timing; audio-conditioned skeleton learning and downstream integration
+Product revision: 78222bc803069afbfac59107cb8f447a2db533e6
+Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
 ## Question and authority
@@ -921,3 +921,82 @@ difficulty, justify forcing native density to match the source, or label all
 nearby different-lane events BAD. It narrows follow-up toward generated-history
 state/composition and conditional row-tail choices. New memory, hard gap filters
 and blind jitter training remain unselected.
+
+
+### Complete native cohort and one positive prototype
+
+Coverage-v1 generated six TRAIN charts in 28.608 s and all 12 VAL charts in
+60.919 s on CPU with one thread and 500 ms queries. All 18 completed exact
+mechanics and export/reparse. Cached-Mel first-8-second coverage ranged from
+0.103 to 0.352 s; per-chart step P99 ranged from 2.395 to 3.063 ms. These are
+research-generation timings, not client/network deadlines.
+
+Lens still found duplicate-like TAP burdens in some samples. The data-only
+coverage correction therefore does not establish reliable playability. Its
+Scars sample has fewer LNs than random-v1; one stochastic sample does not prove
+lost representational capability. See lens-review/coverage-review.md.
+
+The exact YOASOBI Ano Yume o Nazotte output is a positive prototype candidate:
+896 action events, 862 attack rows, 967 heads and 301 LNs. Lens read every action
+and articulation page (14 pages per view), viewed systematic 2.5-second windows
+every 25 seconds and targeted burst, long-hold, overlap, gap-return and ending
+windows. No continuous all-pixels claim is made. It found coherent motion,
+restrained chords, LN chains and independent held/released roles, with no
+confirmed duplicate-like TAP burden in the complete event sequence. The root
+also viewed the independent-LN and overlapping-obligation renders.
+
+This supports handing off that chart for prototype playtesting, not accepting
+the generator as reliable. Musical fit of the 7.975-second entry, the 4.841-second
+no-head interval at 100.314–105.155, and repeated LN chains requires listening
+and player feedback. Source entry at 19.980 seconds is one authored choice, not
+the unique audio-only answer. No human playtest or audio-listening verdict has
+been received. Report: lens-review/yoasobi-prototype-review.md; trace and bundle
+pins: yoasobi-prototype-review-identity.json. Generated chart SHA:
+cf9ff8c22d24ae4a805f768becd614c62ba3c7d9bba6a50b494e3580ec03758f.
+
+### Exported weights and source-free inference
+
+The inference-only checkpoint retains identical model tensors and normalization
+but omits optimizer/RNG state. It is 11,862,079 bytes, SHA
+29237d5bf25ed40fe1db4a8e022280ee834eae29521d62e3666462c110a71f49,
+at delivery/joint-mel-r1-prototype-v1/model.pt. The adjacent README and
+identity.json record provenance and usage. The exact reviewed chart and audio
+are packaged in YOASOBI-Ano-Yume-o-Nazotte-joint-prototype.osz, SHA
+12527120b2b6968774d8c220bec0239f79490837de3f087e841b3b52046f1150.
+The archive preserves both file bytes; its source presentation header has
+180 BPM, constant SV and OD8. Presentation metadata did not condition generation.
+
+A fresh-Python-process profile on the same sample regenerated canonical Mel and
+all rows byte-identically. Measured imports 0.689 s, setup/model/pins 0.081 s,
+decode 0.403 s, Mel 0.110 s; first 8-second coverage 1.441 s, first 31 heads
+1.515 s, full 242.666-second song 3.380 s. The first-head threshold includes a
+two-head row at 20.805 seconds. OS disk caches were warm; interpreter/bootstrap
+before the script, client and network are excluded. Receipt:
+profiles/coverage-v1-yoasobi-cold.json. This is one sample, not a latency guarantee.
+
+Product commit 78222bc803069afbfac59107cb8f447a2db533e6 adds infer_audio mode,
+using only a pinned checkpoint and an audio file. It does not load a corpus,
+source chart, seed or BPM. Fresh outputs contain canonical Mel, source/model
+identity, step/startup profiles, audio and verified .osu. Source-free export
+uses a declared 120 BPM editor/scroll placeholder, not an inferred beat grid.
+The source-based reviewed archive remains unchanged. The commit also fixes the
+source-free save_rollout case that copied audio without an AudioFilename header.
+Twenty focused inference/config/generation tests passed, including a real short
+WAV with no corpus or source owner, dispatcher projection, exact replay/export,
+resource caps and native CPU/MPS partition behavior.
+
+The real CLI was then run with the stripped checkpoint, seed 26, a fresh root
+artifacts/joint-audio/standalone-proof and only the copied MP3. It reproduced all
+896 row bytes exactly without a manifest in that root. Its exported 967 objects
+also passed the strict Lens preparation bridge, which asserts zero diagnostics.
+Receipts: standalone-proof/inference/yoasobi-v1/result.json and
+profiles/source-free-lens-admission.json. The CLI profile starts after imports;
+its 0.634-second first-8-second value is not interchangeable with the fresh-process
+1.441-second value above.
+
+Code and the owning proposed Note are locally committed; no remote push, new
+release tag or canonical annotation edit occurred. The optional user playtest
+question links the concrete archive and asks for time-local musical/physical
+feedback. Work did not wait for that answer. The ultimate reliability goal
+remains active: existing negative samples still require targeted correction;
+new long-term musical memory and explicit style/difficulty controls are deferred.
