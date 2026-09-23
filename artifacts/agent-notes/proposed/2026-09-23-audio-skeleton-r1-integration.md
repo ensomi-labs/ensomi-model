@@ -701,3 +701,81 @@ Failure of equality requires tracing numerical/partition effects before using
 this as an inference optimization. No quality-preserving claim if rows differ.
 This tests a scheduler cost lever, not a learned-model intervention or speculative
 decoding. Same30000row,2GiBRAM,40GiBdisk,PAUSE guards.
+
+
+### Scheduler probe result
+
+The500msquery rerun on ImaginaryWaltz produced byte-identical4630rows and.osu
+compared with4000msqueries: rowsSHA
+a1a4142a9688040bf8a9ce05cf4eb8d6a408c79678fa40a650111ee335fc793e, osuSHA
+4b4450a0a60b8cf7a0301c6e33f51ec115ce38a1c382ee4e700aa18fb1110b87.
+Generation38.222→9.386s, cached-Mel8scoverage.586→.276s, stepP998.942→2.184ms.
+Scored bins1,857,223→237,341; scheduler steps4633→4659. This is one desktop
+CPU1 pairedcase, not a dedicated benchmark. It supports reducing speculative
+hazard computation while preserving this exact draw; it does not improvechart
+quality. Raw result at generation/random-v1-chunk500.
+
+### VAL inspection scope
+
+ThisFffire shows plausible early/middle pulse, chords andLNorganization in
+viewed windows; its demanding latewindow needs demand/listening/player
+calibration. GR4VITYhas coherent localroles butduplicate-like taps at86910 and
+86912 oncolumn0 arounda source86911anchor. Report and30-call-per-bundle traces
+are at lens-review/random-val-review.md andrandom-val-review-identities.json.
+No whole-chart pass, audio-listening orplayer trial is claimed.
+
+## Experiment Card: joint-mel-hazard-rows-v1 (revision 3)
+
+Proposed, acceptance none; standing execution authority unchanged. Revision2is
+complete. Baseline source09b919cdeab90e3856fee03a9198d59b4dc527af andcheckpoint
+52191e0095f0efc8bc0bc0f3f87765f6606e78d38188cefe32b5d4054542829f. Same133-chart
+canonical corpus/normalization/R1initialization andsame modelarchitecture.
+Intervention source will be recorded after focused checks andcleancommit.
+
+Question: does complete supervision of selected waiting intervals repair the
+late-opening/long-rest exposure hole without worsening common local prediction?
+This is a data/objective-coverage correction, not a larger encoder. The current
+event-prefix sampler only observes the first4s of a selected longer wait.
+
+For a selected BOS/event-prefix target, partition its actual wait into disjoint
+<=4s censored chunks and one final event-containing chunk. Retain physical
+history; the cursor advances without rows. Sum timingNLL acrosschunks andone
+rowNLL, thennormalize per logical example, notperchunk. Preserve absolute-time
+andoutro conditional4squeries. One deterministic initialcoverage pass inserts
+eachof39TRAINlong-gap targets once (oneexampleperupdate, replacingoneslotafter
+normalrandomdraws so remaining RNGstream stays matched). Estimated addedchunk
+work fromfullwaits is5.32% beforethis39-examplepass. Microbatch expanded queries
+at batch_size tokeep peakmemorybounded; accumulategradients andstep once per
+logicalbatch. No endpoint/targettime/cropchoice label becomes an inputfeature.
+
+Add full-gap likelihood probes for the2VALlong transitions, scored separately
+fromthe unchanged48common fixedqueries. Read baselinecheckpoint onthese probes
+beforetraining. Full-gap loss is summedwaitinglikelihood, not per-msF1 or a
+claimthat the source chooses the only acceptable firstattack. Nativeaudio-only
+outputs remain the qualitytarget; timing imitation alone cannot prove playability.
+
+Runname coverage-v1;2400updates,batch16,full_wait_supervision=true,
+coverage_pass=true,train_groups=0,validation_every400,seed230923,CPU2,MPS,
+max_seconds1500. Other revision2defaults unchanged; initializeagain fromR1,
+notresume the more-trained randomcheckpoint. Record both code andsampling
+changes, configuration, exactcoverage andgroup/query-normalization checks.
+Freshoutput; nooverwrite/resume; same2GiBRAM/40GiBdisk/nonfinite/PAUSE guards.
+
+Gate: completepositivecoverage ofall39selected raretransitions bythepass;
+common48VALquery bestcheckpoint jointNLLno morethan10%worse than6.07104, both
+componentsfinite; full-gap2caseNLLbetter than the pinnedbaseline on average
+withoutonecasebecomingnonfinite. Verysmalltargeted probes are diagnostic, not
+population estimates. If positive, use pinnedcheckpoint nativegeneration on
+TRAIN6andVAL12 (includeslate-startsong),500msinferencechunks aftertheexactdraw
+probe,900spercohort. Reportcold/cache scopes explicitly. Reviewplausiblecases,
+startup, same-keytapclusters and LNcoordination viaLens; donot collapse distinct
+release/headrelations into oneBADlabel. Likelihoodgate doesnot imply acceptance.
+
+Expectedfailure: rare-transition supervision improveswhileancestral duplicate
+taps remain. That directs a separate diagnosticofeventhazard vsconditional row
+probabilities at actualwitnesses beforea newarchitecture orquality-filter branch.
+A nonoverlapping chunk partition andper-logical-example normalization are the
+regressionguards: overlapping prefix/tailwindows would doublecountsurvival and
+change the objective incorrectly. Requiredtests compare partitioned andunsplit
+hazard loss/gradients, coverage39targets, BOSat0, longheldstate and unchanged
+commonquery identities. Optionalstylectrl andnewlong-termmemory staydeferred.
