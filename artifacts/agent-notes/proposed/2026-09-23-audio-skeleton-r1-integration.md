@@ -611,3 +611,43 @@ Revision2 random-query training started from the same pinned R1 initialization.
 Atupdate400, fixedVALjointNLL10.4942→6.40574, time7.15130→4.69706 andevent-row
 3.56572→1.82260; both components improve. The2400-update bounded run is ongoing.
 No model-size, architecture, checkpoint-resume or dataset change was introduced.
+
+
+### Exploratory Result: revision2 randomized paired-chart fit
+
+Completed2400updates in989.40s, no resource/nonfinite stop. Best fixedVALquery
+jointNLL was6.07104 atupdate2000 versus10.49416 atinitialization (42.15%lower);
+timeNLL7.15130→4.38610 andevent-rowNLL3.56572→1.79727. The paired development
+learning gate passes. Atupdate2400 VALjointNLL rose to6.46048, so the selected
+checkpoint remains2000, SHA
+52191e0095f0efc8bc0bc0f3f87765f6606e78d38188cefe32b5d4054542829f.
+The fixedTRAINprobe at2000 has jointNLL4.73108, time3.29967, event-row1.56154.
+One seed,48VALqueries and unblinded12song development cohort give no uncertainty
+estimate or general quality claim. Outputs:training/random-v1. Native same-six
+TRAINcohort generation started at generation/random-v1-train with this pinned
+checkpoint, CPU1, original seed17+index and900s aggregate budget.
+
+The artifact-only short-gap diagnostic replayed32time-spaced anchors per stream
+for the memorized ImaginaryWaltzcase. Source and generated prefixes are separately
+replayed fromBOS; no source priming or future endpoints. CPU1,3.51s complete;
+mean P(next-event<=20ms) was.3059 after source events and.4479 after generated
+events, with medians.0010/.0265. At generated absolute clocks, the actual source
+prefix gave mean.4407, similar to generated. The contexts differ in history,
+recency/occupancy and selected anchor distribution; these are not causal effects.
+The finding rejects assuming that the memorization model is well-calibrated on
+all human histories and fails only after generated feedback. Full provenance at
+diagnostics/memorize-v1-firstcase-time32.json; scriptshort_gap_hazards.py.
+The CPU diagnostic ran for3.51s during MPS training; native latency measurement
+was already complete and was not taken during this overlap.
+
+A separate source/sampler audit found a localized startup/rest coverage weakness.
+The4000ms event-prefix branch cannot reach39/130988TRAINtargetrows (.0298%):
+18late first events and21later long gaps. In the actual38400randomdraw stream,
+late-start arrangements receive19positive and525censored BOShistoryqueries;
+six late-start arrangements receive no positive opening target. Only26of39
+long-gap targets are observed positively (46positive exposures total). Overall
+BOSexposure is mostlypositive, so aggregate diagnostics hide this subset. The
+48VALquery probe includes no positive long-gap transition. This is coverage
+weakness, not lackofmodel support orfutureinputleakage. A next comparison should
+cover event-ending and preceding censored windows explicitly. Current baseline
+was not modified. See diagnostics/query-coverage-random-v1.{json,md}.
