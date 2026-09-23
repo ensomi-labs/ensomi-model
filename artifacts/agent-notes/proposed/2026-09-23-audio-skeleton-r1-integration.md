@@ -396,72 +396,79 @@ independent frame peaks are deferred: the former needs audio alignment machinery
 the latter discards chosen-action dependence. No claim of research novelty.
 
 Clean implementation baseline: e2bca3e592800c1a49a1a82b31ae488fa7021e47. Record
-intervention commit in the result before execution. R1 checkpoint SHA remains
+the intervention commit in the result before execution. R1 checkpoint SHA remains
 4b3ec1561e33d0ebe2756cfe13571ec414fd5bb470b430f0c578545863115f70.
 The new model has 2,950,458 parameters, including a 463,392-parameter Mel encoder;
-2,444,688 parameters copy from R1. Omit seed residual, landmark memory, candidate
-consequence and 906 future-query projection columns. Retain exact state and the
-511-row finite content encoder. No pretrained audio model or style teacher.
+2,444,688 parameters copy from R1. Omit the seed residual, landmark memory,
+candidate consequence and 906 future-query projection columns. Retain exact
+state and the 511-row finite content encoder. No pretrained audio model or style
+teacher is used.
 
-Data: canonical frontend fresh at artifacts/joint-audio/20260923-v1, based on
-old pilot manifest d416a1953bb4f0126c084457cd8d6c597c96533da9f40d8e3245949006af934c
+Data: prepare the canonical frontend afresh at
+artifacts/joint-audio/20260923-v1, based on the old pilot manifest
+d416a1953bb4f0126c084457cd8d6c597c96533da9f40d8e3245949006af934c
 and catalog e31b7e8f4daa044503ef2b8411bc41727ba371eec804c9462a4608be8112ad28.
-Keep 48 TRAIN and 12 VAL base songs, admit up to two distinct TRAIN arrangements
-per exact audio/group, no TEST. Hash-verified rows beyond decoded audio end fail
-rather than silently changing VAL. TRAIN normalization weights unique audio once.
-The initial fit selects six deterministic TRAIN groups, one per density/LN
-stratum, keeps their alternatives distinct, and samples group then chart.
+Keep 48 TRAIN and 12 VAL base songs; admit up to two distinct TRAIN arrangements
+per exact audio/group, with no TEST data. Hash-verified rows beyond the decoded
+audio end fail rather than silently changing VAL. TRAIN normalization weights
+unique audio once. The initial fit selects six deterministic TRAIN groups, one
+per density/LN stratum, keeps their alternatives distinct, and samples a group
+then a chart.
 
-Procedure: canonical prepare with the packaged joint_audio Hydra mode=prepare,
-max_seconds=900. After representation/integration tests pass, run mode=train
-run_name=memorize-v1 fixed_train_queries=32 train_groups=6 updates=300
-validation_every=100 batch_size=8 cpu_threads=2 max_seconds=900, other packaged
-defaults. Seed230923; shared/new lr3e-4, inherited lr3e-5, AdamW decay.01, clip1.
-BOS/event-prefix/absolute-time/outro query probabilities .08/.70/.17/.05;
-horizon4000ms, native1ms hazards, ten outputs per absolute10ms bin. Initial
-untrained and updates100/200/300 score exactly the same diagnostic queries.
+Procedure: run canonical preparation with the packaged joint_audio Hydra
+`mode=prepare max_seconds=900`. After representation/integration tests pass, run
+`mode=train run_name=memorize-v1 fixed_train_queries=32 train_groups=6 updates=300
+validation_every=100 batch_size=8 cpu_threads=2 max_seconds=900`, with other
+packaged defaults. Use seed 230923, shared/new learning rate 3e-4, inherited
+learning rate 3e-5, AdamW decay .01 and gradient clip 1.
+BOS/event-prefix/absolute-time/outro query probabilities are .08/.70/.17/.05;
+the horizon is 4000 ms, with native 1 ms hazards and ten outputs per absolute
+10 ms bin. Score exactly the same diagnostic queries before training and at
+updates 100/200/300.
 
 Primary diagnostic: mean joint NLL per fixed TRAIN query; separate event/survival
-NLL and mean action NLL for noncensored targets. A reduction of at least20% in
+NLL and mean action NLL for noncensored targets. A reduction of at least 20% in
 joint NLL is a learning-path gate, not statistical proof or playability. Neither
-component may become nonfinite. Report VAL on four fixed queries per each of12
-songs descriptively; no held-out quality claim from this unblinded cohort.
-Baseline value is measured at update0; no previous model has an equivalent
+component may become nonfinite. Report VAL on four fixed queries for each of 12
+songs descriptively; make no held-out quality claim from this unblinded cohort.
+The baseline value is measured at update 0; no previous model has an equivalent
 likelihood. Paired queries remove query-sampling variation, but one training seed
-and very small memorization pool remain strong confounders.
+and the very small memorization pool remain strong confounders.
 
 If the gate passes, generate native BOS samples from the best diagnostic
 checkpoint on six TRAIN cases, then inspect exact event/hold behavior and Lens
 source/render patterns. This diagnoses rollout mismatch before data scaling;
 memorized-query success alone never authorizes a quality claim. Timings may be
 very poor away from the fixed queries. A wider random-query learning run requires
-an explicit subsequent Card revision/result-grounded choice under the same
+an explicit subsequent Card revision and a result-grounded choice under the same
 standing authority.
 
-Guards: native rows strictly increase on integer clocks, never all-empty; no
-head on held lane, no release without hold, true terminal closes all held lanes.
-Censored query boundaries never force closure. Source endpoints/future timing do
-not enter predictor inputs. Tests cover within-frame multiple events, long rests,
-BOS0, crop/full audio parity, mirror, gradients and scheduler partition survival.
-Native output requires canonical mechanics, export/reparse and Lens admission.
-Qualitative checks preserve possible Tech, dump/Jack and independent releases;
-no global minimum-gap or repetition ban is introduced.
+Guards: native rows strictly increase on integer clocks and are never all-empty;
+there is no head on a held lane or release without a hold, and the true terminal
+closes all held lanes. Censored query boundaries never force closure. Source
+endpoints and future timing do not enter predictor inputs. Tests cover multiple
+events within a frame, long rests, BOS at 0, crop/full audio parity, mirror
+consistency, gradients and scheduler partition survival. Native output requires
+canonical mechanics, export/reparse and Lens admission. Qualitative checks
+preserve possible Tech, dump/Jack and independent releases; no global minimum-gap
+or repetition ban is introduced.
 
-Run bounds: Mac M5,24GiB,MPS, CPU2 training, up to900s per preparation/fit, fresh
-run directory, no overwrite/resume, max30,000rows/song and900s generation bound.
-Stop on PAUSE, nonfinite loss/gradients, availableRAM<2GiB or freedisk<40GiB.
-No network/pretrained downloads. Save resolved Hydra, flat config, corpus and
-checkpoint pins, parameter-transfer report, RNG states, update/resource logs,
-validation records and explicit completion/stop cause. Raw artifacts stay local;
-code and owning Note are committed separately with no remote publication.
+Run bounds: Mac M5, 24 GiB, MPS, two CPU threads for training, up to 900 s per
+preparation/fit, a fresh run directory, no overwrite/resume, at most 30,000 rows
+per song and a 900 s generation bound. Stop on PAUSE, nonfinite loss/gradients,
+available RAM below 2 GiB or free disk below 40 GiB. No network or pretrained
+downloads. Save resolved Hydra, flat config, corpus and checkpoint pins,
+parameter-transfer report, RNG states, update/resource logs, validation records
+and explicit completion/stop cause. Raw artifacts stay local; code and the owning
+Note are committed separately with no remote publication.
 
-Environment deviation before the run: existing SciPy1.15.3 binaries had malformed
-Mach-O TLS zero-fill offsets rejected by macOS27. Eight extensions received only
+Environment deviation before the run: existing SciPy 1.15.3 binaries had malformed
+Mach-O TLS zero-fill offsets rejected by macOS 27. Eight extensions received only
 section-offset metadata repairs and ad-hoc signing. Every file-backed section
-remained byte-identical; versions/lockfile/canonical frontend unchanged. Original
-binaries, script and receipt are preserved at
+remained byte-identical; versions, lockfile and canonical frontend were unchanged.
+Original binaries, script and receipt are preserved at
 artifacts/joint-audio/20260923-v1/runtime/scipy-dyld-repair/receipt.json,
-SHA6dcf6178d89f22e0a563c2a9fc699c5b6a1c5f92a90b26807eed431825ee5ffe.
+SHA 6dcf6178d89f22e0a563c2a9fc699c5b6a1c5f92a90b26807eed431825ee5ffe.
 Canonical data tests and four real/complex PROPACK SVD smoke checks succeeded.
 This is a local environment repair, not shipped model code.
 
@@ -471,410 +478,446 @@ fit directs gradient/representation analysis before scale. Good likelihood with
 poor native outputs directs investigation of feedback and multimodal choices.
 No sampled sequence is declared BAD solely for disagreeing with its source.
 
-
 ### Execution start: joint-mel-hazard-rows-v1
 
-Clean intervention source:09b919cdeab90e3856fee03a9198d59b4dc527af. Added only
+Clean intervention source: 09b919cdeab90e3856fee03a9198d59b4dc527af. Added only
 the joint research owner, packaged schema, focused tests and scoped design-doc
-update. Prior R1 and audio-pilot code unchanged. Local checks cover96 owner tests, one package-layout test
-and22 package-resource subtests, with one test fixture corrected while the
-initial combined test process was running; its final focused parity test passed.
-An MPS CPU/float64 conversion bug was found and fixed before commit. These are
-contract/implementation checks, not generation quality evidence.
+update. Prior R1 and audio-pilot code were unchanged. Local checks cover 96 owner
+tests, one package-layout test and 22 package-resource subtests. One test fixture
+was corrected while the initial combined test process was running; its final
+focused parity test passed. An MPS CPU/float64 conversion bug was found and fixed
+before commit. These are contract/implementation checks, not generation quality
+evidence.
 
 Preparation launched with the recorded command and clean source. It writes
 canonical features freshly; the old experimental Mel cache is not reused.
 
-
 ### Exploratory Result: joint-mel-hazard-rows-v1 memorization
 
-Preparation completed in20.99s with121 TRAIN charts across48 groups and12 VAL
-charts across12 groups. ManifestSHA
+Preparation completed in 20.99 s with 121 TRAIN charts across 48 groups and 12 VAL
+charts across 12 groups. Manifest SHA:
 4b995029a5344569d4506ff6b11249f61585d2bf7649285754340909bb06c21b.
 Thirty alternative candidates had different audio bytes, five had unreadable
 paired audio and one failed the inherited admitted-cache minimum-seed rule.
-All60 base songs were retained. New generation itself requires no source seed.
+All 60 base songs were retained. New generation itself requires no source seed.
 
-The six TRAIN groups contain14 arrangements (3,3,3,3,1,1). The seeded32-query
-diagnostic happened to contain32 events and no censored examples; this limits
-its ability to demonstrate learned silence/long-rest survival. Survival/state
-mechanics were tested separately.
+The six TRAIN groups contain 14 arrangements (3, 3, 3, 3, 1, 1). The seeded
+32-query diagnostic happened to contain 32 events and no censored examples; this
+limits its ability to demonstrate learned silence or long-rest survival.
+Survival/state mechanics were tested separately.
 
-The300-update fit completed in74.14s. Fixed TRAIN query jointNLL9.6190→0.001238;
-timeNLL5.87993→0.0009102; rowNLL3.73911→0.0003279. Fixed VAL jointNLL10.4942→
-45.3490; timeNLL7.1513→38.2366; event-rowNLL3.5657→7.5866. Thus the gradient
-path and representational memorization gate passed while generalization strongly
-worsened. This is expected evidence of overfitting, not a playable candidate.
-Best/last update300; chosen by TRAIN diagnostic score. Best checkpointSHA
+The 300-update fit completed in 74.14 s. Fixed TRAIN query joint NLL fell from
+9.6190 to 0.001238; time NLL from 5.87993 to 0.0009102; row NLL from 3.73911 to
+0.0003279. Fixed VAL joint NLL rose from 10.4942 to 45.3490; time NLL from 7.1513
+to 38.2366; event-row NLL from 3.5657 to 7.5866. Thus the gradient path and
+representational memorization gate passed while generalization strongly worsened.
+This is expected evidence of overfitting, not a playable candidate. Best and last
+were both update 300, chosen by the TRAIN diagnostic score. Best checkpoint SHA:
 cd935cb876b0716b34459425fcfd27314971c6ceaf1cc14cb038cb05e2bfa42c.
-Observed MPS driver allocation1.31GB, RSS~0.98GB, availableRAM~7.2GB.
-No resource guard or nonfinite failure. Raw freeze/evaluations/update logs and
-checkpoints remain under artifacts/joint-audio/20260923-v1/training/memorize-v1.
+Observed MPS driver allocation was 1.31 GB, RSS approximately 0.98 GB and available
+RAM approximately 7.2 GB. No resource guard or nonfinite failure occurred. Raw
+freeze/evaluations/update logs and checkpoints remain under
+artifacts/joint-audio/20260923-v1/training/memorize-v1.
 
 Native six-TRAIN-case generation launched using the explicit checkpoint pin,
-deviceCPU, one thread, seed17+case index,900s aggregate bound,4s query chunks,
-no source rows. First complete case0e5557107b9f covered278.23s in35.04s with
-4083rows/4114heads. Its8s coverage took1.793s, stepP99 was12.50ms, including
-whole-song learned encoding but excluding decode/Mel/cache verification. About
-272/1000heads followed a same-lane attack/release within20ms; Lens inspection
-is pending to characterize actual organization. No threshold alone is a BAD
-label. This case is a diagnostic overfit rollout, not a final quality result.
+CPU with one thread, seed 17 + case index, a 900 s aggregate bound, 4 s query
+chunks and no source rows. The first complete case, 0e5557107b9f, covered 278.23 s
+in 35.04 s with 4083 rows and 4114 heads. Its 8 s coverage took 1.793 s; step P99
+was 12.50 ms, including whole-song learned encoding but excluding decode, Mel and
+cache verification. About 272 per 1000 heads followed a same-lane attack/release
+within 20 ms. Lens inspection is pending to characterize the actual organization.
+No threshold alone is a BAD label. This case is a diagnostic overfit rollout, not
+a final quality result.
 
 Current research recommendation: REFINE through randomized paired-chart training
 if native inspection confirms sampling/coverage failure rather than a broken
 state/probability contract. Do not enlarge the encoder before that comparison.
 
-
 ### Native completion and next bounded comparison
 
-All six memorization native TRAIN cases completed in140.60s total, CPU1; every
-case passed exact mechanics/export/reparse.8s cached-Mel coverage ranged0.554–
-2.169s. Their same-lane <20ms relation counts ranged196–333 per1000heads. This
-consistent local pressure and the held-out likelihood regression reject using
-the32-query fit as a candidate. Lens inspection runs separately on these actual
-outputs; no numerical relation threshold is treated as universal playability.
+All six memorization native TRAIN cases completed in 140.60 s total on CPU with
+one thread; every case passed exact mechanics/export/reparse. Cached-Mel coverage
+of the first 8 s ranged from 0.554 to 2.169 s. Their same-lane <20 ms relation
+counts ranged from 196 to 333 per 1000 heads. This consistent local pressure and
+the held-out likelihood regression reject using the 32-query fit as a candidate.
+Lens inspection runs separately on these actual outputs; no numerical relation
+threshold is treated as universal playability.
 
 ## Experiment Card: joint-mel-hazard-rows-v1 (revision 2)
 
-Owning Note and standing authority unchanged; proposed, acceptance none.
-Revision1 is completed exploratory evidence above. Revision2 keeps the exact
-representation/model and pinned canonical corpus, changing only training exposure
-from32fixedqueries to fresh group→chart→query sampling across all48 TRAIN groups
-and121arrangements. This is a necessary full-distribution baseline after the
-memorization check, not evidence for a larger architecture. Baseline source and
-intervention source are both09b919cdeab90e3856fee03a9198d59b4dc527af; no code
-changes. Same R1 checkpoint and initial random seed230923. Same12VAL groups and
-48fixedVALqueries; their untrained baseline jointNLL10.4942 (time7.1513,
-event-row3.5657), descriptive single-seed evidence.
+Owning Note and standing authority are unchanged; status is proposed, acceptance
+none. Revision 1 is completed exploratory evidence above. Revision 2 keeps the
+exact representation/model and pinned canonical corpus, changing only training
+exposure from 32 fixed queries to fresh group → chart → query sampling across all
+48 TRAIN groups and 121 arrangements. This is a necessary full-distribution
+baseline after the memorization check, not evidence for a larger architecture.
+Baseline source and intervention source are both
+09b919cdeab90e3856fee03a9198d59b4dc527af; there are no code changes. Use the same
+R1 checkpoint and initial random seed 230923. The same 12 VAL groups and 48 fixed
+VAL queries have untrained baseline joint NLL 10.4942, time NLL 7.1513 and
+event-row NLL 3.5657. This is descriptive, single-seed evidence.
 
-Exact command: uv run --extra mps python -m
-ensomi_model.research.joint_audio_continuation.hydra mode=train
-run_name=random-v1 fixed_train_queries=0 train_groups=0 updates=2400
-validation_every=400 batch_size=16 cpu_threads=2 max_seconds=1200.
-All other schema defaults and optimizer/objective/query mixture remain fixed.
-Fresh output training/random-v1; no resume/overwrite. Bound1200s, unchanged
-2GiBavailableRAM/40GiBdisk/nonfinite/PAUSE guards. Paired fixed48VALqueries compare
-update0 and selected checkpoint; fresh48TRAINprobe queries are descriptive only.
+Exact command:
 
-Learning gate: VAL jointNLL improves at least10% over update0, with both time and
-rowNLL finite and neither >10% worse. This is a development learning gate, not
-a model quality metric. A failure warrants investigating objective/data fit
-before more parameters. A pass proceeds to native BOS generation on the same
-six TRAIN songs (seed17+index) and six VAL songs, identical sampling and900s
-aggregate bound percohort, pinned best checkpoint, CPU1. Preserve all output
-rows, timings, mechanics and source-render context.
+```sh
+uv run --extra mps python -m ensomi_model.research.joint_audio_continuation.hydra mode=train run_name=random-v1 fixed_train_queries=0 train_groups=0 updates=2400 validation_every=400 batch_size=16 cpu_threads=2 max_seconds=1200
+```
 
-Primary adoption evidence remains native organization: inspect opening, dense
-passages and independent-release passages using Lens, compare the actual local
-relationships to source/human examples. Long constant-spacing/jack organization,
-complex fractions and asynchronous releases must remain available; global
-sparsity/regularity is not a goal. Generated density differences alone remain
-ambiguous. Compare rates of suspicious local relationships descriptively and
-review concrete examples rather than declaring a threshold-based win.
+All other schema defaults and the optimizer, objective and query mixture remain
+fixed. Use fresh output training/random-v1 with no resume/overwrite. The bound is
+1200 s, with unchanged guards for 2 GiB available RAM, 40 GiB free disk, nonfinite
+values and PAUSE. Paired fixed 48 VAL queries compare update 0 and the selected
+checkpoint; 48 fresh TRAIN probe queries are descriptive only.
+
+Learning gate: VAL joint NLL improves at least 10% over update 0, with both time
+and row NLL finite and neither more than 10% worse. This is a development learning
+gate, not a model quality metric. A failure warrants investigating objective/data
+fit before adding parameters. A pass proceeds to native BOS generation on the
+same six TRAIN songs, using seed 17 + index, and six VAL songs, with identical
+sampling, a 900 s aggregate bound per cohort, the pinned best checkpoint and CPU
+with one thread. Preserve all output rows, timings, mechanics and source-render
+context.
+
+Primary adoption evidence remains native organization: inspect openings, dense
+passages and independent-release passages using Lens, and compare the actual
+local relationships to source/human examples. Long constant-spacing/Jack
+organization, complex fractions and asynchronous releases must remain available;
+global sparsity/regularity is not a goal. Generated density differences alone
+remain ambiguous. Compare rates of suspicious local relationships descriptively
+and review concrete examples rather than declaring a threshold-based win.
 
 This comparison changes exposure and batch size, so it cannot isolate a single
 optimizer effect or prove architectural superiority. It asks whether the chosen
-small model begins to learn a transferable joint distribution from available
+small model begins to learn a transferable joint distribution from the available
 paired charts. Even good source-conditioned NLL can coexist with bad generated
 history. New architecture, memory and BeatThis remain deferred pending that
-failure attribution. No human playability acceptance implied.
-
+failure attribution. No human playability acceptance is implied.
 
 ### Lens review of the completed memorization outputs
 
 Two of six outputs were reviewed through actual frozen Lens calls and viewed
-time-proportional renders. Report:artifacts/joint-audio/20260923-v1/lens-review/
-memorize-review.md; identities/traces:memorize-review-identities.json. Bundles
-memorize-case1-v1 and memorize-scars-v1 retain204 historical human examples
-unchanged; each has25 traced harness calls, all145 manifest files reverified.
-Generated and source charts passed the canonical Lens bridge with0diagnostics.
+time-proportional renders. Report:
+artifacts/joint-audio/20260923-v1/lens-review/memorize-review.md;
+identities/traces: memorize-review-identities.json. Bundles memorize-case1-v1 and
+memorize-scars-v1 retain 204 historical human examples unchanged; each has 25
+traced harness calls, with all 145 manifest files reverified. Generated and source
+charts passed the canonical Lens bridge with 0 diagnostics.
 
-Imaginary Waltz generatedSHA50f9a7c1f7f515e816e75d7803af1e8eb5036ee7337b6bf4f227402c93d5d21a
-has36attackrows in4600–4900ms. Column1 repeats4836→4846→4856; columns0/1
-repeat8846→8849, withcolumns2/3at8847. Scars generatedSHA
-e9a40e97129fa21b4474c7ec9ccc84054f2e2dbc6e38faeb6de0671917702d5e
-repeats the same columns0/1chord2717→2719 andcolumn1at21325→21326. These
-repeated1–10ms individual-key demands reject both inspected samples as playable
-candidates. They are not merely dense, irregular, Jack-like or different from
-the source. No assertion is made that the architecture inherently requires this
-failure. Repeated3/7ms spacings and10msrecurrences are observations, not a causal
-claim about binning.
+Imaginary Waltz, generated SHA
+50f9a7c1f7f515e816e75d7803af1e8eb5036ee7337b6bf4f227402c93d5d21a,
+has 36 attack rows in 4600–4900 ms. Column 1 repeats at 4836 → 4846 → 4856;
+columns 0/1 repeat at 8846 → 8849, with columns 2/3 at 8847. Scars, generated SHA
+e9a40e97129fa21b4474c7ec9ccc84054f2e2dbc6e38faeb6de0671917702d5e,
+repeats the same columns 0/1 chord at 2717 → 2719 and column 1 at 21325 → 21326.
+These repeated 1–10 ms individual-key demands reject both inspected samples as
+playable candidates. They are not merely dense, irregular, Jack-like or different
+from the source. No assertion is made that the architecture inherently requires
+this failure. Repeated 3/7 ms spacings and 10 ms recurrences are observations, not
+a causal claim about binning.
 
 Scars source has staggered LN/tap control absent from the sampled generated
 scopes; this is missing observed organization, not a blanket requirement to copy
 LN fraction. Human short-LN and independent-release examples were opened again
 as guards against indiscriminate sparsification. No listening/playtesting or
 whole-chart visual acceptance occurred. The root also viewed both the Imaginary
-Waltz300mszoom and its8500–10000ms dense image.
+Waltz 300 ms zoom and its 8500–10000 ms dense image.
 
-Revision2 random-query training started from the same pinned R1 initialization.
-Atupdate400, fixedVALjointNLL10.4942→6.40574, time7.15130→4.69706 andevent-row
-3.56572→1.82260; both components improve. The2400-update bounded run is ongoing.
-No model-size, architecture, checkpoint-resume or dataset change was introduced.
+Revision 2 random-query training started from the same pinned R1 initialization.
+At update 400, fixed VAL joint NLL fell from 10.4942 to 6.40574, time NLL from
+7.15130 to 4.69706 and event-row NLL from 3.56572 to 1.82260; both components
+improve. The 2400-update bounded run is ongoing. No model-size, architecture,
+checkpoint-resume or dataset change was introduced.
 
+### Exploratory Result: revision 2 randomized paired-chart fit
 
-### Exploratory Result: revision2 randomized paired-chart fit
-
-Completed2400updates in989.40s, no resource/nonfinite stop. Best fixedVALquery
-jointNLL was6.07104 atupdate2000 versus10.49416 atinitialization (42.15%lower);
-timeNLL7.15130→4.38610 andevent-rowNLL3.56572→1.79727. The paired development
-learning gate passes. Atupdate2400 VALjointNLL rose to6.46048, so the selected
-checkpoint remains2000, SHA
+Completed 2400 updates in 989.40 s, with no resource/nonfinite stop. Best fixed VAL
+query joint NLL was 6.07104 at update 2000 versus 10.49416 at initialization
+(42.15% lower); time NLL fell from 7.15130 to 4.38610 and event-row NLL from 3.56572
+to 1.79727. The paired development learning gate passes. At update 2400, VAL joint
+NLL rose to 6.46048, so the selected checkpoint remains update 2000, SHA
 52191e0095f0efc8bc0bc0f3f87765f6606e78d38188cefe32b5d4054542829f.
-The fixedTRAINprobe at2000 has jointNLL4.73108, time3.29967, event-row1.56154.
-One seed,48VALqueries and unblinded12song development cohort give no uncertainty
-estimate or general quality claim. Outputs:training/random-v1. Native same-six
-TRAINcohort generation started at generation/random-v1-train with this pinned
-checkpoint, CPU1, original seed17+index and900s aggregate budget.
+The fixed TRAIN probe at update 2000 has joint NLL 4.73108, time NLL 3.29967 and
+event-row NLL 1.56154. One seed, 48 VAL queries and an unblinded 12-song development
+cohort give no uncertainty estimate or general quality claim. Outputs remain at
+training/random-v1. Native generation on the same six-song TRAIN cohort started
+at generation/random-v1-train with this pinned checkpoint, CPU with one thread,
+the original seed 17 + index and a 900 s aggregate budget.
 
-The artifact-only short-gap diagnostic replayed32time-spaced anchors per stream
-for the memorized ImaginaryWaltzcase. Source and generated prefixes are separately
-replayed fromBOS; no source priming or future endpoints. CPU1,3.51s complete;
-mean P(next-event<=20ms) was.3059 after source events and.4479 after generated
-events, with medians.0010/.0265. At generated absolute clocks, the actual source
-prefix gave mean.4407, similar to generated. The contexts differ in history,
+The artifact-only short-gap diagnostic replayed 32 time-spaced anchors per stream
+for the memorized Imaginary Waltz case. Source and generated prefixes are
+separately replayed from BOS; there is no source priming or knowledge of future
+endpoints. It completed on CPU with one thread in 3.51 s. Mean
+P(next event <= 20 ms) was .3059 after source events and .4479 after generated
+events, with medians .0010/.0265. At generated absolute clocks, the actual source
+prefix gave mean .4407, similar to generated. The contexts differ in history,
 recency/occupancy and selected anchor distribution; these are not causal effects.
-The finding rejects assuming that the memorization model is well-calibrated on
-all human histories and fails only after generated feedback. Full provenance at
-diagnostics/memorize-v1-firstcase-time32.json; scriptshort_gap_hazards.py.
-The CPU diagnostic ran for3.51s during MPS training; native latency measurement
+The finding rejects the assumption that the memorization model is well calibrated
+on all human histories and fails only after generated feedback. Full provenance:
+diagnostics/memorize-v1-firstcase-time32.json; script: short_gap_hazards.py.
+The CPU diagnostic ran for 3.51 s during MPS training; native latency measurement
 was already complete and was not taken during this overlap.
 
 A separate source/sampler audit found a localized startup/rest coverage weakness.
-The4000ms event-prefix branch cannot reach39/130988TRAINtargetrows (.0298%):
-18late first events and21later long gaps. In the actual38400randomdraw stream,
-late-start arrangements receive19positive and525censored BOShistoryqueries;
-six late-start arrangements receive no positive opening target. Only26of39
-long-gap targets are observed positively (46positive exposures total). Overall
-BOSexposure is mostlypositive, so aggregate diagnostics hide this subset. The
-48VALquery probe includes no positive long-gap transition. This is coverage
-weakness, not lackofmodel support orfutureinputleakage. A next comparison should
-cover event-ending and preceding censored windows explicitly. Current baseline
-was not modified. See diagnostics/query-coverage-random-v1.{json,md}.
+The 4000 ms event-prefix branch cannot reach 39 of 130988 TRAIN target rows
+(.0298%): 18 late first events and 21 later long gaps. In the actual 38400 random
+draw stream, late-start arrangements receive 19 positive and 525 censored
+BOS-history queries; six late-start arrangements receive no positive opening
+target. Only 26 of 39 long-gap targets are observed positively, with 46 positive
+exposures total. Overall BOS exposure is mostly positive, so aggregate diagnostics
+hide this subset. The 48-query VAL probe includes no positive long-gap transition.
+This is a coverage weakness, not a lack of model support or future-input leakage.
+A next comparison should cover event-ending and preceding censored windows
+explicitly. The current baseline was not modified. See
+diagnostics/query-coverage-random-v1.{json,md}.
 
+### Native revision 2 status and LN interpretation correction
 
-### Native revision2 status and LN interpretation correction
-
-Both six-song cohorts completed: TRAIN104.14s andVAL114.52s, CPU1, pinnedbest
-update2000. All12outputs passed exact mechanics/export/reparse. In Imaginary
-Waltz the combined same-lane attack/release<20ms diagnostic fell272→8.37per1000
-heads, and Lens's frozen4.6–4.9s/8.5–10s scopes no longer show the earlier
-repetition storms. The new output also has a recognizable83–100ms repeated-key
-figure at23991–24344ms. Fresh scopes still contain3–8ms repeated TAP relations.
-Scars now contains independently overlapping multi-lane LNs. FullVALreview is
-pending; no final quality acceptance.
+Both six-song cohorts completed: TRAIN in 104.14 s and VAL in 114.52 s, using CPU
+with one thread and the pinned best checkpoint at update 2000. All 12 outputs
+passed exact mechanics/export/reparse. In Imaginary Waltz, the combined same-lane
+attack/release <20 ms diagnostic fell from 272 to 8.37 per 1000 heads, and Lens's
+frozen 4.6–4.9 s/8.5–10 s scopes no longer show the earlier repetition storms. The
+new output also has a recognizable 83–100 ms repeated-key figure at 23991–24344 ms.
+Fresh scopes still contain 3–8 ms repeated TAP relations. Scars now contains
+independently overlapping multi-lane LNs. Full VAL review is pending; there is no
+final quality acceptance.
 
 The combined short-gap diagnostic conflates two distinct relationships. A Lens
-review initially called two Scars10/13msrelease→head gaps failures; calibration
-showed same-lane head→head intervals of189ms, approximately a half-beat at165BPM.
-This is compatible with LN-jack/hold-to-tap organization and does not establish
-an impossible reset. Original report/hash is preserved; corrected report
-downgrades these to preference/pressure hypotheses. No universal release-gap
-filter or negative training label follows. Sustained extremely short TAP
-repetition is separate. Retrieved11Jack-with-LN and40LN-coordination-with-LN
-cards did not contain a directly matching<=30msreset in their narrow scopes;
-that is missing calibration, not evidence against the generated pattern.
+review initially called two Scars 10/13 ms release → head gaps failures;
+calibration showed same-lane head → head intervals of 189 ms, approximately a
+half-beat at 165 BPM. This is compatible with LN-jack/hold-to-tap organization and
+does not establish an impossible reset. The original report/hash is preserved;
+the corrected report downgrades these to preference/pressure hypotheses. No
+universal release-gap filter or negative training label follows. Sustained
+extremely short TAP repetition is separate. Retrieved 11 Jack-with-LN and 40
+LN-coordination-with-LN cards did not contain a directly matching <=30 ms reset
+in their narrow scopes; that is missing calibration, not evidence against the
+generated pattern.
 
-Coverage audit wording correction: the19980mslate-start YOASOBIVALsong has
-fourlater-event queries, at190313,31813,112979,189838ms; none has BOShistory or
-its firstevent target. The earlier claim of no queryfor the song was too broad.
-Corrected receiptSHA610e1f9d95dcbb99cd81dd34a91169e0ece51aeb882fc3f1e877dbdf720ee1ff
-links priorSHA and actual freeze/evaluation0 records. No training behavior changed.
+Coverage audit wording correction: the 19980 ms late-start YOASOBI VAL song has
+four later-event queries, at 190313, 31813, 112979 and 189838 ms; none has BOS
+history or its first-event target. The earlier claim of no query for the song was
+too broad. Corrected receipt SHA
+610e1f9d95dcbb99cd81dd34a91169e0ece51aeb882fc3f1e877dbdf720ee1ff
+links the prior SHA and actual freeze/evaluation-0 records. No training behavior
+changed.
 
 ## Bounded scheduler probe: query-chunks-v1
 
-Proposed exploratory probe under standing authority, acceptance none. Same clean
-source09b919c, checkpoint52191e0095f0efc8bc0bc0f3f87765f6606e78d38188cefe32b5d4054542829f,
-canonicalmanifest4b995029a5344569d4506ff6b11249f61585d2bf7649285754340909bb06c21b.
-The completed firstTRAINcase with4squeries is the baseline. Change only
-timing_horizon_ms to500 during nativegeneration, run_name=random-v1-chunk500,
-generation_split=train,generation_cases=1,device=cpu,cpu_threads=1,seed17,
-max_seconds=300. No source/training/model changes. Freshoutput, no overwrite.
+Proposed exploratory probe under standing authority, acceptance none. Use the
+same clean source 09b919c, checkpoint
+52191e0095f0efc8bc0bc0f3f87765f6606e78d38188cefe32b5d4054542829f,
+and canonical manifest
+4b995029a5344569d4506ff6b11249f61585d2bf7649285754340909bb06c21b.
+The completed first TRAIN case with 4 s queries is the baseline. Change only
+`timing_horizon_ms` to 500 during native generation, with
+`run_name=random-v1-chunk500 generation_split=train generation_cases=1 device=cpu
+cpu_threads=1`, seed 17 and `max_seconds=300`. No source, training or model changes.
+Use fresh output with no overwrite.
 
 Hypothesis: on dense output, shorter absolute-bin queries avoid scoring thousands
-of unused future hazards after everyevent. Physical history and absolute-bin
-features stay identical; exponential residual carries across empty chunks.
-Primaryguard: exact persisted row sequence/hash and osu hash equal baseline.
-Measure totalelapsed,8scoverage andstepP99 descriptively, CPU1 normaldesktop
-environment, same checkpoint/source. No dedicated benchmark or multi-seed claim.
-Failure of equality requires tracing numerical/partition effects before using
-this as an inference optimization. No quality-preserving claim if rows differ.
+of unused future hazards after every event. Physical history and absolute-bin
+features stay identical; the exponential residual carries across empty chunks.
+Primary guard: the exact persisted row sequence/hash and osu hash equal the
+baseline. Measure total elapsed time, 8 s coverage and step P99 descriptively,
+using CPU with one thread in a normal desktop environment, with the same
+checkpoint/source. No dedicated benchmark or multi-seed claim. Failure of
+equality requires tracing numerical/partition effects before using this as an
+inference optimization. There is no quality-preserving claim if rows differ.
 This tests a scheduler cost lever, not a learned-model intervention or speculative
-decoding. Same30000row,2GiBRAM,40GiBdisk,PAUSE guards.
-
+decoding. The same guards apply: 30000 rows, 2 GiB RAM, 40 GiB disk and PAUSE.
 
 ### Scheduler probe result
 
-The500msquery rerun on ImaginaryWaltz produced byte-identical4630rows and.osu
-compared with4000msqueries: rowsSHA
-a1a4142a9688040bf8a9ce05cf4eb8d6a408c79678fa40a650111ee335fc793e, osuSHA
-4b4450a0a60b8cf7a0301c6e33f51ec115ce38a1c382ee4e700aa18fb1110b87.
-Generation38.222→9.386s, cached-Mel8scoverage.586→.276s, stepP998.942→2.184ms.
-Scored bins1,857,223→237,341; scheduler steps4633→4659. This is one desktop
-CPU1 pairedcase, not a dedicated benchmark. It supports reducing speculative
-hazard computation while preserving this exact draw; it does not improvechart
-quality. Raw result at generation/random-v1-chunk500.
+The 500 ms query rerun on Imaginary Waltz produced byte-identical 4630 rows and
+.osu output compared with 4000 ms queries. Rows SHA:
+a1a4142a9688040bf8a9ce05cf4eb8d6a408c79678fa40a650111ee335fc793e;
+osu SHA: 4b4450a0a60b8cf7a0301c6e33f51ec115ce38a1c382ee4e700aa18fb1110b87.
+Generation time fell from 38.222 to 9.386 s, cached-Mel coverage of the first 8 s
+from .586 to .276 s, and step P99 from 8.942 to 2.184 ms. Scored bins fell from
+1,857,223 to 237,341; scheduler steps changed from 4633 to 4659. This is one paired
+case on a desktop CPU with one thread, not a dedicated benchmark. It supports
+reducing speculative hazard computation while preserving this exact draw; it
+does not improve chart quality. Raw result: generation/random-v1-chunk500.
 
 ### VAL inspection scope
 
-ThisFffire shows plausible early/middle pulse, chords andLNorganization in
-viewed windows; its demanding latewindow needs demand/listening/player
-calibration. GR4VITYhas coherent localroles butduplicate-like taps at86910 and
-86912 oncolumn0 arounda source86911anchor. Report and30-call-per-bundle traces
-are at lens-review/random-val-review.md andrandom-val-review-identities.json.
-No whole-chart pass, audio-listening orplayer trial is claimed.
+ThisFffire shows plausible early/middle pulse, chords and LN organization in
+viewed windows; its demanding late window needs demand, listening and player
+calibration. GR4VITY has coherent local roles but duplicate-like taps at 86910
+and 86912 on column 0 around a source anchor at 86911. The report and traces, with
+30 calls per bundle, are at lens-review/random-val-review.md and
+random-val-review-identities.json. No whole-chart pass, audio listening or player
+trial is claimed.
 
 ## Experiment Card: joint-mel-hazard-rows-v1 (revision 3)
 
-Proposed, acceptance none; standing execution authority unchanged. Revision2is
-complete. Baseline source09b919cdeab90e3856fee03a9198d59b4dc527af andcheckpoint
-52191e0095f0efc8bc0bc0f3f87765f6606e78d38188cefe32b5d4054542829f. Same133-chart
-canonical corpus/normalization/R1initialization andsame modelarchitecture.
-Intervention source will be recorded after focused checks andcleancommit.
+Proposed, acceptance none; standing execution authority is unchanged. Revision 2
+is complete. Baseline source: 09b919cdeab90e3856fee03a9198d59b4dc527af;
+checkpoint: 52191e0095f0efc8bc0bc0f3f87765f6606e78d38188cefe32b5d4054542829f.
+Use the same 133-chart canonical corpus/normalization, R1 initialization and model
+architecture. The intervention source will be recorded after focused checks and
+a clean commit.
 
 Question: does complete supervision of selected waiting intervals repair the
 late-opening/long-rest exposure hole without worsening common local prediction?
 This is a data/objective-coverage correction, not a larger encoder. The current
-event-prefix sampler only observes the first4s of a selected longer wait.
+event-prefix sampler only observes the first 4 s of a selected longer wait.
 
 For a selected BOS/event-prefix target, partition its actual wait into disjoint
-<=4s censored chunks and one final event-containing chunk. Retain physical
-history; the cursor advances without rows. Sum timingNLL acrosschunks andone
-rowNLL, thennormalize per logical example, notperchunk. Preserve absolute-time
-andoutro conditional4squeries. One deterministic initialcoverage pass inserts
-eachof39TRAINlong-gap targets once (oneexampleperupdate, replacingoneslotafter
-normalrandomdraws so remaining RNGstream stays matched). Estimated addedchunk
-work fromfullwaits is5.32% beforethis39-examplepass. Microbatch expanded queries
-at batch_size tokeep peakmemorybounded; accumulategradients andstep once per
-logicalbatch. No endpoint/targettime/cropchoice label becomes an inputfeature.
+<=4 s censored chunks and one final event-containing chunk. Retain physical
+history; the cursor advances without rows. Sum timing NLL across chunks and one
+row NLL, then normalize per logical example, not per chunk. Preserve absolute-time
+and outro conditional 4 s queries. One deterministic initial coverage pass inserts
+each of 39 TRAIN long-gap targets once: one example per update, replacing one slot
+after normal random draws so the remaining RNG stream stays matched. Estimated
+additional chunk work from full waits is 5.32% before this 39-example pass.
+Microbatch expanded queries at `batch_size` to keep peak memory bounded;
+accumulate gradients and step once per logical batch. No endpoint, target-time or
+crop-choice label becomes an input feature.
 
-Add full-gap likelihood probes for the2VALlong transitions, scored separately
-fromthe unchanged48common fixedqueries. Read baselinecheckpoint onthese probes
-beforetraining. Full-gap loss is summedwaitinglikelihood, not per-msF1 or a
-claimthat the source chooses the only acceptable firstattack. Nativeaudio-only
-outputs remain the qualitytarget; timing imitation alone cannot prove playability.
+Add full-gap likelihood probes for the two VAL long transitions, scored separately
+from the unchanged 48 common fixed queries. Read the baseline checkpoint on these
+probes before training. Full-gap loss is summed waiting likelihood, not per-ms F1
+or a claim that the source chooses the only acceptable first attack. Native
+audio-only outputs remain the quality target; timing imitation alone cannot prove
+playability.
 
-Runname coverage-v1;2400updates,batch16,full_wait_supervision=true,
-coverage_pass=true,train_groups=0,validation_every400,seed230923,CPU2,MPS,
-max_seconds1500. Other revision2defaults unchanged; initializeagain fromR1,
-notresume the more-trained randomcheckpoint. Record both code andsampling
-changes, configuration, exactcoverage andgroup/query-normalization checks.
-Freshoutput; nooverwrite/resume; same2GiBRAM/40GiBdisk/nonfinite/PAUSE guards.
+Run name: coverage-v1; 2400 updates, batch size 16, `full_wait_supervision=true`,
+`coverage_pass=true`, `train_groups=0`, validation every 400 updates, seed 230923,
+two CPU threads, MPS and `max_seconds=1500`. Other revision 2 defaults are
+unchanged; initialize again from R1, rather than resuming the more-trained random
+checkpoint. Record both code and sampling changes, configuration, exact coverage
+and group/query-normalization checks. Use fresh output with no overwrite/resume;
+the same guards apply for 2 GiB RAM, 40 GiB disk, nonfinite values and PAUSE.
 
-Gate: completepositivecoverage ofall39selected raretransitions bythepass;
-common48VALquery bestcheckpoint jointNLLno morethan10%worse than6.07104, both
-componentsfinite; full-gap2caseNLLbetter than the pinnedbaseline on average
-withoutonecasebecomingnonfinite. Verysmalltargeted probes are diagnostic, not
-population estimates. If positive, use pinnedcheckpoint nativegeneration on
-TRAIN6andVAL12 (includeslate-startsong),500msinferencechunks aftertheexactdraw
-probe,900spercohort. Reportcold/cache scopes explicitly. Reviewplausiblecases,
-startup, same-keytapclusters and LNcoordination viaLens; donot collapse distinct
-release/headrelations into oneBADlabel. Likelihoodgate doesnot imply acceptance.
+Gate: the pass gives complete positive coverage of all 39 selected rare
+transitions; the best checkpoint on the common 48 VAL queries has joint NLL no
+more than 10% worse than 6.07104, with both components finite; and full-gap NLL
+averaged over the two cases is better than the pinned baseline, without either
+case becoming nonfinite. These very small targeted probes are diagnostic, not
+population estimates. If positive, use pinned-checkpoint native generation on
+six TRAIN songs and 12 VAL songs, including the late-start song, with 500 ms
+inference chunks after the exact-draw probe and 900 s per cohort. Report cold/cache
+scopes explicitly. Review plausible cases, startup, same-key tap clusters and LN
+coordination via Lens; do not collapse distinct release/head relationships into
+one BAD label. The likelihood gate does not imply acceptance.
 
-Expectedfailure: rare-transition supervision improveswhileancestral duplicate
-taps remain. That directs a separate diagnosticofeventhazard vsconditional row
-probabilities at actualwitnesses beforea newarchitecture orquality-filter branch.
-A nonoverlapping chunk partition andper-logical-example normalization are the
-regressionguards: overlapping prefix/tailwindows would doublecountsurvival and
-change the objective incorrectly. Requiredtests compare partitioned andunsplit
-hazard loss/gradients, coverage39targets, BOSat0, longheldstate and unchanged
-commonquery identities. Optionalstylectrl andnewlong-termmemory staydeferred.
+Expected failure: rare-transition supervision improves while ancestral duplicate
+taps remain. That directs a separate diagnostic of event hazards versus
+conditional row probabilities at actual witnesses before a new architecture or
+quality-filter branch. A nonoverlapping chunk partition and normalization per
+logical example are the regression guards: overlapping prefix/tail windows would
+double-count survival and change the objective incorrectly. Required tests
+compare partitioned and unsplit hazard loss/gradients, coverage of 39 targets,
+BOS at 0, long-held state and unchanged common-query identities. Optional style
+controls and new long-term memory stay deferred.
 
+### Revision 3 implementation and pinned baseline probes
 
-### Revision3 implementation and pinned baseline probes
+Clean intervention 608f092e6cd534638e8e47432bcb98973b79a5a4 changes only sampling,
+logical-example objective accumulation, focused tests/config and scoped docs.
+Model, state, audio encoder and generation are unchanged. Twenty focused tests
+pass, including actual `backward_logical` gradients against a dense reference
+with microbatch sizes 1/2/4, nonoverlapping survival/gradient identity, zero-time
+BOS, endpoint hiding, exact legacy RNG selection and TRAIN/VAL separation. Hydra
+flag projection was checked. Fixed-query memorization with
+`full_wait_supervision` is rejected rather than silently disabling it. Resource
+check granularity remains logical updates, so clock/PAUSE limits can overrun by
+one update. The longest pinned source wait, 44.82 s, expands to at most 12 queries
+before microbatching. Normal positive-wait queries now end at the target instead
+of scoring unused future hazards; crop/full parity preserves scored features.
 
-Clean intervention608f092e6cd534638e8e47432bcb98973b79a5a4 changes only sampling,
-logical-example objective accumulation, focusedtests/config andscoped docs.
-Model/state/audioencoder/generation unchanged.20focused tests pass, including
-actual backward_logical gradients againstdense reference withmicrobatch1/2/4,
-nonoverlapping survival/gradient identity, zerotimeBOS, endpoint hiding, exact
-legacy RNGselection andTRAIN/VALseparation. Hydra flagprojection checked.
-Fixed-querymemorization withfull_wait_supervision is rejected ratherthan silently
-disabling it. Resourcecheck granularity remains logicalupdates, soclock/PAUSE
-limits can overrun byone update; longestpinned source wait44.82s expands toatmost
-12queries beforemicrobatching. Normalpositivewaitqueries now endattarget instead
-of scoring unusedfuturehazards; crop/full parity preserves scoredfeatures.
-
-The new deterministiccoverage builder finds39TRAINexamples/126queries and
-2VALfullgapexamples/7queries. Baseline random-v1checkpoint scored through the
-new evaluationonlycode withpinnedbytes; no training occurredduringthisprobe.
-Full-gap baseline mean jointNLL=17.12721604, timeNLL=14.10210943, rowNLL=3.02510661.
-Case a0fc0cee42c3, cursor112439→target116472, queries2, jointNLL17.51861751.
-Case df6f2787a3fc, cursor-1→target19980, queries5, jointNLL16.73581457.
-Receipt:diagnostics/random-v1-full-gap-baseline.json. Revision3 runstarts from
-R1 withthe predeclared2400updates,batch16,seed230923,max_seconds1500 and
-full_wait_supervision=true coverage_pass=true. No rejected release-gap claims
-are used astraininglabels.
-
+The new deterministic coverage builder finds 39 TRAIN examples comprising 126
+queries and two VAL full-gap examples comprising seven queries. The baseline
+random-v1 checkpoint was scored through the new evaluation-only code with pinned
+bytes; no training occurred during this probe. Full-gap baseline mean joint NLL
+is 17.12721604, time NLL 14.10210943 and row NLL 3.02510661.
+Case a0fc0cee42c3: cursor 112439 → target 116472, two queries, joint NLL 17.51861751.
+Case df6f2787a3fc: cursor -1 → target 19980, five queries, joint NLL 16.73581457.
+Receipt: diagnostics/random-v1-full-gap-baseline.json. The revision 3 run starts
+from R1 with the predeclared 2400 updates, batch size 16, seed 230923,
+`max_seconds=1500 full_wait_supervision=true coverage_pass=true`. No rejected
+release-gap claims are used as training labels.
 
 ### Local native attribution and rejected jitter-only branch
 
-Pinnedrandom-v1 CPU1diagnostic replayednativehistories once (2.94s), preserving
-their actual rows. GR4VITY86912has next-time mass.1224, rank3of4000, and
-P(next<=5ms)=.7327. The sampled same-key row has probability.01158/rank4;
-other single-lane alternatives have.4440/.2873/.2486. Waltz23474 follows an
-interveningrow23470: eventgap4ms, same-laneheadgap8ms. Its time mass.1249/rank3
-and5msCDF.6123 contrastwith sampledrow.0774/rank3 (alternatives.4884/.3980).
-Waltz183148is anearlier time tail (.01258/rank16) andverylow-probability row
-(.00467/rank5). No repeatedrow is themode; all lanes arefree andoldrelease
-clocks aresecondsaway. See diagnostics/random-v1-duplicate-tap-attribution.json.
-High probability ofa nearbyevent is not itselfaqualityerror: different-lane
-flams orotherelaboration canbe valid. The witnessedrepeatedTAP choices need
-separate treatment fromtightLNtailgaps.
+The pinned random-v1 diagnostic replayed native histories once on CPU with one
+thread in 2.94 s, preserving their actual rows. At GR4VITY 86912, the next-time
+mass is .1224, rank 3 of 4000, and P(next <= 5 ms) = .7327. The sampled same-key
+row has probability .01158 and rank 4; other single-lane alternatives have
+probabilities .4440/.2873/.2486. Waltz 23474 follows an intervening row at 23470:
+the event gap is 4 ms and the same-lane head gap is 8 ms. Its time mass .1249,
+rank 3, and 5 ms CDF .6123 contrast with sampled-row probability .0774, rank 3,
+with alternatives .4884/.3980. Waltz 183148 is an earlier time tail, with mass
+.01258 and rank 16, and a very-low-probability row, .00467 and rank 5. No repeated
+row is the mode; all lanes are free and old release clocks are seconds away.
+See diagnostics/random-v1-duplicate-tap-attribution.json. High probability of a
+nearby event is not itself a quality error: different-lane flams or other
+elaboration can be valid. The witnessed repeated TAP choices need separate
+treatment from tight LN tail gaps.
 
-A proposednoise-in-demonstration analogue (DART, proceedings.mlr.press/v78/
-laskey17a.html) suggested testingwhether an earlygeneratedhead leaves an
-acoustic cue lookingunconsumed. The boundedtest kept a source rowidentity
-consumed andmovedthatsamecomplete row1/3/5ms earlier, preservinglegalhistory
-andunchangedfuturelabels. Re-querying the originalsource byshiftedtimestamp
-would be wrong: itwould label the already-consumedrow asfuture again.
+A proposed noise-in-demonstration analogue, DART
+(proceedings.mlr.press/v78/laskey17a.html), suggested testing whether an early
+generated head leaves an acoustic cue looking unconsumed. The bounded test kept
+a source row identity consumed and moved that same complete row 1/3/5 ms earlier,
+preserving legal history and unchanged future labels. Re-querying the original
+source by shifted timestamp would be wrong: it would label the already-consumed
+row as future again.
 
-CPU1probe completedin.266s. GR4VITYclean-prefix5msCDF remained4–6e-7 under
-0/1/3/5msshifts, comparedwithnative.733. Waltzclean-prefixCDF remained~1e-6
-versusnative.612; probability throughoriginalanchor+5ms also stayednegligible.
-The183132Waltzsource rowwasexcluded because itmixesheadandLNclose. Thusjitter
-alone doesnot explain theactualnativefailure, andno jitteraugmentation trial
-waslaunched. REFINE broaderhistory/composition attribution. Receipt
-diagnostics/random-v1-source-history-shift-probe.json SHA
-4a08e0efc042e7a657d6eba1e5c5be62f4008f6478530466c595e4725357b5d6; script
-c9337167b7f86f115bd1a0028597135911f7abc7eb06b54ae24cce93b72aad5d.
+The CPU probe completed with one thread in .266 s. GR4VITY clean-prefix 5 ms CDF
+remained 4–6e-7 under 0/1/3/5 ms shifts, compared with native .733. Waltz
+clean-prefix CDF remained approximately 1e-6 versus native .612; probability
+through the original anchor + 5 ms also stayed negligible. The Waltz source row
+at 183132 was excluded because it mixes a head and LN close. Thus jitter alone
+does not explain the actual native failure, and no jitter-augmentation trial was
+launched. REFINE broader history/composition attribution. Receipt:
+diagnostics/random-v1-source-history-shift-probe.json, SHA
+4a08e0efc042e7a657d6eba1e5c5be62f4008f6478530466c595e4725357b5d6;
+script SHA c9337167b7f86f115bd1a0028597135911f7abc7eb06b54ae24cce93b72aad5d.
 
-Coverage-v1 remains theindependent predeclaredtraining intervention. At400/800/
-1200updates itscommonVALjointNLL is6.4687/6.2884/6.3425 andfull-gap2caseNLL
-15.5913/15.4028/18.3083. Nonmonotonic targetedresults preclude declaringa
-late-start improvement fromonecheckpoint; selection andgates remainunchanged.
-All39coverageexamples wereconsumed byupdate39. Noarchitecture/filter change.
+Coverage-v1 remains the independent predeclared training intervention. At updates
+400/800/1200, its common VAL joint NLL is 6.4687/6.2884/6.3425 and its two-case
+full-gap NLL is 15.5913/15.4028/18.3083. Nonmonotonic targeted results preclude
+declaring a late-start improvement from one checkpoint; selection and gates remain
+unchanged. All 39 coverage examples were consumed by update 39. There is no
+architecture/filter change.
 
+### Revision 3 completion
 
-### Revision3 completion
-
-Coverage-v1 completed2400updates in1118.44s with38400logicalexamples and40554
-physicalqueries (+5.61%), all39coverageexamples consumed, noresource/nonfinite
-stop. Selectedupdate2000 byunchangedcommonVALjointNLL6.09073456 (baseline
-6.07104107,+0.32%). Atthatcheckpoint targetedfull-gapmeanNLL14.62766263 versus
-17.12721604baseline (−14.59%); glacia17.51862→16.89078 andYOASOBI16.73581→
-12.36455. InYOASOBItimeNLL11.73759→6.24381 while rowNLL4.99822→6.12074: timing
-improveswithouta parallelmarkimprovement. Theseare two developmentcases,not
-statisticalproof. Bothpredeclaredlearningguards pass. BestSHA
-85f643077d127f9fe3e5256dc7b88512912d9ce8be39d6dbe164ef3ef4c9327e; lastSHA
-8edd5b723e5bb25673ffe53102e66fb6db2d6cb56ce4bfc4d56a38af6e2a61fd.
-NativeTRAIN6andVAL12use500msqueries,CPU1,seed17+index,900spercohort; TRAIN
-launchedatgeneration/coverage-v1-train. Same3Mmodel,nomemoryorencoderexpansion.
+Coverage-v1 completed 2400 updates in 1118.44 s with 38400 logical examples and
+40554 physical queries (+5.61%), all 39 coverage examples consumed, and no
+resource/nonfinite stop. Update 2000 was selected by the unchanged common VAL
+joint NLL criterion: 6.09073456 versus baseline 6.07104107 (+0.32%). At that
+checkpoint, targeted full-gap mean NLL was 14.62766263 versus baseline 17.12721604
+(−14.59%); glacia changed from 17.51862 to 16.89078 and YOASOBI from 16.73581 to
+12.36455. In YOASOBI, time NLL improved from 11.73759 to 6.24381 while row NLL
+worsened from 4.99822 to 6.12074: timing improves without a parallel mark
+improvement. These are two development cases, not statistical proof. Both
+predeclared learning guards pass. Best SHA:
+85f643077d127f9fe3e5256dc7b88512912d9ce8be39d6dbe164ef3ef4c9327e;
+last SHA: 8edd5b723e5bb25673ffe53102e66fb6db2d6cb56ce4bfc4d56a38af6e2a61fd.
+Native generation uses six TRAIN and 12 VAL songs, 500 ms queries, CPU with one
+thread, seed 17 + index and 900 s per cohort; TRAIN launched at
+generation/coverage-v1-train. This is the same 3M model, with no memory or encoder
+expansion.
 
 ### History/exact-state sensitivity diagnostic
 
-Artifactdiagnostics/random-v1-history-exact-interventions.json records2.60s
-CPU1read-onlyanalysis. Atfixedaudio/absoluteclocks, withnativeexactstatefixed,
-replacingnativeencodedhistorywithsourcehistory lowers5msCDFfrom.7327/.6123to
-1.74e-7/1.70e-7 forGR4/Waltz. Thesehybridinputs are nonphysicalnetwork
-interventions,notcausalvalidchartchanges. The GR4source/sourcecell isproperly
-high(.9451): cursor86910comes299msafteritslastrow86611and1msbeforeitsexisting
-nextsourceevent86911. That is not anotherfailure.
+Artifact diagnostics/random-v1-history-exact-interventions.json records a 2.60 s
+read-only analysis on CPU with one thread. At fixed audio/absolute clocks, with
+native exact state fixed, replacing native encoded history with source history
+lowers 5 ms CDF from .7327/.6123 to 1.74e-7/1.70e-7 for GR4/Waltz. These hybrid
+inputs are nonphysical network interventions, not causally valid chart changes.
+The GR4 source/source cell is properly high (.9451): cursor 86910 comes 299 ms
+after its last row at 86611 and 1 ms before its existing next source event at
+86911. That is not another failure.
 
-Actualsource/native last16eventratesare3.57/20.16HzGR4and3.40/28.68HzWaltz.
-Native64-rowhistoriesareTAP-only; sourcewindowsincludeLNstarts/releases. The
-networkresponds stronglytothesedifferentprefixorganizations,notjustjitter.
-Thisdoesnotsetdesired difficulty,justifyforcingnative densitytosource,orlabel
-allnearbydifferent-laneeventsbad. Itnarrowsfollow-up towardgenerated-history
-state/composition andconditionalrowtailchoices. Newmemory,hardgapfilters and
-blindjittertrainingremainunselected.
+Actual source/native event rates over the last 16 events are 3.57/20.16 Hz for
+GR4 and 3.40/28.68 Hz for Waltz. Native 64-row histories are TAP-only; source
+windows include LN starts/releases. The network responds strongly to these
+different prefix organizations, not just jitter. This does not set a desired
+difficulty, justify forcing native density to match the source, or label all
+nearby different-lane events BAD. It narrows follow-up toward generated-history
+state/composition and conditional row-tail choices. New memory, hard gap filters
+and blind jitter training remain unselected.
