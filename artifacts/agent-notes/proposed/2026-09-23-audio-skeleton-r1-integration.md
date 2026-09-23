@@ -31,9 +31,15 @@ is not merged into the product branch.
 
 ## Baseline and observations
 
-Current research priority: formalize the joint target distribution and information
-dependencies before selecting or scaling another model. The human owner clarified
-that R1 is temporary and may change; complete audio content beyond rhythm must
+Current research direction: fix the owner-confirmed repository music Mel frontend
+and develop a simple learned audio encoder together with joint event timing and
+R1-derived complete-row generation. The human owner rejected encoder information
+sufficiency as a prerequisite/evaluation target: sufficiency depends on the
+architecture and observed arrangements are not unique answers. Available direct
+supervision is paired beatmaps/audio; no MERT-style pretraining dataset or acoustic
+teacher labels are assumed. New long-term musical-relation memory is deferred.
+
+R1 is temporary and may change; complete audio content beyond rhythm must
 influence arrangement. Preserve ordinary subdivisions, Tech/high-fraction timing,
 one musical cue elaborated into a long Jack/dump, independent LN release and
 repetition with variation. Do not impose rigid chorus/section labels. Final
@@ -44,8 +50,10 @@ bad relationships; style presence is not a quality verdict.
 The product research proposal is
 `docs/research/audio_conditioned_choreography.md`. It distinguishes exact replay,
 recent detail, audio/arrangement recurrence memory and provisional plans. Its
-current exploration outcome is REFINE; no new learning intervention is selected
-by that document. Existing pilot implementation and weights remain baselines.
+current exploration outcome is TEST for the small joint model family. Exact run
+configuration and an execution Card for that model remain to be specified;
+no new training was started for this revision. Existing pilot implementation and
+weights remain exploratory baselines.
 
 - Release tag: `r1-restored-6.75m`, source
   `8f1310322ba1f64a1ca259893e76376daf36396e`.
@@ -330,3 +338,39 @@ research trajectory precedes choosing this or a different intervention.
 All pilot training and generation jobs have completed. No overnight training,
 adaptation run, publishing, or recurring automation was started. Product code
 remains a baseline on `codex/audio-skeleton`; no change was pushed remotely.
+
+## Fixed frontend and revised immediate architecture
+
+The selected source is `features/mel_base.py::MUSIC_MEL_CACHE_CONFIG` with the
+repository waveform loading convention: mono 24 kHz, 128 bins, 10 ms hop, 40 ms
+Hann window, FFT/window 960, 20–12,000 Hz, center=False, power2, norm1, natural
+log and floor1e-5. The owner manually confirmed this representation. Frame i
+uses [10i,10i+40) ms and is centered at10i+20 ms; reuse the canonical padding and
+frame-count semantics rather than a nominally similar independent extractor.
+
+The completed pilot used FFT1024, centered windows, log10, floor1e-10 and different
+Mel/normalization settings. It is not a comparison on the owner-confirmed frontend.
+Preserve its caches and model identities; the next experiment needs a new feature
+owner. Reusing the general-music frontend does not adopt legacy mapper/timing
+architecture.
+
+The minimal proposed factorization predicts next event time, then a complete
+nonempty row, from shared encoded Mel, chosen action history and exact gameplay
+state. Head-only/release-only/combined roles are derived from the row. This avoids
+an extra role sampler initially and gives actual holds a path into future timing.
+A small frequency-preserving projection and residual temporal convolutions are
+the initial audio encoder family; bidirectional audio context is allowed.
+
+Teacher-forced time and row losses jointly train their shared encoder/history.
+The row loss evaluated at source timestamps does not differentiate through the
+time-head sample; do not claim direct downstream playability optimization from
+that alone. Native joint rollouts and Lens inspection remain necessary. R1's
+source-only future-schedule features and candidate-list-dependent support must be
+replaced consistently, with useful weights retained as initialization. Train BOS
+and short prefixes, preserve exact LN state and censored windows, and do not
+fabricate future endpoint knowledge.
+
+The immediate sequence is representation/state checks, a small joint learning
+check on paired audio/charts, native joint generation with error attribution, then
+one failure-driven correction. BeatThis, larger pretrained encoders, latent plans
+and new long-term retrieval remain optional deferred work, not entrance gates.
