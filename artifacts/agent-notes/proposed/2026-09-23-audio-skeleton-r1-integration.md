@@ -805,3 +805,42 @@ Receipt:diagnostics/random-v1-full-gap-baseline.json. Revision3 runstarts from
 R1 withthe predeclared2400updates,batch16,seed230923,max_seconds1500 and
 full_wait_supervision=true coverage_pass=true. No rejected release-gap claims
 are used astraininglabels.
+
+
+### Local native attribution and rejected jitter-only branch
+
+Pinnedrandom-v1 CPU1diagnostic replayednativehistories once (2.94s), preserving
+their actual rows. GR4VITY86912has next-time mass.1224, rank3of4000, and
+P(next<=5ms)=.7327. The sampled same-key row has probability.01158/rank4;
+other single-lane alternatives have.4440/.2873/.2486. Waltz23474 follows an
+interveningrow23470: eventgap4ms, same-laneheadgap8ms. Its time mass.1249/rank3
+and5msCDF.6123 contrastwith sampledrow.0774/rank3 (alternatives.4884/.3980).
+Waltz183148is anearlier time tail (.01258/rank16) andverylow-probability row
+(.00467/rank5). No repeatedrow is themode; all lanes arefree andoldrelease
+clocks aresecondsaway. See diagnostics/random-v1-duplicate-tap-attribution.json.
+High probability ofa nearbyevent is not itselfaqualityerror: different-lane
+flams orotherelaboration canbe valid. The witnessedrepeatedTAP choices need
+separate treatment fromtightLNtailgaps.
+
+A proposednoise-in-demonstration analogue (DART, proceedings.mlr.press/v78/
+laskey17a.html) suggested testingwhether an earlygeneratedhead leaves an
+acoustic cue lookingunconsumed. The boundedtest kept a source rowidentity
+consumed andmovedthatsamecomplete row1/3/5ms earlier, preservinglegalhistory
+andunchangedfuturelabels. Re-querying the originalsource byshiftedtimestamp
+would be wrong: itwould label the already-consumedrow asfuture again.
+
+CPU1probe completedin.266s. GR4VITYclean-prefix5msCDF remained4–6e-7 under
+0/1/3/5msshifts, comparedwithnative.733. Waltzclean-prefixCDF remained~1e-6
+versusnative.612; probability throughoriginalanchor+5ms also stayednegligible.
+The183132Waltzsource rowwasexcluded because itmixesheadandLNclose. Thusjitter
+alone doesnot explain theactualnativefailure, andno jitteraugmentation trial
+waslaunched. REFINE broaderhistory/composition attribution. Receipt
+diagnostics/random-v1-source-history-shift-probe.json SHA
+4a08e0efc042e7a657d6eba1e5c5be62f4008f6478530466c595e4725357b5d6; script
+c9337167b7f86f115bd1a0028597135911f7abc7eb06b54ae24cce93b72aad5d.
+
+Coverage-v1 remains theindependent predeclaredtraining intervention. At400/800/
+1200updates itscommonVALjointNLL is6.4687/6.2884/6.3425 andfull-gap2caseNLL
+15.5913/15.4028/18.3083. Nonmonotonic targetedresults preclude declaringa
+late-start improvement fromonecheckpoint; selection andgates remainunchanged.
+All39coverageexamples wereconsumed byupdate39. Noarchitecture/filter change.
