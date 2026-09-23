@@ -779,3 +779,29 @@ regressionguards: overlapping prefix/tailwindows would doublecountsurvival and
 change the objective incorrectly. Requiredtests compare partitioned andunsplit
 hazard loss/gradients, coverage39targets, BOSat0, longheldstate and unchanged
 commonquery identities. Optionalstylectrl andnewlong-termmemory staydeferred.
+
+
+### Revision3 implementation and pinned baseline probes
+
+Clean intervention608f092e6cd534638e8e47432bcb98973b79a5a4 changes only sampling,
+logical-example objective accumulation, focusedtests/config andscoped docs.
+Model/state/audioencoder/generation unchanged.20focused tests pass, including
+actual backward_logical gradients againstdense reference withmicrobatch1/2/4,
+nonoverlapping survival/gradient identity, zerotimeBOS, endpoint hiding, exact
+legacy RNGselection andTRAIN/VALseparation. Hydra flagprojection checked.
+Fixed-querymemorization withfull_wait_supervision is rejected ratherthan silently
+disabling it. Resourcecheck granularity remains logicalupdates, soclock/PAUSE
+limits can overrun byone update; longestpinned source wait44.82s expands toatmost
+12queries beforemicrobatching. Normalpositivewaitqueries now endattarget instead
+of scoring unusedfuturehazards; crop/full parity preserves scoredfeatures.
+
+The new deterministiccoverage builder finds39TRAINexamples/126queries and
+2VALfullgapexamples/7queries. Baseline random-v1checkpoint scored through the
+new evaluationonlycode withpinnedbytes; no training occurredduringthisprobe.
+Full-gap baseline mean jointNLL=17.12721604, timeNLL=14.10210943, rowNLL=3.02510661.
+Case a0fc0cee42c3, cursor112439→target116472, queries2, jointNLL17.51861751.
+Case df6f2787a3fc, cursor-1→target19980, queries5, jointNLL16.73581457.
+Receipt:diagnostics/random-v1-full-gap-baseline.json. Revision3 runstarts from
+R1 withthe predeclared2400updates,batch16,seed230923,max_seconds1500 and
+full_wait_supervision=true coverage_pass=true. No rejected release-gap claims
+are used astraininglabels.
