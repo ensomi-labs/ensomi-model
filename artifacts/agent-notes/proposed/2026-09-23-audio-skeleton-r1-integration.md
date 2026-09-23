@@ -31,6 +31,22 @@ is not merged into the product branch.
 
 ## Baseline and observations
 
+Current research priority: formalize the joint target distribution and information
+dependencies before selecting or scaling another model. The human owner clarified
+that R1 is temporary and may change; complete audio content beyond rhythm must
+influence arrangement. Preserve ordinary subdivisions, Tech/high-fraction timing,
+one musical cue elaborated into a long Jack/dump, independent LN release and
+repetition with variation. Do not impose rigid chorus/section labels. Final
+playability and expressive coverage take priority over reconstruction scores.
+Use actual Beatmap Lens source/render inspection and human comparisons to identify
+bad relationships; style presence is not a quality verdict.
+
+The product research proposal is
+`docs/research/audio_conditioned_choreography.md`. It distinguishes exact replay,
+recent detail, audio/arrangement recurrence memory and provisional plans. Its
+current exploration outcome is REFINE; no new learning intervention is selected
+by that document. Existing pilot implementation and weights remain baselines.
+
 - Release tag: `r1-restored-6.75m`, source
   `8f1310322ba1f64a1ca259893e76376daf36396e`.
 - Model repository: `sed-i/pulsefield-r1-restored`, revision
@@ -154,7 +170,7 @@ export are excluded. These are neither isolated latency nor end-to-end startup
 measurements. The result motivates sparse learned release opportunities and a
 subsequent matched R1 adaptation comparison, not a universal ban on dense grids.
 
-## Experiment Card: audio-skeleton-feature-pilot
+## Completed exploratory plan: audio-skeleton-feature-pilot, revision 1
 
 - Owning Note: `2026-09-23-audio-skeleton-r1-integration`.
 - Card ID: `audio-skeleton-feature-pilot`; revision: 1; acceptance: none.
@@ -215,3 +231,102 @@ subsequent matched R1 adaptation comparison, not a universal ban on dense grids.
   native R1 integration. Failure calls for rhythm/sequence modeling or audio
   adaptation after checking synchronization and label coverage. Neither outcome
   supplies a complete audio-only opener or final player-quality acceptance.
+
+## Result Log: audio pilots and materialization
+
+Local pilot source: `68a48aad2952ca153bdc205b6afaee4b5e2f46d5`.
+Both variants trained for 1,200 updates with seed 172 on the same 48 TRAIN songs;
+six VAL songs calibrated thresholds/checkpoint selection and six supplied
+assessment. The local model selected update 600; the BeatThis-conditioned model
+selected update 200. Models have 770,188 parameters, including an instantiated
+but unused BeatThis projection in the local arm. The BeatThis encoder is frozen
+and separately pretrained, so total model capacity and prior training differ.
+
+With source-derived coarse density controls, assessment head F1 at 20 ms is
+0.67713 for local audio and 0.73186 with BeatThis; release-only F1 is 0.03541 and
+0.05130. With TRAIN-median controls, head F1 is 0.61941 and 0.69793; release-only
+F1 is zero for both. These are descriptive, single-seed development results.
+They measure reference timing agreement, not valid-alternative coverage or
+playability. Rare release-only rows and different arrangements limit the proxy.
+
+Local best weights SHA-256:
+`704949a4078dd2c4cc77d557c0d315529a7f34f02a2272a041007afd4f549593`.
+BeatThis `final0` checkpoint SHA-256:
+`8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8eb8331`.
+Native integration generated 48 cases per pilot: predicted extra releases with
+source H versus fully predicted timing, source/default controls, and seeds17/23.
+These initial outputs passed the model's internal mechanics/reparse checks.
+
+The Lens parser then flagged fractional hitobject start/end timestamps. Its strict
+preparation helper rejects nonzero diagnostics although the parser preserves the
+fractional values. This exposed a materialization gap in the internal evidence;
+it did not prove those values were illegal under the continuous-time V3 language.
+Product commit `068988e670e174621f96627827dc28386b1e6775` quantizes proposed
+native-export times before R1 and uses an integer true terminal. Earlier raw
+outputs and metrics remain unchanged. The new owner is `integration-ms/`.
+All 48 BeatThis integration cases completed there. Selected source/generated
+charts subsequently passed canonical Lens preparation with zero diagnostics.
+
+The integer-time sensitivity rerun has a separate owner:
+`artifacts/audio-skeleton/20260923-ms-sensitivity/sensitivity/summary.json`.
+All72 outputs pass internal mechanics/export/reparse. Every-fourth-gap insertion
+gives median duration ratio0.68586 and LN-head-fraction delta0.25624; every-gap
+gives0.375 and0.68595. Use this rerun for native-ms comparison rather than silently
+replacing the first run. No whole-suite Lens-admission claim is made from the
+selected-chart preparation.
+
+## Result Log: target distribution and Lens inspection
+
+The bounded TRAIN audit covers418 readable charts and149 exact-audio hashes from
+128 selected musical groups; its seed-eligible, at-least60-second subset retains
+416 charts and584 alternative-arrangement pairs. Median pairwise head F1@20ms is
+0.785, all-release F1 is0.281 and release-only F1 is0.092. Among pairs with head
+density ratio at most1.2, head F1 is0.941 but release-only F1 is0.169. Of release
+rows,78.7% coincide with a head. These are pair-weighted descriptive measurements,
+not population estimates or proof of audio/chart causal relationships.
+
+The source minimal skeleton is the projection of an actual chart; unused serving
+opportunities are not directly observed labels. A release-only target changes
+when the selected head sequence changes. These findings motivate joint or
+explicitly dependent release modeling rather than assuming two independent
+audio detectors are sufficient. Detailed audit and limitations are under
+`artifacts/audio-skeleton/20260923-v1/distribution-audit/`.
+
+Actual Lens calls, returned source rows, rendered images and reviews are under
+`artifacts/audio-skeleton/20260923-v1/lens-review/`. The valid inspection bundle
+is `bundle-ms-v2`, based on a hash-checked human snapshot with204 examples and
+current Lens tools from `22e5c84f5cacb8493bdab5f1d0fdc09c5373dc60`. Generated
+notes were parsed with Lens's canonical source parser. No canonical annotations
+were changed. Earlier preparation attempts are retained as failed artifacts.
+
+SCREW generated SHA
+`abb96b25861f6c828c8740e0113dc36aed64f764367cd2b635a4d339c855240d`,
+90000–92000ms, has column1 release/repress at90369→90381 and90709→90721,
+both12ms, with other columns available. These are specific agent-identified
+counterfactual preference candidates. They are not human BAD labels or universal
+minimum-gap rules. Case2 exposes closely spaced heads and higher chord burden;
+cases3–6 and sampled early/mid/late windows include plausible alternative
+arrangements. Source density differences alone do not reject an expressive dump.
+
+Opened human contrasts include `human-d15c6a35c9ee8a86d981a9a4` (short LNs under
+a longer hold; LN coordination absent), `human-03f7e300cf02f58f3dcbba66`
+(independent overlapping LN coordination prominent), and the reviewer's
+`human-682c8969424a86213ab1b271` (mixed-gap Tech supporting) and
+`human-aab7a5db23744f5daae1dec1` (Jack prominent). Their style labels constrain
+interpretation but do not provide good/bad or numerical demand targets. The
+review report distinguishes complete row coverage from visually inspected pages.
+No audio listening, human playtest or whole-chart quality acceptance occurred.
+
+## Implementation stopped before the next research decision
+
+A consequence-only correction draft was written but not tested, imported, trained
+or committed. It is preserved at
+`artifacts/audio-skeleton/20260923-v1/drafts/r1_adaptation-unselected.py`.
+It only addresses equal-composition alternatives under the existing30ms,
+two-onset machine preference; it cannot solve phrase structure or general
+playability. The human owner's instruction to establish formalization and genuine
+research trajectory precedes choosing this or a different intervention.
+
+All pilot training and generation jobs have completed. No overnight training,
+adaptation run, publishing, or recurring automation was started. Product code
+remains a baseline on `codex/audio-skeleton`; no change was pushed remotely.
