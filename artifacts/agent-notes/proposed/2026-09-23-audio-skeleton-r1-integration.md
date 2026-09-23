@@ -1601,3 +1601,38 @@ bytes prove an identity, but unequal bytes do not prove different recordings.
 A candidate expanded cohort will be selected only after the audit, preserving
 named baseline identities where compatible with the stronger split boundary.
 No checkpoint or published expert-review snapshot changes in this pass.
+
+
+### Encoded-audio audit result and decoded-identity extension
+
+The identity/placement audit completed in about20 seconds. It verified all13216
+catalog source/cache byte identities. TRAIN has11136 paired eligible charts,
+3081 metadata groups and3762 unique encoded-audio hashes; VAL has1589 charts,
+427 groups and612 hashes.490 catalog charts lack adjacent local paired audio.
+Eleven audio hashes span multiple metadata groups, including one spanning splits:
+two TRAIN Bergentrueckung/ASGORE charts and a VAL compilation-pack ASGORE chart.
+Its hash is4a8439c9dd010c42b540b8b32b1015e14d0edab41360a79fb90bdbbd700511c3.
+No named baseline source is in that collision. The prior60-song cohort remains
+unchanged. These counts exclude one further seed-ineligible TRAIN chart from
+paired eligibility. TRAIN includes1261 paired charts with1641 later event waits
+above4 seconds and1281 with openings above4 seconds. These are coverage facts,
+not new human style labels or evidence that more data will necessarily fix quality.
+
+Extend the audit by hashing canonical decoded, peak-normalized24 kHz waveforms
+for every readable VAL audio identity plus all named baseline TRAIN identities.
+This supplies a protected validation audio boundary before choosing more TRAIN
+songs; no test audio or model output is used. Validate recomputed waveform hashes
+against existing canonical assets wherever available. Record exact sample counts,
+frontend identity, input hashes and decoding failures. Do not equate different
+PCM hashes with different musical recordings; re-encodings/crops remain a limit.
+
+The extension has a1800-second bound and the same2 GiB RAM/40 GiB disk/PAUSE
+guards. It streams one waveform at a time and saves hashes/metadata, not audio.
+Only after this pass will new TRAIN candidates be decoded and screened against
+VAL. A proposed next corpus will aim at240 TRAIN groups and36 VAL groups, keeping
+compatible baseline identities, separate same-audio arrangements and balanced
+placement-density/LN strata. Actual decoded duration30–720 seconds is a compute
+slice, not a product duration limit. The corpus and evaluation identity must be
+frozen before any model fit or native quality selection. No new training or
+architecture choice is authorized by a favorable data audit alone; the existing
+user research authority remains the execution basis for subsequent scoped work.
