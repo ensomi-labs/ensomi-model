@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-23
-Product revision: 3a5cea9a2739a8658905a155c612817f2d1d0fc2
+Product revision: 16209eaf9000867de72ba9c5f04989e1b1e990f6
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -1327,3 +1327,135 @@ printed SHA in the next preflight freeze. Commands are
 then the same command with `control` and `student`, serially. Both main arms
 require a successful frozen preflight, exact runner bytes and a clean pinned
 implementation commit. The Card and owning Note remain proposed, acceptance none.
+
+
+### Result Log: native-joint-distillation-v1 revision 2
+
+Card and Note remain proposed; acceptance none. Execution used standing local
+research authority. Clean implementation source was
+3a5cea9a2739a8658905a155c612817f2d1d0fc2. Revision 2 runner
+`diagnostics/native_distill_v2.py` SHA
+e942c57a36a94b6fc619649327762d0e2a1dfcb3d5525a114e4cb6729303933f
+ran with `uv run --extra mps python` followed by its path and respectively
+`prepare`, `control`, `student`. Its freeze precedes both main runs. The second
+preflight passed in 11.08 s, source gradient norm 15.8977 and weighted native norm
+12.7500; target bytes equal revision 1's frozen targets. No main run used the
+superseded coefficient 32.
+
+The paired arms completed all 600 updates in 246.899 and 303.218 seconds. Their
+source-exposure hashes are identical:
+c8c752c34029d9ddc2b3878790395b4e1ef8cae2b7733c26654068c0866be85e.
+Each received 9600 logical source examples with full waits and all 39 coverage
+examples. Final checkpoints, selected by the predeclared update rather than
+native quality, are:
+
+- control SHA 98c235199db7f6aba9482db65fe7df38d3596cb64e56d1276b4ced5226c2779a;
+- student SHA 174cb1321ececa709660fc4ede4863b36285e62350f02e8fbe9663999625ddbf.
+
+The TRAIN native pressure pool has 50/30/2/5/5 distinct prefixes in the five
+training songs and seven in the withheld sixth song. Sampling yields 390 unique
+training prefixes among 640 examples and 70 unique held-out prefixes among 128.
+All six generated source/row digests also match their completed baseline run
+receipts. New source/arrangement identities were admitted for these histories;
+original chart futures did not label them. Driver allocation at final logging
+was 3.45/3.46 GB, available RAM 5.98/6.32 GB. No resource or numerical guard fired.
+
+| Metric | Starting coverage model | Source-only control | Native correction |
+| --- | ---: | ---: | ---: |
+| Fixed validation joint NLL | 6.090735 | 6.448922 | 6.436366 |
+| Withheld native-window KL | .052978 | .201154 | .102891 |
+| TRAIN pressure KL | .116273 | .256244 | .049185 |
+| TRAIN uniform KL | .004125 | .100203 | .037188 |
+| TAP-to-TAP <=10 ms count | 42 | 11 | 2 |
+| TAP-to-TAP <=20 ms count | 157 | 19 | 13 |
+| Total generated heads | 52265 | 28745 | 30470 |
+| Median chart head ratio | 1 | .642161 | .687861 |
+| Total LN heads | 1839 | 3202 | 4091 |
+
+The student learns some TRAIN pressure correction but fails the withheld 50%
+KL reduction and the 5% source-NLL guard. Its extreme-TAP count improves by95.2%,
+but both the [.85,1.15] median head-ratio and [.7,1.3] LN-total guards fail. The
+source-only arm also changes composition strongly. The positive count result
+cannot be interpreted as an overall playability improvement or solely attributed
+to the corrective preference: substantial continuation-training drift is present.
+
+All four native cohorts completed with head_spacing_ms=0. The control TRAIN/VAL
+runs took 19.698/31.126 s and the student runs 20.336/33.015 s. All36 charts pass
+exact replay, export/reparse and strict Lens admission. Numerical comparison is
+`diagnostics/native-distill-v2-comparison.json`, SHA
+f41e873a4fb92c6b08d7176dcf7e6ce32ce05ea69d539c5da41b99c8e3dea3f9.
+An additional TRAIN-fit diagnostic separates local learning from transfer and
+is not a replacement metric: `native-distill-v2-training-kl.json`, SHA
+cb009bf9d196793699b64bcc915cfe1c8f80f6244a404e7f6221f3f3c783f2e4.
+The comparison writer initially failed to serialize a NumPy integer; converting
+that descriptive count to a Python integer fixed reporting without changing
+models, input/output charts or metric definitions. No failed run was hidden.
+
+Lens review reads complete generated/source action pages for eight scopes and
+views all16 generated render pages. There are22 student TRAIN and43 student VAL
+harness calls; all four bundles remain byte-verified. Source render pages and
+control charts were not visually reviewed; saved articulation output was not
+read exhaustively. Exact coverage, hashes and judgments are in
+`lens-review/native-distill-v2-review.md` (SHA
+6aeb874d96e632e34a025f1789b49ed7b5c0ba8c17a9bde29ec10e7cc04a19d7)
+and its identity JSON (SHA
+fca8e42a26f8eed3ec8b076fd229b183242ecf2cc342b4a629387bf02a26e5bb).
+
+The student retains a 9 ms same-column TAP pair at144844/144853 in Waltz and a
+3 ms pair at230460/230463 in GR4VITY. The preceding 24 ms LN-tail gap in Waltz
+is a different relation and was not labeled BAD. GR4VITY's distinct-lane one-ms
+chord completion remains representable. Fffire retains repeated two-key groups,
+accelerating movement and independent LN handoffs; YOASOBI's inspected three-second
+passage has varied short LN chains and separate releases. Scars' old LN-rich
+source scope instead becomes a legible tap/chord figure, which cannot establish
+LN-coordination preservation. No source-density match or single gap threshold is
+used as the quality definition.
+
+### Additional diagnosis: silent-tail recovery
+
+The strongest new regression is SCREW: both new models generate only eight rows
+and ten TAP heads. The student's entire note range is7046–7820 ms, despite
+completed coverage through the real121033 ms audio end. This is not a resource
+cap or unresolved hold. The complete Lens action sequence and all four render
+pages through its last note were inspected; the complete generator trace, not
+the chart-range render, verifies the empty remaining audio interval.
+
+A read-only, fixed-prefix network probe uses those exact eight student rows,
+with no future commits, under all three checkpoints. From7821 to121033 ms,
+integrated hazards are7.435406/5.094686/5.016541 for start/control/student, giving
+no-further-event probabilities .000590/.006129/.006627. These are small
+unconditional probabilities, not a claim that the model must always stop there.
+After already surviving the first four seconds, conditional no-return probability
+rises to .512111/.716767/.753637. This is one unblinded development history.
+Receipt: `diagnostics/native-distill-v2-silence-probe.json`.
+
+A separate instrumented native replay cloned the sampling RNG only for tracing.
+The student's ninth waiting threshold is6.3415549965 and its remaining threshold
+at true audio end is1.3250162417. Observed consumed hazard5.0165387548 agrees with
+independent integration within2.3e-6. Four-second queries reproduce exactly the
+eight rows from500 ms queries. Receipt:
+`diagnostics/native-distill-v2-silence-sampler-probe.json`. This rules out a dropped
+scheduler event for this case and locates the silence in the learned distribution
+plus a rare waiting draw. A short80 ms correction window cannot distinguish
+reasonable initial waiting from poor later recovery.
+
+Evaluation recommendation: DROP this fixed distillation recipe as a candidate
+upgrade; retain the tested objective and negative evidence. This is a research
+recommendation, not a Note lifecycle transition. The current delivered prototype
+and optional decoder prior stay unchanged. No coefficient grid, larger encoder,
+long-term memory expansion, or new default follows from this result.
+
+The next research question must include activation and return after rests, along
+with preservation of arrangement composition. Live explanations include native
+state/survival coverage and historical features suppressing exogenous audio drive;
+this comparison does not distinguish them. A global arrangement-intent variable
+is another possible source of composition consistency, but is not established
+by this result and no new style labels are assumed. Follow-up should separate
+these mechanisms using fixed-history probes before another larger training run.
+The canonical Mel plus simple encoder and joint timing/row direction remains.
+Playability is unfinished; musical listening and player feedback remain absent.
+
+Implementation and curated evidence were locally committed. The latter adds a
+self-contained objective, paired result and silent-tail finding to
+`docs/research/audio_conditioned_choreography.md`. No remote push, new release,
+or human-annotation modification occurred.
