@@ -1186,3 +1186,105 @@ original source futures cannot simply be attached to altered generated prefixes.
 The positive template supports local calibration, not a larger encoder, a new
 long-term memory module or a claim of universal stability. No remote publication
 or canonical annotation changes occurred.
+
+
+## Experiment Card: native-joint-distillation-v1
+
+Revision: 1. Proposed; acceptance none. Execution uses the standing local research,
+implementation and experiment authority. No Note lifecycle transition is implied.
+
+Question: can the existing shared Mel/history network learn a corrected joint
+next-time/row law on its own histories, without an inference prior or added
+parameters? The selected hypothesis is an exposure/objective gap, not insufficient
+audio information. A frozen teacher is coverage-v1 plus the already inspected
+27 ms marked head factor. This teacher carries a local corpus-informed preference,
+not new human playability labels or unique musical ground truth.
+
+The closest primitive is soft-target distillation (Hinton et al., 2015,
+https://arxiv.org/abs/1503.02531). Here the target is the complete finite-window
+next-event distribution, including survival/censoring, rather than a class label.
+The point-process fit-versus-free-run warning from Gerhard et al. (2017), cited
+above, motivates native-history evaluation; its GLM theorem does not transfer.
+Naive jitter augmentation is not selected because the preceding controlled probe
+failed to reproduce the native short-gap behavior. Larger encoders and new
+long-term memory remain deferred.
+
+Baseline source is clean fa64def92e1a4b57d0ac47e1792b5774c6390f3d. Checkpoint,
+manifest and the six TRAIN/twelve VAL native cohorts retain the exact identities
+in marked-head-spacing-v1. Baseline raw sampling has 42 TAP-to-TAP relations at
+or below 10 ms, 157 at or below 20 ms, among 52,265 heads. The fixed 48-query
+validation joint NLL is 6.09073456; these development observations are unblinded.
+
+For a fixed actual generated prefix, enumerate the next 80 native milliseconds.
+At each time t let base hazard be h_t, row distribution q_t, and the existing
+head factor a_t(m). The corrected teacher has H_t=h_t sum_m q_t(m)a_t(m) and
+Q_t(m)=q_t(m)a_t(m)/sum_m q_t(m)a_t(m). Its next-event mass is
+S_t H_t Q_t(m), where S_t is survival through earlier milliseconds; the remaining
+survival at the window end is a censor outcome. Minimize KL from this complete
+distribution to the student's distribution. Do not omit censor mass, turn a
+rejected proposal into a history row, or attach an original chart's future to a
+changed generated prefix. True terminal closure remains forced; ordinary window
+ends remain censored. Close factors are one and head factors use preceding heads,
+not release clocks. Teacher tensors are detached.
+
+Two paired continuations start from identical coverage-v1 weights with fresh
+AdamW state: source-only control and source plus 32 times native-window KL.
+Both use exactly the same source logical examples and 600 updates, batch 16,
+full-wait supervision and the existing 39-transition coverage pass. Inherited
+learning rate is 1e-5, new-module rate 1e-4, weight decay .01, gradient norm cap 1.
+The coefficient 32 is fixed for this bounded test, not selected on validation or
+native quality. The final update is the evaluated endpoint; no best-of-checkpoint
+native selection. A small gradient/throughput preflight must establish finite
+losses, actual gradients and feasible resource use before either main arm runs.
+
+Native contexts come only from coverage-v1-train's first five chart identities.
+The sixth, Scars Of FAUNA, is withheld from native supervision as a transfer
+probe; its real source remains in ordinary TRAIN. Sample 640 fixed contexts,
+half uniformly by song then event prefix, half from prefixes immediately before
+an observed generated same-lane head interval below 27 ms. Draw with replacement
+if this pressure pool is small; record unique counts and do not misrepresent
+640 as independent failure examples. For the sixth song prepare 128 analogous
+held-out contexts, reporting uniform and pressure strata separately. Source RNG
+230924 and native RNG 230925 are independent. Native minibatch is four contexts
+per update, with no paired source-future labels. Pin generated chart bytes and
+admit them under new source/arrangement identities while preserving TRAIN audio.
+
+Implementation adds a narrowly scoped native-window distribution/KL owner and
+probability, causal-input, terminal and CPU/MPS tests. A run-local artifact runner
+owns this exploratory training recipe; it must pin its own bytes, source OID,
+inputs, context selections, targets and both run configurations. No packaged
+inference or architecture defaults change. Commit implementation before main runs.
+
+Primary learning gate: held-out native-window KL falls at least 50% relative to
+the starting model, and below the source-only continuation, without validation
+joint NLL worsening more than 5% relative to either the start or paired control.
+This local gate does not by itself establish playability. Native gate: without
+head_spacing, reduce <=10 ms TAP-to-TAP count by at least 75% relative to the raw
+baseline and beat the paired source-only arm; all 18 cases complete mechanical,
+export/reparse and strict Lens admission. Median per-chart head-count ratio to
+baseline must remain in [.85,1.15], and total LN heads in [.7,1.3] of baseline.
+These are regression alarms, not desired source-density targets. Inspect old
+negative scopes, fresh pressure maxima, and positive LN/Jack/irregular figures
+using Lens; broad thinning, rigid boundary pileup or loss of independent releases
+fails the qualitative gate. Review the previously positive YOASOBI candidate as
+a changed sample, not a byte-identity guard after weight updates.
+
+Run on this Mac, Torch 2.11/MPS for learning, one CPU thread for native generation,
+no network/data download. Per training arm at most 1,200 seconds, preflight and
+teacher preparation together at most 600 seconds, native cohorts at most 900
+seconds each. Preserve the 2 GiB available RAM, 40 GiB free disk and root PAUSE
+file guards; stop on nonfinite gradients, illegal replay or a resource guard.
+Fresh outputs live under artifacts/joint-audio/20260923-v1/training/native-distill-v1
+and generation/native-distill-v1-{control,student}-{train,val}. No overwrite or
+implicit resume. The exact artifact runner command and SHA must be recorded
+before execution; a preflight failure is evidence and does not authorize silently
+changing the intervention.
+
+A positive result would retain the small architecture and motivate broader native
+coverage. A negative result would reject this fixed distillation recipe, not
+prove that Mel is insufficient or that a larger model is needed. Main confounders
+are the locally designed teacher, only five native-supervision songs, repeated
+pressure contexts, changed trajectories under paired random seeds, and previously
+inspected validation songs. No conclusion substitutes for musical listening or
+player feedback. More fitting of this teacher cannot independently discover
+musical arrangement preferences absent from it.
