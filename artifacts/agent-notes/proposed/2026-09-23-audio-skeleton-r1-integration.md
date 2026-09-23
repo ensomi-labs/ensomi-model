@@ -651,3 +651,53 @@ BOSexposure is mostlypositive, so aggregate diagnostics hide this subset. The
 weakness, not lackofmodel support orfutureinputleakage. A next comparison should
 cover event-ending and preceding censored windows explicitly. Current baseline
 was not modified. See diagnostics/query-coverage-random-v1.{json,md}.
+
+
+### Native revision2 status and LN interpretation correction
+
+Both six-song cohorts completed: TRAIN104.14s andVAL114.52s, CPU1, pinnedbest
+update2000. All12outputs passed exact mechanics/export/reparse. In Imaginary
+Waltz the combined same-lane attack/release<20ms diagnostic fell272→8.37per1000
+heads, and Lens's frozen4.6–4.9s/8.5–10s scopes no longer show the earlier
+repetition storms. The new output also has a recognizable83–100ms repeated-key
+figure at23991–24344ms. Fresh scopes still contain3–8ms repeated TAP relations.
+Scars now contains independently overlapping multi-lane LNs. FullVALreview is
+pending; no final quality acceptance.
+
+The combined short-gap diagnostic conflates two distinct relationships. A Lens
+review initially called two Scars10/13msrelease→head gaps failures; calibration
+showed same-lane head→head intervals of189ms, approximately a half-beat at165BPM.
+This is compatible with LN-jack/hold-to-tap organization and does not establish
+an impossible reset. Original report/hash is preserved; corrected report
+downgrades these to preference/pressure hypotheses. No universal release-gap
+filter or negative training label follows. Sustained extremely short TAP
+repetition is separate. Retrieved11Jack-with-LN and40LN-coordination-with-LN
+cards did not contain a directly matching<=30msreset in their narrow scopes;
+that is missing calibration, not evidence against the generated pattern.
+
+Coverage audit wording correction: the19980mslate-start YOASOBIVALsong has
+fourlater-event queries, at190313,31813,112979,189838ms; none has BOShistory or
+its firstevent target. The earlier claim of no queryfor the song was too broad.
+Corrected receiptSHA610e1f9d95dcbb99cd81dd34a91169e0ece51aeb882fc3f1e877dbdf720ee1ff
+links priorSHA and actual freeze/evaluation0 records. No training behavior changed.
+
+## Bounded scheduler probe: query-chunks-v1
+
+Proposed exploratory probe under standing authority, acceptance none. Same clean
+source09b919c, checkpoint52191e0095f0efc8bc0bc0f3f87765f6606e78d38188cefe32b5d4054542829f,
+canonicalmanifest4b995029a5344569d4506ff6b11249f61585d2bf7649285754340909bb06c21b.
+The completed firstTRAINcase with4squeries is the baseline. Change only
+timing_horizon_ms to500 during nativegeneration, run_name=random-v1-chunk500,
+generation_split=train,generation_cases=1,device=cpu,cpu_threads=1,seed17,
+max_seconds=300. No source/training/model changes. Freshoutput, no overwrite.
+
+Hypothesis: on dense output, shorter absolute-bin queries avoid scoring thousands
+of unused future hazards after everyevent. Physical history and absolute-bin
+features stay identical; exponential residual carries across empty chunks.
+Primaryguard: exact persisted row sequence/hash and osu hash equal baseline.
+Measure totalelapsed,8scoverage andstepP99 descriptively, CPU1 normaldesktop
+environment, same checkpoint/source. No dedicated benchmark or multi-seed claim.
+Failure of equality requires tracing numerical/partition effects before using
+this as an inference optimization. No quality-preserving claim if rows differ.
+This tests a scheduler cost lever, not a learned-model intervention or speculative
+decoding. Same30000row,2GiBRAM,40GiBdisk,PAUSE guards.
