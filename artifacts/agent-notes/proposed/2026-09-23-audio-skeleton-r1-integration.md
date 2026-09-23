@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-23
-Product revision: 5c56e28bbf1ab92abaa0436b33c0d33a6c30eead
+Product revision: e2bca3e592800c1a49a1a82b31ae488fa7021e47
 Scope: Released R1 sensitivity to candidate timing; audio-conditioned skeleton learning and downstream integration
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -50,10 +50,9 @@ bad relationships; style presence is not a quality verdict.
 The product research proposal is
 `docs/research/audio_conditioned_choreography.md`. It distinguishes exact replay,
 recent detail, audio/arrangement recurrence memory and provisional plans. Its
-current exploration outcome is TEST for the small joint model family. Exact run
-configuration and an execution Card for that model remain to be specified;
-no new training was started for this revision. Existing pilot implementation and
-weights remain exploratory baselines.
+current exploration outcome is TEST for the small joint model family. The active
+exploratory Card below specifies the first joint implementation and bounded run.
+Existing pilot implementation and weights remain separate exploratory baselines.
 
 - Release tag: `r1-restored-6.75m`, source
   `8f1310322ba1f64a1ca259893e76376daf36396e`.
@@ -374,3 +373,100 @@ The immediate sequence is representation/state checks, a small joint learning
 check on paired audio/charts, native joint generation with error attribution, then
 one failure-driven correction. BeatThis, larger pretrained encoders, latent plans
 and new long-term retrieval remain optional deferred work, not entrance gates.
+
+
+## Experiment Card: joint-mel-hazard-rows-v1
+
+Revision: 1. Owning Note: 2026-09-23-audio-skeleton-r1-integration. Acceptance:
+none. Status: proposed. Execution uses the explicit standing local research and
+training authority recorded above; this is an exploratory learning check.
+Previous cards retain their historical results and do not control this run.
+
+Question: can the shared canonical-Mel encoder and history-conditioned native-ms
+hazard learn together with a complete-row decoder initialized from compatible R1
+weights? The intervention replaces supplied R/H with a learned event distribution;
+this is a new joint baseline, not an isolated estimate of encoder benefit.
+
+The closest primitive is a marked temporal point process with discrete hazards
+and conditional marks. Every native millisecond remains available, and a complete
+row jointly owns head/release roles. The hazard reads candidate-local music and
+actual history. Its survival product and carried exponential residual make
+scheduler partitions immaterial to the waiting distribution. A gap mixture and
+independent frame peaks are deferred: the former needs audio alignment machinery;
+the latter discards chosen-action dependence. No claim of research novelty.
+
+Clean implementation baseline: e2bca3e592800c1a49a1a82b31ae488fa7021e47. Record
+intervention commit in the result before execution. R1 checkpoint SHA remains
+4b3ec1561e33d0ebe2756cfe13571ec414fd5bb470b430f0c578545863115f70.
+The new model has 2,950,458 parameters, including a 463,392-parameter Mel encoder;
+2,444,688 parameters copy from R1. Omit seed residual, landmark memory, candidate
+consequence and 906 future-query projection columns. Retain exact state and the
+511-row finite content encoder. No pretrained audio model or style teacher.
+
+Data: canonical frontend fresh at artifacts/joint-audio/20260923-v1, based on
+old pilot manifest d416a1953bb4f0126c084457cd8d6c597c96533da9f40d8e3245949006af934c
+and catalog e31b7e8f4daa044503ef2b8411bc41727ba371eec804c9462a4608be8112ad28.
+Keep 48 TRAIN and 12 VAL base songs, admit up to two distinct TRAIN arrangements
+per exact audio/group, no TEST. Hash-verified rows beyond decoded audio end fail
+rather than silently changing VAL. TRAIN normalization weights unique audio once.
+The initial fit selects six deterministic TRAIN groups, one per density/LN
+stratum, keeps their alternatives distinct, and samples group then chart.
+
+Procedure: canonical prepare with the packaged joint_audio Hydra mode=prepare,
+max_seconds=900. After representation/integration tests pass, run mode=train
+run_name=memorize-v1 fixed_train_queries=32 train_groups=6 updates=300
+validation_every=100 batch_size=8 cpu_threads=2 max_seconds=900, other packaged
+defaults. Seed230923; shared/new lr3e-4, inherited lr3e-5, AdamW decay.01, clip1.
+BOS/event-prefix/absolute-time/outro query probabilities .08/.70/.17/.05;
+horizon4000ms, native1ms hazards, ten outputs per absolute10ms bin. Initial
+untrained and updates100/200/300 score exactly the same diagnostic queries.
+
+Primary diagnostic: mean joint NLL per fixed TRAIN query; separate event/survival
+NLL and mean action NLL for noncensored targets. A reduction of at least20% in
+joint NLL is a learning-path gate, not statistical proof or playability. Neither
+component may become nonfinite. Report VAL on four fixed queries per each of12
+songs descriptively; no held-out quality claim from this unblinded cohort.
+Baseline value is measured at update0; no previous model has an equivalent
+likelihood. Paired queries remove query-sampling variation, but one training seed
+and very small memorization pool remain strong confounders.
+
+If the gate passes, generate native BOS samples from the best diagnostic
+checkpoint on six TRAIN cases, then inspect exact event/hold behavior and Lens
+source/render patterns. This diagnoses rollout mismatch before data scaling;
+memorized-query success alone never authorizes a quality claim. Timings may be
+very poor away from the fixed queries. A wider random-query learning run requires
+an explicit subsequent Card revision/result-grounded choice under the same
+standing authority.
+
+Guards: native rows strictly increase on integer clocks, never all-empty; no
+head on held lane, no release without hold, true terminal closes all held lanes.
+Censored query boundaries never force closure. Source endpoints/future timing do
+not enter predictor inputs. Tests cover within-frame multiple events, long rests,
+BOS0, crop/full audio parity, mirror, gradients and scheduler partition survival.
+Native output requires canonical mechanics, export/reparse and Lens admission.
+Qualitative checks preserve possible Tech, dump/Jack and independent releases;
+no global minimum-gap or repetition ban is introduced.
+
+Run bounds: Mac M5,24GiB,MPS, CPU2 training, up to900s per preparation/fit, fresh
+run directory, no overwrite/resume, max30,000rows/song and900s generation bound.
+Stop on PAUSE, nonfinite loss/gradients, availableRAM<2GiB or freedisk<40GiB.
+No network/pretrained downloads. Save resolved Hydra, flat config, corpus and
+checkpoint pins, parameter-transfer report, RNG states, update/resource logs,
+validation records and explicit completion/stop cause. Raw artifacts stay local;
+code and owning Note are committed separately with no remote publication.
+
+Environment deviation before the run: existing SciPy1.15.3 binaries had malformed
+Mach-O TLS zero-fill offsets rejected by macOS27. Eight extensions received only
+section-offset metadata repairs and ad-hoc signing. Every file-backed section
+remained byte-identical; versions/lockfile/canonical frontend unchanged. Original
+binaries, script and receipt are preserved at
+artifacts/joint-audio/20260923-v1/runtime/scipy-dyld-repair/receipt.json,
+SHA6dcf6178d89f22e0a563c2a9fc699c5b6a1c5f92a90b26807eed431825ee5ffe.
+Canonical data tests and four real/complex PROPACK SVD smoke checks succeeded.
+This is a local environment repair, not shipped model code.
+
+Interpretation: a successful bounded fit warrants evaluating native errors and
+broader paired training, not retaining this architecture by default. Failure to
+fit directs gradient/representation analysis before scale. Good likelihood with
+poor native outputs directs investigation of feedback and multimodal choices.
+No sampled sequence is declared BAD solely for disagreeing with its source.
