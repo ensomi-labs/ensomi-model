@@ -844,3 +844,37 @@ Coverage-v1 remains theindependent predeclaredtraining intervention. At400/800/
 15.5913/15.4028/18.3083. Nonmonotonic targetedresults preclude declaringa
 late-start improvement fromonecheckpoint; selection andgates remainunchanged.
 All39coverageexamples wereconsumed byupdate39. Noarchitecture/filter change.
+
+
+### Revision3 completion
+
+Coverage-v1 completed2400updates in1118.44s with38400logicalexamples and40554
+physicalqueries (+5.61%), all39coverageexamples consumed, noresource/nonfinite
+stop. Selectedupdate2000 byunchangedcommonVALjointNLL6.09073456 (baseline
+6.07104107,+0.32%). Atthatcheckpoint targetedfull-gapmeanNLL14.62766263 versus
+17.12721604baseline (−14.59%); glacia17.51862→16.89078 andYOASOBI16.73581→
+12.36455. InYOASOBItimeNLL11.73759→6.24381 while rowNLL4.99822→6.12074: timing
+improveswithouta parallelmarkimprovement. Theseare two developmentcases,not
+statisticalproof. Bothpredeclaredlearningguards pass. BestSHA
+85f643077d127f9fe3e5256dc7b88512912d9ce8be39d6dbe164ef3ef4c9327e; lastSHA
+8edd5b723e5bb25673ffe53102e66fb6db2d6cb56ce4bfc4d56a38af6e2a61fd.
+NativeTRAIN6andVAL12use500msqueries,CPU1,seed17+index,900spercohort; TRAIN
+launchedatgeneration/coverage-v1-train. Same3Mmodel,nomemoryorencoderexpansion.
+
+### History/exact-state sensitivity diagnostic
+
+Artifactdiagnostics/random-v1-history-exact-interventions.json records2.60s
+CPU1read-onlyanalysis. Atfixedaudio/absoluteclocks, withnativeexactstatefixed,
+replacingnativeencodedhistorywithsourcehistory lowers5msCDFfrom.7327/.6123to
+1.74e-7/1.70e-7 forGR4/Waltz. Thesehybridinputs are nonphysicalnetwork
+interventions,notcausalvalidchartchanges. The GR4source/sourcecell isproperly
+high(.9451): cursor86910comes299msafteritslastrow86611and1msbeforeitsexisting
+nextsourceevent86911. That is not anotherfailure.
+
+Actualsource/native last16eventratesare3.57/20.16HzGR4and3.40/28.68HzWaltz.
+Native64-rowhistoriesareTAP-only; sourcewindowsincludeLNstarts/releases. The
+networkresponds stronglytothesedifferentprefixorganizations,notjustjitter.
+Thisdoesnotsetdesired difficulty,justifyforcingnative densitytosource,orlabel
+allnearbydifferent-laneeventsbad. Itnarrowsfollow-up towardgenerated-history
+state/composition andconditionalrowtailchoices. Newmemory,hardgapfilters and
+blindjittertrainingremainunselected.
