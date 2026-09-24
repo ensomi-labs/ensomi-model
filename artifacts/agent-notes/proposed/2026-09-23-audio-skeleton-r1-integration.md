@@ -7409,3 +7409,124 @@ relative Markdown links resolve; staged git diff --check passes. Product diff
 is only the282-line documentation addition/link. The registered orphan notes
 worktree and Markdown-only allowlist were verified; local commits only, no
 remote push. The ultimate playable-system goal remains active.
+
+
+### Experiment Card: head-factor-drift-v1
+
+Revision 1; proposed; accepted revision none. Owner is this Note. Standing
+local research, implementation and execution authority applies. Previous turn
+completed180 Lens pages, persisted the negative routing result and changed the
+next action; it was progress. Product baseline is clean
+9e6dbc61511ec9b1a45bc55148a344886e81d682. No fit or full-chart generation is live.
+
+Question: where does further fitting change native H counts: the audio/profile
+base, the learned residual path at fixed history, or the history input induced
+by the new trajectory? The purpose is to choose the next structural/training
+intervention, not to optimize another count proxy or promote a crossed model.
+
+Closest analogues: Brown et al. time-rescaling/counting-process analysis
+(https://www.stat.cmu.edu/~kass/papers/rescaling.pdf); Haslinger et al. discrete
+time correction (https://pubmed.ncbi.nlm.nih.gov/20608868/); Neural Hawkes event
+excitation/inhibition (https://arxiv.org/abs/1612.09328). Transfer the distinction
+between exogenous information, history modulation and the counting process.
+Ensomi has a discrete native-ms Bernoulli law, an explicit additive logit base,
+full-song audio and self-generated expressive targets. No continuous-time KS
+claim, exponential-ISI assumption or Hawkes stability theorem is imported.
+This is a diagnostic adaptation, not a new model or objective.
+
+Branches: base-path drift predicts most fixed-history count-propensity change
+comes from exchanging the audio base; learned-residual drift predicts the
+opposite; history feedback predicts larger changes when replaying the other
+endpoint's H sequence with weights fixed. Shared-gradient changes may affect
+both base and residual paths; the residual also reads audio, so its name must
+not be misreported as a pure head-TCN attribution. Mixed results preserve these
+alternatives. Further blind fitting, bigger encoders and hard H-spacing changes
+are deferred because they do not distinguish these mechanisms.
+
+Use all eight previously frozen panel audios and explicit requests1/2, same
+seeds251701..251708. Initial checkpointabc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef;
+shared7849e07a77febf12968b8197e844d9c26f8327ce789d0776117e02dc83de788f;
+routed d2d943a8bb565559480121645128c70824d792b9830c013981780bbfb74a3f22.
+Paths stay under the existing20260924-alias-restored-v1/planned-training owner.
+Bank a8973b7f94fde90d9f3cc639eb63e781dd295435622ce79fd54fe244789e6f03,
+panel484d173628856a431e034b1dbdacab9173c40f3edf696d1b9a19721aeec70dc9.
+Source native result owners are20260925-fresh-audio-system-v1/result.json
+(9f3c4580adaa6239c44e04bb5d95a0ed921b8fd958b1eee26ccd8cedfa91e862)
+and20260925-profile-routing-v1/main-native-result.json
+(0097d705919e6203a000906cef464337f039d52b861c63ae561a9ece5f57d9d6).
+Read only their48direct rows.jsonl streams after exact hash verification.
+No source chart, redline, annotation or future LN tail enters H queries.
+
+Baseline on16exactly matched requests is H-component descriptor error.873858
+initial,1.763494 shared and3.351010 routed. For concrete count scale, initial
+FoolMoon requests1/2 have1499/1078H; shared1045/1014 and routed4319/3778.
+Initial Hysteric has2170/1297H; shared3922/4417 and routed5013/4879. These are
+fixed sampled trajectories, not independent population estimates. Every case,
+including improvements, is retained in the diagnostic.
+
+One causal intervention exchanges only the additive H base logit between the
+initial and a continued endpoint, holding residual output and the legal H
+history fixed. Evaluate both exchange directions on both endpoints' actual H
+histories. For each history h and base/residual source a,b, define
+C_ab(h)=sum_t sigmoid(base_a(t)+residual_b(t|h_<t)) over t=0..duration inclusive.
+Each source computes its own full-audio encoding and own head-history encoder;
+only their scalar logit outputs are combined. These are fixed-history
+conditional-probability sums, not expected counts of the freely evolving
+crossed generator. No weights are copied between incompatible hidden spaces.
+
+For initial0 and continued1, calculate on each h:
+B(h)=.5[(C10-C00)+(C11-C01)],
+R(h)=.5[(C01-C00)+(C11-C10)]. Average B and R over h0,h1.
+History contribution D=.5[(C00(h1)-C00(h0))+(C11(h1)-C11(h0))].
+Realization remainder E=(N1-C11(h1))-(N0-C00(h0)). Then
+N1-N0=B+R+D+E exactly, within numerical tolerance. This symmetric accounting
+reduces arbitrary path-order dependence; it is still conditional on two sampled
+histories and cannot identify an intervention's native quality or root causes
+inside a neural path.
+
+Behavior-neutral readouts: per8s and whole-audio sums; own-path Bernoulli
+variance sum p(1-p); mean/quantiles of base, residual and recency gate; and
+sum sigmoid(base), the exact expected count for the history-free base law.
+Distinguish this probability sum from sum softplus(logit), which governs
+survival. No NLL selection or continuous-time goodness-of-fit significance.
+Crossed base-only counts are not proposed skeletons and receive no style label.
+
+Primary diagnostic: for each continued arm, compare |B|,|R|,|D| on cases with
+|N1-N0|>=.1*N0. A component is a dominant lead only if its median share of
+|B|+|R|+|D| is>=.60, it matches the signed count change in at least75% of eligible
+cases, and median|E|/|N1-N0|<=.25. Fewer than4eligible cases, inconsistent signs
+or no qualifying component means mixed/unresolved. Report all case values,
+rates and absolute accounting, even outside this descriptive threshold.
+Positive base lead focuses audio/profile calibration; residual lead focuses
+learned clock/history modulation; history lead focuses autoregressive exposure.
+No branch establishes sufficiency of a remedy, R1 fault share or playability.
+
+Integrity checks before interpreting: verify all source/checkpoint/Mel/row/H
+hashes; pure HeadPlanner replay must reproduce every saved H sequence exactly
+with original seed xor0x17AB and500ms chunks. Dense-history and online-cache
+reads agree at16uniformly spaced head positions per case with atol/rtol2e-5.
+Native clock coverage uses canonical bin anchor10*floor(t/10)+9 but only heads
+strictly before native t. Check BOS, H at0, multiple H in a10ms bin and final
+audio clock with synthetic partition assertions. Every clock occurs exactly
+once, every part finite, |residual|<=4*gate+1e-5, base+residual matches the
+existing head_logits interface. Accounting error<=1e-6 heads and per8s sum
+equals whole-audio sum within1e-6. Parameters and fixed inputs remain unchanged.
+Fail on any integrity discrepancy, with partial diagnostic output preserved.
+
+Qualitative evidence is the completed source trajectories' Lens review, not a
+new chart produced here. It already distinguishes dense TAP flow, overlapping
+LN relations and bad HH. This diagnostic cannot declare a musical improvement.
+R/row fixed-plan interventions are deferred until H attribution is measured.
+
+Execution: uv run --extra mps python
+artifacts/joint-audio/20260925-head-factor-drift-v1/analyze.py.
+One CPU thread on Apple M5/24GiB, Python3.10.20/Torch2.11.0; no optimizer or
+network in the run. Fresh owner20260925-head-factor-drift-v1, max1200s total,
+75s per H replay, at most30000H,256MiB new artifacts. Standard2GiB available
+memory/40GiB free disk/PAUSE guards apply. Checksum the diagnostic script and
+clean product/committed Note before writing a one-time freeze. No overwrite,
+resume or automatic rerun on an observation timeout. Stop on nonfinite values,
+identity mismatch, guard failure or exhausted cap. No product behavior changes
+are required; instrumentation is a bounded derivative script with pinned bytes.
+Recommendation remains REFINE until interpretation; no acceptance or adoption
+is implied by execution authority.
