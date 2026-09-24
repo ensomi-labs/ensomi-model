@@ -3846,3 +3846,92 @@ feature meaning, not only matching shapes. The head stream's independence from
 LN occupancy remains a stronger proposed factorization, not an owner-mandated
 restriction on all future skeleton models. No numerical result establishes the
 fraction of new-system errors attributable to the omitted frontier2 branch.
+
+### Experiment Card: planned-head-release-consequence-v1
+
+Revision 1; proposed; accepted revision none. Standing authority covers local
+implementation, tests and the bounded runs below. Baseline product
+e32e6e1df3a97f42af54d16b9b2292d05d832bcf. The prior turn made progress by fixing
+the frontier omission in the documented graph and persisting the dependency
+probe; it did not implement the new model.
+
+Question: does an explicit head plan, LN-conditioned release clock and
+candidate-action consequence branch yield a learnable native generator under
+the required information boundary? The intervention is this factorization as a
+whole, not an attribution study of its individual components. Closest analogues
+are local R1's candidate-consequence residual and the current full-audio hazard
+model. The change is their adaptation to a planned head stream with online
+physical feedback; no new general-purpose learning algorithm is claimed.
+
+Implement a native-ms autoregressive head stream using only audio and its own
+head history, a release-only hazard using audio, previous H/R skeleton and
+current LN state, and R1-derived row materialization with direct audio and
+bounded forward head context. The head-only independence is a stronger pilot
+bias than the owner-required LN projection contract. Retain mirror symmetry,
+causal row history, explicit BOS and separate random streams. This pilot uses
+16 forward heads, 127 prior heads and 63 prior H/R events for skeleton encoders,
+plus the existing 511-row action history and canonical local/full-song audio.
+
+Restore RowConsequence frontier2 parameters from the pinned 6.75M checkpoint
+through an explicit transfer adapter. Native integer clocks provide a structural
+earliest-release opportunity at current time plus one millisecond, including
+an H clock when present. This is a possibility, never a predicted release time.
+Reference suffix LN endpoints remain unavailable. Old weights face a changed
+opportunity distribution and row conditioning; transfer is not policy parity.
+No old 30 ms preference objective or inference head-spacing filter is used.
+
+Define release hazard one at the next H minus one millisecond when all four
+columns are held, and at true audio termination when holds remain. This is an
+explicit deadline-atom distribution used in both likelihood and sampling, not
+a silently truncated and renormalized unconstrained distribution. If the next
+H is one millisecond away, exclude candidate rows leaving all columns held.
+H rows require heads; release-only rows require nonempty releases and no heads.
+Query chunks never become deadlines. Actual release times after a candidate
+remain unknown. Hypothetical scores cannot reweight the head plan.
+
+Before fitting, reject the implementation on any exact replay/support,
+source clock-coverage, teacher/native probability, RNG/chunk-partition,
+mirror, full-audio crop or information-noninterference test failure. Include
+all-held release deadlines, terminal closure, sub-10-ms heads, LN crossings,
+empty intervals and changed TAP layouts with identical LN/skeleton inputs.
+The primary initial question is a functioning distribution with those
+invariants, not an improved NLL or an automatic playability verdict.
+
+Use the repaired 615-TRAIN/240-group plus 36-VAL corpus, manifest
+4ad9abfd0ae7798e0a85b96a5dbecdaefd2a81f78bf181438407442b964118e1,
+normalization 9cf461a0e825f974f0a80a364123c7afedf1683af76e60fe09b0fbe51c2c8287,
+R1 4b3ec1561e33d0ebe2756cfe13571ec414fd5bb470b430f0c578545863115f70.
+Reuse the lineage comparison's frozen exposure plan
+34ef9751df4571f516ef2b670b3b0f4b398c212fdd16adcee1a029bd9168eb14:
+1200 updates, two songs by two 8-second intervals, model seed 230941,
+sample seed 230942, validation seed 230943. Same full audio in training and
+inference; never combine alternative arrangements into union labels.
+AdamW with inherited R1 and consequence modules at 3e-5, new audio/skeleton
+modules at 3e-4, weight decay .01 and gradient clip 1. Mac MPS, CPU one thread.
+
+First run 32 updates with six frozen VAL songs, at most 300 seconds. Require
+finite likelihood/gradients, actual updates in both skeleton heads and the
+consequence branch, a reloadable checkpoint and completed mechanically valid
+native probes. Only then start a fresh 1200-update fit capped at 3600 seconds;
+do not reuse preflight optimizer/model state or select a best-NLL checkpoint.
+Retain fixed endpoint, source likelihood by factor and all native outcomes.
+Stop on <2 GiB available RAM, <40 GiB free disk, nonfinite gradients, corrupt
+export, per-chart >90 seconds or >30000 physical rows. No model scaling.
+
+Fresh experiment owner artifacts/joint-audio/20260924-planned-head-release-v1;
+fresh runs planned-preflight-v1 and planned-main-v1 under the repaired corpus's
+planned-training directory. No overwrite or implicit resume. Record the clean
+intervention source before running. Native screen: frozen Who, Death Piano,
+Prom Queen and Good Luck style cases at seeds 17/19 plus Airborne at seed 33;
+at most 900 seconds total, CPU one thread, no post-sampling head filter. Compare
+with completed release-initialized lineage outputs where available and the
+frozen human windows; differences combine architecture and initialization.
+
+Inspect every generated style-context time page and actions/articulation via
+Lens. Report missing/empty/incomplete cases, LN articulation and release-to-head
+relationships separately from repeated presses, regularity/irregularity,
+chord organization and sustained repeated figures. Record first-30-row/head
+and 8-second readiness plus dense-window throughput. Source note counts or LN
+fraction alone neither accept nor reject charts. If mechanically valid but
+qualitatively poor, REFINE using located failures; even favorable evidence is
+exploratory and does not prove universal playability or imply Note acceptance.
