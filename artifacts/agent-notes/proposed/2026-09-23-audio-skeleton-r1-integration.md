@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 844de84ee7a2f7560939136710dbab6ce907e006
+Product revision: 4567d87732320f27c01b40b15f74846865219934
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -8128,3 +8128,92 @@ result defeats this marginal replacement under the frozen representation;
 mixed evidence remains REFINE. Rare-profile exposure, one seed, source/native
 history shift, coarse mark-memory length and the frozen shared encoder are
 explicit confounders. The full real-time expressive-system goal remains active.
+
+
+### Result Log: count/layout implementation and paired preflight
+
+Card count-layout-materializer-v1 revision1 remains proposed, accepted none.
+Clean intervention source4567d87732320f27c01b40b15f74846865219934 implements
+the declared35-way count conditional,31-row count history, exact within-group
+R1 normalization, source/native count inputs, checkpoint initialization and
+materializer-only training ownership. Flat/all defaults are unchanged.
+The adjacent parameter_counts docstring now correctly says all parameters,
+because frozen parameters remain included in that existing counter.
+
+Seven focused count tests pass in3.02s;63existing planned-audio owner tests
+pass in7.90s. A subsequently strengthened nonzero count-history-gradient
+assertion passes in the focused CPU/MPS test (1.84s). This is70unique tests,
+not71. Coverage includes analytic group masses/ratios, inactive-group gradients,
+common-group-score invariance, mirror/input boundaries, source/native cached
+scores beyond31rows, query partitioning, fork ownership, actual training,
+frozen parameters, Hydra projection, old checkpoint defaults and reload.
+Three initial test failures were fixture problems: an insufficient random
+legal pair on MPS, direct use of an unexpanded boundary tensor, and failure
+to exclude padded teacher query rows. The corrected fixtures retain all real
+queries and the original probability/gradient assertions. No model defect
+was hidden by changing a tolerance or excluding a real event.
+
+The flat model has4250174parameters,2926490trainable in this comparison.
+Count/layout has4416513total,3092829trainable:166339additional parameters.
+Both freeze1323684parameters. The separate mark conditional intentionally
+removes R1's common cross-mark score biases, including frontier2's cross-mark
+component; frontier2 continues to affect relative layouts within each mark.
+It is therefore not a preservation claim for the whole former frontier2
+policy. Native short-attack, sustained-coverage and structural checks remain
+necessary. The sorted-LN projection and31-row mark memory are modeling biases,
+not a proof that layout never affects desirable action composition.
+
+Artifact owner artifacts/joint-audio/20260925-count-layout-materializer-v1.
+Both32-update preflights completed on MPS, flat32.615221s and factor34.295448s.
+Each consumed128identical intervals,996154ms,6956H,307R and268735R clocks.
+Full fixed exposure protocol SHA14ecb11ce4ca3882c31f4c6be01d0cd8c2ad03b7db8bbbdde3c9aa8e9d84b440.
+Original audio/H/profile frozen fingerprint
+afa101b221ed85ffceb1d163917ef88a22a77f0dcda4037f9b9f5268622e4f58
+is identical in both models before/after fitting and reload. Checkpoints:
+flat3a7a6a082be14154afabc1b986d19e635124213d80772e0fe15102306a1f6c0b;
+factoref3ef3c8a7a2fda7243c6607a6483f058a26f3ed5aa5179a71f113616b8cc3cb.
+Preflight result85e3480e83480e586191978eb4d9212d574ed75ddde1819b9e0e70341338778b;
+freeze def8cadd76b501c70077ca253e696920bfba822e4bf1c978614ee38646da13ec.
+The six-VAL-song preflight is execution evidence, not native style evidence.
+
+Both main fits restart from originalI with fresh optimizers, using the exact
+recorded Hydra commands from train_stage.py/main-freeze.json. Execution Note
+pin007d551eeeda0763cacc7762f3ac1f8d8a6076ef retains the unchanged Card.
+Main freeze SHA0aa086fe441f52e51ec1092a31b10baa8741526ee3640edc5cd117b969d7f7a4.
+The flat1200-update main fit completed in799.511985s, consuming4800intervals,
+37392112ms,253263event rows,239124H,14139R and10692321R clocks. Its checkpoint
+is da08044806e99eae6a6221c06ef8c91c02711361fae68c896c9af01bde61dea2;
+result2557a1e05498568cd56bdc8c57198c11f830099aadf368fc5eaec1ebe31818d1.
+Frozen parameter bytes and complete checkpoint reload pass.
+
+At the last authoritative read, terminal session11773 is live and its factor
+main fit has reached610updates at481.294s, with about4.68GB available RAM and
+1.90GB MPS driver allocation. This is a progress snapshot, not a terminal
+result. Resume by checking that same handle or its actual process state; never
+restart from a stale progress file or an observation timeout. Wait for the
+fixed1200-update endpoint or declared cap before native comparison. No other
+training process or recurring automation was launched.
+
+The source exposure audit finds3profile1 and3profile2 intervals in preflight,
+and116/133 in the full4800-interval plan. Both profiles still have limited
+exposure; the complete plan and normalization identities were compared.
+An ad-hoc reporting read first looked for normalization_sha256 in result.json;
+the authoritative field is in freeze.json. Correcting this reporting lookup
+required no run restart or input modification.
+
+Prepared native.py and inspect_lens.py have not executed. The native driver
+requires both main endpoints, compares all64direct/screened calls, checks H
+against originalI, records exact replay/coverage and captures at most the first
+four actual rejected trajectories per chart in a separate rejected/ tree.
+Keeping that tree outside the final export directory preserves save_rollout's
+fresh-directory invariant. Its originalI descriptor baseline was independently
+reproduced: components[.8738583548578978,2.3704218356354247,4.096142372828725],
+body6.466564208464149. The Lens script implements the Card's bounded fixed/dense
+scopes and four shortest directHH witnesses per arm, not every resampled8s
+window. Both scripts are still unfrozen preparation; pin their bytes at execution.
+
+Next action: finish observing session11773, verify both main frozen tensors,
+exposure and checkpoint hashes; then run the prepared native comparison and
+complete its declared Lens review. No NLL-based selection, new fitting branch,
+resume of a capped case, automatic promotion, listening/player claim, remote
+push, Note acceptance or goal completion is justified yet. Goal remains active.
