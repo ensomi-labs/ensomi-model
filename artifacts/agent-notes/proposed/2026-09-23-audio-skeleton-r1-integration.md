@@ -8391,3 +8391,141 @@ LN roles, H timing, fixed compute and coverage checks. Design a new bounded
 comparison before any new fit or modified decoder run. Standing execution
 authority persists; Card acceptance, adoption, remote publication and goal
 completion have not been granted or inferred. Goal remains active.
+
+
+### Research branch: probability of a viable continuation
+
+The completed count/layout comparison makes next-row legality an insufficient
+research target. Separate three quantities: current clean-row mass; existence
+of a clean future; and the learned probability of actually reaching that future.
+Restoring a weak frontier residual, adding current capacity to q, and planning
+actual R/row futures predict different observations on the same failure prefix.
+
+Closest analogue: Park et al., Grammar-Aligned Decoding,
+https://arxiv.org/abs/2405.21047 (full text v3). Their expected-future-validity
+factor distinguishes a binary possible-completion mask from probability-weighted
+conditioning. The transferable idea is to measure future constraint probability
+before choosing a prefix; their grammar/code evaluations are not beatmap
+quality evidence. Zhao et al., Twisted Sequential Monte Carlo,
+https://arxiv.org/abs/2404.17546, supplies a subsequent family for approximating
+future potentials. No twist network or SMC decoder is selected yet.
+
+The application-specific difference is an H-conditioned asynchronous R/row
+process with actual held state and publication deadlines. A future probability
+must integrate sampled release times and row choices, not assume all held
+columns can close at now+1. A hard HH test is distinct from the experimental RH
+preference. Preserve both readings in the diagnostic. This is an adaptation of
+conditional inference, not a new probabilistic objective or a claim of novelty.
+
+Outcome TEST for a bounded conditional audit. First estimate whether immediate
+clean-row conditioning leaves substantial future failure mass, and whether that
+mass depends on current LN-start/count choices. Use existing weights before
+selecting another fit, decoder or wider architecture. The preceding count-layout
+Card is completed as an exploratory comparison; the following Card is the sole
+active proposed experiment.
+
+### Experiment Card: count-continuation-mass-v1
+
+Revision1; owning Note2026-09-23-audio-skeleton-r1-integration; statusproposed;
+accepted revision none. Standing local research/implementation/run authority
+covers this bounded probe. Baseline clean product
+151f9c265a9c5eaaa43bc6736f41cdc626da5554, behavior-identical to count implementation
+4567d87732320f27c01b40b15f74846865219934.
+
+Question: after a currently clean complete-row choice, how much base-model mass
+actually survives the nearby H plan under HH alone and HH+RH, integrating the
+true R/row sampler? Selected hypothesis: a substantial part of the factor arm's
+failure is future count/occupation commitment rather than immediate bad layout.
+The decision is whether the next intervention needs explicit future coordination
+instead of only current-capacity information. This diagnostic does not adopt
+a decoding distribution or establish whole-chart improvement.
+
+Inputs: previous native result43d130ed6291abdebc3c994e1ad27b833954ef84deed5f9dfcc8422e4a60b5ff;
+the exact same flat/factor checkpoints, profilebank, canonical Mel and panel
+identities in the completed count-layout Card. No fitting or new data.
+Fixed H is the factor direct profile1 plan, already verified identical to
+originalI, for the selected audio. Four pinned factor-native prefix queries:
+1. Hysteric rejected/factor/hysteric/profile1/1/rows.jsonl,
+   SHAea00a750246faf81566c36e921ac41e3438366d43e9a9bd95e1892c7bdf0b242,
+   rows strictly before248930; currentH248930, horizon248950.
+2. Hysteric rejected/factor/hysteric/profile1/3/rows.jsonl,
+   SHA4fdfb42b8379c04174c8c29b81f621aa08dac3db5e3a0fd5ab2b6e8d6e16d0aa,
+   rows strictly before248824; currentH248824, horizon248944.
+3. The same rejected file, rows strictly before248930; currentH248930,
+   horizon248950. This prefix retainsLN3 from248824.
+4. AsItWas native/factor/as-it-was/profile1/direct/rows.jsonl,
+   SHAa701b6800f7256a0c5c670a13bca0c359107c4bdd3d1af02515bb90f4955eb27,
+   rows strictly before148234; currentH148234,horizon148254.
+All paths relative to artifacts/joint-audio/20260925-count-layout-materializer-v1.
+The Hysteric direct plan file SHA is
+01acdc4330865ffedc8177e06de018796800220119cdde5d4beb9fc3be2f92a3.
+No hidden future tails enter a prefix projection. Case4's recorded5ms
+cross-column split is a healthy control, not a statement that all its sampled
+alternatives are healthy.
+
+Paired fixed-prefix scoring uses each checkpoint's own full conditioned audio
+and history encodings; the same literal prefix is forced into each model.
+This is counterfactual for flat and is not a new whole-chart comparison.
+The causal intervention is conditioning the first count triple while sampling
+its layout from that model's first-row distribution, then allowing genuine
+unmodified R/row continuation. All models, H, controls and observed prefix facts
+stay fixed. Behavior-neutral instrumentation reconstructs exact replay/caches,
+queries256row probabilities, enumerates35deterministic count groups and records
+suffix outcomes. No product behavior/config/default is changed.
+
+For each query compute exact raw group masses and Z0, total first-row probability
+passing both immediateHH/RH. Restrict the first-row distribution to this clean
+set. For every nonempty count group draw64independent first layouts proportional
+to their conditional model probabilities, then fork/sample actual R/row paths
+through the frozen horizon. No current/future HH correction or rejection retry.
+Report HH-only and HH+RH survival per mark and
+Zfuture=Z0*sum_m w_m*survival_m, withw_m the exact first clean mark marginal.
+Report95% Clopper–Pearson group intervals with Bonferroni correction within each
+query, and their weighted bounds forZfuture; no across-query population claim.
+The unmeasured baseline conditional probabilities will be reported, not assigned
+invented values. The existing whole-direct HH totals2flat/24factor and18factor
+bad rows are prior motivation, not the probe's metric.
+
+Primary signal: for at least one of the three failure queries, Z0>=.95 and the
+upper95% bound for HH+RH Zfuture is at most.90*Z0. That supports future-conditioned
+work beyond an immediate mask on this bounded prefix. If every failure query
+has lower-boundZfuture>=.95*Z0, prioritize immediate-state or wider-history causes.
+Other outcomes remain ambiguous/REFINE. Separately report HH-only so an RH-only
+effect cannot be presented as explaining the confirmed HH fault.
+
+Mechanical sanity check: for a second H strictly inside20ms, a column still
+held after the first row cannot become attackable underRH<=20 by any laterR.
+For these specific one-future-H windows, exact post-row free/clock availability
+therefore proves some candidate futures impossible. Keep that proof separate
+from zero successes in64samples. Case2 spans120ms and requires actualR modeling;
+do not extrapolate the short-window proof to it.
+
+Preflight before sampling: verify all input hashes, exactprefixreplay/Hmembership,
+dense-vs-cached history reads with existing owner tolerances, normalized finite
+row probabilities and row support. Each sampled suffix must re-replay and contain
+exactly the planned H through its horizon; all weights remain byte-identical.
+Selected-first-row checks must agree with close_pairs. A stop/mismatch/nonfinite
+value leaves an incomplete diagnostic, no threshold or denominator adjustment.
+Retain first success and first failure suffix per mark plus complete numeric
+records; inspect these raw action relations for mechanical claims. This is not
+a new whole-chart Lens/playability test. Existing completed Lens remains the
+quality context; no new player/listening claim.
+
+Command: uv run --extra mps python
+artifacts/joint-audio/20260925-count-continuation-mass-v1/probe.py.
+CPU one thread, AppleM5/24GiB,Python3.10.20/Torch2.11.0; no acceleratorfit.
+Seeds derive from base253101 plus stable query index, arm, mark and repetition;
+record the exact deterministic formula in the execution freeze. First-layout
+and futureR/row generators use independent derived streams.
+Max900s whole driver, max10s/128new rows per suffix, new artifacts<=200MiB,
+available RAM>=2GiB/free disk>=40GiB; explicit PAUSE/resource guards.
+Fresh owner above; no overwrite/resume, no networkduringrun and no source
+chart/label edits. Freeze source, Note, script bytes, inputs and seeds before
+execution. No automatic extension after a cap.
+
+Confounders: four selected prefixes, factor-history bias, one small frozen panel,
+finite Monte Carlo uncertainty, short horizons and an experimentalRHpreference.
+Survival is a mechanical diagnostic, not style quality, whole-song liveness,
+the final constrained posterior, or proof that another learned module is needed.
+A positive result selects a subsequent bounded design; a negative result can
+reject this local future-mass explanation. No result promotes an endpoint.
