@@ -4108,3 +4108,69 @@ artifacts/joint-audio/20260924-planned-head-release-v1/head-survival-audit.
 The result changes whether the next intervention should add an audio-only head
 base with a bounded, decaying head-history residual, rather than scaling model
 capacity or applying a hard head-spacing rule. Outcome remains exploratory.
+
+### Result Log: head waiting-time mechanism and complete main Lens review
+
+Main Lens extraction session 37694 completed, with manifest
+ef71d998ec207cc91ef195fed15fa97fa94cb8ab688ec55d7aea80d2cfa4b6a3 in main-lens-v2.
+All 26 generated pages were actually viewed; all actions/articulation were read.
+Fourteen reference PNGs were verified byte-identical to the already-viewed
+preflight references. Five contexts are completely empty (Who 19, Death Piano
+17/19, Good Luck 17/19). Airborne has no heads and only an entering LN from
+142825 to 148361 ms, duration 5536 ms, with no internal attacks. Review SHA
+cae16ff75750529968cc9c565ad416ee64ec298b5ab3f16ec896a39a76b185cf.
+
+Partial organization did improve: Who 17 now has 58 heads/3 LNs in the fixed
+context, with approximate 234/117 ms pulse relationships; Prom Queen has
+20/0 and 16/0, with many approximate 208/416 ms placements and additional
+chords compared with preflight. These observations do not rescue the silent
+regions or establish requested style coverage, audio alignment or playability.
+The endpoint is not promoted; no listening or player trial occurred.
+
+Head-survival Card head-wait-survival-audit-v1 revision 1 remains proposed,
+accepted revision none. First probe attempt failed before head reproduction
+because constructing the model inside torch.inference_mode made parameters
+lack version counters required by the temporal cache. Its freeze/failure and
+original probe.py are retained. A behavior-neutral diagnostic retry uses
+torch.no_grad for model construction, writes fresh attempt-002 outputs, and
+keeps the same checkpoint, audio, cases, seeds, queries and comparisons.
+Session 41010 failed; retry session 39190 completed in 2.43259 seconds.
+Retry freeze SHA 625fa5365fd057ba3216b5fb4468c9160f5b8bbd950c84a74f093210438c88a7;
+result dbc2e3143a5e3f48da09b031338e8e3a83313314cc0b87a15708691e0fb6266b.
+
+All four head-only streams exactly reproduce every saved H timestamp, without
+running R1 rows. Summed remaining hazard mass matches consumed exponential
+budget within 3.82e-14. In Who 19 / Death 19 / Good Luck 17 / Good Luck 19,
+total future masses are 3.36936 / 2.89453 / 1.85614 / 2.09168, below draws
+4.56417 / 3.75976 / 4.07153 / 4.56417. Conditional no-more-head probability is
+3.44% / 5.53% / 15.63% / 12.35% over 60.353 / 86.136 / 92.513 / 159.893 seconds
+of remaining audio. At the +30-second query, translating the same interval
+history to end 100 ms ago raises next-ms hazard 632 / 133 / 500 / 617 times.
+Audio and interval tokens are fixed in those legal counterfactual skeletons.
+
+The proposed stronger near-zero-tail criterion FAILED: post-two-second mass
+is .736-1.862, not below .01. Do not call this an infinite-horizon absorbing
+state or claim every later audio cue is ignored. The evidence instead locates
+strong finite-horizon recency suppression and rules out a sampler, row-action
+or LN-blockage explanation for these head-only silent tails. The selected four
+failures do not estimate a population failure rate. The diagnostic norms do
+not establish audio information sufficiency.
+
+A separate descriptive TRAIN-clock audit uses the same 615 charts/240 groups
+and exactly 37253258 sampled milliseconds. Result SHA
+d2fc84af6bdf9b605b468517049059358812264af4e78bdf1b1b47e92d3f5c55; session 11987
+completed. In the actual plan, 88.21% of >2-second head-age clocks occur after
+the reference final H, rising to 94.53% for >5 seconds and 94.48% for >10 seconds.
+Population group/arrangement/time counterparts are 87.17%, 90.38%, 85.17%.
+No TRAIN chart ends its head stream before 60% of its paired audio. The four
+reference arrangements contain 60/22/49/65 H rows in the five seconds after
+the corresponding generated final head. Post-final reference time is not a
+claim that the underlying waveform is silent.
+
+Recommendation REFINE: the teacher distribution makes long head age a strong
+ending cue, and own sampled long waits can activate that cue prematurely.
+Bound the historical veto and let complete audio regain control after a long
+wait, without a forced event or a spacing ban. The existing row/LN/skeleton
+independence and frontier path remain. Candidate risks include forgetting
+density/phase across rests and a weak audio base. All model and probe sessions
+above are now terminal. No new recovery fit has yet started.
