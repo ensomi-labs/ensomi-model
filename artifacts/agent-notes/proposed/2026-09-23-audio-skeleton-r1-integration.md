@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 55f86faf9083da66d4d648623ac09ccf8f4797fb
+Product revision: 0848d8d6898939d850cf3bd7bbf4332ab121dceb
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -3072,3 +3072,116 @@ Fresh owner: repaired-v1/intent-training/{preflight|main}-k{1|4}-v1; no overwrit
 or implicit resume. Freeze resolved config, plan, input/weight/source hashes,
 state usage and actual compute. Stop and revise the Card for a behavioral
 change; behavior-neutral memory engineering requires equivalence evidence.
+
+### Implementation and revised execution priority
+
+Product 60312912b121dc1de7f5dbc34b2cba9ecd4c5bd5 implements the persistent
+intent comparison, shared interval encoding, fixed/ prior-sampled source-free
+inference, typed Hydra configuration and objective tests. The intervention adds
+5192 parameters, totaling 3467020. It preserves the original decoder at zero
+code offsets and keeps full reference descriptors entirely on the recognition
+side. The initial selected run passed 59 tests and 22 package subtests; the
+subsequently added source-free/forbidden-recognition test passed with the seven
+other intent tests. Shared-backbone gradients match separate code evaluations;
+fixed-code future-label isolation and query-partition parity are tested.
+
+No intent preflight or model training has started. The user then asked how much
+long-form instability comes from R1-restored and whether its staged targets or
+evaluation are faulty. This changes research priority: audit that attribution
+before executing the latent comparison. The Card remains proposed revision 1;
+there is no acceptance, model-quality claim or goal pause. The implemented
+comparison is retained as a possible later experiment, not assumed necessary.
+
+### Result Log: actual R1 lineage and transfer audit
+
+Exploratory read-only audit; accepted revision none; no generation or fitting.
+The released checkpoint's config locates the original stable asset owner
+r1-restoration-20260920-v1/run. Its actual ledger, six checkpoints and 96 complete
+native row files remain available. Their hashes and original evaluation pins
+were checked rather than substituting historical candidate results. The owning
+script/result is artifacts/joint-audio/20260924-r1-lineage-audit-v1; result SHA
+09b58360f7f08b2c75002d17e3fcab04d8921e9e31d76d4a28e20bf99ae297a5.
+
+Actual stage checkpoint identities:
+
+| Stage | SHA-256 |
+| --- | --- |
+| Plain 4.5M | 816d9daf0eb387bb65a661eba348db5c90358a37d68739f71d3223073167c18e |
+| Seed 5M | ad7844d800de879a1cb68d9c883a436bedf5f61d6fdd2aadf64a3aed69ccf394 |
+| Memory 6M | 3262f210ff6f67837f10284a4e1c54ec408354c3e1c325fc0f95dc53dcca1a23 |
+| Routing 6.25M | 9464045a711c1b10a04f7b3cfb76999d70042857ba9f898408f291a1c1ccdc1e |
+| Release 6.5M | 8000beb0dee81b92f0252fcec876823afd60fe33a182fb344ae0bed02d03f991 |
+| Response 6.75M | 4b3ec1561e33d0ebe2756cfe13571ec414fd5bb470b430f0c578545863115f70 |
+
+The checkpoint training source is cdbc6870d9e6471a5dcb75d8a77f55c30544bf78;
+the relevant restoration/bounded-model code has no diff between that source and
+the release tag. The actual automated readout has eight VAL songs, seeds17/23,
+16 outputs/stage, with 181.727–277.537-second suffixes. Source likelihood uses
+24 VAL windows and 6144 required onsets; the complete input also contains an
+equally sized TRAIN readout. Source-native conditions include R/H timing, real
+initial seed and its known crossing endpoints. They do not test audio-only BOS.
+
+| Stage | VAL NLL/onset | Mean native LN/head | LN-fraction MAE versus reference | HH <30ms | RH <30ms |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Plain | 1.771509 | .431218 | .3130 | 6 | 306 |
+| Seed | 1.765174 | .318110 | .1739 | 3 | 87 |
+| Memory | 1.727303 | .263538 | .1418 | 2 | 35 |
+| Routing | 1.731063 | .274222 | .1333 | 2 | 68 |
+| Release | 1.728967 | .276722 | .1472 | 2 | 67 |
+| Response | 1.738584 | .192471 | .0724 | 5 | 7 |
+
+Fractions/errors average the 16 case values (eight groups with two seeds).
+Reference mean LN/head is .185998. These are composition diagnostics, not a
+uniquely correct output requirement or playability labels. HH and RH count
+individual new heads with a strict less-than gap; they can overlap and must not
+be added as disjoint events. The final local improvement is mostly RH 67->7,
+while HH changes 2->5. The response target explicitly uses the union of head
+and release age below30ms plus an optimistic next-two-H continuation; it does
+not model a complete player experience. A source CE arithmetic/label bug has
+not been established by this audit.
+
+Plain-model LN/head means rise .2723->.5396 across first/last required-onset
+quarters, versus source .1378->.2111. The final policy gives .1913->.1667.
+The longest three-unchanged-hold run rises 2->31 after head routing and returns
+to2 after release routing. These observations show local changes interacting
+with later states; they do not imply every stage uniformly harms or improves
+semantic organization. No fresh Lens/player judgment is added by the recount.
+
+The current audio transfer copies2444688 parameters, omits523776 in seed,
+landmark memory and row-consequence modules, and discards115968 exact-input
+weights (1435->529 input features). These counts are not causal contribution
+fractions. All227 resulting global/bounded initial state tensors from release
+6.5M and response6.75M are bit-identical at the same constructor seed; their
+name-and-tensor SHA is 1b9ef122bd7ac55128ac3733e11cf07c31afb82780845cb636f1311e7bbbd3eb.
+Thus the last response fine-tune has no direct parameter effect on the current
+joint initialization. Its full-policy behavioral correction was omitted, so
+this result does not make its removal harmless. Head/release residuals and the
+earlier seed/memory-trained backbone do transfer.
+
+The restoration worker advances on completed computation and mechanical native
+execution; its final quality_status is explicitly
+requires_longform_ln_tap_and_local_response_review. This is not a semantic
+acceptance gate. Historical long-chart results on other checkpoint identities
+cannot establish coverage for the actual restored bytes. A later independent
+manual review, if present, needs its own evidence and is not inferred absent
+merely from this ledger. The online model card was unavailable through the web
+tool; no claim depends on reading it.
+
+Recommended outcome REFINE. The missing causal comparison is full R1 versus
+its transferred conditions, followed by equal-budget joint learning from distinct
+lineage endpoints. Do not assign an additive R1/audio blame percentage from
+different tasks. A useful first direct probe can start from release6.5M and
+zero only seed_residual.2.weight and long_memory.output.weight, preserving
+source R/H, physical seed/known seed tails, all other weights and original
+generation seeds. That measures neural-condition dependence under the original
+task; it still does not remove future timing inputs or reproduce audio-only BOS.
+Require baseline exact-row reproduction before using it. If later comparing
+plain4.5M, memory6M and release6.5M joint initialization, assign learning rates
+by the same module families in every arm, not by which tensors happened to copy.
+Otherwise absent routing modules would silently receive a different rate.
+Release6.5M and response6.75M are redundant transfer arms and should not both run.
+
+The curated audit and interpretation limits are in
+docs/research/r1_transfer_stability_audit.md at
+0848d8d6898939d850cf3bd7bbf4332ab121dceb. Goal remains active; model-quality
+completion is unproven. All model execution handles from prior probes are terminal.
