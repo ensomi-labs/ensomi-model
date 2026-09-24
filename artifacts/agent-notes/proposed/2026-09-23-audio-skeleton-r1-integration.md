@@ -5145,7 +5145,7 @@ speculative decoding, capacity or more isolated correction rules.
 
 ### Experiment Card: full-audio-playback-budget-v1
 
-Revision 1, proposed, accepted none. Clean source
+Revision 2, proposed, accepted none. Clean source
 7ea2e82eebd9afbc97ec8db23cf361885fc8e0a1. This is behavior-neutral system
 profiling, not a new fitted or decoded policy. Use conditional checkpoint
 67b8fc8fbac5f7ca2debe99524e29ac002546f12cb8a3c4c9acf68d68d7f3839 with correction
@@ -5194,8 +5194,15 @@ until inspected, and does not substitute for native generation quality.
 
 CPU one thread on the current Mac, uv --extra mps, <=900 s total and <=90 s /
 30000 rows per chart; >=2 GiB RAM, >=40 GiB disk. Fresh owner
-artifacts/joint-audio/20260924-playback-budget-v1, <=200 MiB new outputs, no
+artifacts/joint-audio/20260924-playback-budget-v1/run-v2, <=200 MiB new outputs, no
 overwrite/resume. Save source/script/model/audio/manifest hashes and protocol
 trace. Stop on resource failure, incomplete generation, changed bytes, invalid
 reparse or native reproduction failure. No fitting, source label changes,
 runtime fallback, speculative sampler or remote publication in this probe.
+
+Revision 1 aborted in a synthetic instrumentation check before model loading
+or any real case. Its synthetic trace unintentionally missed two deadlines
+while the assertion expected one. Preserve probe.py and failure.json in the
+parent owner; probe_v2.py uses a final update at the intended exact boundary
+and a fresh run-v2 destination. The deadline calculation, real cohort, decision
+thresholds and resource bounds are unchanged. This is not model evidence.
