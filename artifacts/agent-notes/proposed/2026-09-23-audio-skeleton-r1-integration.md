@@ -6422,3 +6422,169 @@ RH/articulation questions. Any targeted state-path intervention remains a live
 branch if the same practical failure recurs. No new Card or run has started for
 that stage. The ultimate playable-system goal remains active; all jobs here are
 terminal and both completed studies must not be rerun without a new question.
+
+
+### Experiment Card: fresh-audio-system-v1
+
+Revision1, proposed, accepted none. Owner2026-09-23-audio-skeleton-r1-integration.
+Standing local implementation, research and execution authority applies. Previous
+goal turn completed a diagnostic, changed durable state and yielded a different
+next action; it was progress, not a wait or repeated blocker.
+
+Question: does the complete audio-file-to-published-row system remain functional
+and musically plausible on new audio contexts, with varied arrangement requests
+and actual bounded continuation screening? Earlier tests used repeated songs
+or synthetic H/profile crosses. This comparison exercises ordinary matched
+H/R/row conditioning, BOS startup, real decoding/Mel preprocessing, streaming
+and export together. Do not substitute NLL, source copying or a count proxy for
+playability or expressive organization.
+
+Clean baseline579c0a8add28377881a12ab263059fa0fc4ca938. Unchanged shared-profile
+checkpointabc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef.
+Prior15-case paired result3fff511d78ef4d0fd3400f33853d2e79219a69dbd034e67bee9d1263b5cb2ca9
+has complete baseline/screened charts, strictHH3to0, RH12to0, sampler cost+3.64%,
+and two failed LN-composition guards. It is contextual evidence only. Baseline
+values on this new panel are not yet observed and will be measured prospectively
+with the frozen direct decoder, not inferred from the old15 cases.
+
+Closest analogue remains bounded joint autoregressive continuation screening,
+with the limitations explained in docs/research/unpublished_continuation_screen.md
+and primary NeuroLogic A*esque/AliveParticleFilter/TwistedSMC references there.
+This stage is system integration and evaluation coverage, not an estimator,
+training objective or new model family. Defer state-cache surgery, additional
+seed sweeps, bigger memory and fitting until this panel identifies a practical
+failure that changes the next design decision.
+
+Panel preparation ran without model generation using prepare_panel.py in
+artifacts/joint-audio/20260925-fresh-audio-system-v1. Panel SHA
+484d173628856a431e034b1dbdacab9173c40f3edf696d1b9a19721aeec70dc9.
+Eight source/catalog validation groups: A Fool Moon Night (276990ms), Operation:
+Zenithfall (357796), Hysteric Night Girl (301008), Goodbye (300000), Revenge
+(278399), Take [Future] (144236), As It Was (167303), Yomi yori (498989).
+All exact source bytes match recovered local aliases and audio references.
+All groups, encoded hashes and decoded peak-normalized waveform hashes are
+absent from the selected joint corpus; encoded hashes are absent from the
+recent five-audio studies. Prior R1 exposure and perceptually identical alternate
+recordings/crops are unknown. No target enters TRAIN and no TEST split is opened.
+
+The source/human context is the frozen Lens bundle manifest
+03b1d4aada4a3994c4f35d6c66ab122a93d55b0cd5a37a13c56eb4e84fe066a4,
+using the existing catalog, alias audit and their verified byte identities.
+The16 human records cover Tech, LN coordination, repeated chords, Trill and
+negative contrasts. Only FoolMoon's prominent LN judgment has explicit High;
+missing confidence remains unrecorded, absent labels apply only at their scope,
+and no dump-positive label is invented. Reference scopes do not require the
+model to copy that arrangement or force that tag on a new output.
+
+One intervention: choose the existing direct decoder versus the existing
+unpublished screen through the normal source-free audio entrypoint. Add one
+boolean screen_unpublished to AudioInferenceConfig, defaultFalse, fully projected
+by the existing packaged Hydra entrypoint. True selects the unchanged8s window,
+20ms halo,4attempts and experimentalRH<=20 screen in buffering.rollout_buffered.
+StrictHH<20 always counts TAP and LN heads. Reject simultaneous use of the older
+correct_short_attacks option, whose optimistic row edits are a different policy.
+Leave the default direct path and probabilities unchanged. No new window search,
+release floor, target grid, generic row-to-skeleton feedback or model weights.
+
+Likely product changes: inference_config.py, inference.py, their owning tests
+and the planned-audio/unpublished-screen guides. Keep YAML package-owned, typed
+validation, complete option consumption and Torch-free help. Focused checks must
+cover selection of the real buffered engine, no rejected-row publication on
+attempt exhaustion, honest capped output, conflicting-policy rejection and
+Hydra projection. Existing engine invariants are already tested and need not be
+reimplemented in adapter tests. Record a clean tested intervention OID before
+running the panel; its baseline diff must contain only this declared adapter.
+
+Comparison:8audio x3 arrangement requests x2 publication policies=48 outputs.
+Requests are automatic prior, profile1 and profile2 (existing TRAIN medoids;
+not derived from these targets). H/R/row use the same condition in every output.
+Case seeds251701..251708 in panel order; paired policies use the same seed.
+No fixed reference H, chart seed, redline, annotation or future LN endpoint enters
+generation. Every call reads original full audio and recomputes canonical Mel,
+loads the same checkpoint, then starts atBOS. All preprocessing digests must
+match the panel. No control or seed is selected based on generated quality.
+
+Run through infer_audio with typed settings and the same incremental consumer
+interface as the CLI. Additionally run the actual packaged CLI for the longest
+automatic screened case, consuming stdout online in a subprocess; require exact
+rows and event ordering agreement with the API and file stream, while reporting
+real process-start readiness separately. This duplicate is an integration
+control, not another independent quality sample. Imports/setup and checkpoint
+load are distinguished from producer-service and cached-Mel timing.
+
+Incremental consumer: independently replay each accepted complete row and
+coverage, track open LN heads, require no rollback or future endpoint in the
+stream, and compare all emitted rows with final rows.jsonl. No emitted prefix
+may contain strictHH<20 or screenedRH<=20 in the screened arm. Consumers receive
+no speculative coverage, rejected row or fabricated LN tail. For complete outputs,
+require independent export/reparse, complete audio clock and no open LN. Capped
+outputs remain in all counts and retain honest prefixes, with no playable export.
+
+Primary mechanical/system gate: all24 screened cases complete, zero strictHH
+and zero experimentalRH, and all H times exactly match their paired direct
+case. Report direct counts even if zero; if direct is already clean, row identity
+is the expected control rather than evidence of an improvement. Readiness requires
+30physical rows plus8s settled coverage, or true completion for short charts.
+Producer readiness including fresh preprocessing<=4s; longest actualCLI readiness
+from process start<=6s; each accepted-window service<=2s; total paired screened
+sampler time<=2x direct. Report every failure rather than silently increasing
+attempts/budgets or dropping an audio.
+
+Playback accounting: once readiness is observed, simulate the consumer clock
+at1x against arrival times for all emitted coverage. Also report4x service-time
+scaling and one injected1s stall after readiness as offline sensitivity checks,
+not real OS/network guarantees. Zero coverage starvation in the1x trace is a
+system guard. Per-window rows/heads, rejections and maximal unpublished buffers
+expose dense-part stress; all exported audio bytes must match the input.
+
+Composition is assessed as distribution and organization, not preservation of
+one sampled chart. Report H rate, heads/H, LN fraction, held lane-time, durations,
+full-hold episodes and same-lane gaps across both policies and all requests.
+Flag absLN-fraction drift>.10 or head ratios outside.8..1.25 for close inspection,
+without relabeling prior failed guards or calling any flagged variant good.
+These descriptors cannot certify difficulty, Tech, dump or player comfort.
+No NLL gate and no model promotion follow from numerical mechanical success.
+
+Qualitative scope is pinned before model outputs: all16 human review contexts,
+merging overlaps within each source; compare corresponding generated scopes for
+all3 requests and both policies, reusing only exact event/entry-hold/articulation
+identity. Also inspect the densest8s interval of each automatic output (maxH,
+tie earliest, merge overlaps), all windows with rejected proposals in screened
+outputs and every strictHH witness from direct outputs with1s entry/exit context.
+Report/render capped boundaries when present. Read every time page and complete
+action/articulation table in the frozen resulting plan. New machine style claims
+must compare actual relations to the frozen human context, not aggregate counts.
+Reference timing metadata is an inspection aid only; generated120BPM headers do
+not supply musical beat truth. No listening or player-testing claim is allowed
+without a separate actual test. Dump acoustic elaboration remains unresolved
+if only chart evidence is available.
+
+Execution command: uv run --extra mps python
+artifacts/joint-audio/20260925-fresh-audio-system-v1/run.py, with an artifact-local
+pinned driver, clean product/Note OIDs and checkpoint/panel hashes in freeze.json.
+AppleM5/24GiB, Python3.10.20/Torch2.11.0, one Torch CPU thread, max90s and30000rows
+per output, max900s native/API/CLI driver and1GiB new artifacts. Existing2GiB
+available-memory/40GiB-free-disk/PAUSE checks apply. Network unnecessary. Lens
+render/review is separate offline work, still subject to storage guards. The
+prepared panel/feature arrays may be reused only after exact hash verification;
+all native output directories and freeze/results must be fresh, no overwrite
+or resume. Old cohorts are not rerun.
+
+Fail fast after the first two audios' automatic paired outputs: stop on identity,
+publication, replay/H, resource, finite-output or completion failure before the
+remaining requests/audios. A later quality or runtime guard failure remains a
+measured result; continue other independent cases within bounds to diagnose
+coverage unless input/replay integrity or global resources are compromised.
+No retry-budget or model change inside this comparison. Unexpected errors save
+an explicit failure and stop dependent work.
+
+Positive evidence is a complete mechanically screened system with concrete
+expressive organization on new contexts and bounded arrival latency, still not
+universal playability. Failure localizes whether audio/head planning, R/row
+materialization, condition control or publication budget needs revision. Sparse,
+generic or acoustically unverified charts cannot pass an expressive claim solely
+because they avoid short repeats. Confounders include the curated eight-audio
+selection, one seed/request, soft descriptor controls, paired autoregressive
+history changes, unknown oldR1 exposure and lack of player tests. Recommendation
+remainsREFINE until actual results and scopes are assessed; Card acceptance and
+remote publication are not implied.
