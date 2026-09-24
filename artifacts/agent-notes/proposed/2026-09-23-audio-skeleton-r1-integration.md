@@ -7046,3 +7046,76 @@ idle sleep; packaged model commands and all scientific settings stay unchanged.
 Record and poll the actual returned process handle. After both terminal fits,
 run the frozen main native comparison and complete the declared Lens scope.
 No main training or quality result is claimed in this dispatch record.
+
+
+### Density-routing live fit, witness inspection and TRAIN exposure
+
+Main fit session44544 is the live serial driver, launched with caffeinate -i.
+Re-poll that actual handle before interpreting any saved progress file; never
+restart from an observation timeout. Shared is terminal-success at1200updates,
+906.859s, checkpoint7849e07a77febf12968b8197e844d9c26f8327ce789d0776117e02dc83de788f.
+The same driver has started routed; last verified snapshot is150updates at
+145.467s,5.166GB available RAM. No main native result exists yet. Main freeze
+SHA f2dd8eebad4782c259d8a31f0daf340637ecdb8cbaf7f3999a1437eed3fdf2a2.
+The source remains clean a2bce683642995627c17b154d5f83e8d774787f0. Keep it clean
+while the serial runner is active; no weight or training-setting change.
+
+Supplementary preflight Lens inspection is complete: one time page and all19
+action/articulation rows in[18236,20253)ms, including entry state. Review owner
+artifacts/joint-audio/20260925-profile-routing-v1/preflight-lens/review.json,
+SHA a898536de2b0a823dd4f1e41784011220d3da86b54d660019735c22851327eb8.
+There are no LNs or releases in this scope. Row19236 taps0/1/3; row19253 taps2/3.
+Column2 is the only column not attacked within20ms, so a single head there is
+locally feasible. The chosen double repeats column3 after17ms. This identifies
+row choice under a feasible two-H sequence, not an LN-release failure or a
+need to remove the H gap itself. Neighboring repeated1/2 grips120ms apart remain
+separate from that failure. No style or listening/player verdict is inferred.
+
+Two post-hoc descriptive audits clarify data limitations without changing the
+Card's primary metric, thresholds, training plan or model. They use frozen
+TRAIN profile assignments and the already-frozen exposure plan, never generated
+outcomes to choose new settings. Exact prototype membership is sparse:
+
+| Profile | TRAIN charts / groups | Prototype H/s, width, LN fraction | Weighted source mean H/s, width, LN fraction | Main sampled intervals |
+| --- | --- | --- | --- | --- |
+| 0 | 110 / 94 | 4.749,1.370,.114 | 4.891,1.369,.131 | 785 |
+| 1 | 12 / 10 | 7.032,2.141,0 | 7.376,2.178,.0047 | 93 |
+| 2 | 12 / 11 | 6.060,1.429,.734 | 6.607,1.454,.689 | 134 |
+| 3 | 13 / 9 | 13.548,1.286,.0004 | 12.881,1.274,.0040 | 125 |
+
+The full main plan has4800intervals. The first32updates had zero profile1
+intervals and only two profile2 intervals from one chart, reinforcing that
+preflight was an integrity check rather than a control-quality test. Across
+all615 TRAIN charts,25charts/22groups have raw LN fraction at least.5. That
+cutoff is descriptive, not a new style label or sampling rule. Other profiles
+also supervise each dimension through the shared continuous projection; exact
+class counts are not the complete supervision for LN or width.
+
+The16-class, naturally weighted standardized quantization error is.56324.
+Within-class source variation and centroid-to-representative bias are separately
+recorded. This marginal TRAIN variation is not an irreducible generated-error
+floor conditional on audio and cannot be directly compared to equally weighted
+native requests without reweighting. A prototype is not an exact target shared
+by every chart assigned to it. These facts support caution in attributing poor
+control solely to architecture; they do not invalidate the frozen comparison.
+
+Audit owners profile-target-audit.json (SHA85c249243db4328c37b050acfa0f92cb2212a2261e5c51c58198b71181a53d2f)
+and exposure-audit.json (SHA09fd49265259c6862c4bc7462d777f83fa889d8da396f6b1e896704a1125bb82)
+under artifacts/joint-audio/20260925-profile-routing-v1. Future balanced attribute
+exposure or added source diversity is a live alternative if matched fits fail;
+neither is introduced inside this run. No claim of an insufficient audio encoder
+or need for larger parameter count follows from these counts.
+
+After session44544 terminates successfully, verify main-fit-result.json and both
+checkpoint/protocol hashes, then run uv run --extra mps python
+artifacts/joint-audio/20260925-profile-routing-v1/native.py main. The driver is
+already preflight-exercised and will generate the declared80direct plus24screened
+charts, retain every failure and compute the frozen control comparison.
+Then run inspect_lens.py main in the same owner and read every new page/table.
+That driver has been exercised on the supplementary witness and now additionally
+checks the parent plan against its completed review hash. Current script SHA
+6a1b80375d5b3536f64c6e3551d4d8b52ceac2d9ebe49663aeeba5600d2dd9fb.
+This is a behavior-neutral identity assertion; it does not change scope or
+generation. Main native/review remain outstanding, as does model-quality adoption.
+The previous turn and this turn both make concrete progress; the ultimate goal
+remains active, with no blocker or requested pause and no remote publication.
