@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: daa49334cef2b38e42cf16a30ef1cf0f1b8a2cee
+Product revision: 88e56832287f492fdca81ea7194b90753526cc96
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -4250,3 +4250,56 @@ degrade, REFINE the factorization rather than promote it. Losing persistent
 density/phase across rests and a poorly learned audio base are the strongest
 alternatives to an overall improvement. Standing execution authority applies;
 the Card stays proposed and no successful run implies acceptance or adoption.
+
+### Bounded head implementation, preflight and active fit
+
+Clean intervention 88e56832287f492fdca81ea7194b90753526cc96 implements the Card:
+linear audio-only base, bounded head-history residual and elapsed-time decay;
+all settings reach the model and checkpoint. Total parameters 4247438, an
+increase of exactly 2250. Shared initial tensors remain identical except the
+intentionally centered timing output bias. Existing row, release, preview and
+frontier2 paths remain. No spacing filter or forced head is introduced.
+
+Selected command uv run --extra mps --group dev pytest -q
+tests/research/planned_audio_continuation tests/test_package_layout.py passed
+20 tests and 22 subtests, including both modes' CPU/MPS probability/gradient
+agreement and teacher/cached-native/chunk invariance. New checks prove the
+residual bound, zero BOS gate, convergence to the audio base after long waits,
+and unchanged shared initialization. A real old-checkpoint regression on the
+new source reproduced all 213 Who seed-19 H times exactly (session 19598,
+terminal success). The unbounded checkpoint stays reproducible.
+
+Bounded preflight session 62089 completed 32 updates in 35.17838 seconds with
+the same 128 intervals, 991062 ms, 6722 rows, 6217 H rows, 505 release-only rows
+and 291439 release clocks. All tracked modules updated; new head_base L2 .13040.
+Output: repaired corpus planned-training/planned-bounded-head-preflight-v1.
+Freeze SHA 1ddf137e70a55dab75c6122f813a6b88c9a6d60df3f4569cc5eb3d2d1f45ef03;
+result f3179a60305cd2e5451e938aebb5a6c418b0738d78110dcc8bfc5dda5c530ef0;
+checkpoint f3f67568f35e623b7cb31cadfa656f456af07494ff6cc3ab5ce86793583c9ad9.
+Population NLL/s 50.58295 and BOS 41.41946 are diagnostics, not selection gates.
+
+Bounded preflight native session 64070 also completed: all nine outputs legal
+and independently reparsed in 18.80157 seconds, zero all-held deadline releases.
+First 30 rows .1462-.2558 seconds; 8-second readiness .1709-.2957 seconds, from
+cached canonical Mel. Native result SHA
+974acae9d1c0e9a5a0f43c693978b3f007727e479df39cdc43e3bb6987a03d10.
+This preflight is a mechanical/learning gate; no new Lens quality verdict is
+claimed for it. Owner artifacts/joint-audio/20260924-head-recovery-v1.
+
+A fresh 1200-update fit is RUNNING in unified exec session 62534, observed
+authoritatively through update 1020. Command: caffeinate -i uv run --extra mps
+python -m ensomi_model.research.planned_audio_continuation.hydra
+bounded_head=true head_bound=4 head_decay_ms=1000
+run_name=planned-bounded-head-main-v1. Output is the repaired corpus's
+planned-training/planned-bounded-head-main-v1. No preflight state was reused.
+Revalidate the handle before continuing; never restart from a stale file or
+observation timeout. Keep product source at the pinned revision through readout.
+
+After terminal success, verify result.json/1200 updates and run, from the model
+repository with uv run --extra mps python, the prepared owner scripts in order:
+probe_frozen_prefixes.py, evaluate_native.py main, inspect_lens.py main.
+The first measures the declared >=.99 five-second CDF at all four fixed failed
+head histories. All native outcomes and all final generated context pages still
+require inspection even if the CDF passes; reject mere activity inflation.
+No recovery result, final bounded-model quality verdict or new playtest delivery
+is available yet. Cards remain proposed and the overall goal remains active.
