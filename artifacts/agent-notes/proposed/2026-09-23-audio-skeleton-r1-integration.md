@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 7ea2e82eebd9afbc97ec8db23cf361885fc8e0a1
+Product revision: fdc6c13a51c8d8943fd44b3a632ee32bb4e6d33d
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -5206,3 +5206,78 @@ while the assertion expected one. Preserve probe.py and failure.json in the
 parent owner; probe_v2.py uses a final update at the intended exact boundary
 and a fresh run-v2 destination. The deadline calculation, real cohort, decision
 thresholds and resource bounds are unchanged. This is not model evidence.
+
+#### Full-audio playback result
+
+The revision-2 probe completed all eleven cases in 37.24790 s at clean source
+7ea2e82eebd9afbc97ec8db23cf361885fc8e0a1. Freeze
+0a40f2a5f65800315a062c311c9365874f509bec3f6a30dac57146d1d6b2c913;
+result d7a07c92412562e23d5b0cf9deef0751af0ca24fc842c98849cfd82f60078b2f.
+Output bytes 52548605, below the 200 MiB bound. No weights changed; every
+native baseline row sequence reproduced after fresh decoding and Mel.
+
+Resident-model readiness, including input verification, waveform decoding,
+Mel and generation of 30 rows plus eight seconds of settled coverage, is
+.553436..1.051728 s for the nine native cases. One-time imports .879701 s and
+model load .168325 s are separate. The dense source-H case is ready in .550150 s,
+generates in 3.833720 s from Mel, and its slowest measured 8-s service interval
+costs .332567 s. The 585495-ms source-H case is ready in 1.898674 s, generates
+in 8.240929 s and has a .211049-s worst 8-s service interval. Native worst
+8-s intervals range .093067 to .215081 s. Both threshold-trigger lists are empty.
+
+All charts complete/reparse and have zero strict HH<20 pairs. Virtual deadline
+misses are zero for every case under 1x, 4x and 10x generation cost, with scaled
+startup readiness. They are also zero with a single 1-s virtual stall at each
+trace's worst 8-s workload. Minimum slack is 5.998150 s at 1x and 5.981498 s
+at 10x. This is trace replay, not actual OS jitter, client rendering or network
+measurement. Source-H outputs are service probes and remain qualitatively
+unreviewed; they are not evidence for autonomous skeleton quality. No actual
+player/listening verdict occurred.
+
+Outcome REFINE. A simple buffered scheduler has substantial headroom on this
+cohort. Do not add a draft model or enlarge parameters solely for presumed
+latency pressure. The result does not prove universal runtime capacity or
+resolve musical sampling, composition consistency, control or release quality.
+Product fdc6c13a51c8d8943fd44b3a632ee32bb4e6d33d adds only curated prose after
+the tested code, including the dependency graph, settled-coverage deadline
+equation, observed budgets, scope limits and research direction. Local links,
+Markdown fences and diff checks passed. The earlier 40 selected model tests
+remain valid because code did not change. No remote publication occurred.
+
+#### Next system work and model branch
+
+The next runtime deliverable is one source-chart-free planned-model entrypoint
+that reads audio, generates from BOS, emits complete rows plus settled-through
+coverage, retains incremental LN state, and saves a reparsable playtest export.
+It should expose actual end-to-end startup and use independent head/release/row
+RNG. Keep the validated simple scheduling order; do not invent compute-triggered
+sampling shortcuts or truncate full audio. Packaged settings must follow the
+Hydra workflow. This entrypoint is implementation work, not proof of a playable
+model, and is not yet implemented for the planned checkpoint family.
+
+The selected next modeling branch is a shared interpretable arrangement
+condition for head, release and row generation, rather than more isolated
+decoding fixes. A descriptive TRAIN audit finds 184/240 exact audio assets have
+multiple charts. Median within-audio ranges are 2.825697 H rows per audio second,
+.364120 heads per H, and .093173 LN-head fraction. This motivates separating
+audio from a sampled/requested arrangement choice, but does not prove that the
+current autoregressive model lacks expressive capacity or that a latent will
+improve generation. The audit changes no corpus labels or fitting inputs;
+its output is arrangement-statistics.json in the playback owner, SHA
+d3522363ec0efec4278b9398ec3192df056d61cbe142d8c83bed15b7a6b730cc.
+
+Before a fit, write one bounded matched Experiment Card for the shared-condition
+branch. Start with those three interpretable source statistics, not a universal
+style or difficulty scalar. Preserve the full-audio path, separate charts,
+direct audio-to-row condition, own-skeleton history, LN-only feedback and legal
+native-ms support. Any chart-derived training condition must have an explicitly
+learned audio-only prior or user-supplied counterpart at inference; hidden
+reference statistics are not a native test. The prior must model joint plausible
+profiles rather than three unrelated componentwise averages. Missing human
+style annotations stay unreviewed. NLL is diagnostic only; compare realized
+conditions, native musical scopes, complete-chart failures and model budgets.
+
+Do not resume finished jobs. No live training or probes remain. The ultimate
+playable, expressive system goal remains active; runtime success and the narrow
+attack correction do not complete it. No Note acceptance or lifecycle transition
+has occurred.
