@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: e32e6e1df3a97f42af54d16b9b2292d05d832bcf
+Product revision: e04b3490e60b4f7a7550f9abde20e6f551382dcc
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -51,8 +51,9 @@ The current integration contract is
 `docs/research/audio_skeleton_information_contract.md`: direct full-audio input
 to skeleton and rows, separate histories with minimal committed LN feedback,
 and explicit candidate-action consequence evaluation. Its head-plan/release-clock
-factorization is proposed, not implemented. The existing joint architecture and
-completed fits are diagnostic baselines. Earlier alternatives and Cards below
+factorization is implemented as a research prototype, with playability still
+under evaluation. The earlier flat joint architecture and completed fits are
+diagnostic baselines. Earlier alternatives and Cards below
 retain their original scope; the persistent-intent fit and extension of the
 incomplete lineage sweep remain deferred. The broader research overview is
 `docs/research/audio_conditioned_choreography.md`.
@@ -3935,3 +3936,68 @@ and 8-second readiness plus dense-window throughput. Source note counts or LN
 fraction alone neither accept nor reject charts. If mechanically valid but
 qualitatively poor, REFINE using located failures; even favorable evidence is
 exploratory and does not prove universal playability or imply Note acceptance.
+
+### Result Log: planned-head-release preflight and main dispatch
+
+Card planned-head-release-consequence-v1 revision 1 remains proposed; accepted
+revision none. Clean implementation product
+e04b3490e60b4f7a7550f9abde20e6f551382dcc adds planned_audio_continuation and its
+packaged Hydra entrypoint. Total parameters 4245188; copied R1 parameters
+2472336 including all eight frontier2 tensors (27648 parameters). Seed and
+landmark modules remain omitted, with the historical exact-projection slice
+reported explicitly. No old preference objective or spacing filter is used.
+
+Selected checks: uv run --extra mps --group dev pytest -q
+tests/research/planned_audio_continuation tests/test_package_layout.py;
+15 tests and 22 package subtests passed, including actual MPS forward/gradient
+agreement. Checks cover an analytic joint law, interval partitioning, cached
+native/teacher score parity, RNG/query partitions, mirroring, TAP-layout
+noninterference, hidden future tails, actual frontier2 transfer and a two-update
+CPU training/checkpoint/native round trip. Initial test drafts had a relative
+fixture import error and a single-row fixture invalid for SourceChart's seed
+contract; both were corrected without relaxing product invariants. Documentation
+links/anchors and git diff --check passed. No remote push.
+
+Preflight command: uv run --extra mps python -m
+ensomi_model.research.planned_audio_continuation.hydra
+run_name=planned-preflight-v1 updates=32 validation_every=32
+validation_songs=6 max_seconds=300. Session 14106 exited successfully.
+Fresh output under the repaired corpus: planned-training/planned-preflight-v1.
+Completed 32 updates, 128 intervals, 991062 ms, 6722 physical rows, 6217 H rows,
+505 release-only rows and 291439 occupied release-query clocks in 35.57792 s.
+Freeze SHA f91f0bc5b3b16ff6da934eaef24dbdc1151f9dbd96f890bc4c8b690acf2e3455;
+result SHA 89b14c196bc4e6b45afb3df95bc1042af633ed3539ccac40479b75ecaba2a2bf;
+checkpoint SHA 3f00031489b01b398974ae2b2c982633ec825e1d07e02ac08de020ed4b09eb6d.
+The exposure protocol matches
+34ef9751df4571f516ef2b670b3b0f4b398c212fdd16adcee1a029bd9168eb14 exactly.
+
+All tracked modules updated: head_temporal L2 1.75509, head_condition .38033,
+timing .58635, release_clock .60039, skeleton_temporal 1.45231 and
+row_consequence .03653. Population NLL/s on 24 source intervals changes
+62.72237 to 50.43675; six BOS intervals change 51.34194 to 42.80964. These are
+learning diagnostics. Logged MPS driver allocation was about 1.82 GB and update
+receipts retained >5.7 GB available memory.
+
+The nine fixed preflight native cases all completed and independently reparsed,
+with no empty or incomplete outcomes and zero all-held deadline releases.
+Native evaluation took 18.85482 s. First 30 physical rows took .1588-.2725 s;
+8-second readiness took .1876-.3105 s, starting from cached canonical Mel and
+excluding waveform/Mel preprocessing. Outputs have 505-1311 heads and LN
+fractions .0381-.1877; neither sparsity nor lower LN fraction establishes quality.
+Lens inspection is still pending here. Native result SHA
+1f341902c32f18a3228fffe92bd42a4ae287d7f74356b6b76411e2e53c0af9ba.
+Owner artifacts/joint-audio/20260924-planned-head-release-v1; cases.json pins
+Who, Death Piano, Prom Queen and Good Luck at seeds 17/19 plus Airborne seed 33.
+Native session 55602 exited successfully. No source chart is a generation input.
+
+The declared mechanical/learning gates passed. A fresh main fit was dispatched
+with caffeinate -i uv run --extra mps python -m
+ensomi_model.research.planned_audio_continuation.hydra run_name=planned-main-v1.
+Unified exec session 75685 was authoritatively polled through update 160 and
+is still running. The run is 1200 updates capped at 3600 seconds, with all
+36 VAL songs in source likelihood readouts. Output:
+artifacts/joint-audio/20260924-alias-restored-v1/planned-training/planned-main-v1.
+Revalidate this handle; never restart because a status file is stale or an
+observation times out. Main quality is pending. Next: Lens, terminal main readout,
+the same nine-case native screen, and all final generated style-context pages.
+Recommendation remains REFINE pending these outcomes; no acceptance or adoption.
