@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: d80de496293d344c4c803d30f05b0e4d957ba863
+Product revision: 962d732e7ef3364d9f237fe4227576ec5f1ff6b7
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -5766,3 +5766,114 @@ profile0 and equal interaction allocation are attribution conventions. A
 positive result chooses a smaller next architectural question, not a module
 blame percentage. Negative/mixed findings reject the sufficient single-path
 account; they do not show that the shared-condition architecture is useless.
+
+
+### Result Log: shared-profile-path-crossover-v1
+
+Exploratory Card revision 1 at Note commit
+45768e31d757cc0157299c8893ce44e6080d8754; accepted revision none. Execution used
+clean source d80de496293d344c4c803d30f05b0e4d957ba863 and the pinned conditioned
+checkpoint/bank/native records, unchanged. Command exactly as specified in the
+Card, session 77055, completed in 97.146975 s on one CPU thread. There was no fit,
+checkpoint selection, overwrite or resume. Native outputs occupied 10939684
+new bytes before Lens evidence. Source row files and model tensors remained
+unchanged. All 63 outputs completed/reparsed, preserved supplied H times and
+finite metrics; all nine profile0 diagonals reproduced full saved rows exactly.
+
+Owner: artifacts/joint-audio/20260925-profile-path-crossover-v1.
+Freeze e71c635982e8383af6ce0ce70ed626407676704e0f90b32f13bc26cb324065df;
+run script a188d459323c2fb6f76682703c29fd8b8cff21b8f03a36aefbfa9b7b6506668e;
+result 95964d01b5e12ed8c5a811151f2d22c99dfd35592e5eb201d55f6d78e6f85175.
+No protected comparison field changed. Rendering used inspect_lens.py under
+the same owner, script40bf12bf26286e0a1979406c030cb45cbbf23905645eaed7773168b342ec1615,
+session27949, terminal-success. All source/reference bundle bytes were preserved.
+
+The total finite response matrix reproduces the earlier diagonal calculation
+to numerical tolerance. The request-difference matrix condition number is1.699.
+For H-rate-request to realized width, mean total=.49060158, plan=.11076664,
+downstream=.37983495. Downstream's two-order average contribution is77.4223%,
+positive in9/9 cases; it meets the declared two-thirds and6/9 selection rule.
+Plan contribution is22.5777%, positive in7/9 cases. Negative plan contributions
+in GoodLuck19 and Airborne remain explicit rather than clipped into percentages.
+The interaction coefficient for this readout is.10784596; individual orders
+give downstream shares66.4311% and88.4135%. The average passes the fixed rule,
+but its exact fraction is not order-invariant. This prioritizes examination of
+downstream conditioning, not removal of the H planner or a general R1 blame share.
+
+Width-request to width decomposes .46795938 total into .04401093 plan and
+.42394845 downstream. LN-request to LN-fraction decomposes .17674964 into
+-.04022233 plan and .21697197 downstream: plan changes partly cancel the
+positive downstream response. PromQueen19 illustrates a large trajectory
+interaction: H0/D2 realizes .57258 LN fraction versus .03634 on H2/D2. The limited
+seeds, changed autoregressive histories and intentionally inconsistent component
+conditions prevent a population inference from that case. Order-specific
+matrices and per-case contrasts are retained in order-analysis.json/result.json.
+
+Crossed outputs contain three strict HH pairs (2,4,11ms) and nine RH<=20 pairs.
+They are outcome diagnostics, so all declared arms were retained; no first-bad-
+sample stopping or favorable-output selection occurred. The nine identity
+controls remain unchanged and have no such pairs. Crossed conditions do not
+form a replacement playable model.
+
+Lens review is complete for all15scopes:38 time-proportional pages, complete
+paginated actions/articulation,356 physical rows and325 H rows. The six fixed
+Who/GoodLuck/Airborne contexts and all12 gap witnesses are covered. Manifest
+151dc270ba9309726bf1f5f25ed8f1f4d91d1947cc62a0185a62ad53a43c1f65;
+review bea426a8ceb332793eccf4ec4787e203aea92355eb3557443d11412772687508.
+No listening/player judgment or human annotation was added. Sparse-plan outputs
+retain their large gaps; H3/D0 Who retains a long117-ms single-note passage.
+Airborne H0/D3 carries chordal/independent LN material while H3/D0 is mainly
+single taps. Aggregate descriptor changes do not exhaust those musical roles.
+
+Strict HH witnesses:
+- Airborne H0/D1 commits TAP0/1/2/3 at144014, then must realize H144025.
+  The later11-ms repeat is unavoidable after that four-head commitment.
+- PromQueen17 H0/D1 keeps LN1/2/3 active at105943,105945,105949. The only free
+  column0 receives TAP,TAP,LN, creating2/4-ms successive attacks. LN1 closes
+  only106041; LN2/3 spans4137/5170ms. Earlier release/row choices must reserve
+  available columns for the known burst.
+
+RH witnesses also separate earlier allocation from later choice. Airborne H0/D1
+at30455 uses TAP2+CLOSE0/1/3 before H30469, leaving no column avoiding both
+short-HH/RH; H0/D2 instead uses LN1/2+CLOSE0/3 and reheads3 after14ms. PromQueen19
+at43587 uses LN1/3+CLOSE0/2 before H43598, again leaving only freshly released
+choices. Other cases have rested alternatives: PromQueen19 RH20 at96056;
+Airborne H0/D2 RH18 at74648 and RH4/RH9 at148209/150326; GoodLuck H3/D0 RH4 at116791.
+Exact20 RH is not the strict HH criterion. Long holds and independent releases
+remain present; their existence does not neutralize the failures.
+
+Evaluation: the selected average attribution supports a bounded downstream-
+coupling hypothesis. It does not establish that removing H-rate input from rows
+would improve musical quality, or that the observed linear response is a pure
+infinitesimal control derivative. The candidate-consequence traces identify a
+separate availability gap: frontier2 exposes earliest possible R=now+1, while
+the composed model may retain holds across several required heads. The exact
+row support enforces physical legality, not the owner's strict HH criterion.
+Training uses source replay/head previews and factor NLL, without evaluating
+sampled continuations caused by all alternative current rows. Joint gradients
+alone therefore provide no invariant protecting future playable lane capacity.
+Curated analysis is committed at962d732e7ef3364d9f237fe4227576ec5f1ff6b7.
+
+Recommendation REFINE. Keep these questions separate in the next Design:
+(1) whether a factor-specific representation of arrangement demands reduces
+unwanted direct response while preserving audio and actual H-preview information;
+(2) how candidate evaluation represents future lane availability under the actual
+release/row process. The playability priority is(2). A learned release response
+may use full audio, own skeleton history and the hypothetical candidate LN
+projection; no actual future tail or tap-layout feedback may enter the skeleton.
+A raw conditional-release event-mass scale is not an identified pressure signal;
+use normalized observable event probabilities if pursuing that branch.
+
+Purely optimistic release timing cannot certify realized future availability.
+A conservative certificate must also state its cost in expressive support:
+assuming no future release-only event would exclude legitimate full-LN chords.
+Do not silently adopt that assumption, a minimum LN duration, a generic onset
+spacing filter or an RH rule inferred only from this admitted corpus. A bounded
+joint continuation/forecast interface is a live alternative, with speculative
+work confined to unpublished future rows. This is direction-setting analysis,
+not a new Experiment Card or an implemented decoder change.
+
+All native/fitting/render jobs are terminal. No remote push, Note acceptance,
+lifecycle transition or final-model adoption occurred. The ultimate playable
+system goal remains active; these two completed diagnostic stages should not
+be rerun without a new discriminating question.
