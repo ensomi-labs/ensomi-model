@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: e28435f10cfb154acfe8eb9f0507d2a6c242ff79
+Product revision: a2bce683642995627c17b154d5f83e8d774787f0
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -6975,3 +6975,30 @@ data sufficiency from this test alone. Confounders include one training seed,
 one native seed per audio, finite representative quantization/preview, correlated
 TRAIN attributes and curated evaluation songs. Recommendation remains REFINE
 until execution and declared review; Note acceptance and adoption are absent.
+
+
+### Density-routing implementation and preflight dispatch
+
+Card profile-density-routing-v1 revision 1 remains proposed, accepted none.
+Clean intervention a2bce683642995627c17b154d5f83e8d774787f0 changes only the seven
+declared model/config/interval/session/training/test/documentation paths against
+baseline e28435f10cfb154acfe8eb9f0507d2a6c242ff79. It adds no parameter and preserves
+the true-mode default. The generation encoder now returns raw audio and the
+selected profile; session queries explicitly form the two declared views. A
+same-bank profiled warm start copies the learned prior after bank validation,
+without resetting it. No data, optimizer schedule, native screen or row support
+changes. The baseline input tensors remain pinned by SHA.
+
+Focused verification: profile tests 9 passed in4.43s, including CPU/MPS routed
+gradient/score invariance, full-held waits, crop/native parity, fixed-H native
+invariance and actual runner warm-start prior preservation. Distribution,
+release conditioning, training, buffering, inference and packaging tests:
+47 passed plus22subtests in5.32s. Staged git diff --check passed. No unrelated
+suite or CUDA coverage is claimed. Local product commit only.
+
+Artifact driver artifacts/joint-audio/20260925-profile-routing-v1/fit.py dispatches
+the packaged runner with the exact Card settings. It will create fresh phase
+freezes, record this committed Note OID and compare consumed counts across arms.
+Preflight is32updates per arm; main remains gated by the subsequent integrity
+native result. No fit or native output is claimed at this dispatch. Standing
+local run authority continues; no approval or lifecycle transition is inferred.
