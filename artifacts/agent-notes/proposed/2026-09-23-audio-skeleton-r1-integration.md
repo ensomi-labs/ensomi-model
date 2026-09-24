@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 452abc689055e2660bda5f62989cf70c95b0db8b
+Product revision: 0de03c1fe71716d88affc4445fea9113f3a2ba93
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -6040,3 +6040,99 @@ published rows; it is not claimed to sample either the ideal local conditional
 or the global constrained law exactly. No implementation, protected comparison
 field or Card revision changes follow from making that approximation explicit.
 No actual-model cohort has run yet; the next action is the pinned three-case gate.
+
+
+### Result Log: unpublished-continuation-screen-v1-native
+
+Card revision1, proposed, accepted none; execution Note pin
+7b02e8d503c761578146315d3d09a3042bba4030. The clean implementation stayed at
+452abc689055e2660bda5f62989cf70c95b0db8b throughout the real-model run. The command
+specified in the Card ran as session65330 and is terminal-success. All15 paired
+cases completed; the first three passed the predeclared gate before the remaining
+twelve ran. All unbuffered trajectories reproduce saved row hashes exactly.
+All buffered trajectories preserve every H time and independently reparse;
+client callbacks replay to the same rows and LN state. Weight fingerprints and
+all pinned source-row files remain unchanged.
+
+Owner artifacts/joint-audio/20260925-unpublished-continuation-v1. Script
+2749edf48984a18b473e949ef3bd9e0fcc95293a49833f13deb67d070ece8ba3;
+freeze38a41df0f086ff2f779ce7e9ad8c3498567b11da40e7bd606fb39415a5343636;
+gate f512a0cf2fcc3996426567b85eb6154195fd051cfa0eeb3ed20f4942eb9c2a20;
+result3fff511d78ef4d0fd3400f33853d2e79219a69dbd034e67bee9d1263b5cb2ca9.
+No overwrite, resume, parameter update or Card-field deviation occurred.
+Total driver time95.514909s includes12 offline rejected-future completions.
+Native artifacts before Lens occupy12957473 new bytes; linked audio is excluded.
+
+Primary screened counts improve from HH3/RH12 to0/0 across all15complete outputs.
+There are337accepted windows and349proposals, including12rejections in11windows;
+maximum proposals in a window is3 under the cap4. Seven cases require no retry
+and remain row-identical. Sampler time is34.689581s baseline versus35.952550s
+buffered, ratio1.0364077. Maximum cached-Mel 30-row/eight-second readiness is
+.3226423s; maximum validation-window service is.5366829s. Maximum unpublished
+proposal size is136rows. These exclude waveform/Mel preprocessing and offline
+evidence completion, and do not establish an OS/client contention guarantee.
+All runtime, completion, H-preservation, note-count and physical guards pass.
+Head-count ratios range.940092..1.068694.
+
+Two LN-fraction guards fail, so the whole comparison is not a clean promotion.
+PromQueen19 H0/D2 changes from497/868 LN heads (.572581) to326/816 (.399510),
+delta-.173071. Held lane-time fraction falls.377863 to.290358. Airborne33 H0/D2
+changes from1256/2871 (.437478) to829/2744 (.302114), delta-.135365; held lane-time
+falls.226744 to.158898. The declared absolute bound is.10. Both still have many
+LNs; do not turn this failure into an absence label or silently weaken the guard.
+
+Read-only localization shows that the changes are not confined to rejected
+windows. PromQueen's unchanged prefix has152LN starts in both outputs; inside
+the two resampled windows57becomes64, while the remaining suffix outside those
+windows changes288to110. Airborne's unchanged prefix has15in both; its resampled
+window changes46to4 and the other suffix1195to810. Artifact
+ln-drift-localization.json SHA384a53f1ba5e25e3fee54f79402374ca847f019593b0bd0ad36e20df411c3348.
+This does not yet separate history-state effects from the continued RNG stream,
+prove a population tap bias, or justify another seed/architecture sweep.
+
+Lens rendering session46719 is terminal-success. The frozen plan has52scopes:
+109new time pages and21reused scopes. Reuse requires exact combined action,
+articulation, scope and entering-hold semantics, excluding only the source hash.
+Twenty scopes reuse prior completed reviews; one reuses current scope10.
+Parent human/reference files remain byte-identical. Plan SHA
+2362673d720f7c22ccf29aa5db579d40f510226db3e0a3dd5a169ec10777dc7e;
+render result2185790bafe7e07248ecc05fca7ad8da966eab80b7b0ae453fe3665339c00280.
+Rendering is not a completed quality review.
+
+Current actual inspection: newly rendered scopes10,11,12,13,30,35,37,40,
+20pages total, with all actions/articulation read across pagination. Scope29
+is now covered by its proven identity to scope10. Prior-reuse scopes retain
+their pinned already-read evidence. The remaining23new scopes/89pages are
+unreviewed. Exact progress/observations are in review-progress.json, currently
+SHAeb50cfc086924e3647cd1fb351ad00496c3accd19db815cbc06be6b8c0357f2d.
+Do not create a final review or claim all52scopes were inspected yet.
+
+The inspected PromQueen17 repair is meaningful: both LN2/3 heads at104512 were
+already published before the rejected window begins105324. Accepted R105429
+closes those holds, and a new LN2 at105735 spans the three H times
+105943/105945/105949. They use lanes1/0/3, preserving the2+4-ms cross-column
+skeleton without the same-column repeats. The rejected future instead keeps
+three columns occupied and emits TAP0/TAP0/LN0. Later accepted rows retain
+staggered releases, overlapping LNs and repeated double grips. No prior tail
+promise is rewritten, consistent with the client protocol's incremental holds.
+
+In the two composition-regression fixed scopes, substantial LN organization
+persists. Buffered PromQueen19 has a1243ms hold spanning4H, followed by
+417/833/634ms overlapping holds with independent tails. The baseline has three
+long entering holds and repeated lane0 taps. Buffered Airborne has749/819ms
+holds spanning3H each with shorter released groups around them; the baseline
+has more frequent LN starts and greater occupancy. No listening/player verdict
+has been made, and the remaining scopes still matter for whole-chart assessment.
+Curated bounded findings are at0de03c1fe71716d88affc4445fea9113f3a2ba93 in
+docs/research/unpublished_continuation_screen.md.
+
+Evaluation remains partial until Lens review finishes. Provisional recommendation
+REFINE: finite joint planning removes the tested screened failures at low measured
+cost, while two arrangement guards fail and broad musical quality is unproven.
+The next immediate action is to finish the already-rendered Lens scopes, without
+rerunning generation, fits or rendering. Then discriminate whether suffix drift
+is principally carried by changed learned state or by altered randomness before
+selecting a new intervention. A learned future-potential response and stable
+persistent arrangement control remain live hypotheses, not implemented fixes.
+No new Card, Note acceptance, remote push or final-model adoption has occurred.
+All jobs are terminal; the ultimate playable-system goal remains active.
