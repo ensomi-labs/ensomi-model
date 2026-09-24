@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 0848d8d6898939d850cf3bd7bbf4332ab121dceb
+Product revision: 5f7439e208da94db4b2c7b2936dbc98aacc2a768
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -3274,3 +3274,86 @@ of audio-only generation. Diverged histories mediate the total rollout effect.
 A large effect motivates an equivalent-conditioning or matched-refitting test;
 a small effect directs attention to other transfer/task changes. No result
 assigns an additive percentage of current audio-model instability to R1.
+
+### Result Log: R1 neural-condition removal under original timing
+
+Card r1-neural-condition-removal-v1 revision 1, proposed Note revision
+5d02640392e35792e7e51e40ade52582ef157360; accepted revision none.
+Exploratory execution under standing authority. Baseline/intervention runtime
+source is the same clean 0848d8d6898939d850cf3bd7bbf4332ab121dceb.
+The artifact script is pinned in freeze.json. All 30 bounded-model files match
+the original training source after the package rename; no inference product
+code change was needed. Only the two named readout tensors differ; 132 others
+are exactly equal. The diagnostic checkpoint is not trained and has SHA
+216a3f295acf063e5f0181ff7d2da3f0caee6b8e6c0da537fc8649127efb114f.
+
+Original val-08-s17 rows and decisions reproduced byte-for-byte. All 16 paired
+ablations then completed with legal replay and exact osu! reparse. The artifact
+owner is artifacts/joint-audio/20260924-r1-condition-ablation-v1. Freeze SHA
+48124074b54a682d7883870e7a6de47610f4cfb28a5b81bbb0e078f63323d602;
+result SHA 72df5d4a8f09ad01e57d82c00977bf59fb3dd2db2ef6c0611955aba989aa039b;
+baseline-parity SHA
+5ebd2084b0aaeb0d7368ce40b8fd02998c46971c8e3b2aa1c6a37c45cf8a29e3.
+No overwrite, resume, network access or model fitting. Command and seeds match
+the Card. The CPU-one-thread probe took 62.71 seconds; peak sampled RSS
+541.33 MiB, physical footprint 484.75 MiB, minimum available RAM 7.34 GiB,
+zero sampled swap growth. Owner size including Lens evidence was 75.31 MB.
+All recorded bounds passed; stop reason all_cases_completed. No live process
+handles remain.
+
+Mean per-chart LN/head changes .276721553 -> .267962399, signed mean
+-.008759153 and mean absolute paired difference .068816914. This is below the
+predeclared .10 material-effect threshold. Head totals change 36947 -> 38069;
+LN-head totals 10875 -> 10803. Every head ratio lies within [.7,1.3]. HH<30 ms
+changes 2 -> 6, RH<30 ms 67 -> 56; neither short-gap column defines BAD and
+the two transition types remain separate. First/last onset-quarter mean LN
+fractions are .21753/.29420 in baseline and .26430/.26337 under removal.
+Maximum unchanged-three-hold run remains 2 H. No primary global LN increase
+or new persistent three-hold trap is demonstrated on this original task.
+
+Two cases have large whole-chart decreases: Youma Yakou seed 23, .37910 ->
+.12309; tanasinn seed 17, .55266 -> .32196. Lens review covers both seeds of
+these two song groups, including source/baseline/ablated charts. The bundle
+manifest SHA is c195f7d5b4c9f0fe76019bba3f0cd7ec401edb3041aeb5b7f0c0839b0bf74d77;
+all 153 members verified. Complete paginated actions/articulation were extracted
+and all 48 time-view pages visually inspected. The post-hoc eight-second
+max-difference locator, with one-second stride and >=8 heads per arm, adds
+one-second entry/exit context. This is a stated inspection locator, not a new
+success metric. Detailed scopes and judgment are in lens-review/inspection.md.
+
+The changes are arrangement-mode changes, in both directions. Tanasinn seed 17
+has an eight-second LN-head ratio 121/128 -> 10/138; seed 23 has 24/153 ->
+109/134 despite only +2.48 percentage points in its whole-chart fraction.
+Youma Yakou seed 17 changes consecutive/overlapping LN flow into taps around
+long anchors, including a 3750 ms hold. Fewer LN heads need not mean lower
+sustained occupancy. At seed 23 the more tap-heavy result adds larger chords,
+so fewer LNs need not be easier or better. These views do not justify a blanket
+BAD label or preference. No listening/player validation, Tech/dump preservation
+claim or modification of human annotations is made.
+
+Evaluation/Decision: REFINE. Combined readout removal can alter regional choices
+substantially but does not meet the selected mean-effect threshold or show a
+uniform deterioration. This weakens an unqualified explanation that omission of
+these modules alone causes the current joint model's LN bias. It does not make
+their removal harmless: this is out-of-distribution inference on source timing
+with real seeds, not matched refitting, future-feature deletion or audio BOS.
+The full restored policy's remaining limitations are still separate from the
+joint model. No additive R1/audio blame percentage can be computed.
+
+Durable findings and evaluation limits are committed in
+docs/research/r1_transfer_stability_audit.md at
+5f7439e208da94db4b2c7b2936dbc98aacc2a768. Documentation links and numeric
+claims were checked against the pinned outputs; git diff --check passed. The
+product change is prose only. Product and Note commits are local, not pushed.
+
+Next research step remains a matched joint-learning initialization comparison
+of plain 4.5M, memory 6M and release 6.5M to distinguish earlier backbone fitting
+from later native correction weights. Keep the current global/bounded
+architecture, full audio, repaired data, objective and sampling fixed. Before
+implementing or running it, design a new proposed Card and make learning-rate
+groups semantic and identical across arms: current context_training groups by
+copied tensor names, which would otherwise give absent head/release residuals
+a different rate. Do not silently change the deferred persistent-intent Card.
+No new model training started in this probe. Ultimate playability remains
+unproven, the goal is active, and this turn made material causal/evaluation
+progress rather than delivering a new playable candidate.
