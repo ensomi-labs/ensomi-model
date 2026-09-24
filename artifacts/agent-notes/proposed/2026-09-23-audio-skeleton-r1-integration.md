@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 12d80eb3ae488dbe8c13083975d3e60e702f4ef2
+Product revision: 7c316e6ea3d22aff1fd4761798f1b4aa41d47e89
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -4585,3 +4585,119 @@ every baseline row, generate the conditional arm, verify equal head streams and
 unchanged weights, independently export/reparse, and retain full-occupancy
 episodes for Lens. Its freeze records script/input digests. No fit is authorized
 by this Card; native comparison and qualitative review are pending at this entry.
+
+#### Feasible-first-release result
+
+Native comparison session 32687 completed in 30.97785 s. All nine baseline
+charts were reproduced row-for-row; all conditional charts completed and
+independently reparsed with exactly identical H timestamps and unchanged
+weights. Freeze 69df640147b6712601bf887053bba3e20a0f80b5c914f5f83a6028544fac43d9;
+result e992e57c53e848abffc9a6c1b16c20e8ccd55c2047bec95c31fce3be9eaad1c9.
+The primary RH<=20-ms count falls 1->0, HH<=20 remains zero, and all numerical
+guards pass. Seven complete charts are unchanged. Good Luck 17 changes three
+release clocks by 4/1/1 ms, retaining heads/kinds/long holds. Airborne realizes
+the fixed-state prediction: R 40148, H 40211, gap 63 ms instead of one; its LN
+fraction falls .149038->.138172. First 30 rows .15529-.25790 s and eight-second
+readiness .15294-.33375 s from cached Mel. No conditional-law fitting occurred.
+
+Lens main preparation session 94383 completed. Main manifest
+daa5c57c5bd63fbeca23017d26b845445b0f9f07152d9500d10ee4f36ec6481a;
+paired episode manifest cbdbee7e42108cd0100ba47b607242b77f8eb989005e2b3ae5b033578c57045d.
+Viewed 14 new pages: four fixed-context pages, eight paired episode pages and
+two Good Luck exit pages. Reused 36 pages only after byte equality with the
+previous viewed review. Complete actions/articulation and pagination chains are
+accounted for in review 9ad0f8b47d917db39c1d0ab522c0cf2aaec088a1b759d862352eac9f3fd2ba74.
+An initial review-file assembly incorrectly required every pagination page to
+be terminal; it was corrected to verify the complete chain, without dropping
+any page or changing evidence.
+
+The local release/re-press witness improves. Airborne now has a 73-ms LN at
+40211, independent tails at 40730/40758 after the next two-LN row, and a 41-ms LN
+at 41720. Their durations alone do not establish BAD. Its later fixed context
+retains 14 H timestamps but loses the previous one LN, becoming all taps; there
+is no blanket claim of musical/style equivalence. Good Luck's existing sustained
+right-hand holds and joint exit at 202267 remain. No additional mechanical
+failure was identified in the inspected contexts; listening/player approval,
+fine Tech, dump/chordjack coverage and sparse-piano recovery remain unresolved.
+
+Exposure audit session 56179 completed in 3.76238 s. Audit
+8ec4c6ba78dd4e4a49472411fce0f35567496ee135e82f0a7b8d4ef9338304eb counts 1377
+full-hold waits before a known H in 108/615 TRAIN charts. Their true first-R to
+next-H gaps have min/median/max 39/97/1872 ms; none <=20 ms. The fixed update
+plan encounters 787 interval segments in 215 updates, ten in its first 32;
+107210 scored full-hold ms and 205480 hypothetical ms, maximum wait 7107 ms.
+This describes target/exposure structure, not a universal spacing requirement.
+
+Outcome REFINE. The frozen intervention meets its diagnostic thresholds and
+supports a matched learning check, not overall playability adoption. Product
+7c316e6ea3d22aff1fd4761798f1b4aa41d47e89 is a clean documentation-only descendant
+of the tested implementation, recording these findings. No active job remains
+from the frozen comparison. No code or notes were pushed.
+
+### Experiment Card: feasible-release-learning-v1
+
+Revision 1, proposed, accepted revision none. Standing local execution authority
+applies. Question: can joint training under the feasible first-release law retain
+the mechanical gain without destabilizing learned head/row organization?
+Closest analogue is the completed bounded-head joint fit, with the frozen-weight
+law intervention above separating the decoding effect. This is a probability-law
+adaptation, not a capacity increase or a new comfort target.
+
+Clean source 7c316e6ea3d22aff1fd4761798f1b4aa41d47e89 (code unchanged from 12d80eb).
+Comparator is the existing fresh 1200-update bounded fit at 88e56832287f492fdca81ea7194b90753526cc96,
+checkpoint 47d41844afc673788cb640c67a1d5e41b2b9ca75ae679298c10072200925bce6.
+Use exactly its 615 TRAIN/240-group corpus, pinned normalization, R1 initializer,
+model seed 230941, sample seed 230942, validation seed 230943, and frozen
+34ef9751df4571f516ef2b670b3b0f4b398c212fdd16adcee1a029bd9168eb14 protocol.
+Keep bounded_head=true, head_bound=4, head_decay_ms=1000. The only causal change
+is condition_full_holds=true in both fitting and generation. Frontier2 and all
+audio/head/release/row modules train jointly with unchanged learning rates,
+AdamW/clip, batch/exposure plan and parameter count. Source-head teacher forcing
+and hypothetical normalizers use no actual future tails.
+
+First run 32 fresh updates: uv run --extra mps python -m
+ensomi_model.research.planned_audio_continuation.hydra bounded_head=true
+condition_full_holds=true run_name=planned-feasible-release-preflight-v1
+updates=32 validation_every=32 validation_songs=6 max_seconds=300.
+Require complete finite training, nonzero updates to all tracked modules,
+checkpoint/config round trip, and all nine native charts completing/reparsing
+before the full fit. The exposure audit confirms ten conditional waits in this
+preflight. Do not select a quality endpoint from its likelihood or samples.
+
+If the mechanical/learning preflight passes, train a separate fresh 1200-update
+model with the same command and run_name=planned-feasible-release-main-v1,
+default full updates/validation and max_seconds=3600; no preflight weights or
+optimizer reuse. This matches the existing baseline budget rather than adding
+an unmatched continuation stage. Use MPS, CPU one thread, this M5/24-GiB Mac,
+>=2 GiB available RAM, >=40 GiB disk; per-fit bounds 300/3600 s. Fresh output
+directories under the repaired corpus's planned-training owner; <=150 MiB each,
+no overwrite/resume. Record source/config/transfer/protocol/endpoint hashes and
+actual exposure. Stop on resource guard, nonfinite loss/gradient or invariant
+failure; a failed fit remains evidence and is not silently restarted.
+
+Evaluate the fixed endpoint with the same nine audio/seed cases and complete
+Lens scope inventory as the frozen comparison. CPU one thread, <=900 s native,
+<=90 s and 30000 rows/chart. Write preflight/main results under a fresh fitting
+subdirectory of artifacts/joint-audio/20260924-feasible-release-v1, with <=250 MiB
+additional evaluation artifacts excluding unchanged audio. Record all native
+outcomes, including failures. Inspect all new fixed-context pages and close-gap
+or full-occupancy witnesses, including entering/exiting holds.
+
+Primary mechanical threshold: zero same-lane release/next-head <=20-ms witnesses
+in the nine main outputs, against one in the original fitted baseline. Guards:
+all complete and independently reparse, zero new HH<=20-ms witnesses, all nine
+fixed windows contain heads, last-H/audio >=.85 in each song, LN fraction change
+<=.05 absolute per case versus the original bounded fit, and cached-Mel
+first-30-row/eight-second readiness <=1 s. These thresholds screen regressions,
+not define playability or restrict legal source patterns. Inspect LN handoffs,
+repeated figures and rhythmic detail rather than treating counts as a player
+verdict. H streams may differ after joint fitting; the fixed-weight invariance
+claim must not be carried over to this comparison.
+
+Report factor NLL only as fitting diagnostics, with its changed law explicit;
+do not select/reject on a lower total NLL alone. Passing mechanical guards plus
+bounded visual plausibility can retain this endpoint for subsequent architecture
+work. Failure localizes whether learning, head activity, release/row interaction
+or resource behavior regressed. Sparse-piano and broad expressive coverage remain
+separate unresolved goals. A result with only proxy gains or uncertain visual
+effects is REFINE and cannot promote the model as a final playable system.
