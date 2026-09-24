@@ -4001,3 +4001,38 @@ Revalidate this handle; never restart because a status file is stale or an
 observation times out. Main quality is pending. Next: Lens, terminal main readout,
 the same nine-case native screen, and all final generated style-context pages.
 Recommendation remains REFINE pending these outcomes; no acceptance or adoption.
+
+### Planned preflight Lens inspection
+
+The preflight Lens bundle is frozen at manifest SHA
+4e61afb5bf17a7ef70034671a6aa855d93c080c75b4433cd03f66011594f7380 under
+artifacts/joint-audio/20260924-planned-head-release-v1/preflight-lens.
+All 40 time-view pages were actually viewed: nine generated contexts and five
+unchanged human reference contexts. All paginated actions/articulation were
+read, including entering holds and complete endpoints. review-facts.json retains
+the exact records and page pins; review.json contains scoped observations.
+Extraction session 39107 completed successfully. Human evidence was copied
+unchanged from the pinned earlier bundle; no label was transferred to a model
+output automatically. No listening or player trial occurred.
+
+Prom Queen source has a sustained 208/209 ms repeated chord pulse in the reviewed
+context. Preflight seed 17 instead has seven isolated taps with intervals such
+as 848/191/800/69 ms; seed 19 has fourteen attack rows, mostly singles with two
+doubles and uneven short bursts. Neither demonstrates the source's definite
+Jack organization. Who's 73-87 s generated windows have 48 heads/3 LNs and 50/0,
+mostly sparse irregular taps; the three LNs in seed 17 are sequential, including
+a 992 ms hold with no internal attacks. The source's interleaved short head/tail
+figures are not demonstrated here. This is not a density-match acceptance rule.
+
+Death Piano's generated contexts have 20/2 and 16/0 heads/LNs; seed 17 enters
+with a column-2 hold ending at 102967 ms, then a column-0 902 ms hold over two
+other attacks. Good Luck has 21/1 and 18/0, including one 764 ms column-3 hold
+over five internal attacks. Airborne has eleven heads/two sequential LNs and
+one double. These are scoped arrangement facts, not global quality verdicts.
+The human Who source includes 29-30 ms LNs and Good Luck includes 8/32 ms
+cross-column events, reinforcing the ban on universal minimum-duration/gap
+repairs. The main remaining question is learned rhythmic organization, not
+mere legality, lower LN fraction or a stronger hard spacing filter.
+
+Main session 75685 was subsequently observed live through update 1190. The
+fixed 1200-update endpoint and its native/Lens readout remain pending.
