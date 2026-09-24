@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: f4f3a2f639d2f5423d3b1d35b4ee2d74cdeba192
+Product revision: 12d80eb3ae488dbe8c13083975d3e60e702f4ef2
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -4555,3 +4555,33 @@ and package-layout tests, then uv run --extra mps python <owner>/compare.py,
 then its Lens inspection driver. No network or fitting is required. Stop
 causal interpretation on baseline reproduction, H-stream or probability
 invariant failure. A later fit requires its own bounded proposed Card.
+
+#### Feasible-release implementation and comparison handoff
+
+Clean intervention 12d80eb3ae488dbe8c13083975d3e60e702f4ef2 adds the declared
+condition_full_holds flag, shared conditional-hazard primitive, hypothetical
+normalizer inputs/audio extent, native complete-wait query and typed training
+projection/checkpoint persistence. It adds no trainable parameters and leaves
+frontier2, head and row score functions unchanged. The baseline-to-intervention
+diff is confined to the planned package, its tests and owning research docs;
+no note paths enter the product tree/history. Defaults reproduce old checkpoints.
+
+Selected package and package-layout check passed 34 tests and 22 subtests in
+4.71 s, including actual CPU/MPS gradients, probability normalization, interval
+probability/gradient telescoping, future-tail exclusion, full hypothetical audio
+coverage, both head modes' teacher/native/cache/RNG agreement and config runner
+round trip. An added all-rare MPS case then passed alongside its mixed-rate case
+(2 tests in .82 s); no previously passing implementation changed after the
+package check. Initial diagnostics found MPS softplus(-40) rounded to zero,
+making log-rate gradients nonfinite; logaddexp(x,0) preserved the tiny rate and
+resolved this. One initial source fixture lacked the loader's required post-seed
+H; it was corrected without changing any product/source admission rule.
+
+The frozen comparison driver is prepared at
+artifacts/joint-audio/20260924-feasible-release-v1/compare.py. It pins this clean
+intervention, checkpoint 47d41844afc673788cb640c67a1d5e41b2b9ca75ae679298c10072200925bce6,
+the prior nine-case result and unchanged cases/descriptor. It will reproduce
+every baseline row, generate the conditional arm, verify equal head streams and
+unchanged weights, independently export/reparse, and retain full-occupancy
+episodes for Lens. Its freeze records script/input digests. No fit is authorized
+by this Card; native comparison and qualitative review are pending at this entry.
