@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: caee76b99d66530522c863012e1f968bba8993f0
+Product revision: b5c5ee33cacb3950b3c9b6a4a05d9d627c46aa64
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -2138,3 +2138,44 @@ padding/full-song equivalence and the native checkpoint path. Repeat the same
 training. Stop scaling if memory remains unbounded or the masked equivalence
 checks fail. Main run names, input pins, shared protocol and 1200-update bound
 remain those already specified; Card acceptance remains none.
+
+### Masked buckets and four-cell preflight
+
+Clean implementation b5c5ee33cacb3950b3c9b6a4a05d9d627c46aa64 adds only
+masked execution buckets and memory counters. Thirteen focused context tests
+passed, including independent unbucketed-query likelihood and native partition
+parity. The frozen data protocol and all model parameter counts are unchanged.
+
+The repeated variable-shape probe completed 64 updates in 21.79 seconds:
+12.55 seconds cold and 9.23 warm, versus 78.43 and 13.10 previously. Active
+MPS memory stayed at 191,561,216 bytes after warmup. Driver memory ended near
+1.78 GB and fell to .48 GB after cache release; available memory remained near
+9.76 GB at the end of both cycles. Process RSS changed from about 2.49 GB to
+2.52 GB during the warm cycle. This bounds the observed execution problem;
+longer main-run monitoring remains required.
+
+All four revision-2 preflights completed with identical initial common-module
+hash, source protocol and exposures: 128 intervals, 1,003,105 ms, 7239 rows,
+9903 heads, 106826 real timing bins. Results are at context-queue-preflight-v2.
+
+| Cell | Seconds | Two-song population NLL/s | Last checkpoint SHA-256 |
+| --- | ---: | ---: | --- |
+| Local/fused | 14.33 | 71.300747 | 993bd006e0074beeb518c673797d24cd641d31999c4ef42e4ac42771b73bdd4e |
+| Global/fused | 15.90 | 70.921581 | b599e718dafb3f2ab0fbb8a687dbb575f32cf68a5d9085d0d46f381a8d43ebdb |
+| Local/bounded | 14.48 | 69.336330 | 36a1680325426fe62aa3b8368ad1f2b30c1fdf8cab36a2e4a6c559e73185816a |
+| Global/bounded | 16.10 | 68.711928 | 7a10bc623bfa96a45135bb71ec357a2c28292ade1f1150f44dd2f4134b8ca148 |
+
+Local/fused and global/bounded NLL differ from the unbucketed 32-step probes
+by less than .000002. These preflights establish bounded execution and a
+learning signal, not an architecture ranking. Main training starts afresh
+from R1 for all four cells, serially under the frozen 1200-update budget,
+using run_context_queue.py and context-queue-main-v2. The queue checks common
+initialization/exposure identity and stops after any incomplete cell.
+
+One specific falsifier deserves attention in native review: a bounded
+historical adjustment limits inhibition as well as facilitation. A strong
+audio-base peak might require greater short-lag suppression to prevent a
+second same-key hit. If recovery improves but <=10/20 ms TAP relations worsen,
+inspect base, modulation and gate on those exact prefixes; do not count added
+activity as success or change the bound after seeing the result. The original
+short-transition diagnostics and Lens guards already cover this risk.
