@@ -3511,3 +3511,66 @@ The 32-step preflight phase has been launched sequentially on MPS with
 caffeinate -i and the frozen launcher. No preflight outcome or main training
 completion is yet claimed. Subsequent status must be verified from the live
 process/tool handle and result files, not from this launch record alone.
+
+### Result Log: joint-lineage preflights and main-run handoff
+
+The three preflights completed on clean product
+4db2335bec1996626f7eec526ecb3a7bb8f7ab9e under the frozen proposed Card. Result
+SHA 755721dbfb423f211b85dd6939e08117701923ac8d157e408dbef955abcaaf97.
+All consumed the same 32 updates, 128 intervals, 991062 ms, 6722 event rows,
+9246 heads and 105185 timing bins. Total launcher time was 68.59 seconds.
+All losses/gradient checks remained finite, group receipts matched their frozen
+real initializations, and every saved model loaded with finite weights.
+
+| Initialization | Preflight VAL NLL/s at 0 / 32 updates | Training seconds | Checkpoint SHA |
+| --- | --- | ---: | --- |
+| Release 6.5M | 63.29789 / 49.06779 | 22.97 | a0ed3b7b87527fc87bfbe9f87133d732cb18b69f267b3750584dd8c69a4c5760 |
+| Memory 6M | 63.33745 / 49.11939 | 20.38 | 41363d8769c2333889786f327912e5f4f28c0943bcfefe24c01710e8c4f1e04b |
+| Plain 4.5M | 59.45962 / 49.39479 | 19.49 | f84fa8d9a101d6487c6016b68ad179b35b67085b5505d860c647f24be4b3290f |
+
+The preflight VAL subset contains 24 population plus six BOS intervals. These
+values are sanity checks, not endpoint quality comparisons. Peak logged MPS
+driver allocation was 1.573 GiB in every arm; minimum logged available RAM was
+5.756/5.506/5.539 GiB respectively. No caps, resource stops or deviations.
+Evaluation: passing engineering preflight permits the already-declared main
+phase under standing execution authority; it does not establish a supported
+research conclusion, Card acceptance or model quality.
+
+Main training launched with the same frozen run_comparison.py main command,
+wrapped by caffeinate -i. It resets each model and optimizer from its original
+R1 checkpoint; no preflight state is reused. Order remains release, memory,
+plain, each fixed at 1200 updates. Unified exec session 76752 owns this serial
+launcher. At the last verified observation, its release child PID 90609 was
+live at update 950 after 416.86 seconds. The 144-interval population readouts
+were 62.24451 at initialization, 42.71762 at 300, 40.53602 at 600 and 40.09641
+at 900. Do not substitute these incomplete-arm values for the final comparison.
+Re-poll that session or verify the live child/result files before acting;
+live.json or this note alone is not proof a process is still running.
+
+Native evaluator evaluate_native.py is prepared in the comparison owner but
+has not been launched. It requires all three complete main endpoints. Its SHA
+is f78cc6cb4236a6e5cb3564260955054aef5cee90ffb08352180fb6a343f237eb.
+It preserves all 84 native plus eight style cases/arm, audio-only BOS, fixed
+query/prior and bounded outcomes. Complete outputs use independent mechanical
+replay and exact export/reparse. Descriptors keep inclusive HH<=10/20/30/40 and
+RH<=10/20/30/40 separate, record exact LN durations, held lane-time, chord sizes,
+last-head position and eight-second trajectories. Empty outputs retain null
+ratios and explicit missing counts instead of disappearing from the cohort.
+
+Descriptor arithmetic was checked with a manual hold-crossing-window/terminal
+fixture and an empty chart; head/release gap counts remain separate and summed
+window occupancy equals 9998 held-lane milliseconds. Head and LN totals also
+match six pinned older native outputs. description-check.json records these
+checks; this is instrumentation verification, not new generation evidence.
+The four style audio pins are unchanged. Who, Death Piano and Prom Queen audio
+are absent from the selected joint-training corpus; Good Luck is present.
+This describes joint-audio exposure only and makes no claim about R1's earlier
+chart exposure or hidden TEST generalization.
+
+Next actions: finish/poll the existing main launcher without restarting on an
+observation timeout; verify identical final exposure and finite endpoints; run
+the prepared native evaluator on the clean pinned source; inspect the declared
+human-reference contexts and material changes using Lens; then evaluate the
+lineage hypothesis before choosing the next training intervention. Keep the
+intent comparison deferred. Product changes and Note records remain local;
+the goal stays active and playability completion is unproven.
