@@ -5323,11 +5323,12 @@ curated docs after the tested implementation. Both commits are local; no push.
 
 ### Experiment Card: shared-arrangement-profile-v1
 
-Revision 2, proposed, accepted none. Standing implementation/training authority
+Revision 3, proposed, accepted none. Standing implementation/training authority
 applies. Clean baseline 9b998000ffbe8fdc540b10667d0f15b36ce820a4, with inference
 code unchanged from verified 1c95f6914fd3fa390d8a46f1d267d5311def7078.
-Implementation is complete at 10ddaa8daf7db1b5851d1f8c10733744da368b7e;
-real profile preparation/parity is running, with fitting not yet started.
+Implementation is complete at 10ddaa8daf7db1b5851d1f8c10733744da368b7e.
+Preparation, preflight and both matched main fits have completed. Main native
+evaluation and Lens review remain outstanding.
 
 Question: can one persistent, interpretable arrangement condition shared by
 head, release and row factors improve controllable complete-chart generation,
@@ -5449,6 +5450,15 @@ and realized dimensions, rather than only a cohort mean. Prior calibration on
 VAL is a separate diagnostic against the constant TRAIN profile-mass prior;
 it cannot substitute for sampled output inspection.
 
+Also require actual within-case control response. Center the four requested
+vectors by their mean, and center the four generated vectors separately within
+each fixed audio/seed case. For each descriptor, divide their centered MSE by
+the requested variance. Require a reduction of at least 25% from the constant-
+output error in all three dimensions. A constant output has exactly zero gain
+under this test, even if its uncentered error is better than the baseline's.
+Report the finite least-squares profile response matrix as a diagnostic, not
+an infinitesimal Jacobian or proof of population controllability.
+
 Guards: all outputs complete/reparse within 90 s and 30000 rows; zero strict
 HH<20 pairs; cached-Mel 30-row/eight-second readiness <=1 s. On the nine automatic
 outputs, preserve nonempty fixed musical scopes and last H at >=.85 of audio
@@ -5518,3 +5528,61 @@ It freezes the actual 16-profile bank and verifies every zero-condition profile
 against the complete Good Luck17 baseline from checkpoint 67b8fc8f. It uses
 one CPU thread, <=180 s, no fit, and checks pinned corpus/checkpoint/baseline
 bytes. Results and fitting dispatch will be appended when that process finishes.
+
+#### Preparation and preflight result
+
+Preparation session 62433 completed successfully. All 16 zero-projection
+profiles reproduce the full Good Luck17 baseline row sequence exactly, and
+all common tensors remain equal. The 16 medoids converge in three iterations;
+weighted squared-distance error is .5632440390, with unweighted .5/.9/max
+quantiles .501764/1.238818/3.127955. Bank SHA
+a8973b7f94fde90d9f3cc639eb63e781dd295435622ce79fd54fe244789e6f03;
+preparation result 34f75712d4549677d486d4195318619c47651713f1c5c3fe427bd195885ae325.
+The first four requested representatives are approximately
+(4.749,1.370,.114), (7.032,2.141,0), (6.060,1.429,.734) and
+(13.548,1.286,.0004), in H/s, heads/H and LN-head fraction. These are joint
+source descriptors, not assigned style names.
+
+Preflight fit session 50765 completed both fresh 32-update arms in 36.697 and
+33.676 s. All tracked modules update; profile_condition L2=.057934 and
+profile_prior L2=.141844. Checkpoints: base
+a119318cfef886535cf122e9491695c03eb767aa83e03284c46f28a7e936700e;
+conditioned 236957f2fdbe57ce71fe086e927f089b26b6c1afb176b7cbda8226a91646fcfe.
+Fit result 99a8acd30584adbce99a3722bed9bb023eabd23b9f1eced7eb9254f8a691d107.
+
+Preflight native session 59860 completed/reparsed all 18 automatic outputs in
+62.81040 s, with zero strict HH<20 pairs. This is an operational pass, not a
+quality pass: RH<=20 counts are 11 base and 22 conditioned, and Death Piano19
+has an empty fixed musical scope in both arms. Do not call those charts an
+improvement. The predeclared preflight gate checks implementation/resources
+and completion; it does not choose an endpoint by early quality or NLL.
+Native result 1cf943f3fb9dbed88ad470255bdf6d0aa9a0c19d00dcd6257e467ec9e629c91c.
+
+#### Matched main fits and evaluation refinement
+
+Main fit session 96094 is now terminal-success. It completed 1200 updates per
+arm, with identical exposure counts and fresh optimizer state from the same
+initial checkpoint. Base took 964.39089 s; conditioned took 920.73794 s. The
+driver total was 1888.74076 s. Main freeze
+7b515af00dbfaeba3f205f7b67c4ae84d8a98eac681036ff92ec1e7e60b8a074;
+fit result 2580f089b24fb5188e31d986a41082689fa5a9f80ff3ace8be05f2b61d916602.
+Final checkpoints: base
+5f26b7b15d97fa2d6964cf77a4cadea016f5ace9dfd578ce2fae5dc7c8a0e121;
+conditioned abc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef.
+
+Population conditional NLL is 39.776696 base and 39.684357 conditioned; the
+conditioned prior adds .017847 nats per integer-clock second, giving joint
+39.702203. This is reference-profile evaluation, not marginal audio-only NLL
+or a native quality verdict. Profile-condition update L2=.787393 and prior
+L2=1.002683. All tracked inherited/skeleton modules also update.
+
+Revision 3 strengthens the evaluation before any main native output was
+generated or examined. Uncentered descriptor error alone can improve when a
+constant-output model merely moves closer to the request mean. The added
+within-case centered criterion rejects that case; a synthetic constant-output
+check gives zero gain, and exact request tracking gives unit gain. The fits
+were dispatched/frozen under revision 2. Training, models, cohort, requests,+resources and original guards are unchanged, so no refit is needed. Main
+native_v3.py records revision 3; preserve native.py as the preflight script.
+Assessment is in assess.py, and inspect_lens.py fixes all required contexts and
+close-gap witnesses. The main generation/readout remains pending; no quality
+claim or lifecycle transition has occurred.
