@@ -4883,3 +4883,94 @@ then Lens inspection. Freeze the driver and input/checkpoint/plan hashes before
 sampling. Stop causal interpretation on reproduction, H-stream, resource or
 legal-completion failure. A mixed result calls for a common-state probability
 or additional-seed diagnostic before adding latent capacity.
+
+#### Generated-head-plan crossover result
+
+Session 79058 completed all eight rollouts in 9.77881 s. All four diagonal
+controls reproduced their complete saved rows exactly; every crossed arm
+preserved its supplied generated H timestamps and completed/reparsed. Freeze
+1b60968c96ad0997d641384cf3181bedc9f4254af9c14fbb77efbe44f73d9310;
+result 2b3b9315d384e5458f9a631384b9b830f3de0f328debd8ebec6d112144950284.
+No parameter changed. Arm XY denotes conditional weights X and H plan Y.
+
+Prom Queen19 LN fractions AA/AB/BA/BB = .180428/.028476/.171053/.020339.
+Good Luck17 mean chord sizes = 1.229508/1.932907/1.214605/2.146965.
+Both declared primary readouts follow H-plan origin under the predeclared
+distance rule. Do not generalize this to every composition feature: Good BA
+LN fraction is .088344 versus AA .247273 despite similar mean chord size.
+The weight factor includes audio, release and row modules, not R1 alone.
+
+The crossed Good outputs expose an HH19-ms and an RH11-ms witness even though
+both corresponding diagonal outputs lack <=20-ms pairs. Initial Lens preparation
+incorrectly asserted no new close-gap witness and stopped; its partial lens/
+directory is preserved. Fresh lens-v2 includes all witnesses/hold episodes and
+uses hard-linked immutable source evidence with separately written metadata.
+All original baseline bundle bytes were reverified unchanged. New unshared
+artifact bytes 74716714 remain inside the declared 100-MiB addition bound.
+
+All 18 new crossover pages and complete actions/articulation were inspected.
+Manifest d092202ee55be707c6bdba8fffaf62f849513c40bffc5553668e3133e36ca94c;
+review bbaa35677281605ef264da1ff616bdd0e0c2a5670cbf8a869ea2f1d0c74ed06a.
+The AB fixed Good scope has chordal holds with independent tails; BA is mostly
+single taps there. Five AB full-hold episodes include independently closing
+outro holds. These are not categorically bad simply because composition differs.
+
+The two mechanical witnesses have different dependencies. AB commits taps in
+0/1/3 at 47163, followed by mandatory H at 47166 and 47182. Five heads in four
+lanes within 19 ms force a repeat after that first three-head choice; its
+realized repeat is column 1. Retaining those three H clocks while reducing the
+first chord to at most two heads can avoid that local repetition. BA closes a
+column-2 LN in an H row at 187136 (also tapping 0/1), then taps column 2 at
+187147. Column 3 remains available, so the latter re-press is avoidable at the
+second row. Its tail belongs to an H row, not a release-only deadline; the
+full-hold normalization does not directly schedule this failure.
+
+Outcome REFINE: generated timing materially changes row organization in these
+selected trajectories. This does not prove population degradation, an R1 error
+percentage, a need for a latent, or permission to filter high-fraction H times.
+Audit the actual candidate scores at the upstream commitment and the later
+avoidable re-press before adding more model structure.
+
+### Experiment Card: frontier-witness-score-audit-v1
+
+Revision 1, proposed, accepted none. Source remains clean
+7c316e6ea3d22aff1fd4761798f1b4aa41d47e89. Use only the two completed Good Luck17
+crossed outputs and their exact checkpoint/audio/H-plan bytes from the crossover.
+No fit or changed rollout is requested. Reproduce each full output with
+behavior-neutral capture of current replay, row inputs and consequence scores.
+Require exact full-row equality before interpreting captured distributions.
+
+At AB time 47163, verify no active hold and all prior head/release clocks more
+than 20 ms old, with the next two H at +3/+19 ms. For each candidate with k
+heads, the minimum number of short repeated future heads is max(0,k+2-4):
+the unused columns can serve the next required heads, while any excess must
+reuse a lane. This is a local diagnostic under the declared 20-ms comparison,
+not a legality restriction or a calibrated demand quantity. Also inspect AB
+47182, where the committed past already makes every column recent, and BA
+187147, where only column 3 can avoid a <=20-ms head/release relation.
+
+On identical captured row contexts compare the complete probabilities with the
+current frontier2 score, with that score removed, and with the released R1
+frontier2 tensors evaluated on the same current inputs. The last comparison
+isolates those tensors under the current representation; it does not reproduce
+the old R1 policy or prove universal forgetting. All other logits/support stay
+fixed. Pin released R1 SHA
+4b3ec1561e33d0ebe2756cfe13571ec414fd5bb470b430f0c578545863115f70.
+
+Report probability mass on positive diagnostic cost, expected diagnostic cost,
+the sampled row probability and highest-probability safe alternatives. If the
+current score leaves >=.05 risk mass at the upstream or avoidable decision,
+treat it as a material local tail for subsequent response-alignment work. A
+>=2x reduction versus score removal indicates active mitigation; increased
+mass or a change under 10% is a weaker/misaligned response at that state. Mass
+below .01 favors a rare-tail/additional-seed explanation before architecture
+changes; intermediate values remain uncertain. The forced later row cannot
+repair the upstream commitment and must not be misclassified as an independent
+avoidable error.
+
+CPU one thread, <=120 s, >=2 GiB RAM and >=40 GiB disk, fresh
+artifacts/joint-audio/20260924-feasible-release-v1/head-plan-crossover/frontier-audit,
+<=5 MiB outputs, no overwrite/resume. Freeze script/input hashes. No publication
+RNG consumption by score comparisons, no actual future rows/tails as inputs,
+no new training loss or minimum-gap decoding rule. This is a three-state local
+diagnostic; it cannot by itself select a globally playable endpoint.
