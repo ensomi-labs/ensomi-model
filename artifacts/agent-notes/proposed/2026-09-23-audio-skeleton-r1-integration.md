@@ -1907,3 +1907,161 @@ ambiguities. No same-lane same-millisecond LN close+restart relation was found
 in the parsed set. No VAL/TEST payloads were read. This corpus audit supplies
 no evidence for changing the current action alphabet before the next study;
 it is not a universal statement about mania charts.
+
+## Experiment Card: audio-context-history-paths-v1
+
+Revision 1. Proposed; acceptance none. The standing user instruction authorizes
+bounded implementation and experiments. This Card succeeds the completed
+paired-song coverage comparison without changing its recorded result.
+
+### Question, mechanism and alternatives
+
+Can full-song audio context improve source-conditioned prediction and musical
+organization, while a bounded time-history path prevents stale generated
+prefixes from indefinitely suppressing continuation? Test these as two separate
+factors. Do not assume that either component works or that correcting silence
+establishes playable mapping.
+
+The four cells cross local versus local-plus-global audio with the existing
+timing fusion versus an audio/hold-only timing base plus bounded history
+modulation. All cells use the same continuous-interval likelihood, examples,
+initial R1, normalization and optimizer. No latent, missing-history auxiliary,
+BeatThis, metrical grid or head-spacing decoder prior enters this experiment.
+Interval training changes the earlier sampling objective; its local/fused cell
+is therefore a newly trained control, not the old coverage checkpoint relabeled.
+
+Closest primitives are bidirectional self-attention
+([Transformer](https://arxiv.org/abs/1706.03762)) and time-evolving historical
+influence in event processes
+([Neural Hawkes](https://arxiv.org/abs/1612.09328)). The former supplies relations
+between coarse audio positions; the latter motivates distinguishing persistent
+physical obligations from decaying event influence. Neither paper establishes
+this task-specific hold gate or playability. This is an adaptation/combination
+experiment, with no new representation or novelty claim.
+
+### Fixed implementation and comparison
+
+Baseline product source is caee76b99d66530522c863012e1f968bba8993f0. Use the
+240-group/585-arrangement TRAIN and 36-song development VAL corpus, manifest
+cc60dd39920c626f3be5498ab8ba7aa342dd0956c0a548cc393d85a1b03f5173, and the old
+TRAIN normalizer 9cf461a0e825f974f0a80a364123c7afedf1683af76e60fe09b0fbe51c2c8287.
+Initialize all cells from released R1 4b3ec1561e33d0ebe2756cfe13571ec414fd5bb470b430f0c578545863115f70.
+Model seed is 230928. Preserve identical common-module initialization; verify
+this separately from architecture-specific parameters. All new parameters train
+at 3e-4; inherited R1 parameters at 3e-5, AdamW .01 decay and norm clip 1.
+
+Keep the 100 Hz, 96-dimensional local TCN and 511-row finite R1 history. The
+global branch reduces normalized full-song Mel with learned depthwise temporal
+weights over 50-frame cells, projects to 128 dimensions and uses two
+bidirectional Transformer encoder layers, four heads and 512-wide feedforward
+layers with dropout zero. Partial last cells count only real frames. Tokens
+have fixed 500 ms cell-center coordinates; these are audio coordinates, not
+output event slots. Positional sinusoids use elapsed audio seconds. The branch
+is encoded once per song per optimizer microbatch and once per generated song;
+candidate queries interpolate its cached representation. Both heads receive
+global context through explicit projections; no chart future is an input.
+
+For bounded timing, use logit h = b(F,G,S_hold) + 4*g*tanh(r(F,G,H,S)). The
+base reads only audio, occupancy and active-LN age features. It cannot read
+previous-row age, cumulative counts, time since the first row or content history.
+The history path retains the full exact state and learned history. Set g=1
+while any LN is active, exp(-elapsed_since_last_row/1000 ms) when all lanes
+are free, and zero at genuine BOS. This is one preregistered bound/time scale,
+not a parameter sweep. The property |logit h-b| <=4*g must hold numerically.
+There is no hazard floor, forced nonterminal event, erased action history,
+or forced query-boundary LN closure.
+
+### Interval objective and exposure
+
+Partition the real integer audio clock 0..T into disjoint intervals of at most
+8000 milliseconds, including a possibly short final interval. At each sampled
+interval, retain true pre-interval source state and the history envelope. Score
+every event and every no-event millisecond exactly once, with updated true
+history after each event. Sum timing and complete-row NLL before any weighting.
+Reuse one causal-TCN sequence over the prefix plus interval. Padding, missing
+audio and chunk boundaries cannot become events or context observations.
+
+Optimize the mean over uniformly selected TRAIN groups, then separate
+arrangements, of each chart's NLL per second. Select an interval uniformly
+among that chart's J intervals and multiply its summed NLL by
+1000*J/(T+1). Thus the expectation is full-chart NLL divided by its actual
+integer-clock duration; short last intervals have the correct inclusion weight.
+This intentionally weights songs/arrangements uniformly and chart time within
+each song, rather than reproducing the former query mixture. Do not separately
+average row and survival losses or merge alternative arrangements into labels.
+
+Freeze a shared plan using seed 230929 before fitting: 1200 updates, two sampled
+song groups per update, two independently selected arrangement/interval pairs
+per song. All four cells see the same 4800 intervals, with actual milliseconds,
+event rows and heads counted. Backpropagate each song microbatch before the
+next, with one optimizer update after both; full-song audio is shared within
+that song. A preflight of at most 32 updates per cell uses a separate fresh
+destination and is not reused as fitted initialization. A structural or resource
+failure stops scaling and requires a documented Card revision.
+
+### Evaluation and decision
+
+Freeze four uniformly drawn source intervals per VAL song with seed 230930;
+report the per-song mean weighted NLL per second, original 12 and additional 24
+separately. The BOS interval is an additional diagnostic, not mixed into that
+population-weighted mean. Keep the previous BOS/early/mature held/free panel
+as a source-state diagnostic where the shared evaluator supports full audio.
+Select the final 1200 endpoint, not the most favorable checkpoint. A >=3%
+improvement on the additional-24 mean without >5% original-panel regression
+is conditional-learning evidence; actual values for the new interval control
+are pending and must be reported even if worse than the old recipe.
+
+Generate all original 42-song cases at seed bases 17 and 19, keeping the exact
+index-to-seed mapping, 500 ms scheduler queries, 30,000-row and 90-second
+per-case caps. Retain empty, early, capped and post-30 silent outputs. Report
+absolute and eligible-transition-normalized <=10/20 ms TAP relations; full-song
+and local activity, LN counts, occupancy, durations and actual startup latency.
+Reaching 30 heads may not regress versus the interval control, and cannot by
+itself establish success. Median paired head ratio outside [.75,1.25] or total
+LN ratio outside [.7,1.3] triggers Lens adjudication. No forced activity or
+universal anti-repetition metric may turn a guard failure into a success.
+
+Inspect paired Lens actions/time pages for early failures, mature silence,
+real long rests, active-LN release transitions, dense tap/chord motion and
+repetition. Preserve valid irregular timing and jack/chordjack opportunities.
+Source density is a context cue, not a target difficulty. Human playing/audio
+assessment remains distinct from structural inspection.
+
+For any global branch, evaluate correct, zeroed and half-song-shifted coarse
+context while keeping local fine audio fixed. These are diagnostic perturbations,
+not new model selection sweeps. A correct-context benefit must also appear on
+development VAL and in the matched architecture comparison; output changes
+alone do not demonstrate use of musical information.
+
+Positive: a factor improves held-out likelihood and inspected native stability
+without flattening real rests, valid repetition or LN coordination. Negative:
+global context only helps TRAIN, or bounded timing fills rests/loses coherent
+repetition/releases. Ambiguous: better likelihood with continued native failures,
+composition guards breached, or nonconverged/capped runs. Recommend REFINE in
+the absence of an accepted Card; do not adopt components solely from a numeric
+gate. Undertraining remains a live alternative to a failed architectural premise.
+
+### Execution bounds and reproducibility
+
+Add scoped context-model, interval and training owners under joint_audio_continuation,
+a package-local Hydra preset and focused tests. Preserve the existing model
+and checkpoint defaults. Validate interval likelihood against independent old
+single-query sums, dense/cache and crop/full equivalence, global padding/clock
+semantics, hold-only base independence, bounded modulation, correct sampler
+weights and config projection. Commit a clean implementation before preflight.
+
+Command family: `python -m ensomi_model.research.joint_audio_continuation.context_hydra`
+with explicit `global_audio={false,true}`, `bounded_timing={false,true}` and
+unique run_name, under `uv run --extra mps`. Save resolved config, flat config,
+source OID, manifest/normalizer/checkpoint/plan hashes, counts, resource/learning
+curves and stop status. Main output is
+`artifacts/joint-audio/20260924-expanded-v1/context-training/paths-<local|global>-<fused|bounded>-v1`.
+Never overwrite; no implicit resume or reuse of a selected checkpoint.
+
+Run serially on this Apple M5 Mac, MPS FP32 and one CPU thread. Bound each main
+cell to 7200 seconds and the four-cell training queue to eight hours. Preflight
+has a 900-second per-cell bound. Retain the existing PAUSE, 2 GiB available RAM
+and 40 GiB free disk guards. Do not parallelize competing MPS training jobs.
+Record actual end-to-end audio encode/startup and dense generation cost before
+making realtime claims; warm Mel throughput is a separate measurement. No TEST
+reads, remote publication or automatic model adoption is part of this Card.
