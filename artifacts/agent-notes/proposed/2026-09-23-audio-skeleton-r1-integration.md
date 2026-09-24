@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 65ef95c092e7d3024d99ed60e37c2c22ee041df9
+Product revision: 579c0a8add28377881a12ab263059fa0fc4ca938
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -6296,3 +6296,129 @@ persistent-history drift as the sufficient explanation, while still leaving
 control reliability unresolved. An imprecise result returnsREFINE rather than
 escalating compute automatically. All outcomes leave the playable-system goal
 active and the Card proposed.
+
+
+### Result Log: continuation-state-rng-v1
+
+Card continuation-state-rng-v1 revision1, accepted none, remains proposed.
+Exploratory run under standing local execution authority. Clean baseline and
+intervention product source65ef95c092e7d3024d99ed60e37c2c22ee041df9; no product
+code, model parameter, temperature or training objective changed. Execution
+Note92ec31ec8b6a3cd23829a203691d24dfd2e9ca77. Artifact-local observer subclass
+captures post-H forks without changing sampler behavior. Native session58734
+and Lens rendering73459 are terminal-success; do not rerun them.
+
+Command: uv run --extra mps python
+artifacts/joint-audio/20260925-continuation-state-rng-v1/run.py.
+Output owner artifacts/joint-audio/20260925-continuation-state-rng-v1 was fresh;
+no overwrite/resume. AppleM5/24GiB, one Torch CPU thread, Python3.10.20,
+Torch2.11.0, unchanged checkpointabc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef.
+The same full audio/Mel bytes and H0 plans were verified against the parent
+freeze. Shared encoded tensors agree exactly across original/screened states.
+Original generation seeds19/33; fresh paired streams239251..239266; bootstrap
+seed239267. No new audio or model training in this diagnostic.
+
+Stable identities:
+- run.py8bb30cf6e1d6d21807941aa9467652d19d0f423d1c180171a1b6d975f45b7470;
+- freeze.json26a6d7234a98d389aa51eb4faec0dc1b1d98a176bd6f3daaf19fad1b8a50bda8;
+- gates.json89dfba2655004fd346c6660cf922bb19e8c93c9ea87a5b3b0ac0b658c50acda9;
+- result.jsonb0302e1769243c2212993ebe898f484a664c9500e7d455b29dc0c0657d900074;
+- review.jsonbf0ee0cfcf0db05fb5d756e82f3fb69f252a8c59556daf9f7314bcd8c479d9b5.
+
+Both original/screened reconstruction trajectories and all four diagonal suffix
+controls reproduce their saved full row hashes exactly. Captures at56907 and
+32420 have residualNone and identical futureH. Original-state and screened-state
+forks remain unchanged by each continuation. All72 outputs complete, retain
+exact prefix/H, independently reparse, and have no final open LN. Model tensors
+and checkpoint bytes remain unchanged. Driver takes199.215619416s, suffix
+sampling182.567487877s; all per-run90s and total900s bounds pass. Final owner
+including Lens evidence is94,834,729bytes, within500MiB. Completion is the stop
+reason; no failure artifact or protected-field deviation occurred. The result's
+qualitative_review=pending is its immutable pre-review snapshot, superseded by
+the separate completed review record below.
+
+Fresh-stream mean suffix LN fractions, original versus screened state:
+PromQueen .5626799795 vs.5220572853, paired mean-.0406226942, standard error
+.0474746444, paired bootstrap95%[-.126691016,+.051046651]. Airborne .4977251388
+vs.4159165248, paired mean-.0818086140, standard error.0261266686,
+interval[-.129951062,-.030024727]. Prom does not establish a directional mean
+effect here. Air supplies evidence of a negative conditional state effect but
+misses the declared mean<=-.10 material-effect line. Neither satisfies the
+practical-equivalence rule. Both planned classifications are unresolved; do not
+change the thresholds after seeing the estimates.
+
+The fixed saved-stream2x2 cells differ sharply from the fresh-stream expectation.
+PromOO=.6343612335,ON=.6038543897,NO=.2170900693,NN=.2842377261; the two-order
+state/stream terms are-.3684439139/+.0183204065. AirOO=.4701022817,
+ON=.4368932039,NO=.4671562627,NN=.3373644704; terms-.0512373762/-.0815004351.
+These are path-specific algebraic attributions, not unique causal responsibility
+or a percentage of failure belonging to R1-restored. Prom's fresh original-state
+fractions range.2678..8545 and screened-state.1829..7607; Air ranges.2685..6773
+and.2125..5805. Substantial sampling variability remains under both fixed states.
+
+Lens preparation command uses this owner's inspect_lens.py and the exact parent
+manifestee0e3a32a527aefaf2b0fe84bd68046f9af8f771f257068364f096b4cdb2919e.
+The selected contrast seeds areProm239252 andAir239258. All9scopes/33time pages
+and complete action/articulation tables have been read, with entering holds.
+Plan1cbd2e7bb3953f3cf59d57d090a907c48ab091a9ac3feedaa2806d70a8c95f31;
+render0f43706be9fb55131aab29e38e9d42220e3f9171186f74d54164a5aaa9db9b4a;
+manifest03b1d4aada4a3994c4f35d6c66ab122a93d55b0cd5a37a13c56eb4e84fe066a4.
+Parent source/human evidence remains byte-identical. No listening/player test.
+
+Actual organization supports the diagnostic distinction. Prom's chosen fresh
+pair reverses the initial effect: screened-state suffix.6990LN vs original.3095.
+At124814..132814, screened state has dense short-LN overlaps and independent
+subsets, original state starts with broad tap chords; both retain later long
+holds and the1ms cross-column126455/126456H pair. Air's lower-LN screened state
+is locally more LN-heavy immediately after the anchor (.8039 vs.2963 in the8s
+scope), but much less so at223054..231054 (.0870 vs.8696). In that later scope
+both have exactly91H and115heads, with10 vs100LN starts. The tap-heavy arm still
+has LN2 lasting610ms across six H; the other has independently released subsets
+and longer holds amid short relays. A4ms LN and20ms LNpair remain unresolved
+articulation questions, not automatic strictHH violations.
+
+Across72 unscreened diagnostic suffixes there are two strictHH and71RH<=20 pairs.
+The declared exact-cross witness is visually/table-confirmed: AirSO-UN uses
+TAP0/1+CLOSE2 at252770 whileLN3 remains held, then LN0 at252778, a strict8ms
+TAP-to-LN-head repeat. Lane2 is physically free but hasRH8, a separate criterion.
+The other automatically reported HH is AirSO-U239266, lane2 at144014/144025
+(11ms); it is not an additional declared Lens scope. Diagnostic suffixes were
+unscreened by design; these counts do not overturn the earlier screened15-case
+zeroHH/RH result. No diagnostic output is adopted for publication.
+
+Architecture inspection identifies permitted propagation paths, without claiming
+which causes the measured effect: exact LN state, lane clocks, cumulative
+row/note counts, row TCN and H/R skeleton TCN all change coherently. The exact
+query includes log1p(row_count)/10 and log1p(note_count)/10, so finite row-cache
+length does not erase every older difference. Even without those counters,
+autoregressive generated-row feedback can propagate a perturbation beyond the
+cache horizon. Skeleton still sees only own history and minimal LN feedback;
+no generic row-layout cache has been added to it. Future path isolation must
+not splice an incoherent LN state into a supposedly valid replay.
+
+Evaluation recommendation REFINE. The evidence weakens one sampled LN-fraction
+change as a sufficient diagnosis of collapse, while preserving a real conditional
+state effect in Airborne. It neither vindicates the whole model nor establishes
+a need for larger memory. Current composition guard failures remain recorded;
+variation is not a reason to silently declare them passed. Human-confirmed
+strictHH<20 remains a separate publication-quality invariant, counting LN heads.
+NLL, descriptor alignment and preservation of one sampled chart are distinct
+from actual musical/player quality.
+
+Curated analysis at product579c0a8add28377881a12ab263059fa0fc4ca938:
+docs/research/continuation_state_dependence.md, linked from the screen study.
+Scoped link/hash/count checks,72 reparses, diagonal controls, resource bounds
+and git diff --check passed. No model behavior was edited, so no repeated
+unrelated unit suite was run. Product and Note commits are local only.
+
+Next research direction: broader whole-system evaluation should now use fresh
+audio contexts under ordinary matched H/profile conditioning, alongside the
+bounded unpublished screen, rather than extending seed searches on these two
+synthetic component crosses. Select new cases from pinned existing source/audio
+and human-context owners with explicit non-reuse and support coverage; formalize
+a new bounded Card before generation. Inspect timing/row/LN organization and
+publication failures together, retaining the strict human HH rule and separate
+RH/articulation questions. Any targeted state-path intervention remains a live
+branch if the same practical failure recurs. No new Card or run has started for
+that stage. The ultimate playable-system goal remains active; all jobs here are
+terminal and both completed studies must not be rerun without a new question.
