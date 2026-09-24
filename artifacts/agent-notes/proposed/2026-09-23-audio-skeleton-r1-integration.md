@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: b757da32ec081954c37c3945305a2e8b9d2cc1b9
+Product revision: 98013eeb3b4a867d751bd7705c2bd41aa92b5cd0
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -2389,3 +2389,117 @@ per cohort, the existing 2 GiB RAM/40 GiB disk/PAUSE guards, and a 3600-second
 overall bound. Never overwrite baseline or force nonterminal releases. No fit,
 TEST access, external publication or model-default adoption is authorized by
 this proposed Card. Standing user authority covers the bounded experiment.
+
+### Result Log: context-head-prior-v1
+
+Accepted revision none; Card revision 1. Clean execution source was
+b757da32ec081954c37c3945305a2e8b9d2cc1b9, using the fixed global/bounded
+checkpoint and audit above. Both unaffected coupling checks reproduced exact
+row bytes. The experiment therefore ran 25 fresh trajectories and reused 59
+proved-invariant trajectories, keeping all 84 outcomes. It finished in
+145.86 seconds with no cap or resource stop. Output owner is
+expanded-v1/generation/context-gb-prior27-s<17|19>-<train|val>.
+
+All 84 outputs complete and reach 30 heads. Observed same-key head intervals
+<=10 and <=20 ms are both zero, versus one and four before the prior. Total
+heads change 184509 -> 184563; LN heads 102118 -> 102003. Median paired head
+ratio is 1.0; LN total ratio .998874. Eighty timed-row files are unchanged.
+The minimum final-head/audio-duration ratio remains .89042.
+
+Only four outputs change: Imaginary Waltz seed base 17, Airborne Robots at
+both seed bases, and 666 Flags seed base 19. Head-count changes range from
+-2.66% to +1.87%; LN changes from -4.20% to +1.51%. No case crosses the
+20% mandatory composition-review threshold. The 27 ms scale/exponent were
+not changed after evaluation.
+
+Lens admitted the complete refined panel with no skips or diagnostics; bundle
+hash 45a4bd240a2dad254d308cf94d19a091c6c3a6387c22be289802562dff943233.
+All 269 member hashes were verified after inspection. The two earlier context
+bundles also retain all 269/521 member hashes. Complete actions/articulation
+and time-proportional generated/source pages were inspected at the four changed
+short-head locations: 39700–42200, 101900–104400, 126700–129000 and
+213000–215500 ms. Repeated same-key spikes disappear, while the surrounding
+LN or tap/chord activity remains. Later LN endpoints can change after a rejected
+proposal even when the original head preceded it; this is a later close decision,
+not a retroactive edit to a published head. Unchanged reviewed figures retain
+exact row bytes, including the representative LN and repeated-chord passages.
+
+Recommended outcome remains REFINE because the Card has no exact human
+acceptance and structural inspection does not establish listening/player
+quality. The numeric decoder guards pass and support exporting this fixed
+model/recipe as a playtest candidate. Do not describe the result as a universal
+minimum spacing, a learned removal of every BAD pattern or a product default.
+
+### Incremental publication and actual startup observation
+
+Source 9e1cb7d775371fec5e1f835433f7947d987ff5de adds an optional synchronous
+GenerationUpdate consumer to rollout. Each immutable message contains a complete
+row or no row, fixed-through coverage and true-end completion. Open LN heads are
+published before their later CLOSE rows. Resource caps do not fabricate endings;
+consumer errors propagate and consumer time is measured. The source-free runner
+flushes events.jsonl during generation and writes a final stop record, rather
+than requiring consumers to wait for whole-song export. This is a local research
+stream, not a deployed client transport or crash-durable acknowledgement service.
+
+Twenty-nine selected generation, audio-inference, prior and context-runner
+tests passed, including unresolved-hold publication, empty coverage, caps,
+callback sampling parity and source-free streaming output. Training/model
+probabilities are unchanged. The stream enables startup to be measured at
+actual reader availability rather than an internal timestamp alone.
+
+An isolated parent process observed each fresh uv/Python worker's flushed file
+at a 5 ms polling interval, including process launch, input/model verification,
+audio decode, Mel and complete-song encoding. OS disk cache was warm. CPU used
+one Torch thread on this Apple M5 Mac. No other training/generation job ran.
+
+| Input | Audio duration, s | Readable fixed 8 s, s | Readable 30 heads, s | Step p99, ms |
+| --- | ---: | ---: | ---: | ---: |
+| I, native-panel peak 34 heads/s | 153.861 | 1.59049 | 1.35469 | 2.5022 |
+| glass beach, longest native-panel input | 441.104 | 2.06029 | 2.07284 | 2.5120 |
+| YOASOBI | 242.666 | 1.46674 | 1.52967 | 2.4865 |
+
+All three new-audio executions reproduce the frozen prior-policy row bytes
+exactly, and the incrementally published rows equal the final output rows.
+The producer-trace playback simulation retains minimum coverage leads of
+8.037, 8.080 and 8.123 seconds when playback starts at fixed-8 publication.
+Those values exclude network/client renderer costs and are not deadline
+guarantees for arbitrary hardware or audio.
+
+A separate cached-Mel 100/500 ms horizon comparison also reproduces all three
+row files exactly. Generation times at 500 -> 100 ms are 5.8016 -> 4.0936,
+9.8969 -> 7.5040 and 5.5117 -> 4.1378 seconds. The dense-case p99 increases
+3.25 -> 4.34 ms, while the other two decline. The result motivates query sizing
+as an exact-clock scheduler optimization; it does not justify claiming uniform
+latency gains or adding speculative decoding. The candidate recipe stays at
+the evaluated 500 ms horizon.
+
+### Playtest artifact
+
+The candidate owner is
+`artifacts/joint-audio/20260924-expanded-v1/delivery/context-r1-playtest-v2`.
+The inference-only model is 13,912,295 bytes, SHA-256
+1e86b79dd1144bca282a01fb798dc304094357bff5b80deeb099982749f5d48c.
+It retains the context checkpoint format, model configuration, normalization
+buffers and training provenance, without optimizer or training data. It loads
+through the existing source-free entrypoint with explicit head_spacing_ms=27.
+
+Four independently reparsed playtests package unchanged sampled note geometry:
+YOASOBI (2105 heads/1599 LNs), I (2745/220), FORViDDEN ENERZY (1167/374), and
+Dotabata (2526/1506). FORViDDEN is a TRAIN song; the others are development VAL.
+They use constant-scroll/120-BPM presentation and OD 5, without source SV,
+retiming or quantization. Audio hashes match the paired files. Each archive's
+contents and CRC were checked. Metadata identifies a prototype, not a calibrated
+difficulty or official source arrangement.
+
+The combined 30,316,123-byte playtest ZIP has SHA-256
+6a75b601a683331d20286356a1a454895fb9a0a5889c4805d850406ff66f3277.
+Its ten members include weights, README, model card, four .osz files and
+evaluation/profile manifests; the model bytes inside the ZIP were reverified.
+Curated product evidence is in docs/research/audio_joint_playtest_v2.md.
+No remote branch or prior expert-review link was updated.
+
+The next research questions are composition/difficulty control and actual
+musical/player judgment, plus whether useful position-specific audio context
+can be learned without additional unnecessary complexity. Preserve the current
+candidate as a fixed comparison point; do not turn these bounded successes into
+a claim that every style or future song has been validated.
