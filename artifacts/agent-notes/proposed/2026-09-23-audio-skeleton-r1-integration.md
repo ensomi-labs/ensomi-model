@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 0b35eced5a8118da745a84dccee75e8b0e503bed
+Product revision: e28435f10cfb154acfe8eb9f0507d2a6c242ff79
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -6698,3 +6698,116 @@ measurement with its actual expressive limitations. Do not select a larger model
 new seed sweep, duration floor or extra hard timing grid merely from the counts.
 The ultimate playable-system goal remains active. Product/Note commits are local;
 no remote publication or Note lifecycle change occurred.
+
+
+### Result Log: fresh-audio-system-v1 completed inspection and evaluation
+
+#### Experiment and reproduction
+
+Owning Note 2026-09-23-audio-skeleton-r1-integration, Card fresh-audio-system-v1
+revision 1, proposed, accepted revision none. Standing local research/execution
+authority applies. This appends the completed inspection to the preceding
+native result; it does not overwrite that result's pending-review snapshot.
+Clean implementation 0b35eced5a8118da745a84dccee75e8b0e503bed and all run inputs,
+seeds 251701–251708, checkpoint, commands and environment remain as recorded
+above. No native generation, fitting, preparation or rendering was repeated.
+All jobs remain terminal-success, with no active training job.
+
+Output owner artifacts/joint-audio/20260925-fresh-audio-system-v1. Completed
+review.json SHA 9302f23daed2ce010465437c1a3d90793754403035ac447121619fe91da5e737.
+Plan 6c770c052b949f921f49d51d3e14afb3073faf1f1248c174325f131ed6578fdd;
+render result 6330f8580595c34c7ba86c75187e5559e8cb7ac2727fc8081cd1001ae87dc1b6.
+Native result remains 9f3c4580adaa6239c44e04bb5d95a0ed921b8fd958b1eee26ccd8cedfa91e862.
+The new review records the observed tables/pages and is not a modification of
+human labels or generated row data. Artifact storage after rendering was
+279,784,142 bytes, below 1 GiB; native driver 217.125 s, below 900 s. Review adds only
+small JSON records. No collision, overwrite, resume or budget escalation.
+
+#### Results and conformance
+
+All 75 new scopes and 209 time pages have now actually been viewed, with complete
+physical-action/articulation tables read. All 33 reuse scopes match the semantic
+hash of an inspected current scope, including entry holds and articulation.
+All 108 declared scopes are covered. The plan and 16 human records are unchanged.
+Selected-scope inspection is not whole-song visual review, listening or player
+testing. No protected Card field changed and no planned scope was dropped.
+
+All 48 API charts and the repeated actual CLI output complete/reparse. All 24
+screened charts have identical H times to their direct pair, zero strict HH < 20 ms
+and zero experimental RH <= 20 ms. Direct charts have 2 HH / 8 RH; 11 proposals are rejected,
+and 18 pairs have no retry and exact row identity. Sampler time 83.982 to 86.680 s
+(+3.21%). Screened producer readiness .577–1.576 s includes fresh preprocessing;
+API consumer readiness .623–1.625 s also includes entry setup/delivery. Actual CLI
+readiness 2.921 s includes process startup. Accepted-window service max .356 s,
+unpublished proposal max 105 rows. All specified mechanical/runtime guards pass.
+No covered trace starves; playback simulations are not actual client/network
+or background-contention tests.
+
+As It Was supplies a concrete strict HH repair: direct 92196 T1/2/3 followed by
+92215 T2 becomes92196 T1/2/3 then92215 T0, retaining the 19-ms H interval. Four
+consecutive 0/1/2 triples at 93237, 93410, 93584, 93755 ms remain. Other 3/7/17-ms
+cross-column splits survive. This is not a blanket attack-spacing or anti-Jack
+rule. Strict HH counts TAP and LN heads; exactly 20 ms is excluded. RH and LN
+duration remain distinct from this confirmed human BAD condition.
+
+Zenithfall automatic early material retains repeated broad LN chords with
+independent tails: 14578-ms triple lasting 112/85/60 ms, 15755-ms quad lasting 78/78/222/222 ms. Generated
+Hysteric scopes include overlapping LN roles spanning several H and staggered
+subsets. Conversely, Fool Moon profile 2's first fixed scope remains a single-LN
+relay, every new hold ending at the next H, not the source's overlapping
+coordination. Take's source six-row lane 0 versus complete 2/3 Trill is not
+established in corresponding generated scopes. These are observed mechanisms
+and omissions, not a requirement to copy a unique source answer.
+
+Whole-chart descriptors corroborate weak condition calibration. Profile 1 asks
+for 7.032 H/s and 2.141 heads/H; realized H rate ranges 2.938–7.209 H/s, and screened
+width ranges 1.032 (Revenge) to 2.590 (As It Was). Profile 2 asks for LN fraction .734;
+screened realizations are .159, .242, .523, .247, .078, .144, .084, .074 in panel order.
+The chart-level request does not require every local window to contain LNs;
+the whole-chart deviation and local organization are separate observations.
+Some poorly calibrated pairs need no retry, so the issue predates screening.
+
+The single descriptive composition flag is still Hysteric profile 2: LN fraction
+.334 to .523, delta +.1886, head ratio 1.045. Inspected later material has more
+overlapping and independent LN roles, but also isolated 12/15/18-ms LN objects.
+Neither more LN nor passing HH/RH establishes quality; no universal LN-duration
+floor follows. Zenithfall's later 3480-ms held-lane role changes to isolated
+relays after an earlier resampling. A single paired suffix cannot isolate
+state persistence from changed RNG. All head ratios stay inside .8–1.25; the
+composition flag is reported rather than silently promoted to a quality pass.
+
+#### Evaluation and decision
+
+Recommendation: REFINE. This exploratory Card has no accepted revision and does
+not support a lifecycle transition or model adoption. The evidence establishes
+low-cost mechanically screened publication on this frozen eight-audio panel, while
+retaining concrete expressive mechanisms. It does not establish consistently
+controlled or musically good charts, nor a human playability result.
+
+The strongest remaining alternatives for poor control are insufficient learning
+of the existing persistent condition, shortcut coupling through its shared
+projection, and audio/corpus generalization. The earlier fixed-weight path
+crosses identify a large direct H-condition contribution to row width, but
+their out-of-support crosses do not prove that removing that path improves
+ordinary generation. Likewise a local missing tag does not imply a representation
+failure, and the three global descriptors do not define LN coordination/Tech.
+
+Next discriminating work should compare an unchanged continuation fit against
+one factor-specific condition-routing intervention under equal data/updates,
+retaining direct audio and actual future-H preview for rows. Before choosing
+that intervention, pin which cross-factor information is necessary for joint
+arrangement and which shortcut the change is intended to remove. Do not replace
+actual preview with a requested density scalar or prohibit legitimate density/
+width interaction. Further training alone remains a live explanation; new
+parameter count, more seed sweeps and duration clamps are not justified by this
+result. A subsequent Design Card must freeze the exact intervention and guards
+before implementation/run. Standing execution authority persists; exact Card
+acceptance, quality adoption and remote publication are still absent.
+
+Durable analysis is docs/research/fresh_audio_system_evaluation.md at product
+e28435f10cfb154acfe8eb9f0507d2a6c242ff79, linked from the playback and screen
+owners. Only those three documentation paths changed. Numeric/source identities,
+scope coverage and relative links were checked; staged git diff --check passed.
+The already-passing implementation tests were not rerun for a prose-only change.
+No product behavior, checkpoint, default decoding policy or human annotation
+changed in this completion pass. The ultimate playable-system goal is active.
