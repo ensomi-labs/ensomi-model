@@ -7119,3 +7119,157 @@ This is a behavior-neutral identity assertion; it does not change scope or
 generation. Main native/review remain outstanding, as does model-quality adoption.
 The previous turn and this turn both make concrete progress; the ultimate goal
 remains active, with no blocker or requested pause and no remote publication.
+
+
+### Result Log: density-routing main terminal result and partial Lens review
+
+Card profile-density-routing-v1 revision 1 remains proposed, accepted none.
+Clean implementation a2bce683642995627c17b154d5f83e8d774787f0. Main fit44544,
+native95936 and Lens render3358 are all terminal-success. No job remains live.
+Do not rerun fitting, generation, preparation or rendering to resume inspection.
+The prior goal turn implemented and dispatched work; this turn verified its
+completion, produced the fixed comparison and added mechanism evidence. Both
+are progress, not a repeated wait or blocker.
+
+#### Reproduction and quantitative results
+
+Both main arms complete1200updates with the same4800intervals,37396141sampled
+milliseconds,254883event rows,240283H rows,14600release rows and10678531release
+clocks. Protocol8f8bdd441dc4ba36452ca50915773729eb2d7cb9613affbf51a34eaf678af3c5
+is identical. Shared fitting906.859s, routed1041.464s; checkpoints:
+shared7849e07a77febf12968b8197e844d9c26f8327ce789d0776117e02dc83de788f,
+routed d2d943a8bb565559480121645128c70824d792b9830c013981780bbfb74a3f22.
+All tracked modules change, inputs and bank stay fixed, and both models have
+4250174parameters. No NLL endpoint selection or protected-field change occurs.
+Reference-profile VAL conditional NLL/sec is40.1827 shared versus40.3493 routed;
+these similar proxy values do not predict the following native difference.
+
+Main owner artifacts/joint-audio/20260925-profile-routing-v1. Fit result
+81180e0eac84541e11ad221c879940309b39d0cf82199303f41e84c3e80e77a3;
+native freeze0ff9aa80aec5c0c38871f6a2da0d9494c6a646dabb1783a9c398f354c4bea4bf;
+native result0097d705919e6203a000906cef464337f039d52b861c63ae561a9ece5f57d9d6.
+All104 charts complete and independently reparse:80direct (eight audios,
+automatic plus four explicit requests, two arms) and24screened (the four named
+audios, automatic plus requests1/2, two arms). Driver609.107s, within1200s.
+Native/fit artifacts350322694bytes before Lens; all artifacts490973895bytes
+after rendering, below2GiB. Weights are unchanged throughout native generation.
+
+Primary control comparison uses32 explicit charts per arm, uniformly over eight
+audios and four requests. Squared standardized descriptor distance:
+
+| Metric | Shared continuation | Routed continuation |
+| --- | ---: | ---: |
+| H-rate component MSE | 1.994592 | 3.610711 |
+| Width component MSE | 2.257701 | 3.930808 |
+| LN-fraction component MSE | 1.944378 | 3.000517 |
+| Total | 6.196672 | 10.542035 |
+| Centered H / width / LN control gain | .355 / .309 / .493 | .012 / .229 / .273 |
+| Finite density-request to width coefficient | -.06638 | -.11051 |
+| Finite own-width coefficient | .20757 | .10697 |
+
+Routed error is higher on every one of the eight audios. The primary15% reduction,
+H/LN non-regression guards and mechanism criterion all fail. Own-width response
+approximately halves while the magnitude of density-to-width response grows.
+The previous positive .49060 coefficient came from a different checkpoint/cohort;
+do not treat it as this matched continuation's measured baseline.
+
+A separate, exactly matched requests1/2 subset compares the initial checkpoint
+with both final endpoints on the same eight audios/seeds. Total errors are
+7.340423 initial,9.191414 shared,15.914283 routed. Component errors respectively
+[.873858,2.370422,4.096142], [1.763494,3.983159,3.444761] and
+[3.351010,6.819452,5.743821]. Thus ordinary continued fitting also worsens total
+calibration on that matched subset, although its LN component improves. This
+subset is contextual evidence, not a replacement primary metric. Owner
+matched-initial-comparison.json, SHA86f1e66cafb722350c73253130792c656b0aba94ebf0b6b9fcc7afd87729e857.
+
+Direct outputs contain8HH/10RH pairs shared and38HH/12RH routed. These are counts
+over declared calls, including automatic/explicit exact duplicates, not80
+independent samples. The screened subset's paired direct counts are only
+1HH/2RH shared and13HH/3RH routed; all24 screened outputs have0/0 and identical
+paired H sequences. Do not claim that screening removed all46 direct HH pairs
+across the full80-chart cohort. Shared/routed need4/21 rejected proposals.
+Maximum cached-Mel readiness is.493/1.120s; maximum accepted-window service
+.813/1.375s. All specified screened system guards pass. Total direct sampler
+time212.360/258.117s passes the2x guard. These are not fresh-process client or
+listening measurements.
+
+#### Post-hoc interpretation checks
+
+assessment-audit.json verifies identity response, zero centered gain for a
+constant output, explicit incomplete-chart failure and separate strictHH/RH
+thresholds including LN heads. SHAde618d3fa8063b329aaf3575248c3cd31b3b7bc8956e8b292d1f8360fb58f26e.
+No data, generator, frozen metric or threshold changes follow from that check.
+
+ln-target-audit.json (SHA544dd30d37164190feaaa12aba758578148a746ffc656728fd8dc6b88c2cb967)
+reads all twelve profile2 TRAIN targets with verified row hashes. Every target
+contains overlapping holds, starts under existing holds and subset releases.
+Time with at least two columns held ranges.233..736 of decoded duration;
+the fraction of LNs spanning at least one interior H ranges.163..533.
+This proves physical source support, not annotated salience, musical quality
+or sufficiency of the small corpus. Simple relay output cannot be explained by
+claiming the target representation contains no overlap.
+
+hh-support-audit.json (SHA87c2c36bd7aae2b40166067bdd59b6f59129463989a577b38ffcca9553a66397)
+separates H-time feasibility from actual prefix/row decisions. None of the80
+direct plans has five H within a strictly sub20ms span. For one TAP per H in4K,
+this condition is necessary by pigeonhole and sufficient by cyclic lane
+assignment. It is only an existence proof for the strictHH constraint, not a
+proposed chart or proof of feasibility with requested chords/LNs/RH preference.
+
+The8 shared HH pairs occur in7rows: four rows have enough rested free columns
+for their chosen head count, one exceeds that capacity, two have none. The38
+routed pairs occur in36rows:25 have enough columns, eight exceed capacity,
+three have none. Of the five no-rested-column rows across arms, four follow
+recent taps/chords with no held LN; one shared Zenithfall row keeps lane1 held
+while the other three were attacked12ms earlier. These classifications condition
+on the actual prefix; changing one row can change later possibilities. They do
+not establish how much of total quality is attributable to original R1 weights.
+
+#### Lens status and provisional interpretation
+
+Frozen main plan b68fbeae52c71a5075fab9b8e53596abf2046c7e533a4e9156ab5fa500afb10f
+has91 scopes:84new scopes/180pages, six exact previously reviewed reference
+scopes and one exact current reuse. Render result
+1c43805a718ac514a6e0294bebffa017d513c880c0778d5622de43448fec7de4.
+All16 human records were retrieved unchanged. Rendering is complete; inspection
+is not. Actually viewed32pages/19new scopes, with complete action/articulation
+tables:0,2..11,52..55,87..90. Current reuse1 is covered by0; parent references
+56..61 are verified against completed parent review9302f23daed2ce010465437c1a3d90793754403035ac447121619fe91da5e737.
+Remaining65new scopes/148pages must be read before a final cohort review.
+Inventory and all observations are in review-progress.json; no final review exists.
+
+The completed Revenge comparison shows a concrete structural difference.
+Shared profile2 retains many independently staggered LN starts/tails, some
+spanning other H, including a564ms hold over three H. Its13ms cross-column LN
+starts survive screening. Routed profile2 at the same context has12 single
+taps and no LN. Both wide-profile contexts instead contain only nine single
+taps. Automatic variants retain isolated/relay holds, including routed holds
+lasting1840/2380ms under other-column taps, without simultaneous independent
+holds there. These observations do not assign a confident Tech label or claim
+audio alignment; source tags do not require copying one exact arrangement.
+
+Read HH witnesses distinguish layout from temporal/resource choices. Examples:
+FoolMoon's16ms repeat has a free lane last attacked22ms earlier; other episodes
+choose two/three heads when only one/two rested columns remain. Goodbye has a
+TAP1 to LN_START1 after14ms. Its HH-rested columns2/3 were released only14ms
+earlier, so a local substitute there would exchange HH for the experimental RH
+problem; an earlier chord/release choice is needed to satisfy both. Such evidence
+supports joint continuation checks without imposing a generic onset-spacing
+filter or inventing a universal LN-duration floor.
+
+Recommendation remainsREFINE. The routed endpoint fails the declared numerical
+criteria and is not adopted; the shared endpoint is not automatically promoted
+either. Similar teacher-forced NLL does not establish stable native control.
+Removing an input at fixed weights did pass its local noninterference test, but
+joint fitting still changes shared audio/condition gradients and H-model weights.
+It therefore does not imply unchanged H plans after training. Actual H rates
+change substantially across trained arms. Their separation into audio base,
+head-history dynamics and materialization remains unmeasured; do not present
+a self-excitation or R1-only explanation as confirmed.
+
+Immediate action is to continue the declared Lens plan at the saved inventory,
+then publish a self-contained result and choose the next discriminating question.
+No next architecture, added hard constraint, larger model or new fit has been
+selected from partial inspection. Existing checkpointabc27 and the default true
+routing mode remain available unchanged. No test rerun, Note lifecycle change,
+model adoption, remote publication or goal completion is implied.
