@@ -3185,3 +3185,92 @@ The curated audit and interpretation limits are in
 docs/research/r1_transfer_stability_audit.md at
 0848d8d6898939d850cf3bd7bbf4332ab121dceb. Goal remains active; model-quality
 completion is unproven. All model execution handles from prior probes are terminal.
+
+### Experiment Card: r1-neural-condition-removal-v1
+
+Revision 1; owning Note 2026-09-23-audio-skeleton-r1-integration; proposed;
+accepted revision none. Standing local execution authority permits this
+exploratory probe. The persistent-intent comparison remains deferred.
+
+Question: does deleting the persistent seed and landmark-memory readouts of the
+release-stage R1 substantially change its long-form allocation on the original
+task? The selected mechanism is conditional co-adaptation: the inherited
+backbone was fitted with neural readouts that the audio transfer omits. The
+closest analogue is the existing original R1 seed/memory restoration itself;
+this probe removes their outputs at inference without changing timing, physical
+replay or fitting. Alternatives are remaining full-policy weaknesses and new
+audio/timing-training dynamics. They cannot be separated by parameter counts.
+The result can prioritize restoring equivalent conditioning versus testing
+initialization lineage; it cannot choose a playable model by composition alone.
+
+Clean runtime baseline: 0848d8d6898939d850cf3bd7bbf4332ab121dceb. Original
+training/generation source: cdbc6870d9e6471a5dcb75d8a77f55c30544bf78.
+Checkpoint: release 6.5M, SHA
+8000beb0dee81b92f0252fcec876823afd60fe33a182fb344ae0bed02d03f991.
+Evaluation JSON SHA
+4cbb5992f3dd375316fb44a8909c476efa5270307b8603a0f7826ce84c50dd46.
+Use all 16 original native VAL cases, eight songs paired at seeds 17/23.
+The audit result SHA
+09b58360f7f08b2c75002d17e3fcab04d8921e9e31d76d4a28e20bf99ae297a5
+pins original rows and source identities. Baseline mean per-chart suffix LN/head
+is .276721553, 36947 heads, 10875 LN heads, HH<30 ms 2 and RH<30 ms 67.
+There are eight independent song groups, not 16 independent songs; no population
+confidence is implied by this small screen.
+
+Single intervention: create a clearly labeled inference-only diagnostic copy of
+the release checkpoint, setting seed_residual.2.weight and
+long_memory.output.weight to zero. Verify every other tensor is bit-identical.
+Preserve the model configuration, all other weights, source R/H, observed seed
+rows, known crossing seed endpoints, candidate support and RNG seeds. Retain
+the modules and their state updates so only the residual readouts change. Do
+not remove future timing features or simulate BOS. This joint removal measures
+their combined contribution and cannot allocate separate seed/memory effects.
+No product source or original asset changes are needed. Measurement code and
+the diagnostic checkpoint belong to a fresh ignored artifact owner.
+
+Primary diagnostic: absolute paired change in each chart's suffix LN/head,
+reported per case and averaged over the 16 cases, with each song's two-seed
+average also reported. A mean change >=.10 is a material reliance signal;
+record signed changes and source differences without treating reference
+composition as the unique correct answer. A mean below .10 is insufficient for
+that selected material-effect threshold, not proof the omitted modules are
+irrelevant. Also compare first/last required-onset-quarter fractions, head
+counts, HH and RH gap counts separately, longest fixed-lane H and unchanged
+three-hold H runs. These are inspection locators, not playability objectives.
+
+Generation must finish and independently pass legal replay and osu! reparse in
+all cases. A failure, nonfinite parameter/state, pin mismatch or baseline-parity
+failure stops the probe and remains recorded. Native head-count ratios outside
+[.7,1.3] or >=.10 LN-fraction changes require inspection. Review the two song
+groups with largest paired mean composition change using Lens baseline/source/
+ablated action traces and complete time pages around maximum local change;
+also review any new longest three-hold run above 16 H. A discovered gap increase
+alone does not classify BAD. Preserve Tech, repeated heads and LN articulation
+when interpreting these views.
+
+Procedure: verify pins and clean source, run val-08-s17 with unchanged release
+weights through run_generation, require exact original rows.jsonl and
+decisions.jsonl bytes, then run the 16 ablated cases through the same runner.
+Use original GenerateConfig fields for each case, apart from fresh output,
+diagnostic checkpoint and the explicit bounds below. Freeze input/config/script
+and diagnostic-weight hashes before execution. Command:
+.venv/bin/python artifacts/joint-audio/20260924-r1-condition-ablation-v1/run_probe.py.
+Pair by case ID. Original baseline outputs may be reused only after parity.
+No training, network requests, overwrite or implicit resume.
+
+Environment: Apple M5, Python 3.10.20, Torch 2.11.0, CPU, one thread, sequential
+runs. Each case <=600 seconds, total <=1800 seconds, candidate budget 8192,
+physical footprint and RSS <=6 GiB, >=2 GiB available RAM, <=128 MiB swap
+growth, >=40 GiB free disk, <=512 MiB output per case and <=4 GiB for the
+artifact owner. Honor a PAUSE file in that owner. Fresh output owner:
+artifacts/joint-audio/20260924-r1-condition-ablation-v1, with baseline and
+ablated case subdirectories. Preserve interrupted outputs and stop; revised
+procedures require a new Card revision/fresh destination.
+
+Interpretation limits: inference removal is out of the fitted conditional
+distribution and is not an optimally retrained smaller model. Original fixed
+timing and real seeds make this a dependence probe rather than a reproduction
+of audio-only generation. Diverged histories mediate the total rollout effect.
+A large effect motivates an equivalent-conditioning or matched-refitting test;
+a small effect directs attention to other transfer/task changes. No result
+assigns an additive percentage of current audio-model instability to R1.
