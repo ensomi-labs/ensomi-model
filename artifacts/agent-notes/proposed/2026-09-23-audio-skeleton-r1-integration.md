@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 7c316e6ea3d22aff1fd4761798f1b4aa41d47e89
+Product revision: 9a4f1fea5ec5ac37738b28a43ce2c0c9533f863a
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -4974,3 +4974,122 @@ artifacts/joint-audio/20260924-feasible-release-v1/head-plan-crossover/frontier-
 RNG consumption by score comparisons, no actual future rows/tails as inputs,
 no new training loss or minimum-gap decoding rule. This is a three-state local
 diagnostic; it cannot by itself select a globally playable endpoint.
+
+#### Frontier witness result and confirmed quality criterion
+
+Score-audit session 79289 completed in 3.42639 s and reproduced all 674 AB and
+676 BA rows exactly. Freeze
+39ceff1aef2e040c142ef4bfc9a39f48f876cb0e462aa7cfc883a61ffa23524d;
+result da94eadf75b24f04a294a9056972866c0f0a164a4f95118dec4a9297aa4fb104.
+At 47163, risk mass without/current/released frontier2 on the same inputs is
+.491618/.458580/.469805. Current frontier2 is active but reduces this local
+mass by only 6.72%, below the declared 10% weak-mitigation comparison. The
+chosen three-tap row has .233792 probability; the most probable zero-cost row
+has .167541. Greedy decoding on this fixed prefix would also select a
+positive-cost row. At 47182 every legal head has a short prior attack, so no
+later choice repairs the earlier commitment.
+
+At 187147, the combined head/release close-gap mass is .060178 without the
+module, .051879 with current weights, and .051029 with released weights on the
+same inputs. A safe column-3 TAP already has .940813 probability; the sampled
+column-2 TAP has .046472. This is a remaining sampling tail, unlike the earlier
+commitment where positive-cost choices collectively carry almost half the
+probability. Restoring the released tensors alone does not solve either state
+under the current inputs. The comparison does not reproduce the old R1 policy
+or establish a general forgetting claim. Outcome REFINE, with no new fit.
+
+On 2026-09-24 the human owner explicitly confirmed successive same-column
+attacks strictly below 20 ms as an almost-certain bad pattern to avoid. Treat
+this as a high-confidence negative and an independent generated-chart quality
+failure. Attack includes TAP and LN head. Exactly 20 ms, cross-column attacks,
+short LN duration, and release-to-head gaps are not classified by that statement.
+Keep physical legality separate. The 19-ms witness is now confirmed within this
+criterion; the separate RH11-ms witness remains a release/action concern.
+The score audit's selected states contain no exactly-20-ms boundary, so its
+specific HH findings are unchanged by strict versus inclusive notation.
+
+Product 9a4f1fea5ec5ac37738b28a43ce2c0c9533f863a is documentation-only after the
+tested 7c316e6 source. It records the strict quality criterion, matched fit,
+head-plan crossover and candidate-score analysis in their curated owners.
+Selected documentation diff checks passed; all model runs are terminal and
+both worktrees are clean after local commits. Nothing was pushed. The global
+playable/expressive goal remains active. Do not restart completed fits.
+
+### Experiment Card: short-attack-response-policy-v1
+
+Revision 1, proposed, accepted none. Standing local execution authority and the
+new explicit human bad-pattern criterion apply. Clean baseline
+9a4f1fea5ec5ac37738b28a43ce2c0c9533f863a, code unchanged from 7c316e6.
+Question: can a small candidate-response selection policy avoid the confirmed
+HH<20-ms failure while preserving tightly spaced cross-column H events and
+already healthy generated decisions? This is a decoding-policy test over a
+fixed learned proposal, not a new claim about its fitted likelihood.
+
+Closest analogue is R1's optimistic response preference, but restrict this
+intervention to the human-confirmed strict attack/attack criterion. Enumerate
+the minimum HH<20-ms count over the current candidate plus required H events
+strictly before current time +20 ms. Use one hypothetical TAP per future H,
+exact post-candidate attack clocks/occupancy, and earliest legal unknown-LN
+release opportunities. A 16-mask lane-use dynamic program suffices inside
+this horizon, since any lane used twice there incurs a short repeat. Include
+all previewed H events in the horizon rather than blindly stopping at two.
+No future actual actions or tails enter. This optimistic release assumption
+is a lower bound and is not a forecast of the release model's choices.
+
+First sample the original complete-row proposal with its original row RNG.
+If its response cost is already minimal among legal candidates, preserve it
+exactly and consume no correction RNG. Otherwise select from the minimum-cost
+candidates using the proposal probabilities, prioritizing minimal change in
+head count, LN-start count, release count and lane actions, in that order.
+Use a separate seeded correction RNG so healthy original decisions keep their
+original draw stream. This explicitly defined correction kernel need not equal
+the raw proposal distribution. No new parameters, temperature change, H filter,
+LN-duration floor or generic anti-Jack objective is introduced.
+
+If every legal candidate has positive minimum cost, choose only the minimum
+and record the unresolved decision; do not claim successful avoidance. The
+relaxed future can also underestimate risk when optional releases do not
+materialize. Full-chart strict HH<20-ms witnesses remain the decisive quality
+test. Keep the RH diagnostic separate rather than silently extending the
+owner's threshold to releases.
+
+Add an optional default-off runtime policy, a strict attack-gap diagnostic,
+the finite response evaluator and focused invariance tests. Verify the
+47163/47182 cases, exact-20-ms boundary, TAP/LN-head counting, cross-column
+events, mirror symmetry, and that old checkpoints still reproduce with policy
+off. Audit the known corpus: identify charts containing the strict bad pattern,
+without deleting or relabeling them; for charts with no such pattern, verify
+that each true row has zero response cost under its own true H plan. This
+checks support preservation for real arrangements without using their suffix
+actions as inputs to the candidate evaluator.
+
+Freeze a clean intervention revision before model comparison. Use checkpoint
+67b8fc8fbac5f7ca2debe99524e29ac002546f12cb8a3c4c9acf68d68d7f3839 on the fixed nine
+native cases, plus the two Good Luck crossed arms from the completed probe.
+Require exact reproduction with policy off, unchanged H timestamps with policy
+on, and zero strict HH<20-ms pairs in all eleven policy outputs. The nine
+standalone baseline outputs already have no close pairs; their unchanged rows
+are a strong noninterference check because a valid realized suffix witnesses
+a zero-cost relaxed continuation. Do not promote if this property fails.
+
+Guards: all charts complete and independently reparse; no increase in aggregate
+RH<=20-ms count above the eleven-case baseline's one; per-case total note-head
+count >=.9 of baseline and absolute LN-fraction change <=.05; cached-Mel
+first-30-row/eight-second readiness <=1 s. Inspect every changed output's fixed
+Lens scopes, every correction episode and any remaining close-gap witness.
+Correcting one chord must not be credited as success if it replaces the rest
+of the chart with sparse or incoherent material. Original human evidence is
+unchanged; no listening/player verdict is assumed.
+
+CPU one thread, model-backed commands with uv --extra mps; <=600 s total native
+comparison, <=90 s and 30000 rows/chart, >=2 GiB available RAM and >=40 GiB disk.
+Corpus support audit <=300 s, no fit. Fresh owner
+artifacts/joint-audio/20260924-short-attack-response-v1, <=200 MiB added artifacts
+excluding unchanged linked evidence/audio; no overwrite/resume. Stop on source
+reproduction, physical support, H-stream or resource failure. A successful
+bounded policy comparison motivates response-aligned learning or scheduler
+refinement; it does not complete the remaining musical/style/dense-runtime goal.
+
+Implementation and execution of this Card have not started. The next goal turn
+should implement and verify this bounded response primitive/policy, rather than
+adding a persistent latent or another unconstrained joint fit first.
