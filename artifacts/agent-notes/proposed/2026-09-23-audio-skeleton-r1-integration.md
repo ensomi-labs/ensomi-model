@@ -2503,3 +2503,105 @@ musical/player judgment, plus whether useful position-specific audio context
 can be learned without additional unnecessary complexity. Preserve the current
 candidate as a fixed comparison point; do not turn these bounded successes into
 a claim that every style or future song has been validated.
+
+### Style coverage audit and byte-identical source aliases
+
+At clean product 98013eeb3b4a867d751bd7705c2bd41aa92b5cd0, the frozen Lens
+bundle contains 204 effective human examples from 130 source identities. None
+of those exact source identities occurs in the 585 TRAIN/36 VAL paired corpus.
+This is not evidence that its styles are absent: alternative difficulties in
+the same song group remain separate targets. Lens mapset group identifiers
+must be mapped through source SHA into the catalog's song groups; direct string
+comparison between these namespaces is invalid.
+
+The first five named sources checked (Who?, death piano, Prom Queen, Good Luck,
+Babe!, and Airborne Robots) have byte-identical .osu files beside their audio in
+dataset/. The pinned catalog instead selects their imported scoped-style source
+copies, whose parent directory has no audio. The pairing code only searches
+beside that chosen source path. This systematically excludes these examples
+from paired training without proving any absence of audio assets.
+
+A read-only audit of all 490 missing-pair entries recovered all 490 through
+exact source SHA equality: 427 TRAIN and 63 VAL. No differing-audio ambiguity
+was found. Of the 130 human sources, 113 are recovered catalog entries; the
+remaining sources are not thereby admitted. Mapset metadata locates candidates
+only and does not establish pairing. The matching source bytes and their local
+AudioFilename reference establish the link. Raw owner:
+expanded-v1/lens-review/context-gb-prior27-v1/style-audit-v1/paired-alias-audit.json.
+Its script and input hashes are embedded in that report. No model was fitted.
+
+Thirty recovered TRAIN arrangements are in existing selected groups and use
+the exact already-selected audio bytes. Nine recovered VAL arrangements also
+share selected audio. Five further TRAIN entries share a metadata group but
+use different audio bytes and are not eligible for that simple repair. Across
+the whole audit, 131 encoded audio identities were not in the earlier readable
+pair inventory; any future admission must repeat split/decoded-audio checks.
+The existing corpus, exclusions, checkpoints and evaluation results remain
+immutable. An alias repair must verify source bytes, reject ambiguous audio,
+record the paired source separately from the catalog path and retain split
+ownership. It must not silently replace the original evidence.
+
+### Experiment Card: style-anchored-native-audit-v1
+
+Revision 1; proposed; Accepted revision none. Standing human authority covers
+the local implementation and bounded diagnostic run; this is not Card acceptance.
+
+Question: does the fixed candidate exhibit the timing/action relationships found
+in human-positive Tech and chord-repetition episodes, and can currently missing
+paired targets be restored without changing the event representation? The live
+branches are inadequate paired target coverage, inability to select/persist a
+particular arrangement, and inadequate local conditional prediction. This pass
+can identify examples and data omissions; it cannot isolate all three causes.
+The closest analogues remain the original complete marked-event likelihood and
+the expert's finite-history conditional-generation proposal, not onset detection.
+No novel representation or learning objective is claimed.
+
+Baseline source is 98013eeb3b4a867d751bd7705c2bd41aa92b5cd0; fixed checkpoint
+is inference artifact 1e86b79dd1144bca282a01fb798dc304094357bff5b80deeb099982749f5d48c.
+Use 500 ms hazard queries and the explicit 27 ms soft head prior. Existing 84
+outputs complete with no <=20 ms same-key head interval; that is a mechanical
+baseline, not a style score. No aggregate Tech-preservation baseline exists.
+
+The intervention is evaluation coverage only: add Who?, death piano, Prom Queen,
+and Good Luck, Babe! audio-only BOS rollouts at seeds 17 and 19. Reuse the two
+already frozen Airborne Robots outputs (actual seeds 33 and 35). The source
+identities are, respectively, 07a5f9448345e50ed2e9282851b3423898327c488e1e8e28ceefe239f27be8f3,
+9b422f0fbca360721bf1d9811095fbfe5b130bd3a7f8f739e4a4fbddb3b7a191,
+bd453e8f29b360900104ac0e6a2f385b2f44d1a57e64949c70158bdc75351da6,
+c4cad1f8b55f608be51e3a747f5305ac09ca42a7c9ab9808e498f503465e3fde,
+and 5baa73d5a65dd3b6c9568e3901e12c7cf2c0817e014a1de76447cbda3cc63c42.
+First four are catalog TRAIN diagnostic songs; Airborne is development VAL.
+No TEST target is admitted. Source-free generation receives complete Mel only;
+reference .osu data is used later for inspection and optional conditional scoring.
+
+Review the complete human scopes and entry/exit contexts with frozen Lens
+actions/articulation and every time-view page. Include high-confidence ANiMA
+Tech-absent contrast human-ca3a981097a951aa6a179e51: rapid bursts alone do not
+establish Tech. Compare concrete rhythm, attack-group motion and LN relations;
+source matching is not the required output. Missing labels remain unreviewed.
+No dump-positive claim is possible from this taxonomy or chart-only inspection.
+
+Decision criterion: a documented generated episode must show a definite relation
+before reporting that relation as represented; density, irregularity and LN count
+alone cannot pass. If only generic activity is found, retain expressive coverage
+as unresolved and test restored targets before adding model capacity or latent.
+Source likelihood, if computed, is diagnostic only. Mechanical guards retain
+every empty/capped output, actual head/LN composition and head-to-head transitions;
+release-to-head is separate. Report any <=20 ms same-key head interval rather than
+discarding the case. No threshold on a proxy metric determines playability.
+
+Implementation is a pinned explicit source-alias input for paired preparation,
+with tests for byte mismatch, escaped paths, differing-audio ambiguity, input
+consumption and catalog identity preservation. It changes admission only when
+explicitly enabled; existing model probabilities and corpus bytes stay fixed.
+Record a clean implementation descendant before new model execution.
+
+Run eight fresh CPU rollouts on Apple M5 with one Torch thread, each capped at
+180 seconds/30000 proposals, with existing 2 GiB available RAM, 40 GiB disk and
+PAUSE checks. Full audio uses the verified canonical Mel. Overall diagnostic
+compute bound is 1800 seconds, no external network or parallel accelerator job.
+Write a fresh style-audit-v1/generation directory; never overwrite prior results.
+Record source/audio/model/row hashes and limits. No fit, new prior tuning,
+reference-seeded generation, remote publication or human-label editing occurs.
+Actual audio listening is unavailable to this model/tool context; visual and
+event-structure review must not be represented as listening or player testing.
