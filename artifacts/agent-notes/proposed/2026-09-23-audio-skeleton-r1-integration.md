@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: e04b3490e60b4f7a7550f9abde20e6f551382dcc
+Product revision: daa49334cef2b38e42cf16a30ef1cf0f1b8a2cee
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -4174,3 +4174,79 @@ wait, without a forced event or a spacing ban. The existing row/LN/skeleton
 independence and frontier path remain. Candidate risks include forgetting
 density/phase across rests and a weak audio base. All model and probe sessions
 above are now terminal. No new recovery fit has yet started.
+
+The reusable analysis is committed in docs/research/head_wait_recovery.md at
+daa49334cef2b38e42cf16a30ef1cf0f1b8a2cee. The plotted hazard sums were visually
+checked and retained as head-survival-audit/attempt-002/survival-mass.png and
+.svg. The stronger near-zero-tail hypothesis remains explicitly falsified.
+
+### Experiment Card: bounded-head-recovery-v1
+
+Revision 1; proposed; accepted revision none. Clean baseline
+daa49334cef2b38e42cf16a30ef1cf0f1b8a2cee is a documentation-only descendant of
+the fitted source e04b3490e60b4f7a7550f9abde20e6f551382dcc. Baseline endpoint is
+20cea8e5d00e554c93141af7403a47e7108a3ee8fbd2c2dd57b8c9c415aa6205, with the nine
+native outputs and complete Lens review above. This is a single architecture
+intervention motivated by the located long-wait suppression, not capacity search.
+
+Add a linear audio-only head base over the existing local/full-song encoding
+(2250 parameters at the current widths), and use the existing head predictor
+as a bounded residual: head logit = base + 4 * exp(-head_age_ms/1000) * tanh(raw).
+At BOS the historical gate is zero. Initialize the base near .006 hazard and
+reset the residual output bias from the old rate logit to zero. Keep every
+other module, initial shared parameter draw, R1/frontier2 transfer, dataset,
+sampling plan, optimizer rate family and decoding rule matched. Preserve the
+unbounded model as an explicit configuration for old checkpoint reproduction.
+The new flag and bound/decay values must reach the model and be checkpointed.
+
+Closest analogue: the earlier local bounded-history timing study, applied here
+only to the head generator's own skeleton history. No row-content feedback is
+reintroduced. The innovation claim is limited to a task-specific recovery
+constraint. The musical base need not predict acoustic onsets and does not
+force events: sustained cues and off-grid placements remain in native support.
+The intervention adds no hard minimum gap, source seed, endpoint teacher input,
+post-sampling correction or old 30 ms preference loss.
+
+First verify the exact residual bound, zero BOS history influence, recovery to
+the audio base after long waits, shared-parameter initialization, direct row
+audio, mirror symmetry and teacher/cached-native/query-partition parity in both
+configurations. CPU and MPS likelihood/gradient agreement remains required.
+The head law must be identical during fitting and sampling. Reject any broken
+support, replay, normalization, fixed-clock coverage or noninterference check.
+
+Use the same repaired corpus/normalizer/R1 pins and frozen 1200-update plan as
+planned-head-release-consequence-v1. Model seed 230941, sample 230942, validation
+230943; two songs by two 8-second intervals, 3e-5 inherited R1/consequence rate,
+3e-4 audio/skeleton rate, AdamW decay .01, clip 1, MPS, CPU one thread.
+Fresh 32-update preflight with six VAL songs, <=300 seconds, then a fresh
+1200-update fit <=3600 seconds only if finite gradients, actual module updates,
+reload and mechanically complete native probes succeed. Never reuse preflight
+state or select a best-NLL checkpoint. No added capacity beyond the base readout.
+
+Fresh owner artifacts/joint-audio/20260924-head-recovery-v1. Training names
+planned-bounded-head-preflight-v1 and planned-bounded-head-main-v1 under the
+repaired corpus planned-training directory. Use bounded_head=true, head_bound=4,
+head_decay_ms=1000. No overwrite or implicit resume. Record clean intervention
+source before fitting. Keep >2 GiB available RAM and >40 GiB free disk; stop on
+nonfinite values or broken export. Same nine audio/seed cases, no head-spacing
+filter, CPU one thread, <=90 seconds and <=30000 physical rows per chart,
+<=900 seconds total native evaluation. Retain every outcome.
+
+Primary failure-recovery diagnostic: from each of the four frozen failed head
+prefixes, evaluate the new next-H CDF through five seconds with unchanged full
+audio. The reference has 60/22/49/65 heads in those respective five seconds;
+require CDF >=.99 in all four as a narrow recovery gate. This is not a quality
+acceptance test. Also inspect all nine original native windows for recurrence
+of complete silence; any zero-head context must remain visible and be explained,
+not dropped. Count additional activity only as recovery evidence.
+
+Qualitative guards: all generated time pages/actions/articulation via Lens,
+preservation or improvement of the learned Who/Prom pulse organization, no
+new ungrounded flooding of rests, no collapse to a repeated single pattern,
+and meaningful LN articulation/expressive coverage. Review long-form gaps and
+startup/dense-window compute separately. Fewer short gaps, more heads and lower
+NLL alone cannot pass. If recovery occurs but rhythm, rests or LN structure
+degrade, REFINE the factorization rather than promote it. Losing persistent
+density/phase across rests and a poorly learned audio base are the strongest
+alternatives to an overall improvement. Standing execution authority applies;
+the Card stays proposed and no successful run implies acceptance or adoption.
