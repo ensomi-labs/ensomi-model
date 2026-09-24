@@ -7923,3 +7923,208 @@ research choice. Prioritize a justified change to the generative coupling and
 continuation contract, evaluated for requested organization and sustained
 coverage as well as strictHH. No human acceptance, Note lifecycle transition,
 listening/player claim, remote push or goal completion is implied.
+
+
+### Idea Critique: separate action composition from column realization
+
+Question: can a dedicated causal distribution over row action counts make
+requested chord/LN organization more reliable while retaining R1's layout
+relationships? The completed composition comparison rules out a useful
+simple exchange of I/S conditionals on the tested panel. It also preserves
+concrete positive LN/chord capacity. The next intervention must change the
+learning/information structure, not repeat the default-off HH repair policy.
+
+Let m(y)=(number of attacks, number of LN starts, number of releases).
+The complete four-lane action alphabet induces35joint count triples, including
+the terminal/no-op triple. For each physically legal mark m, normalize the
+existing complete-row score only over legal rows having that mark; multiply
+by a separately normalized mark probability. This is an exact finite
+factorization, not independent per-lane Bernoulli sampling. It preserves every
+currently legal row and permits taps/chords/holds/subset releases.
+
+Closest analogues: Boulanger-Lewandowski et al., Modeling Temporal Dependencies
+in High-Dimensional Sequences (2012), https://arxiv.org/abs/1206.6392, separates
+temporal conditioning from a joint distribution over simultaneous polyphonic
+content. Here the output alphabet is small enough for exact finite sums.
+Compound Word Transformer (2021), https://arxiv.org/abs/2101.02402, models typed
+musical attributes with distinct heads and grouped event representations.
+Here the three count attributes form one joint categorical mark; timing stays
+native-ms and no beat-grid or MIDI note-duration representation is imported.
+These are architectural analogies, not evidence of gameplay quality. The
+provisional novelty claim is only an adaptation of coarse/fine conditioning
+and explicit normalization, not a new likelihood or new supervision source.
+
+A competing branch is finite-horizon constrained inference. Twisted SMC,
+https://arxiv.org/abs/2404.17546, uses learned future-potential estimates to guide
+partial-sequence sampling. The relevant mechanism is retaining and reweighting
+promising partial futures; it does not directly solve our uncalibrated profile
+response and requires a defined gameplay potential. Defer that branch during
+this learning comparison. The earlier optimistic HH-only correction reduced
+one conflict but worsened a late RH count; its relaxed release assumption is
+not an actual release forecast. Do not reinstate it as an undeclared second
+intervention.
+
+Selected branch: action composition should not inherit the entire R1 layout
+history and cumulative exact-count state. Give it its own31-row finite history
+of elapsed time and observed count triples, full encoded audio,16-H preview,
+elapsed time since the last complete row, and sorted active LN ages. Sorting
+makes this physical projection independent of column identity; hidden tails
+are absent. R1 still reads full layout history, direct audio, exact state,
+preview and frontier2 when distributing mass within the selected count group.
+Temporal count memory allows recurring/changing widths; this is not an
+independent-frame count model. H and R retain their existing input contracts.
+
+Supporting signal: with H and its shared audio representation fixed in both
+arms, the count/layout model improves requested width/LN response and keeps
+inspected repetition/independent held roles. Falsifying signals include count
+control no better than matched flat training, collapse to short isolated holds
+or taps, more publication failures, or excessive runtime. An alternative
+compatible with failure is inadequate rare-profile exposure or source/native
+history mismatch; the factorization does not remove either automatically.
+
+Outcome TEST, proceeding to the bounded Design below under existing local
+implementation/execution authority. No acceptance, adoption or publication.
+
+### Experiment Card: count-layout-materializer-v1
+
+Revision1; proposed; accepted revision none. Owning Note
+2026-09-23-audio-skeleton-r1-integration. Clean baseline
+844de84ee7a2f7560939136710dbab6ce907e006. Standing user authority covers the
+local code, tests and bounded fits; no separate experiment approval is needed.
+
+Hypothesis: explicitly learning row-count composition with its own causal
+count history, then normalizing R1 within each mark, improves native requested
+width/LN organization without reducing the supported action vocabulary.
+The one causal intervention is this count/layout conditional versus the
+current flat conditional. Both arms freeze the full audio encoders, shared
+profile projection/prior and all H modules to the originalI checkpoint, while
+fitting R and row materialization. Freezing is common to both arms to separate
+materialization learning from H drift; it is an experimental isolation, not an
+adopted final rule that audio must remain frozen.
+
+Model definition: row_factorization=flat or count_layout. In count_layout,
+m(y) is the35-way joint triple (heads,LNstarts,releases). For each query, G_m
+is the set of physically legal complete rows with that mark. Define
+log p(y)=log q(m(y)|audio,count_history,preview,LN_ages,row_age)
++s_R1(y)-logsumexp_{v in G_m(y)}s_R1(v).
+q is normalized only over nonempty G_m. This includes release-only and
+terminal rows with their original support. The35-way head reads a32-wide,
+four-level FiniteTemporal count encoder (31past rows); each past row token
+contains existing time_features(delta) and the three counts divided by4.
+Query state contains time_features of last-row age plus four sorted active
+LN ages, with missing bits for absent holds. Concatenate that encoding, the
+full conditioned audio and existing16-H preview into a128-wide GELU MLP
+ending in35logits. No generic row embedding or cumulative head/LN totals enter
+q. There is no new H feedback, lane-independent output factorization, duration
+floor, spacing cutoff, source tail, or correction policy.
+
+R1 retains its original scores, direct audio, exact state and frontier2 inside
+G_m. The full256-way probability remains available and is sampled once with
+the original row RNG; there is no extra mark-sampling RNG. Training sums
+unchanged H/R likelihood and the exact joint row NLL; no auxiliary weighted
+mark objective, pseudo labels or preference loss. Mark targets are deterministic
+functions of each separate source chart. All existing rows remain representable.
+
+Inputs: corpus manifest4ad9abfd0ae7798e0a85b96a5dbecdaefd2a81f78bf181438407442b964118e1,
+615TRAIN arrangements/240audio groups and36VAL charts; existing canonical Mel
+and normalization9cf461a0e825f974f0a80a364123c7afedf1683af76e60fe09b0fbe51c2c8287.
+Original checkpointabc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef
+at artifacts/joint-audio/20260924-alias-restored-v1/planned-training/shared-profile-cond-main-v1/last.pt.
+Banka8973b7f94fde90d9f3cc639eb63e781dd295435622ce79fd54fe244789e6f03;
+panel484d173628856a431e034b1dbdacab9173c40f3edf696d1b9a19721aeec70dc9
+at artifacts/joint-audio/20260925-fresh-audio-system-v1/panel.json.
+No TEST access, data deletion, human-label edits or additional annotation model.
+
+Baseline observed originalI16explicit cases: H error.8738583548578978,
+width2.3704218356354247,LN4.096142372828725; width+LN6.466564208464150.
+Exact source record is fresh-audio result9f3c4580adaa6239c44e04bb5d95a0ed921b8fd958b1eee26ccd8cedfa91e862.
+These are transformed/scaled descriptor squared errors averaged equally over
+eight audios and two requests. The matched flat/materializer-only continuation
+is not measured yet and will be reported regardless of its result.
+
+Implementation scope: planned model/config/Hydra projection, a small count
+representation/normalizer owner, training materializer-only parameter selection,
+interval inputs and cached native count history, checkpoint initialization and
+focused owner tests/docs. Existing defaults remain flat/all. Warm initialization
+must copy every common tensor exactly and report only the new count modules;
+same bank checks precede copying. Old default model scores/RNG behavior must
+remain unchanged. Model-backed commands use uv --extra mps; pytest adds --group dev.
+
+Before fitting, test exact normalization/group marginals, within-group row
+ratios and invariance to an arbitrary common score shift within each group;
+all-inactive groups must have finite relevant gradients. Test support,
+mirror symmetry, count-history independence from tap layout, active-LN age
+dependence, future-tail noninterference, BOS, dense/cached history agreement,
+publication forks, CPU/MPS probabilities/gradients, complete checkpoint/Hydra
+field round trips, and frozen H/audio parameter ownership. Tests must exercise
+real training/native entry paths, not only a duplicated reference formula.
+
+Both arms use seed253001, sample_seed253002, validation_seed230943,
+two songs/update,two8sintervals/song, fresh optimizer and identical frozen
+exposure plan. Learning rates3e-4 for new/noninherited materializer modules
+and3e-5 for inherited R1 modules; weight_decay.01,max_grad_norm1.
+Preflight32updates/arm with sixVALsongs and max_seconds300, fresh names
+count-layout-flat-preflight-v1 and count-layout-factor-preflight-v1.
+Require finite losses/gradients, exact frozen-tensor hashes and checkpoint
+reload before main; do not judge native style from32updates.
+Main1200fresh updates/arm, validation_every300, all fixedVAL records,
+max_seconds1800/arm; start again from originalI, not preflight endpoints.
+Names count-layout-flat-main-v1 and count-layout-factor-main-v1.
+End-of-budget checkpoint is fixed; no NLL-based checkpoint selection.
+
+Commands: uv run --extra mps python -m
+ensomi_model.research.planned_audio_continuation.hydra with the pinned initial
+checkpoint/bank paths and hashes, train_scope=materializer,
+row_factorization=flat or count_layout, seeds/settings/names above.
+Freeze exact resolved commands, clean intervention source and committed Note
+before runs. CPU one thread for native generation, MPS for fitting on this
+AppleM5/24GiB,Python3.10.20/Torch2.11.0. At least2GiB available RAM and40GiB free
+disk; PAUSE/resource guards apply. No overwrite/resume, no remote actions.
+Artifact owner artifacts/joint-audio/20260925-count-layout-materializer-v1;
+new artifacts including both fits/native/Lens bounded by2GiB.
+
+Native comparison: all eight panel audios, profiles1/2 and seeds251701..251708.
+Generate32direct charts (16/arm), then32screened charts using the unchanged
+8s/20ms-halo/four-proposal policy with RH screen enabled. H is generated by
+each endpoint's unchanged own H/audio path; require exact originalI H hashes,
+including screened outputs. Reparse every complete chart and replay every
+published update/coverage. Capture actual rejected proposal witnesses with
+on_rejected, bounded to the first four rejection records per chart, rather
+than confusing them with a separate direct rollout. No more than90s/30000rows
+per chart or1200s for the native driver. Stop on mismatch, nonfinite values,
+declared resource/attempt limit; retain incomplete/absent cases as failures.
+
+Primary: direct width+LN standardized MSE on16cases must be <=.85 times the
+matched flat continuation and <=6.466564208464150 originalI. Each width/LN
+component must be <=1.10 times matched flat; H component/hash exactly
+originalI (report tolerance1e-10 for the numeric component).
+All factor-arm screened charts must complete withHH<20 count0,RH<=20 count0,
+independent reparse and unchanged H. Report all arms' direct/screened counts,
+failed/empty calls and requested/realized values; no successful-subset averages.
+Cached-Mel integrated H/body readiness <=2s and every window service <=2s;
+separate fresh-audio startup if a candidate warrants later integrated testing.
+NLL is diagnostic only, never a playability gate.
+
+Qualitative scope is fixed before training and deliberately bounded:
+screened windows FoolMoon167206..169945,Hysteric243000..247000,
+Revenge239894..243706,AsItWas123000..127000 for both profiles and both arms;
+each factor-arm profile2 chart's densest4s H window; factor-arm profile1
+densest4s for those same four audios. Inspect all their time pages and full
+actions/LN tables. Additionally inspect the four shortest directHH witnesses
+per arm, tie-broken by audio order/request/time/column, with500ms context
+before/after; full-chart counts still include every witness. Merge overlaps.
+Use exact parent human-reference reuses only after identity verification.
+A missing screened chart permits an explicitly labelled descriptive direct
+fallback, never a replacement successful case. No requirement to render every
+resampled8swindow; their complete numeric records remain available.
+
+Judge repeated/changing grips, fine timing, independently held roles and subset
+releases. A count improvement with widespread isolated-short-LN substitution
+or loss of existing independent held/chord relations is not an improvement.
+Do not require a generated alternative to copy its source tags, impose a
+generic LN floor, or claim listening/player quality. A positive numerical/
+system/qualitative result motivates an integrated candidate test; a negative
+result defeats this marginal replacement under the frozen representation;
+mixed evidence remains REFINE. Rare-profile exposure, one seed, source/native
+history shift, coarse mark-memory length and the frozen shared encoder are
+explicit confounders. The full real-time expressive-system goal remains active.
