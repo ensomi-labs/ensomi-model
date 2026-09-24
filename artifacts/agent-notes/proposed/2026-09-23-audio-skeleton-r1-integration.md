@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 962d732e7ef3364d9f237fe4227576ec5f1ff6b7
+Product revision: 452abc689055e2660bda5f62989cf70c95b0db8b
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -6007,3 +6007,36 @@ a cost/attempt failure motivates a learned future-potential proposal or a
 better joint event representation. Keeping H fixed can also expose infeasible
 plans; do not conceal that case by deleting H events. Any subsequent model
 learning or alternative policy requires its own discriminating Card.
+
+
+#### Branchable sampler implementation and verification
+
+Clean implementation452abc689055e2660bda5f62989cf70c95b0db8b extracts the native
+step into ContinuationSession and adds optional buffered sampling. The CLI
+continues to use single-trajectory rollout. Full-audio encoding is shared by
+forks; separate RNGs and mutable queues preserve branch ownership. The extracted
+step retains the original AST semantics after replacing state locals with
+session fields. All original planned-model tests pass. Selected full check:
+uv run --extra mps --group dev pytest -q tests/research/planned_audio_continuation
+tests/test_package_layout.py:60 passed and22subtests in6.16s. After strengthening
+the fork fixture to require actual continuation, the six new tests passed in1.06s.
+They cover actual cache/RNG ownership, unchanged healthy rows, one encoding,
+rejected halo isolation, open-LN preservation on exhaustion, strict20-ms boundary
+semantics, interrupted-work accounting and callback exception propagation.
+Formatting retained identical AST; scoped Markdown links/math and diff checks pass.
+
+The implementation exposes an optional rejection observer for offline Lens
+inspection. It retains an independent in-memory rejected fork; after sampler
+measurement, the diagnostic driver can complete that fork with the same model
+to resolve its generated LN objects for inspection. This evidence work remains
+inside the total experiment resource bound, but is not charged as online sampler
+service. It supplies no future source endpoints and cannot change published rows.
+
+Distribution clarification: the ideal rejection law with independent base
+proposals is only a reference. The first proposal of a later window reuses
+randomness whose halo was screened previously, whereas retries use fresh R/row
+randomness. This policy therefore depends on prior planning work as well as
+published rows; it is not claimed to sample either the ideal local conditional
+or the global constrained law exactly. No implementation, protected comparison
+field or Card revision changes follow from making that approximation explicit.
+No actual-model cohort has run yet; the next action is the pinned three-case gate.
