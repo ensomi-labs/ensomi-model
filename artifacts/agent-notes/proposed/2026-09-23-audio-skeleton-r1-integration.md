@@ -7711,3 +7711,120 @@ before running. Stop on identity/nonfinite/replay mismatch or declared cap;
 save truthful partials. No optimizer, remote publication, model adoption or
 Note lifecycle transition is implied. Lens rendering/inspection follows native
 completion, and no further fit starts before declared evaluation finishes.
+
+
+### Result Log: composition native guard stop and first Lens evidence
+
+Card head-materializer-composition-v1 revision1 remains proposed, accepted none.
+Execution sourcefd2ddfdbc66c1177167487085bccfbac818ddb39; Note pin
+62eb9852904fd6f42cc6d3539ce9464145db560e. The exact run.py command above executed
+on CPU one thread, with no training or product behavior change. Four diagonal
+fixed-H controls completed, independently reparsed and exactly matched their
+saved row-stream hashes before any cross. Boundary checks also verified strict
+HH<20, LN-head inclusion, safe cross-column separation and RH<=20.
+
+Native session45026 is terminal failed at the declared planning-attempt guard
+after211.678153s. It produced all32direct crosses,21complete screened crosses
+and one capped screened prefix:54main calls attempted,53complete. Ten remaining
+screened calls were not attempted. This is a conforming early stop, not a
+complete64-chart comparison. Do not resume it, regenerate existing outputs,
+increase the four-proposal budget or count absent cases as passes. Artifact
+owner artifacts/joint-audio/20260925-head-materializer-composition-v1.
+
+freeze.json SHA1f2366a214aea3fcb11a4c3311febff9a9af0be26ec8f89a5e88da9cf3f2f60e;
+failure.json SHA818032b1a0170f93c9a0e3a3dc5a2173ed3610eb6ebc6b57c11197e3eac0bad7.
+assess_terminal.py preserves terminal-result.json rather than overwriting the
+failed run: SHA125a0c3f51570a73fb11e361db323ff3087c1c0b1051144c55b8ac75f5702fa1.
+It verifies all54row hashes and unchanged checkpoint files. The end-of-driver
+in-memory parameter fingerprint assertion was not reached and is explicitly
+unclaimed. Complete outputs reparsed and maintained exact supplied H; the
+capped prefix has no complete-chart osu! export.
+
+The16prospective initialH/sharedB direct outputs have descriptor components
+[.8738583548578978,2.69813674840344,3.8129303721235996], total7.384925475384938.
+Against original7.3404225633, the required total/LN improvements and width
+non-regression all fail; the H component remains exactly original as intended.
+They contain0strictHH and16experimentalRH pairs. The16reverse sharedH/initialB
+direct outputs have components[1.7634942567999312,2.9801342330093363,
+5.462095174952044], total10.205723664761312, with28HH/20RH. Screened metrics
+are incomplete for both crossings and are marked invalid, not calculated from
+the successfully completed subset. No composition is adopted.
+
+#### The actual scheduler failure
+
+The capped call is reverse sharedH/initialB Take/profile1. Coverage stops at
+113296ms of144236ms, with1476H published; generation took4.137662s and had10
+rejections in total. Its last requested8s window is113296..121296; each proposal
+reaches a121315ms cut and checks through121335ms. All four are rejected byHH:
+attempt0 lane3 repeats115114..115119 (5ms);
+attempt1 lanes2/3 repeat115105..115119 (14ms each);
+attempt2 lane3 repeats114285..114294 (9ms);
+attempt3 lanes2/3 repeat115105..115119 (14ms each).
+These are not RH-only rejections. The failed window consumes.604306s; the
+call's maximum window service is.795497s, below2s. This is failure to find an
+acceptable continuation within the proposal count, not observed compute stress.
+All published rows remain HH/RH-clean, but clean publication does not imply
+continued playback coverage. Actual rejected full row trajectories were not
+captured; only their exact pair records and proposal metadata are available.
+
+#### Available-output Lens plan and current coverage
+
+Renderer session39698 is terminal success. It uses the verified parent bundle
+fa4fee5185909034db52f1f909f4845654f15d267c2411179e983efbb9b9cc81 and preserves
+its bytes. Main plan1e8c08cba0a16c6bcc585dc1a3fe4913bc68d4ea329a8b9581a42c819ee8011f
+has86scopes:80new scopes/258pages and six exact parent-reference reuses.
+Render-result37e5d6fb2ba7c9728958a4655cfc6b5e243cf9b4a6937a5d653e6d66eefd7a7f;
+new bundle58ea4ffe37669a6996db6c080d01a67ed7413c38d3c846909c131eca7f48606f.
+New-owner storage188030180bytes after rendering, within2GiB. All16human records
+were retrieved. No process remains live.
+
+Because the declared native guard stopped the cohort, missing/partial outputs
+cannot supply all original screened scopes. main-lens/unavailable.json
+(131ce599675da2eff26560297a83e0b18875e7e3d62db479f1298463e7b85a11)
+records the10unattempted calls and capped Take. Additional post-hoc direct
+contexts/dense scopes are explicitly labelled when their screened output is
+unavailable. They permit reading actual generated musical material, never
+substitute for a successful screened case or change a primary/system threshold.
+Every available resampled accepted window, selected screened context/dense
+scope and directHHwitness remains in the inspection plan. The capped prefix
+is not presented as a complete chart; its failed proposal pairs remain in the
+terminal evidence. Completion of this available-output review cannot make the
+original64-chart system comparison complete.
+
+Actually viewed21new pages with full native action/LN tables at scopes3,16,35,48,75.
+Tracker review-progress.json and in-session composition_lens_pages/tables/
+observations store the exact inventory. Other237pages/75new scopes remain
+unreviewed. Six parent-reference scopes27..32 have exact completed identities.
+Do not rerender or rerun models to continue; read remaining frozen pages/tables.
+
+The paired Hysteric long context gives positive and negative concrete evidence.
+Prospective scope16 has paired/triple holds with staggered releases:802ms LN1
+spans3H,1363ms LN1 spans4H and1408ms LN1 spans6H while other columns tap or start
+and release holds. Numerous groups instead end before the next H, preserving
+variation in relationships. Reverse scope75 is mainly moving TAP with one
+142ms hold and a late staggered three-LN episode, so it retains some capacity
+without the prospective output's LN organization. Fine cross-column intervals
+remain; a21ms same-lane repeat is outside strictHH but is not certified comfort.
+
+AsItWas/profile2 scopes3/35 are additional direct-only contexts. Both contain
+no LN in the selected scope, despite retaining chord organization. Prospective
+scope3 alternates full0/2 and1/3 double groups over five H at149–187ms and has
+one quad; reverse scope35 has recurring broad triples and two quads. These are
+not blanket bad-chart labels. The already reviewed shared diagonal with that
+same shared H plan had independent LN organization: H count alone does not
+describe the body/trajectory effect.
+
+Scope48 is the complete reverse direct Take counterpart near the failed window,
+not an actual rejected proposal. It has triple0/2/3 at115105, T1at115114 andT0at
+115119, consuming all rested lanes and repeating0after14ms. No LN participates
+in that conflict. Earlier chord size must change for that prefix; the9ms
+0/3-to1/2 exchange nearby is HH-safe. This reinforces the need to reason about
+future lane availability before commitment without banning fine H spacing.
+
+Recommendation remains REFINE. Numerical composition criteria already fail,
+and the reverse decoder has an observed guard stop. Complete the remaining
+available-output Lens review before a final curated composition report or new
+intervention. Current evidence preserves expressive local mechanisms while
+showing unreliable global control and bounded-retry robustness. No listening,
+player test, whole-cohort qualitative judgment, model promotion, remote push,
+Note lifecycle change or goal completion is implied.
