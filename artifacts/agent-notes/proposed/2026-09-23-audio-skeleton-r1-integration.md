@@ -4036,3 +4036,75 @@ mere legality, lower LN fraction or a stronger hard spacing filter.
 
 Main session 75685 was subsequently observed live through update 1190. The
 fixed 1200-update endpoint and its native/Lens readout remain pending.
+
+### Main terminal readout and head-starvation audit Card
+
+Main session 75685 completed successfully: 1200 updates, 4800 intervals,
+37253258 ms, 253512 event rows, 238904 H rows, 14608 release-only rows and
+10684532 occupied release clocks in 991.63926 seconds. Checkpoint SHA
+20cea8e5d00e554c93141af7403a47e7108a3ee8fbd2c2dd57b8c9c415aa6205;
+freeze d4e085e8a4e452cbe81a6ba8bb4fdd8b7d8412bae220244cde81150c67563e11;
+result 6a84e7017a08882b9de7c08ed9a72929f090ca16d44c6ff9984104116187c3fe.
+All tracked modules updated. Population NLL/s 40.27903, BOS 27.22964; no model
+selection was based on these. Logged available memory minimum 4626694144 bytes,
+MPS driver maximum 3126149120 bytes. No training handle remains live.
+
+Main native session 46746 also completed: all nine charts mechanically complete
+and independently reparsed in 18.26422 s, zero all-held deadline releases and
+zero <=20 ms same-lane head/head or release/next-head pairs in the descriptor.
+Native result SHA 7f9ee93823ead44e1ce5a9d171d67a12fb236d35e6f074547229a7cdbcc4fab8.
+These favorable mechanics hide a serious content failure. Who seed 19 has only
+213 H rows and its last head is 56015 ms of 116368 ms audio. Good Luck seed 19
+also has 213 H rows, last head 58555 of 218448 ms. Good Luck seed 17 has 441 H
+rows, last head 125935 of 218448 ms; Death Piano seed 19 has 412 H rows, last
+head 91236 of 177372 ms. Some positive human review windows lie wholly in the
+generated silent tail. These outputs are not a playable-system success.
+
+The initial main Lens extraction failed because its normalized note extent
+ended before a fixed review window. Preserve that failed main-lens owner.
+The main-lens-v2 preparation extends only generated visualization ranges to
+known full-audio coverage, recording original note ranges in provenance.
+It leaves every note and all human evidence unchanged and retains blank
+windows rather than moving them to earlier populated excerpts. Session 37694
+was launched for this extraction; its completion and page review still need
+verification. This is an inspection-range correction, not new generation.
+
+Experiment Card head-wait-survival-audit-v1, revision 1, proposed, accepted
+revision none. Baseline clean product e04b3490e60b4f7a7550f9abde20e6f551382dcc
+and the fixed main checkpoint above. No fitting or model/code mutation. The
+question is whether long waits extinguish the head process independently of
+row materialization. The head graph has no row input, but its own history and
+elapsed-clock influence are unbounded. The closest local analogue is the
+earlier bounded-history timing study; this audit tests the separated head path.
+
+Use Who seed 19, Good Luck seeds 17/19 and Death Piano seed 19. Reproduce the
+entire head stream alone from complete pinned audio, with the same head RNG
+and 500 ms queries; assert every head time equals the saved native chart.
+At the final head, integrate the model's remaining native-clock hazard through
+actual audio end. Compare that mass with the next exponential threshold and
+the sampler's retained residual. Report mass in <=500 ms, <=2 s, <=10 s and
+the whole remaining song. If the independent head sampler does not reproduce
+the saved times, stop the head-only attribution and investigate runtime parity.
+
+For instantaneous queries 250/1000/5000/30000 ms after the last head, also
+translate the same head-interval history so its final head is 100 ms before
+the query. This is a legal counterfactual skeleton with identical interval
+tokens and fixed current audio/time, changing only the recency clock. It is
+not trained against the original suffix and is not a replacement generation
+policy. Compare exact next-ms hazards and separate direct-audio and historical
+contributions before the final timing nonlinearity. Norms alone do not prove
+audio information sufficiency or chart quality.
+
+Primary evidence: head-time equality, integrated mass/residual agreement within
+1e-4, and the relative change in late instantaneous hazard under the recency
+intervention. A post-2-second mass <.01 over >30 s of remaining audio, together
+with >=100x recovery under the valid recency intervention, would locate a
+long-wait suppression path. It would not prove a general infinite-horizon
+defective distribution or that every silent span is musically wrong. If the
+clock intervention fails, inspect encoded-history and direct-audio contributions
+without asserting clock causality. CPU one thread, <=120 s, >=2 GiB available
+RAM, >=40 GiB free disk, <=20 MiB fresh outputs, no overwrite or resume. Owner
+artifacts/joint-audio/20260924-planned-head-release-v1/head-survival-audit.
+The result changes whether the next intervention should add an audio-only head
+base with a bounded, decaying head-history residual, rather than scaling model
+capacity or applying a hard head-spacing rule. Outcome remains exploratory.
