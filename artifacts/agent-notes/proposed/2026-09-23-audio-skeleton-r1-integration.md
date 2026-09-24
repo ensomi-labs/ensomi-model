@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: ee5a96de5d6387aa6ef1fe5aee69cbd2a626a904
+Product revision: f4f3a2f639d2f5423d3b1d35b4ee2d74cdeba192
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -4437,3 +4437,44 @@ arrangement ambiguity from this release intervention. Keep the old persistent-
 intent fit deferred rather than applying it to the superseded flat model.
 No new Card or fit for conditional releases has yet been created or started.
 The full playable, expressive audio-to-chart goal remains active.
+
+### Frontier2 migration verification
+
+The owner reiterated the conceptual importance of frontier2 in the formulation.
+The earlier flat joint path omitted it; the planned path explicitly instantiates
+RowConsequence(hidden, frontier2), restores its weights, adds its output before
+legal-row normalization, and trains it at the inherited R1 rate. Both interval
+training and cached native generation call the same score function.
+
+A read-only inspection of bounded checkpoint
+47d41844afc673788cb640c67a1d5e41b2b9ca75ae679298c10072200925bce6 confirms all
+8 frontier2 tensors, 27648 parameters, all keys in the transfer receipt, output
+weight L2 .31058186 and inherited optimizer rate .00003. The existing completed
+1200-update result records frontier2 parameter-change L2 .38334670. This verifies
+module presence and updates, not preserved gameplay semantics.
+
+Focused tests for actual transfer and learning-rate ownership, row/audio/preview/
+consequence gradients, and both head modes' cached-native/teacher score and RNG
+partition agreement passed: 4 tests in 1.49 s. Command was uv run --extra mps
+--group dev pytest -q with the corresponding test_training.py transfer test and
+test_distribution.py gradient/cached-native tests. Sessions 80865 and 35136 are
+terminal success. No training or new generation was started by this audit.
+
+Product f4f3a2f639d2f5423d3b1d35b4ee2d74cdeba192 changes only the information
+contract and planned-model guide: flat-model omissions are explicitly scoped,
+and active frontier2 training and its finite consequence limits are documented.
+No model parameters, probability law or training target changed. The documents
+passed diff --check; the product commit is local and the worktree is clean.
+
+Retain the candidate-action to exact post-state to future-response comparison
+path as architecture work proceeds. Its current release feature is only the
+earliest possible release, while the scheduler supplies a distribution over
+actual releases. They are distinct information objects. The finite module also
+only passively advances clocks to the next H and receives the second-H gap;
+it is not a calibrated evaluator of all legal continuations and horizons.
+The preceding release-law normalization investigation remains the next bounded
+implementation. Any later release-forecast query for a hypothetical candidate
+must use its LN projection, full audio and the chosen skeleton, never future
+actual rows/tails, and must not mutate state or consume publication RNG. NLL
+alone cannot establish that these consequences preserve playability. Cards
+remain proposed and the overall goal remains active.
