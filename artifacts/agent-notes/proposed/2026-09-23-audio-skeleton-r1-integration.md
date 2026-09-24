@@ -3357,3 +3357,117 @@ a different rate. Do not silently change the deferred persistent-intent Card.
 No new model training started in this probe. Ultimate playability remains
 unproven, the goal is active, and this turn made material causal/evaluation
 progress rather than delivering a new playable candidate.
+
+### Experiment Card: r1-lineage-joint-learning-v1
+
+Revision 1; proposed; accepted revision none. Owning Note
+2026-09-23-audio-skeleton-r1-integration. Standing execution authority covers
+implementation, short checks, bounded fitting and evaluation. The intent-code
+trial remains deferred and unchanged.
+
+Question: after equal joint audio/timing learning, do earlier backbone fitting
+and later native-correction weights materially change source-free arrangement
+behavior? Three initialization arms distinguish these two sources: plain 4.5M,
+memory 6M and release 6.5M. All use the same existing global-audio/bounded-timing
+model with 3461828 parameters. No architecture, latent, objective, support,
+audio-input or decoder extension. The closest analogue is the actual R1 staged
+lineage and its transfer audit: only the transferred tensors differ. The
+alternative is that the shared joint task/data/optimization recipe dominates
+the observed native behavior. This is attribution within a finite training
+budget, not a universal ranking of pretraining or an additive blame estimate.
+
+Clean baseline product OID: 5f7439e208da94db4b2c7b2936dbc98aacc2a768.
+Initialization pins: plain
+816d9daf0eb387bb65a661eba348db5c90358a37d68739f71d3223073167c18e,
+memory 3262f210ff6f67837f10284a4e1c54ec408354c3e1c325fc0f95dc53dcca1a23,
+release 8000beb0dee81b92f0252fcec876823afd60fe33a182fb344ae0bed02d03f991.
+Original asset owner r1-restoration-20260920-v1/run; no original files change.
+Response 6.75M is redundant with release after transfer and is not an arm.
+
+Data: repaired 615 TRAIN arrangements/240 audio groups and unchanged 36 VAL,
+manifest 4ad9abfd0ae7798e0a85b96a5dbecdaefd2a81f78bf181438407442b964118e1.
+Normalization remains SHA
+9cf461a0e825f974f0a80a364123c7afedf1683af76e60fe09b0fbe51c2c8287.
+Full audio is available in all arms at training and inference; no TEST, target
+future states at inference, arrangement unions or annotation pseudo-labels.
+Use model seed 230941, sampling 230942 and VAL 230943. The existing shared plan
+has SHA 34ef9751df4571f516ef2b670b3b0f4b398c212fdd16adcee1a029bd9168eb14,
+4800 samples from disjoint clock intervals totaling 37253258 ms and 612 distinct
+TRAIN arrangements. Recompute through canonical make_protocol and require
+identical bytes under new protocol name r1-lineage-comparison-v1 before fitting.
+
+Each main arm uses 1200 updates, two songs/update and two 8000 ms intervals/song,
+the established group/arrangement/time per-second joint likelihood, and fresh
+AdamW (.01 decay, gradient clip 1). Use 3e-5 for temporal/exact/fuse/joint/
+route_residual/release_residual and 3e-4 for all audio/timing parameters. Assign
+these rates by module family in every arm, including residuals absent from the
+source checkpoint. The necessary context_training change replaces copied-name
+grouping and records group names, rates, parameter ownership and initial hashes.
+Share the module-family constant with initialize_from_r1. Verify grouping is
+unchanged for a complete release transfer and equal across all three arms.
+Other trainers and inference behavior are out of scope. Record a clean
+intervention OID before any run.
+
+The release arm is a newly fitted comparator; its endpoint value is pending.
+The older 585-arrangement/other-seed model's 41.93044 VAL NLL/s and 84/84 native
+completion are contextual evidence only, never a paired baseline. Primary
+diagnostic: mean absolute per-case LN/head difference between release and each
+other arm across the frozen 84 native cases. >=.10 is a material initialization
+effect; below .10 is insufficient for this threshold, not equivalence. Report
+signed differences, all cases, eight-second trajectories and song-group
+aggregations so cancellations remain visible. Also report head-count ratios,
+LN duration/occupancy, chord burden, HH/RH gaps separately and pause/end behavior.
+These measurements select mechanisms and review locations, not playable winners.
+
+All arms receive the same 180 VAL intervals (144 population and 36 BOS),
+evaluated at updates 0/300/600/900/1200. Report fixed final NLL/s, timing/row
+components during learning, exact interval/event/head exposure and compute.
+No best-checkpoint selection or metric-driven learning recipe changes. A >3%
+source-likelihood regression blocks promotion as an improved candidate until
+its tradeoff is examined, but remains useful attribution evidence.
+
+Native evaluation keeps the original six TRAIN plus 36 VAL identities, seed
+bases 17/19 and original within-split index-to-seed mapping from
+expanded-v1/generation/context-gb-prior27-s<17|19>-<train|val>/freeze.json and
+result.json. Verify against the four pins in the frozen Lens manifest
+45a4bd240a2dad254d308cf94d19a091c6c3a6387c22be289802562dff943233.
+Add the unchanged Who/Death Piano/Prom Queen/Good Luck TRAIN audio panel at
+seeds 17/19 from style-audit-v1/generation/freeze.json. Freeze the exact panel
+and source/audio identities before fitting. Each chart starts from BOS, using
+500 ms queries and the same 27 ms head-age prior; no reference timing or prefix.
+CPU one thread, 30000 proposals and 90 seconds per chart; keep every capped,
+empty, short or silent-tail result rather than dropping failures.
+
+Native guards for a proposed improved candidate: 84/84 complete and >=30 heads,
+no <=10 ms HH pairs and at most two <=20 ms; retain eligible transition rates,
+median paired head ratio in [.7,1.3], inspect every ratio outside [.5,1.5].
+Inspect material LN-mode changes and late silence, not only global descriptors.
+Lens review covers all four human-reference contexts for both seeds per arm,
+with full entry/exit action pages and time views. Compare Tech relations,
+repeated chord/tap organization and independent LN presses/releases; missing
+human labels remain unreviewed. Do not force reference replication or penalize
+all LNs/repeats. A metric win alone cannot select a new playable candidate.
+
+First run 32 updates per arm from fresh initialization, validation_songs=6,
+evaluation at 0/32, <=600 seconds each. Verify finite losses/gradients, identical
+consumed exposure, non-R1 initial hashes and semantic learning rates. A preflight
+can check exported model loading but is not a quality endpoint. If all pass,
+start main runs fresh, release then memory then plain, <=1800 seconds each,
+<=7200 seconds total training including preflights. Generation <=1800 seconds
+overall; freeze actual runtime and stop reason. Apple M5, explicit mps training,
+one CPU thread, Python 3.10.20/Torch 2.11.0, sequential accelerator work only.
+Require >=2 GiB available RAM, >=40 GiB free disk and <=5 GiB added artifacts.
+Honor PAUSE in repaired corpus or the comparison owner. Stop on nonfinite
+loss/gradient, pin mismatch, invalid causal inputs, unequal exposure, resource
+or time cap, failed parity or parameter-ownership checks. Retain stopped runs;
+no overwrite or implicit resume.
+
+Use packaged ensomi_model.research.joint_audio_continuation.context_hydra with
+the full pinned overrides saved in the comparison freeze and resolved Hydra
+files. Fresh experiment owner:
+artifacts/joint-audio/20260924-r1-joint-lineage-v1. Training outputs are
+repaired-v1/context-training/lineage-{preflight|main}-{release|memory|plain}-v1;
+native outputs stay under the comparison owner. The artifact launcher records
+exact commands/script hash and checks return codes/bounds before advancing.
+No remote push or lifecycle acceptance. Attribution with one training seed
+does not establish robustness to initialization or a final playability result.
