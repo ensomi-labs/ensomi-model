@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 9a4f1fea5ec5ac37738b28a43ce2c0c9533f863a
+Product revision: 7ea2e82eebd9afbc97ec8db23cf361885fc8e0a1
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -5090,6 +5090,112 @@ reproduction, physical support, H-stream or resource failure. A successful
 bounded policy comparison motivates response-aligned learning or scheduler
 refinement; it does not complete the remaining musical/style/dense-runtime goal.
 
-Implementation and execution of this Card have not started. The next goal turn
-should implement and verify this bounded response primitive/policy, rather than
-adding a persistent latent or another unconstrained joint fit first.
+#### Short-attack response result
+
+Clean intervention source 7ea2e82eebd9afbc97ec8db23cf361885fc8e0a1 implements
+the default-off policy, strict diagnostic and finite response evaluator. The
+selected planned-audio suite passed 40 tests in 5.95 s. Tests cover the witnessed
+upstream/dead-end states, strict boundary, TAP/LN heads, exhaustive relaxed lane
+assignments, mirror symmetry, minimal changes, independent correction RNG and
+default-off/healthy-row noninterference. No model weights changed.
+
+Corpus audit completed in 27.29748 s: all 615 TRAIN and 36 VAL charts have zero
+strict HH<20 pairs, and all 683341 true physical rows have zero optimistic
+response cost under their own H plans. No target was removed or relabeled.
+Corpus result 5f9d45de29756e188b6b6568e0887060b1c1b9dd1e3ecb2d7e2409a0b73372c6;
+per-chart details 1d8847473d9d124d74df49f497827b6de31dd805cbde526f137883a88dcbd4fc.
+
+The 11 paired native cases completed in 38.13990 s. Every off output exactly
+reproduced its frozen rows; all on H streams remain identical. All nine B native
+outputs and the Good Luck B/A arm remain row-identical with zero corrections.
+Good Luck A/B changes only one proposed decision through the kernel: at 47163,
+TAP0/1/3 becomes TAP0/3. Subsequent TAP2 at 47166 and TAP1 at 47182 realize the
+same H plan without the strict short repeat. All eleven corrected outputs have
+zero strict HH pairs and unresolved minima. Head-count, LN-fraction and cached
+startup guards pass; Good Luck A/B heads 1210->1257, LN fraction
+.1942148760->.2155926810, mean chord 1.9329073482->2.0079872204.
+
+The aggregate RH<=20 guard FAILS, increasing from one to two. In the changed
+suffix, four holds end at 193538 and column 3 taps at 193542. This is a new
+release-only event followed by H, over 146 s after the upstream correction.
+The strict HH improvement does not establish an overall quality gain. RH is a
+separate diagnostic, not an extension of the owner's confirmed HH threshold.
+Keep the policy default off; do not repair this result by silently changing the
+guard or adding another local threshold.
+
+Native freeze 69db174bba2ced7f2fbf32657dd0841425e50146c2817117812a752b184da0f9;
+result 1c5fcedf09f8c26d4e51015867d0eec7371e5c86718ef8c53c9d48c1a2cdb7ce.
+Lens manifest a9f0b01c74129548ae775c4fdc590d7d53f3adfd6d665de2bbc05b926cab91fd;
+review b708a90c48f08d58b9fbb299a9dc3c3eeeb525d93e99155da83b7cfe3c265c8a.
+All eleven new time-proportional pages and complete action/articulation views
+were inspected, covering the correction, fixed musical scope, late occupancy
+episodes and new RH4 witness. The changed chart retains chords and independent
+LN releases, including a 1838-ms LN spanning four later H rows. Listening and
+player judgment remain unperformed. Parent human evidence was reverified and
+unchanged. Result recommendation REFINE; no promotion or lifecycle transition.
+
+#### System priority
+
+On 2026-09-24 the human owner expanded the standing goal to prioritize the whole
+real-time generation system and avoid getting trapped optimizing small flaws.
+Conclude this bounded rule experiment here. Keep the learned audio/skeleton/row
+pipeline as the main research object, with quality constraints at its commit
+boundary. Investigate end-to-end readiness and worst workload before adding
+speculative decoding, capacity or more isolated correction rules.
+
+### Experiment Card: full-audio-playback-budget-v1
+
+Revision 1, proposed, accepted none. Clean source
+7ea2e82eebd9afbc97ec8db23cf361885fc8e0a1. This is behavior-neutral system
+profiling, not a new fitted or decoded policy. Use conditional checkpoint
+67b8fc8fbac5f7ca2debe99524e29ac002546f12cb8a3c4c9acf68d68d7f3839 with correction
+off. Primary question: do full-audio startup or dense sequential execution
+actually require a more complicated real-time scheduler? The closest local
+analogue is the joint-audio new-file inference path; the planned model adds
+full-song encoding, head lookahead and LN-conditioned release scheduling.
+
+Run the frozen nine native cases with fresh waveform decoding and canonical
+Mel computation (no Mel cache input). Require exact baseline rows and full
+audio-duration equality. Add two explicitly labeled source-H workload probes,
+chosen before execution from the already-pinned 651-chart corpus: maximum H
+count in any half-open 8-s window, and maximum decoded song duration; ties by
+source SHA. Dense source 15e5e1949e331bcb2530d8d3ef319849ecf1e419c850d13e3a638151c84d30c0
+has 180 H in [53662,61662), duration 115509 ms. Long source
+80d8b34bba60b4cb6ab9cd49340ab397a824e762cc11cc3d0bde8c277414d63d lasts 585495 ms,
+with 4325 H rows. Source Hs test service workload, not autonomous timing quality;
+no source actions/endpoints condition generation. Both use seed 230971.
+
+Record import/model-load, decode, Mel, encode, first 30 physical rows, first
+eight seconds of settled coverage, total generation, per-update coverage and
+wall time, physical validity and strict HH diagnostics. Freshly decode each
+native case rather than reusing a prior Mel array. A resident model is loaded
+once; report its one-time startup separately. Existing cached-Mel startup is
+the paired reference, not an end-to-end latency claim.
+
+Evaluate a virtual player with a declared 2-s presentation lead. Start after
+both 30 rows and eight seconds of settled coverage (or true completion for
+short charts). A coverage update certifies all rows/no-events through its
+clock; a last note timestamp alone is not that watermark. Check deadlines
+immediately before every later update using the preceding coverage. Report
+minimum slack, any misses, and maximum measured service seconds for advancing
+an 8-s audio window. Replay the measured generation trace at 1x, 4x and 10x
+wall-cost multipliers, with each policy's corresponding startup; also add one
+virtual 1-s stall at the worst 8-s service window under 1x. Do not consume
+model RNG or change content during this trace simulation. These are workload
+experiments, not OS worst-case guarantees or measurements of the client.
+
+A resident-model readiness above 3 s selects preprocessing/encoding work;
+an 8-s service interval above 2 s, or a 4x trace deadline miss, selects compute
+scheduling/throughput work. If neither occurs, prioritize musical distribution
+and controls while keeping a simple buffered scheduler. Record failures rather
+than tuning thresholds afterward. Physical completion and native row
+reproduction are required; quality of new source-H outputs remains unreviewed
+until inspected, and does not substitute for native generation quality.
+
+CPU one thread on the current Mac, uv --extra mps, <=900 s total and <=90 s /
+30000 rows per chart; >=2 GiB RAM, >=40 GiB disk. Fresh owner
+artifacts/joint-audio/20260924-playback-budget-v1, <=200 MiB new outputs, no
+overwrite/resume. Save source/script/model/audio/manifest hashes and protocol
+trace. Stop on resource failure, incomplete generation, changed bytes, invalid
+reparse or native reproduction failure. No fitting, source label changes,
+runtime fallback, speculative sampler or remote publication in this probe.
