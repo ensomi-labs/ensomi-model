@@ -4478,3 +4478,80 @@ must use its LN projection, full audio and the chosen skeleton, never future
 actual rows/tails, and must not mutate state or consume publication RNG. NLL
 alone cannot establish that these consequences preserve playability. Cards
 remain proposed and the overall goal remains active.
+
+### Experiment Card: feasible-first-release-v1
+
+Card revision 1; owning Note 2026-09-23-audio-skeleton-r1-integration remains
+proposed; accepted revision none. Standing local implementation/execution
+authority applies. The previous goal turn made progress through source and
+checkpoint verification plus committed clarification. There is no live fit.
+
+Question: does conditioning the first release on occurring before a required H
+remove the observed last-clock artifact while retaining usable LN organization?
+Selected mechanism: replace the all-held deadline atom with q(u) divided by
+the raw probability of at least one release by H-1. This is the finite-deadline
+conditional survival law derived in docs/research/release_wait_conditioning.md,
+not a new event representation or learned comfort penalty. The closest baseline
+is that document's reproduced fixed-state raw-hazard comparison; there is no
+novelty claim. Larger frontier forecast features and new row penalties remain
+separate hypotheses, because they would obscure this waiting-law intervention.
+
+Clean baseline f4f3a2f639d2f5423d3b1d35b4ee2d74cdeba192; fixed bounded checkpoint
+47d41844afc673788cb640c67a1d5e41b2b9ca75ae679298c10072200925bce6, trained at
+88e56832287f492fdca81ea7194b90753526cc96. Use exactly the nine audio/seed cases
+in artifacts/joint-audio/20260924-head-recovery-v1/cases.json, Who/Death Piano/
+Prom Queen/Good Luck seeds 17/19 and Airborne seed 33. Baseline complete-native
+result 29257b415498fcb432819057a3012e64de21f0a65b7a45d63c06c54688dc0273;
+all nine complete/reparsed, zero same-lane head/head gaps <=20 ms, one same-lane
+release/next-head gap <=20 ms, and one all-held deadline release. These are
+descriptive counts for nine fixed outputs, not population estimates.
+
+The single causal intervention is the conditional first-release law when all
+four lanes are occupied and a next H is known. Apply the same law in training
+and native sampling. Add a checkpointed model/training flag for paired off/on
+comparison; add no trainable parameters. Keep partial occupancy, true audio-end
+closure, row/frontier2 scoring, head planning and independent RNG unchanged.
+Training normalizers query the hypothetical unchanged LN state through H-1,
+with full audio and sufficient local halo, never actual future releases/rows.
+Interval censoring must telescope. The conditional last hazard is certain,
+but its probability comes from raw q/Z rather than moved survival mass.
+
+Implement a shared probability primitive, interval normalizer inputs, native
+scheduling, typed config projection and focused tests. Necessary instrumentation
+may record conditional wait counts/lengths and guard outcomes without altering
+draws. Test analytic probabilities and gradients including the last raw hazard,
+extreme logits, interval partitioning, future-tail noninterference, actual
+CPU/MPS agreement, teacher/cached-native agreement and RNG chunk invariance.
+Preserve old-checkpoint behavior with the flag off. Commit a clean intervention
+revision before running real-model comparisons and record exact script hashes.
+
+First comparison uses frozen weights and no optimizer: reproduce all nine
+baseline rows exactly, then enable the new law with the same audio and seeds.
+Primary improvement threshold is reducing the panel's total same-lane
+release/next-head <=20 ms count from one to zero. Guards: all nine complete and
+independently reparse, identical H timestamp streams, no new head/head <=20 ms
+events, per-chart LN fraction change <=.05 absolute, and cached-Mel first-30-row
+and eight-second readiness each <=1 s. The count thresholds are diagnostic
+readouts, not legality rules or general comfort definitions. Native support is
+unchanged, including one-ms intervals and four-lane holds.
+
+Inspect the fixed Lens comparison scopes, every new close-gap witness, and
+changed full-occupancy episodes through the following two heads. Reuse prior
+visual judgments only for verified byte-identical evidence. Keep every output,
+including failures/empty scopes. A removed witness with passing guards supports
+another bounded train-consistent experiment; it does not establish overall
+playability or justify adopting inference-only changed weights. Regressions
+reject immediate promotion; no changed all-held encounter is an inconclusive
+case rather than an improvement. Same checkpoint weights were fitted under the
+old law, so this isolates decoding structure and cannot assess trained quality.
+
+Environment: this Apple M5/24-GiB Mac, Torch 2.11, uv --extra mps, CPU one thread
+for native comparison; actual MPS for gradient checks. Native limit 900 s total,
+90 s/chart, 30000 rows/chart; stop at <2 GiB available RAM or <40 GiB free disk.
+Fresh owner artifacts/joint-audio/20260924-feasible-release-v1, <=250 MiB added
+artifacts excluding unchanged linked audio; no overwrite or resume. Expected
+commands are uv run --extra mps --group dev pytest -q on the planned package
+and package-layout tests, then uv run --extra mps python <owner>/compare.py,
+then its Lens inspection driver. No network or fitting is required. Stop
+causal interpretation on baseline reproduction, H-stream or probability
+invariant failure. A later fit requires its own bounded proposed Card.
