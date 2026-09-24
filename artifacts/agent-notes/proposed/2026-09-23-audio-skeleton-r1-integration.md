@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 4b56f3ab72cd773838e212bd4d5b7e078ae267aa
+Product revision: 55f86faf9083da66d4d648623ac09ccf8f4797fb
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -2821,3 +2821,151 @@ BOS outputs or candidate. Record all prefix/source/audio/model/script/row hashes
 No training is authorized by this Card; a subsequent training intervention must
 have its own bounded comparison. Missing fit coverage and small conditional
 sample size remain confounders even if the diagnostic threshold is crossed.
+
+### Result Log: observed-prefix-continuation-v1
+
+Card revision 1; accepted revision none. Clean implementation/execution source
+965c70aa267027ef486cd98f560b926a9e441bbd adds ObservedPrefix to the existing
+rollout, replaying all exact facts and only the finite neural suffix. The true
+predecessor gap survives truncation. Supplied rows do not consume generation
+caps or first-30 counts and are not published again. Conditional exports identify
+supplied versus sampled origin. The default source-free path remains BOS.
+Forty-one selected tests passed, covering prefix/cache/replay behavior, native
+generation, head prior, audio inference and existing cache/crop parity. The
+original two death piano BOS trajectories reproduce exact row hashes before
+the prefix comparison. No model probabilities or corpus inputs changed.
+
+The experiment completes all 48 planned continuations in 170.42 seconds on CPU
+one thread, with no resource stop, empty suffix or newly generated same-key head
+interval <=20 ms. Full receipts, prefix files, row hashes, composition windows,
+transition types and separate release-to-head gaps are retained under
+artifacts/joint-audio/20260924-expanded-v1/observed-prefix-v1. The freeze hash is
+9c06ea1cc304883d66d1b7700c064b9778e9445424933669d2401eef589eda06;
+result hash is
+9e2496baa80346e1628f42df17ad708d0d60afe8c6a90263c6a06064d73a3521.
+No protected field changed. A scientific plot of all critical conditional
+trajectories is prefix-ln-trajectories.png; it excludes supplied prefix heads.
+No cold-start or source-free speed claim is taken from these conditional runs.
+
+The primary mature-prefix diagnostic crosses the stated <=10% versus >=50%
+threshold at both critical songs. In the first eight seconds, death piano's
+reference prefixes yield 30 heads/1 LN and 43/0, while the four native-prefix
+suffixes have 86.57–96.43% LN heads. Prom Queen's reference prefixes yield
+77/0 and 101/0, while native-prefix suffixes have 67.86–89.42% LN heads. Every
+critical window exceeds the minimum ten-head activity guard. This establishes
+short-horizon conditional tap capacity under the tested complete states.
+
+Persistence is conditional and variable. For death piano, early reference
+prefixes already reach 14.77%/66.67% LN in the next eight seconds and
+80.49%/94.53% in the following 24 seconds. Mature reference prefix suffixes
+start near zero but reach 70.79%/35.82% LN during seconds 8–32. Prom Queen's
+early reference suffix seeds diverge; mature reference suffixes remain almost
+all tap through the rest of the song. Good Luck reference suffixes start with
+zero LN but can become LN-heavy later. Who? is also variable: 37.5%/4.30% LN
+in the first eight seconds despite the same reference prefix, while its reviewed
+ten-second human scope contains 58/121 and 8/111 LN heads. A real short seed
+alone therefore does not solve reliable style selection or later persistence.
+
+Lens admits all 48 outputs. Frozen bundle hash is
+a514745730fb3e6027627782bc5e338c123de71c63bf9864249ccc4e13cda479;
+all 191 member hashes still match after inspection. Ten planned/contrast scopes
+were read completely through action/articulation pages and all 28 time-view
+pages: mature reference at both seeds for all four songs, plus native17/seed37
+for death piano and Prom Queen. Entry context before the cutoff is explicitly
+observed, not counted as generated evidence. No human annotation was changed.
+
+In Prom Queen's generated scope, reference-conditioned seed41 produces repeated
+[0,2] pairs at 75850/76046, then [0,1,3] at 76259 and [0,2,3] at 76468 ms.
+Same-column recurrence continues inside changing chords; both seeds retain
+26/31 heads versus the reference's 29. This is a scoped demonstration of the
+conditional model's chord/repetition capacity, not an unconditional success.
+Death piano instead has 14/15 all-single tap heads versus 23 source heads with
+mixed chords; reduced LN fraction does not preserve the full Tech relation.
+Who? seed37 later exhibits interleaved holds with independent release/press
+roles, while seed41 spends much of the scope in tap motion. Generic variability
+does not establish Tech, and none of these chart-only probes establish dump
+musical intent, listening quality or player-specific difficulty.
+
+Recommended outcome is REFINE because the Card remains unaccepted and the
+conditional result is not the requested source-free system. Same-cutoff
+reference/native comparisons intervene on the whole prefix, including occupancy
+and clocks. Early/mature comparisons additionally change musical position and
+cannot prove a history-length cause. Undertraining and paired-target coverage
+remain viable explanations. Human prefix quality must not be reported as model
+generation, nor can low LN output be assumed superior to an alternative LN chart.
+Curated evidence is recorded at product 55f86faf9083da66d4d648623ac09ccf8f4797fb
+in docs/research/audio_joint_playtest_v2.md.
+
+### Research refinement: continued fitting versus persistent arrangement condition
+
+The next comparison should keep the repaired 615-arrangement/240-song TRAIN
+corpus, 36 VAL charts, full audio, finite history and exact state fixed in both
+arms. One arm continues the current model; the other adds only a small persistent
+categorical condition. This controls for further fitting on restored targets.
+Relative to the old candidate, any shared improvement combines restored targets
+and additional training; those two causes would not be independently identified.
+Do not start this training until an exact proposed Card records initialization,
+objective normalization, sampling plan, fixed endpoint, code-usage and native
+quality guards. Standing implementation authority remains separate from Note
+acceptance; no new run is claimed here.
+
+The representation under consideration is
+
+$$
+p(Y\mid X)=\sum_{z=1}^{4}p_\psi(z\mid X)\,p_\theta(Y\mid X,z).
+$$
+
+One code is drawn once per whole output from an audio-only prior. Both hazard
+and full-row heads read it throughout the run, retaining all physical history
+and LN obligations. This is a two-bit arrangement choice, not four named styles,
+a difficulty rating, a section planner or a future onset skeleton. It gives a
+small explicit place for future control/readout work without requiring it now.
+A neutral single-state control must retain the original conditional decoder.
+
+An optional recognition network can read full audio plus a low-dimensional
+summary of the reference arrangement during training. Only its four-way
+categorical distribution crosses into decoding; reference statistics themselves
+must not become inference inputs. Prefer exact enumeration of four states to
+sampling/straight-through estimators. For a source-time interval sampled with
+probability p(j|Y) and total integer-clock duration D=(T+1)/1000 seconds,
+
+$$
+\widehat{\mathcal L}=
+\sum_z q_\phi(z\mid X,Y)\frac{\ell_j(z)}{p(j\mid Y)D}
++\frac{\mathrm{KL}(q_\phi(z\mid X,Y)\|p_\psi(z\mid X))}{D}.
+$$
+
+This preserves the existing per-chart-time normalization of reconstruction and
+scales one whole-chart KL consistently. Do not charge a fresh whole-chart KL
+at every event, omit survival, merge alternative charts, or assign a new z at
+interval boundaries. A deterministic full-chart posterior summary permits
+unbiased interval estimation of the reconstruction expectation, but its encoder
+may still be a restricted approximation to the optimal posterior.
+
+Closest analogues, rechecked from primary sources:
+
+- [Sohn et al., conditional generative models (2015)](https://proceedings.neurips.cc/paper_files/paper/2015/file/8d55a249e6baa5c06772297520da2051-Paper.pdf)
+  separates an input-only prior from a training recognition network that reads
+  the target. The transferable mechanism is conditional multimodality and its
+  variational objective. Their Gaussian/image decoder is not our categorical
+  native-time autoregressive decoder; their reconstruction/prediction warning
+  reinforces evaluating audio-prior samples separately from posterior outputs.
+- [Roberts et al., MusicVAE (2018)](https://proceedings.mlr.press/v80/roberts18a/roberts18a.pdf)
+  demonstrates latent organization of musical sequences and the risk of a strong
+  autoregressive decoder ignoring it. Its bar hierarchy, reset boundaries and
+  quantized outputs are not transferred. Our small whole-song choice is much
+  narrower than its structural latent model.
+- [He et al., lagging inference networks (2019)](https://arxiv.org/html/1901.05534)
+  distinguishes model/inference collapse and shows why KL magnitude alone is
+  insufficient evidence of useful latent information. Their optimization remedy
+  is not adopted automatically. Code/posterior usage, correct-versus-permuted
+  code predictions and audio-prior native behavior need explicit checks here.
+
+Provisional outcome TEST for designing this two-arm comparison. No novel
+objective claim is made: it is a bounded conditional-mixture adaptation to the
+timed-row task. A decoder that ignores the code, only improves posterior
+reconstruction, produces four fixed loops, or loses real LN/chord/Tech relations
+fails the purpose. Better code separation or lower likelihood alone cannot win.
+If the plain continuation resolves the native behavior equally well, additional
+structure is unnecessary at this stage. The prefix study motivates the test;
+it does not establish that four states are sufficient or required.
