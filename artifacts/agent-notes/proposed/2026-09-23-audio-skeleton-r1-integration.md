@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 9b998000ffbe8fdc540b10667d0f15b36ce820a4
+Product revision: 10ddaa8daf7db1b5851d1f8c10733744da368b7e
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -5323,10 +5323,11 @@ curated docs after the tested implementation. Both commits are local; no push.
 
 ### Experiment Card: shared-arrangement-profile-v1
 
-Revision 1, proposed, accepted none. Standing implementation/training authority
+Revision 2, proposed, accepted none. Standing implementation/training authority
 applies. Clean baseline 9b998000ffbe8fdc540b10667d0f15b36ce820a4, with inference
 code unchanged from verified 1c95f6914fd3fa390d8a46f1d267d5311def7078.
-Implementation and fitting for this Card have not started.
+Implementation is complete at 10ddaa8daf7db1b5851d1f8c10733744da368b7e;
+real profile preparation/parity is running, with fitting not yet started.
 
 Question: can one persistent, interpretable arrangement condition shared by
 head, release and row factors improve controllable complete-chart generation,
@@ -5390,8 +5391,9 @@ masses. Total new trainable parameters should be 2736 (guard <=5000).
 The model defines p(k|A) p(H,R,rows|A,k). Training uses the chart's assigned k;
 this is a hard, observed auxiliary assignment, not a per-window latent reset.
 The existing importance-weighted event likelihood stays unchanged. Add the
-profile cross-entropy once per chart in expectation, divided by its complete
-audio duration in seconds: when intervals repeat a chart, average that term
+profile cross-entropy once per chart in expectation, divided by
+(duration_ms+1)/1000 to match the existing inclusive native-clock objective:
+when intervals repeat a chart, average that term
 across the interval samples rather than multiplying its population weight.
 Prior and generator gradients may both reach the audio encoder. Report the
 prior factor separately from conditional timing/row NLL. Neither their sum
@@ -5485,3 +5487,34 @@ model checkpoints must carry every accepted setting and exact identities.
 Freeze a clean intervention source before model runs. Stop on changed bytes,
 implementation parity/support failure, nonfinite values, resource bounds or
 incomplete native output. Local commits only; no remote publication.
+
+Revision 2 aligns the added prior's normalization with the event objective's
+inclusive 0..duration_ms clock. The descriptive H-rate control still uses
+decoded duration. The correction was made before any real preparation/fit;
+the unprofiled arm and all other protected fields are unchanged.
+
+#### Implementation verification and preparation dispatch
+
+Clean intervention 10ddaa8daf7db1b5851d1f8c10733744da368b7e adds deterministic
+TRAIN profile preparation, the 2736-parameter prior/condition, explicit interval
+conditioning, a once-per-chart prior factor, matched planned-weight initialization,
+checkpoint-contained profile buffers and the streaming override. Default
+unprofiled checkpoints retain their distribution. Only the declared model,
+data preparation, fitting, inference and owning tests/docs changed.
+
+The selected planned-audio plus package-layout checks passed 54 tests and
+22 subtests in 5.99 s. New tests verify TRAIN-only medoids and validation
+noninterference, exact zero-condition scores/samples, one full-audio encoding,
+gradients through all three generator factors on CPU/MPS, prior padding/gradient
+isolation, full-crop/native audio agreement, proper prior interval weighting,
+warm initialization and profile checkpoint/stream round trips. A fixture first
+named the existing audio_residual module incorrectly; correcting that fixture
+allowed the intended gradient checks to run. No model change was made to weaken
+those assertions. Prose links and diff checks passed.
+
+Preparation was dispatched via uv run --extra mps python
+artifacts/joint-audio/20260924-shared-profile-v1/prepare.py (session 62433).
+It freezes the actual 16-profile bank and verifies every zero-condition profile
+against the complete Good Luck17 baseline from checkpoint 67b8fc8f. It uses
+one CPU thread, <=180 s, no fit, and checks pinned corpus/checkpoint/baseline
+bytes. Results and fitting dispatch will be appended when that process finishes.
