@@ -7002,3 +7002,47 @@ freezes, record this committed Note OID and compare consumed counts across arms.
 Preflight is32updates per arm; main remains gated by the subsequent integrity
 native result. No fit or native output is claimed at this dispatch. Standing
 local run authority continues; no approval or lifecycle transition is inferred.
+
+
+### Result Log: density-routing preflight and main dispatch
+
+Card profile-density-routing-v1 revision 1 remains proposed, accepted none.
+Clean source a2bce683642995627c17b154d5f83e8d774787f0. Preflight fit session25677
+and native session41128 are terminal-success. Both arms completed32updates,
+128intervals,980652sampled ms,6720event rows,6300H rows,420release rows and
+332688release clocks. Their exact protocol hash is
+8f8bdd441dc4ba36452ca50915773729eb2d7cb9613affbf51a34eaf678af3c5.
+Every tracked module changed with finite gradients; all source tensors were
+copied, with no new tensor or reset learned prior. Shared took38.692s, routed
+35.442s. Checkpoints respectively
+bb64685b7ec28de7a35a3184e4d9b5625de84c4c6f79b43b6a5e80b01a6f7339 and
+b2c7124b90d38e81770f4806f21ec0057f24c20f0899d2c502d9f76ebfec0440.
+
+The original true-mode model exactly reproduces the saved full automatic
+FoolMoon rows. Switching only its routing mode preserves the entire H stream.
+All eight trained preflight outputs complete/reparse at the synthetic30s end,
+while reading full original audio. This short-end test is not evidence about
+full-song tails or quality. Shared Hysteric/profile2 has one strictHH: lane3
+TAPs at19236 and19253ms, gap17ms. Other preflight charts have no strictHH/RH.
+The recorded defect does not change the integrity gate or trigger a support
+patch. No qualitative improvement is claimed from these eight draws.
+
+Owner artifacts/joint-audio/20260925-profile-routing-v1. Fit script
+810c9370f3c9a8d988d0c69c6b5b0b6090fe5cfaaebeb8a0c7d1372f56599b08;
+native script e27cd0404d5ba44c2e0697671a2d929189b56ba67d02df9029998cbec787465a.
+Fit freeze a552bbb1b0bfa1da593f1edeb2297f6e8597ab24e8bc56ba3c7508198324b109;
+fit result6dd9fff37eee361492e74985e747f4e8a71cf66ca8b45f2e8a1a8d1d8ed28b40;
+native freeze86b87d6956ac45f505649eb4b4bc5401803f16cdac4a4a04d73146df4d5702f4;
+native result66c824c07bb3f0a9107414fac137da5d4fb62a39785b2997913caaf5e406fab6;
+parity result6cdb0f0a8fbb2136a2a3d7208db584abd58ab7458d41d01d2d920295643bb747.
+Native driver11.091s; new artifacts104669156bytes including both training
+directories. All integrity checks pass; no Card field, data or model intervention
+changed. Recommendation remainsREFINE until fixed main endpoints and inspection.
+
+Proceed with the declared serial1200-update main fits, both restarting from
+abc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef rather than
+either preflight endpoint. The launcher may use caffeinate -i solely to prevent
+idle sleep; packaged model commands and all scientific settings stay unchanged.
+Record and poll the actual returned process handle. After both terminal fits,
+run the frozen main native comparison and complete the declared Lens scope.
+No main training or quality result is claimed in this dispatch record.
