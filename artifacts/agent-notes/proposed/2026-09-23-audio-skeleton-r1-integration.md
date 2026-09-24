@@ -4729,3 +4729,46 @@ fitting/evaluate_native.py and fitting/inspect_lens.py pin clean source
 reuse the preflight model or optimizer. Record the actual full-run handle after
 dispatch and verify it directly before continuation; a path alone is not a
 running process. Overall playability remains unresolved and the goal stays active.
+
+#### Running full fit and a constrained frontier follow-up
+
+Full fit dispatched in unified exec session 34618 with caffeinate -i and the
+declared Hydra command. It is verified live through update 170, 140.17 s, with
+about 5.09 GB available RAM and 1.98 GB MPS driver allocation. Freeze confirms
+source 7c316e6ea3d22aff1fd4761798f1b4aa41d47e89, condition_full_holds=true,
+4247438 parameters and the unchanged protocol hash. Do not treat this partial
+observation as completion. Preserve this clean product revision until the
+prepared main native/Lens drivers finish; re-poll the same session directly.
+
+A possible later frontier interface should preserve the distinction between
+first-release timing and per-lane availability. The skeleton predicts the next
+nonempty release-only event. Its CDF does not say which held subset the row
+decoder will release, and an H row can itself release other occupied columns.
+No per-lane freedom probability can be claimed from the timing CDF alone.
+
+For a fixed current replay, candidate rows induce at most 16 distinct post-LN
+projections: each previously held lane either continues its known start or
+closes, and each previously free lane either stays free or starts at the current
+clock. TAP versus idle shares the same LN projection. This can bound candidate
+release-time queries without evaluating 256 separate timing networks. The
+pending event's time and H/R role are already known, so its hypothetical updated
+skeleton history is shared by these queries. Queries must not mutate committed
+state or consume publication RNG. Actual candidate row histories remain distinct
+for any later release-subset forecast; the 16-way reduction does not apply to
+full future-row materialization.
+
+Use the actual conditional first-release CDF as a possible feature, not the raw
+feasibility normalizer as a calibrated stress cost. For any fixed normalized
+event masses f(u) and any Z in (0,1), raw masses q(u)=Z f(u), with hazards
+q(u)/(1-sum_{v<u}q(v)), produce the same conditional law. Full-hold conditional
+likelihood therefore does not identify Z. A feature called feasibility stress
+would be arbitrary if it changed under that transformation while the generated
+release distribution stayed identical. Partial-occupancy survival mass retains
+its ordinary probabilistic meaning because no release is required before H.
+
+This is a bounded representational observation and an open follow-up, not an
+implemented augmentation or a new Card. Await the matched fit's actual failure
+contexts before deciding between richer consequence inputs, release-subset
+forecasting, or the independently unresolved piano/difficulty-conditioning
+problem. Do not add a universal release/head spacing loss or enlarge capacity
+solely because the finite frontier approximation is incomplete.
