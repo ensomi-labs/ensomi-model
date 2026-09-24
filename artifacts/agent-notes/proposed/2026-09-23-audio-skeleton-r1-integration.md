@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 98013eeb3b4a867d751bd7705c2bd41aa92b5cd0
+Product revision: 4b56f3ab72cd773838e212bd4d5b7e078ae267aa
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
