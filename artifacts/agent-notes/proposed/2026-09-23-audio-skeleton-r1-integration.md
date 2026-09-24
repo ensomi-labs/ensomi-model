@@ -3623,3 +3623,117 @@ plus every time-view page for the 24 generated style contexts and four source
 contexts. They have only been syntax checked; no new bundle or images have yet
 been produced or judged. Material native guard cases still require additional
 scoped review after their outcomes are known.
+
+### Architecture steering and terminal lineage readout
+
+The owner explicitly restated that NLL is a proxy and requested explanations
+from model structure, module coupling, information flow, dependency, training
+invariants and approximations. The owner also requires direct audio conditioning
+of row materialization in addition to skeleton conditioning. The dependency was
+then refined: skeleton uses its own previous skeleton, not the learned content
+history of materialized rows, but may read actual LN occupancy because it affects
+the skeleton. This last physical-state exception supersedes a strictly one-way
+interpretation. Do not remove the audio-to-row path or all LN feedback.
+
+The fixed boundary is therefore separate skeleton history and row-content
+history, with an explicit minimal LN-state projection crossing from committed
+rows to skeleton generation. Occupancy and active-LN start/age are candidate
+physical fields; generic tap/chord layout, learned row embeddings, row counts
+and past-head clocks must not enter by accident. At fixed audio/controls,
+skeleton history and this LN projection, changing tap materialization should
+leave the skeleton distribution unchanged. Row decoding may and should remain
+sensitive to its own materialized history. Joint optimization through a shared
+audio encoder is distinct from runtime row-content feedback.
+
+The current global/bounded model violates this desired boundary: its timing
+residual reads the row TCN and complete exact-state features. Its row decoder
+does read local and global audio directly, but has only the current sampled
+event time and past materialized context, not a separate future skeleton plan.
+The existing models are now diagnostic baselines, not the presumed final
+architecture. Keep the old persistent-intent trial deferred; do not enlarge
+that architecture before resolving the changed dependency contract.
+
+The main lineage fit completed all three endpoints with identical 4800
+intervals, 37253258 ms, 253512 event rows, 345613 heads and 3954145 timing bins.
+Main result SHA
+21aede634fed0106535cd7bf77b4470d858306a9489307bcd0d72f801fda965a.
+Release checkpoint 02f6511fbd146a656b84e6aaf95821068d56f9dc16b3a0d36c51e0267a3be910,
+memory f872b270f380adba4142aa0d206fd1ea1973c7e0e3dcae1f8274de7acdaa3def,
+plain c4fa67309a50473bb4400146229a6ce610be01c7ff011c3d530d931cfe9925f5.
+Final source-conditioned population NLL/s is 40.06002 / 40.05814 / 40.40358;
+this does not rank native playability. Total main launcher time 1691.02 seconds.
+
+Readout supervisor run_readout.py was launched after verifying training parent
+PID 90600 and its creation time. It waited for that actual parent to exit before
+starting native evaluation. Unified training session 76752 and readout session
+76923 are now terminal. Native generation hit the declared 1800-second overall
+budget: 246 attempted, 245 complete, one partial plain case val-s19-13, and 30
+unattempted. Release and memory each have all 92 native/style outcomes; plain
+has 62 attempted native cases. The partial case stopped on the overall budget,
+not its per-chart cap. Do not count this as a demonstrated model-generation
+failure or drop unmatched cases. Native progress SHA
+0908f003216ddd944b795a3b4fb4ffa61d9e890341136e7d64a21cad4a46eedf.
+partial-readout-summary.json preserves the bounded outcome. No automatic
+seed-variability analysis or full Lens extraction ran after the bounded stop.
+readout-live.json is stale; both its child PID 96230 and supervisor have exited.
+Do not restart or extend this old-architecture sweep implicitly.
+
+A separate interim quality inspection used one complete Airborne Robots case,
+seed 33, alongside incumbent v2, the source NM arrangement and the human-reviewed
+AIRBORNE alternative of the exact same audio. Owner:
+artifacts/joint-audio/20260924-r1-interim-playability-v1. Bundle-v2 manifest SHA
+f8996225e8a66c03d5f75ae103451517312f8e9ab36beb11406fe6f527bf92e4.
+All eight time-view pages of [147208,150258) were inspected. New release has
+65 heads/16 LNs, incumbent 51/23, AIRBORNE 50/10 and NM 10/1. The new output
+includes larger chords and a local LN block; a lower LN ratio does not by
+itself make it better. Human Tech support belongs to AIRBORNE's narrower
+[147608,149858) scope, not automatically to either generated chart. No listening
+or player verdict is claimed, and this comparison changes multiple training
+variables rather than isolating R1 lineage.
+
+The initial interim bundle preparation stopped on an overly broad normalized
+object equality check. Fresh parsing adds id/x/hitSound/sourceKind note metadata
+absent from the frozen parquet representation; all 3814 frozen note fields,
+source metadata, range and timing points match exactly. The second preparation
+preserves the frozen human chart unchanged and records the fresh output in
+bundle-v2; the first incomplete bundle remains as failed preparation evidence.
+
+### Experiment Card: skeleton-input-noninterference-audit-v1
+
+Revision 1; proposed; accepted revision none; exploratory diagnostic under
+standing execution authority. Clean source
+4db2335bec1996626f7eec526ecb3a7bb8f7ab9e, fixed release-initialized joint endpoint
+02f6511fbd146a656b84e6aaf95821068d56f9dc16b3a0d36c51e0267a3be910.
+Question: does the current timing path change when tap placement changes while
+audio, skeleton times/roles and LN state remain identical? The desired new
+interface forbids that dependency; the current graph explicitly permits it.
+This test locates the path rather than proving why a chart is bad.
+
+Use the byte-pinned completed Airborne release output in the interim inputs,
+its exact audio/Mel and two prefix cutoffs 147207 and 148249 ms. Construct a
+legal counterfactual by reassigning only preceding TAP heads to the earliest
+available lanes, preserving the number of taps in every row and every LN
+start/release action. Keep future rows unchanged and use none of their labels
+for the probe. Verify all prefix event times/H-R roles and the complete LN
+trajectory are identical. This changes row-content history and non-LN clocks,
+not the allowed skeleton/LN inputs. It is never paired with original future
+rows for a training loss.
+
+Score the conditional next-event distribution over the following 500 ms with
+complete audio and each legal prefix. Primary readout is maximum absolute
+hazard-logit difference; >1e-5 demonstrates a locally active forbidden path.
+Record selected CDF points, timing base, bounded residual and gate. The base
+and gate must match within 1e-6 because their allowed inputs are identical;
+failure stops interpretation as a content-only intervention. A zero difference
+would show dormancy at these prefixes, not global independence.
+
+Also verify manual row-score decomposition against the canonical decoder and
+the algebraic invariant that head/release routing preserves kind probabilities
+within a fixed head-mask/release-mask family. This is an implementation/property
+check, not an alternative generator. Inspect direct local/global audio residual
+contributions without treating their norms or zero-channel scores as quality.
+No training, model mutation, generated rollout, reference-suffix supervision or
+new performance claim. Fresh owner
+artifacts/joint-audio/20260924-skeleton-input-audit-v1; freeze script/input pins
+before scoring. CPU one thread, <=60 seconds, >=2 GiB available RAM, >=40 GiB
+free disk, <=20 MiB outputs, no overwrite or resume. Record all failures.
