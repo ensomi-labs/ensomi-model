@@ -1910,7 +1910,7 @@ it is not a universal statement about mania charts.
 
 ## Experiment Card: audio-context-history-paths-v1
 
-Revision 1. Proposed; acceptance none. The standing user instruction authorizes
+Revision 2. Proposed; acceptance none. The standing user instruction authorizes
 bounded implementation and experiments. This Card succeeds the completed
 paired-song coverage comparison without changing its recorded result.
 
@@ -2099,3 +2099,42 @@ checkpoint and no model selection. Artifacts are context-memory-fixed-v1 and
 context-memory-variable-v1 under the expanded corpus. This is an exploratory
 resource investigation under the same implementation source; it does not change
 the main Card's data, objective or model factors.
+
+### Memory result and Card revision 2
+
+Global/bounded preflight also completed 32 updates, in 90.81 seconds. It used
+the exact same 128 intervals, clocks, events and heads; the common initial
+module hash was identical, 3c62dfd7a0a04a9ca1cd997d9f6216187649dca3804f294ce7a807336eb45256.
+Its two-song population probe fell from 98.3393 to 68.7119 NLL/second. Its
+checkpoint is 153d39f344f6f75d3cdba5dfa3416bf20e91775e62503ad4fcb3c4ac75f548db.
+This does not establish an architectural win at 32 updates on two songs.
+
+The fresh fixed-input memory probe took 8.87 seconds for 32 updates. Active
+MPS storage stayed at 167,217,664 bytes after warmup; driver storage stayed at
+614,645,760 bytes. The variable-input cold cycle took 78.43 seconds for the
+first 32 planned updates. Repeating those same 32 took 13.10 seconds. Active
+storage remained exactly 167,217,664 bytes throughout both variable cycles;
+driver storage reached 2.88 GB at the cold-cycle end and approximately 2.91 GB
+after the warm cycle. Available memory fell in the cold cycle and then stayed
+near 4.6 GB in the warm cycle. Cache release reduced driver storage to 1.29 GB,
+but did not return process RSS to its initial level. No resource guard fired.
+
+These observations locate substantial cost in first-seen input shapes and
+retained runtime allocations; they do not fully attribute every RSS/driver
+byte or prove a particular allocator mechanism. Apply behavior-preserving
+padding buckets before scaling: local audio/history/timing axes at multiples
+of 128, row-query axes at multiples of 64, and complete coarse audio at a
+power of two in 50-frame cells. Masks and target counts exclude padding, and
+the full-song context shift rotates real coarse tokens only. Record active
+MPS and process RSS alongside existing counters. The model, objective, source
+intervals, initial weights and main exposure budget remain unchanged.
+
+Revision 2 permits this execution-shape change and fresh 32-update preflights
+for all four cells under `paths-<local|global>-<fused|bounded>-preflight-v2`.
+The two v1 preflight results remain evidence and are not overwritten or used
+as initial weights. Recheck independent-query likelihood, causal indices,
+padding/full-song equivalence and the native checkpoint path. Repeat the same
+64-update variable/cold-warm memory probe with a fresh v2 output before main
+training. Stop scaling if memory remains unbounded or the masked equivalence
+checks fail. Main run names, input pins, shared protocol and 1200-update bound
+remain those already specified; Card acceptance remains none.
