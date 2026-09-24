@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 4db2335bec1996626f7eec526ecb3a7bb8f7ab9e
+Product revision: e32e6e1df3a97f42af54d16b9b2292d05d832bcf
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -47,12 +47,15 @@ playability and expressive coverage take priority over reconstruction scores.
 Use actual Beatmap Lens source/render inspection and human comparisons to identify
 bad relationships; style presence is not a quality verdict.
 
-The product research proposal is
-`docs/research/audio_conditioned_choreography.md`. It distinguishes exact replay,
-recent detail, audio/arrangement recurrence memory and provisional plans. Its
-current exploration outcome is TEST for the small joint model family. The active
-exploratory Card below specifies the first joint implementation and bounded run.
-Existing pilot implementation and weights remain separate exploratory baselines.
+The current integration contract is
+`docs/research/audio_skeleton_information_contract.md`: direct full-audio input
+to skeleton and rows, separate histories with minimal committed LN feedback,
+and explicit candidate-action consequence evaluation. Its head-plan/release-clock
+factorization is proposed, not implemented. The existing joint architecture and
+completed fits are diagnostic baselines. Earlier alternatives and Cards below
+retain their original scope; the persistent-intent fit and extension of the
+incomplete lineage sweep remain deferred. The broader research overview is
+`docs/research/audio_conditioned_choreography.md`.
 
 - Release tag: `r1-restored-6.75m`, source
   `8f1310322ba1f64a1ca259893e76376daf36396e`.
@@ -3737,3 +3740,109 @@ new performance claim. Fresh owner
 artifacts/joint-audio/20260924-skeleton-input-audit-v1; freeze script/input pins
 before scoring. CPU one thread, <=60 seconds, >=2 GiB available RAM, >=40 GiB
 free disk, <=20 MiB outputs, no overwrite or resume. Record all failures.
+
+### Result Log: skeleton-input-noninterference-audit-v1
+
+#### Experiment and reproduction
+
+Owning Note 2026-09-23-audio-skeleton-r1-integration; accepted revision none.
+Card skeleton-input-noninterference-audit-v1 revision 1, proposed at note commit
+06b4ff31b7d78cbf0cafa212703b8a308b27d46d. Baseline and instrumented execution use
+clean product 4db2335bec1996626f7eec526ecb3a7bb8f7ab9e; no product implementation
+change or model mutation. The frozen probe script SHA is
+27d628a3183be044ea38f25b608d347baf68eef850ed5d8709d02a2727955a4e.
+Procedure: execute probe.py from the fresh named owner, loading the fixed release
+endpoint and completed Airborne Robots seed-33 output. No sampling or fitting
+occurs in this diagnostic. The script verifies source cleanliness and all input
+pins before encoding full audio and comparing each original/altered prefix.
+
+Owner: artifacts/joint-audio/20260924-skeleton-input-audit-v1.
+Freeze SHA 3769d59881b8a7c2a036293edbfd3c099194c09955f9915371dbe7d1c521be3e;
+result SHA 2038a5f2be4bcb422496273affc9317212e4bdd0a69aa3b645781dbb1d0b861a.
+Checkpoint 02f6511fbd146a656b84e6aaf95821068d56f9dc16b3a0d36c51e0267a3be910;
+native rows 70fbdac5d811782ed0163e8b03391df531374f2e36b1234c5084a4406fbccd62;
+audio 962f70f90431c99005f0644bd893329d0df5cbcbe79b56c9396ff9fb3bfc4f3d;
+Mel 2ff88832f579faa64145d23c23a8baefcfa018feac6789ec1d10107602d142b7.
+Apple M5, 24 GiB RAM, Torch 2.11.0, CPU one thread. Completed normally in
+0.62359 seconds under the 60-second bound; no overwrite, resume or failed run.
+The available-memory and free-disk guards passed before encoding and both
+queries; numerical minima were not recorded. Post-run inspection confirms three
+files totaling 14868 bytes in the owner, below the 20 MiB output bound.
+
+#### Results and plan conformance
+
+The two legal interventions preserve times, roles, per-row TAP counts and all
+LN starts/releases. They relocate 1128 preceding tap rows at 147207 ms and
+1136 at 148249 ms. The latter has columns 0/1 occupied; the former has no holds.
+These large rearrangements test a functional dependency, not a natural quality
+counterfactual. Next-event distributions are queried for 500 ms.
+
+| Cutoff | Maximum timing-logit difference | Original / altered CDF at 50 ms |
+| --- | ---: | ---: |
+| 147207 ms | 0.4588027 | 0.6180910 / 0.5895400 |
+| 148249 ms | 1.4190359 | 0.6135968 / 0.7308428 |
+
+Both differences exceed the declared 1e-5 path-activity threshold. Base and
+gate differences are exactly zero, within the 1e-6 guard. Row-score decomposition
+matches the canonical decoder exactly. Across 54 legal head/release-mask
+families, routing changes conditional tap/LN probabilities by at most
+5.82194e-8, below the declared 1e-5 tolerance. Direct local/global row-audio
+residuals are nonzero; their norms are not a quality or sufficiency metric.
+
+No protected field changed. Source code, checkpoint, prefixes, intervention,
+query horizon and deterministic comparisons match the Card. No rollout, future
+label loss, listening or new player judgment was performed. The missing runtime
+resource minima limit resource reporting, not the deterministic comparison.
+
+#### Evaluation and decision
+
+Observation: row-content/non-LN-clock changes reach the bounded timing residual
+even with identical allowed skeleton/LN inputs. Interpretation: the existing
+model has an active path excluded by the refined interface. This probe does
+not separate the TCN from unrelated exact clocks, nor establish that either
+caused a specific BAD chart. The allowed LN timing base is unchanged, so the
+result does not support removing physical LN feedback.
+
+Recommendation REFINE. Enforce the input boundary in the next architecture,
+then evaluate native organization; do not scale the current coupled timing
+model to compensate. Fixed-mask routing invariance is local and does not
+guarantee preservation of complete sampled trajectories. No Note acceptance
+or model adoption follows from this exploratory result.
+
+### Frontier role retained in the next design
+
+The human owner emphasized that frontier2's conceptual role matters to the
+formulation. The original RowConsequence code remains in bounded R1, but neither
+JointAudioModel nor ContextAudioModel instantiates or transfers it. The verified
+bit-identical joint initialization from 6.5M and 6.75M therefore means the final
+stage's direct correction is absent, not that it was behaviorally redundant.
+
+Product b5a664cd3da5dd821bc5a6d5d149719cf76386dd established the skeleton/LN
+information contract and recorded the probe. Product
+e32e6e1df3a97f42af54d16b9b2292d05d832bcf adds the previously omitted consequence
+path to that proposal and connects the transfer audit to it. These are scoped
+documentation commits; no replacement module has been implemented or trained.
+
+Three concepts stay distinct: the formulation's response function over legal
+futures; the old learned candidate-row residual using passive next-H clocks and
+a second-H time gap; and its optimistic two-H, one-tap-per-H, earliest-release,
+30 ms machine-preference training objective. The last two approximate a small
+part of the first. They do not define calibrated playability or a universal
+anti-Jack/release rule.
+
+The proposed row path evaluates candidate immediate post-states, reads direct
+audio and generated head lookahead, and adds consequence-conditioned preference
+before legal normalization. Release times not yet chosen remain unknown or are
+queried as hypothetical conditional futures. They are never supplied as actual
+reference tails. Candidate evaluation does not mutate committed state or
+consume publication randomness. After choosing the row, only the allowed LN
+projection returns to skeleton generation. Reweighting skeleton plans using
+the full-history consequence score would change that contract and is not
+silently included.
+
+The initial residual can learn jointly from source-row likelihood without
+claiming its score is a canonical demand quantity. Old weights require matching
+feature meaning, not only matching shapes. The head stream's independence from
+LN occupancy remains a stronger proposed factorization, not an owner-mandated
+restriction on all future skeleton models. No numerical result establishes the
+fraction of new-system errors attributable to the omitted frontier2 branch.
