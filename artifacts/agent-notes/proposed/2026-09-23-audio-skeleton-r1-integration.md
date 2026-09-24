@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 579c0a8add28377881a12ab263059fa0fc4ca938
+Product revision: 0b35eced5a8118da745a84dccee75e8b0e503bed
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -6588,3 +6588,30 @@ selection, one seed/request, soft descriptor controls, paired autoregressive
 history changes, unknown oldR1 exposure and lack of player tests. Recommendation
 remainsREFINE until actual results and scopes are assessed; Card acceptance and
 remote publication are not implied.
+
+
+### fresh-audio-system-v1 execution source
+
+Clean intervention0b35eced5a8118da745a84dccee75e8b0e503bed implements only the
+declared source-free inference adapter, semantic validation, owning tests and
+documentation. Baseline-to-intervention diff has six paths,58insertions and
+12deletions. No sampler probability, buffer policy, checkpoint or source data
+changes. Card revision1 remains proposed, accepted none; standing run authority
+applies. The only new setting is screen_unpublished=False by default, selecting
+the existing8s/four-attempt/RH-screen policy whenTrue and rejecting simultaneous
+optimistic row correction.
+
+Focused verification: inference tests8passed in2.32s; buffer/package tests7passed
+plus22subtests in.90s. The actual model-backed impossible dense-head fixture
+exhausts four proposals and exposes no update or speculative row through the
+entrypoint. Default direct-row parity, Hydra projection, conflict rejection and
+Torch-free help are covered. Changed prose links and git diff --check pass.
+No unrelated suite or CUDA coverage is claimed. Product commit is local only.
+
+The artifact driver will pin this clean source and this Note's committed OID
+before creating its fresh freeze.json. The first two automatic direct/screened
+pairs are the gate. Existing prepared features are integrity references only;
+every infer_audio call still decodes original audio and recomputes Mel. Consumer
+primary starvation accounting uses zero extra presentation lead; an additional
+2s visual-lead diagnostic is reported separately, not silently substituted for
+the declared guard. No native output exists yet at this dispatch.
