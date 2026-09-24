@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: fd2ddfdbc66c1177167487085bccfbac818ddb39
+Product revision: 844de84ee7a2f7560939136710dbab6ce907e006
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -7828,3 +7828,98 @@ intervention. Current evidence preserves expressive local mechanisms while
 showing unreliable global control and bounded-retry robustness. No listening,
 player test, whole-cohort qualitative judgment, model promotion, remote push,
 Note lifecycle change or goal completion is implied.
+
+
+### Result Log: composition available-output review completed
+
+Card head-materializer-composition-v1 revision1 remains proposed, accepted none.
+The native run remains terminal stopped_on_guard; no model, training, renderer,
+or passed behavioral check was rerun to complete this review. No live job remains.
+The original64-call comparison is still incomplete:32direct and21screened
+charts completed, one screened Take prefix was capped, and ten screened calls
+were unattempted. Missing cases are not passes and the successful screened
+subset is not substituted for either arm's aggregate metric.
+
+All80new scopes and258new time pages in the frozen available-output plan have
+now been inspected, with complete action/LN articulation tables. Six exact
+source-reference reuses retain their completed parent identities. This includes
+all28direct HH pairs, their surrounding organization, every available accepted
+window requiring resampling, and the selected fixed/dense contexts. Post-hoc
+direct fallbacks remain explicitly distinguished from unavailable screened
+results. Actual rejected proposal trajectories were not saved; the direct Take
+counterpart is never represented as one of those rejected samples.
+
+Local owner artifacts/joint-audio/20260925-head-materializer-composition-v1.
+The complete review.json has SHA-256
+c7a1f1a764856b9038854e6f95d5c74f56c3e6e31183768b72387779f9591eaf.
+finalize_review.py checks the recorded80scope/258page inventory against the
+unchanged plan, complete table inventory, six parent review/plan/semantic
+identities and terminal cohort accounting. Its all_declared_scopes_covered
+field explicitly refers to main-lens/plan.json, the available-output scope;
+original_full_cohort_complete remains false. The native terminal result is
+unchanged; its historical qualitative_review=pending field is superseded for
+available scopes by this separate review record, not rewritten in place.
+
+The primary prospective comparison remains negative: total error7.384925
+versus7.340423 original (+.6%), LN error3.812930 versus4.096142 (-6.9%, short
+of15%), width2.698137 versus2.370422 (+13.8%, above10%guard). ExactHpreservation
+passes. Reverse total10.205724, LN5.462095 and width2.980134 show a different
+tradeoff. These are TRAIN-transformed/scaled descriptor errors, not musical
+quality or a percentage of failure attributable to R1.
+
+The visual review preserves positive evidence. Prospective Hysteric/profile2
+has independently staggered holds spanning3/4/6H, paired/triple roles and subset
+releases; Zenithfall has a2083ms hold spanning8H with other-column actions.
+Reverse AsItWas/profile1 repeats triple1/2/3 six times at roughly160–190ms while
+column0 holds through the first five H. Some short LN groups instead close
+before the next H. Thus LN fraction, held-role organization and repeated-grip
+structure are different observations. No generic anti-Jack or hold-duration
+floor follows from this evidence.
+
+Control remains unreliable: prospective FoolMoon/profile2 selected contexts and
+peak are all TAP, as is the prospective AsItWas/profile2 fixed direct context.
+The latter still has alternating0/2 and1/3 doubles and a quad. Reverse Hysteric
+profile2 is largely TAP in inspected contexts and its148H/8speak, though other
+scopes retain brief overlapping holds. The complete direct LN fractions vary
+nonuniformly with H/materializer exchanges; denser H alone does not explain
+all losses. These are scope-specific observations, not source-tag copying
+requirements, listening judgments or a blanket bad-chart label.
+
+The direct HH witnesses separate local wrong-lane selection, chosen chord sizes
+exceeding rested capacity, and LN release interactions. In the direct Take
+witness at115105/115114/115119, five attacks occur within14ms across four
+columns. With H times preserved, an earlier chord must contain fewer heads;
+reassigning all five heads cannot repair the conflict. Another Take witness
+combines9ms HH and9ms RH because the only HH-rested lane has just released.
+By contrast, many1–19ms cross-column splits and complementary double exchanges
+survive screening. Exactly20ms same-column pairs are excluded from strictHH,
+without being certified comfortable.
+
+The actual reverse Take screened guard stop remains a liveness failure:
+fourHH-rejected candidates in.604306s, stopped coverage113296/144236ms. It is
+not an observed accelerator/CPU capacity failure. ZeroHH/RH in published rows
+does not establish that playback can continue. Frontier2 is present, but its
+now+1 release opportunity is not an actual release forecast or reservation of
+future rested columns. This motivates jointly considering chord size, actual
+LN occupation/release and upcoming H before commitment. A typed/cardinality
+factor, finite-horizon constrained generation and changes to training feedback
+remain hypotheses; none has been selected or validated by this comparison.
+
+Curated report docs/research/head_materializer_composition.md and the updated
+head_factor_drift.md are committed locally as
+844de84ee7a2f7560939136710dbab6ce907e006. The report is self-contained and pins
+the numerical/visual evidence without depending on this Note. Verification
+checked source owners, local links/fragments, evidence hashes, cohort totals,
+recorded review coverage and the staged diff. No runtime behavior changed, so
+passing model tests were not rerun for the prose change. The earlier ad-hoc
+reporting read initially assumed a parent realized_values field and was corrected
+to the existing description.ln_fraction; it neither ran inference nor changed
+evidence. Product and Note publication remain local only.
+
+Recommendation remains REFINE: do not adopt either functional composition,
+resume the capped comparison, increase its proposal budget, or claim the final
+playable system. Available-output review is now complete, permitting the next
+research choice. Prioritize a justified change to the generative coupling and
+continuation contract, evaluated for requested organization and sustained
+coverage as well as strictHH. No human acceptance, Note lifecycle transition,
+listening/player claim, remote push or goal completion is implied.
