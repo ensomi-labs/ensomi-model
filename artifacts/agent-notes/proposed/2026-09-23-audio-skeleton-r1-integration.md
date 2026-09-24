@@ -4303,3 +4303,81 @@ head histories. All native outcomes and all final generated context pages still
 require inspection even if the CDF passes; reject mere activity inflation.
 No recovery result, final bounded-model quality verdict or new playtest delivery
 is available yet. Cards remain proposed and the overall goal remains active.
+
+### Bounded main completion and release-boundary investigation
+
+Bounded main session 62534 is now terminal success: 1200 updates in 867.45819 s,
+same 4800 intervals/37253258 ms/253512 event rows/238904 H/14608 release-only
+rows/10684532 release clocks. Checkpoint
+47d41844afc673788cb640c67a1d5e41b2b9ca75ae679298c10072200925bce6;
+freeze 9d5dc5fc0f1ee10446149ecdd91babaf34361ae00fa3500fdd4b960ca9ec5df8;
+result 17e0d55325fc343d7d16d23ee26a832be0b27ae1c37676870e7b32556d2f4adf.
+Population NLL/s 40.55605 and BOS 27.40233 are slightly worse than the unbounded
+endpoint; this is not a rejection criterion by itself. Logged available memory
+minimum 4907761664 bytes; driver maximum 3117776896 bytes.
+
+Recovery probe session 66131 completed in 2.08020 s. Result SHA
+cd1148a1b6200e889945aef9e762a9de1d12657387352cd0d162231a79d04dc1.
+Who 19 / Death 19 / Good Luck 17 / Good Luck 19 five-second CDF changes from
+.91924/.69511/.70648/.63836 to essentially 1/.93522/1/1. The declared all-four
+>=.99 gate FAILED on Death Piano; report partial recovery, not full success.
+Death's audio-base-only CDF is .79334, while the other three exceed .99998.
+
+Main native session 46460 completed all nine cases in 15.20279 s, with independent
+export/reparse success. Native result SHA
+29257b415498fcb432819057a3012e64de21f0a65b7a45d63c06c54688dc0273.
+All last heads now reach near the song end (Death 17 ends at 167212 ms, close to
+its reference's 167204 ms, against 177372 ms audio). Largest internal H gaps
+are 1.07-2.73 s outside Death Piano; Death remains sparse with 7.407/10.493 s
+internal gaps. First 30 rows take .1468-.2581 s from cached Mel; full-pipeline
+preprocessing and dense-source stress are not established by this measurement.
+
+Lens session 59531 completed; manifest
+ceb8572f1d5ebe428b9dd375a40e5de16eae6991a5bce00fd5f81d14fb2a18c7.
+All 26 new generated pages and all actions/articulation were inspected; 14
+references are byte-identical to previously viewed pages. Every fixed window
+now has heads. Who has 58/0 and 62/0 heads/LNs with repeated pulse organization;
+Prom Queen has 23/0 and 19/4 with repeated chords or tap/LN exchanges. Good Luck
+has 16/4 and 10/4, including a two-hold passage with distinct releases in seed
+17. Death has only 2/1 and 4/2 with multi-second LNs, still lacking demonstrated
+fine rhythmic expression. Airborne has 14/1 instead of its former headless
+window. These are meaningful but incomplete improvements; no listening/player
+claim or overall playability promotion follows.
+
+One Airborne all-held deadline event remains: at 39901 ms row (2,0,0,2) joins
+holds in columns 1/2, occupying all lanes. The next H is 40211 ms. A release-only
+row at 40210 closes columns 0/1/2, followed one millisecond later by a TAP in
+column 1; column 3 remains held until 40549. Full [38200,41900) actions,
+articulation and both time pages were inspected in main-lens/release-witness.
+This is a specific release/re-press concern, not an anti-LN-duration rule.
+The frontier's earliest possible release is 39902, which does not forecast the
+actual release law. No new fit is running.
+
+Experiment Card all-held-wait-law-audit-v1 revision 1, proposed, accepted none.
+Baseline clean source 88e56832287f492fdca81ea7194b90753526cc96 and the fixed
+bounded main checkpoint above. Inspect the Airborne seed-33 witness only.
+Reproduce the complete output with behavior-neutral observation of the release
+sampler's RNG state and threshold at 39901 ms; require exact row equality.
+Read the unchanged raw release logits over 39902-40210, with actual committed
+LN state and generated future heads, without future actual release actions.
+
+Compare two mathematical waiting laws on those same logits: the implemented
+deadline atom, which moves all surviving probability to 40210, and the raw law
+conditioned on a release before the required H. Report total feasible event
+probability, last-clock mass under each law, and the sampled quantile under
+the same underlying uniform draw. This changes no trained model or published
+chart. If conditional normalization shifts the observed quantile earlier and
+reduces last-clock mass by >=10x, it motivates a training/inference-consistent
+normalization intervention; it does not prove that new complete charts are
+better. If not, inspect row-consequence and release forecast coupling instead.
+
+Also inspect the four same-head-mask tap/LN variants at the 39901 ms decision,
+with/without the consequence residual at fixed row context. No target suffix
+loss or universal comfort margin is introduced. CPU one thread, <=120 s,
+>=2 GiB available RAM, >=40 GiB free disk, <=20 MiB fresh owner
+artifacts/joint-audio/20260924-head-recovery-v1/release-law-audit;
+no overwrite/resume. Stop interpretation on reproduction failure. The legal
+next-H condition distinguishes this problem from the head stream: one release
+is required when all lanes are held, whereas a new head is not required during
+every musical rest. Conditional normalization preserves every legal native
+release time and may avoid an artificial boundary atom without a spacing ban.
