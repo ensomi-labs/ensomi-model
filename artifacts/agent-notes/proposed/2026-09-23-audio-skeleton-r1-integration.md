@@ -4701,3 +4701,31 @@ work. Failure localizes whether learning, head activity, release/row interaction
 or resource behavior regressed. Sparse-piano and broad expressive coverage remain
 separate unresolved goals. A result with only proxy gains or uncertain visual
 effects is REFINE and cannot promote the model as a final playable system.
+
+#### Feasible-release learning preflight
+
+Preflight session 41633 completed 32 updates in 38.30641 s, with the unchanged
+128 intervals/991062 ms/6722 rows/6217 H/505 release-only rows/291439 release
+clocks. All tracked modules updated, including release_clock L2 .5948875 and
+frontier2 L2 .0363215. The checkpoint contains condition_full_holds=true and
+the unchanged 4247438 parameter count. Freeze
+240c6d0dcc73ddd36d646f4edcf6bb8e6c2257726a3295c357c9c9093da4b304;
+result 65546a189b3c8b42607e6c075e50929aaab12d64a7c1ba62288229be546a5a84;
+checkpoint 7921f94440327c42df1462f96580cfb4aec321950d7e45bfe67eb5e5a7c990bf.
+Population NLL/s 50.54437 and BOS 41.42026 are fitting diagnostics only.
+
+Preflight native session 81813 completed all nine exports/reparses in 20.53865 s;
+result 2bad69c631b0a4e7840656c6051062f33ceb2ade33ba8d0b4a48780bd27c4efe,
+under the feasible-release owner/fitting directory. This early checkpoint has
+5 RH<=20 and 40 HH<=20 witnesses and is not a quality candidate. The declared
+preflight gate is finite learning, correct config and complete/reparsed native
+execution, which passed; the zero-close-gap main gate is unchanged. No Lens
+quality verdict or endpoint selection is claimed for preflight.
+
+The full comparison now uses a separate fresh initialization and the same frozen
+1200-update plan, with run_name=planned-feasible-release-main-v1. Prepared
+fitting/evaluate_native.py and fitting/inspect_lens.py pin clean source
+7c316e6ea3d22aff1fd4761798f1b4aa41d47e89 and the declared corpus/config. Do not
+reuse the preflight model or optimizer. Record the actual full-run handle after
+dispatch and verify it directly before continuation; a path alone is not a
+running process. Overall playability remains unresolved and the goal stays active.
