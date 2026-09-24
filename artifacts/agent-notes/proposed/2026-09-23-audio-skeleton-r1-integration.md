@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 5f7439e208da94db4b2c7b2936dbc98aacc2a768
+Product revision: 4db2335bec1996626f7eec526ecb3a7bb8f7ab9e
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -3471,3 +3471,43 @@ native outputs stay under the comparison owner. The artifact launcher records
 exact commands/script hash and checks return codes/bounds before advancing.
 No remote push or lifecycle acceptance. Attribution with one training seed
 does not establish robustness to initialization or a final playability result.
+
+### Joint-lineage implementation and frozen inputs
+
+Product 4db2335bec1996626f7eec526ecb3a7bb8f7ab9e implements semantic learning-rate
+assignment only for the context trainer, shares the transfer module-family
+constant, and records named optimizer groups and initial hashes. Architecture,
+inference and other trainers are unchanged. The final focused command
+uv run --extra mps --group dev pytest -q
+tests/research/joint_audio_continuation/test_context_training.py
+tests/research/joint_audio_continuation/test_model.py
+tests/research/joint_audio_continuation/test_context_intervals.py
+passed 25 tests. An initial test draft used a nonexistent output.weight name;
+it was corrected to the existing score.2.weight without changing the intended
+assertions. The checks cover missing/present routing checkpoints, equal rates,
+unmodified audio initialization, actual trainer consumption, serialized group
+ownership, transfer and interval behavior. git diff --check passed. Local
+commit only; no publication.
+
+Card r1-lineage-joint-learning-v1 revision 1 remains proposed at Note commit
+da0170781870bda9255c5c7aec2c750e7b8353bd, accepted revision none. The baseline
+to implementation diff contains only the declared grouping/receipt change,
+its tests, shared constant and owning documentation. No unrelated intervention.
+
+Fresh owner artifacts/joint-audio/20260924-r1-joint-lineage-v1 contains the
+launcher run_comparison.py and freeze.json SHA
+ab6456cd639a33275f5f9c03957ca5d7fa8995ae7e05d4b0308ea162bbf19aa3.
+Canonical protocol recomputation exactly reproduces SHA
+34ef9751df4571f516ef2b670b3b0f4b398c212fdd16adcee1a029bd9168eb14 under the
+new r1-lineage-comparison-v1 name. All three real initializations have identical
+1017140-parameter audio/timing group SHA
+62a00e7262edabdac5f23c1f8bded5f122b281558c8f146ff19dd0b3f3542732.
+Their complete group ownership/rates match; release grouping equals its copied
+tensor set. The 84 native cases retain exact original source/seed mapping;
+the eight style cases use the original audio pins. Inputs and all phase-specific
+Hydra commands/configs are frozen before training.
+
+The 32-step preflight phase has been launched sequentially on MPS with
+caffeinate -i and the frozen launcher. No preflight outcome or main training
+completion is yet claimed. Subsequent status must be verified from the live
+process/tool handle and result files, not from this launch record alone.
