@@ -7530,3 +7530,25 @@ identity mismatch, guard failure or exhausted cap. No product behavior changes
 are required; instrumentation is a bounded derivative script with pinned bytes.
 Recommendation remains REFINE until interpretation; no acceptance or adoption
 is implied by execution authority.
+
+
+### Head-factor diagnostic revision 2 and input-path correction
+
+head-factor-drift-v1 revision2 remains proposed, accepted none. Attempt1 session
+93089 is terminal failure before any factor measurement: the diagnostic assumed
+rows.jsonl beside every result.json, while the original packaged audio-file
+entrypoint stores its exact row export at chart/rows.jsonl. All48 intended row
+streams exist and match the already-pinned rows_sha256 values after resolving
+that owner-specific path. No source trajectory or baseline identity changes.
+The failed analyze.py, freeze.json and failure.json remain preserved under
+20260925-head-factor-drift-v1; no run is live and no result is inferred from it.
+
+Revision2 changes only the original export path resolution and the fresh
+attempt destination/procedure: uv run --extra mps python
+artifacts/joint-audio/20260925-head-factor-drift-v1/analyze_v2.py,
+outputs under20260925-head-factor-drift-v1/attempt2. Every other revision1 field,
+equation, dataset/checkpoint, metric, threshold, guard and compute bound remains
+unchanged. Resolve and verify all48 row paths before loading model-backed
+queries. Preserve attempt1 source bytes; checksum the corrected script in the
+new freeze. This is a declared procedural correction, not permission to change
+the scientific comparison or silently overwrite a failed run.
