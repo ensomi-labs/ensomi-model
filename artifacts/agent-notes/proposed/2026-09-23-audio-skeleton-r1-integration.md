@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 4567d87732320f27c01b40b15f74846865219934
+Product revision: 151f9c265a9c5eaaa43bc6736f41cdc626da5554
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -8217,3 +8217,177 @@ exposure and checkpoint hashes; then run the prepared native comparison and
 complete its declared Lens review. No NLL-based selection, new fitting branch,
 resume of a capped case, automatic promotion, listening/player claim, remote
 push, Note acceptance or goal completion is justified yet. Goal remains active.
+
+
+### Result Log: count/layout main endpoints and native playability
+
+Card count-layout-materializer-v1 revision1 remains proposed; accepted revision
+none. This append supersedes the live-progress snapshot above with terminal
+evidence, without changing the Card. Main driver11773, native driver45585 and
+Lens renderer60873 have all terminated; do not poll, resume or restart them.
+Standing local implementation/execution authority is unchanged.
+
+#### Experiment and reproduction
+
+Clean implementation source4567d87732320f27c01b40b15f74846865219934; baseline
+844de84ee7a2f7560939136710dbab6ce907e006. The paired train_stage.py main command
+and resolved Hydra commands are frozen in main-freeze.json
+(0aa086fe441f52e51ec1092a31b10baa8741526ee3640edc5cd117b969d7f7a4).
+Execution Note pin007d551eeeda0763cacc7762f3ac1f8d8a6076ef contains the same Card.
+Both arms use the initial checkpoint, corpus, normalization, profile bank,
+exposure and seeds specified in the Card; no TEST data or human-label changes.
+
+Both main fits reach1200updates with identical4800intervals,37392112ms,
+239124H and14139R. Flat takes799.511985s; factor910.983054s. Both preserve the
+exact frozen audio/H/profile fingerprint and reload their saved checkpoints.
+Flat checkpointda08044806e99eae6a6221c06ef8c91c02711361fae68c896c9af01bde61dea2;
+factor41ab71640ce9571ac7f40d9f851a51e2ba54c10ba97fc6f9e54dbc54fac76185.
+Main resultdebcbdf58f99e5359070465a8e77384874665008d7fb5a4f02542e33fc524908.
+No NLL-selected endpoint or preflight continuation is used.
+
+Native command: uv run --extra mps python
+artifacts/joint-audio/20260925-count-layout-materializer-v1/native.py.
+Execution Note pin851511b9ca2636463edd51fb6ec339250656c0d0; freeze
+b7db758c974d266c055c3b4801f62d84e3a63bfff265cb91d0c434b3c994a8b8.
+Source, pinned audio/Mel/checkpoint bytes and bank match. CPU one thread on
+AppleM5/24GiB,Python3.10.20/Torch2.11.0; fitting used MPS.
+Native ends normally under the declared planning_attempt_limit guard after
+198.096102s. No proposal-budget increase or capped-case resume.
+
+All32direct charts finish. Of32planned screened calls,9finish,1factor Hysteric
+profile1 is capped,22are unattempted. All41complete outputs independently
+reparse; emitted rows replay, coverage is monotone and H hashes/prefixes exactly
+match originalI. Complete screened control aggregates are invalid in both arms.
+The native result43d130ed6291abdebc3c994e1ad27b833954ef84deed5f9dfcc8422e4a60b5ff
+retains its original qualitative_review=pending field; the separate completed
+review below owns later observations. Do not mutate the frozen native result.
+
+#### Results
+
+The16direct cases per arm use equal case weights and the Card's transformed,
+TRAIN-standardized squared descriptor errors:
+
+| Arm | H | Width | LN | Width + LN |
+| --- | ---: | ---: | ---: | ---: |
+| OriginalI | .873858354858 | 2.370421835635 | 4.096142372829 | 6.466564208464 |
+| Flat | .873858354858 | 2.563332941179 | 3.770444233532 | 6.333777174712 |
+| Factor | .873858354858 | 1.301075614304 | 3.608154187841 | 4.909229802145 |
+
+Numerical primary and component guards pass: body improves22.5% versus flat,
+width49.2%,LN4.3%,Hunchanged. Five audios improve body; Hysteric/Take/Yomi worsen.
+This is a small one-seed panel without a generalization confidence interval.
+Profile2 requests LNfraction.734; actual flat→factor falls.712→.226 inHysteric,
+.539→.219 inTake,.463→.084 inYomi. Better mean descriptor response does not
+establish reliable independent control.
+
+Flat direct has2HH/48RH pairs; factor24HH/16RH. HH means successive same-column
+TAP/LN-head attacks strictly<20ms, exactly20excluded. RH<=20 is a separate
+experimental preference, not an LN-duration floor. Factor's18bad rows classify
+as17chosen-head-count>currentlyfree+HH-rested capacity and1layout choice.
+Flat has1layout choice and1zero-capacity past commitment. These are selected
+actions, not total risk mass or a causal percentage of R1-restored failures.
+
+Factor Hysteric profile1 stops at243554/301008ms with1716H delivered.
+Cached-Mel integrated H/body readiness.450761s; failed-window service.743592s.
+Across attempted calls readiness<=.541770s and window service<=.875281s.
+No fresh-audio startup or compute-saturation claim. Published prefixHH/RH0
+does not establish generation liveness.
+
+All four failed-window proposals repeat a column across248930→248935,5ms.
+Actual first-three rejected trajectories were captured:
+attempt0T0123→T023; attempt1T03→T123; attempt2T012→T01 whileLN3,started248824,
+remains held until249047. The fourth has metadata only, because an earlier
+window26RH rejection occupied one of the first-four capture slots.
+Attempt0leaves zero rested columns; attempt1has two for three heads;
+attempt2combines three recent attacks with one older hold. Current layout
+cannot undo the earlier commitment. A possibleRnow+1 does not imply an actual
+release before the upcomingH. ReleasingLN3 between the twoH could helpHHalone,
+but the separateRHscreen would require earlier release or different counts.
+
+#### Qualitative inspection and conformance
+
+Lens command: uv run --extra mps python
+artifacts/joint-audio/20260925-count-layout-materializer-v1/inspect_lens.py.
+All32new scopes,60time-proportional pages and their complete native-ms actions/
+LN articulation tables were inspected. Six exact parent human-reference scopes
+reuse semantic/interval/plan/review identities; all16human records had been
+retrieved. Parent bundle remains unchanged. Direct fallback scopes explicitly
+describe missing screened results; they are not replacement successful cases.
+The frozen plan did not require rendering every resampled8swindow.
+
+Review owner artifact review.json:
+f804febd5204ee69b7299666dc030c50586243092eee221428388f40ace5d4f0.
+Plan a7c9fc62a7da8735ac51ff00979e9cef6c02f25dffee68b262117f51a1b5ffbc;
+render ba6b50e4f8da72374525f4f1738ff4d420ce84c7a1ea06e6e073e1bec16094ac;
+bundle0c2e7bc0a3ac16b8610f3b159e98c0defbe764d68250839db166a68b0dbdbdce.
+At render completion new outputs including allfour fits used329677623bytes,
+within2GiB. The review adds only a small JSON observation record.
+
+HystericP2fixed243–247s changes flat's independently overlapping906/797ms
+holds and staggered joins/subset tails into sequential single-held roles.
+Factor still has458/469msLN with taps beneath, so this is lost layering, not
+all-tap output. AsItWasP2fixed123–127s replaces352/338/348msLNhandoff withtaps.
+Conversely, factor AsItWasP2peak has1356msLN spanning6H plus913msjoinedLN,
+short handoffs above it, and laterquadLNsubsettails. FactorFoolMoonP2peak
+has368msLN with82/166msjoinedroles and a subsetrelease/newhead. Independent
+LN capacity survives; reliability is unproven.
+
+Tap1–4width variation, ordinary repetitions and close cross-column events
+remain. Take19/6ms andYomi10ms splits use disjoint columns; don't ban them by
+spacing H. FoolMoon has a27ms same-column repeat in changingchords outside
+the confirmedHHthreshold; comfortable difficulty remains unresolved.
+No listening, player test or new human style approval. Generated alternatives
+need not inherit source tags. Missing dimensions remain unreviewed.
+
+Conformance: paired fits and guarded native execution followed the frozen
+procedure. The screened cohort is incomplete by its declared stop, not patched
+with successful subsets. No protected field changed. Preparatory failures:
+plainpython renderer lackednumpy and exited before output creation; corrected
+uv --extra mps invocation completed. Review identity lookup first used
+parent main-lens/review.json instead of parent rootreview.json; corrected and
+verified exact hashes before writing the new review. Neither required a
+model rerun, parent mutation or altered analysis criterion.
+
+#### Evaluation and decision
+
+Outcome REFINE. Numerical body response improves, but the system guard fails
+and paired LN organization is not reliably retained. Count/layout as fitted is
+not adopted; neither row support nor descriptor accuracy is playability.
+
+Mechanism: the within-mark normalizer cancels any score common to that mark.
+It removes frontier2's ability to lower the marginal for an excessive count,
+though frontier2 still influences layout ratios within the mark. Once q chooses
+more heads than rested columns, every layout isHH-bad. This is a module-coupling
+effect, not evidence that R1 weights simply forgot source patterns.
+
+For a physicallylegal prefix with unique column attacks in(t−20,t), letCcount
+recent TAP/LNheads andOcountcurrentlyheldLNaged>=20. Exactcurrentfree/rested
+capacity isK=4−C−O. RecentLNheads alreadycountinC; olderholds aredisjoint.
+Native instrumentation asserts the identity wheneverits prefix premiseholds.
+No neural enforcement is implemented. The count inputs can carry this
+anonymous capacity without generic tap-column feedback, but31-row learned
+compression neednotretain it. The formula alone doesnot guaranteefutureR,
+RHsafety, ergonomics or continued coverage.
+
+Alternative explanations remain: new166339count parameters begin untrained,
+frozen audio may favor prior flat readouts, rare profiles get116/133intervals,
+coarse31-row memory may be inadequate, sorted LN ages erase hand identity, and
+source/native history shift persists. Rneuralinputs areunchanged but global
+gradientclipping couplesRupdate magnitudes to changedrowgradients; don't
+attributeRdifferences exclusivelyto semanticcountlearning. VALrowNLL/s
+9.880flat/11.135factor andRNLL2.028/2.034 arediagnostic,notcheckpointselection
+or a sufficient reason toscale.
+
+Durable self-contained report docs/research/count_layout_materializer_evaluation.md
+and the linked planned-model guide are committed at
+151f9c265a9c5eaaa43bc6736f41cdc626da5554. Documentation links/math/diff checks pass;
+no product behavior changed after the70unique implementation tests.
+
+Next causal question: compare explicit current-capacity information with
+short-horizon joint continuation feasibility, keeping actual LN release
+choices in the dependency. A current-row mask alone can still commit a quad
+before anotherH or assume anRthat never occurs. Preserve learned variation,
+LN roles, H timing, fixed compute and coverage checks. Design a new bounded
+comparison before any new fit or modified decoder run. Standing execution
+authority persists; Card acceptance, adoption, remote publication and goal
+completion have not been granted or inferred. Goal remains active.
