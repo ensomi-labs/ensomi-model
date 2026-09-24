@@ -8426,7 +8426,7 @@ active proposed experiment.
 
 ### Experiment Card: count-continuation-mass-v1
 
-Revision2; owning Note2026-09-23-audio-skeleton-r1-integration; statusproposed;
+Revision3; owning Note2026-09-23-audio-skeleton-r1-integration; statusproposed;
 accepted revision none. Standing local research/implementation/run authority
 covers this bounded probe. Baseline clean product
 151f9c265a9c5eaaa43bc6736f41cdc626da5554, behavior-identical to count implementation
@@ -8512,7 +8512,7 @@ a new whole-chart Lens/playability test. Existing completed Lens remains the
 quality context; no new player/listening claim.
 
 Command: uv run --extra mps python
-artifacts/joint-audio/20260925-count-continuation-mass-v2/probe.py.
+artifacts/joint-audio/20260925-count-continuation-mass-v3/probe.py.
 CPU one thread, AppleM5/24GiB,Python3.10.20/Torch2.11.0; no acceleratorfit.
 Seeds derive from base253101 plus stable query index, arm, mark and repetition;
 record the exact deterministic formula in the execution freeze. First-layout
@@ -8557,3 +8557,23 @@ The original capped/failed attempt is not resumed or overwritten. This is an
 explicit new revision, not an extension of its runtime. No acceptance or
 endpoint adoption. The corrected run remains separately authorized by the
 standing local research task.
+
+
+### Result Log: continuation-mass fixed-plan input preflight
+
+Revision2 execution Note9a87fd74d7c2515d12223277823ecd94be5e6ce8; product/source,
+models and hypotheses unchanged. Terminal16208 exited1 after.507283s with
+Fixed H plan requires increasing native clocks within the audio. Zero recorded
+queries and zero Monte Carlo samples; both model fingerprints unchanged.
+Freeze d4f6a2c8feed4a15b9af0cfd2844b552a458ebb211a3a8f0f46a92178315e2f7.
+Retain owner artifacts/joint-audio/20260925-count-continuation-mass-v2 unchanged.
+
+Cause: CompleteRow normalizes clocks to float, while FixedHeadPlan deliberately
+requires Python int native-ms clocks. The artifact reader extracted r.time_ms
+without int conversion; canonical native.head_sequence converts explicitly.
+All stored values are already exact integer milliseconds. Revision3 adds that
+conversion after verifying integrality, changes the fresh owner/command to
+artifacts/joint-audio/20260925-count-continuation-mass-v3, and retains revision2's
+no_grad model construction. No timestamp rounding, different H plan, fit,
+sampling-law change, endpoint/seed/metric/budget change or resumed attempt.
+Outcome REFINE for instrumentation; no research measurement exists yet.
