@@ -2735,3 +2735,89 @@ that experiment with adding persistent intent or increasing model capacity.
 No new architecture extension, training run or lifecycle transition is adopted
 by this result. Product evidence is summarized in the playtest candidate guide.
 Both Lens bundles still match every frozen member hash (269 and 151 files).
+
+### Experiment Card: observed-prefix-continuation-v1
+
+Revision 1; proposed; accepted revision none. The previous goal turn made
+material progress through the alias fix, eight native outputs and the 795-event
+conditional probe. Standing user authority covers this diagnostic implementation
+and execution. Clean baseline is 4b56f3ab72cd773838e212bd4d5b7e078ae267aa;
+fixed model is inference SHA
+1e86b79dd1144bca282a01fb798dc304094357bff5b80deeb099982749f5d48c.
+Audio, source charts, canonical Mel, two BOS trajectories and their hashes are
+frozen in style-audit-v1/generation/freeze.json and result.json. No weight changes,
+fitting, TEST access, remote publication or human-label changes are included.
+
+Question: can a real observed prefix maintain a tap-heavy arrangement when both
+time and action generation are free? The selected branch is that initiation or
+early arrangement selection contributes to native LN composition. The competing
+branch predicts rapid return to LN-heavy output despite genuine source history.
+The closest analogue is conditional autoregressive continuation and the expert's
+distinction between valid likelihood and reliability near sampled trajectories.
+This is a controlled prefix probe, not a new representation or training objective.
+
+For each of Who?, death piano, Prom Queen and Good Luck, Babe!, use two exact
+observed-coverage cutoffs. Early is the complete row crossing 30 reference heads;
+mature is one millisecond before the previously reviewed human scope begins:
+
+| Song | Early cutoff, ms / prefix rows | Mature cutoff, ms / prefix rows |
+| --- | ---: | ---: |
+| Who? | 5485 / 27 | 74999 / 745 |
+| death piano | 3399 / 23 | 103452 / 894 |
+| Prom Queen | 5915 / 23 | 75837 / 380 |
+| Good Luck, Babe! | 5038 / 19 | 128422 / 1489 |
+
+The early threshold is 30 heads, not 30 rows. Every row is retained atomically.
+At each cutoff compare three observed prefixes: reference, frozen native seed17,
+and frozen native seed19, all through the same absolute audio clock. Sample each
+condition with fresh suffix RNG seeds 37 and 41: 48 continuations. The causal
+intervention is the entire observed prefix, including exact clocks/occupancy,
+not an isolated content-history feature. Prefixes are not edited and no source
+suffix is used as a label. Only actual prior rows and known empty coverage are
+supplied; unknown LN endpoints remain absent. Audio is complete in every arm.
+
+Implement an explicit observed-prefix argument on the same rollout engine, with
+exact replay of the full prefix and neural prefill bounded to the actual finite
+receptive field (including the true predecessor gap). Keep default BOS sampling
+unchanged. Prefix rows must be distinguished from new rows in receipts and
+exports; callbacks publish only new rows. New-row caps and first-30 latency count
+sampled rows/heads, not supplied ones. Startup for a diagnostic prefix means eight
+seconds beyond the supplied clock and is not audio-only startup evidence.
+Conditional waiting starts after observed coverage with a fresh survival draw;
+this is conditional resampling, not bitwise RNG restoration of the old rollout.
+
+Tests must cover finite-cache/full-replay parity, exact old clocks beyond the
+neural window, first possible millisecond after known empty coverage, an open
+hold crossing that coverage, caps without fabricated releases, invalid prefix
+times/occupancy, unchanged BOS draws and callback scope. Rerun both original
+death piano BOS seeds and require exact prior row hashes before the experiment.
+Record a clean implementation commit before new model execution.
+
+Primary diagnostic is actual LN heads / all generated heads in the first eight
+seconds after each mature cutoff for death piano and Prom Queen. Also report
+0–8 s, 8–32 s, later suffix and the exact human scope for every condition/song,
+along with head/chord composition, first LN time and count, earliest eight-second
+bin exceeding 50% LN, all head-transition bands, release-to-head gaps and caps.
+Reference-prefix continuations <=10% LN at both seeds, while a same-song native
+prefix condition is >=50%, support short-horizon conditional arrangement
+maintenance. Reference-prefix >=50% at both seeds argues against initiation-only
+explanations. A window needs at least ten generated heads for either diagnosis;
+otherwise activity is insufficient, not a sparse-model win. Mixed seeds and
+intermediate fractions are inconclusive. These thresholds classify a bounded
+mechanism probe, never style, difficulty or BAD patterns.
+
+Inspect all four critical mature reference-prefix episodes in Lens with entry/
+exit context, plus the Who? LN reference condition and Good Luck control. Inspect
+additional contrasts if needed to explain a mechanism change; keep uninspected
+dimensions unreviewed. Valid LN alternatives are not automatically bad, and
+source similarity is not a playability metric. No listening capability is claimed.
+
+Use CPU one Torch thread on Apple M5, 500 ms hazard queries, fixed 27 ms prior,
+30000 new proposals and 180 seconds per continuation, full true audio terminal.
+Run sequentially with 2 GiB available RAM, 40 GiB disk and PAUSE guards; total
+compute bound 1800 seconds. Fresh artifact owner is
+artifacts/joint-audio/20260924-expanded-v1/observed-prefix-v1. Never overwrite the
+BOS outputs or candidate. Record all prefix/source/audio/model/script/row hashes.
+No training is authorized by this Card; a subsequent training intervention must
+have its own bounded comparison. Missing fit coverage and small conditional
+sample size remain confounders even if the diagnostic threshold is crossed.
