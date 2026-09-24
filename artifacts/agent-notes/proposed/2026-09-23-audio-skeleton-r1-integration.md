@@ -6811,3 +6811,167 @@ scope coverage and relative links were checked; staged git diff --check passed.
 The already-passing implementation tests were not rerun for a prose-only change.
 No product behavior, checkpoint, default decoding policy or human annotation
 changed in this completion pass. The ultimate playable-system goal is active.
+
+
+### Experiment Card: profile-density-routing-v1
+
+Revision 1; proposed; accepted revision none. Owning Note:
+2026-09-23-audio-skeleton-r1-integration. Standing local implementation, fitting
+and evaluation authority applies. The preceding goal turn completed the fresh
+panel's inspection, persisted its evidence and changed the next research action;
+it was progress, not a wait or a blocker.
+
+Question: does directly supplying the requested global H rate to R/row factors
+encourage unwanted width response, beyond what ordinary continued fitting fixes?
+The selected intervention removes that one direct input while retaining actual
+H preview, full audio, width/LN conditions, R's LN projection, row history and
+frontier2. It does not remove legitimate dependence on actual H spacing or
+force density/width to be statistically independent in generated charts.
+
+For standardized profile z=(density,width,LN), head queries retain A+Wz. R/row
+queries instead use A+W(0,width,LN). W remains the same shared 3-to-224 projection;
+all learned tensors, parameter count and initial values are identical between
+arms. A new boolean profile_head_rate_downstream defaults true; false selects
+the intervention in training and native inference, including hypothetical
+full-held release waits. No input is subtracted from an already-conditioned
+floating-point tensor: construct the two views from the same unconditioned
+audio encoding. Encode complete audio only once.
+
+The approximation is explicit. A complete H sequence already determines its
+global density, but each downstream query sees a finite preview/history.
+Removing the request therefore may remove useful information about unseen
+future density. H still reads all three attributes, so the proposed factorization
+retains indirect effects through the generated plan. Changes in shared training
+gradients are allowed; this is an architectural comparison, not a frozen-weight
+estimate of one path's causal effect.
+
+Closest analogues: MuseMorphose (https://slseanwu.github.io/site-musemorphose/)
+uses computable rhythmic/polyphonic attributes with persistent decoder
+conditioning; CTRL (https://arxiv.org/abs/1909.05858) conditions generation on
+codes derived from observed data. FiLM (https://arxiv.org/abs/1709.07871) is an
+alternative for stronger feature-wise conditioning, not evidence that this
+particular path should be removed. This test adapts conditional-factor routing;
+it is not a new representation or objective. It does not import bar grids,
+VAE latents, pretrained audio labels or fixed section classes.
+
+Live alternatives: (a) current conditioning is undertrained, predicting similar
+gains from matched further fitting; (b) direct density input is an unwanted
+shortcut, predicting better calibrated width and lower density-to-width response
+after removing it; (c) density is useful to compensate finite preview, predicting
+lost LN/row organization or control after removal. Stronger FiLM/deeper injection,
+larger encoders and wider data changes are deferred because they would not
+separate these explanations in one comparison.
+
+Clean baseline product e28435f10cfb154acfe8eb9f0507d2a6c242ff79. Initial checkpoint
+artifacts/joint-audio/20260924-alias-restored-v1/planned-training/shared-profile-cond-main-v1/last.pt,
+SHA abc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef.
+Both arms copy every source tensor, including learned profile-prior weights/bias
+and profile buffers, then start a fresh optimizer. Extend the existing initializer
+to allow same-bank profiled continuation and this declared mode change; reject
+other architecture, bank, normalization or corpus mismatches. Do not reinitialize
+the learned prior when validating the bank.
+
+Data remains 615 TRAIN arrangements / 240 audio groups and 36 VAL charts in
+manifest4ad9abfd0ae7798e0a85b96a5dbecdaefd2a81f78bf181438407442b964118e1.
+Use frozen normalization9cf461a0e825f974f0a80a364123c7afedf1683af76e60fe09b0fbe51c2c8287
+and existing 16-profile bank a8973b7f94fde90d9f3cc639eb63e781dd295435622ce79fd54fe244789e6f03.
+No source/context from the fresh-audio panel enters training. All paired real
+charts remain separate targets; no union labels or style-tag pseudo-labels.
+
+Baseline evidence: the prior nine-case finite H-request-to-width coefficient
+is .49060, including .37983 through downstream condition under the two-order
+attribution convention. Those deliberate component crosses are out of training
+support and cannot establish improvement from a new model. On the fresh eight
+audios and requests 1/2, the current direct checkpoint's mean squared standardized
+descriptor distance is 7.3404225 across 16 charts: components .8738584 H rate,
+2.3704218 width, 4.0961423 LN fraction. This is descriptive small-cohort evidence,
+not a population bound. The matched continuation endpoint and four-request
+comparison values are not yet observed and will be measured prospectively.
+
+Two serial training arms, shared=true and routed=false, each start from the
+same pinned checkpoint. Preflight: 32 updates, first 32 entries of the same
+1200-update plan, max 300 s/arm, six VAL charts at update 32. Main: 1200 updates,
+max 2400 s/arm, all VAL charts every 300 updates. Main starts again from the
+original checkpoint, never from the preflight endpoint. Fixed seed252801,
+sample_seed252802, validation_seed230943; protocol_name=profile-density-routing-v1.
+Otherwise keep original two songs/update, two 8-s intervals/song, learning rates
+3e-4 new and3e-5 inherited, weight decay.01, clip1.0. Every trainable module
+remains trainable; no endpoint selection or early stopping by NLL.
+
+Test contracts before a clean implementation commit: original true-mode scores
+and saved native row parity; false-mode downstream score/gradient invariance
+to density at fixed audio/H/state while width/LN and H sensitivity remain;
+training/full-native query agreement including full-held waits; fixed-generated-H
+native row invariance across density-only test codes; unchanged copied tensors
+and learned prior under warm start; strict bank/config rejection; checkpoint
+load and typed Hydra projection. Use mps extras and dev group for pytest.
+
+Preflight native: both endpoints generate the first 30 s of FoolMoon and Hysteric,
+with complete original audio available, requests 1/2, direct decoding, seeds from
+the frozen panel. Stop before main on nonfinite scores/gradients, missing module
+updates, input/protocol mismatch, incomplete prefix-clock replay or export
+failure. Short-attack/style defects are measured rather than silently changing
+support. Also verify the unchanged initial true-mode model reproduces saved
+full automatic FoolMoon rows, and switching only mode at initialization preserves
+its H stream. No main run until these integrity checks pass.
+
+Main native: the same eight-audio panel484d173628856a431e034b1dbdacab9173c40f3edf696d1b9a19721aeec70dc9,
+seeds251701..251708, five requests (automatic and0/1/2/3), both endpoints:80
+direct full-chart outputs. Canonical Mel may be reused after exact identity
+verification; each model still encodes full audio. Source timing, rows, annotation
+and LN tails never enter generation. Compare requested and realized standardized
+descriptors on the32 explicit requests per arm, uniformly weighting audio and
+request. Report each dimension, per-audio errors and centered finite response
+matrices using the existing four-profile full-rank procedure. Empty/capped charts
+are failures, not omitted metric rows. Record prior choices separately.
+
+Primary positive signal: routed total descriptor squared error <=.85 times
+matched shared error, and width-component error <=.85 times shared. Guard H/LN
+component errors <=1.10 times shared. Mechanism signal: absolute finite
+density-request-to-width coefficient <=.70 times shared, retaining at least
+.80 of a positive shared own-width coefficient. A zero/negative shared
+own-width coefficient makes that mechanism comparison unresolved. Report
+centered control gain so a constant output cannot masquerade as control.
+These thresholds guide the research branch, not playability certification.
+
+For FoolMoon, Hysteric, Revenge and AsItWas, repeat automatic and requests1/2
+through unchanged8s/20ms/four-attempt screening:24 additional outputs. All must
+complete/reparse, preserve their own direct H sequence, and have zero strictHH
+and experimentalRH. Compare raw defects separately. Require cached-Mel30-row/
+8-s readiness and accepted-window service <=2s, and total routed direct sampler
+time <=2x shared. Report all retry/composition changes and honest capped prefixes;
+no increase in attempt budget or quality fallback inside the comparison.
+
+Lens scope: reuse the same verified human references; inspect corresponding
+screened musical contexts for all24 selected outputs (merging source-context
+overlaps), automatic densest8s windows, and every direct strictHH witness from
+the80 outputs with1s entry/exit context. Read all rendered time pages and full
+action/articulation tables in the frozen resulting plan; reuse only exact
+semantic identities. Evaluate repeated grips, fine cross-column timing,
+independent overlapping LN roles and sustained occupancy, not count-derived
+style labels. A control gain with structural loss is not a positive result.
+No claim of listening/player quality, dump coverage or unreviewed styles.
+
+Execution via uv run --extra mps python artifacts/joint-audio/20260925-profile-routing-v1/fit.py
+preflight|main, dispatching the packaged planned_audio_continuation.hydra runner;
+native.py preflight|main dispatches model-backed generation. Pin script hashes,
+clean implementation/Note OIDs, exact commands and input hashes in new phase
+freeze files before each run. Likely product owners: model/config/training,
+interval and session queries, profile tests and shared-profile documentation.
+No unrelated change may enter the implementation-to-baseline diff.
+
+Apple M5/24GiB, Python3.10.20/Torch2.11.0, MPS fitting and one CPU thread;
+CPU native generation. Bounds: serial fitting at most5400s in total, native
+drivers at most1200s each and90s/30000rows per chart,2GiB new artifacts, existing
+2GiB available-memory/40GiB-free-disk/PAUSE guards. New run names
+profile-routing-{shared,routed}-{preflight,main}-v1 under the existing data root;
+fresh owner artifacts/joint-audio/20260925-profile-routing-v1. No overwrite or
+resume. Poll the actual live session; never restart from an observation timeout.
+
+If matched training alone explains gains, retain that simpler explanation.
+If routing improves calibration but loses LN organization, refine the conditional
+independence approximation. If both remain poor, attribute neither capacity nor
+data sufficiency from this test alone. Confounders include one training seed,
+one native seed per audio, finite representative quantization/preview, correlated
+TRAIN attributes and curated evaluation songs. Recommendation remains REFINE
+until execution and declared review; Note acceptance and adoption are absent.
