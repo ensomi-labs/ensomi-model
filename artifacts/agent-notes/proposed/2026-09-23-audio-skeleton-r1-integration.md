@@ -2969,3 +2969,106 @@ fails the purpose. Better code separation or lower likelihood alone cannot win.
 If the plain continuation resolves the native behavior equally well, additional
 structure is unnecessary at this stage. The prefix study motivates the test;
 it does not establish that four states are sufficient or required.
+
+### Experiment Card: persistent-intent-comparison-v1
+
+Revision 1; proposed; accepted revision none. Standing human authority covers
+implementation, local tests and the bounded comparison. Clean baseline product
+is 55f86faf9083da66d4d648623ac09ccf8f4797fb. Implementation is exploratory;
+record its clean OID before execution. No publication or lifecycle adoption.
+
+Question: does a persistent two-bit arrangement condition improve source-free
+composition/expressive variety beyond additional fitting on repaired targets?
+The live alternatives and primary-source analogues are recorded immediately
+above. The single intervention is K=4 conditional latent versus the unmodified
+K=1 decoder. Both initialize every common tensor, including normalization and
+full-audio context, from candidate SHA
+1e86b79dd1144bca282a01fb798dc304094357bff5b80deeb099982749f5d48c.
+Both reset AdamW and train the same repaired 615 TRAIN arrangements/240 songs,
+36 VAL targets, manifest SHA
+4ad9abfd0ae7798e0a85b96a5dbecdaefd2a81f78bf181438407442b964118e1.
+No TEST or alternative-arrangement union labels. Old candidate baseline is 84/84
+complete native outputs, zero observed <=20 ms same-key heads, with the scoped
+LN preference and conditional-prefix results above. New protocol likelihoods
+are not yet measured; do not relabel older-query NLL as their baseline value.
+
+The frozen plan intent-comparison-v1.json has SHA
+34ef9751df4571f516ef2b670b3b0f4b398c212fdd16adcee1a029bd9168eb14:
+1200 updates, two songs/update, two 8000 ms intervals/song, 4800 intervals,
+37,253,258 scored milliseconds, 612 distinct TRAIN arrangements. Model seed
+230941, plan seed 230942, VAL seed 230943. Canonical make_protocol and every
+source interval identity are identical across arms. Epoch-like event exposure,
+not only update count, must be reported; K=4 costs four decoder-head evaluations.
+
+K=4 adds 4x128 centered code offsets to the existing coarse-context coordinates,
+an audio prior 128->32->4 and recognition MLP 8->32->4. Code offsets initialize
+to zero, prior logits to uniform; recognition starts from the fixed ordinary
+random initialization. The initial four conditional decoders must therefore
+match the control. The eight complete-reference descriptors are log head rate,
+LN/head fraction, four attack-row chord-size fractions, occupied lane-time
+fraction and log median LN duration. Recognition is deliberately restricted to
+these descriptors; it is a valid but limited q(z|Y) family. Descriptors never
+reach native generation. No code is named as a style, and no annotation labels
+or BAD-pattern reward enter training.
+
+Enumerate all four codes exactly. Share interval audio/history encoding, then
+compute existing event/survival/row NLL for each code. Apply the per-second ELBO
+above with beta=1 and KL/D, no annealing, free bits, inference inner loop or
+scheduled sampling. A real chart has one q distribution irrespective of its
+sampled interval. Inference samples one code from the full-audio prior with
+separate seed generation_seed XOR 0x17C0, holds it for the song, and records
+code/probabilities. Explicit fixed-code diagnostics are separate from prior
+samples and posterior reconstruction. Full physical replay and legal support
+remain unchanged. Default K=1 output must reproduce existing BOS row bytes.
+
+Common audio/timing weights use learning rate 1e-4; inherited R1 modules
+temporal/exact/fuse/joint/route_residual/release_residual use 1e-5; the three new
+intent modules use 3e-4. AdamW weight decay .01, gradient clip 1. No best-model
+selection: fixed final 1200 updates, evaluations at 0/300/600/900/1200. Keep
+checkpoint audio normalization unchanged. A 32-update preflight per arm first
+checks finite losses/gradients, nonzero code learning, identical exposures and
+resource use; it uses fresh run names and does not select a learning recipe.
+Stop on invalid causal inputs, nonfinite loss/gradients, source/hash mismatch,
+or fewer than 2 GiB available RAM / 40 GiB free disk. After a passing preflight,
+start fresh from the same initial candidate for main endpoints.
+
+Evaluate the shared 180 fixed VAL intervals using expected reconstruction plus
+whole-chart KL/D; label this a negative-ELBO estimate, not exact marginal NLL.
+For the six canonical stratified VAL charts pinned in intent-comparison-summary,
+sum each code's NLL over the complete source clock before one prior logsumexp;
+never form a fresh mixture independently per interval. Report exact whole-chart
+marginal NLL/s and posterior-versus-prior diagnostics. The K=4 likelihood guard
+allows at most 3% regression versus the newly trained K=1 control; a bound gap
+alone is not proof of true marginal regression, so consult exact whole-chart
+values before rejecting on that ambiguous observation.
+
+Native evaluation retains the existing 42-song/two-seed order for both endpoints
+and the four-song/two-seed style panel. Add all four explicit codes at event seed
+17 on the 12 canonical stratified VAL charts pinned in the summary. A useful
+condition should produce a >=.20 LN-fraction range or >=1.5 head-count ratio
+across codes on at least six of those 12 songs, and give >=.10 prior probability
+to at least two codes on at least six. These are usage diagnostics, not quality
+scores; fixed loops, sparse charts and loss of coordination cannot pass on code
+separation alone. If the code is ignored or only target-posterior reconstruction
+improves, reject this extension rather than enlarging the codebook automatically.
+
+Native guard: preserve all complete/reached-30 outcomes in the original 84-case
+panel, no <=10 ms same-key heads and at most two <=20 ms; report eligible rates
+and transition types. The median paired head ratio versus K=1 must remain in
+[.7,1.3]; inspect any case outside [.5,1.5] and all material LN composition
+changes. Review full Lens contexts for Tech, chord repetition, tap flow and LN
+coordination across the prior-sampled style panel and fixed-code contrasts.
+Do not require reference replication or treat LN alternatives as bad by default.
+The only affirmative decision is bounded usefulness of the added condition
+after these native and qualitative checks; likelihood or code diversity alone
+cannot establish playability. K=1 matching quality argues for the simpler model.
+
+Use the packaged joint_audio_intent Hydra entrypoint, states=1 and states=4,
+on this Apple M5 with explicit mps, one CPU thread, sequential training only.
+Maximum 7200 seconds per main arm, 600 per preflight, 14400 overall training;
+native CPU runs use 180 seconds/30000 proposals per chart, the fixed 500 ms
+query and 27 ms prior, and 3600 seconds overall evaluation. Honor PAUSE files.
+Fresh owner: repaired-v1/intent-training/{preflight|main}-k{1|4}-v1; no overwrite
+or implicit resume. Freeze resolved config, plan, input/weight/source hashes,
+state usage and actual compute. Stop and revise the Card for a behavioral
+change; behavior-neutral memory engineering requires equivalence evidence.
