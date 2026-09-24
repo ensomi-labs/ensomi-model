@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: a2bce683642995627c17b154d5f83e8d774787f0
+Product revision: 9e6dbc61511ec9b1a45bc55148a344886e81d682
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -7273,3 +7273,139 @@ No next architecture, added hard constraint, larger model or new fit has been
 selected from partial inspection. Existing checkpointabc27 and the default true
 routing mode remain available unchanged. No test rerun, Note lifecycle change,
 model adoption, remote publication or goal completion is implied.
+
+
+### Result Log: density-routing completed inspection and evaluation
+
+Card profile-density-routing-v1 revision 1 remains proposed, accepted revision
+none. Standing local research/execution and persistence authority applies.
+Implementation/execution source remains a2bce683642995627c17b154d5f83e8d774787f0.
+Curated report and its shared-profile link are committed at product
+9e6dbc61511ec9b1a45bc55148a344886e81d682 in
+docs/research/profile_density_routing_evaluation.md and
+docs/research/shared_arrangement_profiles.md. The report preserves its argument
+without requiring this Note or local artifacts.
+
+This completes the previously partial main review. All180 new time pages across
+84new scopes were actually viewed, with complete native-ms action and LN
+articulation tables. Six exact source-reference contexts reuse the fully
+reviewed parent, and scope1 reuses current scope0 by identical actions, entering
+holds and articulation. All91 planned scopes are covered. All16 human records
+remain unchanged; source tags are scoped references, not required copies.
+No listening, full-song visual review or player test is claimed.
+
+Artifact owner artifacts/joint-audio/20260925-profile-routing-v1. Final
+review.json SHA4e4d074e4f02b63b05d8d2d710700adf440e243aa5e036e5a1e244684967d659
+contains the full frozen scope plan, actual per-scope page inventory, complete
+table coverage, observations and limits. Main plan SHA remains
+b68fbeae52c71a5075fab9b8e53596abf2046c7e533a4e9156ab5fa500afb10f;
+main-native-result.json remains
+0097d705919e6203a000906cef464337f039d52b861c63ae561a9ece5f57d9d6.
+Its original qualitative_review=pending is a historical dispatch state; the
+new review identity supplies completion rather than rewriting native evidence.
+No training, generation, rendering or already-passing test was repeated.
+No process remains live.
+
+The negative routing result survives the complete review. Primary explicit
+descriptor error is6.196672 shared versus10.542035 routed, higher on every audio
+in the routed arm. Total/width improvement, H/LN bounds and mechanism criteria
+all fail. Conditional VAL NLL/sec40.1827 versus40.3493 does not describe this
+native difference. On the exactly matched original requests1/2 subset, total
+errors7.340423 initial,9.191414 shared,15.914283 routed also defeat a claim that
+ordinary further fitting is already a better endpoint.
+
+The screen's paired subset remains distinct from the full direct cohort:
+shared1HH/2RH and routed13HH/3RH become0/0 in all24 selected screened outputs,
+with exact paired H preservation and4/21 rejected proposals. All104 native
+outputs complete and independently reparse. Maximum cached-Mel readiness
+.493/1.120s and window service.813/1.375s pass2s bounds; total direct sampler
+212.360/258.117s passes2x. These exclude fresh waveform processing/process
+startup and do not measure client/network latency.
+
+#### Completed musical and failure evidence
+
+Under explicit profile2, screened whole-chart H/s and LN fractions are:
+FoolMoon3.661/.167 shared versus13.639/.042 routed;
+Hysteric14.674/.101 versus16.209/.039;
+Revenge2.920/.672 versus1.710/.184;
+AsItWas6.001/.465 versus7.340/.032. Requested values are6.060H/s,
+1.429heads/H and.734LN fraction. Local absence is interpreted alongside these
+chart-level measurements, never as a standalone failure of a global request.
+
+Shared FoolMoon scope78 has an entering6458ms LN3 supporting taps, overlapping
+new holds and subset releases; routed scope43 has dense single TAP movement
+and one51ms LN. Shared Hysteric scopes85/86 retain staggered multi-lane holds:
+at243545 LN1 joins2/3 and survives changes in the other lanes, including common
+0/3 release while1remains. Routed scopes50/51 are entirely TAP. Shared Revenge
+scope90 has independently staggered holds, including564ms LN2 spanning3H;
+routed scope55 has12single TAP rows. Shared AsItWas scope72 retains paired and
+staggered holds with other-column taps, while routed scope38 has fewer such
+relations, though436/845ms holds each span5H and a staggered pair still occurs.
+
+Counterexamples prevent a total-capacity-loss claim. Routed automatic Hysteric
+scope45 contains many staggered overlapping LNs and subset releases, including
+374ms LN1 spanning5H. Routed AsItWas/profile1 scope37 has repeated outer doubles
+and changing groups. Shared AsItWas/profile1 scope71 has recurring triples and
+a late quad; automatic scope69 has substantial independent LN organization.
+Both AsItWas automatic arms select profile13. All four selected automatic
+audio pairs retain the same chosen profile identity across arms, so their
+differences are not explained by a changed sampled profile index.
+
+Fine cross-column timing survives. Routed Hysteric/profile2 at250802 has0/3,
+then1at250809 and2at250819: four heads in17ms without a repeated lane. Numerous
+1–19ms cross-column splits remain elsewhere. Isolated12–43ms LN durations are
+separate articulation observations. Exactly20ms HH is excluded from the human
+strict<20 criterion, but neither>=20 nor HH0 certifies comfort. No generic
+onset-spacing rule, anti-Jack rule or universal LN-duration floor is inferred.
+
+All direct HH witness contexts were reviewed. Across43bad rows,29have enough
+rested free columns for their chosen head count,9exceed currently rested free
+capacity and5have none. Four no-rested cases follow tap/chord allocation; the
+fifth also has LN occupancy. The existence of one-TAP-per-H HH-safe assignment
+for all80plans is only a weak temporal-support result, not a proposed good
+chart or proof of simultaneous chord/LN/RH feasibility. Goodbye scope9 shows
+why an HH-rested local substitute can still create a release-to-head conflict.
+These classifications are conditional on actual sampled prefixes and cannot
+attribute a fraction of overall failure to restored R1.
+
+#### Evaluation, uncertainty and next question
+
+Recommendation: REFINE. The input-removal hypothesis fails as an improvement
+on this fixed cohort. Neither trained endpoint is adopted; the initialabc27
+checkpoint and default true routing remain available. The implemented optional
+flag retains reproducibility, without claiming a better policy. Card/Note
+status remains proposed; no human acceptance or lifecycle transition occurred.
+
+Confirmed information-flow distinction: runtime H does not consume tap layout
+or row embeddings, while joint training can change shared audio/projection
+parameters through R/row gradients. Fixed-score downstream invariance to the
+removed coordinate therefore does not imply stable learned H. Source-history
+NLL, bounded historical logit correction and legal-row replay supply different
+properties; none is a native density, style or HH invariant. Frontier2 still
+uses earliest possible release, not actual R forecast; the screen evaluates
+actual unpublished joint continuations but only enforces its declared checks.
+
+Remaining explanations include conditional-information loss under finite H
+preview, changed shared representations/gradients, sampled-history amplification,
+and limited/correlated training exposure. The raw data does contain overlapping
+LN relations. Profiles1/2 each have12TRAIN charts and93/134main intervals;
+the32-update preflight sees zero profile1 and only2profile2 intervals. Shared
+continuous conditioning means this is not all relevant supervision. None of
+these descriptive counts proves data sufficiency or identifies the dominant
+cause; scaling or rebalancing is not selected on this evidence alone.
+
+The next discriminating question is the entry point of training-induced drift:
+full-audio H base, bounded sampled-history correction, or R/row response to the
+changed H spacing. First inspect saved-trajectory factor contributions and
+design a bounded fixed-input comparison at the original/shared/routed endpoints.
+Preserve full audio and actual permitted state; cross-model conditions, if
+used, are diagnostic and may be outside training support. Do not re-run the
+already completed routing comparison or jump directly to another larger fit.
+No next intervention or Experiment Card is accepted or executed by this log.
+
+Verification for the curated report: numerical claims checked against frozen
+results; exact result/review hashes and180page/84scope coverage verified;
+relative Markdown links resolve; staged git diff --check passes. Product diff
+is only the282-line documentation addition/link. The registered orphan notes
+worktree and Markdown-only allowlist were verified; local commits only, no
+remote push. The ultimate playable-system goal remains active.
