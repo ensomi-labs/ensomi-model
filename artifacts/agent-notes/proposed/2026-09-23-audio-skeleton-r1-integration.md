@@ -8426,7 +8426,7 @@ active proposed experiment.
 
 ### Experiment Card: count-continuation-mass-v1
 
-Revision1; owning Note2026-09-23-audio-skeleton-r1-integration; statusproposed;
+Revision2; owning Note2026-09-23-audio-skeleton-r1-integration; statusproposed;
 accepted revision none. Standing local research/implementation/run authority
 covers this bounded probe. Baseline clean product
 151f9c265a9c5eaaa43bc6736f41cdc626da5554, behavior-identical to count implementation
@@ -8512,7 +8512,7 @@ a new whole-chart Lens/playability test. Existing completed Lens remains the
 quality context; no new player/listening claim.
 
 Command: uv run --extra mps python
-artifacts/joint-audio/20260925-count-continuation-mass-v1/probe.py.
+artifacts/joint-audio/20260925-count-continuation-mass-v2/probe.py.
 CPU one thread, AppleM5/24GiB,Python3.10.20/Torch2.11.0; no acceleratorfit.
 Seeds derive from base253101 plus stable query index, arm, mark and repetition;
 record the exact deterministic formula in the execution freeze. First-layout
@@ -8529,3 +8529,31 @@ Survival is a mechanical diagnostic, not style quality, whole-song liveness,
 the final constrained posterior, or proof that another learned module is needed.
 A positive result selects a subsequent bounded design; a negative result can
 reject this local future-mass explanation. No result promotes an endpoint.
+
+
+### Result Log: continuation-mass preflight failure
+
+Card count-continuation-mass-v1 revision1, Note pin
+681f04ecee2fc579bee97c38895541ca38d07e40, accepted none; product151f9c265a9c5eaaa43bc6736f41cdc626da5554.
+The frozen probe terminal61910 exited1 after.563566s, before the first query
+was recorded or any Monte Carlo samples were drawn. Error: Inference tensors
+do not track version counter. Both endpoint parameter fingerprints remain
+unchanged. Freeze e1fdcf2c0a098bad79613ea8d2fc8479e391d2f90f7c0f05c74214e0272f1e52.
+Owner artifacts/joint-audio/20260925-count-continuation-mass-v1 is retained
+with original script/freeze/result. No model-quality or primary-metric result.
+
+Cause: the artifact driver decorated main with torch.inference_mode, so model
+construction created inference parameters. FiniteTemporal.signature requires
+their _version for cache ownership. Canonical native execution loads models
+outside inference mode. The fix is no_grad for the driver while retaining
+the existing native inference-mode methods; no model/sampling law changes.
+
+Outcome REFINE, with a behavior-neutral instrumentation correction. Card
+revision2 changes the fresh output owner/command to
+artifacts/joint-audio/20260925-count-continuation-mass-v2 and pins corrected
+script bytes. Question, checkpoints, literal prefixes, seeds,64samples/mark,
+metrics/thresholds/guards and per-attempt900s/200MiB bounds remain unchanged.
+The original capped/failed attempt is not resumed or overwritten. This is an
+explicit new revision, not an extension of its runtime. No acceptance or
+endpoint adoption. The corrected run remains separately authorized by the
+standing local research task.
