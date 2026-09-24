@@ -2065,3 +2065,37 @@ and 40 GiB free disk guards. Do not parallelize competing MPS training jobs.
 Record actual end-to-end audio encode/startup and dense generation cost before
 making realtime claims; warm Mel throughput is a separate measurement. No TEST
 reads, remote publication or automatic model adoption is part of this Card.
+
+### Context implementation and preflight memory diagnostic
+
+Implementation source ce25a7b3e90d91225e22a9a63b65b9cd59bafcb3 adds the two
+model switches, shared-history interval scoring, full-song-aware query scoring,
+packaged Hydra and checkpoint dispatch. Local/fused retains 2,950,458 parameters;
+local/bounded has 2,992,964, global/fused 3,402,938 and global/bounded 3,461,828.
+The selected package/joint-model checks passed: 152 tests and 22 subtests.
+Hydra job composition also passed. These checks do not establish learning or
+playability. An initial launch was rejected before creating a run because a
+trailing-blank-line check had prevented the source commit; the formatting issue
+was fixed and the clean-source guard was respected on the actual preflight.
+
+The shared 1200-update plan hash is
+dee20d179a929fc0ca8f73c4001a7189a238fa2278d989a04a87ed8e5b432b3e.
+It contains 4800 intervals covering 37,300,370 actual milliseconds and 180
+validation interval records. Local/fused preflight completed 32 updates in
+66.24 seconds, using 128 intervals, 1,003,105 ms, 7239 event rows and 9903 heads.
+The two-song population probe fell from 98.3325 to 71.3007 NLL/second. This is
+a small learning/mechanics check, not the main comparison or quality evidence.
+Its checkpoint is c7edb68a53048eda03a41b224b8eb37dc457f92b1604402e80a61b8ee90be4bb.
+
+Available memory fell from 8.47 GB at update 10 to 5.86 GB at update 32;
+driver memory rose from 1.00 to 1.55 GB. Those counters alone do not attribute
+the growth. Before scaling, compare fresh global/bounded processes with one
+fixed planned microbatch repeated 32 times versus the first 32 variable planned
+updates followed by the same 32 again. Record active MPS, driver, process RSS,
+available memory and wall time at aligned post-update phases; then release
+references, collect, synchronize and empty the cache. Each diagnostic is bounded
+to 360 seconds, with a 2.5 GiB available-memory/PAUSE stop, no saved fitted
+checkpoint and no model selection. Artifacts are context-memory-fixed-v1 and
+context-memory-variable-v1 under the expanded corpus. This is an exploratory
+resource investigation under the same implementation source; it does not change
+the main Card's data, objective or model factors.
