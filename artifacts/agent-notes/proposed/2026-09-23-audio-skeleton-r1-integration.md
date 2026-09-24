@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: fdc6c13a51c8d8943fd44b3a632ee32bb4e6d33d
+Product revision: 9b998000ffbe8fdc540b10667d0f15b36ce820a4
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -5246,14 +5246,14 @@ remain valid because code did not change. No remote publication occurred.
 
 #### Next system work and model branch
 
-The next runtime deliverable is one source-chart-free planned-model entrypoint
+The runtime deliverable is one source-chart-free planned-model entrypoint
 that reads audio, generates from BOS, emits complete rows plus settled-through
 coverage, retains incremental LN state, and saves a reparsable playtest export.
 It should expose actual end-to-end startup and use independent head/release/row
 RNG. Keep the validated simple scheduling order; do not invent compute-triggered
 sampling shortcuts or truncate full audio. Packaged settings must follow the
 Hydra workflow. This entrypoint is implementation work, not proof of a playable
-model, and is not yet implemented for the planned checkpoint family.
+model. It is now implemented and verified as recorded below.
 
 The selected next modeling branch is a shared interpretable arrangement
 condition for head, release and row generation, rather than more isolated
@@ -5281,3 +5281,207 @@ Do not resume finished jobs. No live training or probes remain. The ultimate
 playable, expressive system goal remains active; runtime success and the narrow
 attack correction do not complete it. No Note acceptance or lifecycle transition
 has occurred.
+
+#### Source-chart-free streaming entrypoint verification
+
+Implementation source 1c95f6914fd3fa390d8a46f1d267d5311def7078 adds the packaged
+planned-audio inference schema/CLI, synchronous event callback, flushed JSONL
+stream, full-audio preprocessing, BOS generation and independent osu! reparse.
+It preserves the sampling implementation and checkpoint weights. Default
+correction remains off. A row and inclusive settled-through clock are delivered
+together. Open LN heads carry no future endpoint. Readiness requires 30 rows
+and eight seconds of coverage, or true completion for shorter charts. Capped
+generation keeps its prefix/open holds without inventing tails. Consumer errors
+propagate with the prefix and error record preserved. No crash-resume promise,
+client transport or playback engine is added.
+
+Typed projection rejects unknown fields, and settings reach runtime consumers.
+CLI help/config inspection is Torch-free. The selected command
+uv run --extra mps --group dev pytest -q tests/research/planned_audio_continuation
+tests/test_package_layout.py passed 47 tests and 22 subtests in 5.19 s. Tests
+include real waveform/checkpoint loading without a corpus, native row parity,
+stream replay, early readiness, partial LN preservation, callback failure and
+preprocessing limits. Local Markdown links, fences and diff checks passed.
+
+The actual CLI then reproduced all nine fixed conditional-release outputs,
+with a separate process consuming stdout online and replaying exact LN state.
+Every row sequence matches its frozen baseline; every stdout stream matches
+events.jsonl byte for byte. Readiness arrives before process exit, in
+1.398880..1.843109 s from subprocess launch, including imports and model loading.
+Producer-side readiness is .545364 to .966192 s under its narrower profile.
+The complete verification took 28.987641 s. No new chart-quality claim follows
+from these identical outputs; earlier Lens inspection remains the evidence.
+
+Owner artifacts/joint-audio/20260924-stream-entry-v1; freeze
+752bfa3908a192a075af22a9c85233b0ff5d771313a2f0dd24ecf9b6c72af21a;
+result 2eef5f7b1d4ab6b71e9420b665512990424524aa3d397db6f7e6cc6bc33922b4.
+Nine osz previews package the unchanged generated chart and paired audio;
+archive CRC and extracted byte equality were checked, with identities in
+playtests.json. No listening or player verdict occurred. Product
+9b998000ffbe8fdc540b10667d0f15b36ce820a4 only adds the verified CLI readout to
+curated docs after the tested implementation. Both commits are local; no push.
+
+### Experiment Card: shared-arrangement-profile-v1
+
+Revision 1, proposed, accepted none. Standing implementation/training authority
+applies. Clean baseline 9b998000ffbe8fdc540b10667d0f15b36ce820a4, with inference
+code unchanged from verified 1c95f6914fd3fa390d8a46f1d267d5311def7078.
+Implementation and fitting for this Card have not started.
+
+Question: can one persistent, interpretable arrangement condition shared by
+head, release and row factors improve controllable complete-chart generation,
+while an audio-only prior selects that condition without reference leakage?
+The intervention is a small supervised mixture over real arrangement profiles.
+It is not another timing filter, a label that equates style with quality, or a
+claim that source statistics alone exhaust musical intent.
+
+Closest analogue: MuseMorphose computes symbolic-music attributes and uses
+them to condition music generation (official repository
+https://github.com/YatingMusic/MuseMorphose and author overview
+https://slseanwu.github.io/site-musemorphose/). Transfer the computable-attribute
+conditioning principle, not its MIDI/bar representation, VAE, beat quantization
+or network size. CTRL (https://arxiv.org/abs/1909.05858) supplies the related
+persistent-control-code analogue. Ensomi differs in native-ms timing hazards,
+LN-state coupling, whole-row legality and full-audio conditioning of every
+factor. This is an adaptation of conditional generation, not a novel generic
+learning principle.
+
+An unobserved four-state VAE remains an alternative, but it adds posterior
+collapse and latent-interpretation questions before testing whether explicit
+shared information helps. Independent componentwise regression is rejected
+for this test because its mean profile can combine properties never jointly
+requested in a source arrangement. More decoder thresholds do not answer the
+selected common-condition question. Neither source multimodality nor the
+previous crossover proves this intervention will improve playability.
+
+#### Profile representation and probability law
+
+Use the unchanged paired corpus and TRAIN-only normalization from earlier
+Cards: manifest
+4ad9abfd0ae7798e0a85b96a5dbecdaefd2a81f78bf181438407442b964118e1,
+normalization
+9cf461a0e825f974f0a80a364123c7afedf1683af76e60fe09b0fbe51c2c8287.
+For each separate chart, measure H rows per complete-audio second, note heads
+per H row, and LN-head fraction. Transform with log, log, and asin(sqrt(p)),
+respectively; standardize using TRAIN-only weighted mean/std. Use the same
+uniform-group/then-chart population weighting as the generation corpus. These
+are global descriptive conditions, not local density quotas or calibrated
+difficulty. Target rows and source release endpoints remain unchanged.
+
+Freeze 16 joint profile representatives from actual TRAIN charts. Initialize
+the first medoid at the weighted squared-distance optimum. Add each later
+medoid by maximum weight times nearest-medoid squared distance. Assign charts
+to nearest medoids, then replace each medoid with its cluster member nearest
+the weighted centroid; stop on unchanged medoids or after 50 iterations.
+Ties use source SHA order. Require 16 unique occupied clusters. Record raw
+profiles, transforms/scales, medoid source SHAs, assignments, masses and
+quantization error; no validation chart may set them. Each chart's fixed class
+is its nearest representative. This finite support is an approximation to
+continuous arrangement choice, not a restriction on the row/timing alphabet.
+
+Add a zero-initialized, bias-free 3->224 profile projection to the encoded
+audio condition supplied to all three factors. The same chosen profile is
+constant through a chart and every sampled training interval. Full audio
+continues to determine local variation; there are no imposed chorus/bar
+boundaries. Add a 128->16 linear softmax prior on the valid-token mean of the
+existing full-song coarse encoder. Initialize its bias from TRAIN profile
+masses. Total new trainable parameters should be 2736 (guard <=5000).
+
+The model defines p(k|A) p(H,R,rows|A,k). Training uses the chart's assigned k;
+this is a hard, observed auxiliary assignment, not a per-window latent reset.
+The existing importance-weighted event likelihood stays unchanged. Add the
+profile cross-entropy once per chart in expectation, divided by its complete
+audio duration in seconds: when intervals repeat a chart, average that term
+across the interval samples rather than multiplying its population weight.
+Prior and generator gradients may both reach the audio encoder. Report the
+prior factor separately from conditional timing/row NLL. Neither their sum
+nor an oracle-profile validation score establishes native quality.
+
+Audio-only inference samples k once from the full-audio prior, with a separate
+CPU RNG seeded by seed xor 0x61F9. Existing head/release/row draws retain their
+independent streams. An explicit profile override selects a TRAIN representative
+and is reported as a controlled request. Cache the same full-song encoding;
+do not decode/encode audio twice. No target chart statistics, source H clocks,
+row-content feedback to skeleton, or future actual tails enter native input.
+The profile bank, normalization and prior must be checkpoint-contained, and
+the source-chart-free streaming entrypoint must support the new family.
+
+#### Matched fit and checks
+
+Both arms start from weights of conditional checkpoint
+67b8fc8fbac5f7ca2debe99524e29ac002546f12cb8a3c4c9acf68d68d7f3839 with fresh AdamW
+state. Control arm continues the existing model without profile conditioning;
+treatment adds the profile projection/prior. Copy every common tensor exactly.
+Verify epoch-zero generator probabilities and fixed-seed rows match for every
+profile because the projection is zero. Prior sampling must not perturb the
+other RNG streams. Test valid full-audio pooling, TRAIN-only preparation,
+fixed-chart assignments across intervals, CPU/MPS gradients, crop/native
+agreement, separate loss accounting and checkpoint/stream round trips.
+
+Use the same frozen 1200-update interval protocol
+34ef9751df4571f516ef2b670b3b0f4b398c212fdd16adcee1a029bd9168eb14,
+two songs times two 8-s intervals, seeds 230941/230942/230943, existing learning
+rates 3e-5 inherited and 3e-4 other, weight decay .01 and gradient clip 1.
+First run 32 updates per arm from the common checkpoint, <=300 s each, checking
+finite loss/gradients, actual parameter updates and complete native generation.
+Do not reuse preflight model/optimizer states. If these implementation/resource
+checks pass, run the matched 1200-update fits, <=2400 s each. Fixed endpoint
+selection; no best-NLL checkpoint selection or parameter/temperature sweep.
+
+#### Native evaluation and interpretation
+
+Use the nine fixed native cases and seeds in the preceding main-native result.
+Evaluate both fitted arms with no requested profile. Also generate four
+controlled profiles per case: the first four medoids in the fixed initialization
+order, using their final representatives. No per-song cherry picking. Baseline
+outputs ignore requested profiles and are reused for the matched comparison.
+This gives 18 automatic and 36 controlled outputs. Profile requests are drawn
+from TRAIN representatives, never the corresponding evaluation chart.
+
+Primary metric: mean squared error between requested and generated three-vector
+profiles, standardized with the frozen TRAIN transform. Require >=25% reduction
+versus the continued baseline evaluated against the same 36 requests, and no
+increase in any of the three component mean squared errors. Zero-head output
+is a failure, not an omitted or finite-imputed metric. Report per-case values
+and realized dimensions, rather than only a cohort mean. Prior calibration on
+VAL is a separate diagnostic against the constant TRAIN profile-mass prior;
+it cannot substitute for sampled output inspection.
+
+Guards: all outputs complete/reparse within 90 s and 30000 rows; zero strict
+HH<20 pairs; cached-Mel 30-row/eight-second readiness <=1 s. On the nine automatic
+outputs, preserve nonempty fixed musical scopes and last H at >=.85 of audio
+duration, and do not increase aggregate RH<=20 over the matched continued
+baseline. Requested low/high density can intentionally change head counts and
+LN fractions, so the old composition-distance guard is inappropriate here.
+Report every controlled-output RH witness and inspect its surrounding action
+and LN episode without treating the HH criterion as an RH annotation.
+
+Lens review must include all five fixed musical contexts for both automatic
+arms, each of the four controlled profiles at seed17 for Who/Death Piano/Prom
+Queen/Good Luck and seed33 for Airborne, and every remaining close-gap witness.
+Reuse unchanged frozen human evidence. Inspect complete action/articulation
+and time views. Check that improved aggregate descriptors have not replaced
+musical organization with arbitrary extra notes, erased reference-compatible
+Tech/Jack organization, or collapsed independent LN timing. Different requested
+profiles need not reproduce every source style label: check expressive capacity
+across requests and musical coherence at each request, rather than demanding
+the same organization from every profile. Missing annotations stay unreviewed;
+no listening/player verdict may be invented.
+
+A positive bounded result shows usable shared conditioning with no measured
+quality regression, not a completed final model. If descriptors are controlled
+but native quality fails, retain the module only as a research direction and
+locate the coupling failure before scaling capacity. If likelihood improves
+but realized profiles do not, reject NLL as sufficient control evidence and
+inspect whether the common condition is used. If the codebook approximation or
+prior dominates failure, refine that identified component rather than silently
+changing K or using evaluation-chart profiles.
+
+MPS fitting / CPU-one-thread native generation, uv --extra mps, >=2 GiB available
+RAM, >=40 GiB free disk. Native cohort budget <=1200 s. Fresh owner
+artifacts/joint-audio/20260924-shared-profile-v1; <=1 GiB new outputs excluding
+unchanged linked audio/evidence, no overwrite/resume. Packaged configs and
+model checkpoints must carry every accepted setting and exact identities.
+Freeze a clean intervention source before model runs. Stop on changed bytes,
+implementation parity/support failure, nonfinite values, resource bounds or
+incomplete native output. Local commits only; no remote publication.
