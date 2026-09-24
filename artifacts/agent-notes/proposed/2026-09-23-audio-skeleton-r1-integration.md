@@ -2697,3 +2697,41 @@ disagreement above 1e-4 on one reference and native query per song. Record all
 input/output hashes and sample counts. No positive numeric playability threshold
 is claimed; report the direction/magnitude per episode and preserve ambiguous
 cases. The existing native charts are fixed and cannot be worsened by the probe.
+
+### Result Log: style-source-row-probe-v1
+
+Card revision 1; accepted revision none. Execution used the clean pinned
+de2ff6207158edf1e1cd71ae1697b4195ba73854 source, fixed inference checkpoint,
+four exact audio/source identities and scopes above, and all 795 selected
+source/native events. The deterministic CPU run took 31.03 seconds, hit no
+resource cap and performed no fit or new sampling. Twelve full-audio/canonical-
+crop checks have maximum legal log-probability difference 3.8147e-6, below the
+1e-4 guard. There was no protected-field deviation. Output owner is
+style-audit-v1/source-row-probe-v1/result.json, SHA-256
+9305057f4284d73dfa9a3ca756a178818f025b43f30f76ba1fed47cdfc6106b6.
+
+| Episode | Source events | Native events 17/19 | Expected LN/head source | Expected LN/head native 17/19 |
+| --- | ---: | ---: | ---: | ---: |
+| Who? | 163 | 168/171 | .65033 | .71969/.75002 |
+| death piano | 20 | 75/51 | .00732 | .88828/.82263 |
+| Prom Queen | 12 | 51/25 | .00874 | .85673/.75091 |
+| Good Luck, Babe! | 22 | 22/15 | .00709 | .03579/.11446 |
+
+Source conditional mean row NLL is respectively 1.35290, 1.48214, 2.11355 and
+2.48810 nats/event. These are separate scoped source predictions, not a combined
+quality score. Native self-likelihood is retained in the artifact only for
+diagnosis. The source's actual LN fraction is 2/3 for Who? and zero otherwise.
+The result contradicts a simple claim that the row decoder cannot express or
+locally prefer tap-heavy arrangements. It does not identify a single causal
+history feature: source/native event times, occupancy, content and clocks differ.
+R1 transfer and TRAIN source exposure also prevent unseen-song claims.
+
+Recommended outcome remains REFINE. A next discriminating probe should replay
+a real tap-heavy prefix and then sample its continuation with full audio, without
+reference future labels or a forced tap-only decoder. This can separate failure
+to initiate an arrangement from inability to sustain it under free timing/actions.
+Restored paired targets offer a separate data-only intervention; do not conflate
+that experiment with adding persistent intent or increasing model capacity.
+No new architecture extension, training run or lifecycle transition is adopted
+by this result. Product evidence is summarized in the playtest candidate guide.
+Both Lens bundles still match every frozen member hash (269 and 151 files).
