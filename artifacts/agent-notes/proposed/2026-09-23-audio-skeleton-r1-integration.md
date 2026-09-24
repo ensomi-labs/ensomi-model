@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 88e56832287f492fdca81ea7194b90753526cc96
+Product revision: ee5a96de5d6387aa6ef1fe5aee69cbd2a626a904
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -4381,3 +4381,59 @@ next-H condition distinguishes this problem from the head stream: one release
 is required when all lanes are held, whereas a new head is not required during
 every musical rest. Conditional normalization preserves every legal native
 release time and may avoid an artificial boundary atom without a spacing ban.
+
+### Release-law result and current handoff
+
+Release-law audit session 90901 completed in 4.84353 s, reproducing every
+generated row exactly. Freeze SHA
+1291fd1e66787885ddbef91c8f9d501f1141520db8bc68016240b384bbe4fe12;
+result d9141ebcf077625dfd884941fac7ea70548ffbbb70e5390ed9f6e7a5d8e7a53b.
+At the all-held 39901 ms prefix, raw release probability through 40210 is
+.656448. The implemented deadline atom gives its last clock probability
+.344447; conditioning the same raw event law on a feasible release reduces
+that mass to .00136408, a 252.51x reduction. The same underlying uniform draw
+.920926 selects 40148 ms under conditioning, leaving 63 ms before H instead
+of one millisecond. Both predeclared diagnostic conditions are met, but no
+alternative full chart was generated and no conditional-law fitting occurred.
+
+At the same row context and fixed head mask 0/3 with no releases, frontier2
+reduces the all-LN kind probability from .710357 to .654503; its full-row
+probability is .058511. The module is active. Its earliest-release slack of
+309 ms is a possibility and does not capture the release law's boundary mass.
+Do not conclude that the module was absent, or replace every four-hold choice
+with taps. The law-level artifact motivates feasibility conditioning before
+inventing a universal duration or release/head threshold.
+
+The bounded main review is saved at main-lens/review.json, SHA
+045677dabdcf7b0947c6b2531c8bd66c8fdacf4cc09afb9fb8835d8f298039f6.
+All 26 generated context pages, 14 byte-identical references and two additional
+witness pages are accounted for, with complete actions/articulation. Runtime
+profile SHA d7ad51b8e1be0fb29cdacb241964b997eeb6703457ed3201f7e811d7dbf78679
+uses the densest forward two-second generated windows: 15-28 heads, 8-18 physical
+rows and .0187-.0418 seconds of publication work. This does not establish worst
+dense-source or simultaneous-load performance. No waveform/Mel startup cost or
+player verdict is included.
+
+Product ee5a96de5d6387aa6ef1fe5aee69cbd2a626a904 is documentation-only after
+88e56832287f492fdca81ea7194b90753526cc96. It adds the bounded comparison to
+docs/research/head_wait_recovery.md and the self-contained probability analysis
+docs/research/release_wait_conditioning.md. Product and notes worktrees are
+clean after the local commits; nothing was pushed. All training, native,
+inspection and diagnostic sessions in this phase are terminal. Do not rerun
+finished jobs or invoke old scripts against a changed source pin blindly.
+
+Current outcome is REFINE, not overall success. The four-case head recovery
+gate fails on Death Piano, source-style expressive coverage remains incomplete,
+and the release waiting law still uses the deadline atom in actual code.
+Next Design/implementation should replace that atom for all-held/next-H waits
+with a normalized feasible first-release law, identically in training and
+sampling. It must include future hypothetical raw hazards in its normalizer,
+retain full audio and proper local halos, preserve interval-censor telescoping,
+and never read future actual LN states/tails. No minimum-gap rule is needed.
+First compare the fixed bounded checkpoint with unchanged head RNG/stream so
+the waiting-law effect is isolated; then decide the smallest matched fine-tune.
+Separate further investigation of piano audio-base activity and difficulty/
+arrangement ambiguity from this release intervention. Keep the old persistent-
+intent fit deferred rather than applying it to the superseded flat model.
+No new Card or fit for conditional releases has yet been created or started.
+The full playable, expressive audio-to-chart goal remains active.
