@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: 10a16fe64d65fa273d49921aeb6779976ee1117f
+Product revision: caee76b99d66530522c863012e1f968bba8993f0
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -1765,3 +1765,145 @@ Fresh output is expanded-v1/training/coverage-240-v1; no overwrite or implicit
 resume. Source-normalization provenance and the common evaluation freeze are
 required before generation. Inference profiles exclude/include audio preprocessing
 explicitly. No TEST or new architecture-default adoption follows automatically.
+
+### Result Log: paired-song-coverage-v1
+
+Card revision 1; accepted revision none. This is exploratory evidence under the
+standing user authority. The clean training source was
+f25508ef77a49fda3212652226a418211415b66c. The normalizer override is the only
+training behavior extension; defaults preserve the older recipe. Native
+evaluation used caee76b99d66530522c863012e1f968bba8993f0, adding diagnostics
+without changing generation. Thirty-three focused config/model/sampling tests
+passed; a one-update MPS preflight verified exact consumption of the old TRAIN
+normalization buffers. Three diagnostic tests cover empty output, early held
+states, separate TAP/release relations and the complete row crossing 30 heads.
+
+The old control used two CPU threads and the expanded run used one, with MPS
+for both. Reconstructed initial parameters and buffers under the two thread
+settings have the same hash,
+cf95aae8d6f5c21f0333ec2f6a896e245baad9de9edb682b4a8ec135476c3f7a.
+This does not assert bitwise training-trajectory equality. Normalizer and
+initialization receipts are in expanded-v1/evaluation-coverage-v1.
+
+The new run completed all 2400 updates in 1385.83 seconds: 38,400 logical
+examples, 40,235 physical queries, and all 136 coverage examples. The control
+used 40,554 physical queries for the same logical budget. The fixed new last
+checkpoint is a5e6c7434557b3402e2b06cebbd8e6e2779d24eeddd9c6cd88a9dca6b542fc90.
+The final update was also the best validation update; the curve was still
+improving. This is not a convergence claim. A TRAIN raw-support audit ran on
+CPU during part of training, so wall time is not an isolated speed benchmark.
+
+The pre-frozen common protocol hash is
+9ff28d5c5f30effc13d8205c5e61967016b67457876a693c8cfbcb2545076d57.
+It contains 144 common queries (four per VAL song) and 289 full waiting
+examples across BOS, early free/held and mature free/held states. Seventeen
+unavailable per-song strata are explicitly recorded. The original 48 common
+queries are unchanged. These are true source prefixes, not altered generated
+prefixes paired with the original future.
+
+| Development panel | Small-data joint NLL | Expanded-data joint NLL | Change |
+| --- | ---: | ---: | ---: |
+| Original 12 songs, 48 queries | 6.3542 | 6.2128 | -2.23% |
+| Additional 24 songs, 96 queries | 6.4852 | 5.4883 | -15.37% |
+
+The combined query mean is 6.4415 versus 5.7298. The planned likelihood
+threshold passes. Source-stage NLL also improves in most strata; original-panel
+mature-free is essentially unchanged (6.0041 versus 6.0064). There is one
+training seed and no independent training-replicate uncertainty estimate.
+
+Both arms completed all 84 requested native outputs: six TRAIN and 36 VAL
+songs at seed bases 17 and 19, preserving source-to-seed pairing. No decoder
+head-spacing prior was used. Early and empty outputs were retained. Cohort
+generation took about 257 seconds for the control and 257 seconds for the
+expanded model, excluding audio decode/Mel. Full result comparison hash:
+b1e360bfd8d830ed170730cabe91de164b2c633457f75521682588ab644d8da1.
+
+| Native diagnostic, all 84 outputs | Small data | Expanded data |
+| --- | ---: | ---: |
+| Empty outputs | 2 | 0 |
+| Outputs below 30 heads, including empty | 2 | 3 |
+| Total heads | 138,688 | 135,146 |
+| Total LN heads | 30,157 | 19,484 |
+| Occupied lane-time / observed lane-time | .08075 | .06967 |
+| Median per-chart median closed-LN duration, ms | 115.5 | 146.5 |
+| Eligible consecutive TAP-to-TAP relations | 97,539 | 105,493 |
+| TAP-to-TAP <=10 ms, absolute / per 1000 relations | 4 / .04101 | 1 / .00948 |
+| TAP-to-TAP <=20 ms, absolute / per 1000 relations | 11 / .11278 | 4 / .03792 |
+
+The median paired head-count ratio is .982 (82 finite ratios; two zero
+control denominators are separate). The LN total ratio .646 violates the
+predeclared composition review guard. It is not a universal LN-quality score.
+Additional-24 outputs improve from two empty to none below 30, with median
+head ratio 1.174. The original-12 panel instead gains two early failures and
+has an LN total ratio .433. TRAIN gains one early failure. The global count
+therefore conceals opposite subgroup changes.
+
+#### Lens review and interpretation
+
+The canonical Lens bridge admitted all 168 generated exports plus 42 distinct
+source files with no skips or diagnostics. Both empty exports remain explicit
+outcomes; no renderable section was invented for them. The frozen review bundle
+hash is 3a0d435ed8ac07354c34f679f65768cd3c1eaa6df770621d87aae795ec53d9a6,
+at expanded-v1/lens-review/coverage-v1. All 352 frozen member hashes were
+reverified after inspection. The original 204 human examples and Foundation
+remain unchanged. Admission is mechanical validity, not a quality verdict.
+
+Complete paginated actions and articulation were retrieved for nine paired
+windows. Time-proportional generated/source pages were visually inspected;
+the repeated Dotabata source pages share the same source/window. Evidence is
+under that review root's evidence directory. These are targeted failure and
+expressiveness checks, not a blind whole-cohort or audio-listening study.
+
+- Ju-Ju Yakiniku seed base 19 emits eight heads, ending at 2414 ms of
+  117211 ms; SCREW seed base 17 emits ten, ending at 4142 of 121033 ms;
+  glacia seed base 19 emits thirteen, ending at 2047 of 121913 ms.
+  Their short opening sequences are mechanically valid. Their nearly empty
+  remaining songs are not successful playable outputs.
+- Paganini seed base 19 reaches 31 heads but stops at 7347 ms of 148618 ms.
+  All three pages of its generated opening and source context were inspected.
+  Passing first-30 does not establish sustained generation.
+- GR4VITY G4ME seed base 19 contains lane-2 TAPs at 230445 and 230455 ms,
+  inside continuing mixed-lane motion. This is an isolated same-key 10 ms
+  reattack, distinct from a release-to-head relation or a deliberate long
+  jack organization. The timing anomaly remains a local playability failure.
+- Dotabata seed base 19 has no actions in the inspected 178154–182154 ms
+  window, while the control and reference contain continued LN/tap motion.
+  This does not prove every source rest must be filled, but the lower LN
+  total cannot be credited as better local organization in this empty scope.
+- Tsuikou seed base 19 retains staggered cross-lane LN starts/releases,
+  synchronized closures and tap/LN combinations in 193684–197684 ms.
+  The representation has not collapsed to taps only. Musical alignment and
+  full-song quality remain unjudged.
+- In my room recovers both previously empty generations. The inspected
+  12904–16904 ms scope is active mixed single/chord motion with short LNs,
+  substantially denser than its easy reference. Recovery is real; density
+  mismatch alone is not BAD, nor does activity alone prove good mapping.
+
+The evidence supports improved held-out conditional prediction from wider
+paired coverage, but not adoption of the new weights as a playable replacement.
+Native early stability fails its guard, and long silence occurs even after
+30 heads. Composition changes and continued source-curve improvement leave
+undertraining as a live alternative. They do not establish that more training
+alone will fix the history-dependent generation failure.
+
+Recommended outcome: REFINE. Prioritize the expert's local/global audio crossed
+with original/bounded-history timing experiment at fixed data and interval
+objective. Preserve this coverage comparison; do not reinterpret it as a
+rejection of data scaling, or tune a decoder floor to force activity. No exact
+Card acceptance, model adoption or remote publication is implied.
+
+#### Completed input-support audits
+
+R1 native recovery-pool ownership also resolves to TRAIN: 32 sources/runs and
+92 queries, with no selected VAL identity. Cumulative checkpoint coverage,
+response/release plans and pool ownership share the pinned source split.
+Exact identity checks still do not guarantee absence of perceptual duplicates
+or previous validation-based model selection.
+
+The raw same-lane close+restart audit verified 11609 unique TRAIN source files
+from the admission owner, including rejected cases. Of these, 11604 parsed
+successfully, containing 16,078,030 objects; five failed with other raw
+ambiguities. No same-lane same-millisecond LN close+restart relation was found
+in the parsed set. No VAL/TEST payloads were read. This corpus audit supplies
+no evidence for changing the current action alphabet before the next study;
+it is not a universal statement about mania charts.
