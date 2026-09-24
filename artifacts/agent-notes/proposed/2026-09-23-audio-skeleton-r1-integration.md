@@ -4772,3 +4772,114 @@ contexts before deciding between richer consequence inputs, release-subset
 forecasting, or the independently unresolved piano/difficulty-conditioning
 problem. Do not add a universal release/head spacing loss or enlarge capacity
 solely because the finite frontier approximation is incomplete.
+
+#### Feasible-release main completion and inspected result
+
+Full fit session 34618 completed 1200 updates in 907.01029 s with the exact
+baseline exposure (4800 intervals, 37253258 ms, 253512 rows, 238904 H rows,
+14608 release-only rows, 10684532 occupied release clocks). Checkpoint
+67b8fc8fbac5f7ca2debe99524e29ac002546f12cb8a3c4c9acf68d68d7f3839;
+freeze 94759f22b74379a0da3b5087e9e30bf5f1a8047b46f7f3519a659a17d613402c;
+result fdda13e0fe689859b573f7598f641d02fded911b50fe15abcf72f0d3500e1f8c.
+All tracked modules updated; frontier2 L2 .382798, release_clock 6.118215.
+Population NLL/s 40.46334 and BOS 27.35083 are diagnostics, not acceptance.
+Logged available RAM minimum 4329127936 B, driver maximum 3202727936 B,
+RSS maximum 3793125376 B; these are distinct measurements, not additive.
+
+Native session 70129 completed all nine outputs/reparses in 16.17506 s.
+Native freeze 260778f389a01123e5970fa6534b07f098cf699ab209f2902b7fad3db3bd31aa;
+result accf33033b475afdb808d7128ea6c2b614815092aa01c293dd2232e74a893235.
+Assessment ad1e152b9773bb8de2c6d01568bbf6950e4af5dc30b151c4941e92f9eb88d127:
+RH<=20 and HH<=20 both zero, all fixed windows contain heads, all last-H/audio
+ratios >=.85, and both startup measures <=1 s. The declared .05 absolute
+LN-fraction guard FAILS in six cases: Who19, Death17, Prom19, Good17/19 and
+Airborne. Do not reinterpret the gate as passed or select on lower NLL.
+
+Lens session 25684 completed. Manifest
+421f7b1ec087791f400d89d79c11b30e09c27fa2a25ef881ae2f7ee0b419be87;
+review 8916408cbe5d430642961ab1943271e49e53c2701f8350c9c2dea3a2a994340d.
+Viewed all 26 new fixed-context pages and 14 witness pages for all nine
+full-occupancy episodes in seven merged contexts. The 14 human reference pages
+were byte-identical to previously viewed evidence. Complete actions/articulation
+were read and pagination checked. No training or native job remains live.
+
+Who retains roughly 117/234/468-ms tap organization; seed19 includes six short
+sequential holds in its fixed window. Prom Queen gives regular chord/single tap
+figures near 208 ms; seed19 loses its former tap/LN arrangement. Death Piano
+remains sparse: seed17 has one 3274-ms hold with no interior head and a 6900-ms
+following-H gap; seed19 gives two new holds in the same fixed context. Fine
+Tech/dump expressive coverage is not established.
+
+Good17 moves from 825 to 1344 note heads while H-row count falls 671->626;
+mean chord size rises 1.22951->2.14696. LN heads increase 204->227 even though
+LN fraction falls .24727->.16890. This is not LN disappearance or a global
+sparsification win. Recurring three-column grips and hold interactions are
+visible, including independent releases while another column stays held.
+An isolated 22-ms LN at 189468 has unresolved musical role; its duration alone
+is not a universal BAD label. Airborne rises from 279 to 449 LN heads and has
+one full-hold release 66 ms before its next H. Its fixed window contains 19
+heads/four LNs and some separate hold/tap articulation. These changes are not
+automatically bad arrangements, but the endpoint is not a clean overall gain.
+
+Outcome REFINE. Keep the positive fixed-weight waiting-law result distinct
+from joint-fit composition sensitivity. A shared seed does not preserve latent
+arrangement choice after probabilities change, and H streams can change when
+shared audio parameters are jointly trained. The next diagnostic should isolate
+generated head-plan effects from the remaining conditional model before another
+fit or a persistent-intent extension. Audio source inspection also confirms
+load_audio_file already applies whole-song peak normalization; do not attribute
+piano sparsity to an absent global-gain normalization without further evidence.
+
+### Experiment Card: generated-head-plan-crossover-v1
+
+Revision 1, proposed, accepted revision none. Standing local experiment authority
+applies. Question: do the two largest composition shifts follow the generated
+H plan or the conditional audio/release/row model at fixed audio and draw seed?
+Closest analogue is the fixed-weight release intervention; the implemented
+head-plan factorization permits a controlled modular crossover. This diagnoses
+coupling and trajectory sensitivity; it does not estimate an additive fraction
+of all BAD patterns attributable to R1.
+
+Clean source 7c316e6ea3d22aff1fd4761798f1b4aa41d47e89. Conditional model A uses
+bounded checkpoint 47d41844afc673788cb640c67a1d5e41b2b9ca75ae679298c10072200925bce6
+with condition_full_holds=true; model B uses the trained conditional checkpoint
+67b8fc8fbac5f7ca2debe99524e29ac002546f12cb8a3c4c9acf68d68d7f3839. Use the exact
+Prom Queen seed19 and Good Luck seed17 audio/cases. Their H plans are taken
+only from the two complete audio-generated endpoints, never source charts.
+Diagonal A is the frozen conditional arm under the feasible-release owner;
+diagonal B is the fitted main arm. Baselines: Prom LN fraction .180428/.020339;
+Good mean chord size 1.229508/2.146965. Nine-case aggregate guards failed as
+documented; these selected cases explain shifts, not overall failure rates.
+
+For each case, evaluate A/B conditional weights crossed with A/B fixed H plans,
+using the original row/release RNG seeds. The sampler's head planner is replaced
+only by a complete immutable generated queue with identical preview/end semantics.
+It must not expose any future rows, tails or occupancy. Audio encoding, release
+law, row/frontier2 scores and legal support remain those of the selected model.
+The conditional-weight factor includes audio encoder, release and row modules;
+it is not a pure R1-only intervention. No parameters are changed or fitted.
+
+Require exact full-row reproduction of both diagonal outputs and exact supplied
+H timestamps for every arm before interpreting crossed arms. Record all row
+and release outcomes, full-occupancy episodes and close-gap witnesses. Inspect
+the same fixed Lens scopes for crossed outputs and any new mechanical witness.
+Do not treat a lower LN fraction as an improvement by itself.
+
+Primary readouts are Prom's LN fraction and Good's mean chord size. Compare each
+crossed value with the two diagonal values by absolute distance. If both crossed
+arms are closer to the diagonal sharing their H plan, prioritize plan-to-row
+response. If both are closer to the diagonal sharing conditional weights,
+prioritize the conditional audio/release/row policy. Otherwise classify the
+result as interaction or sample-path ambiguity. Also report all four values,
+heads/H rows/LN counts/held time and differences, not just the classification.
+No global causal-percentage or style label follows from this two-case probe.
+
+CPU one thread, <=240 s total, <=90 s and 30000 rows per chart, >=2 GiB available
+RAM and >=40 GiB disk. Fresh owner
+artifacts/joint-audio/20260924-feasible-release-v1/head-plan-crossover;
+<=100 MiB excluding linked unchanged audio, no overwrite/resume. Eight rollouts
+including the four diagonal reproduction controls, independent export/reparse,
+then Lens inspection. Freeze the driver and input/checkpoint/plan hashes before
+sampling. Stop causal interpretation on reproduction, H-stream, resource or
+legal-completion failure. A mixed result calls for a common-state probability
+or additional-seed diagnostic before adding latent capacity.
