@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 9e6dbc61511ec9b1a45bc55148a344886e81d682
+Product revision: fd2ddfdbc66c1177167487085bccfbac818ddb39
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -7552,3 +7552,162 @@ unchanged. Resolve and verify all48 row paths before loading model-backed
 queries. Preserve attempt1 source bytes; checksum the corrected script in the
 new freeze. This is a declared procedural correction, not permission to change
 the scientific comparison or silently overwrite a failed run.
+
+
+### Result Log: head-factor-drift-v1 revision 2
+
+Proposed, accepted none. Clean execution source9e6dbc61511ec9b1a45bc55148a344886e81d682;
+execution Note e5c5dfc8aff62d96481d5fcc91d3222684309529. Command is the revision2
+analyze_v2.py invocation above. Session17172 is terminal success in74.945380s,
+with32paired endpoint comparisons and48own trajectories, one CPU thread.
+All48H sequences are exactly reproduced and768selected dense/cache positions
+pass2e-5 tolerances. Native partitions and all accounting identities pass1e-6H;
+parameters/checkpoint/input identities remain unchanged. No fit or new row
+chart was produced. The input-path failure in attempt1 is separately preserved;
+no other protected field changed and no run remains live.
+
+Owner artifacts/joint-audio/20260925-head-factor-drift-v1/attempt2.
+Result4aaa7036b335c90ec75af4128f9e1ad3e9dc5031420b4a3fe0d73a819b74b1e9;
+freeze301530989f1468e9f31b7667eafc1b27275d2079e1e23b6fe03d4d2dbabe5c9d;
+script c99084123613c161d8f5f0cc038bcf9aed6efd4bdd6c7bc1e9e44979f2ff9b97.
+Run bytes1351401 before the supplementary scientific figure. plot.py creates
+head-factor-drift.png/.svg from the frozen result; the complete two-panel
+figure was visually checked with common horizontal scales and labelled units.
+
+Neither arm has a component meeting the declared dominance rule. Shared has
+13eligible cases: median absolute B/R/D shares.218/.156/.495, Dsign agreement
+10/13 and median relative realization remainder.017. Routed has15eligible:
+.376/.111/.465, Dsign agreement14/15 and remainder.019. No60%median lead, so
+do not rewrite the criterion to declare history the universal primary cause.
+All32cases, including small changes and opposing contributions, remain recorded.
+
+Selected profile2 accounting in heads, B/R/D/E:
+shared Hysteric1297→4417:371.7/69.8/2674.6/3.9;
+routed FoolMoon1078→3778:987.1/−27.6/1830.5/−90.0;
+shared Take928→1258:644.9/−149.5/−161.1/−4.4;
+shared Yomi2939→3590:1683.9/−10.2/−988.8/−34.0.
+For Hysteric, base-only expected count changes1001.05→1089.60 while the own-path
+median residual changes−1.747→+1.657. For Yomi, base-only expected count changes
+1952.93→3323.68 and history partly offsets it. Conditional probability accounting
+exposes feedback/coadaptation; crossed sums are not freely sampled model means,
+independent causal percentages or playable outputs. The residual path also
+reads audio, and the small paired remainder is not a seed-robustness result.
+
+Recommendation REFINE. This gives evidence to avoid a universal base-only,
+history-only or R1-only explanation. The bounded head correction protects a
+long-wait property, not native count calibration; teacher likelihood identifies
+the sum rather than an independently calibrated audio base. LN/row loss still
+requires H-controlled evaluation, especially Revenge with lower density and
+AsItWas with large LN loss relative to its smaller H change. No model, decoder
+or threshold is adopted. Broader time-rescaled renewal/count-conditioned
+representations remain hypotheses; Pillow's conditional-renewal analogue
+https://proceedings.neurips.cc/paper/3740-time-rescaling-methods-for-the-estimation-and-assessment-of-non-poisson-neural-encoding-models.pdf
+distinguishes real/rescaled history effects and warns that temporal-fit tests
+alone do not establish stimulus-response quality. No such model is implemented.
+
+Curated self-contained report docs/research/head_factor_drift.md and a link from
+the routing report are committed atfd2ddfdbc66c1177167487085bccfbac818ddb39.
+Selected documentation checks verify fixed evidence hashes, complete declared
+accounting, local links and staged git diff --check. No passing model tests
+were rerun for this prose-only product change. Goal remains active.
+
+
+### Experiment Card: head-materializer-composition-v1
+
+Revision1, proposed, accepted none. Owner is this Note; standing local research
+and execution authority applies. Clean product baseline
+fd2ddfdbc66c1177167487085bccfbac818ddb39. No training or new product architecture
+is required for this bounded functional comparison.
+
+Question: can the initial H process preserve its better calibration while the
+continued shared R/row conditional supplies improved LN organization? One
+intervention replaces the complete generated H plan seen by a fixed R/row model.
+Compare both directions between initial I and shared continuation S:
+H_I/B_S is the prospective composition; H_S/B_I is the reverse diagnostic.
+B denotes release plus row materialization, each with its own audio encoding,
+profile condition, LN projection, histories and frontier2. H_I/B_I and H_S/B_S
+are the saved diagonal controls. No routed endpoint or synthetic profile cross
+enters this comparison. No encoder activation is exchanged across checkpoints.
+
+Closest local analogue is shared-profile-path-crossover-v1 in
+docs/research/shared_arrangement_profiles.md, which holds generated H fixed while
+crossing downstream profile codes. Here each entire conditional retains a
+consistent profile and its own learned representation; only H source changes.
+The probability factorization p(H|A,z)p(R,Y|H,A,z) already permits this functional
+composition. This is an adaptation/test of modular conditional generation,
+not a new probability primitive. Branches: useful complementary learning predicts
+H_I/B_S improves native controls and LN relations; body degradation predicts
+failure even on original H; H-sensitive materialization predicts the reverse
+cross degrades with the changed plan. Shared RNG cannot keep diverging R/row
+histories fixed, and crossed H/body pairs can still be outside training support.
+
+Use all eight pinned panel audios and requests1/2, seeds251701..251708. Initial
+checkpointabc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef,
+shared7849e07a77febf12968b8197e844d9c26f8327ce789d0776117e02dc83de788f;
+same bank a8973b7f94fde90d9f3cc639eb63e781dd295435622ce79fd54fe244789e6f03
+and panel484d173628856a431e034b1dbdacab9173c40f3edf696d1b9a19721aeec70dc9.
+Native source owners/hashes are the unchanged originals in head-factor-drift-v1.
+Read plans from verified48-source evidence's initial/shared direct rows only,
+using chart/rows.jsonl for I and rows.jsonl for S. Check H hashes/counts. The
+preceding48exact pure-H replays establish their generator provenance. Native
+materialization reads full canonical Mel; no chart layout, redlines, source
+tail, style label or source-audio context enters a generation call.
+
+Diagonal baseline on16explicit outputs: total standardized descriptor MSE
+7.3404225633 I versus9.1914143851 S; components
+[.8738583549,2.3704218356,4.0961423728] versus
+[1.7634942568,3.9831588647,3.4447612636]. The primary metric compares H_I/B_S
+with I on those same16 cases, uniform audio/request weights. Require total
+error<=.85*7.3404225633 and LN error<=.85*4.0961423728; width guard
+<=1.10*2.3704218356. H component must equal the original exactly apart from
+floating reporting tolerance1e-10. This is a control signal, not playability.
+Report all components, per-audio values, raw HH/RH and reverse-cross results;
+retain incomplete/empty charts as failures, not dropped metric rows.
+
+Preflight integrity: for FoolMoon and Hysteric request2, replay each diagonal
+body with its own saved H plan (four calls). Require complete exact row-stream
+identity and independent reparse, before the main cross. These are necessary
+fixed-plan/online-preview parity checks, not additional independent quality
+samples. Stop on a discrepancy; do not silently reinterpret end-of-plan flags.
+
+Main:32direct crossed full charts, then32paired crossed screened charts using
+the unchanged8s windows/20ms halo/four-proposal budget. All must complete,
+independently reparse, preserve the supplied H sequence and maintain exact
+incremental replay/coverage. Screened outputs require zero strict HH<20ms and
+experimental RH<=20ms. TAP and LN heads both count; same-time cross-column
+organization, exactly20ms HH and LN duration retain their separate meanings.
+No added H spacing, minimum LN duration, attempt escalation or quality fallback.
+Record cached-Mel body readiness/window service and all rejected windows.
+Body-service bound2s/window; include full H-planning latency only in a later
+integrated candidate test if this diagnostic passes. Do not compare cached-plan
+readiness with a fresh-audio end-to-end claim.
+
+Lens scope: verified human references and corresponding screened contexts on
+FoolMoon, Hysteric, Revenge and AsItWas for both profiles and both crossings;
+their densest8s H windows for each crossing/profile; all direct HH witnesses
+with1s entry/exit context across32direct charts; every resampled publication
+window across32screened charts. Merge overlaps per output. Read every rendered
+time page and full native action/LN tables; reuse only exact actions, entering
+holds and articulation from completed reviews. Assess repeated/changing grips,
+fine timing and independent LN start/hold/release relations. No source tag is
+mandatory for the alternative chart and no new listening or player claim.
+Retain mechanical improvement with structural loss as a failed quality signal.
+
+Positive signal: prospective composition meets primary/control/system bounds
+and retains inspected organization, motivating a compact two-branch checkpoint
+and integrated full-audio startup test. Negative: both crossings fail controls
+or lose organization, motivating a training/representation change rather than
+module recombination. Mixed result identifies per-factor tradeoffs and is
+REFINE, never a declaration of the final playable system. Diagonal errors and
+one seed per audio are small curated-cohort evidence, not population guarantees.
+
+Command: uv run --extra mps python
+artifacts/joint-audio/20260925-head-materializer-composition-v1/run.py.
+CPU one thread, Apple M5/24GiB, Python3.10.20/Torch2.11.0. Bounds1200s native
+driver,90s/30000rows per chart,2GiB new artifacts including Lens;2GiB available
+memory/40GiB free disk/PAUSE guards. Fresh owner named above; no overwrite or
+resume. Pin script/dependency hashes, clean source/committed Note and all inputs
+before running. Stop on identity/nonfinite/replay mismatch or declared cap;
+save truthful partials. No optimizer, remote publication, model adoption or
+Note lifecycle transition is implied. Lens rendering/inspection follows native
+completion, and no further fit starts before declared evaluation finishes.
