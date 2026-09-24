@@ -261,7 +261,7 @@ Local best weights SHA-256:
 BeatThis `final0` checkpoint SHA-256:
 `8c328b45f59d8dd3dff219253ff6a8d6482be57d0133a29140e2febbf8eb8331`.
 Native integration generated 48 cases per pilot: predicted extra releases with
-source H versus fully predicted timing, source/default controls, and seeds17/23.
+source H versus fully predicted timing, source/default controls, and seeds 17/23.
 These initial outputs passed the model's internal mechanics/reparse checks.
 
 The Lens parser then flagged fractional hitobject start/end timestamps. Its strict
@@ -3115,13 +3115,13 @@ Actual stage checkpoint identities:
 
 The checkpoint training source is cdbc6870d9e6471a5dcb75d8a77f55c30544bf78;
 the relevant restoration/bounded-model code has no diff between that source and
-the release tag. The actual automated readout has eight VAL songs, seeds17/23,
+the release tag. The actual automated readout has eight VAL songs, seeds 17/23,
 16 outputs/stage, with 181.727–277.537-second suffixes. Source likelihood uses
 24 VAL windows and 6144 required onsets; the complete input also contains an
 equally sized TRAIN readout. Source-native conditions include R/H timing, real
 initial seed and its known crossing endpoints. They do not test audio-only BOS.
 
-| Stage | VAL NLL/onset | Mean native LN/head | LN-fraction MAE versus reference | HH <30ms | RH <30ms |
+| Stage | VAL NLL/onset | Mean native LN/head | LN-fraction MAE versus reference | HH <30 ms | RH <30 ms |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Plain | 1.771509 | .431218 | .3130 | 6 | 306 |
 | Seed | 1.765174 | .318110 | .1739 | 3 | 87 |
@@ -3136,22 +3136,22 @@ uniquely correct output requirement or playability labels. HH and RH count
 individual new heads with a strict less-than gap; they can overlap and must not
 be added as disjoint events. The final local improvement is mostly RH 67->7,
 while HH changes 2->5. The response target explicitly uses the union of head
-and release age below30ms plus an optimistic next-two-H continuation; it does
+and release age below 30 ms plus an optimistic next-two-H continuation; it does
 not model a complete player experience. A source CE arithmetic/label bug has
 not been established by this audit.
 
 Plain-model LN/head means rise .2723->.5396 across first/last required-onset
 quarters, versus source .1378->.2111. The final policy gives .1913->.1667.
 The longest three-unchanged-hold run rises 2->31 after head routing and returns
-to2 after release routing. These observations show local changes interacting
+to 2 after release routing. These observations show local changes interacting
 with later states; they do not imply every stage uniformly harms or improves
 semantic organization. No fresh Lens/player judgment is added by the recount.
 
-The current audio transfer copies2444688 parameters, omits523776 in seed,
-landmark memory and row-consequence modules, and discards115968 exact-input
+The current audio transfer copies 2444688 parameters, omits 523776 in seed,
+landmark memory and row-consequence modules, and discards 115968 exact-input
 weights (1435->529 input features). These counts are not causal contribution
-fractions. All227 resulting global/bounded initial state tensors from release
-6.5M and response6.75M are bit-identical at the same constructor seed; their
+fractions. All 227 resulting global/bounded initial state tensors from release
+6.5M and response 6.75M are bit-identical at the same constructor seed; their
 name-and-tensor SHA is 1b9ef122bd7ac55128ac3733e11cf07c31afb82780845cb636f1311e7bbbd3eb.
 Thus the last response fine-tune has no direct parameter effect on the current
 joint initialization. Its full-policy behavioral correction was omitted, so
@@ -3170,16 +3170,16 @@ tool; no claim depends on reading it.
 Recommended outcome REFINE. The missing causal comparison is full R1 versus
 its transferred conditions, followed by equal-budget joint learning from distinct
 lineage endpoints. Do not assign an additive R1/audio blame percentage from
-different tasks. A useful first direct probe can start from release6.5M and
+different tasks. A useful first direct probe can start from release 6.5M and
 zero only seed_residual.2.weight and long_memory.output.weight, preserving
 source R/H, physical seed/known seed tails, all other weights and original
 generation seeds. That measures neural-condition dependence under the original
 task; it still does not remove future timing inputs or reproduce audio-only BOS.
 Require baseline exact-row reproduction before using it. If later comparing
-plain4.5M, memory6M and release6.5M joint initialization, assign learning rates
+plain 4.5M, memory 6M and release6.5M joint initialization, assign learning rates
 by the same module families in every arm, not by which tensors happened to copy.
 Otherwise absent routing modules would silently receive a different rate.
-Release6.5M and response6.75M are redundant transfer arms and should not both run.
+Release 6.5M and response 6.75M are redundant transfer arms and should not both run.
 
 The curated audit and interpretation limits are in
 docs/research/r1_transfer_stability_audit.md at
