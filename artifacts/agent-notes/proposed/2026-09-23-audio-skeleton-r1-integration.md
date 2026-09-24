@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-24
-Product revision: b5c5ee33cacb3950b3c9b6a4a05d9d627c46aa64
+Product revision: b757da32ec081954c37c3945305a2e8b9d2cc1b9
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -2179,3 +2179,213 @@ second same-key hit. If recovery improves but <=10/20 ms TAP relations worsen,
 inspect base, modulation and gate on those exact prefixes; do not count added
 activity as success or change the bound after seeing the result. The original
 short-transition diagnostics and Lens guards already cover this risk.
+
+### Result Log: audio-context-history-paths-v1 revision 2
+
+Accepted revision none; exploratory execution under the standing user
+instruction. All four cells completed 1200 updates from clean
+b5c5ee33cacb3950b3c9b6a4a05d9d627c46aa64 and the same frozen protocol.
+Each consumed 4800 intervals, 37,300,370 ms, 248,836 complete event rows and
+339,728 heads. The common initial-module hash matched. No resource guard
+fired; available memory remained above approximately 8 GB in the recorded
+main runs. The four fixed last checkpoints are:
+
+| Cell | Checkpoint SHA-256 | Seconds | VAL population NLL/s |
+| --- | --- | ---: | ---: |
+| Local/fused | c5a9f5c775e5a228893e940143ca47abd3fab1a819b273cede2b53ac30f61762 | 359.26 | 41.91875 |
+| Global/fused | 58135f737925107729c13e5e13221f321a62ca4ed70eff877a30f6c6be8d6234 | 393.92 | 42.13027 |
+| Local/bounded | a0372bec2deb8c8ac9bf96028bfc91579d413b6a00df5c12793029a8d29d95bf | 367.46 | 41.83088 |
+| Global/bounded | b7d56ea062b3ab0d4bdf27fcfb10835a94e376e8568761e37811391a3ebc31eb | 602.79 | 41.93044 |
+
+The last training cell overlapped one CPU native-generation job. Later native
+generation used two CPU processes, one thread each. No MPS training jobs
+overlapped. Their realized durations are not an isolated architecture-speed
+comparison; final startup/dense inference must be profiled separately.
+
+On the additional 24 songs, population NLL/s is 37.69641, 37.85394,
+37.73392 and 37.72944 in the same order. Original-12 values are 50.36342,
+50.68295, 50.02479 and 50.33245. No intervention meets the preregistered 3%
+held-out likelihood improvement threshold. All are close on this objective;
+one training seed does not support a definitive ranking.
+
+The old common-query panel gives additional-24 means 5.96186, 6.04052,
+6.14301 and 6.20076, compared with 5.48827 for the earlier expanded-data
+query-trained endpoint. Original-12 means are 5.89821, 5.97418, 6.02181
+and 6.09964, compared with 6.21280 previously. Thus the new recipe does not
+uniformly improve source conditional prediction. Source BOS waiting NLL is
+also worse for bounded timing than the interval local/fused control. Interval
+BOS NLL/s and complete first-event waiting NLL are different measurements.
+
+#### Correct versus perturbed global context
+
+Global/fused additional-24 population NLL/s is 37.85394 with correct context,
+42.32608 when zeroed and 37.88364 when shifted by half a song. Global/bounded
+values are 37.72944, 41.52112 and 37.74602. Original-panel shift changes are
+also small. The decoder uses the global path, but these source-conditioned
+probes provide little evidence that its time-specific alignment is useful.
+Song-level conditioning is a plausible interpretation, not proof that full-song
+musical relationships are unnecessary. Half-song shifts can also preserve
+repeated material, and teacher-forced history can conceal native dependence.
+The correct/masked/shifted records remain separate under evaluation-context-v1.
+
+#### Native outcomes and composition
+
+Every requested generation completed: 84 outputs per cell, 336 total, with
+no empty or below-30-head output. Every final head occurs after 85% of its
+audio duration; the maximum observed head-gap fraction is below .156 across
+these outputs. This removes the gross early/post-30 silence observed in the
+previous query-trained probes. It does not prove preservation of every proper
+rest or universal stability.
+
+| Cell | Heads | LN heads | LN fraction | Occupied lane-time fraction | TAP <=10/20 ms |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Local/fused | 225579 | 92291 | .4091 | .2112 | 2 / 8 |
+| Global/fused | 225817 | 110318 | .4885 | .2671 | 3 / 14 |
+| Local/bounded | 199812 | 92161 | .4612 | .2287 | 2 / 6 |
+| Global/bounded | 184509 | 102118 | .5535 | .2825 | 0 / 3 |
+
+Against local/fused, median paired head ratios are 1.009, .895 and .814;
+LN-total ratios are 1.195, .999 and 1.106. These pass the numerical whole-cohort
+composition bounds but still change playing demand. Global/bounded has longer
+LNs and greater occupancy. It is not a free improvement obtained from a
+single short-TAP count.
+
+Inspection exposed short TAP-to-LN head transitions that the TAP-only statistic
+omits. Behavior-neutral diagnostics in b757da32ec081954c37c3945305a2e8b9d2cc1b9
+now retain all four head-transition types, their eligible denominators, and
+short LN duration counts separately from release-to-next-head gaps. Four focused
+tests passed. Every existing generated row file was rechecked against its
+recorded hash before deriving the additional report; baseline outputs were not
+rewritten.
+
+| Cell | All heads <=10/20 ms | <=20 per 1000 eligible head transitions |
+| --- | ---: | ---: |
+| Local/fused | 4 / 17 | .07547 |
+| Global/fused | 9 / 35 | .15522 |
+| Local/bounded | 4 / 11 | .05514 |
+| Global/bounded | 1 / 4 | .02172 |
+
+Global/bounded improves both inspected short-transition types: TAP-to-TAP
+<=20 ms is .04857 per 1000 eligible TAP pairs versus .07237 for local/fused;
+TAP-to-LN is .04868 versus .39885. The latter denominators are 20544 and
+22565, so this difference is not explained solely by fewer TAP opportunities.
+Counts remain small, and changed composition and one training seed limit the
+causal quality conclusion.
+
+#### Lens evidence
+
+The canonical Lens bridge admitted all 336 outputs and 42 source files with
+no skips or diagnostics. Full bundle hash:
+1d18395220d0fad111983225dbd220c5b3ef0ab113aac3b5a96f1da4af8edea9, at
+expanded-v1/lens-review/context-v1. An earlier local/fused-only bundle is
+dea3095bd0cc7ed828b88e99d95f40d233803b5bc645de02712daf061e4d16d9.
+Human records remain the unchanged frozen 204-example set. Admission is only
+mechanical validity.
+
+Complete paginated actions/articulation and time-proportional pages were
+reviewed for nine local/fused windows and six global/bounded windows. Identical
+reference pages were reused only after byte-hash equality checks. The inspected
+scope includes early SCREW, middle Paganini, YOASOBI tap/LN transitions,
+Tsuikou dense chords, late Dotabata LN coordination, repeated-chord candidates
+and the located short-head failures. The generated/source evidence remains in
+each bundle's evidence directory. This is targeted structural review, not
+blind listening, player validation or a whole-song human label assignment.
+
+Local/fused SCREW now continues through its formerly failed early region.
+Paganini seed 19 continues across the song, though its inspected middle is
+a much sparser tap interpretation than the reference. YOASOBI and Tsuikou
+show mixed chord/tap movement and LN transitions; Dotabata's formerly empty
+late window now contains sustained cross-column LN motion.
+
+Local/fused also contains a verified 4 ms same-key TAP repeat in Airborne
+Robots at 235816/235820 ms and a 7 ms TAP-to-LN head interval in Otherside at
+78345/78352 ms. Global/bounded retains a 9 ms TAP-to-LN head interval in
+666 Flags at 127633/127642 ms. These are repeated presses, not short gaps
+after a hold release.
+
+Expressive repetition remains available: local/fused I has seven consecutive
+two-key TAP chords at 141855–142490 ms with 92–114 ms spacing; OVERDRIVERS
+has four three-key chords at 27149–27669 ms. Global/bounded FORViDDEN ENERZY
+has five repeated left-hand two-key chords at 71020–71672 ms, with 156–170 ms
+spacing and surrounding changes in grouping. The latter timing follows the
+reference's approximately 162 ms pulse while adding attacks inside longer
+source holds. These inspected figures demonstrate surviving repeated-action
+organization; they are not a prevalence estimate or a blanket Tech/dump claim.
+
+Global/bounded YOASOBI has coordinated held starts and shared releases;
+Paganini instead becomes an almost entirely LN interpretation in the inspected
+middle, while Tsuikou becomes a tap/chord stream in its inspected dense window.
+These are material style choices, not reference-density matches. Their musical
+and player-level preference remains unresolved. Short LNs alone were not
+classified BAD.
+
+#### Evaluation and decision
+
+Recommended outcome: REFINE. Retain the valid native-ms/complete-row object.
+The larger interval recipe is a better native-stability candidate in this
+bounded panel, but its improvement over the old recipe cannot be attributed
+to interval sampling alone: the training seed, objective and event exposure
+also changed substantially. The factorial comparison isolates the two model
+switches within the new recipe; it does not identify that cross-recipe cause.
+
+The two global branches fail the source-likelihood improvement gate, and their
+time-specific use is unproven. Global/bounded is nevertheless a reasonable
+next decoder candidate because its short-head rates improve within transition
+types and inspected tap/chord/LN organization survives. Keep its LN bias and
+lower activity explicit. Do not add a latent, increase parameters, adopt a V3
+default or claim architectural victory from this result. The immediate remaining
+concrete defect is rare excessively close same-key heads, including TAP-to-LN.
+
+## Experiment Card: context-head-prior-v1
+
+Revision 1. Proposed; acceptance none. Question: can the already implemented
+marked head-age prior remove the remaining short repeated presses from the
+global/bounded endpoint while preserving its complete native arrangement?
+This is a fixed decoder comparison, not new training or a scale/exponent search.
+
+Baseline is the 84 complete global/bounded outputs above, checkpoint
+b7d56ea062b3ab0d4bdf27fcfb10835a94e376e8568761e37811391a3ebc31eb, trained at
+b5c5ee33cacb3950b3c9b6a4a05d9d627c46aa64. Execution/diagnostic source is the
+clean descendant b757da32ec081954c37c3945305a2e8b9d2cc1b9. The 240/36 corpus,
+original 42-case order, seeds 17/19, native 500 ms queries and model bytes remain
+fixed. The baseline has 184509 heads, 102118 LN heads, four same-key head
+intervals <=20 ms (one <=10 ms), no early failure and all charts complete.
+
+Set only head_spacing_ms=27, retaining the implemented exponent four. This
+scale comes from the earlier pinned TRAIN head-spacing audit, not tuning on
+these outputs. It is a soft decoder prior, not a universal physical minimum.
+Each new head contributes min(1,(age_since_same_lane_head/27)^4); CLOSE and
+first heads contribute one. Rejected rows advance the observation clock but
+do not enter history/state. The separate acceptance RNG preserves the proposal
+stream before the first rejection. Occupied true terminals reweight legal rows
+and must close all outstanding LNs. Release-to-head gaps are not penalized
+as if they were head-to-head gaps.
+
+Audit every baseline trajectory before rerunning. With no penalized proposal
+and no forced terminal, the same seed's entire proposal/state path is unchanged
+by this prior; scale-one acceptance consumes no acceptance randomness. Forced
+terminals are rerun even if their sampled heads had unit acceptance because
+their float64 reweighting path can change draws. The frozen audit has SHA
+adf58f147d991b77b5d9c6cb42ec7b991dabf99ef1420b5925c580f579fbbb04:
+23 potentially affected cases (six with penalties, 18 forced terminals,
+one overlap) and 61 provably unchanged paths. Rerun those 23 plus two unchanged
+coupling checks (666 Flags seed base 17 and glacia seed base 17). Require exact
+row-byte equality in the checks before reusing the remaining 59 outputs.
+Every one of the 84 outcomes remains in evaluation. Reused timings are labeled
+as baseline timings and cannot become fresh latency evidence.
+
+Primary diagnostic: zero <=10 ms same-key head pairs and at most two <=20 ms,
+with a reduced per-eligible-head rate. Preserve all complete/reached-30 outcomes;
+median paired head ratio must lie in [.95,1.05] and total LN ratio in [.9,1.1].
+Inspect every affected case with >20% head or LN change, and inspect representative
+tap/chord/LN/repetition windows plus the formerly bad locations. Large changes
+cannot be hidden by the many coupled-identical outputs. A short-event-count
+win alone is insufficient. Do not retune the scale if a guard fails.
+
+Use fresh outputs generation/context-gb-prior27-s<17|19>-<train|val>, under the
+expanded corpus, and record input/script/source/row hashes plus reuse provenance.
+Rerun on CPU with one thread, 90 seconds/30000 proposals per case, 900 seconds
+per cohort, the existing 2 GiB RAM/40 GiB disk/PAUSE guards, and a 3600-second
+overall bound. Never overwrite baseline or force nonterminal releases. No fit,
+TEST access, external publication or model-default adoption is authorized by
+this proposed Card. Standing user authority covers the bounded experiment.
