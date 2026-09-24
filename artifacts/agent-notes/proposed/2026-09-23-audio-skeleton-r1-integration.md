@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 0de03c1fe71716d88affc4445fea9113f3a2ba93
+Product revision: 65ef95c092e7d3024d99ed60e37c2c22ee041df9
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -6136,3 +6136,163 @@ selecting a new intervention. A learned future-potential response and stable
 persistent arrangement control remain live hypotheses, not implemented fixes.
 No new Card, Note acceptance, remote push or final-model adoption has occurred.
 All jobs are terminal; the ultimate playable-system goal remains active.
+
+
+### Result Log: unpublished-continuation-screen-v1 completed scope review
+
+Card unpublished-continuation-screen-v1 revision1 remains proposed, accepted
+none. No new generation, training or rendering was needed to finish the declared
+inspection. Product source65ef95c092e7d3024d99ed60e37c2c22ee041df9 publishes the
+completed structural findings in docs/research/unpublished_continuation_screen.md.
+The native comparison remains pinned to452abc689055e2660bda5f62989cf70c95b0db8b
+and result3fff511d78ef4d0fd3400f33853d2e79219a69dbd034e67bee9d1263b5cb2ca9.
+
+All31 newly rendered scopes/109time pages and their complete native-ms action
+and articulation tables have now been read. Twenty scopes reuse prior completed
+reviews by exact semantic hash; scope29 reuses current scope10. All52 declared
+scopes are covered, but this is not whole-song visual inspection. Final artifact
+review.json SHA7d41b477474a0ee0c0a95a367675fe51d33b743794be9568700ec675332c7267;
+review-progress.json SHA91849c6a6a4b57b825741410d812367c208fc9c549900bf3b8ba82dbb2204c65.
+Lens manifestee0e3a32a527aefaf2b0fe84bd68046f9af8f771f257068364f096b4cdb2919e
+retains parent evidence. All12 rejected proposals are inspected, containing15
+pair witnesses including newly arising RH conflicts after earlier resampling.
+The original Airborne HH11 is avoided in a changed suffix, not by directly
+rejecting that particular local episode.
+
+Accepted scopes preserve close cross-column H bursts, broad chords, overlapping
+LNs and independent subset releases. Airborne H0/D2's resampled LN relay becomes
+mostly single/double taps (46to4LN starts); Prom19's edited windows remain
+LN-rich (57to64), with most count loss later. Thus physical-screen success and
+expression preservation remain separate. Neither aggregate LN fraction nor
+presence alone describes the changed free-column/held-column organization.
+
+One supplementary read of Airborne H0/D2 at81800..83900 adds one time page and
+complete29physical-row/26H tables. LN0 at82889..82890 lasts1ms, far before
+terminal271490 and without full occupation. It passes both screens and sits
+within a short LN relay transitioning to taps/doubles. Its musical/player meaning
+is unresolved. No minimum-duration rule or human BAD label is inferred.
+
+The human-confirmed HH rule remains strict same-column successive attacks<20ms,
+including TAP and LN heads. Exactly20, cross-column H gaps, LN durations and RH
+pairs are separate. RH<=20 remains an experimental preference. No listening or
+player test occurred. Evaluation recommendation REFINE: physical failures are
+removed on the15 cases at low measured cost, but two composition guards fail.
+The next discriminating question is the contribution of generated state versus
+R/row randomness to suffix composition; no architecture change follows merely
+from the count regression. This completes the previously partial review.
+
+
+### Experiment Card: continuation-state-rng-v1
+
+Revision1, proposed, accepted none. Owning Note2026-09-23-audio-skeleton-r1-integration.
+Standing local implementation and execution authority applies. Clean baseline
+65ef95c092e7d3024d99ed60e37c2c22ee041df9, a docs-only descendant of the screened
+sampler implementation452abc689055e2660bda5f62989cf70c95b0db8b. Checkpoint remains
+abc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef, no fitting.
+
+Question: does the changed committed state after a successful screen materially
+lower expected suffix LN composition, or was the observed long suffix change
+primarily specific to the subsequent random trajectory? This distinguishes a
+persistent state-conditioning problem from finite sampled composition variability
+before modifying model structure or training. State means the entire coherent
+replay plus row/skeleton caches, not only a neural cache; this experiment cannot
+separate occupation from learned history.
+
+Closest analogue: common random numbers for comparing stochastic simulators,
+Glasserman and Yao1992, https://doi.org/10.1287/mnsc.38.6.884. Pair the same initial
+R/row generators across alternative valid states. Their variance-reduction
+conditions are not established here: action/release decisions alter draw counts,
+so later event-level alignment is not guaranteed. The fixed-stream2x2 cross is
+exact path accounting, not a population causal percentage. Fresh independent
+stream seeds then estimate a conditional state effect at two selected anchors.
+This is diagnostic simulation, not a new generation model or decoding policy.
+
+Fixed slice: the two failed-composition cases from screened result
+3fff511d78ef4d0fd3400f33853d2e79219a69dbd034e67bee9d1263b5cb2ca9:
+PromQueen seed19 H0/D2, duration136569, anchor56907; Airborne seed33 H0/D2,
+duration271490, anchor32420. Anchors are the first H after the last resampled
+window's accepted cut (56906 and32419). They have278 and1934 subsequent H.
+All H timestamps, full audio, downstream profile2 and checkpoint are fixed.
+Whole-chart baseline-to-screened LN fraction changes were-.1730708412 and
+-.1353645280; those two selected observations do not estimate population drift.
+Audio/Mel identities and source rows come from the prior freeze.json, SHA
+38a41df0f086ff2f779ce7e9ad8c3498567b11da40e7bd606fb39415a5343636.
+
+One intervention: choose original versus screened coherent post-H state at the
+same anchor, then independently choose subsequent R/row random streams. Reproduce
+the two saved trajectories through the shared native and buffered engines while
+a behavior-neutral observer captures post-H forks. Select the captured screened
+fork by exact accepted-prefix row identity. At these event boundaries the release
+residual isNone; the future fixed H queue is identical. Reset only resource
+timers for continuation. No cached tensor, full-audio embedding, LN endpoint,
+profile or row action is transplanted separately from its coherent history.
+
+First perform four exact-stream cells per case: stateO/randomO, stateO/randomN,
+stateN/randomO, stateN/randomN. Both diagonal cells must reproduce saved full rows
+exactly before new streams are run. Capture uses an artifact-local subclass and
+scoped module substitution around the existing sampler; no product API change
+is required. All four cells use the ordinary unscreened suffix law. Because the
+anchor follows the last rejection, the screened diagonal must still match the
+saved screened chart exactly. A parity failure stops the experiment.
+
+Then use16 fresh stream seeds239251..239266, paired across original/screened
+state. Release and row generators use existing xor salts0x4E51 and0xA301.
+Do not screen or select these32continuations per case. Total planned outputs:
+72 complete suffix continuations, plus four reconstruction runs. Preserve original
+prefixes in exports, so every chart reparses and entering LN obligations remain
+meaningful. Seeds are not tuned and no best candidate is adopted.
+
+Primary metric per case: arithmetic mean across16 paired draws of screened-state
+minus original-state suffix LN-head fraction, counting heads strictly after the
+anchor. Report both arm distributions, paired differences, standard error and a
+percentile95% interval from10000 paired bootstrap resamples, analysis seed239267.
+The interval concerns RNG variability conditional on these two frozen states,
+not unseen songs or selection of prefixes. A persistent downward state effect
+is provisionally indicated by mean<=-.10 and interval upper<0; practical
+negligibility requires the entire interval inside[-.10,.10] and abs(mean)<.05.
+Other outcomes are unresolved. Report cases separately, with no pooled universal
+claim or automatic promotion. Original-stream Shapley-style two-order averages
+separate state and stream contributions algebraically, including their interaction.
+
+Diagnostics: suffix note count, heads/H, LN count, held lane-time, strictHH<20
+and experimentalRH<=20, and composition in consecutive64-H blocks. Native timers,
+full completion, H equality, exact input/weight hashes and independent reparse
+are guards. Numeric/LN guards of the previous candidate are not a stopping rule
+for these deliberately counterfactual diagnostic suffixes. Never publish their
+rows to a player. Invalid replay, changed weights, non-finite output, a failed
+parity/H check or resource cap stops further draws without increasing budgets.
+
+Qualitative check: use the frozen Lens context to inspect original/screened
+state continuations for each case's fresh seed with the largest absolute suffix
+LN-fraction difference (tie chooses lowest seed). Read8seconds after the anchor
+and8seconds beginning at the64-H block with the greatest arm difference in LN
+fraction (tie earliest); merge overlaps and read all time pages and complete
+action/articulation tables. Any new strictHH is reported automatically; inspect
+at most the earliest witness per case from the exact-stream cross, separately
+from the composition scopes. This is scoped diagnosis, not a quality pass for
+72 new maps. No listening/player assertion is allowed.
+
+Procedure: create artifact-local run.py and pin its SHA before execution; run
+uv run --extra mps python artifacts/joint-audio/20260925-continuation-state-rng-v1/run.py.
+Pin clean product and Note OIDs in freeze.json. CPU sampling uses one Torch
+thread on AppleM5/24GiB, Python3.10.20/Torch2.11.0, with full cached canonical Mel
+and unchanged model. Budget900s total sampler/driver,90s per continuation,
+30000rows per chart,500MiB new artifacts. Network not needed for native sampling;
+source verification already read the primary analogue. Existing process resource
+checks apply. Lens preparation/review is separate bounded offline work.
+
+Fresh owner artifacts/joint-audio/20260925-continuation-state-rng-v1; fail on an
+existing freeze/result, no overwrite/resume and no rerun of the prior15-case
+cohort. Behavior-neutral capture scripts are local artifacts; curated findings
+will use a recoverable product source and summarize enough evidence for a fresh
+clone. No parameter, training-budget, temperature, threshold or control sweep.
+
+Confounders: two prefixes selected for observed composition failures; H fixed;
+state comprises occupation, exact clocks and both neural histories; finite
+samples and state-dependent random consumption; legacy training exposure and
+musical quality unresolved. A negative mean tests these frozen states only.
+A weak state effect with broad individual composition variation would weaken
+persistent-history drift as the sufficient explanation, while still leaving
+control reliability unresolved. An imprecise result returnsREFINE rather than
+escalating compute automatically. All outcomes leave the playable-system goal
+active and the Card proposed.
