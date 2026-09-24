@@ -4,8 +4,8 @@ Note ID: 2026-09-23-audio-skeleton-r1-integration
 Status: proposed
 Kind: research
 Created: 2026-09-23
-Updated: 2026-09-24
-Product revision: 10ddaa8daf7db1b5851d1f8c10733744da368b7e
+Updated: 2026-09-25
+Product revision: d80de496293d344c4c803d30f05b0e4d957ba863
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -5327,8 +5327,8 @@ Revision 3, proposed, accepted none. Standing implementation/training authority
 applies. Clean baseline 9b998000ffbe8fdc540b10667d0f15b36ce820a4, with inference
 code unchanged from verified 1c95f6914fd3fa390d8a46f1d267d5311def7078.
 Implementation is complete at 10ddaa8daf7db1b5851d1f8c10733744da368b7e.
-Preparation, preflight and both matched main fits have completed. Main native
-evaluation and Lens review remain outstanding.
+Preparation, both fit stages, main native evaluation and Lens review are
+complete; the result remains exploratory and is not a model promotion.
 
 Question: can one persistent, interpretable arrangement condition shared by
 head, release and row factors improve controllable complete-chart generation,
@@ -5581,8 +5581,188 @@ generated or examined. Uncentered descriptor error alone can improve when a
 constant-output model merely moves closer to the request mean. The added
 within-case centered criterion rejects that case; a synthetic constant-output
 check gives zero gain, and exact request tracking gives unit gain. The fits
-were dispatched/frozen under revision 2. Training, models, cohort, requests,+resources and original guards are unchanged, so no refit is needed. Main
+were dispatched/frozen under revision 2. Training, models, cohort, requests,
+resources and original guards are unchanged, so no refit is needed. Main
 native_v3.py records revision 3; preserve native.py as the preflight script.
 Assessment is in assess.py, and inspect_lens.py fixes all required contexts and
-close-gap witnesses. The main generation/readout remains pending; no quality
-claim or lifecycle transition has occurred.
+close-gap witnesses. The main generation/readout was pending at this revision-3 dispatch. The
+completed result is appended below; no lifecycle transition has occurred.
+
+
+### Result Log: shared-arrangement-profile-v1-main
+
+Owning Note: 2026-09-23-audio-skeleton-r1-integration; accepted revision none.
+Fits used Card revision2; native generation and assessment used revision3,
+whose centered-response refinement preceded main native generation. Product
+source stayed clean at 10ddaa8daf7db1b5851d1f8c10733744da368b7e throughout.
+Curated findings are now in docs/research/shared_arrangement_profiles.md at
+behavior-neutral documentation descendant d80de496293d344c4c803d30f05b0e4d957ba863.
+The earlier preparation/fitting identities, environment, commands, bounds and
+checkpoint pins remain unchanged.
+
+Native command: uv run --extra mps python
+artifacts/joint-audio/20260924-shared-profile-v1/native_v3.py main.
+Session10194 completed all54 charts in117.824188s, with independent reparse and
+unchanged weights. Eighteen automatic plus36 controlled outputs cover the nine
+fixed audio/seed cases and first four TRAIN profiles. One CPU thread, no fitting,
+correction off, per-chart90s/30000rows and total1200s bounds all satisfied.
+Freeze639bd6213e450ef0da1d3d267c57b63700053762307536995323f5fe12d1671d;
+native result de5544efff6ffdaeca0c0388636e60dcfe67dc2691d20466c10704be4f8abea4;
+assessment fc434c7e9703b4bee3eeb35955fab4b10d627a80d308efbe11f06674e8299e97.
+Artifacts remain under the same shared-profile owner; no overwrite/resume.
+
+Mean squared standardized descriptor distance is13.25918683 base versus
+7.58094113 conditioned, a42.82499197% reduction. Each component improves:
+base(5.11699424,4.46312323,3.67906937), conditioned
+(2.26431361,2.50042180,2.81620572). Centered gains are
+(.31963112,.34375027,.26315300), all exceeding the declared.25 threshold.
+The finite request-to-realization response matrix, with requested dimensions
+as rows and realized dimensions as columns, is
+(.36294153,.49060158,.05040684);
+(.19960803,.46795938,.03961157);
+(.07270315,-.06873112,.17674964).
+This finite cohort has no population confidence claim. The LN-heavy request's
+.734 target realizes only 0.03634..0.28228 LN-head fraction. VAL36 prior CE2.534448
+versus constant TRAIN-mass CE2.588476 is a separate, modest diagnostic gain.
+
+All54 have zero strict HH<20 pairs and pass completion/readiness checks.
+All18 automatic fixed scopes are nonempty and last H exceeds.85 audio duration.
+Profile0 DeathPiano19 has an empty fixed scope; this is outside the declared
+automatic nonempty-scope guard and was not a reviewed musical success.
+The automatic RH<=20 guard fails: base0 versus conditioned3. There are also
+two controlled-output RH witnesses. No NLL or average-control improvement
+cancels that failure.
+
+Lens session47063 rendered118 pages in43scopes. Every time page was actually
+viewed, and complete action/articulation tables were read across pagination:
+957 physical rows and934 H rows in the review scopes. Parent reference evidence
+remains unchanged. Manifest6899dff2ee9b00a7fbe9cb44fc3b4dd8400630cf368ecae4ab74862c597af195;
+final review0a7fdd8562fc8885a034a998eecc1ba75ccd16802bd612a956c7747bbe703e1e.
+The review explicitly retains uncertainty on acoustic fit, fine Tech and dump,
+and records no listening/player verdict or new human annotation.
+
+Observed organization: broad chord flow appears in GoodLuck/PromQueen under
+profiles1/3, while Who remains largely single flow under the same conditions.
+Independent LN tails persist. Low LN-head fraction can coexist with substantial
+held-lane time: DeathPiano17's automatic scope has one new H but holds lasting
+4389/6673/6968ms. Head fraction alone does not measure sustained occupancy.
+Five close RH witnesses separate three dependency families. GoodLuck automatic
+has full occupancy at197436 and a first release197518,18ms before nextH197536.
+PromQueen automatic chooses TAP0 at84351 after R84345 although lane1 is rested.
+Airborne automatic TAP0/3+CLOSE1/2 at133516 leaves no safe lane for H133519 when
+both strict HH and RH diagnostics are considered. Profile3 PromQueen similarly
+has TAP1/3+CLOSE0/2 at39201 before H39204. Profile1 GoodLuck closes three holds
+at184037; only lane0 is rested at184055, so the chosen double requires RH18,
+although a single-head alternative exists. These cannot all be attributed to
+full-occupancy release scheduling.
+
+The read-only corpus audit checks all651 paired charts,151003 same-column
+release-to-next-head pairs: none<=20ms, minimum30ms. Source SHA/objects were
+verified; source parser and admission retain literal starts/ends, with no
+minimum-gap retiming. Corpus/admission selection remains a confounder. Audit
+c27436b57c77ed4d06552794e7b969ba059e91141c780e77aa4441e3f1f0ff21.
+Do not convert this observation into a universal RH threshold; only strict
+same-column successive attacks<20ms have the owner's explicit bad-pattern rule.
+
+Evaluation: partial controllability is observed, with weak calibration and
+substantial cross-talk. Native failures remain. A shared offset may directly
+change downstream preferences, or may change H plans that redirect row history;
+these explanations are not separated by the current diagonal samples. Profile
+quantization, limited training and sampled autoregressive divergence also remain.
+Recommendation REFINE, no acceptance/adoption. All recorded jobs are terminal;
+do not resume their fits or cohorts. The next bounded diagnostic separates
+these information paths before altering model size or training budgets.
+
+### Experiment Card: shared-profile-path-crossover-v1
+
+Revision1, proposed, accepted none. Standing local implementation/execution
+permission applies; no Note lifecycle change or remote publication. Owning Note
+2026-09-23-audio-skeleton-r1-integration. This diagnostic supersedes no earlier
+result and changes no checkpoint or training configuration.
+
+Question: does the observed requested-H-rate to realized-chord-width response
+primarily travel through the generated H plan, or through the profile condition
+read directly by release/row factors? The analogous local experiment is the
+fixed generated-plan crossover in docs/research/head_plan_row_response.md.
+Its mechanism transfers exactly: separate a generated mediator from the
+conditional decoder while preserving full audio and event RNGs. Here weights
+are identical and only the two uses of one arrangement condition differ.
+This is component intervention/attribution, not a new model or an estimate of
+population causal mediation. Generic encoder scaling and a new RH filter do
+not distinguish these alternatives, so defer them for this probe.
+
+Clean baseline source d80de496293d344c4c803d30f05b0e4d957ba863 has model code
+identical to10ddaa8daf7db1b5851d1f8c10733744da368b7e. Use conditioned checkpoint
+abc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef, bank
+a8973b7f94fde90d9f3cc639eb63e781dd295435622ce79fd54fe244789e6f03, and frozen
+native result de5544efff6ffdaeca0c0388636e60dcfe67dc2691d20466c10704be4f8abea4.
+Use all nine existing cases, seeds17/19 for the four musical cases and33 for
+Airborne, with the same full audio/Mel identities. Baseline finite response
+coefficient H-request to width=.4906015821, averaged over nine fixed cases;
+this is not a population estimate. The prior is bypassed by explicit profiles.
+
+Define F(i,j) as the three measured normalized descriptors after rendering the
+previously generated H plan for profile i with downstream profile j. The single
+intervention is replacing the H planner with a fixed plan of generated times;
+release timing and row decisions still run natively from BOS with full audio,
+the selected downstream code, LN-only skeleton feedback and exact replay.
+No future reference rows, tails or LN state enter generation. Keep original
+release/row RNG streams, temperature and correction-off policy. No weight update.
+Only an artifact-owned diagnostic script changes; product behavior is untouched.
+
+For each case use fixed reference profile0 and j=1,2,3. Reuse the three frozen
+F(j,j) diagonal results. Generate F(0,0) once to verify complete-row parity, then
+F(j,0) and F(0,j) for each j:63 total diagnostic outputs,54 new crossed samples.
+Verify all36 frozen row-file hashes before extracting H plans; verify measured
+values independently from those rows. An eager fixed-plan adapter must expose
+exactly the same next-L preview and completion semantics as the native planner.
+Nine F(0,0) controls must reproduce saved rows exactly. Stop before attribution
+if any diagonal, plan identity, complete reparse or weight fingerprint fails.
+
+For each j, total change T=F(j,j)-F(0,0). Define the plan contribution
+P=.5*((F(j,0)-F(0,0))+(F(j,j)-F(0,j))) and downstream contribution
+C=.5*((F(0,j)-F(0,0))+(F(j,j)-F(j,0))). Thus P+C=T exactly; each averages the
+two possible intervention orders, sharing their interaction equally. Also
+report the unallocated interaction F(j,j)-F(j,0)-F(0,j)+F(0,0), since strong
+interaction weakens a single-path interpretation. These are finite sample
+contrasts, not unique intrinsic module responsibility fractions.
+
+Solve the full-rank3-by3 matrix of profile-code differences relative to0 for
+T, P and C response matrices separately per case; average the nine matrices.
+Primary diagnostic is the P/C split of the fixed positive total H-request to
+width coefficient. Prioritize one path for architecture refinement only if it
+accounts for at least two-thirds of the mean total and has that total's positive
+sign in at least6/9 cases. If neither qualifies, both qualify through unusual
+cancellation, or interaction makes attribution unstable, retain a coupled
+explanation. Negative components must be reported as cancellation, not clipped
+into misleading percentages. Report raw/profile-level effects and per-case
+values. LN-fraction response decomposition is secondary; no quality promotion
+can follow from the attribution metric.
+
+Guards: complete/reparse, exact supplied H times, unchanged weights, finite
+metrics and diagonal0 parity all required. Record strict HH<20 and RH<=20 in
+every crossed output, including exact witnesses; these are outcome diagnostics,
+not stop-on-first-failure selection. Reject a proposed deployment-quality claim
+if close pairs remain. This uses precomputed H times, so measured runtime is
+not end-to-end startup evidence. Musical check: inspect fixed Who/GoodLuck/Airborne
+contexts for both directions of the profile0/profile3 cross (six scopes), plus
+every close-gap witness, with complete Lens time/actions/articulation. Reuse
+unchanged frozen human references; do not assign new human labels.
+
+Command: uv run --extra mps python
+artifacts/joint-audio/20260925-profile-path-crossover-v1/run.py.
+One CPU thread, AppleM5/24GiB, Torch2.11/Python3.10.20; no network, fit or extra
+accelerator process. Bounds: total600s, per chart90s/30000rows, >=2GiB available
+RAM, >=40GiB disk, <=300MiB new outputs excluding linked original audio/Lens
+references. Fresh owner at that command's directory; no overwrite/resume.
+Freeze clean source, script/Note OIDs, input bytes and ordered arm list before
+model execution. Stop on changed inputs, nonfinite metrics, replay/parity/plan
+failure or resource bounds; keep partial evidence and mark attribution incomplete.
+
+Main confounders: off-diagonal conditions intentionally disagree across modules
+and may be off the training distribution; shared RNG seeds couple samples but
+do not hold histories fixed; one seed pair and five audios limit generality;
+profile0 and equal interaction allocation are attribution conventions. A
+positive result chooses a smaller next architectural question, not a module
+blame percentage. Negative/mixed findings reject the sufficient single-path
+account; they do not show that the shared-condition architecture is useless.
