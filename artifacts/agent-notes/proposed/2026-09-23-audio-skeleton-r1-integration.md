@@ -5877,3 +5877,133 @@ All native/fitting/render jobs are terminal. No remote push, Note acceptance,
 lifecycle transition or final-model adoption occurred. The ultimate playable
 system goal remains active; these two completed diagnostic stages should not
 be rerun without a new discriminating question.
+
+
+### Experiment Card: unpublished-continuation-screen-v1
+
+Revision 1, proposed, accepted none. Standing local implementation and execution
+permission applies. Owner: 2026-09-23-audio-skeleton-r1-integration. Clean baseline
+962d732e7ef3364d9f237fe4227576ec5f1ff6b7, conditioned checkpoint
+abc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef.
+
+Question: can a bounded unpublished continuation, sampled jointly by the actual
+release and row factors, avoid the reproduced short-pair failures without
+changing H times or sacrificing LN/chord organization and realtime delivery?
+The selected mechanism is finite-window conditional resampling, not a new tail
+predictor. It uses the composed model's own future releases and rows, avoiding
+the assumption that every physically possible early release will occur.
+
+Closest analogues: NeuroLogic A*esque decoding uses estimated future constraint
+satisfaction in autoregressive search (https://arxiv.org/abs/2112.08726). The
+Alive Particle Filter handles indicator potentials with adaptive sampling cost
+(https://arxiv.org/abs/1304.0151). Twisted SMC learns future-potential predictions
+(https://arxiv.org/abs/2404.17546), which suggests a later amortized response if
+sampling cost proves material. This first Ensomi test is a bounded single-window
+rejection policy, not an implementation of those particle estimators, a novel
+SMC theorem, or exact sampling from the globally constrained whole-chart law.
+The difference is a four-lane event process with irreversible published rows,
+mutable unpublished continuations, exact LN replay and separate H/R histories.
+
+Alternative branches: a new marginal LN-tail predictor could be supervised from
+beatmaps but may disagree with the actual release/row process; a conservative
+no-future-release certificate could suppress legitimate full-LN chords. Defer
+both until this test measures the benefit and cost of actual joint continuation.
+A one-row optimistic correction already removed one HH witness while adding
+an RH regression; it is not the intervention here.
+
+Intervention: factor the native sampler into an in-memory branchable session
+with one shared full-audio encoding and immutable model weights. Baseline
+rollout remains the same single trajectory. An optional research buffered
+rollout starts from BOS, proposes through an 8000-ms publication window and
+screens a 20-ms future halo. Window cuts occur at completed scheduler steps,
+so a step may exceed the nominal cut; only rows through cut+20ms enter the
+halo check. Rows already published are immutable. LN heads can be published
+without tails; only the known audio terminal forces closure.
+
+A session fork owns independent CPU RNGs, mutable queues/lists and counters;
+replay and neural caches may share immutable values. Retry restores the last
+published session and changes only release/row RNGs, not head/profile RNGs.
+When the prefix ends after observed empty time, a retry draws a fresh release
+survival threshold conditional on that observed coverage. Keep original RNG
+streams for the first proposal. A healthy first proposal must retain all rows
+exactly; extra halo evaluation may not advance the accepted boundary's RNG.
+No full row content enters the skeleton beyond the existing LN projection.
+
+Screening potential: zero strict same-column HH<20 and, for this explicitly
+bounded research policy, zero same-column release-to-next-head RH<=20. TAP and
+LN heads count; exactly20 does not enter HH. The RH screen is a corpus-calibrated
+experimental preference, not a universal human BAD annotation. All651 admitted
+paired source charts satisfy both screens, while short LNs, close cross-column
+H times and full-LN chords remain representable. Do not add a minimum duration,
+onset gap, tap-layout feedback to skeleton or a timing-grid restriction.
+
+Use at most four proposals per window, including the unchanged first proposal.
+Accept the first screened proposal and publish only its window prefix; retain
+its boundary state, so next-window first sampling reproduces the accepted halo.
+If the attempt/time/row budget is exhausted, return the last published prefix,
+with open holds and an explicit incomplete reason; do not publish the failing
+speculation, fabricate closure or silently rerun the entire song. This is a
+failure outcome to measure, not a production fallback. Incremental callbacks
+must never expose rejected rows or claim speculative coverage as settled.
+
+Baseline identities: shared-profile native result
+ de5544efff6ffdaeca0c0388636e60dcfe67dc2691d20466c10704be4f8abea4 and path-crossover
+result95964d01b5e12ed8c5a811151f2d22c99dfd35592e5eb201d55f6d78e6f85175.
+The cohort has15 distinct case/conditioning pairs: the nine shared-profile
+conditioned automatic cases; clean Who17 profile0; and five crossed cases
+PromQueen17 H0/D1, PromQueen19 H0/D2, GoodLuck17 H3/D0, Airborne33 H0/D1 and
+Airborne33 H0/D2. Baseline totals are three strict HH and twelve RH<=20 pairs.
+All original full audios, seeds17/19/33, profiles and generated H plans are
+pinned. Explicit fixed-H support is research instrumentation only and supplies
+no future row/tail/state. Native automatic cases retain lazy H planning.
+
+First verify the branchable engine reproduces saved rows for clean Who17,
+PromQueen17 H0/D1 and Airborne33 H0/D1. Then screen those same three. If exact
+baseline/clone parity, complete output and finite bounded resources fail, stop
+before the other twelve cases and diagnose; do not silently increase attempts.
+If that gate passes, complete the remaining paired baseline/screened cases.
+No fitting, parameter sweep, NLL endpoint selection or temperature change.
+
+Primary decision: all15 complete/reparse with zero strict HH and zero screened
+RH, versus the baseline3/12, while preserving every H timestamp exactly.
+Guards: first30-row/eight-second readiness<=1.5s from cached-Mel entry; each
+accepted publication-window service<=2s; cohort total sampler wall time<=2x
+matched baseline; per-case head counts within0.8..1.25 of baseline and absolute
+LN-head-fraction drift<=.10. Report exact per-case values, attempts, rejected
+work, max unpublished rows, stop reasons and coverage, not just totals.
+The composition guards detect changes in the requested arrangement, not a
+universal musical-quality score. A gate failure still yields an exploratory
+REFINE result and cannot justify model promotion.
+
+Lens: inspect the five fixed musical contexts across automatic cases, the five
+crossed cases and clean Who17, plus accepted/rejected scopes for every resampled
+window and any residual close pair. Read full actions, articulation and time
+views, including entering holds; reuse unchanged frozen human references.
+Different arrangements need not preserve a reference's tags, but check that
+screening has not erased chords, independent LN releases or fine-time support.
+No inferred human labels, listening verdict or automatic BAD taxonomy.
+
+Implementation files: planned_audio_continuation/generation.py plus a small
+buffered sampler module, focused tests and owning research docs. Leave packaged
+CLI/config default behavior unchanged until the research policy passes; no Hydra
+knob is added in this probe. Tests cover fork ownership/RNG restoration, halo
+boundaries, exact20 HH versus RH, retry selection, budget exhaustion preserving
+open holds, callback publication, one audio encoding and baseline distribution.
+
+Freeze clean implementation source and script/Note/input identities before any
+real-model run. Command: uv run --extra mps python
+artifacts/joint-audio/20260925-unpublished-continuation-v1/run.py. One CPU thread,
+AppleM5/24GiB, Torch2.11/Python3.10.20; no competing fit/network job. Per-chart90s
+and30000rows, cohort900s, >=2GiB RAM, >=40GiB disk; <=500MiB new artifacts excluding
+linked audio/reference evidence. Fresh output owner, no overwrite/resume. Stop
+on changed bytes, nonfinite scores, parity/plan/physical-support violations or
+resource limits. Local code and Note commits only; no remote publication.
+
+Interpretation: a pass shows that a bounded scheduler can use actual joint
+continuations to remove these screened failures at measured runtime cost. It
+does not establish musical correctness or the global constrained posterior.
+A quality/composition failure means conditional resampling changes too much;
+a cost/attempt failure motivates a learned future-potential proposal or a
+better joint event representation. Keeping H fixed can also expose infeasible
+plans; do not conceal that case by deleting H events. Any subsequent model
+learning or alternative policy requires its own discriminating Card.
