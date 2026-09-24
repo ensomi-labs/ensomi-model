@@ -3574,3 +3574,52 @@ human-reference contexts and material changes using Lens; then evaluate the
 lineage hypothesis before choosing the next training intervention. Keep the
 intent comparison deferred. Product changes and Note records remain local;
 the goal stays active and playability completion is unproven.
+
+### Result Log: target composition within the fixed lineage-learning plan
+
+Read-only exploratory audit, no Card intervention or training recipe change.
+On the frozen repaired manifest and shared 1200-update plan, audit_targets.py
+in the lineage comparison owner verifies full-chart LN start/release pairing
+and recounts all sampled intervals with the actual per-second objective weight.
+Target audit SHA
+a682d79579d11631be6c2a79fa9386cbf96548ab1f82a118e4d376eb46f0f017.
+No fitting or source/human annotation edits. An initial script draft had a
+duplicate dictionary keyword and stopped before execution; the corrected
+auditor's hash is recorded in its result.
+
+The 615 TRAIN arrangements across 240 groups include 35 charts with no LN
+heads. Under uniform group then uniform arrangement sampling, the probability
+of choosing such a chart is 4.826%. Expected mean chart LN/head is 17.465%;
+expected tap and LN-start rates are 7.68987/s and 1.57808/s, giving an LN share
+of expected head-rate contributions of 17.027%. These are distinct aggregations.
+
+The actual 4800 sampled intervals contain 287184 taps, 58429 LN starts and
+58463 releases in 253512 event rows, totaling 37253258 ms and 345613 heads.
+The time-weighted LN share of new heads is 16.886%, close to the sampling
+expectation. Intervals have 1194 tap-only-head, 3347 mixed-head, 44 LN-only-head
+and 215 no-new-head outcomes. Interval start/release counts may differ because
+their boundaries cut holds; every full source has matching counts. Releases
+are separate supervised actions, not extra LN-start labels.
+
+These counts exactly match the completed release branch's recorded interval,
+millisecond, event and head exposure. They do not support the simple explanation
+that the fixed sampling plan mostly teaches LN heads or strongly inflates their
+share relative to this corpus. They do not set a required fraction for every
+native chart, establish a well-calibrated free-running distribution, or rule
+out conditional optimization and feedback effects. Outcome REFINE; keep the
+matched lineage comparison unchanged and inspect actual native action paths.
+
+The release main arm has completed all 1200 updates in 555.17 seconds, checkpoint
+SHA 02f6511fbd146a656b84e6aaf95821068d56f9dc16b3a0d36c51e0267a3be910;
+fixed population VAL NLL/s is 40.06002. The same serial launcher session 76752
+continued into memory, observed live as child PID 92516. Main comparison and
+native quality are still incomplete. Revalidate the current handle/state before
+continuing; no restart based on elapsed time or stale progress records.
+
+prepare_lens.py and inspect_lens.py are now prepared in the comparison owner.
+They await native-result.json, retain every native outcome in a case inventory,
+copy the frozen human evidence unchanged, and request full actions/articulation
+plus every time-view page for the 24 generated style contexts and four source
+contexts. They have only been syntax checked; no new bundle or images have yet
+been produced or judged. Material native guard cases still require additional
+scoped review after their outcomes are known.
