@@ -2605,3 +2605,95 @@ Record source/audio/model/row hashes and limits. No fit, new prior tuning,
 reference-seeded generation, remote publication or human-label editing occurs.
 Actual audio listening is unavailable to this model/tool context; visual and
 event-structure review must not be represented as listening or player testing.
+
+### Result Log: style-anchored-native-audit-v1
+
+Card revision 1; accepted revision none. Clean implementation/execution source
+de2ff6207158edf1e1cd71ae1697b4195ba73854 adds explicit pinned aliases to
+preparation, retains canonical catalog identity, and verifies the paired copy
+again when loading. The selected data/config tests passed (18 tests), and the
+packaged Hydra inspection exposes both preparation-only fields. No model or
+sampler parameter changed. Alias manifest SHA is
+7ffaf7e1394aec6f3be6e35450ce64beca9f6245efc061e7e149f25a3cbbd49b.
+
+The eight new BOS rollouts all complete, exceed 30 heads and have zero <=20 ms
+same-key head intervals. They use the exact checkpoint and recipe in the Card.
+Their head counts at seeds 17/19 are Who? 1604/1288, death piano 1964/1656,
+Prom Queen 1914/1563, Good Luck, Babe! 1734/1439. Their whole-chart LN head
+fractions are .756/.787, .862/.811, .597/.680 and .365/.190. Individual runs
+take 3.24–6.35 seconds after imports/Git checks; these are not cold-start profiles.
+All outputs remain in style-audit-v1/generation. Lens admits all eight; its frozen
+bundle manifest SHA is 36b502144d6a2e1403e5783a1b5e6ca6116f1380320a1ae4906539af31a28a48.
+
+All source/generated context action rows and every time-view page were inspected:
+Who? 73000–87000, death piano 102953–107130, Prom Queen 75400–78700,
+Good Luck, Babe! 127823–131852; Airborne 147208–150258 and the ANiMA absent
+contrast 97000–98600 use the unchanged prior bundle. Generated and human
+interpretations are not interchangeable labels. No human records were edited.
+
+The pure-tap death piano episode contrasts with strongly LN-based output at
+both seeds. The Prom Queen reference has recurring same-column presses inside
+changing two-/three-key chords at roughly 208 ms spacing; both outputs replace
+much of that organization with staggered holds. These crops do not supply a new
+positive demonstration of the reference chord-repetition relation. Who? outputs
+do contain interleaved holds and changes of press/release roles, but retain LN
+activity through much of the source's later tap passage. Good Luck's reference
+includes cross-column 8 ms and 32 ms staggered attacks; these are distinct from
+same-column repeated heads and remain legal under the current representation
+and per-lane prior. Neither output is a faithful reference realization, which
+is not itself a failure: this model has no requested style/difficulty condition.
+Its generic activity/irregularity is insufficient to establish Tech preservation.
+
+Recommended outcome is REFINE. The scoped audit shows composition/selection
+differences that short-head diagnostics cannot resolve. It does not show that
+LN alternatives are necessarily bad, that all taps must be retained, that every
+generated Tech episode is absent, or that a latent is necessary. Dump musical
+intent remains untested. No actual listening/player verdict is available.
+
+As a data-preparation follow-through, a new immutable corpus at
+artifacts/joint-audio/20260924-alias-restored-v1 restores the 30 exact-audio TRAIN
+alternatives. Its manifest SHA is
+4ad9abfd0ae7798e0a85b96a5dbecdaefd2a81f78bf181438407442b964118e1.
+All 585 old TRAIN charts, 240 TRAIN groups, 36 VAL charts, 276 audio/Mel assets
+and normalization bytes remain; TRAIN now has 615 separate arrangements. Five
+same-group/different-audio candidates are explicitly rejected. Canonical loading
+verifies the complete result. This corpus has not been used for a fit.
+
+### Experiment Card: style-source-row-probe-v1
+
+Revision 1; proposed; accepted revision none. Standing user execution authority
+covers this local diagnostic. Clean source is
+de2ff6207158edf1e1cd71ae1697b4195ba73854; model/normalizer and the four TRAIN
+audio identities are those frozen by style-anchored-native-audit-v1. No fit or
+new generation is involved. The intervention is the observed history used for
+diagnosis: real reference versus each separately generated chart's own prefix,
+at that chart's own event times. This is not a paired causal prefix intervention
+and never attaches reference future labels to an altered prefix.
+
+Question: is the candidate's strong native LN composition also present in its
+row distribution under genuine tap-heavy source prefixes? If source-conditioned
+expected LN fractions are much lower than native-prefix fractions, simple lack
+of tap support is an inadequate explanation. If both are high, conditional
+prediction/data coverage becomes a more immediate bottleneck. These observations
+cannot establish which architectural remedy is necessary. The closest analogue
+is the expert's distinction between source likelihood and autoregressive rollout
+reliability; this is measurement, not a novel objective.
+
+Use every event in the four human scopes: Who? [75000,85000), death piano
+[103453,106630), Prom Queen [75838,78338), Good Luck [128423,131252).
+For each chart, replay its complete true prefix, project only R0 causal content
+and exact state, and score the existing legal full-row distribution at the event
+time with complete encoded audio. Expected heads and LN starts come from the
+256-row probability table; report ratio of summed expected counts, alongside
+observed counts and conditional row NLL. Do not average per-row ratios, use a
+style label as a target, or interpret native self-likelihood as quality.
+
+Run CPU one thread in a fresh source-row-probe-v1 artifact below style-audit-v1,
+maximum 600 seconds, 2 GiB RAM/40 GiB disk guards. No random seed is needed for
+deterministic inference. All selected events remain included; no checkpoint
+selection. Stop on nonfinite legal scores, invalid source timing/occupancy,
+changed input hashes or dense/full-audio versus canonical-crop row-score
+disagreement above 1e-4 on one reference and native query per song. Record all
+input/output hashes and sample counts. No positive numeric playability threshold
+is claimed; report the direction/magnitude per episode and preserve ambiguous
+cases. The existing native charts are fixed and cannot be worsened by the probe.
