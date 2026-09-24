@@ -6615,3 +6615,86 @@ every infer_audio call still decodes original audio and recomputes Mel. Consumer
 primary starvation accounting uses zero extra presentation lead; an additional
 2s visual-lead diagnostic is reported separately, not silently substituted for
 the declared guard. No native output exists yet at this dispatch.
+
+
+### Result Log: fresh-audio-system-v1 native complete, Lens in progress
+
+Card revision1 remains proposed, accepted none. Clean source
+0b35eced5a8118da745a84dccee75e8b0e503bed, execution Note
+ad6aabec5f5ddca1be0a7b26ff47459311b81ba5, unchanged conditioned checkpoint
+abc27f1d192869419e42729a6b9fcdfd1c507fd672e12c9a9c7c868a5082a2ef.
+The prepared eight-audio panel remains484d173628856a431e034b1dbdacab9173c40f3edf696d1b9a19721aeec70dc9.
+Native session1669 and Lens render57080 are terminal-success; no model run is
+active. Do not rerun generation, preparation, tests or rendering to resume review.
+
+Output owner artifacts/joint-audio/20260925-fresh-audio-system-v1.
+Driver447b0d758d399d273efe3d395f46d9d7f8031e380764b56b54a5937b950e3af4;
+freeze37bf355a871381aaa221b6444dc80cfdb94d6865f32774ac4c6b8a0edef0934b;
+gate0329a592198e8704ad971346e741a660562c1e2812954fa4589a3b2199fd906f;
+result9f3c4580adaa6239c44e04bb5d95a0ed921b8fd958b1eee26ccd8cedfa91e862.
+The two-audio automatic preflight gate passed. All48API outputs (8audios x3
+requests x2policies) complete and independently reparse. Every paired H sequence
+matches exactly. Source-free calls decode the original full audio and recompute
+canonical Mel; all PCM/Mel hashes match the panel. Consumer replay matches the
+file and final rows, with no future endpoint, rollback or rejected-row leakage.
+
+Direct24 outputs have2strictHH and8RH<=20 pairs; screened24 have0/0. There are
+11rejected proposals, and18pairs require no retry and remain row-identical.
+Total sampler time83.981923045s direct versus86.680394292s screened, ratio
+1.032131572. Screened producer readiness including fresh preprocessing is
+.576973416..1.575609500s; maximum accepted-window service.356228625s and maximum
+unpublished proposal105rows. All declared system guards pass. No coverage
+starvation occurs in recorded1x arrival traces,4x service scaling, the injected
+1s stall, or the separate2s presentation-lead diagnostic. These are local/offline
+trace checks, not real OS contention, network or player evidence.
+
+The additional actualCLI run on498989ms Yomi yori reproduces its automatic
+screened API rows exactly. Stdout is consumed as produced and equals events.jsonl
+byte-for-byte. Process-start readiness2.920690583s, below6s. The entire driver,
+including49calls, preprocessing, exports and checks, takes217.125090542s.
+Native output uses171,065,586bytes, with copied audio verified and then replaced
+by links to the same immutable input. Input/checkpoint bytes remain unchanged.
+No training or new control selection occurred. No protected-field deviation.
+
+One descriptive composition flag remains: Hysteric profile2 LN-head fraction
+increases by.1886276894 after screening, with head ratio1.044622936. It is neither
+a silent pass of an old guard nor automatic evidence of a bad chart. This sign
+also differs from earlier LN reductions. Detailed organization must decide the
+interpretation; numerical system success does not promote model quality.
+
+The complete Lens plan has108scopes,75newly rendered scopes/209time pages and
+33current semantic-reuse scopes. It includes all16human records through12merged
+reference contexts, matching generated contexts for all requests/policies,
+automatic dense windows, every resampled window and both direct strictHH
+witnesses. Source/human evidence remains byte-identical. Rendering alone is not
+inspection. At this record,23new scopes/54pages and all their complete action/
+articulation tables are read: references46..57 and generated5..15 (allFoolMoon
+andGoodbye scopes). The other52new scopes/155pages remain unreviewed. Reuse is
+covered only when the referenced scope is read. Exact inventory and observations
+are in review-progress.json; no final review.json exists.
+
+The source examples demonstrate explicit relations: FoolMoon's repeated108/109ms
+LN starts with217/435ms overlapping holds and staggered subsets; Goodbye's
+21/22ms cross-column approaches into64/108ms independently released LNpairs;
+Hysteric's39/58/78ms changing tap flow; Zenith's repeated four-LN chords with
+staggered tails and later two-held-lane inner-column alternation. The source
+negative cases distinguish a simple single-LN relay or single held lane from
+LN coordination. Preserve human scope/confidence; no dump label is invented.
+
+Initial generated inspection is mixed. FoolMoon profile1 retains dense broad
+chords and fine cross-column bursts, while profile2 mostly produces single-LN
+relay: every new hold in its first fixed scope ends at the next H with zero
+interior H. Thus high LN fraction alone does not yield reference-like coordination.
+Goodbye profile1 instead gives repeated broad LN chords, including full-occupation
+entry and some independent tails, before switching to tap chords. Its profile2
+scope is simpler with isolated/paired holds. Automatic Goodbye's dense8s has89H
+of mainly70–100ms movement with chord accents, whereas its fixed source context
+is much sparser and lacks the reference's fine LN-pair organization. These are
+scoped observations, not a complete style verdict or listening/player result.
+
+Recommendation remainsREFINE pending the remaining declared inspection. Immediate
+next action: continue Lens at the saved inventory, then publish the full system
+measurement with its actual expressive limitations. Do not select a larger model,
+new seed sweep, duration floor or extra hard timing grid merely from the counts.
+The ultimate playable-system goal remains active. Product/Note commits are local;
+no remote publication or Note lifecycle change occurred.
