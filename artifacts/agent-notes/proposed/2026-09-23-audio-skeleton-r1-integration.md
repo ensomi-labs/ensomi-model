@@ -11975,3 +11975,19 @@ and invokes train_frontier.py with uv run --extra mps. This separate frozen
 script adds sampling_contract=r1-release-window-v1 to checkpoint/config metadata;
 training behavior otherwise follows the same driver and corrected product code.
 ScriptSHA25696a0a890821d23b7c28c97ce20b81cb2d3fb554cf208fd7cb12e0027c2c6c382.
+
+The corrected-law continuation is terminal at2500:500additional updates,
+269.344s,1000accepted draws (759population/241human),787distinct charts and
+28rejected proposals, including two already-missed release deadlines. Peak
+RSS4.240GiB and MPSdriver4.901GiB are overlapping counters. CheckpointSHA256
+0f1ddfa5b351988fca04246ec080be106855f49b50fb493370c2d5afee1febb8.
+
+Native qualification now uses that immutable checkpoint. Fresh native-main
+(Hysteric,Zenithfall,Take × low/ln/difficulty/high/switch), native-ceiling
+(Take/ceiling) and native-fixed (Take/ceiling with the previously recorded
+fixed-H file). Same owner native.py/script hash and panel seeds; commands set
+ROW_CHECKPOINT to frontier-2500/step-2500.pt and explicit ROW_NATIVE_RUN,
+ROW_NAMES,ROW_MODES. The fixed case also sets ROW_FIXED_HEAD_ROWS.
+The three CPU1thread jobs may overlap; service times during overlap are not
+isolated latency evidence. No further fitting or policy tuning occurs during
+this qualification. All17cases retain the earlier120s/30000row bounds.
