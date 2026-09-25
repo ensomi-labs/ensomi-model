@@ -10850,3 +10850,34 @@ through `uv run --extra mps python` with the above driver. Native driver remains
 SHA58215bacc7019303a600a8d3a320395fc7652d3eca19cdb4cfd4a63ae3c75825 and reads
 the constructor flag from each trained checkpoint. This is the only model-law
 intervention; all sampling policies stay paired.
+
+## Retained-model seed stability probe, 2026-09-25
+
+Proposed Experiment Card: audio-scoped-seed-stability-v1, revision1. Accepted
+revision:none. Source015646f8af38cf24e5a1a62769fd277b92ccedbe differs from the
+54adf6b training source only by the workload-reference documentation. Existing
+ranked2400 weights, LnFeedback, RecoveryPreference(head_pressure=4) and selective
+StarGuidance2 remain unchanged. This is a bounded stability measurement, not a
+new architecture or coefficient search. Paired continuation has already shown
+native drift despite improved source likelihood; the retained model also needs
+more than one seed to support a casual range-control claim.
+
+Use complete Zenithfall audio, from BOS, separately atD3/LN.2 andD3/LN.7. Retain
+the two existing seed251702 observations and generate offsets+1,+2,+3, six fresh
+cases. The two controls remain separate; compare each four-result spread to its
+own request. Inspect any large excursion in its actual generated scope, without
+estimating a population failure probability from four seeds. Review an absolute
+star deviation above1 or a same-control spread above1.5 as material instability,
+not an exact fulfillment contract. Completion, short-tail fraction, LN fraction
+and actual articulation remain alongside rating. A narrower spread cannot
+establish reliable style control or full-system readiness.
+
+Fresh owner artifacts/joint-audio/20260925-scoped-seed-stability-v1, no overwrite.
+Native driver is copied from the paired run with only a seed offset input and
+actual seed recorded in each result. Commands use TYPED_NAMES=zenithfall,
+TYPED_MODES=low,ln,TYPED_GUIDANCE=2,TYPED_SEED_OFFSET=1/2/3 and distinct
+TYPED_NATIVE_RUN=offset-1/2/3, through `uv run --extra mps python` and this owner's
+native.py. Checkpoint defaults to the frozen ranked2400 file. At most three
+one-thread CPU processes, existing120s/30000row per-case bounds, expected below
+three minutes; concurrent service timings are not exclusive benchmarks. No
+fitting, TEST, external writes or hard workload ceiling.
