@@ -11881,3 +11881,15 @@ ROW_TRAIN_RESUME=artifacts/joint-audio/20260926-row-owned-restoration-v1/smoke-6
 and runs the same frozen train.py with uv run --extra mps. Optimizer and RNG
 states are restored; no learning-rate or source-policy change. This continuation
 was part of the existing bounded card, not a larger capacity search.
+
+Native harnessSHA256371829929fbea8031d8f81d81cb46931ccad872629ffb59b4d44ae825cabc749. The unchanged source
+C5 implementation is being fitted. A functional smoke uses the terminal64-step
+checkpoint on Hysteric/low with generated audio H and on Take/ceiling with H
+times extracted from the earlier scoped candidate's native-endpoints/take/ceiling
+rows.jsonl. This is runtime/ownership inspection while fitting continues, not
+checkpoint selection or a trained-quality claim. Fresh native-smoke and
+native-fixed-smoke directories, same panel seeds,CPU1thread,120s/30000row bounds.
+Commands set ROW_NATIVE_RUN,ROW_NAMES,ROW_MODES and, for the fixed case,
+ROW_FIXED_HEAD_ROWS=artifacts/joint-audio/20260926-per-field-scoped-demand-v1/native-endpoints/take/ceiling/rows.jsonl;
+then invoke the owner native.py with uv run --extra mps. Concurrency with MPS
+training excludes these service timings from latency benchmarks.
