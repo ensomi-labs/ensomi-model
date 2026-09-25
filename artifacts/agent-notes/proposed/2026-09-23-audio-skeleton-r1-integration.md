@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 54adf6b599a06044a4029f6f4ec7e9377c855538
+Product revision: 8ee32372f07534f50c24cdeb702816ff136698c8
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -10901,3 +10901,138 @@ script. Child timeout180s, no concurrent trainer or native generator during the
 measurement. It changes neither weights nor sampling coefficients. Its purpose
 is to distinguish present startup/service cost from the observed quality and
 control problems before adding scheduler or speculative-decoding complexity.
+
+
+## Paired coupling, seed stability and startup results, 2026-09-25
+
+All processes in this phase are terminal: reference73955, smoke19536, paired
+training8568, original-law native59295, coupled native21446, retained validation
+75053, Lens92308, seed14116/51904/17080 and startup73702. No trainer, generator
+or automation remains active. All older named processes are terminal as well.
+The active goal remains open; no new playable release or Note acceptance.
+
+Smoke25 completes in20.328s. The paired main fits both complete1000updates and
+2,000 sampled intervals covering1,395distinctTRAIN charts: original law483.284s,
+coupled513.160s, below900s bounds. Draw identity/objective-weight SHA is equal:
+eda9dfde338ae9590854637416a92895471847e07bb6a40c9ab34ca9eb9e5766.
+Original-law checkpoint SHAba77769d07ade19da5ee7f1212191390b7fa42435f620e1e6e956ed9d257d08c;
+coupled checkpoint SHA04da0ddd75703530538b643c36d5642146818d44a21ffcb7a36108585452c321.
+Peak process RSS is2.958/3.097GiB; MPS driver observations reach approximately
+5.8GiB. Those ledgers overlap and must not be summed. The second fit overlaps
+one-thread CPU native evaluation for part of its run, so timings do not isolate
+the extra mark-query cost. Both receive the complete prescribed update count.
+
+Owner artifacts/joint-audio/20260925-ln-group-coupling-v1 contains config, losses,
+checkpoints, validation, native outputs, comparison.json, selection.json and
+Lens reviews. comparison.json SHA7f7b7203237968fa81bdbb24c0a566f49db7127e6c1a43141066016e9fc4a65c.
+Native15/15 complete in each arm. The retained15-case comparator is an explicitly
+selected subset of existing eight-song guided results (Zenithfall/Hysteric/Take),
+not a new rerun. Each control cell below contains exactly those three songs.
+
+| Request | Retained star MAE | Original-law continuation | Coupled continuation |
+| --- | ---: | ---: | ---: |
+| D3, LN.2 | .462586 | .720284 | 1.063444 |
+| D3, LN.7 | .290853 | 2.000475 | 2.097444 |
+| D5, LN.2 | .446359 | 1.066744 | 1.074526 |
+| D5, LN.7 | .378019 | 1.552321 | 1.572071 |
+
+D5/high-LN short<=40ms fractions are135/6712(2.0113%),505/10052(5.0239%), and
+472/9943(4.7471%). D5/low-LN fractions are4/1740(.2299%),103/2837(3.6306%), and
+119/2697(4.4123%). Do not substitute the different eight-song cell's1.5889%
+for this three-song retained value. Coupled LN-fraction MAEs by the above four
+cells are.01916/.10227/.00692/.09675. Minimum HH across all15cases is46/38/37ms,
+so the declared37-ms hard support still holds; that invariant does not establish
+comfortable recovery or the intended difficulty. Maximum cached-window services
+are.567/.834/.924s, with varying/concurrent workloads, not exclusive benchmarks.
+
+After the fixed D5/.7 override ends at137000, original/coupled D3 scope proxies
+are4.877/4.917 forZenithfall and4.489/4.578 forHysteric, versus retained2.912/2.247.
+Coupled before/override/after areZ1.592/5.565/4.917,H3.036/5.129/4.578,
+Take3.095/6.358/2.447. The last Take scope is short, with different denominators;
+its LN fraction.346 remains recorded separately. No global rating is substituted
+for an override/after range. These are offline full-prefix strain proxies, not
+causal runtime feedback or official local SR.
+
+Teacher validation was matched on the same36midpoint intervals, and separately
+reported for24charts inside2–6stars. On the latter, mean per-second loss vectors
+(clock,mark,row) are retained[36.766714,6.799284,7.350800], original continuation
+[35.914475,6.709542,7.471029], coupled[35.913422,6.706752,7.470993]. Summed loss
+improves50.9168->50.0950/50.0912(about1.6%), while native calibration/articulation
+regress. The row term slightly worsens even in teacher validation. NLL remains
+a proper source-conditional objective but does not bound native trajectory cost.
+Do not attribute a numerical percentage of the native failure to R1, the encoder,
+history feedback, optimizer restart or weak scope labels from this comparison.
+
+Four matched Lens contexts/all8pages/alltable pages are fully read and reviews
+written for both continued arms. Zenithfall72347–76348 original has65head/
+105action rows,36/37/39/40-ms LNs and RH33/34; coupled has64head/106action rows,
+30/31/35-ms LNs, a344-ms layer and RH25 at75160col3 after tail75135. Take127738–
+131739 original has69head/70action rows, fast TAP movement after130081,94-ms
+paired LNs and185/270-ms layers. Coupled has68head/73action rows,32/36-ms LNs,
+a371-ms layer across seven interior head rows, and HH45 at130548col1. Both
+change the retained full-quad passage's form, which is not itself a quality win.
+No listening, player test or formal style judgment was performed.
+
+Decision: REFINE, neither continued checkpoint selected. The original-law
+comparator also degrades, so removing the conditional-independence restriction
+alone is insufficient. Keep coupled_ln_groups optional/defaultfalse and retained
+ranked2400 as the active research weights. No neural size increase or extended
+teacher-only fit is justified by these outcomes. The source family can remain
+available without treating this fitted instance as adopted.
+
+The read-only style audit (style-scope-audit.json) finds289human TRAIN cells on
+112charts, scope durations260/5053/135217ms(min/median/max), zero intersections
+that subdivide a source assessment and zero conflicting intersections in this
+admitted subset. Prominent counts: Jack11,Stream21,Trill13,Tech5,LNcoordination8.
+This defeats the suspected label-fragmentation explanation for this subset;
+coverage and semantic control remain limited. No human annotation was changed.
+
+Seed-stability driver SHA12261bd4364de54447cb0ab2465cb4fc137c61eceb534460a83069c1ad390380.
+All six fresh cases finish. With retained weights and seeds251702–251705, the
+four D3/.2 outputs are2.362968/3.421750/1.910613/2.943089, span1.511136. D3/.7
+outputs3.416674/4.038450/3.531242/3.056235, span.982215. The requested cells stay
+separate. LN fractions are.1685–.1847 and.7110–.7266. Only the high-LN251703
+chart has any<=40ms LNs, fraction.0017762; this does not turn the other charts
+into validated playable outputs. Four seeds give descriptive variation, not a
+population failure estimate. The one-star/.1.5spread review thresholds are
+marginally crossed; variation is substantially smaller than the continued-fit
+high-LN drift and must not be narrated as equivalent catastrophic failure.
+
+Seed251703 high-LN peak253531–257532: bothpages/alltables read;44head/54action
+rows, movingLN handoffs, TAPinterleaving,219–296-ms layers, entering469-ms hold
+and456-ms outgoinghold. Minimum newLN49ms, with56/57/63/66/68-ms additions and
+no<=40ms LN in this selected scope. It remains organized despite a whole-chart
+rating4.038 against request3. No listening/player/style assessment. Review and
+per-control seed summary are saved under20260925-scoped-seed-stability-v1.
+
+Controlled startup driver SHA30561135327a2b58242d7ff43f082ab4a81509226c34595359cdf8a9042ec339.
+Result SHA8ffa8867c8efdc2c39d512ebd0946e1b7eed3256e630d5838a1771b2f81f5876.
+The fresh process recomputes waveform/Mel/full encoder for498989msYomiYori and
+publishes8000ms,69rows with2openLNs. Child entry2.228305s; full processroundtrip
+2.356210s. Stages: imports.652125,load.025471,decode.719172,Mel.202010,
+encoder.337399,rows.292126seconds. OneCPUthread, no concurrent training/native
+job; OS caches remain warm/unflushed and client rendering/reading excluded.
+This is one full-audio startup observation, not a latency-tail certification.
+Performance evidence does not currently motivate speculative-decoding complexity
+before fixing native quality/control behavior.
+
+Next research direction: make range-level demand and stability on generated
+histories part of the learning/control design, while preserving the explicit
+skeleton/R1 information boundary. The existing source-prefix likelihood and
+short history can fit ranked continuations without regulating their own sampled
+activity. A prospective demand representation must distinguish head work from
+release work and source LN composition; the workload audit already rejects one
+unconditional action-rate ceiling per star value. Keep physical history across
+control changes, keep different requested ranges as separate assessment units,
+and do not condition training on source future LN endpoints or an oracle demand
+plan unavailable at inference. Full audio remains available to both factors.
+A sampled-history target must be valid for that actual state; naive scheduled
+sampling against an incompatible reference next row is not an acceptable repair.
+This is a design direction, not an accepted new Experiment Card or a claim of
+identified sole cause. Long musical-relation memory remains deferred.
+
+Product8ee32372f07534f50c24cdeb702816ff136698c8 records the conditional option,
+paired negative result, seed variation and controlled startup. The implementation
+check remains8passed/.51s; only curated prose changed afterward, with diff checks
+clean. No remote push, Note lifecycle transition, model promotion or default
+sampler change. All new artifacts remain in their owning ignored research paths.
