@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: bcb6f3a4198ac06884c6d3c37e8363a147eed678
+Product revision: 7329b0ea93262717fb5d1475a308e6e562cf4a11
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -9623,3 +9623,41 @@ attempt exhaustion is a retained case failure; continue independent cases and
 report the complete planned denominator. Do not train or adopt automatically
 from a successful mechanical comparison; use actual structure/control outcomes
 to choose the subsequent joint fitting question.
+
+
+#### Joint spacing implementation checkpoint
+
+Card joint-action-spacing-law-v1 revision 1 remains proposed, accepted none.
+Clean implementation source 7329b0ea93262717fb5d1475a308e6e562cf4a11 adds the
+shared positive minimum_action_gap_ms law; default zero preserves the old law.
+It changes no parameter tensors. Positive gap requires conditional release
+waits and at least nine lookahead heads, with explicit exclusion of separate
+row correction modes. Training/Hydra projection, warm-start metadata and saved
+model settings carry the field. The inherited frontier2 native-opportunity
+feature remains its documented optimistic approximation; the actual shared
+spacing support is evaluated separately after full row-count composition.
+
+Focused verification: 96 unique planned-owner tests passed in 10.29 s, command
+uv run --extra mps --group dev pytest -q tests/research/planned_audio_continuation.
+This includes CPU/MPS likelihood/gradient agreement, an independent exhaustive
+native-clock release/TAP oracle on small grids, finite-horizon feasibility,
+LN-only release deadline input, interval/gradient partition agreement, actual
+native vs teacher row scores, chunk-invariant draws, rare-event conditioned
+releases, forks, buffered publication, EOS, and actual fitting/checkpoint reload
+with the setting. All test handles are terminal: 68245, 96623, 91844, 95068,
+82377 and 35296. Do not restart or poll them as pending experiments.
+
+Early verification failures were test-fixture issues: scripted publication
+sessions lacked the newly required model config, row-score comparisons included
+padded rows and a mismatched fixture Mel, and a two-row invalid-source fixture
+lacked the legacy helper's required post-seed H. Fixtures now preserve the
+actual tested behavior and check all real emitted rows; no assertion or
+product safety condition was relaxed. Final 96-test run is the evidence count,
+not the sum of repeated overlapping checks. Source support and native real-model
+comparison remain unexecuted at this implementation checkpoint.
+
+The baseline-to-implementation diff matches the declared single common law;
+there is no fitting, alternate data, new audio encoder or changed checkpoint
+weight in this step. docs/research/joint_action_spacing.md defines its bounded
+existence argument, probability semantics and limits. Local diff and affected
+relative links were checked. No remote push or lifecycle transition.
