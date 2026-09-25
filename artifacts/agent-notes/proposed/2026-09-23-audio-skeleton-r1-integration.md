@@ -11504,3 +11504,71 @@ The scoped demand fit is terminal:2000updates,88.876s,5294distinctTRAINcharts,
 demand2000 fit exactly. CheckpointSHA2566e7cced6286f27d79cbb706d760a46e228aedb00054e5df170e58477881bd4fa.
 No core weights or sampling policy changed. The next native probe uses this
 terminal checkpoint under the already recorded15-case procedure.
+
+### Scoped demand native result and visual review
+
+All15 paired native cases complete. Validation count MAE on24 in-range midpoint
+intervals is11.228heads (initial38.259), mean predicted/actual1.063. These validation
+inputs use scoped labels, so the earlier global-label diagnostic is not an
+isolated input-matched comparison. The source draw identities are matched.
+
+Static star MAE changes by3/.2,3/.7,5/.2,5/.7:
+.237722->.037903, .404664->.302444, .212816->.300437, .357480->.411023.
+Every .25 star-MAE/.03 LN-MAE guard passes. LN fractions consistently use the
+complete half-open0..duration+1 observation, including any terminal TAPs.
+The three5/.7 override proxies move3.987->4.131,3.551->4.519,4.502->4.684; each
+is closer to5. Median error drops1.012972->.480862, exceeding the proposed.25
+improvement signal. This is development-panel evidence, not a local-star law.
+Restored3/.2 proxies are3.225/3.176/2.150 (Take is a7.237s tail); before ranges
+are2.249/2.766/3.037. No pooled whole-song score replaces these separate ranges.
+
+All six Lens pages and complete tables for Hysteric switch entry103000–107000,
+peak129755–133756 and restoration135000–139000 are read; review.json records
+the observations. Entry has a hold crossing105000, grouped335ms paired releases
+over an829ms layer and a later1444ms anchor. Peak has420/666/463ms layers and
+independent tails, but also a column2 sequence of65/54/51/75ms LNs, retained as
+a concern. At137000, three incoming holds release separately at137037/137097/
+137265, followed by TAP motion and a1210ms layer. No forced boundary reset is
+visible. No listening, human playtest or formal style judgment is claimed.
+
+Interpretation: the matching scope contract is useful enough for broader
+qualification. It does not isolate encoding versus labels, guarantee difficulty
+from head counts or replace the delivered candidate before qualification.
+
+### Bounded qualification of the scoped candidate
+
+Proposed card audio-scoped-candidate-qualification-v1, revision1; Accepted:none.
+Clean product7c122d48a95e8f451fa136c4585c3f6ebcd4406c and terminal scoped-2000
+checkpoint6e7cced6286f27d79cbb706d760a46e228aedb00054e5df170e58477881bd4fa.
+All neural weights and sampling policies are frozen. This is qualification of
+the already specified mechanism, not a search over hyperparameters. Standing
+local execution authority applies.
+
+1. Run the other five panel audios (fool-moon,goodbye,revenge,as-it-was,yomi-yori)
+   at the same five modes/seeds as the prior profile native-broader run:25 cases.
+   Compare each static cell and before/override/after ranges against the retained
+   recipe. Keep the .25 star-MAE/.03 LN-MAE guards and inspect individual misses.
+2. Qualify requested endpoints2 and6, each at LN.2/.7, on Hysteric and Take:8cases.
+   There is no existing native baseline for these endpoints. Report each star
+   deviation; absolute error>.75 or a dense-action qualitative failure prevents
+   claiming that endpoint is controlled. Inside2–6 results at3/5 are not endpoint
+   evidence. No coefficient tuning from these eight cases.
+3. Hold difficulty4/LN.2 and vary only Jack organization in105000–137000 on
+   Hysteric, at unspecified/absent/prominent (3cases, same seed). Keep before,
+   active and restored ranges separate. Head-mask reuse is only a diagnostic;
+   assess actual fixed/repeated structures using complete Lens evidence and
+   the frozen Foundation/human examples as needed. An intensity-only change
+   is insufficient style control. Unspecified is not absent. No numeric single-
+   descriptor cutoff substitutes for semantic review.
+
+Each generation uses one CPU thread,120s/30000rows per case, existing canonical
+full Mel and BOS. Fresh owner subdirectories native-broader, native-endpoints
+and native-style; no overwrite, resume, TEST or new training. Commands use the
+recorded DEMAND_CHECKPOINT and TYPED_GUIDANCE=2, with explicit TYPED_NAMES and
+TYPED_MODES. The qualification driver extends only the request table with
+floor/floor-ln=(2,.2/.7),ceiling/ceiling-ln=(6,.2/.7); existing style mode handling
+already applies absent=-1/prominent=1. Effects beyond these fixed cases remain
+open. Failures preserve the earlier candidate and define the next module-level
+research question; they do not justify a large strength/seed grid.
+
+Frozen qualify.py SHA2563756d77e868a91e0b99a5a6128abe3c0ffb74c5f0ebf4d719b0856691c957758.
