@@ -10881,3 +10881,23 @@ native.py. Checkpoint defaults to the frozen ranked2400 file. At most three
 one-thread CPU processes, existing120s/30000row per-case bounds, expected below
 three minutes; concurrent service timings are not exclusive benchmarks. No
 fitting, TEST, external writes or hard workload ceiling.
+
+### Controlled-policy startup measurement
+
+A fresh-process measurement repeats the established full-audio startup boundary
+with the retained standalone ranked2400 checkpoint and the actual composed
+policies: LnFeedback defaults, RecoveryPreference(head_pressure=4), selective
+StarGuidance2. Source015646f8af38cf24e5a1a62769fd277b92ccedbe; whole YomiYori
+waveform (approximately499s), D5/LN.7, seed251708, one CPU thread. Decode and
+canonical Mel are recomputed; no prepared Mel is consumed. Measure process
+roundtrip through publishing8s and at least30rows, plus stage times. OS caches
+are not flushed; client rendering/player reading are excluded. This is one
+service observation, not a cold-machine latency distribution or musical test.
+
+Fresh owner artifacts/joint-audio/20260925-controlled-startup-v1, no overwrite.
+Script first_publication.py extends the existing measured boundary with the
+three explicit policy objects; command `uv run --extra mps python` with that
+script. Child timeout180s, no concurrent trainer or native generator during the
+measurement. It changes neither weights nor sampling coefficients. Its purpose
+is to distinguish present startup/service cost from the observed quality and
+control problems before adding scheduler or speculative-decoding complexity.
