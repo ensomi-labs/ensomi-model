@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: b2f69839a1c267a6ba7d0efefc72db26e81f8e18
+Product revision: 298c17c4df7b34fc4cd1ee620f9a0f41b15e7e01
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -12142,3 +12142,105 @@ Ambiguous: numerical fraction improves but phrasing/playability worsens; retain
 the baseline and revise the control-state representation. Pairing is by audio,
 seed and controls; after an altered LN choice the R1/release histories diverge,
 so count-marginal preservation is a same-state invariant, not equal total heads.
+
+### Result Log: r1-ln-moment-feedback-v1
+
+Accepted:none; Cardrevision1. Intervention source298c17c4df7b34fc4cd1ee620f9a0f41b15e7e01,
+unchanged2500weights/native.py and panel seeds. Seven selected ownership/state/law
+checks passed in1.10s. Nine native-ln-moment cases and the two guard cases all
+completed. Guards used separate fresh native-ln-moment-high and
+native-ln-moment-ceiling directories to avoid a cartesian-product run; same
+planned cases, no overwrite. Service times3.18–9.87s from cached Mel, CPU1thread;
+this is not cold audio-to-client latency. No training or parameter scaling.
+
+Every one of11 cases has exactly the baseline's H times. Static low-LN MAE
+falls .0548118->.0016900; high-LN MAE .1184613->.0089191. The combined six-case
+primary .0866366->.0053046 passes the .05 threshold, with the high-LN cell below
+.06. Low/high-LN star MAE changes1.14506->1.05591 and1.58678->1.44332; both pass
+the +.35 guard but remain poor absolute calibration. Hysteric5/.7 is4.53334stars,
+.70256LN; Take6/.2 is6.19215stars,.20097LN. Neither is a2–6release guarantee.
+
+For before/override/restored LN fractions, Zenithfall .2153/.7410/.2103;
+Hysteric .2058/.7225/.2008; Take .1986/.7126/.2941. The short Take tail has34
+heads in7.237s and10 LN heads, a .0941 error; finite-scoped feedback does not
+promise an exact fraction on a small sample. Scope strain proxies respectively
+2.3971/3.7869/4.0450,3.2607/4.2103/3.4022,4.2902/4.7161/2.4316. They remain
+separate, not averaged with static results. All observed HH/RH/HR minima remain
+within the declared profile (full facts in ln-moment-comparison.json).
+
+Read both Lens pages and complete action/articulation tables for the matched
+Zenithfall295189–299190 crop and Take/low's125463–129464 peak. Zenithfall retains
+overlapping holds, staggered tails, simultaneous multi-release events and TAP
+passages. One LN at296926 lasts294ms across four interior H rows; a319ms hold
+starts299041 and leaves the crop. The policy has not eliminated longer-held
+relationships to match a ratio. That dense scope remains unsuitable evidence
+for successful3-star control. Take's peak has sustained outer/inner double
+alternation followed by changed fixed-group organization and occasional LN
+articulation. The unchanged fast H stream and predominantly double rows explain
+why total3-star difficulty remains high; passing the amount metric is not a
+playability verdict. No formal style label or music-alignment claim.
+
+Decision: REFINE, retaining this as the current exploratory amount policy while
+addressing difficulty. The fixed-state law preserves head/release-count mass;
+subsequent LN state necessarily changes row/release trajectories. Two initial
+ad-hoc aggregation attempts failed on Python comprehension syntax and an assumed
+field name; no source measurements changed. compare_ln.py uses the actual report
+schema and stores the final aggregate. No hidden jobs remain from this card.
+
+### Experiment Card: r1-owned-demand-v1, revision1
+
+Owner:this proposed Note. Accepted:none; standing execution authority.
+Baseline: clean298c17c4df7b34fc4cd1ee620f9a0f41b15e7e01, same frontier-2500
+checkpoint, terminal moment-feedback trajectories. Question: how much of weak
+low-difficulty response can R1 recover by using an explicit mean-head reference
+inside its own full-row decision, with H timing unchanged?
+
+Reuse the retained scoped AudioDemand2000 readout from
+20260926-per-field-scoped-demand-v1/scoped-2000/step-2000.pt,
+SHA6e7cced6286f27d79cbb706d760a46e228aedb00054e5df170e58477881bd4fa.
+It predicts head objects/second from complete audio and per-field controls,
+trained on the separate ranked TRAIN arrangements with scoped strain/LN labels.
+All93 relevant audio encoder tensors/buffers of the restored model exactly
+match its encoder checkpoint36c9767f38fc9b28416e635aa974bf98ee2785715622b6049f6120cef251c2b3.
+This supplies a compatible R1 condition reference; it supplies no future row
+counts, selected keys or materialized chart to S.
+
+One intervention: apply its existing finite DemandFeedback only to R1 complete
+rows, after frontier/recovery comparison and before the final within-family LN
+feedback. Count actual R1 heads in the4s exponentially decayed state; compare
+with the audio/control mean curve, pseudocount4, gain2, log-odds cap2. Add the
+result times each candidate's head count to its log probability. At an H row
+this changes R1's distribution over chord sizes; at a release-only row it is a
+constant zero. S receives no demand model, counter or correction. The same mean
+curve is recomputed for future scoped controls while actual physical/count
+history remains. No expiry quota or deletion of sampled H events.
+
+Closest analogue is the previous scalar demand prototype. Its predictor can be
+retained, but applying object-count feedback to the skeleton violated the chosen
+decision ownership and is explicitly excluded. This experiment places that
+reference in R1; it does not claim head rate defines difficulty. If the H stream
+already exceeds a plausible head-object rate, R1 cannot satisfy the reference
+because each H requires at least one head. Record that floor rather than hiding
+it by upstream count decisions. A future S rate predictor would count onset
+rows and require its own targets.
+
+Fixed comparison: Take/low, Zenithfall/low and Hysteric/low initially (same seeds,
+audio, weights, controls). Seek3-star MAE reduction of at least .25 from1.05591;
+none may worsen star error by more than .25. LN error may worsen by at most .03.
+All H times must remain identical; no time/row cap or support failure. If that
+slice passes, inspect Take's matched/new peak and run the three3/.7 and three
+scoped-switch cases plus Hysteric5/.7 and Take6/.2 guards (total11 cases), with
+each effective range separate. Reject a return to sustained full-quad default
+or a loss of all but single-note output. Full-row support and same-state count
+ownership tests precede sampling. No blind guidance-strength or rate-gain sweep.
+
+Implementation and run: commit source before executing an artifact native_demand.py
+variant that differs from native.py only in loading the pinned demand predictor,
+passing it to rollout and recording its identity. Fresh native-r1-demand-low,
+then native-r1-demand-followup and separate guard directories if warranted.
+CPU1thread,120s/30000rows per case, at most1500s total. No fitting, TEST,
+overwrites or networked data. Baseline source and all trained tensors remain
+recoverable. A positive result only supports this R1 correction locally;
+continued poor native difficulty with saturated single-head choices instead
+points to S's own timing calibration. Naturalness and style remain Lens/human
+questions, not deductions from a star/amount score.
