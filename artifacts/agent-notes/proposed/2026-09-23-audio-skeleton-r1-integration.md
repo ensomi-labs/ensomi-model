@@ -11194,3 +11194,24 @@ with nonconstant audio and nonzero learned query weights, so a midpoint-query
 implementation would not pass accidentally through a constant initial model.
 The three demand tests pass; previously selected allocation/guidance checks
 remain unchanged. No production probability code changed after57cdbbf.
+
+### Demand learning check and main launch
+
+Corrected driver SHA599f91222742d416a76dc0cae591f70ad9efcec1ed8304acd7cb3f4dff70d805
+finishes smoke25-v2/process21907 in1.293s. Source d0aff1105910cf8df9ba3f4c2d1747143c665810
+is a test-only descendant of57cdbbf. The actual control width is60 and the demand
+network has36,866parameters (approximately3.7e4, correcting the earlier rough
+3.4e4 commentary estimate). Full cache manifest SHA
+ db178b3424bc11f23c3541235df107993ae51b8274d42050e41f63712ead2574.
+The fitted count loss omits target log-factorial constants and may be negative;
+its gradients are finite and it is not used as a chart-quality score.
+
+Proceed with the prescribed fresh demand-2000 run from initialization, same
+seed/batch/labels/dropout/optimizer,2,000updates and600s bound. The smoke weights
+are not reused. Core weights remain ranked2400. Native driver SHA
+b6559ecd7dcd65849c6e9b2eca76b8b840b9667554bd38ccef0d434d4e2ae094 loads the
+separate demand checkpoint, keeps all baseline physical policies and selective
+StarGuidance2, and records the demand model/settings. Native comparison will use
+DEMAND_CHECKPOINT=demand-2000/step-2000.pt, TYPED_NATIVE_RUN=native-demand,
+TYPED_NAMES=zenithfall,hysteric,take and TYPED_MODES=low,ln,difficulty,high,switch.
+The existing retained15-case results are reused unchanged, not regenerated.
