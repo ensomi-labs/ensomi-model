@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: b7769afd9d7f0106f41b45d03103b719ddf1ca76
+Product revision: bcb6f3a4198ac06884c6d3c37e8363a147eed678
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -9300,3 +9300,168 @@ counts reported. Versioned local SR is a diagnostic, not a learned player model.
 - Positive result constrains the target and motivates calibrated continuation
   response learning. Negative or mixed evidence refines the property/context.
   Neither result adopts a model or proves whole-song playability.
+
+
+### Result Log: ranked-2to6-action-reference-v1-complete
+
+#### Experiment and Reproduction
+
+Owning Note 2026-09-23-audio-skeleton-r1-integration; Card
+ranked-2to6-action-reference-v1 revision 1. Proposed, accepted revision none;
+standing local research execution authority applies. Recommendation REFINE.
+Clean measurement source b7769afd9d7f0106f41b45d03103b719ddf1ca76; no learned
+model intervention, fit, new generation, changed inputs or runtime policy.
+Design Note revision ce01dc6b95ac1c2dc69b7ef82f992e17f21a41da.
+
+Owner artifacts/joint-audio/20260925-ranked-2to6-reference-v1 contains frozen
+scripts audit.py, generated.py and lens.py. All ran with uv run --extra mps
+python SCRIPT on Apple M5 / 24 GiB, Python 3.10.20, CPU. Census terminal 30121
+completed in 133.479541 s, generated audit terminal 33597 in 3.773038 s, and
+Lens source renderer terminal 61416 in 2.949078 s. No resumptions or overwrites.
+All jobs are terminal; there is no live training or renderer to poll.
+
+Freeze identities:
+- Census bd7685153cdf0aab98bd2dc70e7063a31775db49db919b4b1114a003b1227c28.
+- Census result 393e813bc02ea0bf7e9b7cd287193846c21d0f688092ec3749c9a71900cf8770.
+- Generated freeze c35f2dd64e3e2d3d34c00eee872f874ad160d23cf92b41107e6d2ffdbc775625.
+- Generated result 00a120a758dbb837300ea967eca454db4300dca16559369a53f8d5d288c444ef.
+- Source Lens freeze 855c78fa3879691974c286d1f93b19d08177db26e4395c4e650686485de9d729.
+- Source Lens render 2907536b8d6192323a746f82b70c92a0ac48eb18484ff55b91eff620040126fd.
+- Source review cda5a049dfc4e541841d13a56835f497e8738c0c67cd9a2a15b77a27120a25b5.
+- Generated witness review 8614cc1d28ff12e56b12d9796cf6762aa32b501fc303d019ac4f2ad3304aa1f3.
+
+The verified index has 14,689 charts. Metadata eligibility gives 9,536 ranked
+native 4K charts with unrounded SR in inclusive [2,6]; 8,774 source MD5 values
+match their per-beatmap metadata, covering 3,387 sets. The 762 mismatching
+versions are excluded from primary ranked evidence, not classified as clean.
+All metadata snapshots are dated 2026-08-05. Freeze records preserve each
+source SHA-256 and metadata SHA-256. No timing-anomaly or short-gap cleaning.
+All 8,774 source files parse, with no overlapping or coincident same-column
+objects. Whole source object count is 12,953,523, including 2,272,555 LNs.
+
+#### Results
+
+| Relation | Instances | <=20 ms | Charts affected | Minimum |
+| --- | ---: | ---: | ---: | ---: |
+| Same-column HH | 12,918,427 | 0 | 0 | 37 ms |
+| LN's own HR | 2,272,555 | 8 | 1 | 19 ms |
+| LN release to next same-column H | 2,259,510 | 0 | 0 | 25 ms |
+| Distinct adjacent H rows | 8,765,631 | 8,960 | 566 | 1 ms |
+
+Four HR instances are 19 ms, four are exactly 20 ms, all in ranked beatmap
+2012530 (4.08447 stars). Its two inspected passages have a 156/157 ms head
+pulse and a repeated LN-duration progression from 19/20 to 39, 78, 104 ms,
+mirrored ten seconds later. This is a rare source structure, not permission to
+emit arbitrary ultrashort LNs. Zero HH/RH cases and one HR chart satisfy the
+predeclared zero-or-at-most-0.1%-of-charts population criterion.
+
+Star bins [2,3),[3,4),[4,5),[5,6] contain 3238/2906/2047/583 charts.
+Minimum HH is 83/55/37/50 ms; minimum RH is 42/32/25/26 ms; minimum HR is
+30/25/19/24 ms. Per-chart peak one-second attack count median/P95 is
+12/16, 18/22, 24/28, 28/33. These are finite-population observations, not
+proposed per-bin hard thresholds or independently measured player capacity.
+
+Reused generated exports: all 32 raw plus 62 complete constrained charts,
+with the two constrained flat failures retained as missing whole-chart outcomes.
+Hashes and exact source-object-to-row equality verified for every complete
+export. Source-selected SR recomputation agrees with official snapshot values
+to 0.00000437 stars. Generated outcomes inside the 2–6-star interval:
+
+| Cohort | Charts in interval / complete | HH<=20 | HR<=20 | RH<=20 |
+| --- | ---: | ---: | ---: | ---: |
+| Flat raw | 14/16 | 2 | 85 | 48 |
+| Factor raw | 15/16 | 24 | 16 | 16 |
+| Flat current | 13/15 | 1 | 64 | 0 |
+| Flat preview | 13/15 | 1 | 58 | 0 |
+| Factor current | 15/16 | 3 | 13 | 0 |
+| Factor preview | 15/16 | 2 | 15 | 0 |
+
+All constrained HH cases are exactly 20 ms, excluded by the original strict
+<20 predicate. HR was not part of that predicate. Earlier reports are retained
+with their exact original definition; they are not inclusive-20 or HR passes.
+The original requests were arrangement descriptors, not calibrated SR requests.
+These subset counts are descriptive, not matched difficulty causal comparisons.
+
+#### Qualitative Evidence
+
+Source Lens revision 22e5c84f5cacb8493bdab5f1d0fdc09c5373dc60 independently
+matches all 59,011 notes across 17 sources. All 18 declared/follow-up scopes,
+35 time pages and complete action/articulation tables were actually inspected.
+The second lost-memory occurrence is the one extra source context. Raw source
+readings cover regular chord alternation, irregular cross-column streams,
+overlapping holds, independent subset tails, full-LN chords and development.
+Astral Empire's 17 ms cross-column pairs are retained positive timing evidence.
+I'm kidding releases the needed column 67 ms before its next head while the
+other three tails coincide with that head. This is a concrete frontier relation.
+No source annotation, human gold, listening or player test was added.
+
+Five generated preview witness contexts were additionally inspected, with all
+five PNG pages and complete numerical tables. Flat Yomi yori's 3 ms LN starts
+alongside a 111 ms LN with two columns free and the next H 304 ms later.
+Factor Hysteric has an isolated 14 ms LN with three columns free; factor
+Zenithfall closes a 9 ms LN while the next heads use already-free columns.
+These witnesses do not require an immediate capacity rescue. Factor Take's
+96744 [03] -> 96764 [23] repeats column 3 at exactly 20 ms.
+
+The first generated_lens.py helper failed before any image was rendered because
+render_section returns a dictionary containing png, not a tuple. Its freeze and
+partial chart/tables are retained. Fresh generated_lens_v2.py used the corrected
+helper call and a separate generated-lens-v2 owner, completing the unchanged
+five-scope selection. This is a renderer adapter failure, not a model/census
+failure. No reuse of the partial attempt as complete evidence.
+
+#### Plan Conformance and Evaluation
+
+Primary numerical population, definitions, selection and thresholds did not
+change. Added source context and generated-witness contexts are qualitative
+follow-ups to the observed HR/boundary findings. First helper failure is
+explicit; the fresh completed renderer replaces no data. No resource/time
+limit was approached; new artifacts remained below 0.1 GiB. Product source
+and checkpoints were unchanged throughout measurement.
+
+Observation: the intended ranked population strongly separates same-column
+action burden from short global skeleton gaps. Generated charts have HR
+failures even at target whole-chart SR, and even without immediate LN capacity
+pressure. Interpretation: RH relaxation is the wrong next direction for the
+initial target. Include exactly 20 ms in the attack constraint; add LN's own
+head-to-release relationship to the response specification.
+
+The implementation explains an objective omission: response_costs penalizes
+heads near preceding attacks/releases, but not an early LN release itself.
+The consequence feature can expose release age without supplying a calibrated
+response objective. A second verified algebraic limitation is that the
+count/layout normalizer cancels consequence offsets constant across a count
+group, so that route alone cannot adjust the group's total probability.
+Neither fact identifies a numerical share of all failures due to R1.
+
+The strongest remaining alternative is inadequate learned calibration despite
+sufficient inputs, compounded by teacher-generated history mismatch. The
+census does not by itself identify which learned weight path creates each
+short hold. Global SR, ranked source normality, arrangement descriptors and
+player responses remain distinct. The full corpus audit is not a blind
+held-out metric and cannot later be reported as one after research reuse.
+
+#### Decision and Handoff
+
+REFINE: retain RH screening; release-gap-screen-sensitivity-v1 remains deferred
+and unexecuted. Develop a coherent frontier response family that covers HH,
+HR and RH, with difficulty/organization-conditioned ranked references and
+on-policy future R behavior. Candidate effects must influence count/LN choices
+as well as layout. Independent LN ages/occupation remain the only row-to-skeleton
+feedback; direct audio still conditions both skeleton and row modules.
+
+Do not implement a longer global H floor, remove LNs to pass checks, or impose
+a universal long LN floor unsupported by real 21/22 ms source patterns. Do not
+call an optimistic earliest-release witness a forecast of actual R selection.
+The remaining late-R capacity failure and independent too-early release failure
+need separate attribution while designing their shared constraint interface.
+An integrated candidate must preserve observed ranked structures, meaningful
+LN control and finite publication budget, rather than optimize just zero counts.
+
+Durable report docs/research/ranked_2to6_action_reference.md and links from the
+planned guide and row-constraint report are committed locally at product
+bcb6f3a4198ac06884c6d3c37e8363a147eed678. Local link existence, exact aggregate
+accounting, original strict/inclusive metric distinction and git diff --check
+were verified. Only documentation changed in the product tree; no new runtime
+test-suite claim, default change, training, remote push or Note transition.
+The broader playable-generation goal remains active and incomplete.
