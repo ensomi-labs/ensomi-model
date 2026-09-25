@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: cafe805030cad304fffb0caf8ac2d57e78c2313d
+Product revision: c5b7db8b703e3e685330a364b52512d0f4dc16bc
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -11829,3 +11829,42 @@ seek static cell MAE within.35 of the scoped candidate and override error within
 .35, with no collapse to low-density or all-TAP output. Record scope boundaries
 and candidate deviations individually. Inspect matched and new peaks with Lens.
 No parameter scaling until this coherent boundary is executable and assessed.
+
+
+### Restored ownership implementation and execution identity
+
+Clean sourcec5b7db8b703e3e685330a364b52512d0f4dc16bc implements the new
+controlled_audio_continuation model/session and the needed planned scheduler
+extensions. It has4,583,985parameters; this change restores separate timing and
+R1 control/count paths, rather than scaling widths to compensate for a bad
+interface. The warm receipt copies223 compatible tensors and explicitly lists
+159 new/reparameterized tensors. Four unused typed-profile buffers are omitted.
+An actual warm-checkpoint/data-only-loader roundtrip matches every model tensor.
+
+The focused integration selection passes44checks in4.00s; a final9-check
+ownership/buffering selection passes in1.08s. Tests establish full-row count
+learning, a frontier penalty that changes count-family mass, invariance of both
+skeleton distributions to changed TAP counts/layout at fixed LN/timing inputs,
+and scoped publication with closure. Distinct60/50/50 support is compared with
+an independent small-grid release/head search. These are contract checks, not
+playability evidence. Two initial test-collection errors and one missing-batch-
+dimension fixture failure were corrected; no assertions were weakened.
+
+Control revisions retain the already sampled H timing through the fixed response
+horizon beyond published coverage (100ms for this profile), in addition to the
+queue before the requested start. R1 and the release clock receive new scoped
+values at the requested times. Only later H timing is regenerated. This avoids
+feeding TAP clocks back into S and preserves the preview used when committing
+rows. A very short/immediate scope can therefore change row composition while
+retaining nearby timing. This approximation is explicit in the interface docs.
+A contemplated boundary-readiness feedback path was removed before commitment
+because restricting it to sampling masks would still violate S independence.
+
+Training starts with the fresh smoke-64 directory,64updates/300s,seed260926,
+batch2,MPS. The trainer freezes only audio_input/audio_blocks/context; copied
+R1 tensors use3e-5 and new/reparameterized factors3e-4, AdamW .0001 andclip1.
+Rejection preserves the selected75/25 proposal branch. It records excluded
+source windows and does not silently edit them. The command is:
+uv run --extra mps python artifacts/joint-audio/20260926-row-owned-restoration-v1/train.py.
+
+Frozen train.py SHA256598f71d37646eb0f2c887f29bedac291763bbed2f375a6bdcc89a04bc183c5f6.
