@@ -9835,3 +9835,32 @@ failures. Fresh owner20260925-head-owned-clock-v1. If the redesign does not
 improve generated structure, do not scale it blindly: the remaining mechanism
 is explicit demand-conditioned planning/selection, with the conservation law
 releases = new LN heads + entering holds - exiting holds across a scope.
+
+
+Matched800-update fits completed: baseline281.36s, head-owned342.50s. Both15-case
+native cohorts complete. Static12-case star MAE1.235 ->.979, LN MAE.0516 ->.0675;
+max window.374 ->.439s. The head-owned cohort has752 LN durations<=40ms versus
+374 in the unchanged continuation. Do not adopt the redesign from its lower SR
+error. Both over- and under-dense trajectories remain.
+
+Post-hoc frontier attribution and fixed-program R1 rerendering completed on all
+24 static cases. Original row laws reproduce exactly before intervention. The
+counterfactual samples only minimum-cost legal rows, where cost counts heads
+within80ms of prior same-column attack or release. This80ms probe is not a new
+universal BAD label/hard generation profile. It preserves every typed event,
+head/LN count and LN lifetime. Baseline HH<80:91->66, RH<80:989->523, HR<=40
+unchanged374. Head-owned HH<80:191->137, RH<80:1187->684, HR<=40 unchanged752.
+Largest absolute SR change is.070. Thus meaningful local response changes can
+be nearly invisible to SR; row reassignment cannot repair fixed bad lifetimes.
+This is a one-row preference, not a globally optimal response policy.
+
+Next bounded decode probe: difficulty CFG with fixed strength2, using the
+already-trained15% optional-control dropout, no new model fitting or parameters.
+Mask only stars/value-known fields in the unconditional pass; audio/history/LN
+and style controls stay fixed. Guide each normalized clock/mark/row law on its
+shared legal support and renormalize. Compare the same static12 cases for each
+of the two checkpoints against their existing strength1 output. Up to10minutes
+CPU; source and exports remain local. Primary: requested-star error and response
+contrast, with LN calibration, source-relative short-tail load and Lens structure
+as guards. This tests whether a weak conditional signal can be used at decoding,
+not whether NLL or CFG guarantees playability. No strength sweep on this panel.
