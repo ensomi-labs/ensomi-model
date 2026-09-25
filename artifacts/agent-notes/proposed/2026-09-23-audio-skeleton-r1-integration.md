@@ -12304,3 +12304,94 @@ All jobs in both cards and the diagnostic are terminal. No overnight trainer,
 follow-up sweep, automation or remote push was started. The active research goal
 remains incomplete: low-difficulty calibration, wider style/control coverage,
 audio alignment and end-to-end playability/speed qualification remain open.
+
+### Continuation audit and selected timing question
+
+The preceding goal turn made progress: it restored count ownership, qualified
+projected LN feedback and rejected expansion of an insufficient R1-only demand
+intervention. Clean product418a89d09e096516d1a6ec53fda5da64fa1e5e31 and terminal
+artifact results were rechecked. No process needed waiting or restarting.
+
+The next target is a slow activity reference for H, alongside the existing
+native-ms conditional hazard. H counts head-bearing chart rows, not acoustic
+transients and not head objects. A dump can expand one sound into many H events;
+a simultaneous four-key chord is one H. Reusing the old object-rate weights
+under a new name would violate this target and is excluded.
+
+Closest analogues are the local audio-demand mean readout and history-modulated
+point processes. [Neural Hawkes](https://arxiv.org/abs/1612.09328) illustrates
+excitation and inhibition from event history; it neither establishes this
+controller nor guarantees musical or gameplay quality. The proposed change is
+an adaptation that gives the clock a separately fitted audio/control activity
+reference. It is not a new point-process family. Retaining only the existing
+conditional likelihood, or amplifying its weak requested-vs-omitted contrast,
+does not directly test whether coarse activity calibration is the missing
+quantity. A larger audio encoder is not justified by this evidence.
+
+### Experiment Card: scoped-onset-activity-v1, revision1
+
+Owner:this proposed Note. Accepted:none; standing local implementation/run
+authority. Baseline: clean418a89d09e096516d1a6ec53fda5da64fa1e5e31, controlled
+frontier-2500 checkpointSHA0f1ddfa5b351988fca04246ec080be106855f49b50fb493370c2d5afee1febb8,
+projected LN feedback and recovery profile60/50/50. The optional R1 demand branch
+stays off in this comparison. Static3/.2 and3/.7 mean star errors across the
+three audios are1.055913 and1.443321 respectively, from native-ln-moment.
+
+One intervention adds an H-owned activity reference and finite correction based
+only on its own generated H history. Fit a separate63,362-parameter monotone
+audio/control mean-rate readout using source counts of rows containing any
+TAP/LN head. Full-song fine/coarse audio remains the verified frozen224-channel
+encoding; reuse its cache and TRAIN-only normalization calculation, not the
+object-rate predictor weights. The same mean architecture gives known difficulty
+a nonnegative effect at fixed audio and other controls. This is an assumption
+about the conditional mean, not an ordering of all individual patterns.
+
+Training uses the ranked manifestSHA4cea2672387b6293a4da0846be479d8bd9c857e55535dc8143bd11d65b06d2c4,
+same6923 TRAIN charts and36 VAL, no TEST. Keep75% group/chart/time proposals and
+25% human-annotated chart/labeled-time proposals, original human styles,
+source-scoped strain/LN labels and15% family dropout. Separate charts remain
+separate observations. Fit Poisson mean loss on counts in500ms/control-boundary
+cells, weighted by actual exposure and the declared interval sampler. This
+estimates a mean; inference will not draw a Poisson count or impose a grid.
+Seed261010,batch8,AdamW .001,weight decay.0001,clip1,CPU1thread,at most2000updates
+and900s in fresh artifacts/joint-audio/20260926-onset-activity-v1/fit-2000.
+No resume/overwrite, no backbone or R1 fitting in this isolated comparison.
+
+At inference, compare the4s exponentially discounted H count with the integral
+of predicted activity. Add2*log((desired+4)/(actual+4)), clipped to[-2,2], to
+native H logits. Every generated H increments this state by exactly one.
+The release preference, R1 counts/layout and source-free BOS remain intact;
+there is no R1 materialization input to the activity module. Scoped revisions
+restore this ledger along with the retained H queue/cache/RNG, then rebuild only
+the control-dependent reference. Preserve the100ms timing guard required by
+already committed R1 decisions. There is no expiry quota, forced event, beat
+grid, new release endpoint prediction or generic ban on repeated patterns.
+
+Primary native decision: in three3/.2 cases, reduce star MAE by at least.35 from
+1.055913, with no case's star error worsening by more than.25; LN error must stay
+within.04. If this passes, run3/.7 plus the three105000–137000 overrides, then
+Hysteric5/.7 and Take6/.2 (11 cases total). Seek high-LN MAE improvement of at
+least.30, with5/6-star absolute-error guard at most +.35 versus their moment
+baselines. All cases must finish within120s/30000rows; preserve published prefixes
+and valid profile support. Report before/inside/after independently. No selecting
+gains or checkpoints by a sweep.
+
+Inspect matched and new native peaks with Lens. Reject a density improvement that
+turns activity into nearly uniform metronomic singles, destroys LN relationships
+or reinstates sustained quads as the default. Follow-up musical/style evaluation
+must include a real Tech/dump example if the control slice passes; count/SR/NLL
+alone cannot establish preservation. Record H density as a mechanism diagnostic,
+not as the ultimate objective. Training stops on nonfinite loss/gradient or its
+budget. Native expansion stops on the stated primary/guard failure. A failed
+mean fit or failure to change free-running density would defeat this particular
+reference mechanism; better density with poor charts calls for joint-pattern
+learning, not stronger blind count correction.
+
+Implementation owner: controlled_audio_continuation/onset_rate.py and the planned
+H planner's optional sampling inputs/state, with controlled session wiring and
+focused tests of target units, revision/fork consistency and module ownership.
+Commit source before fitting/running. Record script/checkpoint/cache hashes and
+actual resource use. Run training via uv run --extra mps python in the fresh
+owner; CPU native generation uses the existing panel seeds. New source and
+artifact identities will be appended before interpreting results. No networked
+data, remote push or autonomous note acceptance.
