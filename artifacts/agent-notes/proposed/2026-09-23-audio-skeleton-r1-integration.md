@@ -9046,3 +9046,131 @@ partition/RNG invariants andsource-targetretention before a boundedcomparison.
 KeepRh'sexperimentalstatus explicit andpreserve musicalLN/repetition freedom.
 No training, modifiedRrun, extrapolatedsafetyclaim orgoalcompletion isjustified
 bythenewdirectionalone. Thewholeplayablerealtimesystem objective remainsactive.
+
+
+### Research refinement: separate the RH preference from confirmed playability
+
+The coupled-wait direction remains open. Its implementation should not silently
+breach the information contract: a general R deadline from exact TAP clocks
+would change skeleton independence. A more restricted construction may use only
+LN occupation and future H capacity, leaving exact lane clocks in row selection.
+For F free columns, the first future H with more than F heads in a strict20ms
+span identifies a need for an additional released column; under the experimental
+RHscreen, that release would be due by H−21. Combining this LN-only deadline
+with current/short-row checks and a positive remaining release clock deserves
+a separate proof. No release policy or extra skeleton input has been implemented.
+
+Before enforcing that preference more strongly, validate the preference itself.
+HH<20 is user-confirmed BAD; RH<=20 is not. The earlier choreography report
+explicitly preserves10/13ms LN-jack tail gaps with189ms head spacing as unresolved,
+potentially valid articulation. Corpus compatibility does not settle that human
+judgment. Also, the original unmasked flat ZenithfallP2 *did* complete under
+windowHH/RHscreening (9rejections, rowsSHA
+d3358839e81c9e4c146f67837b9c3cf6cd0f884a9bd9290bfd85527933efe010);
+its direct chart hasHH0/RH20 androwsSHA
+11e487d2e7d5ec08b3ac23a0934ae5d680ef67c4a2dc75c1a077d99700b51d0b.
+Later localconditioning changes prefixes and can worsen this finite-budget
+outcome. Do not label a base R law universally broken from the new failure alone.
+
+An optional asynchronous user question asks whether RH<=20 should remain a hard
+rule or only an inspection flag. It is not an execution approval or a blocker.
+Compare both potentials under the existing unmodified sampler while that
+preference is unresolved. This avoids designing the whole system around a proxy.
+
+Closest analogue: Alshiekh et al., Safe Reinforcement Learning via Shielding,
+https://arxiv.org/abs/1708.08611 (AAAI2018), separates policy proposals from a
+specified allowed-action system. Its transferable point is enforcing a stated
+property; it doesnotestablish that ourRHthreshold is a desirable beatmap property.
+Grammar-Aligned Decoding, https://arxiv.org/abs/2405.21047, also motivates
+separating a filtered distribution from the base model. This is an application
+and evaluation-design question, not a new formal-control result.
+OutcomeTEST for the preference ablation below; defer coupled-wait implementation.
+
+### Experiment Card: release-gap-screen-sensitivity-v1
+
+Revision1; proposed; acceptednone; owner2026-09-23-audio-skeleton-r1-integration.
+Standing local research/run/commit authority applies. Baselinecleanproduct
+b7769afd9d7f0106f41b45d03103b719ddf1ca76. Previous current-preview comparison
+is completed; this is the sole active proposed Card.
+
+Question: does adding the unconfirmed RH<=20 publication screen remove useful
+LN articulation or introduce avoidable liveness/organization costs, compared
+with enforcing only the confirmed HH<20 rule? The one causal intervention is
+screen_release_heads=True versusFalse in rollout_buffered. Both use
+row_constraint='none', originalRhazards/rowlaw, the unchanged8swindow/20mshalo/
+fourattemptbudget, sameweights/fullcanonicalMel/onlineH/profile/seeds.
+Do not mix the new current/preview row masks into this comparison.
+
+Primarymodel is flatmaterializer checkpoint
+da08044806e99eae6a6221c06ef8c91c02711361fae68c896c9af01bde61dea2.
+The count/layout checkpoint
+41ab71640ce9571ac7f40d9f851a51e2ba54c10ba97fc6f9e54dbc54fac76185
+is a declared secondary comparison. No fitting, model-code change, newtraining
+data or alteredsourceannotations. ExistingAPIalreadyprovidestheintervention.
+Inputpaths/checkpoints are pinned in count-layout native-freeze
+b7db758c974d266c055c3b4801f62d84e3a63bfff265cb91d0c434b3c994a8b8.
+Panel484d173628856a431e034b1dbdacab9173c40f3edf696d1b9a19721aeec70dc9;
+banka8973b7f94fde90d9f3cc639eb63e781dd295435622ce79fd54fe244789e6f03;
+nativeprior43d130ed6291abdebc3c994e1ad27b833954ef84deed5f9dfcc8422e4a60b5ff.
+
+The priorrawdirect16flatcaseshave2HH/48RH;16factorcases24HH/16RH.
+PriorRH-on screenedcomparison is incompleteglobally, so it isnot a fullcohort
+baseline. Newpairedcohorts are evaluated whether favorable ornot. SourceH
+identities remain originalI; seeds251701..251708 byaudioorder, profiles1/2.
+Run64buffered calls:8audios×2profiles×2models×RHoff/on. Handoff/export/replay
+and Hhash/prefix checks must hold foralloutputs. Any HH in publishedcontent is
+a hard failure. Report everyRHpair descriptively inbothtreatments; RHoff doesnot
+relabel thatpair as GOOD. No completion or numericalvalue is invented for
+anunattempted/failedchart.
+
+Technicalcandidatecriterion: all16primaryflatRHoff casescomplete withHH0,
+cachedMelownH/bodyreadiness<=2s through8scoverage and30rows, andeverywindow<=2s.
+Compare failurecount, lostcoverage,rejections andwindowcostagainstRHon. A
+positive reliability signal isstrictlyfewerfailedcases, oratleast50%fewer
+rejectionswhenbothcomplete. Reportfullcohortcontrolerrors/realizedvalueswhere
+complete, notsuccess-subsetaverages. Theyare diagnostics, not a replacement
+for inspecting newlyadmittedRH articulation. No NLLselection or short-LNfloor.
+
+Compatibilityguard: for any existingrawdirectparentchart withHH0, RHoff first
+proposal should preserve its fullrowSHA andneedzero rejections. Verifythis for
+all suchcompletecases, notjustonechosenexample. Weights/checkpoints/ownHremain
+byte-identical. Expected fourattemptexhaustion isretained andnextindependentcase
+continues; allidentity/replay/nonfinite/HHviolation/globalresource failuresstop
+the driver. No extraattempts, cappedcaseresume or hiddenfallback.
+
+Qualitativeplan: inspect fixedflatRHoff/on contexts forFoolMoon167206..169945,
+Hysteric243000..247000,Revenge239894..243706,AsItWas123000..127000,
+bothprofiles. Inspect everyRH<=20witness inallcompleteRHoffcharts (bothmodels)
+with1000msbefore/after, mergingoverlappingwindows. Readalltimepages andcomplete
+native-ms actions/LN articulation; enteringholds preservefullhead/endinformation.
+Expand anindividual context onlyif needed toresolve a specific structural
+judgment, recordingit as a qualitativefollow-up ratherthan changingnumerical
+selection. Exactverifiedhuman-reference reusesareallowed; exactduplicates
+withinthisreviewcaninherit anactuallyviewedscope. MissingRHoncharts staymissing.
+
+Assess release→head inits actualorganization: priorheadspacing, LNduration,
+independentheldroles, grouped/subsetreleases, repeatedgrips, howthequickrepress
+fitsentry/exit, andwhether forcedfulloocupancy yields repetitiveorawkward
+material. Findrelevanthumanexamplesif a GOOD/BAD judgment isdisputed. Existing
+10/13ms LN-jack observations arecounterevidence to a universal ban, not proof
+allRHshort gapsaregood. Unclearpreferencesstayunresolved; do not silently
+convert source-style tags or a countthresholdinto humanBADlabels.
+No listening/playerclaim withoutactualevidence.
+
+Interpretation: improvedcoveragewithretainedplausibleLNrelations supports
+treatingRH as a diagnostic while refining the model; clearstructuralbadpatterns
+canjustify a morecontextual rule orretainedscreen. A neutral/mixedresult doesnot
+justify imposingstrongerRdeadlines justtohitRH0. The usermayclarify theproperty
+duringwork; thatsteers futureadoption/design, notretroactivechanges to frozen
+comparisonresults. The goalremainsplayability andexpressiveness.
+
+Freshowner artifacts/joint-audio/20260925-release-gap-screen-v1.
+Command uv run --extra mps python
+artifacts/joint-audio/20260925-release-gap-screen-v1/native.py, followed by its
+frozenLensscript. CPU1thread,AppleM5/24GiB,Python3.10.20/Torch2.11.0.
+Atmost1800sdriver,90s/30000rowspercase,2GiBnewartifactsincludingLens,
+>=2GiBavailableRAM and>=40GiBfreedisk, PAUSE/resourceguards; no networkduringrun.
+No overwrite/resume. Freeze source/Note/script/inputs/commands beforeeachstage.
+Capture firstfouractualrejectsperchart whenneeded, preservingunpublishedstate.
+AllrecommendationsremainREFINE pendingproperty/qualityinterpretation; no
+automaticdefaultchange, remote publication orfinalmodeladoption.
