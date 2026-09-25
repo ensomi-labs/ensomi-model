@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 298c17c4df7b34fc4cd1ee620f9a0f41b15e7e01
+Product revision: 418a89d09e096516d1a6ec53fda5da64fa1e5e31
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -12244,3 +12244,63 @@ recoverable. A positive result only supports this R1 correction locally;
 continued poor native difficulty with saturated single-head choices instead
 points to S's own timing calibration. Naturalness and style remain Lens/human
 questions, not deductions from a star/amount score.
+
+### Result Log: r1-owned-demand-v1 fail-fast slice
+
+Accepted:none; Cardrevision1. Clean intervention sourced669e78dca05fc3c8237df004a3ae4bad0b33c67,
+with documentation-only418a89d09e096516d1a6ec53fda5da64fa1e5e31 afterward.
+Eight selected controlled-model tests passed in1.15s. The new native test changes
+R1 object-demand strength, including a scoped difficulty revision, while retaining
+exact H times and committed prefixes. No trained tensor changed.
+
+native_demand.pySHA256d636ef20d10f005696a5e3f9aec721aeb4c60cbcb567416a15462a60370e487b
+differs from the frozen native driver only by loading/passing/recording the pinned
+scoped demand model. Command sets ROW_CHECKPOINT to frontier-2500/step-2500.pt,
+ROW_NATIVE_RUN=native-r1-demand-low,ROW_NAMES=zenithfall,hysteric,take,
+ROW_MODES=low, and invokes that script with uv run --extra mps. All three cases
+completed in6.099/5.977/3.151s on CPU1thread; H times match the moment baseline.
+
+Three3/.2 star ratings change4.33354->4.07260,3.31414->3.25130,
+4.52006->4.23432. Mean absolute error1.05591->.85274 improves by.20317,
+less than the specified.25. LN fractions .20398/.20000/.20113 preserve the amount
+guard. Total heads change2337->2515,2606->2605,1653->1586. Zenithfall's improved
+star readout despite more heads illustrates why total count is not a difficulty
+definition. Card expansion criterion failed: the conditional follow-up/high-LN/
+switch/guard runs were not started. The optional R1 demand path remains disabled
+by default and is not selected as a sufficient calibration solution.
+
+The behavior-neutral demand_floor.py diagnostic uses the unchanged full-audio
+encoder and controls to integrate the nominal head reference in each8s window.
+ScriptSHA256fa1efbdeb8ea2fca5836a4ba4bc2b3e13ff46fd56e22cab3e492f718e9de71c5;
+results demand-floor.json. Whole-song nominal heads/H rows/actual heads are
+2681.23/1653/2515 for Zenithfall,2675.51/1750/2605 for Hysteric,
+1232.22/922/1586 for Take. In6/0/2 windows respectively, actual H rows already
+exceed the nominal object mean. For example Zenithfall296000–304000 has88H
+against72.96 nominal heads and104 actual heads. Fixed H makes reaching that
+particular reference impossible even with all single heads. The predictor's
+mean is itself approximate; this is not evidence that72.96 is a correct quota,
+or that every difficulty error belongs to S.
+
+Read all four Lens pages, complete actions/articulation and entry/exit facts for
+Take's matched125463–129464 crop and new125264–129265 peak. The matched range
+has41H/78heads, composition5singles/35doubles/1triple; the new peak42H/78heads,
+composition7/34/1. Left-pair/right-pair exchange remains the dominant organization,
+interspersed with short LNs and a272ms hold through two interior attacks. There
+is no sustained quad sequence or all-single collapse in these crops, but little
+reduction of peak action quantity and no established3-star or music-alignment
+success. The two crops overlap and are not independent style evidence.
+
+Decision: REFINE. The current exploratory baseline retains the restored
+timing-only skeleton/complete-row R1 and projected LN feedback. R1 demand is an
+optional diagnostic branch. Next research must address H's own control response
+and joint source coverage, without feeding object quotas or row embeddings into
+S. An onset-rate reference, if selected, requires actual H-row targets; the
+existing object-rate readout cannot be relabeled as one. Also distinguish weak
+same-prefix condition effects from proof that a network ignores controls:
+history and fixed timing already explain much of source difficulty. A larger
+network or lower NLL alone does not resolve this conditional-identification issue.
+
+All jobs in both cards and the diagnostic are terminal. No overnight trainer,
+follow-up sweep, automation or remote push was started. The active research goal
+remains incomplete: low-difficulty calibration, wider style/control coverage,
+audio alignment and end-to-end playability/speed qualification remain open.
