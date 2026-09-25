@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: c5b7db8b703e3e685330a364b52512d0f4dc16bc
+Product revision: 08b833755883f86cd0701cd9ff4c36e4a21394d6
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -11956,3 +11956,22 @@ fresh frontier-2500 directory and no overwrite/TEST. This is a corrected-law
 continuation, not a paired attribution to the original source-only fit. Native
 qualification remains the recorded15cases plus Take6/.2 and fixed-H Take6/.2;
 evaluate the actual restored system and separate every effective control range.
+
+Release-window intervention sourcebbd1a7f5f6695684a027f6003d5156db77d84ca8
+and documentation-only08b833755883f86cd0701cd9ff4c36e4a21394d6 are clean.
+The41 selected checks pass in4.15s, including the actual recovery relationship
+and a distinct HH4/RH2/HR2 waiting case that the earlier HH3/RH2/HR2 test did
+not expose. A matched-TAP-count test keeps raw skeleton inputs/head outputs
+identical while permitting different correctly normalized release waits.
+
+Re-running the terminal64-step Hysteric/low case with corrected windows completes
+the full song,6.149s cached-Mel CPU generation. Its3.827stars remain an early-fit
+control miss, not a quality claim. The formerly failing case uses generated H,
+not replacement/source onsets. Original failed outputs are retained.
+
+Corrective-fit command sets ROW_TRAIN_RUN=frontier-2500,ROW_TRAIN_STEPS=2500,
+ROW_TRAIN_SECONDS=900,ROW_TRAIN_RESUME=artifacts/joint-audio/20260926-row-owned-restoration-v1/main-2000/step-2000.pt
+and invokes train_frontier.py with uv run --extra mps. This separate frozen
+script adds sampling_contract=r1-release-window-v1 to checkpoint/config metadata;
+training behavior otherwise follows the same driver and corrected product code.
+ScriptSHA25696a0a890821d23b7c28c97ce20b81cb2d3fb554cf208fd7cb12e0027c2c6c382.
