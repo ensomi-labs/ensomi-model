@@ -9465,3 +9465,161 @@ accounting, original strict/inclusive metric distinction and git diff --check
 were verified. Only documentation changed in the product tree; no new runtime
 test-suite claim, default change, training, remote push or Note transition.
 The broader playable-generation goal remains active and incomplete.
+
+
+### Experiment Card: joint-action-spacing-law-v1
+
+#### Identity and Authority
+
+Owning Note 2026-09-23-audio-skeleton-r1-integration. Card
+joint-action-spacing-law-v1, revision 1, proposed, accepted revision none.
+Standing local implementation/research authority applies. The preceding census
+turn is progress: complete source and generated measurements changed the next
+action; no completed process is treated as a pending wait.
+
+#### Question and Hypothesis
+
+Can a small common action-spacing law keep H generation, LN releases and row
+selection mutually feasible from BOS to the audio end, while preserving ranked
+structural support and the existing musical/control behavior? Use minimum gap
+g=21 native ms for HH, own-LN HR and first RH. This implements the selected
+initial target's inclusive-20 avoidance, not an individual physiological model
+or a complete gameplay frontier.
+
+The selected intervention is a common prefix-viability condition, used in both
+likelihood and generation. Head skeleton history limits the fifth head in a
+g-wide window; LN-only state and head preview determine necessary release
+bounds; complete-row conditioning preserves a realizable future. Filtering
+only the final row can lose continuation support. An unlikelihood penalty alone
+cannot rescue a sampled R whose every physical row already violates the target.
+This is why execution-law coherence precedes a larger fitting budget.
+
+#### Analogues and Alternatives
+
+The closest mechanism is a viability/shield constraint over a sequential policy,
+as in Alshiekh et al., Safe Reinforcement Learning via Shielding,
+https://arxiv.org/abs/1708.08611. The adaptation here is an exact small event
+process with complete known audio and a generated H preview; it is not a learned
+motor simulator. Novelty is an application-specific factorization and invariant,
+not a new generic safe-learning algorithm.
+
+Unlikelihood training (Welleck et al., https://arxiv.org/abs/1908.04319) offers a
+later learned mass penalty for declared bad continuations. DAgger (Ross et al.,
+https://proceedings.mlr.press/v15/ross11a) motivates learning on generated states,
+but its queried expert actions are unavailable here. Do not claim either method
+implemented merely by applying a mask or evaluating source histories. Graded
+player responses, corpus-normality learning and on-policy fitting remain open.
+
+#### Fixed Comparison
+
+Clean baseline source bcb6f3a4198ac06884c6d3c37e8363a147eed678.
+Checkpoint identities remain flat da08044806e99eae6a6221c06ef8c91c02711361fae68c896c9af01bde61dea2
+and factor 41ab71640ce9571ac7f40d9f851a51e2ba54c10ba97fc6f9e54dbc54fac76185,
+with the count-layout study's frozen paths. Panel
+484d173628856a431e034b1dbdacab9173c40f3edf696d1b9a19721aeec70dc9 and bank
+a8973b7f94fde90d9f3cc639eb63e781dd295435622ce79fd54fe244789e6f03 stay fixed.
+Corpus/normalization identities are unchanged from the count-layout study.
+No new weights or fitting in this card; likelihood parity must be implemented
+and tested so a later joint fit trains the deployed distribution.
+
+Baseline raw 32-chart results are pinned by
+43d130ed6291abdebc3c994e1ad27b833954ef84deed5f9dfcc8422e4a60b5ff.
+The additional HR and inclusive-HH measurements are pinned by census generated
+result 00a120a758dbb837300ea967eca454db4300dca16559369a53f8d5d288c444ef.
+The old current/preview policies are named historical comparators, not mixed
+into the new joint law. Their two failed flat cases remain failures.
+
+#### Candidate Law and Information Invariants
+
+1. H uses only its own previous H times: after four heads, a next head cannot
+   precede H[-4]+g. This necessary four-column capacity restriction preserves
+   short cross-column timing and uses no row-content feedback.
+2. For a post-row state at t, a free column's next head is no earlier than its
+   actual attack/release clocks plus g. A held column can release no earlier
+   than max(t+1,LN_start+g), and next attack g later. Open holds must still be
+   closable by the true audio end. Earliest release is an existence witness,
+   not a forecast of the learned R policy.
+3. Check one-TAP-per-H realizability through t+2g using those availability
+   times. After t+2g all original restrictions have expired; the H-capacity
+   invariant supplies the later continuation. Require sufficient preview or
+   a known complete H plan; nine heads suffice to cover the horizon under the
+   global capacity bound. Verify this claim with an independent event oracle.
+4. With F=4-held free columns, find the first future H whose preceding g-wide
+   cluster contains F+1 heads; a needed release must happen by that H minus g.
+   This deadline reads only LN projection and H preview. If it precedes the
+   next H, normalize the first-R law over eligible clocks through that deadline
+   and force its final clock. If it equals the next H, that H row may release
+   other columns. The true audio end supplies the terminal closure bound.
+5. Mask complete row probabilities after count/layout normalization. Enforce
+   current HH/HR/RH and post-row viability; the surviving count-group masses
+   can change. This does not pretend learned frontier2 itself regains a
+   cross-count score canceled by its existing normalizer.
+6. Use exactly these physical/profile conditions, time support and forced-event
+   semantics in teacher likelihood and native execution. Default gap zero
+   preserves all existing behavior and checkpoints. Reject incompatible fixed
+   H plans and reference targets explicitly; never retime source notes.
+7. Preserve direct full audio to both skeleton and row, separate H/R/row RNGs,
+   committed LN-only skeleton feedback, true song-end semantics, and incremental
+   LN publication. No full generic replay/tap history may enter the R deadline.
+
+#### Evidence and Decision Rule
+
+Primary: all 32 new native cases complete with zero HH/HR/RH <=20 ms in exact
+published replay, under the original eight-second window and four-attempt
+budget. No hidden fallback, extra retries, or successful-subset averages.
+Support proof/tests do not substitute for real model sampling. Check whole-song
+SR, every control component, realized LN fractions and the actual chart shapes.
+Each complete cohort's mean width+LN error must be no more than 1.10 times its
+own raw baseline; report missing/failed cohorts as incomplete. At least the
+existing nontrivial LN layering and varied chord/cross-column forms must remain
+in the inspected contexts; complete all-TAP or single-note simplification fails
+expressive interpretation even if numerical bad counts become zero.
+
+Runtime guard: cached-Mel own-H/body readiness through 8 s and 30 rows <=2 s,
+and every publication window <=2 s, CPU one thread. Fresh audio startup retains
+its separate earlier evidence and is not established by this cached-Mel run.
+Record any changed H counts/times and their capacity reason; if the raw H plan
+already satisfies the bound, require its exact same H hash under identical
+weights/audio/profile/seed. All model parameter bytes must remain unchanged.
+
+Qualitative panel: fixed Fool Moon 167206..169945, Hysteric 243000..247000,
+Revenge 239894..243706, As It Was 123000..127000 for both requested profiles and
+both models; additionally the densest four-second H window of each factor
+profile-2 output and both Zenithfall profile-2 models. Merge overlaps, preserve
+full entering LN endpoints, inspect every time page and complete action/LN
+tables with Lens. No listening/player/gold claim without actual evidence.
+
+#### Procedure and Bounds
+
+Fresh owner artifacts/joint-audio/20260925-joint-spacing-law-v1. Implement the
+kernel and focused tests first. Compare analytic feasibility/deadlines to an
+independent exact event-sequence oracle on bounded grids (scaled g allowed),
+including all columns held, mixed young/old holds, H+R rows, simultaneous subset
+releases, dense H clusters, t+21/t+42 boundaries and true EOS. Check symmetry,
+no-target-future use, LN-only deadline independence, finite positive support,
+training/inference probability parity and chunk/branch/RNG invariance.
+
+Verify source-target admission on the 651-chart prepared corpus and the 17
+independently parsed ranked witnesses. Report all exclusions with exact source
+relationships. The one ranked HR-exception chart is outside this profile's
+support by design; no universal legal-chart claim. For an already profile-valid
+source trajectory, excluding any target falsifies the claimed support law and
+stops native work until corrected/revised.
+
+Then run 32 unchanged/default raw replays to verify their frozen row hashes,
+and 32 joint-law buffered cases on the same eight audios, requests 1/2 and seeds
+251701..251708. Commands are uv run --extra mps python OWNER/corpus.py and
+OWNER/native.py, then OWNER/inspect_lens.py; freeze each script and the clean
+intervention source before its stage. Checkpoint migration adds only config,
+no parameter tensors. Model/process config changes follow packaged Hydra
+projection and consumption checks; runtime modules import no Hydra.
+
+At most 1,800 s per corpus/native stage, 90 s/30,000 rows per case, <=2 GiB new
+artifacts, >=2 GiB available RAM and >=40 GiB free disk on Apple M5/24 GiB.
+No network during runs, no output overwrite/resume, observe PAUSE. Stop on
+identity drift, nonfinite values, source-valid support exclusion, publication
+mismatch, violated action bounds or resource/time guards. Expected native
+attempt exhaustion is a retained case failure; continue independent cases and
+report the complete planned denominator. Do not train or adopt automatically
+from a successful mechanical comparison; use actual structure/control outcomes
+to choose the subsequent joint fitting question.
