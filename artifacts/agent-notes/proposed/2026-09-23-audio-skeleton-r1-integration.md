@@ -9864,3 +9864,48 @@ CPU; source and exports remain local. Primary: requested-star error and response
 contrast, with LN calibration, source-relative short-tail load and Lens structure
 as guards. This tests whether a weak conditional signal can be used at decoding,
 not whether NLL or CFG guarantees playability. No strength sweep on this panel.
+
+
+CFG2 decode completed24/24 static cases, no fitting. Star MAE shared.936 versus
+raw1.235; head-owned.836 versus raw.979. LN MAE.0661/.0687. Short-LN rates are
+388/9954=3.90% and898/11481=7.82%; raw rates374/8738=4.28% and752/10264=7.33%.
+Some low requests remain<2 stars. Maximum guided startup/window .548/.599s,
+cached Mel only. Source analogy is Stay on topic with Classifier-Free Guidance,
+arXiv2306.17806; categorical extrapolation is an adaptation, not quality proof.
+
+Completed Lens coverage: attribution5scopes/10pages and CFG2 two scopes/4pages,
+all complete action/articulation tables read. At212456ms row reassignment replaces
+a25ms same-column RH with a different column. Layering remains but23-40ms LNs
+are unchanged. The31521..31561 triple-LN group is40ms, followed by heads31661.
+Hysteric243000..247000 contrasts four sparse head rows in shared versus six in
+head-owned; neither this nor SR improvement certifies overall quality.
+
+Lifetime slack-v2 caps at true audio end (v1 lacked that cap; results happen to
+be identical here). Shared336/374 and owned679/752 short holds can reach80ms
+while preserving all heads/columns and RH>=25;231/374 and456/752 can do so with
+RH>=80. This is feasibility, not an instruction to stretch every hold. Artifacts
+live in20260925-head-owned-clock-v1; curated evidence in
+ docs/research/scoped_demand_frontier.md. All handles12178,99535,79050,13951,
+92960,42926,40418,71291,8533,84903,31465 are terminal. No overnight process.
+
+Decisions: do not adopt the larger head-owned branch on star error alone; do not
+choose CFG as the complete control solution. Keep the fixed-program response
+counterfactual as evidence that skeleton and geometry need different response
+interfaces. Two model contracts now take priority: typed clock inherited
+bounded_head configuration without implementing its bound/decay, and the bounded
+LN base caps all-TAP probability in a fully feasible three-head/rho=.7 event at
+about17%. The latter changes a scoped amount request into a local distribution
+restriction and limits realistic pure-TAP passages. Current source confirms
+both; their causal share in all failures is not yet established.
+
+Next implementation direction: restore an audio/control/LN base plus bounded,
+fading historical timing modulation; replace the per-head bounded-binomial cap
+with a scope-aware amount mechanism that retains unconstrained local preferences.
+Then expand paired ranked TRAIN coverage rather than continuing parameter-only
+variants on614charts. The supplied expert response also favors broader paired
+coverage and explicit audio/history separation, while retaining native-ms
+hazards/complete rows and deferred LN ends. Do not adopt a fixed beat grid or an
+upfront-endpoint object decoder just from these results. Audio-at-LN-birth,
+future-head anticipation and response feedback into the planner remain concrete
+hypotheses if lifetime errors survive the contract repairs and broader fitting.
+Goal remains active; previous turn is progress, not completion.
