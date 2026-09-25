@@ -11174,3 +11174,23 @@ the smoke. Both use `uv run --extra mps python` with train.py. Store initial/fin
 fit is a diagnostic, not a native-playability acceptance score. The3.947M core
 is never included in this optimizer; source57cdbbf0782587d5a16d3d59983621afbc117451
 owns the implemented probability feedback and demand model.
+
+### Full cache completion and input-label correction
+
+Full cache31593 is terminal:2,665audios,186.621s,.776725GiB outputs, peak process
+RSS2.396GiB and MPS driver5.052GiB (overlapping ledgers). No nonfinite output.
+The first smoke45325 fails before learning during initial validation: retained
+validation manifest entries lack a precomputed stars field. The original core
+trainer computes these ratings from source objects. The demand driver now uses
+the same pinned mania calculator for entries absent from the TRAIN star freeze;
+TRAIN labels and the experiment's target semantics do not change.
+
+The failed executed driver is preserved as train-v1-failed.py, SHA68b4ae8ace3143b8f14ace6774f0622921daa523e49fc2f29542f2ad013ebafb.
+The corrected train.py receives a new script identity before the fresh
+smoke-25-v2 run; the failed smoke directory is not overwritten. This is an
+input-adapter correction, not a change to the hypothesis or sampling objective.
+A test-only source descendant also strengthens the future-control prefix check
+with nonconstant audio and nonzero learned query weights, so a midpoint-query
+implementation would not pass accidentally through a constant initial model.
+The three demand tests pass; previously selected allocation/guidance checks
+remain unchanged. No production probability code changed after57cdbbf.
