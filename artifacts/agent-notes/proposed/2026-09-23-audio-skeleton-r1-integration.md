@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 38060783e456bdf0cad52f12c9aaba964a40efb4
+Product revision: 7c122d48a95e8f451fa136c4585c3f6ebcd4406c
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -11481,3 +11481,20 @@ candidate and reconsider generator response calibration/geometry, not blindly
 increase controller strength or run a large architecture grid. If useful, broaden
 qualification in a separately declared follow-up. Low/high endpoint controls and
 semantic style response remain open regardless of this density probe.
+
+### Per-field demand execution identity
+
+Clean intervention source7c122d48a95e8f451fa136c4585c3f6ebcd4406c changes only
+control encoding selection, the demand/runtime loader input contract, focused
+tests and its documentation. Nine selected checks pass in1.67s, including
+nonconstant demand prefix preservation and actual bundle generation under both
+encodings. No core/default sampling behavior changed.
+
+Frozen train.py SHA256589417baf6148d5cdb9778af66c70888dd825e37ab0ca74eb4eaeb7be2d51b56;
+native.py SHA256d2b114b7a33b8693014178ac82f4946ce78183e07b10c557cc218c013cb8378d.
+Training command: uv run --extra mps python artifacts/joint-audio/20260926-per-field-scoped-demand-v1/train.py.
+Defaults identify scoped-2000,2000updates,900s,seed251930,CPU1thread.
+The planned native command sets DEMAND_CHECKPOINT to scoped-2000/step-2000.pt,
+TYPED_NATIVE_RUN=native-scoped,TYPED_NAMES=zenithfall,hysteric,take,
+TYPED_MODES=low,ln,difficulty,high,switch,TYPED_GUIDANCE=2 and runs the frozen
+owner native.py with uv run --extra mps. All destinations are fresh.
