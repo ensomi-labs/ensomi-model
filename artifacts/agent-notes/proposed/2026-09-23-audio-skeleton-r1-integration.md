@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: b35565d6a3a58ccc5ebd0ae296e5a792e4a94318
+Product revision: ac7fa3a59696a8cf23d3825a32a7d300bdba0fbb
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -8858,3 +8858,43 @@ shift or a failedcomparison; do not automaticallyscaleparameters orreinstate
 optimisticreleaseassumptions. Positiveoutcome selectsanintegratedcandidate/
 learning design, notfinalmodeladoption. Alloutcomes remainREFINE without
 humanacceptance; thefullplayablerealtimesystem goalstaysactive.
+
+
+### Result Log: current/preview constraint implementation
+
+Card current-preview-row-constraint-v1 revision1 remains proposed, acceptednone.
+Clean interventionac7fa3a59696a8cf23d3825a32a7d300bdba0fbb implements the declared
+Python-only optional modes and post-composition conditioning. No weights,
+training/Hydra/checkpoint schema or packaged default changed. None mode keeps
+its previous score/RNG/row path; result metrics now explicitly name row_constraint
+and record constraint decisions.
+
+The pure96line owner uses nested eligibility counts, not a large search or
+hypothetical release forecast. It includes exactlynow+20 for futureHH eligibility
+while currentRH remainsblockedthroughthatboundary. Completepreview or coverage
+through the horizon is sufficient; a truncatedpreviewofatleastfiveheads inside
+20ms alreadyproves infeasibility. Sessionpreview mode requireslookahead>=5.
+
+NoRowContinuation is distinct from a resource stop. Directsampling preserves
+old observedcoverage and returns row_constraint_empty; buffered sampling rejects
+onlytheunpublishedfork and uses its existing fourattempts. ActualRrandomness or
+Hlookahead mayalreadyadvance inside a failedfork, so callers discardit rather
+than resumeit. Rejected rows/unmaterializedHcoverage neverreach publication.
+
+Seventy-nine uniqueplannedowner tests pass in8.76s. A subsequent numerical
+review found that masking can leave only finite logweights below -1000; directly
+exponentiating them would underflow despite nonempty support. The conditional
+now subtracts its retained lognormalizer before sampling and records both
+probability and log probability (null log mass only for empty support).
+Allnine focused tests, including this finite-tiny-mass case, pass in1.15s.
+This is79unique tests, not88; existingnone/defaultowner behavior didnotchange
+after the numeric correction. Tests cover exhaustive orderedassignments,
+permutations,20msboundaries,short/fullLNs,score-ratiolaw,actualentry/forkcache/RNG
+behavior,failedHcoverage,retryacceptance and publicationisolation.
+
+Scoped source/docs diff and documentationlinks checked; localcommitonly.
+Prepared artifact corpus.py has notrun. It checks pinnedmetadata/source/cache
+bytes,651TRAIN/VALcharts andeverytargetrow against both modes under actual
+sourceHpreview. Stop on exclusion/mismatch without relaxing a criterion.
+Set its clean source/Note pins beforeexecution; then prepare/freeze the native
+64-casecomparison. No training or recurringautomation is running.
