@@ -11253,3 +11253,64 @@ the failed high-LN quality criterion. native_seeds.py is a copy of the recorded
 native driver with only seed offset input and actual-seed output, saved separately
 so the original15-case execution identity remains intact. Fresh runs seed-1/2/3,
 no overwrite, same120s/30000row bounds and oneCPUthread/process. No TEST or fit.
+
+## Casual player recovery profile, 2026-09-25
+
+The demand seed runs26102/47353/67192 are terminal, all6fresh cases complete.
+Across seeds251702–251705, D3/.2 star span drops1.511136->.281161, but the new
+values3.391679/3.565186/3.408210/3.672840 are biased high. D3/.7 span drops
+.982215->.481953, with new4.171095/4.015981/4.296293/3.814340, also biased high.
+Reduced variance is not accurate control. The new demand model remains a
+research component, not a promoted playable system.
+
+An exact support witness in native-demand/zenithfall/low at233739 shows chosen
+TAPcolumn2 only47ms after its previous head. Columns0/1/2 all last attacked at
+233692, while column3 is still held (its last head is319ms old). There are three
+legal rows and every one has best minimumHH47. R1 cannot remove that repetition
+under the fixed skeleton. fast-head-witness.json preserves this observation.
+The dedicated4s Lens context is rendered but not yet read at this entry.
+
+The declared37/25/21-ms recovery law is a permissive execution envelope, not a
+validated casual player profile. A stronger fixed session profile can rule out
+these short physical cycles without quantizing cross-column timing or adding
+learned parameters. Existing corpus evidence supports a concrete bounded trial:
+using the ranked TRAIN group/chart/audio-second weighted transition histogram,
+fractions below HH60/RH50/HR50 are respectively:
+
+| Whole-chart star band | HH<60 | RH<50 | HR<50 |
+| --- | ---: | ---: | ---: |
+| 2 | 0 | 0 | .169272% |
+| 3 | 0 | .007811% | .070409% |
+| 4 | .000832% | .051318% | .347355% |
+| 5 | .005163% | .378120% | 1.693581% |
+| 6 | .133843% | 1.083294% | 2.057662% |
+
+These are weighted transition fractions, not chart-exclusion percentages or
+physiological laws. The profile removes some real source transitions, especially
+short high-difficulty LN tails; do not claim exact corpus support preservation.
+It retains ordinary fast jacks/dump, chords and high-fraction cross-column timing
+throughout the initial2–6target family. Whether generated organization remains
+musically plausible still requires Lens inspection. An LN press/release/repress
+cycle now requires at least100ms; TAP attack spacing is at least60ms. This is a
+transparent player-response constraint, not evidence that the NN learned tails.
+
+Proposed Experiment Card: audio-casual-player-profile-v1, revision1. Accepted:none.
+Baseline is source d0aff1105910cf8df9ba3f4c2d1747143c665810, retained core2400,
+demand2000 and unchanged existing sampling preferences. One intervention:
+Recovery(hh=60,rh=50,hr=50) fixed through the session and shared by planner and
+row realization. Expose this existing TypedSession input through rollout and
+record it in generation metrics; the default remains unchanged. Control changes
+still alter requested difficulty/LN/style, not these session-level recovery
+constants. No NN fitting, count-target change or generic R1 history into S.
+
+Fresh owner artifacts/joint-audio/20260925-casual-player-profile-v1. Generate the
+same3songs x5modes, seeds and105000–137000 override; compare separately with the
+existing demand and retained results. Existing120s/30000row per-case bounds,
+one CPU thread, no overwrite/resume. Primary: remove the identified short cycles
+while preserving density, LN/TAP variation and native control response. Review
+per-cell star MAE no>.25 increase, LN MAE no>.03 increase, completion and timing.
+The <=40ms count becomes trivially zero under this profile and is NOT a learned
+quality metric. Inspect lifetime50–60ms pile-up, rapid50–70ms recovery, actual
+layering, coordinated tails, bursts/chords and scope transitions. Reject a
+metric-only success that merely accumulates notes at the new floor or flattens
+legitimate organization. The profile is an experiment, not a universal chart law.
