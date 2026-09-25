@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 4adcdd9393a603b3ef164645aeb0db6d6b1d9349
+Product revision: 4142ba4b01c338e76c9ce021491a5bcded68a636
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -9998,3 +9998,88 @@ scope clocks do not yet encode separate deadlines for overlapping partial
 fields; this limits quota-like interpretations and is not hidden by the API.
 Only after native improvement is visible use the remaining five audio-panel
 cases as a broader generalization check. No adoption or claimed player testing.
+
+Result log, accepted none: final repaired small-data fit completed1200 updates
+in450.573s (19977 terminal). Checkpoint repair-main/step-1200.pt SHA256
+1445432c483f4e8713d54d97377ebe1eb8c3fe9577f398f4790d7d6666ccfcf6.
+The800-update integration case also completed (30379 terminal). Full repaired
+native cohort15/15 completes (58988 terminal), static12 star MAE.738873,
+LN-fraction MAE.074523,649/15120 LN lifetimes<=40ms (4.2929%). Switched32s
+scopes yield.815/.750/.737, following32s.228/.139/.111. Four selected native
+Lens contexts/eight pages and all action/articulation tables are read. An LN
+88937..89106ms survives the89000ms condition expiry. Zenithfall still contains
+26/29/30/32/34ms holds; the candidate is not accepted as playable.
+
+Broader40-update smoke completed33.965s (28029 terminal), including36VAL
+midpoint intervals. Training manifest SHA256
+4cea2672387b6293a4da0846be479d8bd9c857e55535dc8143bd11d65b06d2c4;
+driver SHA2561cc321e530d0578a49ed1cdb6ef63939d2413cf89f9c6865480c15a2ca0ab9ca.
+Population weights, explicit25% annotation objective, fixed normalization,
+full-audio padding/masks and24-chart LRU are exercised in actual MPS updates.
+No extra model parameters were added. The6000-update/3600s ranked-main run is
+LIVE process85912 under caffeinate, sourcec348ca288746560247ab09d2a053fdc34ca63c54
+(documentation-only descendant of4adcdd9). At3000 updates/1417s it has seen3129
+distinct TRAIN charts; peak RSS3.317GiB and MPS driver allocation5.768GiB are
+overlapping counters, not additive. Continue this handle; do not restart it.
+
+The800-update broader checkpoint completes15/15 native cases (52041 terminal).
+Static12 star MAE.588019, LN MAE.091063,345/17309 short LNs (1.9932%). This is
+mixed progress: fewer microholds overall and better star response, but worse
+amount calibration. HystericD3/LN.7 short holds increase24->55 and median
+duration170->127ms. The broader switched scopes reach.790/.825/.785, then
+.144/.173/.156 in the following32s. Native cached-Mel max startup/window
+.524/.397s, measured alongside training; no cold-audio or client claim.
+Two new peak Lens contexts/four pages and complete tables are read. The near-
+aligned Zenithfall peak preserves varied holds, subset tails and a165ms four-LN
+group, but has a34ms insertion. Hysteric's peak contains68/47ms RH recovery in
+an outer-column repeat and another34ms inner LN. Aggregate improvement is not
+uniform chart-quality improvement. Reviews are under each native owner/lens.
+
+Small-data style probe (71713 terminal) uses HystericD4/LN.2 and a32s style
+override: baseline unspecified, Jack, Stream or Tech prominent. All four receive
+the same update/scope-clock/RNG-invalidation procedure, including an empty-field
+baseline span. Adjacent-head same-column fraction is.178/.276/.149/.133 across
+the scope; these descriptors are not Foundation labels. Initial119000..123000ms
+inspection is sparse and inconclusive. Follow-up chooses105000..109000ms by
+maximizing the minimum head count across the four conditions, within the32s
+scope (25/25/25/26 heads). All eight contexts/16pages and their tables are read.
+Immediate structures remain very similar, with only isolated Jack repetitions
+and altered LN layering in Tech. Reliable prominent-style control is unproven.
+Human TRAIN positives are sparse: only5 prominent-Tech and8 prominent-LN cells
+in the broader admitted cohort. Do not claim that112 charts provide dense labels
+for every organization. No annotation mutation or player test occurred.
+
+An exploratory fixed-prefix diagnostic completed11.344s (75661 terminal), no
+fitting. At one middle8s interval per existing36VAL chart, fix direct full audio,
+teacher history, exact resources, whole-song scope and requestedD3; vary only
+rho.2->.7. Mean conditional H probability changes.004450->.004547 in repair and
+.005208->.005278 at ranked800: +2.18%/+1.34%. Ranked800 direct-base H log-odds
+change-.001466, while its bounded-modulation path changes+.020181 even with
+history fixed, because that path also reads current controls. This is a direct
+condition-path response, not itself an estimate of changed-history effects.
+Native heads rise2102->3327 on Zenithfall and1900->2998 on Hysteric. The two
+operating distributions differ; do not infer a causal percentage from the gap.
+It motivates examining generated-state feedback, including releases, occupation,
+and temporal phase, instead of only amplifying the existing LN input.
+
+Remaining structural questions: a finite63-event planner with exact LN state
+but no scope count ledger cannot distinguish prefixes with identical recent
+events/occupation and different early-scope LN allocation. It can learn an
+average response to rho, but cannot condition compensation on a forgotten
+scope deficit. If explicit scope accounting is tested, it must derive only
+from the skeleton, distinguish LN-head proportion from held time, preserve
+crossing obligations, resolve the LN field's own scope, and roll back with the
+unpublished planner. This is a candidate mechanism, not yet implemented or
+shown to improve playability. Difficulty and style cannot be reduced to that
+additive count ledger. The release conservation law and the weak direct-clock
+response also motivate a joint demand-conditioned clock/frontier, rather than
+a quota-only fix. Finish the broader bounded fit before selecting another
+architecture intervention. Do not revive the rejected head-owned variant or
+the restrictive binomial factor just from a scalar metric.
+
+Curated control semantics and evidence committed asc348ca2 and4142ba4; model
+implementation remains4adcdd9. No remote publication. Mid-training2400-update
+native and matched style cohorts are running as49061 and97281; process85912
+is the sole continuing trainer. All other handles named in this result log are
+terminal. Final6000 native/control/Lens evaluation and any broader five-audio
+generalization check remain required; the goal stays active.
