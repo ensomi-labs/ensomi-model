@@ -9661,3 +9661,52 @@ there is no fitting, alternate data, new audio encoder or changed checkpoint
 weight in this step. docs/research/joint_action_spacing.md defines its bounded
 existence argument, probability semantics and limits. Local diff and affected
 relative links were checked. No remote push or lifecycle transition.
+
+
+#### Completed joint spacing evidence and next exploratory prototype
+
+Joint spacing source 7329b0e: 651 prepared charts admitted; all 32 new whole-song
+cases completed without retries or HH/HR/RH <=20 ms. The 32 unchanged controls
+reproduced their prior rows. Maximum cached-Mel readiness/window service was
+0.523/0.281 s. Flat width+LN error improved from 6.334 to 5.672; factor changed
+4.909 to 4.960. All H streams stayed unchanged. Lens covered 50 paired scopes
+(28 fresh pages, 36 prior semantic reuses) and four additional boundary pages.
+Rich LN layering survived, but 21-ms repeated chords and weak LN control remain.
+Result owner: artifacts/joint-audio/20260925-joint-spacing-law-v1; review.json
+ab7e169a505edf2c7c3d263ad9375be71351a9c50cdeba6f49449c78dfdb7e9e.
+Decision REFINE; no playability or adoption claim. All runs are terminal.
+
+Experiment Card typed-resource-plan-v1, revision 1; proposed, accepted none.
+Standing user execution authority covers this exploratory local implementation
+and fit. User requests faster architecture/training iteration with less repeated
+verification. Baseline: clean 7329b0e, flat da080448 checkpoint, prepared corpus
+4ad9abfd manifest. One structural intervention replaces separate H/R/count
+selection with a typed time/TAP-count/new-LN-count/release-ID plan. An anonymous
+four-resource state plans recovery and active holds; R1 consumes plan preview,
+full audio and scoped controls to assign columns. The event representation is
+an adaptation of timed note-on/off models such as Performance RNN, with native
+1-ms timing and an explicit resource/geometry factorization, not a novelty claim.
+
+Hypothesis: moving counts into the plan removes downstream count/time conflicts
+while retaining real short cross-column events, LN coordination and chord forms.
+HH>=37, RH>=25, HR>=21 ms is the initial empirical envelope, not a comfort model.
+A prior scan admitted 650/651 prepared charts (614 TRAIN, 36 VAL); the excluded
+TRAIN source c68d6450ce97b8149069b7069736c75624f100040e09198f6ebc5921a3f9c3ae
+has three HH<37 ms. Controls have timestamped scopes, masked style fields,
+whole-chart difficulty labels and scoped LN fractions. Difficulty labels are
+weak local supervision, not local star ratings. Style controls require actual
+scoped annotations; an untrained input slot is not successful control.
+
+Bounded procedure: a small learning run, then at most 1,200 joint updates/one hour
+on MPS, native CPU rollouts on existing audio with low/high and scoped controls,
+and Lens inspection of dense/LN/transition contexts. TRAIN groups remain separate
+from VAL; alternatives remain separate charts. Fresh owner
+artifacts/joint-audio/20260925-typed-resource-plan-v1. Save checkpoint, losses and
+actual outputs; no remote publication. Keep a failing/underfit pilot as evidence,
+not permission to claim success. Primary practical check: completed trajectories
+without support dead ends, preserved nontrivial LN/chord forms, and measured
+control response in the intended direction. NLL is only a learning diagnostic.
+Native runtime and 2-6-star coverage are reported; no source or style-quality
+label may be inferred from a low loss. Stop on nonfinite loss or one-hour limit;
+inspect observed failures before adding further checks or scaling. This is a
+joint architecture pilot, not a controlled attribution of every new component.
