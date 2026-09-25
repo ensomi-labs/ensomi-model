@@ -9174,3 +9174,129 @@ No overwrite/resume. Freeze source/Note/script/inputs/commands beforeeachstage.
 Capture firstfouractualrejectsperchart whenneeded, preservingunpublishedstate.
 AllrecommendationsremainREFINE pendingproperty/qualityinterpretation; no
 automaticdefaultchange, remote publication orfinalmodeladoption.
+
+
+## Target population correction: ranked 2–6 star 4K, 2026-09-25
+
+The human owner fixes the first playable population to 2–6 star osu!mania,
+including LN release burden. TAP and LN press are attacks. Same-column attacks
+around 20 ms are a high-confidence problem; generic LN-jack examples do not
+justify relaxing the release screen without examining this population.
+Ranked natural arrangements provide the principal empirical reference for
+what normal charts at the target difficulty can look like. They are not merely
+optional style examples. The formulation's frontier concerns responses to
+candidate continuations under a gameplay profile; the implemented three-field
+arrangement profile is not that player-response specification.
+
+Card release-gap-screen-sensitivity-v1 revision 1 is deferred, unexecuted.
+No RH-off run or adoption occurred. Its proposed local output owner contains no
+run evidence. The next active card is the population calibration below.
+Existing generated results and their thresholds are retained as originally run.
+
+### Experiment Card: ranked-2to6-action-reference-v1
+
+#### Identity and Authority
+
+- Owning Agent Note: 2026-09-23-audio-skeleton-r1-integration.
+- Card ID: ranked-2to6-action-reference-v1; revision 1.
+- Status: proposed; accepted revision: none. Standing local research authority
+  permits execution; this census remains exploratory.
+
+#### Question and Hypothesis
+
+Do verified ranked 2–6 star 4K arrangements support the observed near-20-ms
+same-column head/release relations, and what surrounding structures distinguish
+ordinary expressive variation from generation failures? The selected hypothesis
+is that near-20-ms same-column demands are absent or rare in this population,
+whereas short cross-column head gaps can occur. The result determines whether
+release filtering deserves relaxation and what frontier calibration must cover.
+
+#### Analogues and Branch Selection
+
+Use natural reference distributions conditioned on difficulty and LN share,
+not scalar NLL or unconditioned global chart averages. The primary external
+reference is the official osu!mania ranking criteria, inspected 2026-09-25:
+https://osu.ppy.sh/wiki/en/Ranking_criteria/osu!mania . It distinguishes rhythm,
+hold/release coordination and difficulty-dependent organization. Its guideline
+categories are not numerical star bins or empirical motor response labels.
+Alternative branches are genuine ranked exceptions, unmatched source versions,
+and measurement/schema artifacts; exact-byte joins and Lens inspection separate
+these before model changes. Novelty is none: this is population calibration.
+
+#### Fixed Comparison
+
+- Clean source: b7769afd9d7f0106f41b45d03103b719ddf1ca76.
+- Index: artifacts/indexes/beatmap_index_4k.parquet, SHA-256
+  2d2814c3b3ec47cd1247e8d50cef555e12ace7eae60a79944102926c142c2d8e.
+- Read the index's exact dataset paths and per-set metadata.json. Primary cohort:
+  metadata beatmap status ranked, mode_int 3, cs 4, convert false, snapshot
+  difficulty_rating in inclusive [2,6], and original source MD5 equals checksum.
+  Freeze every source SHA-256, metadata SHA-256, ID, star value and snapshot date.
+- Preflight: 14,689 indexed charts, 4,200 set metadata paths; 9,536 eligible by
+  metadata, 8,774 exact byte matches, 762 mismatches. Snapshot date 2026-08-05.
+  This is identity discovery, not a measured action-gap baseline.
+- No learned-model intervention, training or decoding. Measurement intervention:
+  replace unconditioned anecdotal quality assessment with a defined corpus census.
+- Do not use a timing-anomaly-filtered index or reject charts because they violate
+  the tested threshold. Canonical raw source objects retain simultaneous tails
+  and heads; report incompatible/overlapping events separately. Unparseable charts
+  remain explicit missing evidence with their reasons.
+- Source owners: scoped_style_modeling/replay.py for original objects,
+  osu_core/difficulty.py for the versioned 20241007 SR calculation, and the current
+  Beatmap Lens learning/harness implementation for independent inspection.
+
+#### Evidence and Decision Rule
+
+Primary outputs are chart counts and event counts for HH (consecutive same-column
+attacks), HR (each LN head to its own release), and RH (an LN release to the next
+same-column attack), separately at <20, ==20 and <=20 ms. Report denominators,
+full cohort and star bins [2,3),[3,4),[4,5),[5,6], transition quantiles, source
+witnesses, LN proportions, chord widths, occupied-lane/head interactions and
+1/4-second peak attack densities. Cross-column head gaps are separate.
+
+This is a census of the frozen local population, not a random sample of all
+ranked maps; no iid-note confidence claim. Zero cases or <=0.1% affected charts
+is evidence to retain the near-20-ms guard for this initial target, subject to
+actual witness inspection. Higher prevalence triggers examination of every
+affected chart's exact witness inventory and a bounded set of contexts before
+any relaxation; prevalence alone cannot establish good playability. Missing
+parses/identity mismatches limit coverage and cannot be counted as clean.
+
+Qualitative check: use Lens on the shortest-gap witnesses of each relation
+present, with at most three distinct charts per relation initially; if a relation
+has no <=20-ms cases, inspect its nearest boundary examples. Add two controls
+per star bin (one low-LN and one high-LN chart, selected by deterministic source
+hash within each half of the LN-share distribution), inspecting the local peak
+and its surrounding 4 seconds. Preserve complete LN endpoints/entering holds,
+exact time spacing, source lines and chart context. Inspect all returned pages.
+No new human gold, listening, player test or physiological inference.
+
+As a secondary scope check, measure SR and the same relations in the 32 complete
+raw count/layout panel outputs and 62 complete current/preview outputs, verifying
+parent result and row hashes. Keep their non-SR-calibrated profile requests
+explicit; do not claim matched difficulty controls or causal attribution. Failed
+outputs remain incomplete and excluded from whole-chart SR comparisons with
+counts reported. Versioned local SR is a diagnostic, not a learned player model.
+
+#### Reproduction and Bounds
+
+- Fresh owner: artifacts/joint-audio/20260925-ranked-2to6-reference-v1.
+- Command: uv run --extra mps python
+  artifacts/joint-audio/20260925-ranked-2to6-reference-v1/audit.py.
+- Freeze the script, clean source and Note revision before reading action values.
+  Deterministic sorted corpus traversal, no randomized sampling or fit.
+- CPU on Apple M5 / 24 GiB; Python 3.10, explicit mps environment. At most 1,200 s
+  for census plus 1,200 s for the generated comparison and Lens stage, <=2 GiB
+  new files, >=2 GiB available RAM and >=40 GiB free disk. No network in the run.
+- Fresh files only, no overwrite or resume. Stop on identity drift, resource or
+  time limits; retain partial inventories without complete-cohort conclusions.
+- Primary star definition is exact official metadata at the frozen snapshot;
+  local index values are rounded and not the inclusion criterion. Recalculate
+  selected Lens witnesses with the repository's named 20241007 calculator and
+  report any star discrepancy, rather than silently reclassifying the cohort.
+- Main confounders: corpus acquisition coverage, source mismatches, historic
+  ranked exceptions, chart-level SR hiding local spikes, repeated song families,
+  LN variation, and source chart preferences not being measured player responses.
+- Positive result constrains the target and motivates calibrated continuation
+  response learning. Negative or mixed evidence refines the property/context.
+  Neither result adopts a model or proves whole-song playability.
