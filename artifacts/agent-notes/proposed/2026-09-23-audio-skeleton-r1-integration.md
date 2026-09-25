@@ -9909,3 +9909,34 @@ upfront-endpoint object decoder just from these results. Audio-at-LN-birth,
 future-head anticipation and response feedback into the planner remain concrete
 hypotheses if lifetime errors survive the contract repairs and broader fitting.
 Goal remains active; previous turn is progress, not completion.
+
+
+Experiment Card typed-contract-repair-v1 revision1; proposed, accepted none.
+Previous goal turn is progress. Clean baseline24096a1. Standing user authority
+covers code, local data preparation and fitting. Repair two demonstrated
+representation restrictions before scaling: (1) bounded/fading timing-history
+modulation with a persistent direct audio/control/active-LN base; (2) replace
+bounded per-head binomial residuals with unbounded learned local count preferences
+and an explicit prior-odds tilt for the scoped LN request. The latter permits
+locally near-certain pure TAP or LN groups even when the scope request differs.
+It is an amount condition, not a guarantee of exact realized scope percentages.
+
+Keep native-ms hazards, whole rows, deferred tails, shared canonical full audio
+and the37/25/21 envelope. No fixed beat grid, MERT data or model-size increase
+beyond the small base-condition branch. Head-owned variant is not adopted.
+Use the pre-binomial1200-update checkpoint as a calibrated raw-score starting
+point. Initial history bound4, decay1000ms; masks and active-LN state do not fade.
+For LN tilt use logit(request)-logit(TRAIN reference fraction), preserving
+head-count/release-mask group masses. Test the expressiveness counterexample,
+clock decay, actual MPS fitting, native controls and Lens structure.
+
+First a short learning check, then up to1200 updates/one hour on the650-chart
+corpus. Compare against its saved starting candidate, not an inferred NLL target.
+Primary remains plausible native structure/control response without bad recovery
+or short-LN inflation; report failed and under-dense trajectories. In parallel
+inventory the6,924 ranked TRAIN reference charts for actual paired audio. Prepare
+broader data only within the existing group split; keep VAL/TEST outside fitting,
+pin new inputs once at admission, and reuse canonical existing Mel assets.
+Fresh owner artifacts/joint-audio/20260925-typed-contract-repair-v1. Current169GiB
+free disk allows a bounded40GiB cache; keep>=40GiB free and stream chart states.
+No network or remote publication. Stop on nonfinite fitting or resource bounds.
