@@ -10753,3 +10753,77 @@ intervention is specified. If generated and source distributions are similar,
 refine the representation or ownership hypothesis rather than tightening a
 cutoff until examples fail. If separable, preserve expressive bursts and
 mandatory release execution in the proposed response.
+
+## Workload-reference result and conditional factorization, 2026-09-25
+
+Reference process73955 is terminal; all6,923TRAIN charts and2,573groups complete
+in19.205s. The40 selective-guidance charts were also described in each effective
+control range, in native-guided-workload.json. No sampling intervention ran.
+For D5 the all-LN-compositions q99 skeleton head-rate lower bounds are6.0/5.6875
+heads per key second at1/4s; action bounds are8.0/7.5625. Take D5/.2 reaches
+9.75/7.0625 head-rate maxima, spending6.9/8.1s above those head references.
+Zenithfall D5/.7 stays below both head references but exceeds action references
+for17.9/13.7s. Head-only memory misses release work; action count alone also
+fails to distinguish demand adequately.
+
+Composition materially changes the reference: D5 sources with LN<.25 have
+q99 action lower bounds6.75/6.125, whereas LN>=.75 has9.25/8.4375. The latter
+contains only9charts (14atD3). Whole-chart rating, sparse high-LN data, silent
+audio weighting and different action types limit interpretation. Rarity in the
+all-compositions mixture is not a suitable universal action-rate ceiling. The
+workload direction remains REFINE, with no added sampler cap selected. These
+values describe the audited reference, not calibrated human capability.
+
+Source inspection identifies a more direct coupling restriction. With ln_prior
+set, mark_log_probs replaces the varying LN control by its fixed reference
+before the shared mark network. tilt_ln_count then preserves every
+(head_count, release_mask) group mass. Consequently, at fixed prefix/audio,
+those group probabilities cannot directly depend on the requested LN amount.
+The clock and R1 do read the varying amount; this is a mark-factor restriction,
+not a claim that the entire system is insensitive to it. It prevents the mark
+law from learning to coordinate its chord size or release subset with that
+request, which is relevant to the action-conservation relation and occupancy.
+
+Proposed Experiment Card: audio-ln-group-coupling-v1, revision1.
+Accepted revision:none. Baseline887156fc51ccaf70acd1138154bbc582762e1b12 and
+ranked2400 weights SHA36c9767f38fc9b28416e635aa974bf98ee2785715622b6049f6120cef251c2b3.
+One probability-law change: compute the (head_count,release_mask) marginal with
+actual full controls, while the conditional LN-count local preference still
+uses reference LN amount plus the explicit log-odds tilt. Factorization is
+p(h,r|audio,history,state,C_actual) times
+q(l|h,r,audio,history,state,C_reference;rho). Reuse the existing mark network
+for both queries; no additional parameters or audio/history input. Every legal
+mark remains supported, and a locally certain pure-TAP chord remains expressible.
+Within a fixed(h,r), the LN tilt remains monotone; global expected LN count need
+not increase when a higher amount appropriately reduces total head count.
+Closest analogue is ordinary conditional probability factorization; this is
+removal of an unintended conditional independence, not a new model-family claim.
+
+Train a paired continuation from the same2400checkpoint: old law versus the
+coupled law, same1000updates, optimizer restart, two8sTRAIN examples/update,
+seed251928, AdamW3e-5body/3e-4other, unchanged whole-chart difficulty labels,
+LN range supervision, human-style mixture and15%control dropout. Full-song
+coarse Mel context remains available in both training and inference. First a
+short25-update learning run checks the new finite normalized objective, then
+fresh1000-update arms; no reuse of the smoke checkpoint. This comparison tests
+learned coupling, not the earlier unsuccessful scoped-difficulty relabeling.
+
+Fresh owner artifacts/joint-audio/20260925-ln-group-coupling-v1. No overwrite;
+one MPS trainer at a time, budget900s per1000updates, small run120s, existing
+memory-safe3200frame shape family and24-chartLRU. Stop on nonfinite loss/gradient
+or bound. Compare native Zenithfall/Hysteric/Take atD3/.2,D3/.7,D5/.2,D5/.7 and
+fixed105000–137000 switch, with the same selected physical policies and selective
+star guidance2 in both arms. Keep all control cells and three switch ranges
+separate; no pooled score can hide a failing condition. Exact scripts/source
+OID are recorded before execution. No TEST, remote publication or neural scaling.
+
+Primary decision: retain coupling only if native generation has a coherent
+playability/control benefit relative to matched continued training, not merely
+lower NLL. Review D5/high-LN short-tail fraction (aim <1.5% and <=comparator),
+per-cell star MAE (no >.25 increase), LN MAE (no >.03 increase), all-case completion
+and fresh <37ms same-column attacks. These are exploratory review bounds; Lens
+can reject a scalar improvement for flattened bursts, incoherent articulation
+or lost LN/TAP variation. Existing source inequalities do not guarantee a win.
+Unchanged2400 remains the fallback. Semantic style control is not established by
+this difficulty/LN panel. Recent-workload representation can be reconsidered
+once this restriction is removed; do not stack both interventions in this test.
