@@ -11732,3 +11732,100 @@ and packaging checks in this turn are terminal. No live job or queued trainer
 remains; the overall research goal is still active and incomplete.
 
 Qualification reportSHA2569ca9e74befcba071b56f77f39ab21bc601bebac673f8a1526c9f1a2c627b5cad.
+
+
+### Owner correction: preserve skeleton and R1 decision ownership
+
+On2026-09-26 the human owner explicitly clarified that chord size/composition
+belongs to R1 and that its controls must enter that decision. The preceding
+proposal to model chord composition in the skeleton is withdrawn. The owner
+also reaffirmed that existing checkpoints, modules and training procedures are
+replaceable; the fixed requirements are the final interface/control semantics,
+quality and speed, and Pulsefield V3 formulation. An observed implementation
+restriction is not authority to change those requirements.
+
+The preceding goal turn made concrete progress in independent scope inputs,
+training and native evidence, but its proposed ownership of the next repair was
+misaligned. The retained typed prototype predicts TAP/LN counts and exact release
+identities upstream and limits R1 to their realization. Its grouping failure
+should trigger an interface repair, not stronger upstream cardinality control.
+The existing full-audio information contract already places complete rows and
+candidate consequences in R1; formulation/notation.md and gameplay-state.md
+remain authoritative, not any of these research artifacts.
+
+A further training invariant explains why simply removing the typed mask is
+insufficient. In the current conditional layout loss, adding a context-dependent
+constant to every row in a fixed upstream count/release group cancels exactly
+on normalization. Relative group mass is therefore not calibrated by that loss.
+Restoring R1's choices requires training the complete row law, including counts,
+LN kinds, release choices and geometry. A frontier score applied only before
+within-group normalization can similarly lose its ability to compare groups.
+Its candidate effects must survive the final common-row normalization.
+
+### Proposed card: row-owned-audio-restoration-v1
+
+Revision1; Accepted:none. Clean baselinecafe805030cad304fffb0caf8ac2d57e78c2313d.
+Standing implementation/training authority applies. No remote publication.
+One coherent intervention restores the timing/row interface with matching
+training. It changes several necessarily coupled components and is not an
+isolated one-weight causal attribution.
+
+Contract: H timing is generated from complete audio, previous H times and scoped
+controls. The release clock reads complete audio, H/R timing history, the head
+preview and committed LN projection. R1 reads direct audio, its own row history,
+exact state, timing-only preview and all scoped controls, then chooses the full
+legal row. Head count, TAP/LN allocation, release identity and column layout are
+R1 decisions. Only the resulting LN projection feeds the release clock. No
+actual future rows or source LN tails condition either factor. The scheduler
+keeps generated H lookahead, interleaves releases and commits complete rows;
+future control changes retain the published prefix and crossing holds.
+
+Reuse the existing planned H/R likelihood and scheduler primitives, generalized
+to the retained60/50/50-ms response profile. Keep native-ms output, full-song
+Mel/coarse audio in both training and inference, BOS and frontier2 consequences.
+This response envelope conditions implementation support; it does not redefine
+V3 chart legality or claim a complete canonical player response. Source windows
+incompatible with that profile are explicitly rejected/resampled and counted,
+never relabeled, cropped into artificial tails or trained with infinite loss.
+
+R1 uses an explicit count/layout factorization inside its own policy: a small
+count-family readout sees audio, full R1 context, timing preview and per-field
+controls; the existing row scorer supplies conditional geometry. Their product
+covers every supported complete row. Candidate frontier scores are added before
+one final normalization over all rows, so they can change count-family mass.
+Unbounded local LN preferences plus the established scoped odds mechanism retain
+pure-TAP passages under high-LN requests. Generic row history never returns to S.
+The former scalar object-count feedback is not retained in the skeleton; a
+future onset-rate estimate would count H rows, not choose their head count.
+
+Closest implementation analogue is the earlier planned head/release prototype
+and its R1 count/layout law; the explicit differences are scoped controls,
+restored complete-row training and frontier comparison across groups. Preserve
+its conditioned release-wait normalization and finite head feasibility, rather
+than hiding an impossible future behind retries. No new musical-section labels,
+beat grid or long-range motif memory. Old typed models remain diagnostic baselines.
+
+First bounded learning probe: warm compatible full-audio and R1 modules from
+ranked-main/step-2400.pt, initialize the changed timing/control/count modules
+explicitly and record copied/new parameters. Freeze the audio encoder initially;
+train the restored probability factors and R1 decision heads on actual source
+8s intervals. Source-specific scoped strain/LN labels and original human style
+scopes remain separate;15% optional-family dropout and75%population/25%human
+sampling, with rejected intervals recorded. Seed260926, batch2, first64updates
+then at most2000updates/1800s on MPS if gradients/throughput are usable. Fresh
+artifacts/joint-audio/20260926-row-owned-restoration-v1; no overwrite or TEST.
+This is a representation/interface experiment, not a claim that lower NLL
+establishes playability.
+
+Evaluate a fixed audio-generated H trace from Take6/.2 to see whether R1 can
+now change grouping at the same onsets, using its own online release decisions.
+That trace is a diagnostic input, not an onset oracle supplied to native audio
+qualification. Then generate from complete audio/BOS for Hysteric, Zenithfall
+and Take,3/.2,3/.7,5/.2,5/.7 and105000–137000 override (15 cases), plus the Take6/.2
+stress case. Retain120s/30000rows per case. Primary: actual pattern organization,
+absence of the sustained all-quad failure as a default, and preservation of
+varied chords/LNs/repeats. Difficulty error is a guard, not the quality verdict:
+seek static cell MAE within.35 of the scoped candidate and override error within
+.35, with no collapse to low-density or all-TAP output. Record scope boundaries
+and candidate deviations individually. Inspect matched and new peaks with Lens.
+No parameter scaling until this coherent boundary is executable and assessed.
