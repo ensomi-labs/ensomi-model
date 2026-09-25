@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 82436bd6580f25a8bb9c4a4e7923b8fe8f78f24e
+Product revision: 764669e2f25582a7a95d7858252c3b36a96fb763
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -10386,7 +10386,7 @@ HH169/143/107/89/83;RH107/83/65/55/49;HR89/75/53/44/43.
 D3HR<=40fraction.000217416;D5.004975961. D3minimumHH69/RH42/HR30;
 these rare tails describe a highqualityreference distribution, notuniversalBAD
 labels orphysiologicallimits. The reference andhistograms live in
-20260925-ln-allocation-feedback-v1/response-reference.json and-npz;
+20260925-ln-allocation-feedback-v1/response-reference.json and response-reference-histograms.npz;
 JSONSHAf169bde29c0a2236459fb2dd99e906632350903e480546b8ea6c560e6366ba48.
 No VAL/TEST inclusion, no machine/human annotation edits.
 
@@ -10433,3 +10433,73 @@ Selectedchecks:4passed in.78s (responsepreference andallocation). They coverold-
 versusyoungreleaseopportunities,mandatoryEOS,actualRHcolumnchoice,andrealplanner
 allocationrollback. Runtimeintegration/nativeinspectionremainnext. Current
 scope is exploratory model/samplingdesign, not an accepted V3playerfrontier.
+
+
+## Recovery preference result and occupied-key workload, 2026-09-25
+
+Recoverynative45784 completes15/15; all processes named above are terminal.
+Static12 versus amountfeedback:SRMAE.580383->.435045,LNMAE.037984->.037732,
+shortLN236/12217(1.9317%)->73/12371(.59009%). The initialsub-.5%target isnotmet.
+Headratio min/median/max=.90987/1.00894/1.05030,so overall sparsification doesnot
+explain the improvement. Maximum cachedstartup/window.4273/.4324seconds. The
+weightsremainranked2400 and the twoinferencepolicies remainoptionalresearch.
+No defaultplayablerelease orcontrolled-style success isclaimed.
+
+Eachfixed32s D5/LN.7range remains separate: proxy3.863/3.256/3.496 andLNfraction
+.787/.761/.799 forZenithfall/Hysteric/AsItWas. AfterrestoringD3/LN.2,proxy
+3.122/3.270/3.417 andLN.176/.162/.137. Controlcloseness isstilluneven. No style
+comparisonwithRecoveryPreference hasyetbeenrun; do notreuse the previous
+amount-onlystyleobservations as thatpolicy's validation.
+
+Twofinal Lensscopes/all4pages/alltablesread. ZenithfallD5high295573..299574 has
+64Hrows/84actionrows, mixedTAP/LNmovement,subsetreleases, and2mscross-column
+stagger. Short25/30/31/39ms LNsremain;twoheads297227release297257/297258.
+HystericD3high94244..98245 has33Hrows/38actionrows,variedpairedhandoffs and
+107–279ms holds with362/472ms layers;two64/68ms additions,no<=40ms LN inthis
+scope. Reviewsavedunder native-response/lens. No listening orplayer test.
+Product45f5f63 records theseresults and the following exact-support finding.
+
+candidate-detail.json replays generatednativeprefixes and enumerates every row
+matching thefixedtypedmark. HystericD3/LN.7 at138817 hasHH45;occupancy is
+[true,true,true,false], lastheadoncolumn3=138772, and exactlyonevalidrow
+[0,0,0,2]. Actual/best recoverycost=4/4. ZenithfallD3/LN.7 at287306 hasHH57,
+occupancy[false,false,true,true],twoheadsandfixedrelease,exactlyonevalidrow
+[2,2,3,0], actual/bestcost3.679/3.679. These particularrepetitions cannotbe
+corrected bycurrentrowreselection. This demonstrates a planner-side decision
+constraint, notthefraction ofoverallerror attributable toR1.
+
+Proposed Experiment Card: audio-occupied-head-pressure-v1,revision1.
+Accepted revision:none. Source764669e2f25582a7a95d7858252c3b36a96fb763;
+comparator previousRecoveryPreference(head_pressure=0)+LnFeedback at82436bd,
+sameunchangedranked2400weights andnativecases. Goal: discourage inevitablefast
+reuse beforethetypedheadtime/count isfixed, while retaining cross-columnbursts.
+The mechanismuses keycapacity/pigeonhole reasoning and a capped quadratic
+workloadpotential; no additionalrowhistory dependency or noveltyclaim.
+
+ForHHlookbacktau(D),n counts recentheads andk=4-LNsheldthroughoutthelookback.
+Phi(n,k)=4max(0,n-k)^2/max(k,1). Candidateh headscost min(4,Phi(n+h,k)-Phi(n,k)).
+Headclock usesh=1;markusesitsactualh;release-onlyh=0 costszero. Recenthead
+(time,count) tuples overmaximum169ms are exact skeletonfacts storedinplanner
+snapshots, restoredwithrollback, andretainedacrosscontrolchanges until elapsed
+expiry. Continuallyheldkeys reducecapacity; anordinarytwoheadplustwohead3ms
+cross-columnexpansion withfourfree keys costszero. TheHysteric45mscasehas
+positivecost withoutreadinganyR1TAPcolumn orhiddenstate.
+
+This iscoarseburden,notexactphysicalresponse: it cannotlocalizecolumnreuse,
+separateallpreviousrepetitions fromnewones, orcoverrecentreleasecooldownfully.
+It is soft andaddsnosupportrestriction. A hardtimegrid orfixedglobalheadgap
+would destroyvalidexpressiveness andisnot introduced. Controls andexactLN
+occupationcontinueintheexistingaudio/hazard/mark/row paths.
+
+Freshowner artifacts/joint-audio/20260925-head-pressure-v1.
+DriverSHA c3c2a8aa7a63c4f704b322e46d27f04addf0ab3a015eaa5d5fd07dbdc53fdba7.
+Onlyhead_pressure0->4changes; nofit, nootherhyperparametergrid. Use same15
+three-audio cases andfixed105000..137000 switch. Primary: fewer forcedHH<60ms
+casesatrequestedD3 underfixedmark rowenumeration; baselineknownwitnessesabove.
+This thresholdisdiagnosticforrareD3reuse,notuniversalBAD. ReviewstaticSRMAE<=.8,
+LNMAE<=.06,shortLNfraction<=.8%,medianheadratio>=.85; actualLensorganization can
+rejectanyscalarwin. Keepseparaterange observations; do notpoolcontrolconditions.
+Existing120s/30000rowpercasebounds;stopongeneration/nonfiniteerror, nooverwrite.
+Fivefocusedchecks pass in.81s, including occupied-keypressure versusvalidcross-
+columnexpansion and realplannerrollback of bothallocationandrecent-head state.
+Broaderaudios/styleandfinalsystemcalibration remainpending. Goal staysactive.
