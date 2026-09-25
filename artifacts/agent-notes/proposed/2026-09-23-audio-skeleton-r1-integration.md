@@ -11991,3 +11991,59 @@ ROW_NAMES,ROW_MODES. The fixed case also sets ROW_FIXED_HEAD_ROWS.
 The three CPU1thread jobs may overlap; service times during overlap are not
 isolated latency evidence. No further fitting or policy tuning occurs during
 this qualification. All17cases retain the earlier120s/30000row bounds.
+
+### Result Log: restored-row-2500-native-qualification
+
+Accepted revision: none; exploratory execution under standing authority.
+Card: row-owned-audio-restoration-v1 revision2. All17 cases completed under the
+recorded source/checkpoint/harness identities. No budget termination or overwrite.
+No code or weights changed during generation. A documentation-only relative-time
+counterexample was unstaged at evaluation; executable source remained08b8337.
+The inherited typed baseline is a different model and sampling law, so this
+comparison qualifies the whole restored system, not an isolated causal effect.
+
+Static star MAE across three audios, old scoped typed to restored R1:
+3/.2 .037903 ->1.145062; 3/.7 .302444 ->1.586780;
+5/.2 .300437 ->.500535; 5/.7 .411023 ->.409532.
+The two low-difficulty cells fail the previous +.35 regression guard. New LN
+fraction MAE is respectively .054812/.118461/.034006/.126367. High-LN requests
+consistently produce approximately .82 instead of .70. No quality adoption.
+
+Switch ranges remain separate. Zenithfall before/override/restored strain proxies
+are2.3261/4.1629/4.1217; Hysteric3.3991/4.0608/3.7915;
+Take4.3585/4.5567/2.1104 (last range only7.237s). Restored low difficulty remains
+too high on the longer songs. Prefix-preservation assertions hold, but successful
+publication does not establish control fidelity. Raw records and aggregates are
+native-main/result.json and comparison.json under the row-owned-restoration owner.
+
+Take6/.2 produces5.8474stars with generated H and5.4576 with the fixed diagnostic
+H trace. Lens actions/articulation tables, entering holds and all eight images
+were read for four targeted ranges. At the old123623–127624ms peak, fixed H has
+39 onset rows and96 heads, down from124 heads in the older typed map. Cardinality
+is4singles/18doubles/12triples/5quads, with15 LN heads. The quads are separated by
+smaller groups; the earlier sustained all-quad sequence is absent in this crop.
+It retains repeated-column chords and a53ms four-LN articulation at125595, so
+this is not a claim of comfortable play or uniformly good LN construction.
+
+The fixed-H map's own124505–128506 peak has41H/100heads, cardinality5/19/11/6;
+the native-H map's100870–104871 peak has43H/105heads, cardinality4/20/15/4.
+Both show changing chord groups, repeated columns and short holds. These three
+partially overlapping crops establish available organization, not whole-chart
+style labels or musical alignment. Export tempo120 is a display placeholder and
+does not establish beat fractions.
+
+Zenithfall3/.7 has69H/78heads in295189–299190, cardinality61/7/1/0 and56 LN
+heads. Many LNs overlap staggered releases; onset gaps reach22ms across different
+columns. Its5.3697star whole-chart result is therefore not explained by R1 making
+excessively large chords in this crop. The onset clock itself asks for substantial
+rhythmic activity. Cross-column22ms is not the forbidden same-column attack.
+
+Decision: REFINE. Preserve R1 ownership and investigate conditional response in
+each responsible factor. A same-prefix diagnostic will compare requested vs
+omitted difficulty at sampled native decisions, and compare R1 distribution
+moments before/after frontier and empirical preferences. It will not alter the
+generated trajectory or consume extra RNG. Use Take/low and Zenithfall/ln,
+existing panel seeds/checkpoint, CPU1thread,120s per case, fresh prefix-probe
+under the same artifact owner. Record exact row equality against the terminal
+baseline. This probe asks where the control response is weak; it cannot establish
+the result of changing a control throughout a free-running song.
