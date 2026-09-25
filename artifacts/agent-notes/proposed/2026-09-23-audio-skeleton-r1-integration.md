@@ -4,8 +4,8 @@ Note ID: 2026-09-23-audio-skeleton-r1-integration
 Status: proposed
 Kind: research
 Created: 2026-09-23
-Updated: 2026-09-25
-Product revision: 57cdbbf0782587d5a16d3d59983621afbc117451
+Updated: 2026-09-26
+Product revision: 38060783e456bdf0cad52f12c9aaba964a40efb4
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -11364,9 +11364,8 @@ Hysteric output remains organized; exact requested-star calibration is open.
 The demand47ms witness's dedicated context is now also fully read and reviewed.
 
 Next bounded qualification uses the same frozen candidate recipe on the other
-five development-panel audios: FoolMoon,Goodbye,Revenge,Take excluded because
-already tested, andYomiYori plusAsItWas. The exact additional set is
-fool-moon,goodbye,revenge,as-it-was,yomi-yori, five modes each,25cases.
+five development-panel audios: FoolMoon, Goodbye, Revenge, AsItWas and YomiYori;
+five modes each, 25 cases.
 No coefficients or weights change. This is system qualification against existing
 retained results, not an isolated attribution of demand versus recovery on those
 five songs and not untouched TEST. Fresh run native-broader under the profile
@@ -11376,3 +11375,109 @@ and selected peaks. Passing the original three songs alone does not establish
 full-corpus control, musical alignment or style adherence. Prepare a provisional
 model/runner artifact only with its tested recipe and explicit limits; do not
 mark the overall goal complete from this bounded evidence.
+
+
+### Combined candidate delivery and remaining scope limits
+
+The broader25 run is terminal. All40 cases on eight development audios complete.
+Combined star MAE by static request (eight charts per cell) is .199849 for3/.2,
+.357371 for3/.7, .237603 for5/.2 and .500909 for5/.7. Corresponding LN-fraction
+MAEs are .034814/.030053/.036425/.065073. All32 static outputs lie within2–6;
+requested endpoints2 and6 have not been qualified by that fact. The eight5/.7
+32-second override proxies remain only3.327–4.502. Before/override/after reports
+stay separate; these are the full-prefix strain proxy, not official local stars.
+The retained-versus-combined comparison on the five added audios changes both
+count feedback and recovery. It does not identify their individual effects.
+
+The profile owner's native-all/result.json and all-profile-summary.json preserve
+all40 results. Summary SHA256:
+db124ea46ec42b3a6bd8c823c51e1d4afdfa80841c001114f844b653a19c2574.
+Maximum observed cached-Mel8s window service is .603008s, on Revenge/high.
+Only the previously recorded three combined-candidate Lens scopes are reviewed;
+the five added audios have no new dedicated visual review. No listening, semantic
+style verdict or player test has been supplied.
+
+Product d0045d3fa388f99bc57fd4b24811ee513e6e5e94 adds system.load_system and a
+TypedAudioSystem runtime wrapper. The data-only bundle requires both neural
+components and all five sampling-policy records, rejects unused/missing recipe
+fields and checks input dimensions. One focused test (1.22s) uses nondefault
+policies and compares actual rows through future control replacement, restoration
+and EOF. Documentation-only38060783e456bdf0cad52f12c9aaba964a40efb4 records
+trained reproduction and startup evidence.
+
+Delivery owner artifacts/joint-audio/20260925-typed-system-candidate-v1 contains
+candidate-audio-demand-profile-v1.pt: 3,984,093 parameters,16,050,507 bytes,
+SHA25664cc82bea118f5aedaad2c9ea638b9103e5f52ad325f5e1fc2f0cd1f622b6759.
+It combines core2400, demand2000 and the tested60/50/50-ms recipe. Loading the
+bundle reproduces all736 Take3/.2 rows exactly at seed251706 on the same Mel
+and CPU backend. A fresh process decodes YomiYori498989ms, recomputes canonical
+Mel/full audio and publishes8000ms/67rows/two open LNs in2.380332s from child
+entry,2.518713s process roundtrip. OS caches were not flushed and client rendering
+and player reading are excluded. These are observations, not universal deadlines.
+
+hysteric-scoped-control-playtest.osz contains three charts (3/.2,5/.7 and the
+105000–137000ms override) with original audio and unchanged note objects. Archive
+SHA25610b3ec58d5fd205ffe10822df39f0c07d449ce214c216716f2bdde9a9e0d6821;
+4,842,903 bytes. There is no game-client import/player test. This is a provisional
+research candidate, not a promoted release. All recorded processes are terminal;
+no training or native run remains active at this checkpoint.
+
+### Scope-aware demand hypothesis and Experiment Card
+
+Proposed card audio-per-field-scoped-demand-v1, revision1. Accepted:none.
+Baseline source38060783e456bdf0cad52f12c9aaba964a40efb4, core2400 and demand2000,
+fixed60/50/50 recovery and the other four policies from the delivered bundle.
+Standing owner authority permits local implementation/training; the Note remains
+proposed. Target is approximate per-range control with coherent physical history,
+not exact quotas or source reconstruction. Novelty is a local conditional-input/
+supervision repair, not a new point-process family.
+
+Mechanism: present control values resolve per attribute, but one shared pair of
+scope clocks comes from the last active span. A style-only override can therefore
+hide the declared difficulty extent. Whole-chart stars are also reused for every
+short source region despite the measured local-global mismatch. The nominal
+rate predictor cannot learn a consistent range-conditioned density law from
+that contract. Generated geometry and profile changes are alternative sources
+of the remaining difficulty error; this repair need not solve them.
+
+Selected intervention: fit a small demand network with each attribute's owning
+span clocks and full-prefix source-scoped difficulty labels, keeping the core,
+physical state, sampling feedback coefficients and all other policies frozen.
+Two96-wide hidden layers and the existing monotone difficulty slope remain.
+The new control encoding is explicitly named in the checkpoint; legacy bundle
+behavior stays recoverable. Values and known bits keep their ordering. For each
+attribute, later nonmissing values replace its owning span. Unspecified remains
+unknown. Restoring an earlier value restores its original span, not a new quota.
+A future update cannot alter pre-start demand. This bundles matching labels and
+encoding as one control-contract intervention; no isolated attribution to either.
+
+Closest analogue is the existing self-correcting demand controller cited above;
+this changes its exogenous conditional mean, not the feedback law. Temporal
+aggregate labels summarize an interval and are not per-frame event instructions.
+The source strain trace uses complete source LN endpoints only to compute offline
+labels. They never enter inference or causal gameplay feedback. Existing human
+style scopes and known/unknown values remain intact; no new machine labels.
+
+Procedure: same TRAIN/validation manifest and frozen pooled full-audio cache as
+demand2000, seed251930, 2000 updates of8 draws, AdamW .001/weight decay .0001,
+clip1 and15% family dropout. Scope lengths8/16/32/full seconds; source LN fraction
+and difficulty describe the selected scope, source annotations retain their own
+scope. Validate on the same24 in-range midpoint samples; count loss/error is a
+learning diagnostic only. CPU1 thread, max900s for training, fresh outputs under
+artifacts/joint-audio/20260926-per-field-scoped-demand-v1; no overwrite or TEST.
+Record source/script/checkpoint hashes, consumed draws and resource use. Stop on
+nonfinite loss/gradient or the recorded runtime bound.
+
+First native probe: Hysteric, Zenithfall and Take, the same five control modes,
+seeds and105000–137000ms override (15 cases). Each case has120s/30000rows budget.
+Compare to profile native-profile per request and per effective range, preserving
+incoming strain/holds. Primary desired signal: each override moves nearer5,
+with median absolute proxy error reduced by at least.25. Guard: static cell star
+MAE increase at most.25 and LN-fraction MAE increase at most.03; no reset of prefix
+or forced repayment spikes. Inspect a changed high-LN peak and both sides of a
+scope restoration using Lens, including real tail/attack relationships rather
+than the trivially forbidden <=40ms events. If this fails, retain the delivered
+candidate and reconsider generator response calibration/geometry, not blindly
+increase controller strength or run a large architecture grid. If useful, broaden
+qualification in a separately declared follow-up. Low/high endpoint controls and
+semantic style response remain open regardless of this density probe.
