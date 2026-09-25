@@ -11498,3 +11498,9 @@ The planned native command sets DEMAND_CHECKPOINT to scoped-2000/step-2000.pt,
 TYPED_NATIVE_RUN=native-scoped,TYPED_NAMES=zenithfall,hysteric,take,
 TYPED_MODES=low,ln,difficulty,high,switch,TYPED_GUIDANCE=2 and runs the frozen
 owner native.py with uv run --extra mps. All destinations are fresh.
+
+The scoped demand fit is terminal:2000updates,88.876s,5294distinctTRAINcharts,
+63,362parameters,peakRSS.579GiB. All16000 draw identities match the earlier
+demand2000 fit exactly. CheckpointSHA2566e7cced6286f27d79cbb706d760a46e228aedb00054e5df170e58477881bd4fa.
+No core weights or sampling policy changed. The next native probe uses this
+terminal checkpoint under the already recorded15-case procedure.
