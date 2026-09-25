@@ -11333,3 +11333,46 @@ Recovery(60,50,50) and records it. Same15retained and15demand results are copied
 as references, not rerun. Existing120s/30000row budgets apply. Native inference
 is local one-thread CPU, no optimizer or TEST. No result is selected by the
 now-trivial <=40ms statistic.
+
+### Profile result and broader candidate check
+
+Profile41640 is terminal,15/15cases complete. Native driver SHA
+d14c70367b068eddab877c762e761cbe358c5c1c6fdb42654f9d4d84d34ec138.
+Compared with demand under37/25/21, per-control star MAE changes:
+D3/.2 .159707->.237722,D3/.7 .532510->.404664,
+D5/.2 .233515->.212816,D5/.7 .331156->.357480. All static charts remain2–6;
+HystericD5/high-LN is4.354838, an individual undershoot to retain explicitly.
+LN fraction MAEs are.034874/.039615/.032502/.073007 in the same cell order.
+The <=40ms statistic is zero by support, not a learned-model achievement.
+
+AtD5/high-LN, HR<=60ms drops13.2091%->4.0084%, exactHR50ms drops.5006%->.1808%,
+and the median of the three chart-level LN medians changes124->139ms. RH<=60ms
+drops9.0909%->2.3231%, with only.1207% exactly50ms. The result therefore is not
+simply a large pile-up at the new lower bound. These are within-cell object-
+weighted fractions, distinct from median-of-chart-medians and corpus weighting.
+articulation-comparison.json retains every effective range with entering history.
+
+All three profile Lens scopes, six pages and complete tables are read and
+review.json files written. Zhigh72347–76348:42head/68action rows, paired/triple/
+quad starts, independently staggered tails,149–259ms layers, moving65–113ms
+holds, minimum newLN54ms and paired58ms additions over a256ms anchor. TakeD5low
+127738–131739:40head rows, locally all TAP, with pairs/triples and separated
+quads;8ms cross-column stagger remains. HystericD5high peak69394–73395:34head/
+36action rows, paired handoffs/TAP interleaving,184–356ms layers, minLN69ms.
+No listening, player test or formal style-label assignment. The lower-rated
+Hysteric output remains organized; exact requested-star calibration is open.
+The demand47ms witness's dedicated context is now also fully read and reviewed.
+
+Next bounded qualification uses the same frozen candidate recipe on the other
+five development-panel audios: FoolMoon,Goodbye,Revenge,Take excluded because
+already tested, andYomiYori plusAsItWas. The exact additional set is
+fool-moon,goodbye,revenge,as-it-was,yomi-yori, five modes each,25cases.
+No coefficients or weights change. This is system qualification against existing
+retained results, not an isolated attribution of demand versus recovery on those
+five songs and not untouched TEST. Fresh run native-broader under the profile
+owner, same seeds and fixed105000–137000 scope updates,120s/30000row bounds.
+Review each request/range, individual deviations, floor-adjacent articulation
+and selected peaks. Passing the original three songs alone does not establish
+full-corpus control, musical alignment or style adherence. Prepare a provisional
+model/runner artifact only with its tested recipe and explicit limits; do not
+mark the overall goal complete from this bounded evidence.
