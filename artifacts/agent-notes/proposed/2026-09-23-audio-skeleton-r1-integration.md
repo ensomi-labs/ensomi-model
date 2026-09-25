@@ -11144,3 +11144,33 @@ by1200s/4GiB outputs. Every audio cache includes full-song fine/coarse features,
 50-frame pooling with a valid partial last cell, the3200-frame padding family,
 and encoder/source identities. No fit or model selection uses validation labels
 at this stage. The full cache starts only after observing the profile result.
+
+### Demand fit procedure and profile result
+
+Profile49525 is terminal:16longest audios (maximum1,800,775ms),7.855s,
+26.176MiB-equivalent output measured as.026176GiB, peak processRSS.669GiB,
+MPS driver4.788GiB. These memory ledgers overlap. The full cache process31593
+is now live on the prescribed fresh cache directory. Cache script SHA256
+3c1975f938740d23713abd2984f99b7f802446270c6d6890567477df49b2c2ec.
+The initial profile has no nonfinite values or memory failure; full corpus
+processing is a scale-up of that observed path, not a restarted missing process.
+
+Demand training script SHA25668b4ae8ace3143b8f14ace6774f0622921daa523e49fc2f29542f2ad013ebafb,
+at artifacts/joint-audio/20260925-audio-demand-balance-v1/train.py. CPU one-thread
+fit on cached representations, seed251930, batch8 independently sampled8s
+intervals/update, AdamW lr.001/weight_decay.0001, gradient clip1. Mean/std use
+TRAIN-only unique-audio cells, std floor1e-4. Both500ms boundaries and every
+control boundary split count exposures, including partial cells. Target counts
+are exact source heads in each half-open exposure. Whole-chart star labels and
+original scoped LN/style supervision remain; optional controls drop with.15
+probability per field family. The75%population/25%human-annotation objectives
+retain their separate duration weights. No source count enters the predictor.
+
+Learning check: DEMAND_TRAIN_RUN=smoke-25 DEMAND_STEPS=25 DEMAND_SECONDS=120.
+If finite and complete, start a fresh DEMAND_TRAIN_RUN=demand-2000,
+DEMAND_STEPS=2000,DEMAND_SECONDS=600 fit from initialization; do not warm from
+the smoke. Both use `uv run --extra mps python` with train.py. Store initial/final
+36VAL interval count predictions, with2–6 support reported separately. Prediction
+fit is a diagnostic, not a native-playability acceptance score. The3.947M core
+is never included in this optimizer; source57cdbbf0782587d5a16d3d59983621afbc117451
+owns the implemented probability feedback and demand model.
