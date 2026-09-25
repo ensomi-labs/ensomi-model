@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 418a89d09e096516d1a6ec53fda5da64fa1e5e31
+Product revision: c5fd73f9ea6851f88f6c268aa1aa64219bdbd591
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -12395,3 +12395,113 @@ actual resource use. Run training via uv run --extra mps python in the fresh
 owner; CPU native generation uses the existing panel seeds. New source and
 artifact identities will be appended before interpreting results. No networked
 data, remote push or autonomous note acceptance.
+
+### Result Log: scoped-onset-activity-v1
+
+Accepted:none; Cardrevision1. Clean interventionc5fd73f9ea6851f88f6c268aa1aa64219bdbd591.
+The H planner stores/restores its discounted one-per-H ledger with lookahead,
+cache and RNG. R1 object-demand changes leave the H stream unchanged even when
+activity feedback is enabled. Initial selected tests had33passes and one fixture
+error (JointChart.rows instead of JointChart.source.rows); the corrected two
+onset tests passed in.88s, then the six expanded ownership tests in1.20s.
+No failed assertion was relaxed. Product source was clean before fitting.
+
+Train command: uv run --extra mps python
+artifacts/joint-audio/20260926-onset-activity-v1/train.py.
+ScriptSHA79cd8911de0e755357afa9015848608586bf6ee43c7372c4909a55c6b8a24bf4;
+cache manifestSHA db178b3424bc11f23c3541235df107993ae51b8274d42050e41f63712ead2574.
+The terminal2000-update fit used83.952s,CPU1thread,seed261010,batch8,
+5188distinctTRAINcharts; peakRSS.5769GiB. It updates only63,362 rate-readout
+parameters. EndpointSHA5bcdaaf940b80c40ab916d71a156b62ff2c858e14a522bd267a5b62160d6f92c.
+The actual data-only loader succeeds. On24in-range VAL middle intervals,
+actual mean H count63.04; initial/predicted means28.50/57.38 and countMAE35.06/13.00.
+Poisson loss excludes the target factorial constant, hence negative values are
+possible. This diagnostic did not select a checkpoint or establish chart quality.
+
+Native driverSHA0853ddf5fa4314285df020a65c9a46da8de02eafdedf3fab055db9dcd8590123.
+Command sets ROW_NATIVE_RUN=native-low,ROW_NAMES=zenithfall,hysteric,take,
+ROW_MODES=low and invokes the owner native.py. It loads the fixed2500core and
+terminal activity2000, with R1 object-demand off. All three completed in
+7.838/6.430/3.267s from cached Mel.3/.2 star values3.92692/3.60028/4.44532 give
+MAE.99084, only.06507 better than1.05591. Hysteric worsens .28614, exceeding the
+.25 per-case guard. LN-fraction MAE remains.00122. Both expansion conditions
+fail, so no high-LN/switch/5–6-star/Tech follow-up run was started.
+
+H counts change1653->2228,1750->1845,922->931. Mean heads per H change
+1.4138->1.3779,1.4891->1.5789,1.7928->1.8378. Thus the intervention is not simply
+thinning an overly dense clock. It learns an activity reference but the composed
+R1 realization still differs from the desired difficulty. These trajectories
+do not establish whether the reference itself or the conditional row policy is
+the main cause. Adding mean-rate losses/controllers is not sufficient evidence
+of joint control calibration.
+
+Viewed all four Lens pages of Zenithfall303615–307616 and Take46927–50928.
+Both retain varied groups and short holds; Take still contains rapid repeated
+doubles and a four-LN chord. Detailed source-line claims await table inspection.
+The study is not promoted. The optional onset path remains off by default;
+the current baseline remains controlled2500 with projected LN amount feedback.
+
+Decision: REFINE. Shared arrangement profiles have already been studied in
+docs/research/shared_arrangement_profiles.md; do not present another global
+count descriptor as an untested new solution. First separate timing quality from
+R1's ability to arrange plausible low-difficulty charts at genuine source H times.
+This returns to the actual conditional task rather than increasing feedback gains.
+
+### Experiment Card: low-difficulty-source-h-v1, revision1
+
+Owner:this proposed Note. Accepted:none; standing local execution authority.
+Sourcebaseline c5fd73f9ea6851f88f6c268aa1aa64219bdbd591 with optional onset and
+object-rate paths off; fixed controlled2500 checkpoint and projected LN feedback.
+Question: does R1 produce an appropriate difficulty/organization when given head
+times from a real ranked3-star chart, while still choosing all rows and releases?
+The contrast is audio-only native H vs source H; it does not supply source rows,
+LN tails, counts or seeds to generation. Complete audio and requested controls
+are identical within each pair. This is an oracle-time diagnostic, not a native
+system result, and a single-seed comparison cannot assign a general fault share.
+
+Selection is deterministic from TRAIN in the ranked manifest already recorded:
+2.75–3.25stars, last row90–240s, source HH/RH/HR compatible with60/50/50.
+Three distinct organizations: low-LN narrow rows (fraction<=.1,width<=1.2),
+low-LN broad rows (fraction<=.1,width>=1.75), and LN-heavy (fraction>=.7).
+Choose minimum(abs(stars-3),abs(last_row-180000),sourceSHA) within each stratum.
+The eligible counts are29/6/10. Frozen chosen sources:
+
+- singles:258b3ab4648838b33bfd54de0fd07facc88bccbc81ac81a44220a600bffc1e48,
+  Shiraishi, Chouzetsu Gikou Renshuukyoku Daiichiban Shinsekai [Hard],2.99877stars,
+  783H,1.09962heads/H,.026713LN; HH/RH/HR minima155/155/155ms.
+- chords:720da64ee70d5fd538522bbd9f429a9be8f8a6f198d67b11a2d9b9e70a99eefc,
+  Yuyoyuppe, Hope [FAMoss' Hard],3.10350stars,410H,1.91707heads/H,.010178LN;
+  minima142/321/428ms.
+- holds:10a65062594dd828bc3533fa43937f0fc99b00da76d65401fdf45ef1347e9207,
+  miraie & Milkoi, The Place You Promised To Show Me [Absent Promise],3.00474stars,
+  875H,1.384heads/H,.843931LN; minima182/91/90ms.
+
+Recompute source native1x star values using the shared evaluator. Each pair uses
+its source's whole-chart star and LN fraction as controls; style is unspecified.
+Seeds261101/261102/261103 for singles/chords/holds, identical across each pair.
+Run from BOS through full audio; R1 supplies its own complete row history and
+open holds. Native release timing remains active even under source H. Record
+stars, H count, heads/H, LN amount/durations and local organization. Source H
+must be exactly preserved in its arm; all cases must finish within120s/30000rows.
+
+Decision: if source-H absolute star error exceeds.75 on at least two charts,
+prioritize R1/control/history coupling before another timing-rate modification.
+If all source-H errors are at most.35 while native error exceeds.75 on at least
+two charts, prioritize learned timing. Mixed results require interpreting the
+specific organization, not averaging it away. Stars remain a proxy: inspect
+source and generated peak/control-relevant ranges with Lens, including action
+and LN relations. Fidelity does not require copying the source layout.
+
+If R1 fails at source H, measure expected head counts on genuine source-history
+queries in the same intervals. This separates a poor fitted conditional from
+drift during free-running row history; preserve true state and labels, never
+attach source labels to a generated alternative prefix. This follow-up is a
+read-only probability diagnostic, not another policy intervention.
+
+Fresh owner artifacts/joint-audio/20260926-source-timing-diagnostic-v1. Freeze
+panel identities and commands before execution. CPU1thread, no fitting/TEST,
+at most900s total, no overwrites or remote publication. Product code already
+supports the source-H substitution; only artifact driver/measurement code is
+needed. The chosen cases are training sources, so this tests mechanism, not
+held-out generalization. Stop on unavailable assets or an unsupported source H
+plan rather than silently editing its timing.
