@@ -11121,3 +11121,26 @@ Lens can reject a scalar win. No aggregate pools different requested ranges.
 If nominal demand fits but native organization worsens, reject the policy rather
 than increasing its gain blindly. If demand prediction itself fails to use
 controls/audio, refine that representation before another whole-model fit.
+
+### Demand implementation and cache profile identity
+
+Clean source57cdbbf0782587d5a16d3d59983621afbc117451 implements AudioDemand,
+DemandCurve, DemandBalance and DemandFeedback, plus optional TypedSession/rollout
+integration. The default core sampler is unchanged when no demand model is
+provided. Eight selected tests pass in1.07s, covering discounted counts, positive/
+negative finite feedback, partial-cell future control changes preserving past
+integrals, actual native rollback, existing allocation and guidance invariants.
+Curated owner: docs/research/audio_demand_balance.md. The reference-network base
+starts at8heads/s and star slope.25 per star, with zero final-layer weights.
+Training normalizes frozen audio features using TRAIN-only statistics.
+
+Cache script is artifacts/joint-audio/20260925-audio-demand-balance-v1/cache.py.
+Profile command uses DEMAND_CACHE_RUN=cache-profile DEMAND_CACHE_LIMIT=16 through
+`uv run --extra mps python` and that script. The16 longest manifest audios are
+encoded first to expose the largest shapes. Full command uses DEMAND_CACHE_RUN=
+cache and no limit, with a fresh directory and deliberate recomputation of those
+16inputs; there is no implicit resume or reuse of stale files. Both are bounded
+by1200s/4GiB outputs. Every audio cache includes full-song fine/coarse features,
+50-frame pooling with a valid partial last cell, the3200-frame padding family,
+and encoder/source identities. No fit or model selection uses validation labels
+at this stage. The full cache starts only after observing the profile result.
