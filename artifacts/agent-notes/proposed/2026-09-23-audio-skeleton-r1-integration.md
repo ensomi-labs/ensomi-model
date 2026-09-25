@@ -9710,3 +9710,36 @@ Native runtime and 2-6-star coverage are reported; no source or style-quality
 label may be inferred from a low loss. Stop on nonfinite loss or one-hour limit;
 inspect observed failures before adding further checks or scaling. This is a
 joint architecture pilot, not a controlled attribution of every new component.
+
+
+Typed resource pilot source ca3dc65 completed 1,200 MPS updates in 412.8 s,
+614 TRAIN/36 VAL charts, 3,895,879 parameters. All 15 native cases (three unseen
+audios, five control modes) completed; all HH >=37 ms. Difficulty 3/5 at LN=.2
+produced Hysteric 3.010/4.729 stars, Zenithfall 4.625/5.080, As It Was 2.574/2.972.
+LN=.2/.7 at difficulty3 produced .195/.217, .143/.173 and .397/.458 respectively.
+Scoped 32-second revisions preserved published rows. Style supervision overlaps
+only 11 TRAIN charts. The 20-step Lens review inspected four pages and complete
+action/articulation tables; it found preserved layered LNs plus uncomfortable
+37-ms repeat under two held columns. Final-model Lens review is pending.
+
+The fixed-history condition probe on three VAL prefixes changes requested LN
+fraction .2 -> .7 but expected mark LN fraction changes only .013-.019.
+Changing the request scope from full-song to 16 s changes this by <.005.
+This identifies weak direct conditional sensitivity before free-running feedback,
+not solely a rollout failure or scope-duration mismatch. NLL alone is inadequate.
+
+Experiment Card typed-ln-control-base-v1 revision1, proposed, accepted none.
+Under standing local authority, test one semantic parameterization change: factor
+marks into (head count, release IDs) and conditional LN count, with a binomial
+base at requested LN fraction and bounded learned within-group residual. Mask
+that LN request from the residual inputs. The conditional mean LN count is then
+monotone in the request at fixed audio/history/support; other mark-group masses
+stay fixed. This does not guarantee exact scoped percentages after state feedback.
+Compare the same 1200-step weights with/without this factor, then at most400
+joint updates/10 minutes, same corpus and native controls. Primary: stronger
+LN control in all three songs with preserved varied LN forms and completion;
+reject a gain obtained by monotonous full-column holds. Inspect dense/transition
+scopes with Lens. Keep all original evidence. Optional training scopes include
+whole-song alongside 8/16/32 s to cover both supported request uses; record this
+as an additional fitting change, not isolated evidence for the factor itself.
+Fresh outputs under the typed-resource-plan owner. No adoption or remote push.
