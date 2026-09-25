@@ -11314,3 +11314,22 @@ quality metric. Inspect lifetime50–60ms pile-up, rapid50–70ms recovery, actu
 layering, coordinated tails, bursts/chords and scope transitions. Reject a
 metric-only success that merely accumulates notes at the new floor or flattens
 legitimate organization. The profile is an experiment, not a universal chart law.
+
+### Player-profile execution identity
+
+Clean source3a4f32f1afdbdda00ee2a03027f4c32d0ae3a77c exposes Recovery through
+rollout and records it in metrics. One focused end-to-end test passes in.87s,
+using an intentionally distinct500/500/500-ms profile to verify the actual
+planner/row sequence and terminal closure, not merely the reported metadata.
+The ordinary default remains37/25/21; count feedback and trained weights are
+unchanged. Pattern families remain representable at allowed intervals under
+the trial profile; their successful generation is still an empirical question.
+
+Profile native run uses the new owner's native.py, DEMAND_CHECKPOINT pointing to
+20260925-audio-demand-balance-v1/demand-2000/step-2000.pt,
+TYPED_NATIVE_RUN=native-profile,TYPED_NAMES=zenithfall,hysteric,take,
+TYPED_MODES=low,ln,difficulty,high,switch,TYPED_GUIDANCE=2. The driver fixes
+Recovery(60,50,50) and records it. Same15retained and15demand results are copied
+as references, not rerun. Existing120s/30000row budgets apply. Native inference
+is local one-thread CPU, no optimizer or TEST. No result is selected by the
+now-trivial <=40ms statistic.
