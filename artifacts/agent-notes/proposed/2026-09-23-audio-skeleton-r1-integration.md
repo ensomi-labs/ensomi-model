@@ -8696,3 +8696,165 @@ muststop/record ratherthan emitbadrows or silentlyrelax thecriterion.
 PreserveHtimes, allnormalrepetition/shortLNsupport, frozenruntimebounds and
 whole-chart/LNorganizationchecks. NewCard/implementation/run stillpending;
 do notstarta fit orretroactivelymodifycompleted outputs. Goalremainsactive.
+
+
+### Research branch: current constraints versus short continuation support
+
+The conditional mass audit is complete. A local row screen may repair many
+possible-but-unlikely futures, but an earlier choice can also empty all later
+clean support. Compare those two mechanisms in full native generation before
+adding a learned critic, particle system or a new fit.
+
+The short joint HH/RH constraint admits a simpler exact primitive than a
+general search. Every H in(now,now+20] requires a different column from every
+other H in that interval. A future release after now cannot make a held column
+usable within the interval under RH<=20. For a current complete-row candidate,
+advance its actual attack/release clocks and occupation; letA_j be the columns
+free and sufficiently rested at the jth futureH. These sets grow monotonically
+with time. A one-TAP-per-H continuation exists exactly when |A_j|>=j for allj.
+This nested-set matching condition does not assume future releases, predict
+their probability or enforce a generic H gap. Future extra heads/LNs are not
+needed for the existence witness. Current newTAPs may be used again at exactly
+now+20; current releases still cannot at that boundary.
+
+The result is exact only for the joint experimental screen and the covered
+20ms H horizon. HHalone permits some early-release solutions the RHscreen
+excludes. The651admittedsourcecharts previously havezeroHH/RH, but that doesnot
+establish auniversalhumanRHrule: earlier10/13msLN-jacktailgapsremainunresolved
+preferencecases. KeepRHexplicit, measuretargetretention andinspectLNexpression.
+An olderLNmayneedreleasebeforethis horizon; neitherlocalnorpreviewrowmaskcan
+guarantee theunchangedRclockwilldoit. Empty-supportfailuresarepartoftheoutcome.
+
+Closest analogue remains Grammar-Aligned Decoding, https://arxiv.org/abs/2405.21047:
+binary possible-future filtering differs from future-probability weighting.
+This test isolates theformer, simpler mechanism, not ASAp or theglobalconstrained
+posterior. The existing 16-state optimisticHHresponse is a local reference
+but assumes earliestpossibleR andusesminimal-editcorrection. Neither assumption
+is reused. TwistedSMC/learnedforecast remainsdeferred unless simplerconstraints
+fail their full-system/qualitycomparison. OutcomeTEST; nextactiveCardbelow.
+
+### Experiment Card: current-preview-row-constraint-v1
+
+Revision1; proposed; acceptednone. Owner2026-09-23-audio-skeleton-r1-integration.
+Standinguserauthority permits localimplementation/tests/boundedruns andcommits.
+Baselinecleanproductb35565d6a3a58ccc5ebd0ae296e5a792e4a94318. The preceding
+continuation-mass Card iscompleted, notaccepted/adopted.
+
+Question: does preserving a short feasible H continuation improve complete
+bounded-publication generation beyond sequential current-row conditioning,
+without losing controlledwidth/LNorganization? Onecausalintervention: add the
+exact nested-availability condition for H in(now,now+20] to the same current
+HH<20/RH<=20 row condition. Both arms use the original complete-row probability
+conditioned on their allowed set after full count/layout normalization.
+Do not pass the extra mask into model.planned_row_log_probs, which would
+redefine group marginals differently. Sample once with the original row RNG;
+no propose-then-minimal-edit correction and no new row RNG stream.
+
+Implement optional Python research API row_constraint='none'|'current'|'preview',
+defaultnone, in session/direct/bufferedrollout. It is not a packaged-inference
+default or trainingconfigchange. Preview mode requires at least5Hlookahead,
+enough to either cover the20ms horizon or prove more than4futureH impossible.
+Currentmode applies only the immediate HH/RH predicate. Bothapply to all actual
+H/R/terminalrowqueries; no imposedLN-durationfloor, Hspacing, grid, extra
+skeletonfeedback or modifiedRhazard. The preview predicate tests actual post-row
+clocks/occupation with the nested cardinality condition stated above.
+
+The baseline none path must preserve existing model scores, rows and RNGs.
+Do not combine either new mode with old correct_short_attacks. Bufferednewmodes
+require the existing RHscreenenabled, so contradictory settings fail explicitly.
+No-row support returns a distinct diagnostic with failingtime, currentLN/clocks,
+preview and retained/excluded modelmass. Restore observedcursor beforethat step;
+no badrow or unmaterializedH coverage may be published. Directrollout returns
+the committed incompleteprefix. Bufferedrollout treats this as an ordinary
+unpublished rejection, permits the same four attempts, and preserves old
+resource/error/consumer behavior. Failed forks never alter publishedstate.
+Capture decision statistics and actual rejectedprefixes, not inventedrowactions.
+
+Productscope: smallpure constraint/conditioning owner, session/generation/
+buffering parameters and diagnostics, focused tests, research guide. No trained
+tensor, checkpointformat, Hydra schema, data preparation or defaultpolicychange.
+Freeze a clean intervention OID and audit only this scope before modelruns.
+
+Tests before corpus/native: exact strictHH and inclusiveRH boundaries; current
+candidatepoststate; trueLNreleases withoutdurationfloor; closecross-columnH;
+futureH atnow+20; multipleHnested matching against exhaustive column assignments;
+mirror/columnpermutation consistency; terminal/no-future cases; insufficient
+preview detection; explicit empty-support handling; same model probability
+ratios within allowed rows; default parity; one draw per actualselectedrow;
+native cache/fork ownership; rejectedfuture publication isolation; no claimed
+coverage at a failed H; unchanged consumer/resource propagation. Exercise real
+session and bufferedentrypaths, not only a copied reference mask.
+
+Corpusguard: replay all615TRAIN+36VAL admitted charts from manifest
+4ad9abfd0ae7798e0a85b96a5dbecdaefd2a81f78bf181438407442b964118e1 at
+artifacts/joint-audio/20260924-alias-restored-v1. Build actualsourceHpreview and
+require every target row passes both policies. Verify pinnedsource/cachebytes.
+This checks the admitted corpus only, not a universalRHtaxonomy. NoTESTaccess,
+labelmutation orsourcepreprocessingchange. Stop onanytargetexclusion/mismatch;
+do not relaxcriteria, omitrows or continue withanunexplainedexclusion.
+
+Nativecheckpoints: unchanged flatda08044806e99eae6a6221c06ef8c91c02711361fae68c896c9af01bde61dea2
+andfactor41ab71640ce9571ac7f40d9f851a51e2ba54c10ba97fc6f9e54dbc54fac76185.
+They retain the original fullaudio/H/profile frozen tensors. Bank
+a8973b7f94fde90d9f3cc639eb63e781dd295435622ce79fd54fe244789e6f03;
+panel484d173628856a431e034b1dbdacab9173c40f3edf696d1b9a19721aeec70dc9;
+canonicalMel/normalization as in the completed count-layout comparison.
+Parentnative43d130ed6291abdebc3c994e1ad27b833954ef84deed5f9dfcc8422e4a60b5ff
+owns rawdescriptorbaselines and Hsequences. Exactcheckpoint/panelpaths are in
+its native-freeze.json b7db758c974d266c055c3b4801f62d84e3a63bfff265cb91d0c434b3c994a8b8.
+
+Run64screened calls:8audios×profiles1/2×flat/factor×current/preview.
+Use unchanged seeds251701..251708 bypanel order, ownonlineHplanning, fullcachedMel,
+8s window/20ms sampledhalo/fourattempts. Factor16casecohorts are primary; flat
+is a declared diagnostic replication, not a pool for favorable averages.
+Require every emitted Hprefix/fullsequence matches the originalI plan exactly.
+Reparse every complete export and independentlyreplay all published rows and
+settledcoverage. No directfallback replaces a missing constrained output.
+
+Expected empty-support or four-attempt exhaustion is an outcome, retained as
+incomplete, then continue the next independentcase. This deliberately differs
+from the preceding driver that globallystopped on thefirstattemptlimit.
+Nonfinite probabilities, identity/replay/Hmismatch, corpusfailure or global
+resource/budgetguard stops thedriver. No retrylimitincrease or failedcaseresume.
+Capture atmostfirstfourrejectionsperchart with actualprefixrows and diagnostics.
+
+Primarycandidatecriterion: all16factorpreviewchartscomplete withHH0/RH0.
+If factorcurrent hasfailures, preview mustreducefailedcases; ifbothcomplete,
+previewmustreduce total rejectedproposals byatleast50% when current hasany.
+Ifbothcompletewithzerorejections, prefer the simpler currentmechanism unless
+otherdeclaredqualitycriteria distinguish them; no inventedstrictwin.
+Report every cohort's failures, empty rows, retrycounts and coverage loss.
+
+Controlguard: for a completefactorpreviewcohort, mean transformed/standardized
+width+LNerror<=1.10*4.909229802145201 and each component<=1.10times its rawfactor
+baseline(width1.3010756143039068,LN3.608154187841294). Hhashes/errorunchanged
+(.8738583548578978). Reportcurrent/flatcompletecohorts andwholechartrealizedvalues
+aswell; neveraverageonlysuccesses. Descriptorpassaloneisnotadoption.
+
+Runtimeguards: cached-Mel integrated H/body first8s readiness<=2s andevery
+publicationwindowservice<=2s. Atmost90s/30000rowspercase,1800swholedriver.
+CPUonethread,AppleM5/24GiB,Python3.10.20/Torch2.11.0; uv run --extra mps for
+modelcommands, --group dev forpytest. Corpusguard<=300s. AvailableRAM>=2GiB,
+free disk>=40GiB, PAUSE honored. NewartifactsincludingLens<=2GiB, no network
+duringruns. Fresh owner artifacts/joint-audio/20260925-current-preview-constraint-v1;
+freeze exactscript/command/source/Note/inputs beforeeachstage. No overwrite/resume.
+
+Qualitative plan: review availablefactorcurrent/preview charts in fixedcontexts
+FoolMoon167206..169945,Hysteric243000..247000,Revenge239894..243706,
+AsItWas123000..127000, bothprofiles. Also reviewfactorpreviewP2densest4s onall8
+audios andfactorpreviewP1densest4s onthefourfixed-contextaudios. Addflatcurrent/
+previewP2Hysteric243000..247000 andRevenge239894..243706 asdiagnosticpaired
+contexts. Merge overlaps. Inspectalltimepages/fullactions/LNtables; exact
+verifiedhumanreference reuses areallowed. Incomplete/unavailable scopes stay
+explicitlymissing. No requirementtorenderallrejectionwindows; inspect actual
+failure diagnostics and source relationships for causal claims.
+
+Keep shortLN/chordgroups, sustainedindependentholds, subsetreleases, variable/
+repeatedgrips andfinecross-columnonsets visible. A runtime/controlpass with
+lostLNorganization or bland single-tap fallback isnotimprovement. No generic
+anti-Jackfilter orrequiredcopyingofsourcestylelabels. No listening/playerclaim.
+Negativeoutcome mayidentifyRtimingcommitment beyond20ms, source/nativehistory
+shift or a failedcomparison; do not automaticallyscaleparameters orreinstate
+optimisticreleaseassumptions. Positiveoutcome selectsanintegratedcandidate/
+learning design, notfinalmodeladoption. Alloutcomes remainREFINE without
+humanacceptance; thefullplayablerealtimesystem goalstaysactive.
