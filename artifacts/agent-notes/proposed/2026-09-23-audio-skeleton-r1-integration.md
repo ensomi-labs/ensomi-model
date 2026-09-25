@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 7329b0ea93262717fb5d1475a308e6e562cf4a11
+Product revision: 4adcdd9393a603b3ef164645aeb0db6d6b1d9349
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -9940,3 +9940,61 @@ pin new inputs once at admission, and reuse canonical existing Mel assets.
 Fresh owner artifacts/joint-audio/20260925-typed-contract-repair-v1. Current169GiB
 free disk allows a bounded40GiB cache; keep>=40GiB free and stream chart states.
 No network or remote publication. Stop on nonfinite fitting or resource bounds.
+
+Repair implementation committed as4adcdd9393a603b3ef164645aeb0db6d6b1d9349.
+The initial20-update smoke completed; the subsequent1200-update fit includes
+the final distinction between an unspecified LN amount and a known reference
+amount. It starts at the raw typed1200-update checkpoint, uses the frozen TRAIN
+reference fraction.1703308179279884 and actual bounded-clock constructor flags.
+The live fit owner is typed-contract-repair-v1/repair-main; process19977.
+
+Broader canonical Mel preparation completed332.734s,6,923 TRAIN charts across
+2,573 source groups, unchanged36VAL,2,665 total byte-distinct audio assets,
+20.285GiB of new features. All2,438 new encodes succeeded; one source excluded
+for the stated recovery envelope. Admission pins source/rows/audio once. The
+larger TRAIN slice overlaps112 human-annotated charts and289 human cells,
+compared with11 charts in the previous paired slice. Machine annotations are
+not silently promoted to human supervision. No TEST opening or remote push.
+
+Experiment Card ranked-typed-controls-v1 revision1; proposed, accepted none.
+Standing local execution authority applies. Question: can broader paired
+coverage teach the same small model a joint style/difficulty/LN response without
+the short-LN inflation observed in the small-data candidates? Keep repaired
+architecture, full-song Mel, frozen input normalization and LN prior, native-ms
+support, exact physical resources and R1's direct audio plus skeleton preview.
+Baseline is repair-main/step-1200 on the650-chart owner; native results pending.
+This is a data/objective expansion, not an isolated parameter-count experiment.
+
+Use the new ranked manifest, uniform source group -> chart ->8s interval for75%
+of draws and an explicitly separate human-annotated interval objective for25%.
+Correct the population interval weight to1000*interval_count/audio_duration;
+the old pilot's inverse sampled-interval duration overweights short final cells.
+Annotation-biased sampling remains declared and is not population NLL. Human
+labels remain scoped, independently optional and absent only when assessed so.
+Compute difficulty on actual source bytes with the same20241007 implementation
+used for generated charts. Cache at most24 chart/program states; mmap Mel and
+pad whole audio to32s shape buckets with exact real-prefix masking. No real
+audio is cropped out of the global encoder. Record this weighting correction
+alongside expanded data as a confounder of causal attribution.
+
+Seed251927,2microbatches/update, body LR3e-5, other LR3e-4, fixed optimizer
+restart. Run40 learning updates first, then at most6,000 updates/one hour after
+the learning and native integration check; save every400. Fresh ranked-smoke
+and ranked-main owners, no overwrite. Stop on nonfinite losses/gradients, the
+wall-clock bound or an explicit STOP file. Save full constructor options,
+optimizer and RNG alongside source/script/manifest/checkpoint identities.
+
+Evaluate against the repaired small-data candidate on Zenithfall/Hysteric/As It
+Was, fixed existing seeds: D3/5 x LN.2/.7, plus32s joint changes. Add a targeted
+style-change probe on Hysteric using the same control interface, not a separate
+style-only generator. Primary is native playability with meaningful conditional
+contrast: compare whole-chart star error, local action/release demand, short-LN
+frequency and complete Lens contexts jointly. Required regression guards:
+all cases complete, no HH<37 or RH<25, unchanged published prefixes, no inflation
+in the aggregate <=40ms LN fraction. A lower NLL or star error alone cannot
+satisfy this experiment. Scope percentages are measured responses, not hard
+quotas; style strength has its supplied multi-label ordinal semantics. Shared
+scope clocks do not yet encode separate deadlines for overlapping partial
+fields; this limits quota-like interpretations and is not hidden by the API.
+Only after native improvement is visible use the remaining five audio-panel
+cases as a broader generalization check. No adoption or claimed player testing.
