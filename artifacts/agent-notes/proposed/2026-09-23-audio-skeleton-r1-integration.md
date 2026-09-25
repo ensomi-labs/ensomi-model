@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 08b833755883f86cd0701cd9ff4c36e4a21394d6
+Product revision: b2f69839a1c267a6ba7d0efefc72db26e81f8e18
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -12047,3 +12047,98 @@ existing panel seeds/checkpoint, CPU1thread,120s per case, fresh prefix-probe
 under the same artifact owner. Record exact row equality against the terminal
 baseline. This probe asks where the control response is weak; it cannot establish
 the result of changing a control throughout a free-running song.
+
+### Same-prefix diagnosis and feedback mechanism
+
+The probe completed with exact row equality to both retained native baselines.
+Executable sourceb2f69839a1c267a6ba7d0efefc72db26e81f8e18 and the same2500
+checkpoint. ScriptSHA2569628c95f6d63e236943006839a7367153cb6a4678a7571251c711883ec48c425;
+outputs prefix-probe-v2. The first prefix-probe launch constructed parameters
+inside inference_mode, which prevented the temporal cache from reading version
+counters. Loading the model outside that context fixed this harness error;
+the failed identity-only directory is retained.
+
+Every32nd query was sampled without changing RNG. For Take/low,29 sampled H
+queries give mean native-bin probability .02009 requested3 vs .02523 stars
+omitted, and .02389 requested5. For Zenithfall/ln,57 queries give .01524/.01971/
+.01830 respectively. These query-position averages are not unconditional song
+event rates. Twenty-seven and47 sampled head-bearing R1 decisions respectively
+change mean heads1.913->1.951 and1.516->1.538 when3 becomes5 at the same prefix.
+The weak local cardinality response warrants later learning/calibration work;
+it does not justify assigning chord sizes to S.
+
+On Zenithfall's sampled H states, LN fraction of summed expected heads is.8375
+before frontier,.8226 after frontier, and.8226 after recovery preferences. Removing
+existing LN feedback raises it to.9120. The mean applied feedback is-.8432logodds.
+For Take the corresponding values are.2465/.2280/.2358, with.2817 without feedback.
+Thus removing frontier is not supported. These are sparse same-prefix diagnostics,
+not attribution of free-running long-form outcomes.
+
+The current proportional correction computes logit(request)-logit(realized)
+with finite gain. A nonzero correction against a persistent policy bias therefore
+requires nonzero realized error. Raising the gain only trades residual bias for
+more sensitivity. A projected integral state is a distinct mechanism: remember
+the correction required by preceding actual choices, then update it with the
+next amount error. Finite projection prevents unbounded accumulated debt.
+
+Conditional-vs-omitted difficulty guidance was also considered. The mechanism
+is used in autoregressive MusicGen (Copet et al.,2306.05284; AudioCraft lm.py
+combines conditional and dropped-condition logits). Applying it here would
+require dropping the star field's scope clocks as well as its value/known bit,
+and separate treatment of release marginals. The weak R1 contrast means simple
+amplification is not yet selected as a sufficient difficulty solution. This is
+an adaptation analogue, not a novelty claim.
+
+### Experiment Card: r1-ln-moment-feedback-v1, revision1
+
+Owner: this proposed Note. Accepted:none; standing local execution authority.
+Question: can finite integral amount feedback remove the systematic LN bias
+while leaving R1's head/release-count decisions intact at each queried state?
+Baseline: cleanb2f69839a1c267a6ba7d0efefc72db26e81f8e18, terminal frontier-2500
+checkpointSHA0f1ddfa5b351988fca04246ec080be106855f49b50fb493370c2d5afee1febb8,
+native-main and native-ceiling outputs. No training/data or seed change.
+
+One intervention replaces R1's proportional LN feedback with a projected moment
+controller applied after learned frontier and empirical recovery preferences.
+For a row withhheads andlnew LNs, update offset by( rho*h-l )/8 and project to
+[-2,2]. The new offset affects the next row. Within each fixed(h,release-count)
+family, exponentially tilt complete-row probability by offset*l and renormalize
+to preserve the original family's mass. This also preserves conditional layout
+odds at fixed(h,l,release-count). Timing and R1 count heads receive no quota or
+feedback input. Actual generated LN state still affects subsequent releases.
+Scope accounting follows effective LN ownership only; a new/restored LN episode
+starts with zero offset. Missing LN control disables it. No deadline term,
+remaining-time catch-up or stored error beyond the projected offset.
+
+Closest local analogue is typed_audio_continuation/allocation.py's proportional
+negative feedback. The change is the controller's memory and exact placement in
+the final R1 probability law, not a new neural architecture or an exact guarantee
+of realized fractions. A first-order gain1/8 reaches an order-one correction in
+tens of persistently biased heads; the finite cap leaves strong contextual
+all-TAP/LN preferences possible. This is one declared policy, not a gain sweep.
+
+Primary: mean absolute whole-range LN-fraction error across three audios and
+3/.2,3/.7 falls from .0866366 to at most .05, with the3/.7 cell at most .06.
+Guard: each static star-error cell changes by no more than +.35; all cases finish;
+same controls retain identical generated H times; no illegal/profile-violating
+rows. Scoped105000–137000 overrides are assessed separately before/inside/after,
+without pooling. Inspect the matched Zenithfall LN peak and Take's low-D peak
+with all Lens pages and articulation facts; reject all-TAP collapse or loss of
+clear extended holding as a blanket solution. Low-D timing calibration is still
+an open failure even if this LN intervention passes.
+
+Procedure: unchanged native.py with the same2500checkpoint and seeds, fresh
+native-ln-moment for three audios × low/ln/switch (9cases), plus Hysteric/high
+and Take/ceiling in native-ln-moment-guards (2cases). CPU1thread,120s/30000rows
+per case; total at most1500s, no fitting/TEST/networked data or overwrites. Commit
+the executable intervention and record its OID before runs. Small law/state
+tests must establish count-marginal preservation, correction of a persistent
+amount bias, projection without accumulated windup, and independent scopes.
+
+Positive: amount error falls and guards/inspection hold, justifying wider style
+qualification of this policy. Negative: slow scope response, altered density,
+unstable alternating LN amounts or qualitative collapse rejects this policy.
+Ambiguous: numerical fraction improves but phrasing/playability worsens; retain
+the baseline and revise the control-state representation. Pairing is by audio,
+seed and controls; after an altered LN choice the R1/release histories diverge,
+so count-marginal preservation is a same-state invariant, not equal total heads.
