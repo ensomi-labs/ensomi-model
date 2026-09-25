@@ -10994,7 +10994,7 @@ outputs3.416674/4.038450/3.531242/3.056235, span.982215. The requested cells sta
 separate. LN fractions are.1685–.1847 and.7110–.7266. Only the high-LN251703
 chart has any<=40ms LNs, fraction.0017762; this does not turn the other charts
 into validated playable outputs. Four seeds give descriptive variation, not a
-population failure estimate. The one-star/.1.5spread review thresholds are
+population failure estimate. The one-star error and 1.5-star spread review thresholds are
 marginally crossed; variation is substantially smaller than the continued-fit
 high-LN drift and must not be narrated as equivalent catastrophic failure.
 
