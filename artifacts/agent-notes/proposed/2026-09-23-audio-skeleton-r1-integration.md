@@ -10503,3 +10503,49 @@ Existing120s/30000rowpercasebounds;stopongeneration/nonfiniteerror, nooverwrite.
 Fivefocusedchecks pass in.81s, including occupied-keypressure versusvalidcross-
 columnexpansion and realplannerrollback of bothallocationandrecent-head state.
 Broaderaudios/styleandfinalsystemcalibration remainpending. Goal staysactive.
+
+
+## Occupied-head preliminary result and conditional guidance, 2026-09-25
+
+Headpressurenative18583 isterminal,15/15complete. Static12SRMAE.505763,
+LNMAE.032063,shortLN81/11975(.6764%), comparedwithpreviousrecoverypreference
+.435045,.037732,73/12371(.5901%). Headcountmin/median/maxratio relative tothat
+comparator=.89733/.97761/1.02898. Maxcachedstartup/window.4364/.4293seconds.
+The causal target improved: all sixstaticD3cases nowhaveHHmin97/98/120/102/108/
+122ms,andnone has anHH<60witness. The two unavoidablyforced45/57ms examples
+areabsent in thenewtrajectories. Scalarcalibrationdidnotuniformlyimprove.
+
+Fixed32s D5overrides haveproxy4.085/2.971/3.496, LN.765/.783/.799; afterD3
+restorationproxy2.918/2.577/3.417,LN.149/.173/.137. In particular,Hysteric's
+higherrequeststilldoesnotproduceacomparablydifficultscope. PeakLensrenders
+ZenithfallLN292389..296390 andHystericLN91205..95206 areprepared; theirfour
+pagesandtables arePENDINGREAD asofthisentry. No newstylecomparisonhasrun with
+headpressure. Keepallpoliciesoptional; noacceptedplayablemodelclaim.
+
+Proposed Experiment Card: audio-scoped-star-guidance-v1,revision1.
+Acceptedrevision:none. Source764669e2f25582a7a95d7858252c3b36a96fb763 withsame
+ranked2400weights,LnFeedbackandrecovery/headpressure. Oneinferenceintervention:
+difficulty-onlycategoricalCFGstrength2,alreadyusedin the earlier investigation,
+nowcomposedwiththeexplicitphysicalpreferences.15%star-conditiondropoutduring
+training provides a corresponding no-star distribution. The reasonisweakscoped
+requested-difficultyresponse afterqualityimprovements,notanotherNLLfit.
+
+Atclock/mark/row queries compare actualD andstar-value+knownbitomitted, leaving
+LN/style/scope/audio/history/physicalsupport unchanged. Locallyrenormalize
+2logp_requested-logp_without_stars. Preferences/amountfeedbackapplyafterthis
+modeldistribution,so theirpenaltiesarenotdoubled. The operation amplifies a
+learnedconditionalratio; itdoesnotguarantee correctdifficulty andisnotexact
+globalchart-levelguidance because eachconditionalnormalizerdependsonprefix.
+Closestprimaryanalogue: autoregressivecategoricalCFG alreadycitedin
+scoped_demand_frontier.md, https://arxiv.org/abs/2306.17806. No newtraining.
+
+Reuse the existingdifficulty-onlyguidance.py implementation from
+20260925-typed-contract-repair-v1, sameargumentpositions3/3/6 stillusedbythe
+currentgenerationcalls. Freshowner20260925-scoped-guidance-v1, nooverwrite.
+Run TYPED_GUIDANCE=2 plus same3audio/5mode panel, exactfixed105000..137000switch,
+existingseeds,120s/30000rows percase. Targetimprovement >=.25proxyunitonatleast
+twoofthree5-staroverrides,withSRMAE<=.65,LNMAE<=.06,shortLN<=1%,no new forced
+HH<60atD3 andmedianheadratio>=.85. Qualitativearticulation/style canreject a
+scalarwin. Nofurtherstrengthgrid planned; inspectnativeoutcomesbeforeadoption.
+Ifconditionaldirectionisstillwrong, revisittarget/modelconditioning instead of
+increasingguidanceindefinitely. The retainedweights andun-guidedcandidate remain.
