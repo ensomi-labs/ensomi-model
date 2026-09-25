@@ -10083,3 +10083,55 @@ native and matched style cohorts are running as49061 and97281; process85912
 is the sole continuing trainer. All other handles named in this result log are
 terminal. Final6000 native/control/Lens evaluation and any broader five-audio
 generalization check remain required; the goal stays active.
+
+The2400-update native and style processes49061/97281 are now terminal. All15
+native cases complete. Static star MAE.488256, LN MAE.077713,256/12515 short
+LNs (2.0455%). HystericD3/high-LN improves55->10 microholds and127->224ms
+median duration versus800; requestedD3 yields3.563 stars. Zenithfall high-D/high-
+LN still has154/2828 microholds and121ms median. Continue the bounded fit;
+do not treat this intermediate as a final selection.
+
+The2400 style comparison retainsD4 andrho.2. Its actual32s LN fractions are
+.156 baseline,.064 Jack,.088 Stream,.081 Tech. Adjacent-head same-column
+fractions.193/.295/.361/.309 do not demonstrate semantic selectivity. Four
+matched105000..109000ms contexts/eight pages and every table are read. The
+Stream condition repeats the outer pair and right-outer column; Jack adds a
+four-note chord and an isolated repeated right pair; Tech remains close to
+baseline. The same3/4ms cross-column stagger is present in every condition,
+so it does not establish selective Tech control. This is evidence of imperfect
+joint target adherence, not a demand that musical properties be statistically
+independent. No whole32s style label is inferred from the4s visual inspection.
+
+Primitive for a possible next amount-control intervention: for an active LN
+scope defineH(t) as generated heads andL(t) as generated LN heads since the
+scope began. B(t)=rho*H(t)-L(t) updates byrho*h-l for a new mark(h,l). These
+facts come entirely from generated skeleton marks; no row embedding, TAP-column
+history or target future is required. For a source-derived scope rho=L(end)/
+H(end), B(end)=0 algebraically. Supplying B,H and remaining scope duration to
+the predictor restores information that a63-event history can forget. It does
+not imply enforcing an exact integer quota, forcing last-second corrections,
+fixing style or treating NLL as a playability objective.
+
+The closest analogy is desired-return-conditioned sequence modeling in
+[Decision Transformer](https://arxiv.org/abs/2106.01345). Only the idea of an
+explicit remaining objective transfers; this system has chart/audio examples,
+not an offline-RL reward dataset, and no new Transformer is required for a
+small exact counter. This is a provisional adaptation of a standard primitive,
+not a novelty claim or an adopted model. Style and difficulty have non-additive
+structure and should not be silently encoded as this same count discrepancy.
+
+Scope ownership must be resolved before implementing that primitive: style-only
+changes must leave LN accounting attached to its own active request; overriding
+an LN amount must not create compensating debt for the excluded high-LN interval
+after the earlier value resumes. A candidate is a new accounting episode on
+effective LN-amount entry/return, while keeping earlier published choices and
+held obligations intact. It differs from a strict quota over the original broad
+interval. Prefix/scope accounting, training and native rollback must use the
+same convention. No ledger, auxiliary loss or inference feedback controller
+has been added during the ongoing data-only fit.
+
+Trainer85912 remains live, last observed4200 updates/1979s,3860 distinct charts,
+peak RSS3.317GiB and MPS driver5.791GiB. Finish at6000/3600s, inspect the final
+native cohort, and then decide between unchanged learning, exact scope state,
+and a demand-aware planner/frontier. Broader test audio and final style response
+still require evaluation. All published evidence remains local.
