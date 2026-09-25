@@ -9743,3 +9743,41 @@ scopes with Lens. Keep all original evidence. Optional training scopes include
 whole-song alongside 8/16/32 s to cover both supported request uses; record this
 as an additional fitting change, not isolated evidence for the factor itself.
 Fresh outputs under the typed-resource-plan owner. No adoption or remote push.
+
+
+Explicit LN-base source 27b9526 completed 400 MPS updates in 146.95 s; frozen
+1200-step weights were also tested without fitting (Hysteric LN=.2/.7 yielded
+.069/.751, with stars2.999/4.641). The fitted 15-case native cohort completed
+without dead ends and retained HH>=37, max cached-Mel startup/window .381/.344s.
+At D=3, LN requests .2/.7 yield Zenithfall .085/.748, Hysteric .102/.791,
+As It Was .171/.739. Active32s switched scopes yield .703/.835/.752, following
+32s baseline scopes .100/.123/.204. Published prefixes remain unchanged.
+
+Retain the new conditional LN-count mechanism, but REFINE the system: D=3,
+LN=.2 now yields stars5.202/4.097/3.168 (Zenithfall/Hysteric/As It Was), so this
+is not an adopted playability improvement. First-candidate Lens coverage is
+7 scopes/14 pages; final high-LN review is3 scopes/6 pages, all numerical tables
+read. Layering/subset tails/handoffs remain, but Hysteric introduces a21ms LN
+near249284ms and Zenithfall has29ms double LNs near306221ms. Across the high-LN
+Zenithfall output,173/3005 holds last<=40ms, median120ms. Source-relative local
+release demand and difficulty coupling are unresolved. No listening/player test.
+
+All run processes are terminal (73113 failed on empty-interval float64, fixed;
+52381 smoke2,72703 native smoke,49047 joint fit,47764 native200,48384 native600,
+21236 native1200,61914 fixed-condition probe,67660 unfit LN base,62105 final fit,
+41839 final native). Four focused tests cover resource/geometry continuation,
+scoped field semantics and conditional LN-group masses/monotonicity/gradients;
+actual joint fitting supplies MPS evidence. No broad repeated test suite.
+Standalone weights exported as candidate-typed-v1.pt and candidate-ln-control.pt
+under artifacts/joint-audio/20260925-typed-resource-plan-v1, with configuration,
+normalization buffers, style vocabulary, recovery profile, and source revision.
+
+Next research question: a difficulty request must constrain the joint action
+response of time/counts/releases/geometry, not only increase average note rate.
+Investigate the observed short-LN additions and song-dependent density first.
+The single previous-event clock can reset head phase on releases; this is a
+hypothesis for testing, not an established cause. Explicit last-H clocks and
+source-calibrated local attack+release burden are concrete next primitives.
+Do not treat a larger minimum gap, more training or lower NLL alone as success.
+Human style/audio overlap also needs expansion before style-control claims.
+No ongoing process or overnight automation was left running; goal remains active.
