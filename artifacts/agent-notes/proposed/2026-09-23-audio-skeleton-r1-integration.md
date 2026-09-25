@@ -10718,3 +10718,38 @@ and this architectural rationale to typed_audio_continuation.md and
 scoped_demand_frontier.md. Documentation diff check is clean; no behavior tests
 were repeated for this prose change. Note remains proposed; accepted revision
 none, no lifecycle change or remote publication. The active goal remains open.
+
+## Causal workload reference probe, 2026-09-25
+
+Proposed Experiment Card: audio-causal-workload-reference-v1, revision 1.
+Accepted revision: none. Standing local research/execution authority applies.
+Clean product baseline: 887156fc51ccaf70acd1138154bbc582762e1b12.
+This probe measures a candidate representation; it changes no trained model or
+sampling policy. Its decision is whether recent head/release workload separates
+sustained generated burden from the ranked reference enough to motivate one
+bounded soft-response implementation. It does not aim to establish physiology
+or classify all rare patterns as BAD.
+
+Use the existing 6,923 ranked 2–6 TRAIN charts, group weighting and source-star
+freeze. Sample complete audio every 100 ms, including silence. At each t, for
+1,000/4,000-ms windows, compute head counts, head-plus-release counts, and their
+maximum per column. Count events in (t-window,t]. For the skeleton lower bound,
+divide total counts by the keys not held throughout that window, then by seconds;
+no columns or future releases enter a runtime planner representation. Offline
+source endpoints only determine which holds are still active after t. Weight
+uniformly over song groups, then their charts, then sampled audio times. Report
+median/.9/.95/.99/.995 separately by nearest whole-chart star band and source
+LN fraction <.25, .25–.75, >=.75, as well as all LN compositions within the band.
+The rates are action-count proxies, not complete difficulty or style labels.
+
+Artifact-only script: artifacts/joint-audio/20260925-multiscale-workload-v1/
+reference.py, SHA256 c420ef46f1e3da561af2470a6a72cd26978eb3596eb904471fb8b172569fd4ed.
+Fresh owner, exclusive output creation, no overwrite/resume. Command:
+`uv run --extra mps python artifacts/joint-audio/20260925-multiscale-workload-v1/reference.py`.
+CPU data pass, no training, network or TEST access; budget three minutes and
+256 MiB derivative outputs. Then compare selected native cases at their actual
+control ranges. Quantile thresholds remain descriptive until a separate
+intervention is specified. If generated and source distributions are similar,
+refine the representation or ownership hypothesis rather than tightening a
+cutoff until examples fail. If separable, preserve expressive bursts and
+mandatory release execution in the proposed response.
