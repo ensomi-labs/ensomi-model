@@ -11893,3 +11893,66 @@ Commands set ROW_NATIVE_RUN,ROW_NAMES,ROW_MODES and, for the fixed case,
 ROW_FIXED_HEAD_ROWS=artifacts/joint-audio/20260926-per-field-scoped-demand-v1/native-endpoints/take/ceiling/rows.jsonl;
 then invoke the owner native.py with uv run --extra mps. Concurrency with MPS
 training excludes these service timings from latency benchmarks.
+
+
+### Executed fit and a release-coordination counterexample
+
+The first fit is terminal at2000 updates. Its resumed segment took1025.894s,
+accepted3872 draws (2865population/1007human), reached2286 distinct charts and
+rejected89 proposals. Including the smoke, the fit used4000 accepted draws.
+CheckpointSHA25631962d0ec9fbcedbcf95d0e7c1176002824f50f10d0bfc1546d2a82d99a14156. Twenty-two compatible validation intervals change
+mean H/R/row/joint NLL per second44.609/1.694/22.927/69.230 at initialization
+to33.198/1.338/11.979/46.515. This does not establish native quality.
+
+The64-step fixed-H Take diagnostic completes at4.182stars for requested6; it
+establishes that R1 can now change composition, not successful calibration.
+The generated-H Hysteric smoke fails at141149ms with row_constraint_empty.
+Captured state in native-failure.json supplies the cause: at141130, R1 tapped
+columns1 and2 while column3 remained held from140766; column0 was already free.
+The next H times are141149 and141183. Column0 can serve the first, but columns1/2
+remain in HH recovery until141190. The held column must therefore release by
+141133 to serve the second H under RH50. A valid release-only event exists at
+141131–141133. The LN-only deadline counted three closed keys as ready and did
+not require that event. After waiting through141148, no valid complete row can
+satisfy both heads. This is an information/support error, not an optimizer or
+capacity problem.
+
+The earlier uniform-gap deadline argument did not justify this generalization.
+With HH60 and RH50, an old held key can release/repress in51ms while a fresh TAP
+needs60ms. Occupancy alone therefore does not summarize the release-feasibility
+response. The new profile row-existence check was correct; the waiting policy
+could leave its feasible continuation set before the next decision.
+
+### Revised card: row-owned-audio-restoration-v1, revision2
+
+Accepted:none. Replace the release-feasibility part of revision1; keep decision
+ownership, profile, model dimensions, controls, data source and quality targets.
+Baseline is sourcec5b7db8b703e3e685330a364b52512d0f4dc16bc and its terminal2000
+checkpoint above. This refinement is authorized by the owner's explicit emphasis
+on formulation, module purpose and whole-system quality over fixed internals.
+
+R1/scheduler now computes a typed release window from the exact committed prefix
+and hypothetical one-TAP realization of upcoming H times. The first H that cannot
+be served using currently closed keys determines a necessary release deadline,
+H_time-RH; earliest release follows actual LN ages. These two bounds go to the
+release sampler, which keeps its audio/LN/timing-history preference network.
+R1 still decides every count, note kind, release identity and column. The raw
+H and release-preference networks do not receive generic row embeddings or TAP
+history. Effective release sampling intentionally depends on R1's feasibility
+response; the former full-distribution independence claim is too strong and
+must be replaced explicitly, not hidden behind a mask.
+
+This typed communication preserves valid LN/TAP constructions that would be lost
+by conservatively forbidding every row requiring a timely release. The response
+is an execution-feasibility projection under the declared profile, not a complete
+or calibrated gameplay-demand frontier. Training and inference use the same
+window and conditional release normalization. Source windows that have already
+missed such a required deadline are rejected explicitly.
+
+After focused tests and reproduction of the observed failure, resume500 further
+updates (through2500) from the terminal2000 weights/optimizer/RNG, with corrected
+support normalization. Same learning rates/batch2/seed260926, MPS, maximum900s,
+fresh frontier-2500 directory and no overwrite/TEST. This is a corrected-law
+continuation, not a paired attribution to the original source-only fit. Native
+qualification remains the recorded15cases plus Take6/.2 and fixed-H Take6/.2;
+evaluate the actual restored system and separate every effective control range.
