@@ -11036,3 +11036,88 @@ paired negative result, seed variation and controlled startup. The implementatio
 check remains8passed/.51s; only curated prose changed afterward, with diff checks
 clean. No remote push, Note lifecycle transition, model promotion or default
 sampler change. All new artifacts remain in their owning ignored research paths.
+
+## Audio-conditioned demand and self-correcting head generation, 2026-09-25
+
+The previous goal turn is progress: a conditional-family restriction was removed,
+matched continued fits were rejected using native/range evidence, and startup
+and seed variability were measured. Current product8ee32372f07534f50c24cdeb702816ff136698c8
+and notea55f2f17de2f6027866f7f97476697036f68aba1 are clean; all old processes are
+terminal. The full goal remains active, including expressive style and playability.
+
+Three primitives were considered. Neural Hawkes (Mei/Eisner,
+https://arxiv.org/abs/1612.09328, primary abstract read2026-09-25) supplies the
+analogy of excitation/inhibition from event history, but likelihood modeling of
+that history is not a playability guarantee. MusicVAE (Roberts et al.,
+https://arxiv.org/abs/1803.05428, primary abstract read2026-09-25) motivates
+separating subsequence-scale intent from local realization. Its independent
+subsequence decoding is not adopted: LN and physical histories must cross
+computational boundaries. Isham/Westcott's self-correcting process
+(https://www.sciencedirect.com/science/article/pii/0304414979900085,
+DOI10.1016/0304-4149(79)90008-5, primary abstract read2026-09-25) supplies the
+closest selected mechanism: compare accumulated count with desired activity and
+inhibit excessive generation. Their fixed-rate moment guarantees do not transfer
+to an audio-dependent, marked, leaky and capped policy. No novelty claim.
+Temporal Logic Point Processes (https://proceedings.mlr.press/v119/li20p/li20p.pdf)
+was also read as an analogue for finite soft intensity contributions; its logic
+rule-learning framework is not introduced.
+
+A sampled fixed count for every short block would give a clean hierarchical law,
+but a mandatory residual count could force heads or premature releases near a
+block edge. A single empirical action-rate ceiling is already contradicted by
+LN-composition differences in the reference. The selected branch is an
+independently supervised nominal head-demand curve plus finite negative feedback,
+leaving local timing, release selection and row organization with the retained
+joint model. The desired count is soft and need not be exactly repaid.
+
+Proposed Experiment Card: audio-demand-balance-v1, revision1. Accepted:none.
+Baseline8ee32372f07534f50c24cdeb702816ff136698c8; retained ranked2400 checkpoint,
+existing amount/recovery/head-pressure policies and selective star guidance2.
+The core remains frozen for this bounded comparison because unconstrained joint
+continuation just caused regressions. This is not a permanent frozen-R1 contract.
+
+Add a small two-hidden-layer96-wide demand network using pooled fine/full-song
+coarse audio features and actual optional controls. It predicts nominal head
+objects per second, independent of generated history. Stars shift log demand
+with a learned nonnegative slope for fixed audio/LN/style: an inductive bias on
+mean activity, not a hard count or pattern restriction. Other controls retain
+ordinary nonlinear effects. Train count predictions against each source chart's
+own500-ms head counts, preserving alternative arrangements separately. The
+retained audio encoder supplies full-song information in both training and
+inference; no source count, redline or future LN endpoint is a runtime input.
+A Poisson count loss estimates mean demand, not a complete musical distribution
+or a new quality metric. Missing controls are represented explicitly.
+
+At inference, compare a4-second exponentially discounted desired head count to
+the corresponding actual skeleton head count. A smoothed log ratio (pseudocount4,
+strength2, log-odds cap2) shifts head-event odds; conditional marks receive the
+same shift for additional heads beyond the first. Release-only/no-event odds
+remain unchanged, and no cost discourages mandatory releases. The old short
+physical preferences still apply. This is one composed feedforward/feedback
+intervention, not an ablation of its internal pieces. It introduces no generic
+R1 column history into the planner. Actual-count state rolls back with unpublished
+plans and survives control changes. Desired-rate integrals retain historical
+controls; a future update cannot rewrite the target integral of the past.
+No deadline term, exact block quota, hard time grid or invented musical section.
+
+First prepare frozen full-audio features on the existing ranked TRAIN/VAL manifest,
+then fit only the small demand network. Cache audio-only pooled features at2Hz,
+with the same3200-frame padding family and valid-frame masking. Profile an initial
+small cache segment before the full2,665-audio manifest; budget20minutes/4GiB
+cache outputs, stop on memory pressure/nonfinite output. All sources remain the
+existing paired corpus, no MERT or TEST. The cache is tied to the encoder SHA.
+The demand fit is bounded to2,000updates/10minutes after a short learning check;
+exact sampling, script hashes and the clean source OID are recorded before launch.
+
+Fresh owner artifacts/joint-audio/20260925-audio-demand-balance-v1, exclusive
+outputs, no overwrite. Primary native comparison uses the same three songs,
+15cases, seeds and fixed105000–137000 override as the previous paired run, plus
+separate seed results if promising. Review per-control star MAE (no>.25 increase),
+LN MAE (no>.03 increase), D5/high-LN short-tail prevalence (<=retained2.0113%),
+all-case completion and retained timing/articulation variety. Look for narrower
+same-control variation and corrected sustained over-demand without flattening
+legitimate bursts, chordjack, dump or LN layers. These are review criteria;
+Lens can reject a scalar win. No aggregate pools different requested ranges.
+If nominal demand fits but native organization worsens, reject the policy rather
+than increasing its gain blindly. If demand prediction itself fails to use
+controls/audio, refine that representation before another whole-model fit.
