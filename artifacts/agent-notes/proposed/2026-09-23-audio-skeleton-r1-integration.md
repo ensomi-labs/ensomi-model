@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 8ee32372f07534f50c24cdeb702816ff136698c8
+Product revision: 57cdbbf0782587d5a16d3d59983621afbc117451
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -11148,7 +11148,7 @@ at this stage. The full cache starts only after observing the profile result.
 ### Demand fit procedure and profile result
 
 Profile49525 is terminal:16longest audios (maximum1,800,775ms),7.855s,
-26.176MiB-equivalent output measured as.026176GiB, peak processRSS.669GiB,
+output.026176GiB, peak processRSS.669GiB,
 MPS driver4.788GiB. These memory ledgers overlap. The full cache process31593
 is now live on the prescribed fresh cache directory. Cache script SHA256
 3c1975f938740d23713abd2984f99b7f802446270c6d6890567477df49b2c2ec.
