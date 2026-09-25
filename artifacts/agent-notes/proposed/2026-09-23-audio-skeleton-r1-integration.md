@@ -9781,3 +9781,24 @@ source-calibrated local attack+release burden are concrete next primitives.
 Do not treat a larger minimum gap, more training or lower NLL alone as success.
 Human style/audio overlap also needs expansion before style-control claims.
 No ongoing process or overnight automation was left running; goal remains active.
+
+
+Scoped demand investigation, proposed exploratory Card scoped-demand-reference-v1
+revision1, accepted none. Previous turn made progress: typed planning, measured
+scoped controls, completed candidates and Lens evidence. Current source929138b
+is clean. Under standing authority, derive native action/release window facts
+from byte-admitted ranked2-6 charts intersected with the existing TRAIN catalog;
+VAL/TEST charts are not fitted into the reference. Use8s windows with4s hop,
+including entering holds, releases and same-column intervals. Compare the three
+native audio cohorts against conditioned distributions, not only their global
+SR or head counts. A local star label is not assumed; all reference stars label
+whole source charts. Emit measured features and reference quantiles under
+artifacts/joint-audio/20260925-scoped-demand-v1. CPU, at most10minutes, no model
+mutation, no overwrite; stop on parser/nonfinite failure. Decision: choose a
+specific demand/time dependency to change from observed deviations. This is an
+empirical chart-response reference, not a validated physiological simulator.
+A separate-H history/clock and an empirical local demand budget are competing
+next mechanisms; do not claim either established before a bounded comparison.
+Analogues: Neural Hawkes Process (Mei/Eisner, arXiv1612.09328) for interacting
+event intensities, Anticipatory Music Transformer (arXiv2306.08620) for temporal
+conditioning on known controls. These analogues do not validate our demand law.
