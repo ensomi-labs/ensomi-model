@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 151f9c265a9c5eaaa43bc6736f41cdc626da5554
+Product revision: b35565d6a3a58ccc5ebd0ae296e5a792e4a94318
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -8577,3 +8577,122 @@ artifacts/joint-audio/20260925-count-continuation-mass-v3, and retains revision2
 no_grad model construction. No timestamp rounding, different H plan, fit,
 sampling-law change, endpoint/seed/metric/budget change or resumed attempt.
 Outcome REFINE for instrumentation; no research measurement exists yet.
+
+
+### Result Log: conditional continuation mass
+
+Card count-continuation-mass-v1 revision3; accepted none; execution Note
+bd63054818471bae5fa6ce64ae83a436c39dcbce. Clean run source
+151f9c265a9c5eaaa43bc6736f41cdc626da5554, with model behavior at
+4567d87732320f27c01b40b15f74846865219934. Both preceding setup attempts remain
+terminal/retained and contribute zero queries. The successful driver terminal
+94507 exited0 in51.381885s. All eight fixed queries and120nonempty clean count
+groups completed64trials each, total7680suffixes. Do not resume or rerun this
+completed handle.
+
+Owner artifacts/joint-audio/20260925-count-continuation-mass-v3.
+Probe SHA0b9c4dbf100599171036451548db703edfaea47ace916326ebf77d63e033c175;
+freeze5059e03991736516301ac0f5de579a23d03965518c14f7bdb1f4331de21a19bf;
+result77fee8403e7425b8c53e6081ebcbac81b6a8d8e77027a0c58667dd015e4b9075.
+New owner uses9665613bytes. Same pinned checkpoints, literal prefixes, native
+H plans, canonical Mel, bank and profile1; no fitting or network duringrun.
+One CPU thread onAppleM5/24GiB,Python3.10.20/Torch2.11.0.
+Command is the revision3 uv --extra mps probe.py command. Seed streams follow
+the exact recorded SHA256 formula with base253101.
+
+All input hashes, integer H membership, exact prefix replay, dense/cache reads,
+native first-query log probabilities and forced-row cache buffers verify.
+Every suffix replays and preserves every H through the declared horizon.
+Both complete parameter fingerprints remain byte-identical. No guard is hit,
+no subset is omitted, and no planned threshold or denominator is changed.
+
+#### Probability results and uncertainty
+
+First-row mass passing immediateHH/RH is within2e-7of1 for allqueries.
+The small unit-sum error is float32 scoring/normalization roundoff; no material
+first-row mass is removed. Reported futureHH-only and futureHH+RH use this same
+joint-clean first-row condition. HHstrict<20 and RH<=20 retain their distinct
+meanings. Weighted95% intervals use group Clopper–Pearson intervals with
+Bonferroni correction within each query; they are not a panel-wide confidence
+statement.
+
+| Query | Arm | HH-only mass | HH+RH mass | Joint95% bounds | Exact joint-dead first mass |
+| --- | --- | ---: | ---: | --- | ---: |
+| Hysteric248930,nohold | flat | .993418 | .993418 | [.894121,.998514] | .001631 |
+| Hysteric248930,nohold | factor | .149430 | .149430 | [.077968,.289565] | .038740 |
+| Hysteric248824,earlier | flat | .952673 | .948870 | [.816474,.993129] | not proved for120ms |
+| Hysteric248824,earlier | factor | .043125 | .041421 | [.005591,.167045] | not proved for120ms |
+| Hysteric248930,LN3held | flat | .942215 | .771460 | [.648438,.839272] | .128283 |
+| Hysteric248930,LN3held | factor | .047654 | .003706 | [.002074,.102362] | .618766 |
+| AsItWas148234,split | flat | .999979 | .999979 | [.905819,.999998] | .000001284 |
+| AsItWas148234,split | factor | .997016 | .997016 | [.902395,.998054] | .000175913 |
+
+The three factor failurequeries meet Z0>=.95 andupperZfuture<=.90Z0.
+Flat also meets the signal in the LN-entering case. The healthy AsItWas5ms
+split remains high-survival for both models. Positive mechanical signal does
+not establish an adopted decoder or whole-song liveness.
+
+Without an enteringhold, factor mass.63364 selects threeTAPs; only2/64 ofthat
+group's actualcontinuations areclean. TwoTAPs have mass.29481 and25/64clean.
+Flat's corresponding masses.31627/.65631 yield63/64 and64/64clean.
+A savedfactorfailure hasT123→T023 across5ms; a success withthe samefirstT123
+usesT0next. Only.03874firstmass ismechanicallydead here, so mostestimated
+failure comes from possible continuations that the samplerrarelychooses,
+rather than currentcountchoices that alreadymake everyfuture impossible.
+
+At the120msearlierquery, factorfirstoneTAP mass.56510 has1/64clean; twoTAPs
+mass.39863 have5/64clean. Actualfailures still choose triples at248930/935.
+Selecting anLN at248824 isnotnecessary for thefailure. Thisdoesnot justify
+targeting onlyearlyLN release or makingallholds shorter.
+
+WithLN3entering, firstthreeTAPsuseall remainingcolumns. Keeping thathold,
+releasingitnow, or releasingitlater cannotprovide ajointHH/RHcleanhead5mslater.
+Theexactjoint-dead mass.618766factor/.128283flat follows fromcurrentstate
+andtheone-future-Hhorizon, notfromzeroobserved successes.
+ForHHalone, a currentrelease canhelp: flatmark(3,0,1) has58/64HHclean but
+0/64jointclean; itswitness tapscolumn3five millisecondsafterrelease.
+Factor(3,0,1) has0/64HHclean asitsfuturecounts/layoutsstillovercommit.
+Do not mislabel the61.9%combined impossibility as anHH-onlyproof.
+
+#### Evaluation and next direction
+
+Outcome REFINE. Observation: first-row currentvalidity hasalmostunitmass,
+butreal futureR/row sampling leaves largefailuremass in thefactorHysteric
+contexts. Existingconstraints/sourceNLL do notcoordinate sampledcountchoices.
+The fulllegalrow vocabulary and activefrontier2 insideamark do notprevent
+this two-row distributional mismatch.
+
+Critical limit: onlythefirstrowwasconditioned. ThisprobehasNOTcompared
+sequential currentcapacity masking at every subsequentrow againstlookahead.
+A currentmask appliedlater mightrepair manypossible-but-unlikelyfutures.
+Itwould still encounteranemptysupport aftersomeearliercommitments, including
+theexactjoint-dead examples. The evidence favors a minimalcontrolledcomparison
+ofthese two mechanisms before assuming a largeplanner/criticisnecessary.
+
+Strong alternatives/confounders: factor-owned histories arecounterfactualforflat;
+fourselectedprefixes are notrepresentativecohortstatistics;64trials/markgive
+broadrare-eventbounds; a120mshorizonisnotlong-songstability; RHremainsanexplicit
+experimental preference. Flat/factordifferin trainedcountandlayoutparameters,
+so thisdoesnotisolateacausalpercentage forR1-restored. Actualfullprefix/horizon
+mass estimates do not themselvesmeasure musical quality.
+
+Raw successful/failed suffixwitnesses were inspected for theabove mechanical
+relationships. No newfullchart orLensreview isclaimed; thecompleted60page
+count-layoutLensreview remainsthequalitycontext. No listening/playerapproval.
+
+Self-contained result docs/research/count_continuation_mass.md, linked fromthe
+materializer evaluation, iscommitted at
+b35565d6a3a58ccc5ebd0ae296e5a792e4a94318. Local link/math/diffchecks andnumeric
+summary/group-count checks pass; no modelcode changed. Allrunprocesses are
+terminal, no automation is active, and bothproduct/Notes commitsremainlocal.
+
+Next work: Design one bounded comparison ofsequential currentHH/RH conditioning
+versus a short feasible-continuation condition on the fixedfactor endpoint.
+TreatR as the actual sampler; neverpretend anearliestpossibleRhasoccurred.
+The short-window mechanical fact underRH is that a currentlyheld column cannot
+be released after now and attack within20ms; use it only where exact.
+OlderLNs mayrequireearlierreleases beyondthatwindow, so empty-support cases
+muststop/record ratherthan emitbadrows or silentlyrelax thecriterion.
+PreserveHtimes, allnormalrepetition/shortLNsupport, frozenruntimebounds and
+whole-chart/LNorganizationchecks. NewCard/implementation/run stillpending;
+do notstarta fit orretroactivelymodifycompleted outputs. Goalremainsactive.
