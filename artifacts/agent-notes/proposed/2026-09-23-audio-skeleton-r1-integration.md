@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: f9ac4e63d3d0c03f51c751606b44d0350319cfb8
+Product revision: 887156fc51ccaf70acd1138154bbc582762e1b12
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -10630,3 +10630,91 @@ process. Concurrenttimingsare serviceobservations,not cleanexclusivehardware
 benchmarks. Inspect majoroutliers,completion,2–6wholechartscopewhereapplicable,
 shortrelease/recoveryburden andheaddensity. Noaggregate canreplace eachrange's
 requestedconditions. Acceptance/Cardfields remainnone; sourcegoal staysactive.
+
+
+## Broader control-stratified result and sustained demand, 2026-09-25
+
+Both broader runs finish 25/25: native-plain process 3541 and native-guided
+53086 are terminal. Together with the initial three-song comparisons, each
+policy has 32 static and eight changed-control charts, all complete. All other
+processes named above are terminal too. No trainer or automation remains active.
+The source for both arms is f9ac4e63d3d0c03f51c751606b44d0350319cfb8, with the
+unchanged ranked-2400 weights and physical preferences. Strength one is the
+identity comparator; strength two selectively guides heads and geometry.
+No coefficients, checkpoint or seed scheme changed in the five-song extension.
+
+Evidence owner: artifacts/joint-audio/20260925-controlled-generalization-v1.
+stratified-comparison.json retains every per-audio result and each effective
+control range, including full-prefix physical state. These are development
+observations, not an untouched TEST set. Comparisons use one seed per audio,
+with paired seeds but diverging generated histories; uncertainty over seeds
+has not been estimated.
+
+| Request | Identity star MAE | Guided star MAE | Identity LN MAE | Guided LN MAE | Identity short LN | Guided short LN |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| D3, LN .2 | .635081 | .554758 | .027734 | .031304 | 1/1987 | 0/1614 |
+| D3, LN .7 | .474583 | .304303 | .034517 | .030372 | 1/9423 | 1/7820 |
+| D5, LN .2 | .333114 | .311400 | .031184 | .032840 | 6/3574 | 8/4609 |
+| D5, LN .7 | .619325 | .397998 | .050573 | .060306 | 164/15603 | 287/18063 |
+
+Each cell contains eight full-song charts. Short means lifetime <=40 ms, not a
+universal BAD label. The D5/high-LN cell worsens from 1.0511% to 1.5889%; easier
+cells must not dilute this failure. Guided Take D5/.2 reaches 6.082772 stars;
+Revenge D3/.2 reaches 1.932362. The identity static charts remain within 2–6,
+without necessarily matching their requested level. Difficulty-three guided
+Hysteric low-LN has minimum HH 50 ms and the unguided FoolMoon high-LN has 44 ms:
+the earlier absence of <60-ms attacks on the initial six unguided D3 cases is
+not a general guarantee. Soft preferences retain these outcomes in support.
+
+Guided fixed 105000–137000 D5/.7 overrides on the additional five songs yield
+scope proxies 3.28793, 4.54042, 3.93429, 3.92392 and 3.45933 (FoolMoon, Goodbye,
+Revenge, Take, YomiYori). YomiYori worsens from 3.691 to 3.459. These are scoped
+full-prefix strain proxies, not official local star ratings. Take's restored
+final scope is only 7.237 s with two new heads, one LN and two incoming releases;
+its fraction .5 cannot be interpreted as a large-sample quota failure. No
+aggregation mixes before, override and after ranges or different requests.
+
+Selective-guidance Lens reviews are complete for four selected scopes, all
+eight pages and all action/articulation tables. Their review.json files are in
+native-head-guided/lens under 20260925-head-geometry-guidance-v1 and native-guided/
+lens under this owner. Hysteric D3/high-LN 84396–88397 has 33 head/35 action rows,
+coordinated handoffs, TAP interleaving, 334–463 ms layers and minimum new LN80.
+Zenithfall D5/high-LN 72347–76348 has 67 head/91 action rows, subset tails and a
+283-ms layer, but also 30–39-ms LNs and RH31 at76083 column1. Revenge D5/high-LN
+150679–154680 has65 head/83 action rows, a TAP episode between layered LNs, a
+382-ms hold across seven interior head rows, 26/37-ms LNs and RH39 at153145col3.
+Cross-column 14–24-ms staggers remain distinct from same-column recovery.
+
+Take D5/low-LN 127738–131739 has44 head rows and six consecutive four-key TAP
+rows at130025/130119/130227/130323/130408/130504, gaps94/108/96/85/96ms. This
+identifies sustained full-chord repetition as a separate demanding structure
+from short tails, not proof all chordjacks are BAD or that this one passage
+causes the entire6.083 rating. No listening or player testing was performed.
+The rejected full-categorical-guidance arm remains without a dedicated Lens
+review; no qualitative success is claimed for that arm.
+
+Interpretation: REFINE. Better average star calibration does not settle scoped
+adherence or playability. Selective guidance is an optional tradeoff, not an
+adopted playable release. No neural weights were trained in these comparisons;
+ranked2400 remains the retained checkpoint. Semantic style control is still
+unvalidated by these difficulty/LN tests. The user prioritizes approximate
+range-level difficulty and style with stable playability, allowing architectural
+changes for clear conceptual reasons without exhaustive causal ablations.
+
+The next coherent design question is multiscale recent gameplay workload shared
+across decision owners: skeleton-owned action counts and LN occupation before
+choosing time/head count, and actual per-column action history at R1. This is
+short physical memory, not the deferred long musical-relation memory. Single
+HH intervals and169-ms head capacity omit sustained burden and historical LN
+release work. A causal 1/4-second count reference from ranked TRAIN can ground
+this proposal before a bounded native intervention. Do not suppress mandatory
+releases to improve a counter, erase physical history at control changes, or
+turn rare source patterns into universal prohibitions. A response that merely
+flattens expressive peaks or lowers already-under-difficult ranges is not enough.
+No additional run or implementation for this extension has started in this entry.
+
+Product887156fc51ccaf70acd1138154bbc582762e1b12 promotes the stratified evidence
+and this architectural rationale to typed_audio_continuation.md and
+scoped_demand_frontier.md. Documentation diff check is clean; no behavior tests
+were repeated for this prose change. Note remains proposed; accepted revision
+none, no lifecycle change or remote publication. The active goal remains open.
