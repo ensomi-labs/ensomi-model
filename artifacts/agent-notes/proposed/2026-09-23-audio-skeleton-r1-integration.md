@@ -10598,3 +10598,35 @@ Eightfocusedchecks pass in.77s: conditionalR/no-eventratio, jointLN/release
 conditionalswithinheadcount, exactomissionofonlystarfields, allocationrollback
 andphysicalresponsebehavior. Allpreviousprocesses terminal. Goalstillactive;
 noacceptedmodelrelease orremote push.
+
+
+## Selective guidance preliminary result and broader check, 2026-09-25
+
+Selectiveguidance74875 isterminal,15/15completed. Static12SRMAE.320216,
+LNMAE.033753,130/12412shortLNs(1.04737%), versusfullguidance.348126,.031601,
+147/12223(1.20265%). Theinitialsub-1%targetisnarrowlymissed; do not hide that
+miss or call thisanacceptedplayablerelease. AllsixD3staticcasesstillhaveno
+<=40msLNs. FixedD5overrideproxies4.683/3.586/3.685 versusfull4.571/3.827/3.692;
+morethanhalfoffullguidance'sgainisretainedontwoaudios. ActualLNfractions
+.762/.780/.789. RestoredD3rangeproxies2.912/2.247/2.586 andLN.185/.152/.200.
+PrimaryscriptSHA58215bacc7019303a600a8d3a320395fc7652d3eca19cdb4cfd4a63ae3c75825.
+No newweights oracceptance; qualitativespecific-guidanceinspectionstillpending.
+
+Nextboundedcheck: samef9ac4e6source/2400weights on thefive remainingfrozenaudios
+FoolMoon,Goodbye,Revenge,Take,YomiYori. Compare thetwo existingtradeoffcandidates:
+headpressure+preferences+amountfeedback withStarGuidancestrength1 versusselective
+head/geometrystrength2. Do not changecoefficients orstartanewfit.25casesperarm,
+samefixedpanel seeding and105000..137000 switches; report each effectiverange
+separately. This is adevelopmentgeneralizationcheck, not TEST orindependent
+humanqualityvalidation. The small1%miss motivatesobservingvariability rather
+thanpromotingthecandidate orrunningastrengthgrid. Previouslyusedfiveaudios
+have not yetbeen evaluatedwith these physicalpolicies.
+
+Freshowner artifacts/joint-audio/20260925-controlled-generalization-v1; same
+native.pySHA58215bacc7019303a600a8d3a320395fc7652d3eca19cdb4cfd4a63ae3c75825.
+Runs native-plain(TYPED_GUIDANCE=1) andnative-guided(TYPED_GUIDANCE=2),nooverwrite.
+Existing120s/30000rowspercasebounds,expectedunder10minutes ononeCPUthreadper
+process. Concurrenttimingsare serviceobservations,not cleanexclusivehardware
+benchmarks. Inspect majoroutliers,completion,2–6wholechartscopewhereapplicable,
+shortrelease/recoveryburden andheaddensity. Noaggregate canreplace eachrange's
+requestedconditions. Acceptance/Cardfields remainnone; sourcegoal staysactive.
