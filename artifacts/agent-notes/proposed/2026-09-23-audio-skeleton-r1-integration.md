@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 7c122d48a95e8f451fa136c4585c3f6ebcd4406c
+Product revision: cafe805030cad304fffb0caf8ac2d57e78c2313d
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -11636,3 +11636,99 @@ this distinction belongs upstream of R1. Do not ban Jack or fit against the
 single Take peak; sustained response remains part of the whole-system target.
 
 Frozen clock_only.py SHA25667e867b54475dbe4623f87016aed4d1715f846430f2f6445874d0891ce637f1e.
+
+
+### Scope candidate qualification, style reading and routing result
+
+The40-case report is frozen as qualification.json under the per-field demand
+owner; full native-all/result.json retains each effective range. Static LN MAEs
+by3/.2,3/.7,5/.2,5/.7 are .036290/.029012/.033412/.066057. Whole-chart static
+outputs remain2–6; FoolMoon5/.7 is3.930 and AsItWas5/.7 is4.118. Eight override
+proxies are4.131/4.519/4.684/3.513/4.534/4.267/3.590/4.455 in the recorded
+Z/H/Take/Fool/Goodbye/Revenge/AsItWas/YomiYori order. Their median absolute error
+is.639353 versus1.158542; seven improve, AsItWas does not. These values remain
+separate from before/restored ranges and from whole-star static errors.
+
+Endpoint whole-star outputs, D2/.2,D2/.7,D6/.2,D6/.7:
+Hysteric2.232/2.527/6.047/5.755; Take2.236/2.362/6.417/5.664. Numerical error
+passes the proposed.75 bound, but the Take dense peak prevents a general
+endpoint-playability claim. Its five-quad witness has exact inter-head gaps
+123/104/101/108ms; the earlier100–123 phrasing was approximate.
+
+Hysteric's style-only105000–137000 comparison holds D4/LN.2. Unspecified,
+absent and prominent produce319/286/302heads, average chord sizes2.045/1.625/
+1.853 and LN fractions.157/.259/.162. Their proxy levels are3.300/3.230/3.498.
+The specified variants' complete32s head timelines and original LN endpoints
+are read; all8time images at126000–130000 and133000–137000 are read. The
+prominent request organizes the later passage through shared-column/changing
+chords, including full quads134093/134332/134555. The absent request instead
+has more moving singles/mixed holds, but still includes a repeated-chord
+passage128465–129399. This is directional style response, not reliable whole-
+scope salience or a promise that absent removes every local repetition. Its
+LN-fraction coupling remains material. The unspecified output has numerical
+readouts only; no full visual review is claimed for it or all32s time images.
+
+Using the harness's bounded search_examples/get_example functions on the pinned
+publication, filtered to admitted TRAIN sources, retrieves High-confidence
+human comparisons. Prom Queen [Lin's Insane], sourcebd453e8f29b360900104ac0e6a2f385b2f44d1a57e64949c70158bdc75351da6,
+75838–78338, is prominent Jack through changing208ms chords retaining columns.
+Catalinesie [Catalyst of Amnesia], source7a729e4cf5e5d041dd9d8867354b332ae22a9b14bfca04890f1d6f99a6cfae00,
+113311–117485, is absent despite an isolated repeated pair amid65ms moving
+flow. Both complete review contexts and all5images are read. Their public
+human comments record confidence updates only; no machine rationale is treated
+as human explanation. Foundation15fa68913bdb2bf395a189df7ab433f6d5b126fc35c46c1dbc8e607ce2182e97
+is unchanged. Local native-style/inspection/review.json and human-jack-reference
+preserve this evidence. No annotation is submitted or changed.
+
+The three clock-only probes are terminal. Take6/.2 becomes6.007623, Take3/.2
+becomes2.797010; Hysteric switch has before/override/after proxies2.594605/
+4.571106/2.754252 and LN fractions.1313/.7444/.1241. Numeric guards pass.
+The original Take peak becomes84heads/36rows, with mixed97–446ms holds and
+varied chords, but the new peak69248–73249 still contains eight consecutive
+TAP quads71440–72402 at126–153ms. All four matched/new-peak pages and complete
+action/articulation tables are read. This is not a successful fix merely because
+the <=125ms five-quad count disappeared. Clock-only routing remains an
+exploratory artifact; no runtime API/default change or delivery promotion.
+
+Selected next research direction: model composition upstream. A nominal head
+rate alone conflates event frequency with chord cardinality; R1 has no freedom
+when S has chosen four required heads. Existing beatmaps can supervise separate
+head-row counts and conditional counts of1/2/3/4-head rows, using full audio and
+independently scoped controls. A small compound count model or categorical
+marked-rate model could retain multiple organization choices while making the
+controller aware of grouping. The correction should not count the same demand
+deficit twice, impose exact scope quotas, or forbid legitimate chordjack/dump.
+Release obligations and workload remain explicit; no generic R1 TAP-column
+history is added to S. This is a representation hypothesis to formalize in the
+next bounded card, not implemented code or a claim of solved generation.
+
+### Reproducible scoped candidate artifact
+
+Product31baf1450012d7abc201dde65b8fe034ab3aae69 records the qualification and
+unresolved grouping; documentation-onlycafe805030cad304fffb0caf8ac2d57e78c2313d
+adds bundle/startup evidence. Local owner
+artifacts/joint-audio/20260926-scoped-system-candidate-v1 contains
+candidate-scoped-demand-v1.pt with4,010,589parameters and16,156,747bytes,
+SHA256c9bd6a55fb43b582eba570d089b5efe0306b17fc3ed4e31a873f5bba3aa6000f.
+It packages the retained core plus per-field/scoped demand and the original
+clock-and-mark feedback recipe. Both component supervision specifications and
+hashes are recorded; no cache or dataset is required for runtime audio input.
+Loaded trained generation exactly reproduces Take3/.2,seed251706,735rows.
+
+Fresh-process full-waveform/Mel YomiYori498989ms startup publishes8000ms,
+73rows and one open LN in2.707286s from child entry,2.862349s roundtrip.
+One CPU thread, no concurrent generation; OS caches remain, client rendering/
+reading excluded. This is one observation. It cannot replace worst-case timing
+or playability validation.
+
+hysteric-scoped-and-style-playtest.osz contains original audio and five charts:
+static3/.2,static5/.7,the105–137s difficulty/LN override and the two Jack
+requests. Note objects are unchanged; metadata names the requests. Archive
+SHA25680bfd4bc2204c472511a9b897095c0b4fb3d3bcc559d2424f38419baf46223e8,
+4,870,622bytes. No game-client import/listening/player test. The README identifies
+known large-chord, high-LN and style limitations. This is a research/playtest
+snapshot, not a tagged playable release. All fits, native cases, retrieval scans
+and packaging checks in this turn are terminal. No live job or queued trainer
+remains; the overall research goal is still active and incomplete.
+
+Qualification reportSHA2569ca9e74befcba071b56f77f39ab21bc601bebac673f8a1526c9f1a2c627b5cad.
