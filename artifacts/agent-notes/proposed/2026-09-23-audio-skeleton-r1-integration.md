@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: ac7fa3a59696a8cf23d3825a32a7d300bdba0fbb
+Product revision: b7769afd9d7f0106f41b45d03103b719ddf1ca76
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -8898,3 +8898,151 @@ bytes,651TRAIN/VALcharts andeverytargetrow against both modes under actual
 sourceHpreview. Stop on exclusion/mismatch without relaxing a criterion.
 Set its clean source/Note pins beforeexecution; then prepare/freeze the native
 64-casecomparison. No training or recurringautomation is running.
+
+
+### Result Log: current/preview corpus and whole-chart comparison
+
+Card current-preview-row-constraint-v1 revision1 remains proposed; acceptednone.
+Clean implementationsourceac7fa3a59696a8cf23d3825a32a7d300bdba0fbb;
+executionNote031087e22350167aa717c176a0b7f601c6ccbe95. Corpusdriver95531,
+nativedriver69125 andLensrenderer16550 areallterminal-success. No training or
+automation isactive; neverpoll/restartthese completedhandles.
+
+Artifactowner artifacts/joint-audio/20260925-current-preview-constraint-v1.
+Exactcommands are the frozen uv run --extra mps corpus.py, native.py and
+inspect_lens.py entrypoints. Checkpoints/inputs/seeds/profile requests are the
+Card's pinned values; model fingerprints and checkpointbytes remainunchanged.
+HardwareAppleM5/24GiB,Python3.10.20/Torch2.11.0,oneCPUthread. No networkduringruns,
+TESTaccess,labelchanges,overwrites,failedcaseresumes or increasedproposalbudget.
+
+Corpusguard checks all651admittedTRAIN/VALcharts and683341targetrows, withzero
+exclusions underbothcurrentandpreview. Source/cache/metadata identities verified.
+It completesin36.592659s; freeze
+b32a036ab4efc46d60a35c4f888e73eac9127454ac5fa2e85156dc6fb3dd99d3;
+result43c7c01a2b43ba472073247b0be04f9520e3c793a67b0e25570483ad36e37790.
+Thecorpus result isnot a universalhumanRHrule or all-mania supportclaim.
+
+Native attempts all64declared cases in288.956843s:62complete and2expected
+planning_attempt_limit outcomes. Unlike the previousglobal-stop comparison,
+these independentfailures were retained and the remainingcases ran asdeclared.
+Freeze17fe384034f4bb52f2fb7bd7f12e8c4e838bb8f7c91a0ace04595dafec0c6873;
+result2dcbb708c1861d3d6d58bd2ec52c8bb744fe719fd01a6d964ce7b3a27f4034c6.
+Allcompleteexports independentlyreparse; allpublishedrows/coverage replay,
+HH/RHarezero, andfull/prefixHsequences exactlymatch the originalI plan.
+No source-timing intervention orhiddenfuturetailswereintroduced.
+
+| Cohort | Complete | Rejections | Maximum readiness s | Maximum window s |
+| --- | ---: | ---: | ---: | ---: |
+| flat/current | 15/16 | 19 | .489542 | .559525 |
+| flat/preview | 15/16 | 19 | .477393 | .554887 |
+| factor/current | 16/16 | 6 | .510240 | .344342 |
+| factor/preview | 16/16 | 3 | .513053 | .336012 |
+
+Readiness means cachedMel throughownonlineH/bodygeneration until8scoverage
+and30completerows; it excludes freshwaveform/Mel/import/clientcosts.
+Allrejections areemptyallowedrows, not badpublishedpairs. Factorpreviewpasses
+thedeclared50%retry-reductioncriterion, fullcoverage andruntimebounds.
+Three fewerproposalsinonesmallseededpanel isnotpopulationreliability.
+
+Factorcurrent width/LNerrors1.3196517045994263/3.8221615840880805,
+body5.141813288687507. Factorpreview1.30025379371665/3.820844378554703,
+body5.121098172271353. Rawfactorbody4.909229802145201; previewincreases4.3%,
+within10%bodyandper-componentguards. Herror.8738583548578978unchanged.
+Bothflatcontrolaggregatesareinvalid dueonefailedcaseeach, withnosuccess-subset
+substitution. Current/preview fullrowbytes match12/16factor and14/16flatcases;
+factordifferences areHystericP1/P2,GoodbyeP1,YomiP1; flatdifferencesZenithfallP1
+andGoodbyeP1. TheflatP2failedprefixesareidentical.
+
+#### Completed Lens review
+
+All38declaredscopes arecovered:24newgeneratedscopes/all48timepages,8exact
+within-comparison generatedsemanticreuses,6verifiedparenthumanreference reuses.
+Allactions/articulationpagination andsemantic hashes verified. No generated
+scopeismissing inthisfixedqualityplan; thetwofailedflatZenithfallP2cases are
+outsideitsflatHysteric/Revenge diagnosticcontexts andremainfailuresinthecohort.
+All16humanrecordsretrieved. No listening/player test ornewhumanstylejudgment.
+
+Review a2424ce15df942f121e2daff1de51a74bd5850107ce3c067afb67b3b7abca0a7;
+planfe139ad1a670fc907feab3bd07001a1bc7b5e1da1fa6b9a8fc10fd1ddd99592a;
+render2619b620eeaea5bd3a5a521cc4fdfe3054a476b07896e0297e6644034d41e9e4;
+Lensfreezea0d9c911550f04eb4b872478e426bf5585f1ae4c3d91a7564ab9a7b752ca2968;
+bundlebcfb37f4780cfa6891f8f15bdf053bf076884813a54c8e918b5e8ddc373cab4c.
+Parentprofile-routingbundlemanifestfa4fee5185909034db52f1f909f4845654f15d267c2411179e983efbb9b9cc81
+anditsfilebytesremainunchanged. Renderedowneruses167579667bytes, below2GiB.
+
+Preview retainsindependentLNcapacity: AsItWasP2peak1356msLNspans6H while913msLN
+joins/closes, withlaterhandoffs andquadLNsubsettail; AsItWasP1peakhas167/257/356ms
+LN023subsettailsaroundtaps. FoolMoonP2 has368msLN with82/166msjoinedroles and
+subsetrelease/newLN. HystericP1 has585msLNsupporting8H. ShortLNandfullLNchords,
+variable1–4headgrips,ordinaryrepeats and5/6/10/19ms cross-columnHsplits survive.
+This isnotuniformsingle-tapfallback. A27msFoolMoonsame-columnrepeat isoutside
+theconfirmedHHpredicate withoutbeingcertifiedcomfortable.
+
+Qualityremainsmixed. HystericP2current243–247s hasentering677msLN,824/585ms
+overlap andlater179/458mssubsettails; previewhaslesslayeringandallTAPafter245532
+inthatcrop. Flatcurrent/preview retainmanyindependentroles there.
+YomiP2constrainedpeakisallTAP where rawfactorpeak hada406mshold; this isnot
+anadditionalpreview-versus-current effect. Profile2wholeLNfractionsstillweak:
+factorpreviewHysteric.164,Take.158,Yomi.094 versusrequested.734. Someprofile1
+contexts retainunrequestedLNhandoffs. Numericalguardpassdoesnotfixcontrol or
+proveconsistentqualityacrossaudios/seeds. Generatedalternatives neednotcopy
+sourcehumanlabels; otherjudgmentsremainunreviewed.
+
+#### Actual remaining failure mechanism
+
+BothflatZenithfallP2policies stopat242310/357796ms with997H. Failedwindow
+service.559525/.554887s disprovescomputeexhaustionfortheseobservedcases.
+Preview'sfouractualrejectedRquerieshaveallfourcolumnsheld:
+248976→H248983gap7;247570→H247590gap20;247580→H247590gap10;
+247808→H247810gap2. All15physicalreleasesubsets havezerojointcleanfuture
+support. CurrentallowsRbutfailsonthenextH; previewfailsattheRqueryitself.
+
+Attempt0holds start0/1at248770,3at248840,2at248900. Atlasthead248900 the nextH
+is83msaway, outsidethe20msrowpredicate. Atleastoneappropriateholdneedstoend
+by248962(H−21)fortheexperimentalRHscreen, butactualRarrives248976.
+ThephysicalfullholdwaitinglawrequiresRonlybyH−1. Post-eventrowfilteringcannot
+repair a waitthat hasalreadyspentitsfeasible release interval.
+
+Allthreefactorpreviewrejections showthesamefullheld mechanism: HystericP1
+R217796→H217798(2ms),HystericP2R136299→H136313(14ms),TakeP2R1368→H1380(12ms).
+Retriesrecover withinbudget, butdo notmake waiting-time support consistent with
+rowconditioning. Capturedactualprefixes/metadataare retainedfor each; no
+counterfactualdirecttrajectory ismisrepresented asarejectedproposal.
+
+#### Evaluation and next question
+
+Outcome REFINE: shortnestedmatchingisusefulboundedruntimeprogress, withno
+newparameters, zero admittedtargetexclusions andcompletedfactorcohorts.
+Noendpoint/default isadopted asafinalplayablemodel. WeakLNrequestrealization,
+localorganizationcontrasts andflatreleasefailures remain. No protectedfield
+changed andnodeclaredcasewasdropped; allscope/budgetconditionswereobserved.
+Curated report docs/research/row_constraint_evaluation.md andlinkedguide are
+committed atb7769afd9d7f0106f41b45d03103b719ddf1ca76. Scopedprose links/math/diff
+checks pass; no newmodelcode afterthealreadyrecorded79ownerchecks.
+
+NextDesign shouldconditiontheactualRwaitinglaw aswellasrowchoice oncontinued
+feasibility, notmerelymove a newrowmask's horizon orassume releaseatnow+1.
+A full-hold clearance deadline directlyaddresses theobservedremainingcases,
+but older3-held/one-free failures alreadyexist in the path-crossover evidence
+(PromQueen17H0/D1, attacks105943/105945/105949). A generalmechanicalwait predicate
+would therefore address a morecomplete dependency than a full-held-only patch.
+
+One live primitive: after a committedrow atnativeclockt, compute eachfree
+column's earliestattack time from its actual HH/RHclocks. For a heldcolumn,
+anexistence witness can releaseit at t+1, giving availability
+max(last_attack+20,t+22) understrictHH/inclusiveRH. Assign oneTAP to each
+previewedH using the earliest-ready column, thenadvance thatcolumn's readiness
+toH+20. Withonlyinitialholdobligations andTAPfuturewitnesses, this tests finite
+mechanicalfeasibility; itdoesnotpredictRorchoosemusicaltails. Waitingwithnoevent
+movesheld-column readiness later. Thelastwaitthat preservesfeasibility yields
+a releaseobligation, which mustbe enforcedbytheactualR/event-and-rowlaw and
+recheckedafter everyrow. Anoptimisticwitnesswithoutthatcoupling repeats the
+previousmistake.
+
+This is anunimplemented researchdirection, not a newacceptedCard or an
+establishedwhole-songguarantee. Provegreedy-readiness correctness/finite-preview
+limits, simultaneousH+release semantics, exact21/22msboundaries, nativewaiting
+partition/RNG invariants andsource-targetretention before a boundedcomparison.
+KeepRh'sexperimentalstatus explicit andpreserve musicalLN/repetition freedom.
+No training, modifiedRrun, extrapolatedsafetyclaim orgoalcompletion isjustified
+bythenewdirectionalone. Thewholeplayablerealtimesystem objective remainsactive.
