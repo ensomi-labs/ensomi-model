@@ -11215,3 +11215,41 @@ StarGuidance2, and records the demand model/settings. Native comparison will use
 DEMAND_CHECKPOINT=demand-2000/step-2000.pt, TYPED_NATIVE_RUN=native-demand,
 TYPED_NAMES=zenithfall,hysteric,take and TYPED_MODES=low,ln,difficulty,high,switch.
 The existing retained15-case results are reused unchanged, not regenerated.
+
+### Demand fit and initial native outcome
+
+Main fit7284 is terminal:2,000updates/16,000draws,5,294distinct TRAIN charts,
+20.696s,36,866learned parameters; the3,947,227-parameter core is unchanged.
+On24VAL midpoint intervals inside2–6stars, head-count absolute error falls from
+31.258 to13.774 heads and mean predicted/observed count ratio changes.996 to1.050.
+The Poisson objective omits target-only factorial constants; these fit diagnostics
+are not a playability decision.
+
+Native7706 and readouts73683 are terminal,15/15complete. Per-control star MAEs
+(retained -> demand) areD3/.2 .462586->.159707,D3/.7 .290853->.532510,
+D5/.2 .446359->.233515,D5/.7 .378019->.331156. Every new static chart remains
+inside2–6, but ZenithfallD3/highLN reaches4.171. D5/high-LN short<=40 fraction
+135/6712(2.0113%)->168/7192(2.3359%) fails the stated non-regression criterion.
+D5/low-LN is4/1740(.2299%)->8/1805(.4432%). No model promotion is authorized
+by these mixed results. Retain the new option as an investigational system
+component; do not hide the high-LN failure behind its improved control cells.
+
+Separate D5 override proxies: Z4.683->4.532,H3.586->4.220,Take3.924->5.202.
+After D3 restoration: Z2.912->3.421,H2.247->3.033,Take.925->2.144. Take's final
+range is only7.237s, now20heads instead of2, and remains a different denominator.
+Readouts preserve each effective range. Typical count feedback is positive and
+below its finite cap: much of this improvement fills under-active passages rather
+than clipping overload. ZD3/high-LN actual/nominal heads=.882, so its excessive
+rating cannot be explained by exceeding this learned head-count expectation.
+Nominal demand is not a full difficulty/geometry model. No coefficient grid or
+further core fit is selected from this result.
+
+Finish three Lens contexts (Zhigh72347–76348,TakeD5low127738–131739,Hrestored
+137000–145000), including all pages/tables. A bounded seed diagnostic then uses
+unchanged demand2000, source d0aff1105910cf8df9ba3f4c2d1747143c665810 and the
+six previously specified ZenithfallD3/.2 andD3/.7 seed offsets+1,+2,+3. This
+answers whether count feedback reduces stochastic variation; it cannot waive
+the failed high-LN quality criterion. native_seeds.py is a copy of the recorded
+native driver with only seed offset input and actual-seed output, saved separately
+so the original15-case execution identity remains intact. Fresh runs seed-1/2/3,
+no overwrite, same120s/30000row bounds and oneCPUthread/process. No TEST or fit.
