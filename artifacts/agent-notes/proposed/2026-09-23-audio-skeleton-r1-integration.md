@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 8687c35cbc99e374a6550f747b4027c42fb7efb9
+Product revision: 466d47074bb542639fb84bf7a86c6ce4cdbb975c
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -10256,3 +10256,95 @@ replacing oneproxy with another and flattening audio-responsive variation.
 Meaningful improvements permit further scoped evaluation; ambiguous or poorer
 native output returns focus to upstream release/frontier coupling, not blind
 scaling. No adoption or humanplayability claim follows automatically.
+
+
+## Scoped-target result and next bounded feedback test, 2026-09-25
+
+Accepted revision: none. Source8687c35, docs descendantsaa38e9c/466e21f.
+The scoped-target fit (51191) finishes1000updates/511.819s,1395distinctTRAIN
+charts,peakRSS3.105GiB,MPSdriverabout5.79GiB (overlapping counters). No trainer
+remains. Readout inspection35043, fixed-baseline native68499, intermediate
+native67379 and final native47412 are all terminal. The full-source256TRAIN-group
+sample gives2940scopes,24.252% more thanoneproxyunitbelowwholechartSR;
+local-global weightedq05/median/q95=-2.647/-.538/-.131. Fullsongproxy matches
+sharedSR closely. Twelve of36VAL labels arebelow2; none of the observed TRAIN
+labels is outside2–6. This is the original preserved VAL split, not TEST.
+
+Final15/15generation completes, but reject these weights for baseline selection:
+static12SRMAE1.644414,LNMAE.101849,2239/23866shortLNs(9.3815%), versus baseline
+.488256,.077713,256/12515(2.0455%). CheckpointSHA256
+317421ac57fa9763c9173162ae90b2b72529f5d08d53d56acec881d91f6d6565.
+No standalone playable export is made. selection.json records the negative
+result; keep candidate-ranked2400-controls-v1.pt as the retained research model.
+
+Fixed105000..137000 override comparison, each scope separately:
+Zenithfall baseline before/inside/afterproxy1.638/4.432/3.973 ->4.013/5.145/5.250;
+Hysteric2.961/2.788/2.775 ->4.279/5.056/5.083;
+AsItWas3.457/3.054/3.228 ->4.045/4.987/4.291.
+Desireddifficulty3/5/3 andLN.2/.7/.2. Adapted overrideLN.880/.901/.847 and
+short-tail fractions12.41%/11.08%/6.82%. The scalar is closer to5inside the
+changed range but surroundingD3 ranges are harder. Difficulty is elevated
+before the override too; do not attribute everything to post-switch carryover.
+Do not select on the central proxy or pool the three regimes. Continuedoldtarget
+optimization is not matched, so this rejects the adaptation as a candidate,
+not the general principle of scoped supervision as a causal theorem.
+
+Two final Lens scopes/all4pages and complete tables read. ZenithfallD3/LN.7
+295191..299192 has80Hrows/100actionrows,25–39ms LN additions; column3 has
+298855..298889 then298918 (HH63,RH29). Hysteric105000..109000 preservescoherent
+717/477/493ms layers,oneincomingLNending105057,andmixedTAP/LNhandoffs,shortest
+newhold66ms. This local positivewitness does not establish the other28seconds.
+Native-time conclusions only; no listening/player test. Reviews saved in each
+scope owner. Existingbodyhistory is511rows (history_levels8), planner63events;
+training does not truncate plannercontext to fewerrows than inference here.
+
+The scopedtarget tool remains optional; default training uses originallabels.
+The negative result strengthens the practical need to regulate actual generated
+state and to place release responses upstream. A birth-audio query for each
+activeLN is now described as a structural candidate in scoped_demand_frontier.md;
+it is not implemented or empirically selected. It would use generatedheadtime
+andfullaudio, never targetfuturetailconditioning. Do not start anotherlongfit
+merelybecause labels now have clearersemantics.
+
+Proposed Experiment Card: audio-ln-allocation-feedback-v1, revision1.
+Accepted revision: none. Source466d47074bb542639fb84bf7a86c6ce4cdbb975c,
+baselineweights unchanged ranked2400 SHA36c9767f38fc9b28416e635aa974bf98ee2785715622b6049f6120cef251c2b3.
+Question: can bounded negative feedback stabilize requested LNamount without
+suppressing local variety or increasing release burden? The conceptual reason
+is that a static requestedcondition does not encode realizedscopeallocation;
+an actual.9fraction atrequested.7 entails more releases by conservation.
+This uses a standard feedback-control primitive, not a novelty or player-model
+claim. It reads skeleton counts only, preserving the plan/row information split.
+
+Implementation: immutableAllocation storesH,L,episode-start andrho. Smoothed
+realizedfraction=(L+32rho)/(H+32). Add clip(logit(rho)-logit(realized),-1,1) as
+an extra within-headcount/releasemask-group LNcounttilt. Learnedlocalpreferences
+remainunbounded; noexactquota ordeadlineburst. Difficulty/style-onlychanges do
+notresetcounts. Fullyshadowed LNrequestboundaries do notsplit an effectiveowner.
+Returningtoanearlieramount starts a fresh episode; crossingholds persist.
+Plannerpoints snapshot counters with resources/cache/RNG and restore all on
+unpublishedrollback. Current headcount/releasemaskgroup masses are unchanged,
+but future occupation andtiming canrespond. Policy is inference-only andoff by
+default; fittedlikelihood andcheckpointweights areunchanged. It is not yet a
+controller for difficulty, rhythm, release quality or semanticstyle.
+
+Freshowner artifacts/joint-audio/20260925-ln-allocation-feedback-v1.
+Native driver SHAec838a598328a0ac2ec828ed98f4bd90c1b652f184ecde62e90232c9591639af.
+Onefixed strength1,pseudocount32,bound1; noarchitecturegrid orretraining.
+Run threeaudios x low/difficulty/ln/high/switch, fixedexistingseeds andabsolute
+105000..137000 switch with same updateprocedure as fixedbaseline. Existingstatic
+baselinecases are identical except optionalpolicyoff; retainseparate reports per
+range and request. Main aim LNMAE improvementof at least.015 acrossstatic12;
+reviewguardSRMAE<=.75 andshortLNfraction<=baseline2.0455%+.25percentagepoints.
+Actual Lens organization can reject a metric win. The policy is notautomatically
+adopted when a threshold passes. Record counts/rates,releasegeometry, startup/
+windowcost andcompletion; allowquietnessandpureTAPsubpassages. Existingpercase
+limits120seconds/30000rows, expectedwholepanelunder3minutes. Stopon nonfinite
+probabilities or a generationerror. Nooverwrite, noTEST, noannotationmutation.
+
+Focusedallocation/contract/rangechecks:7passed in.83s, including real planner
+rollbackandrestoredscopeaccounting. An initialtest fixture requested invalid
+inheritedskeleton/historyleveldimensions; correcting fixtureconfig resolvedit
+without weakeningthe behavioralassertions. All testprocesses terminal. The
+new native feedback experiment is authorized by the owner's standing local
+research instruction, not by formalNote acceptance. Goal remains active.
