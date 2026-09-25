@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 466d47074bb542639fb84bf7a86c6ce4cdbb975c
+Product revision: 82436bd6580f25a8bb9c4a4e7923b8fe8f78f24e
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -10348,3 +10348,88 @@ inheritedskeleton/historyleveldimensions; correcting fixtureconfig resolvedit
 without weakeningthe behavioralassertions. All testprocesses terminal. The
 new native feedback experiment is authorized by the owner's standing local
 research instruction, not by formalNote acceptance. Goal remains active.
+
+
+## Bounded amount feedback result and recovery preference, 2026-09-25
+
+Accepted revision:none; Note remains proposed. Feedbacknative82679 completes15/15.
+Static12LNMAE.077713->.037984,SRMAE.488256->.580383,shortLN256/12515(2.0455%)
+->236/12217(1.9317%). This is useful amountcalibration, not completeplayability.
+Fixed32s overrides are heterogeneous: baseline->feedback LNfraction is
+Zenithfall.898->.748,Hysteric.745->.814,AsItWas.774->.799. Afterrestoration,
+remainingrangefractions.151/.155/.137,with2/4/2inheritedLNreleases. Scopedproxy
+before/inside/after is1.720/4.016/3.760,2.850/3.083/2.444,3.396/3.496/3.419.
+Keep eachaudio/rangeseparate; shortscope response is not uniformly better.
+Maximum cachedstartup/window.425/.463seconds in this cohort; no cold/clientclaim.
+
+Native Lens: twopeakcontexts/all4pages/alltables read. ZenithfallD5/LN.7
+271683..275684 retains62Hrows/80actionrows,27–38ms shortLNadditions andan
+avoidablecolumn1RH25ms at274724. HystericD3/LN.7 1194..5195 has32Hrows/37actions,
+varied111–371ms layers,subset releasefromafourLNchord,andapureTAPinneralternation;
+shortestnewLN65ms. Rarity/controlmetricsalone do not establish musicalquality.
+
+Stylebaseline58180 andstylefeedback83409 complete2/2each: explicitJackabsent/
+prominent,D4/LN.2,fixed105000..137000. RangeLN.164/.064 withoutfeedback becomes
+.178/.129withfeedback. Adjacentheadcolumnreuse.182/.303 becomes.218/.255;these
+arenotstylelabels. Fourmatched105000..109000contexts/all8pages/alltablesread.
+WithoutfeedbackbotharemostlychordalTAPflow;withfeedbackbothhavelongLNanchors
+(1295/1560msabsent,1752/2158msprominent). No reliableprominentJackstrength is
+established. Amountchanges alteroccupation andhenceorganization. Allsixcontext
+reviews are saved. No listening/player test. The samplingpolicyremainsoptional,
+weightsretained2400; no new acceptedrelease. Product8cbe86a records theselimits.
+Allnamednative/style/testprocesses aboveareterminal.
+
+Reference87021 completes14.267s on6923TRAINcharts/2573groups only, withoriginal
+rankedstars. EachHH/RH/HR transition weight1/(chartsingroup*audioseconds), matching
+populationper-secondexposure. q01milliseconds atD2/3/4/5/6:
+HH169/143/107/89/83;RH107/83/65/55/49;HR89/75/53/44/43.
+D3HR<=40fraction.000217416;D5.004975961. D3minimumHH69/RH42/HR30;
+these rare tails describe a highqualityreference distribution, notuniversalBAD
+labels orphysiologicallimits. The reference andhistograms live in
+20260925-ln-allocation-feedback-v1/response-reference.json and-npz;
+JSONSHAf169bde29c0a2236459fb2dd99e906632350903e480546b8ea6c560e6366ba48.
+No VAL/TEST inclusion, no machine/human annotation edits.
+
+Proposed Experiment Card: audio-recovery-preference-v1,revision1.
+Accepted revision:none. Interventionproduct82436bd6580f25a8bb9c4a4e7923b8fe8f78f24e;
+comparatorpolicyLnFeedback(1,32,1) at466d470, sameunchanged2400weights andseeds.
+Question: can an explicit candidate-response preference remove extreme short
+lifetimes and avoidablerecovery while preserving scopedamount/difficulty and
+variedorganization? The reason is decisionownership: skeletonfixesLNlifetimes,
+R1choosescolumns,andthe corpus shows clear difficulty-dependent recoverytails.
+A physicalsupport envelopealone doesnotexpress that preference. This isone
+combined responsepolicy placed atbothowners; it doesnotisolate theircausalshares.
+
+Primitive: finite log-score reweighting. Closest analogue is products of experts,
+https://www.cs.toronto.edu/~fritz/absps/icann-99.html (officialabstractread2026-09-25).
+Only multiplyandrenormalize constraintpreferences transfers; no contrastive-
+divergence training,noveltyclaimorcomplete learnedplayerresponse is implied.
+Forintervaldelta andlinearlyinterpolatedq01reference tau(D), cost=min(4,
+4max(0,log(tau/delta))). Costzeroabovereference;every legaloptionretainssupport.
+UnknownDhasnopreference;outofreferencerangeclampsto2/6. Numericnativeclockunchanged.
+
+SkeletonR-onlyclock subtractsminimumcostamongeligibleheldIDs, anoptimistic
+candidateapproximation ratherthan anexpectedsubsetcost. Markscorersubtractssum
+ofHRcostsforitsactualproposedreleases. TrueEOSclosurehasnodelayingcost. R1subtracts
+perattackedcolumnmax(HHcost,RHcost);RHonlyfirstheadfollowingrelease. Sumoverrow,
+retainingjointcoupledrowprobabilities. This usesgeneratedstates,candidatetimes
+andcurrentD; nofuturetargettails ornewparameters. Itdoesnotalterfittedlikelihood.
+Existingamountfeedbackstillappliesafterreleasemarkreweighting, withbothpolicies
+recorded in generationmetadata. Hardwarebudget/schedulerremainunchanged.
+
+Freshowner artifacts/joint-audio/20260925-recovery-preference-v1, nooverwrite.
+DriverSHA bd452f279629a771aa201fd565d408f0b50ddfc46f3342d241b32982fc8dcced.
+Run same3audios x5modes, fixedseedsand105000..137000switch. Target shortLNfraction
+below.5% onstatic12, withSRMAE<=.8,LNMAE<=.06 andmedianheadcountatleast75%of
+amountfeedbackcomparator. Thesearepracticalreviewbounds, notautomaticadoption
+orproof ofplayability; Lenscanreject a metricwin. Checkperrange results and
+preserveTAP/LNmixtures,layering,subsettails,shortcross-columntimingandmeaningful
+stylecontrast. Existing120s/30000rowpercasebounds apply; noadditionalfitting.
+Stoponinvalidprobabilities/generationerror. A scalarimprovementwithlosttiming/
+organization ornewverylongholds isnotselected. Scope/band/rarity assumptions
+areconfounders; anoptimizedreferencepercentile isnot a newgroundtruth metric.
+
+Selectedchecks:4passed in.78s (responsepreference andallocation). They coverold-
+versusyoungreleaseopportunities,mandatoryEOS,actualRHcolumnchoice,andrealplanner
+allocationrollback. Runtimeintegration/nativeinspectionremainnext. Current
+scope is exploratory model/samplingdesign, not an accepted V3playerfrontier.
