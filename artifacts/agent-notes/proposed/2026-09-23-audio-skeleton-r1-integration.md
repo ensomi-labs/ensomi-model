@@ -9802,3 +9802,36 @@ next mechanisms; do not claim either established before a bounded comparison.
 Analogues: Neural Hawkes Process (Mei/Eisner, arXiv1612.09328) for interacting
 event intensities, Anticipatory Music Transformer (arXiv2306.08620) for temporal
 conditioning on known controls. These analogues do not validate our demand law.
+
+
+Scoped reference completed in47.55s:6,924 existing TRAIN-ranked charts and252,167
+nonempty8s windows, uniform group/chart/window weighting. Whole-chart D2.5-3.5,
+local LN>=.5 has median head/action rates7.25/11.875 per second and release-duration
+median196ms; q95 within-window fraction of <=40ms releases is zero. Final typed
+high-LN candidates have median action rates20.75/19.062/15.625 and median-release
+durations120/128.25/175ms (Zenithfall/Hysteric/As It Was). This motivates treating
+the extra release load jointly with head rhythm, not only controlling LN count.
+
+Experiment Card head-owned-clock-v1 revision1; proposed, accepted none, standing
+local authority. Clean baseline929138b; initial candidate-ln-control.pt (1600
+updates). Selected intervention is explicit ownership of the head process:
+separate63-head temporal memory and last-H clock; resource availability features
+encode remaining wait only (already eligible is zero); H probability is factored
+before conditional R-only probability, so an increased R logit cannot directly
+renormalize H probability. R/marks keep complete typed history; LN occupancy
+and recovery still condition H. Direct full audio and scoped controls feed both.
+This is one coupled ownership redesign, not attribution to each subcomponent.
+Motivation: mixed63-event history shrinks in musical time as releases increase,
+and signed past availability deadlines expose arbitrary canonicalization age.
+
+Compare800-update unchanged continuation with800-update ownership model under
+identical sampled windows/seeds, same explicit LN factor and dataset, no encoder
+scale-up. CPU/MPS; <=15minutes per arm. Native three audios D3/5,LN.2/.7 plus
+scoped changes; fixed seeds and unchanged requests. Assess SR calibration,
+source-relative action/tail/repetition profiles, completion, latency and selected
+Lens peak/LN contexts. Keep variation and nontrivial LN forms; do not accept
+silence or all-TAP collapse. NLL is diagnostic. Stop nonfinite learning; record
+failures. Fresh owner20260925-head-owned-clock-v1. If the redesign does not
+improve generated structure, do not scale it blindly: the remaining mechanism
+is explicit demand-conditioned planning/selection, with the conservation law
+releases = new LN heads + entering holds - exiting holds across a scope.
