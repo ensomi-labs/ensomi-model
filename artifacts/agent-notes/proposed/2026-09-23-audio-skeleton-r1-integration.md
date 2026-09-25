@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 887156fc51ccaf70acd1138154bbc582762e1b12
+Product revision: 54adf6b599a06044a4029f6f4ec7e9377c855538
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -10827,3 +10827,26 @@ or lost LN/TAP variation. Existing source inequalities do not guarantee a win.
 Unchanged2400 remains the fallback. Semantic style control is not established by
 this difficulty/LN panel. Recent-workload representation can be reconsidered
 once this restriction is removed; do not stack both interventions in this test.
+
+### LN-group implementation and execution identity
+
+Clean intervention source54adf6b599a06044a4029f6f4ec7e9377c855538 adds only the
+optional coupled group law, its serialization flag, focused tests and owning
+prose. Eight selected tests pass in.51s: exact group marginal, conditional LN
+preferences/finite gradients, direct mark-network amount input, unknown-control
+semantics, previous expressive pure-TAP support and guidance factor invariants.
+The first test invocation exposed a fixture omitting the required Recovery
+argument; it was corrected before the complete selected check. No failure was
+hidden or assertion weakened. The source worktree is clean before runs.
+
+Training driver artifacts/joint-audio/20260925-ln-group-coupling-v1/train.py
+SHA256466b1b2b21885edd9a8b28aeb2cfa6f33d346a360e759472a680734b3e283b0d. It is the existing scoped-target driver
+with scoped relabeling removed for both arms, unchanged schedule sampling, and
+one TYPED_COUPLED flag set after loading the same weights. Smoke command uses
+TYPED_GROUP_RUN=smoke-25 TYPED_GROUP_STEPS=25 TYPED_GROUP_SECONDS=120
+TYPED_COUPLED=1. Main commands use TYPED_GROUP_RUN=baseline-1000/TYPED_COUPLED=0
+and TYPED_GROUP_RUN=coupled-1000/TYPED_COUPLED=1, both1000updates/900s. All run
+through `uv run --extra mps python` with the above driver. Native driver remains
+SHA58215bacc7019303a600a8d3a320395fc7652d3eca19cdb4cfd4a63ae3c75825 and reads
+the constructor flag from each trained checkpoint. This is the only model-law
+intervention; all sampling policies stay paired.
