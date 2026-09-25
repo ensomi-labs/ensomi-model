@@ -11868,3 +11868,16 @@ source windows and does not silently edit them. The command is:
 uv run --extra mps python artifacts/joint-audio/20260926-row-owned-restoration-v1/train.py.
 
 Frozen train.py SHA256598f71d37646eb0f2c887f29bedac291763bbed2f375a6bdcc89a04bc183c5f6.
+
+The64-update smoke is terminal:43.414s including validation,117distinctTRAIN
+charts,128accepted draws (38human/90population),5rejections. PeakRSS2.550GiB
+and MPSdriver1.887GiB are overlapping ledgers, not additive. Gradients remained
+finite. CheckpointSHA2566567883e3f02ff838b5d808b553d04fd2e283cfe25f57ce5619e8ed60623aea0.
+
+Continue the bounded fit from this exact checkpoint to update2000 in fresh
+main-2000, maximum1800s for the resumed segment. Command sets
+ROW_TRAIN_RUN=main-2000,ROW_TRAIN_STEPS=2000,ROW_TRAIN_SECONDS=1800,
+ROW_TRAIN_RESUME=artifacts/joint-audio/20260926-row-owned-restoration-v1/smoke-64/step-64.pt
+and runs the same frozen train.py with uv run --extra mps. Optimizer and RNG
+states are restored; no learning-rate or source-policy change. This continuation
+was part of the existing bounded card, not a larger capacity search.
