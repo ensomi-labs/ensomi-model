@@ -11572,3 +11572,67 @@ open. Failures preserve the earlier candidate and define the next module-level
 research question; they do not justify a large strength/seed grid.
 
 Frozen qualify.py SHA2563756d77e868a91e0b99a5a6128abe3c0ffb74c5f0ebf4d719b0856691c957758.
+
+### Endpoint witness and count-feedback routing probe
+
+All40 scoped candidate qualification cases,8endpoint cases and3style cases are
+terminal. Static3/.2,3/.7,5/.2,5/.7 star MAEs on eight audios are .140763/.315876/
+.210487/.532573; the eight override-error median improves1.158542->.639353.
+The five-audio, endpoint and style jobs overlapped on separate one-thread CPU
+processes. Their service times are not new latency benchmarks.
+
+Endpoint numerical deviations are all<=.528, but Take6/.2 has an adverse local
+structure:123623–127624 contains124heads in39head rows (mean3.179), including
+five consecutive TAP quads125472/125595/125699/125800/125908. Both Lens pages
+and complete action/articulation tables are read. This is not equivalent to
+a comfortable6-star chart merely because whole-song SR is6.417.
+
+A pattern-specific scan of6923 admitted rankedTRAIN2–6 charts finds only one
+run of at least five consecutive all-TAP quads with every adjacent gap<=125ms:
+Hold On Tight [Tetris], source07c237e732ab463dce49d02ff8e43580d778190bdb1f3b9e14ef39a94f3e94ee,
+SR5.1007,107715–108216, five quads at125ms. This is a corpus rarity observation,
+not a generic ban on chordjack, a source playability verdict or a universal
+physiological cutoff. Raw scan report:ceiling-quad-reference.json.
+
+Reconstructing the exact demand ledger from the generated typed head counts
+shows that the candidate's nominal rate in that peak is25.3–34.5heads/s and
+the feedback shift remains positive .0876–.4718. The implementation puts the
+same shift on head-event odds and each additional chord head, rewarding four
+heads versus one by exp(3*shift). R1 cannot reduce cardinality already fixed
+by S. One nominal scalar count therefore asks two different decisions to
+repair the same deficit; head rate alone does not specify acceptable grouping.
+This identifies a plausible contributor, not the proven sole cause of the wall.
+
+Proposed card audio-demand-clock-routing-v1, revision1; Accepted:none. Baseline
+source7c122d48a95e8f451fa136c4585c3f6ebcd4406c, scoped-2000 and identical sampling
+policies. One intervention: retain demand shift only in head-event odds; omit it
+from conditional head-count marks. All learned probabilities, physical support,
+LN/recovery policies and seeds remain fixed. This isolates routing of the
+self-correcting signal; it neither bans four-key chords nor claims a new model.
+
+Three fresh native cases: Take6/.2, Take3/.2 and Hysteric3/.2->5/.7->3/.2. The
+first checks the dense witness; the latter two check whether density regulation
+and scoped gains are lost. Same full audio/BOS, one CPU thread,120s/30000rows per
+case, no training/overwrite/resume. Primary: inspect sustained large-chord runs
+and the old peak while preserving nominal difficulty (absolute whole-star
+error<=.75 on the two static cases). Guard: Hysteric override proxy error may
+increase by at most.25 and LN fraction error by at most.03. No single quad-count
+statistic certifies success; compare varied repeated patterns and new peaks.
+
+Artifact clock_only.py provides a visibly named ClockOnlyDemand subclass; the
+existing mark call is scalar and clock calls are arrays, so the temporary
+override returns zero only for scalar calls. Its routing field is recorded in
+metrics. This is a frozen exploratory harness, not a public API or packaged
+recipe. If useful, an explicit runtime policy and broader check must precede
+serialization. Fresh directories native-clock-take-ceiling, native-clock-take-low
+and native-clock-hysteric-switch. Commands reuse qualify.py environment fields,
+set the corresponding one name/mode and invoke clock_only.py.
+
+If routing alone works, prefer that simpler policy. If it only shifts the
+problem to denser timings or loses control, consider predicting head-row rate
+and head-object rate separately: the same head demand can be expressed through
+many smaller rows or fewer large chords. Source beatmaps supervise both, and
+this distinction belongs upstream of R1. Do not ban Jack or fit against the
+single Take peak; sustained response remains part of the whole-system target.
+
+Frozen clock_only.py SHA25667e867b54475dbe4623f87016aed4d1715f846430f2f6445874d0891ce637f1e.
