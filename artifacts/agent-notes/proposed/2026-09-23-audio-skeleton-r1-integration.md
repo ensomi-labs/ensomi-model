@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 4142ba4b01c338e76c9ce021491a5bcded68a636
+Product revision: 8687c35cbc99e374a6550f747b4027c42fb7efb9
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -10135,3 +10135,124 @@ peak RSS3.317GiB and MPS driver5.791GiB. Finish at6000/3600s, inspect the final
 native cohort, and then decide between unchanged learning, exact scope state,
 and a demand-aware planner/frontier. Broader test audio and final style response
 still require evaluation. All published evidence remains local.
+
+
+## Completed broader fit and scoped-control decision, 2026-09-25
+
+This entry supersedes the live-process and pending-evaluation status above.
+Trainer85912 completed6000 updates in2812.501s,4641 distinct TRAIN charts,
+peakRSS3.317GiB. All previously named processes are terminal, including final
+native40/style7, the2400 additional25 cases, both fresh-process startup probes
+and segmented report generation. No trainer or automation remains from that fit.
+Accepted revision: none. Note status remains proposed; no remote publication.
+
+Retain the2400 weights as the research baseline. Across eight audios/32static
+cases, starMAE.553087,LNMAE.076973,544/31671 LNs<=40ms(1.71766%). At6000 the
+same static panel worsens to.959335,.083806 and1430/44899(3.18493%). Both
+complete40/40 including eight switched trajectories. The6000 ZenithfallD3/LN.7
+chart rates6.110 stars. Lower teacher-forced loss did not establish better
+native generation, so the later checkpoint is not selected.
+
+Standalone candidate-ranked2400-controls-v1.pt is15,898,907bytes, SHA256
+8b7b806b42f6ed5c869abac3a3afec4028cb85c9e801fd36196a9e570eccc172.
+The earlier candidate-ranked-controls-v1.pt filename contains6000 weights,
+SHA256eaf45db158e7e5859550159395508bfab9ebaeb794f44c9ca4bf2020d9cf8785,
+and is not preferred. Both are under20260925-typed-contract-repair-v1 and remain
+research exports, not playable releases. Fresh-process actual-audio startup of
+retained2400 takes2.1207s for498.989s audio on oneM5CPUthread, publishing61rows
+through8000ms with oneopenLN. This includes imports/decode/Mel/wholeaudio encoder;
+OS caches were not flushed and client rendering/reading time is excluded.
+
+The corrected6000 style probe compares explicit absent/prominent per concept,
+not unknown/prominent. Jack adjacent identical masks change3->12 inside the
+same32s scope; complete105000..109000ms Lens tables/pages show a repeated
+column under sustained holds. Stream changes toward moving handoffs; Tech
+remains inconclusive. All sixpairedcontexts/12pages are read. These are4s
+witnesses, not whole32s strength judgments or claims of mutually exclusive
+styles. Native2400 FoolMoonLN and Revengehigh plus6000 ZenithfallLN peak contexts
+are also fullyread (sixpages/alltables). Reviews are saved under each lens owner.
+FoolMoon retains coherent layers; Revenge has24/26/30/37/38/40ms LN additions
+and RH30ms at234068. No listening or human player test occurred.
+
+The owner clarified that controls request approximate overall difficulty/style
+within each range, allowing casual variation. Exact star/count fulfillment is
+not required. Different ranges and different effective controls must remain
+separate in analysis. Conceptual and structural reasons may justify design
+changes without a strict causal grid. An exact LN deficit ledger is therefore
+only an optional stabilizer; it is not the mandatory next task or a hardquota.
+
+Product2e7e7bb adds effective-range resolution and evaluation preserving crossing
+LN obligations, full-prefix recovery and separate before/override/after windows.
+87completedcases produce133separate ranges in control-ranges-v1.json. Wholechart
+SR is retained only as adherence evidence for static wholechart requests. Older
+switch runs choose start relative to publication coverage; checkpoint-dependent
+startup changes the actual audio range, so they are not identical-time pairs.
+For2400 Hysteric105000..137000,D5/LN.7 gives.854LN and15actions/s; afterexpiry
+D3/LN.2 gives.130 and5.402actions/s with twoinheritedLNreleases. These observations
+are not pooled. New switch comparisons will use fixed absolute105000..137000ms.
+
+## Proposed Experiment Card: scoped difficulty target, revision1
+
+Card ID: audio-scoped-difficulty-target-v1
+Card revision: 1
+Accepted revision: none
+Mode: Design; exploratory execution under standing owner authority.
+Baseline source: 2e7e7bb0e552cc83c789ecaacd7868ee827848e3.
+Intervention source: 8687c35cbc99e374a6550f747b4027c42fb7efb9.
+Baseline weights: ranked-main/step-2400.pt, SHA256
+36c9767f38fc9b28416e635aa974bf98ee2785715622b6049f6120cef251c2b3.
+
+Question: can joint conditioning better represent approximate range difficulty
+when source targets describe that actual range? Current source_schedule copies
+whole-chart SR to all crops, including quiet sections of hard charts. This
+confounds global capacity with scoped demand. The target's semantic mismatch
+is a sufficient design reason for this small adaptation; its causal share of
+bad native patterns is not established.
+
+Intervention: reuse full-prefix ManiaStrain from the existing20241007 owner,
+including complete LN endpoints. In scope-aligned400ms cells use peak inherited
+and new-object strain; normalize ranked.9weighted peaks by1-.9**cell_count and
+multiply.018. Label each existing8/16/32/full scope with this approximatelevel,
+alongside its own LNfraction. Both skeleton and R1 consume the same condition.
+No neural capacity, event support or audio contract change. The readout is an
+offline proxy, not local officialSR or the causal frontier; its futureLNendpoints
+must not enter incremental generated-state features. Release execution still
+requires separate observation. Existing whole-chart target behavior remains
+the default when no difficulty trace is supplied.
+
+Closest analogue: achieved-goal relabeling in Hindsight Experience Replay,
+https://arxiv.org/abs/1707.01495 (paperopened2026-09-25). Only consistent
+conditioning on a trajectory's achieved result transfers; noRLrewarddataset,
+policygradient or novelty claim. Wholeaudio remains available in training and
+inference; target-derived scope summaries are labels, not leaked targethistory.
+
+Use unchanged6923TRAIN/36VAL, source grouping,25%human-style objective, optional
+condition dropout and LR3e-5/3e-4. Restartoptimizer from2400, seed251928,
+2microbatches/update, at most1000updates/900s, checkpoints400/800/final. Fresh
+owner artifacts/joint-audio/20260925-scoped-control-target-v1, nooverwrite.
+Driver train.py SHA256
+fa3fd262e4c0d794cd41a593287614822b31fd2969dbf1fc4a7963286c2da4db.
+Run uv run --extra mps python <owner>/train.py under caffeinate. Stop for bound,
+nonfinite losses/gradients or owner STOP. The five focused source-target/range
+checks pass in0.52s; no broader suite is needed for this scoped addition.
+
+Before native selection, inspect the derived TRAIN target distribution and its
+relationship to old labels. Evaluate the existing three-audio static12 cohort
+plus three fixed105000..137000 switches, reporting each range separately with
+strain proxy, LNamount, release articulation and action structure. Baseline
+three-audio static values areSRMAE.488256,LNMAE.077713,shortLN256/12515(2.0455%).
+The decision is whether target semantics justify retaining this adaptation as
+the next research baseline. Aim for visibly reduced scoped difficulty deviation;
+a change below.25approximateunits on the three overrides is weak scalar evidence.
+Do not prefer it if staticSRMAE exceeds.75 or shortLN fraction doubles, and do
+not select it from a proxy improvement when Lens shows worse organization.
+These practical review thresholds do not claim exact control or chart quality.
+Retain pureTAP passages, high-fraction timing, LN layering and style response.
+
+A1000update adaptation with newtargets and seed is not a matched causal proof
+against continued oldtargettraining. Musicalquietness can legitimately limit
+realized demand, and the scalar undermeasures releases. The main risk is
+replacing oneproxy with another and flattening audio-responsive variation.
+Meaningful improvements permit further scoped evaluation; ambiguous or poorer
+native output returns focus to upstream release/frontier coupling, not blind
+scaling. No adoption or humanplayability claim follows automatically.
