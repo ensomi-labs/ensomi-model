@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-25
-Product revision: 764669e2f25582a7a95d7858252c3b36a96fb763
+Product revision: f9ac4e63d3d0c03f51c751606b44d0350319cfb8
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -10549,3 +10549,52 @@ HH<60atD3 andmedianheadratio>=.85. Qualitativearticulation/style canreject a
 scalarwin. Nofurtherstrengthgrid planned; inspectnativeoutcomesbeforeadoption.
 Ifconditionaldirectionisstillwrong, revisittarget/modelconditioning instead of
 increasingguidanceindefinitely. The retainedweights andun-guidedcandidate remain.
+
+
+## Full guidance result and selective-factor comparison, 2026-09-25
+
+Head-pressure Lens review is nowcomplete: bothpeakcontexts/all4pages/alltables
+read andsaved. ZenithfallD3/highLN292389..296390 has55Hrows/79actionrows,
+633/514ms layers,subsettails,10ms cross-columnstagger,minimumLN50ms; still
+busy forD3 andwholeSR4.29. Hysteric91205..95206 has33Hrows/35actions,regular
+104–133ms movingLNline withTAPinterleaving and219–351ms sustains,minLN96ms.
+No audio/player assessment orwhole-chartstyle claim.
+
+FullCFG1237 isterminal15/15. StaticSRMAE.505763->.348126,LNMAE.032063->.031601,
+shortLN81/11975(.6764%)->147/12223(1.20265%),exceedingplanned1%reviewbound.
+AllsixD3staticcases havezero<=40ms LNs; additionalshorttailsareinD5cases.
+FixedD5overrideproxies4.085/2.971/3.496->4.571/3.827/3.692;twoofthree exceed
+planned.25gain. TheirLNfractions.768/.784/.754;restoredD3rangesproxy2.826/
+2.467/2.640 andLN.178/.155/.220. Range-specific control improvesunevenly;
+do notselectonbetterstaticaverages alone. Full-guidance Lensinspection remains
+pending; no categoricalclaimthat everyshorttailisBAD. Keepascomparison.
+DriverSHA c3c2a8aa7a63c4f704b322e46d27f04addf0ab3a015eaa5d5fd07dbdc53fdba7,
+reusedguidancehelperSHA bc1e80cc0155ce8ef15389306ad75727397d59c562f4b7af6e64af56edab5aa0.
+
+ProposedExperimentCard audio-head-geometry-guidance-v1,revision1;acceptednone.
+Productsourcef9ac4e63d3d0c03f51c751606b44d0350319cfb8, sameweights andallphysical
+policies. Changeonlytheamplifieddifficultyfactors,keepingstrength2. Reason:
+fullguidancealsoamplifiesthemodel'sdifficulty-conditionedshort-releasecontrast,
+whichneednotbetheintendedwayofmakinga chartmore demanding. This is amodular
+control hypothesis, notproofthatallshorttailincrease iscausedbydirectRguidance.
+
+StarGuidance(2,guide_releases=False) guidesP(H) inbinarylog-odds space while
+retainingP(R-only|noH),includingforcedsupport. Markguidance changesP(headcount)
+whilekeepingP(LNcount,releasesubset|headcount) fromtheactualD-conditionedmodel.
+R1complete-rowgeometryusesordinarycategoricalCFG. Audio,D,LNstateandhistory
+stillconditionrelease decisions;onlytheextraRcontrast isnotamplified. Preferences
+andamountfeedbackfollowthese scores,withoutbeingdoubled. Defaultsamplingstill
+hasnoguidance; guide_releases=True providesfullcategoricalcomparison. This is
+sampling-only, notnewMLE training or anindependenceclaimaboutdifficulty/releases.
+
+Freshowner artifacts/joint-audio/20260925-head-geometry-guidance-v1. Same15case
+panel,fixed105000..137000overrides andseeds,TYPED_GUIDANCE=2. Targetretainatleast
+halfofthefull-CFGoverrideproxygain ontwoaudios whileshortLNfallsbelow1%; guards
+staticSRMAE<=.65,LNMAE<=.06,no newlyforcedHH<60atD3 andmedianheadratio>=.85 versus
+headpressure. Qualitativeorganizationcansupersedeascalarwin. Existing120s/30000
+rowspercasebounds;nogrid,fitting,overwriteorTEST. Runinferenceandinspectactual
+controlranges. Do not claimsemanticstylecontrolvalidatedby difficulty-onlytests.
+Eightfocusedchecks pass in.77s: conditionalR/no-eventratio, jointLN/release
+conditionalswithinheadcount, exactomissionofonlystarfields, allocationrollback
+andphysicalresponsebehavior. Allpreviousprocesses terminal. Goalstillactive;
+noacceptedmodelrelease orremote push.
