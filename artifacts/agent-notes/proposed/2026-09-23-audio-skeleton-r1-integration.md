@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 2c2b8af0da7411804697863df2f8efb605f3c840
+Product revision: 5bf146e62767c920f9ad5dccce0b06c3cda5b44d
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -14082,3 +14082,168 @@ qualification directory. It uses the five frozen diagnostic cases, core-generate
 common prefixes, source H timestamps,3paired future seeds/request/arm and true
 audio EOF. It retains existing human style requests for the two LN contexts.
 All output rows are independently exported/reparsed by the established writer.
+
+### Fixed-H reachability diagnostic after failed paired-control qualification
+
+Accepted:none. The60candidate qualification completed; mean scoped absolute
+error.808649→.755828 improves only.052821(<.20), and paired high-minus-low
+contrast.253898(<.40). All numeric regression/time guards passed. These endpoints
+are not adopted. Lens review remains required even though the primary metrics fail.
+
+To distinguish fixed-H restrictions from unused R1 action support, inspect
+constructive continuations for singles and chords only. Preserve each existing
+core-generated prefix. If it contains entering LNs, retain the actual paired-low0
+continuation until its first row at/after the override start with no open LN; do
+not invent tails or overwrite the prefix. Thereafter retain every source H through
+EOF and choose only TAP rows within the existing exact replay, native row support
+and60/50/50ms profile. Four witnesses prefer1/2/3/4heads perH respectively and
+least-recently-used available columns, using the closest feasible cardinality
+when preview capacity excludes the preferred count. No model probabilities or
+training targets are changed. Record all actual cardinalities, spacing support,
+LN proportion and the same scoped readout. CPU1thread, at most60s, fresh
+qualification/reachability owner; no overwrite/resume.
+
+A witnessed rating near a missed request establishes existence within this
+restricted support; it is not a lower bound, quality judgment, musical solution
+or target to imitate. If the lowest witness still overshoots, that does not
+prove infeasibility. Uniform count choices are deliberately diagnostic and never
+a proposed R1 replacement. The retained early suffix narrows the constructive
+family but every witness is still a continuation of the same original prefix.
+
+### Result Log: paired-scope qualification, Lens and support witnesses
+
+Accepted: none. All 60 matched candidates completed and exported/reparsed with
+exact committed-prefix and source-H preservation. Mean absolute scoped error
+changed .808649→.755828, improving .052821; high-minus-low response changed
+.160368→.253898. Both primary criteria failed. Low-request error changed
+.871762→.792224; high-request error changed .745536→.719433. LN, restored-range
+and 120-second candidate guards passed. No native-H expansion or adoption followed.
+
+Executable source stayed 2c2b8af0da7411804697863df2f8efb605f3c840. Product
+5bf146e62767c920f9ad5dccce0b06c3cda5b44d adds the self-contained reports
+paired_scope_control_learning.md and control_condition_learning.md. They retain
+all case/request results, measurement definitions, model limits and provenance.
+
+Lens produced 76 pages for 29 selected contexts. Complete action tables and
+aggregate articulation facts were read for all 29; eighteen image pages were
+visually inspected across five source/candidate comparisons and restored suffix
+peaks. Exact viewed-page identities are in qualification/lens/review.json.
+The first invocation from the Lens environment failed before output creation
+because NumPy was absent. The unchanged read-only driver then completed using
+the existing Ensomi MPS environment; no dependency or Lens source changed.
+This was not full-song visual coverage, listening or player approval.
+
+Fast singles has 53 source heads versus 71/78 candidate heads on the same 50 H
+in the matched four seconds, including six three-key rows in each candidate.
+Slower chords has 45 versus 35/38 heads on 23 H, with nearly identical early
+low/high rows. Miraie's matched source has 28 LNs, median 183 ms, all ending at H;
+low/high outputs have 30/33 LNs, medians 106/92 ms, only 4/5 tails at H and
+23.3%/27.3% at most 80 ms. This is source-specific fragmentation, not a universal
+musical duration cutoff. Starry high retains a 677-ms hold across six interior H
+and a 722-ms hold across three; Shippai low retains 662 ms across four H.
+Expression did not uniformly disappear. Human labels were not copied.
+
+The 0.482-second constructive diagnostic retained the original prefixes and all
+H, extending singles only to its actual settled state at 56116 ms. Its one-head
+witness reaches 2.833987 versus the paired mean 3.737582 and request 2.189779.
+This is not an optimized bound or an impossibility proof. Chord witnesses with
+one/two/three/four heads reach 1.538764/2.663462/4.076841/4.993524; supported
+materialization exists above the sampled 2.277865 at request 3.5. They are not
+musical policies or supervision. Whole-LN errors stay inside the .03 deadband;
+all selected rows satisfy exact support and the 60/50/50 recovery profile.
+The scoped-response PNG/SVG was rendered and visually checked.
+
+Recommendation: REFINE. The limited difficulty-column policy-gradient fit was
+insufficient. Do not increase its gain/duration or adopt its weights solely from
+NLL. Preserve core2500 as reference. All fit, qualification, Lens and witness jobs
+are terminal.
+
+Artifact identities within 20260926-paired-scope-controls-v1:
+
+- comparison.json: SHA256 d29ecafd35e7353f95099694649abae5749040e3d408587240d55b3da10bf410.
+- training-comparison.json: SHA256 c94de5fd4b5fb6bc0645b1731c97c3a28b3f66ae0bb312dc88c06f2affe4340f.
+- qualification/lens/review.json: SHA256 780377b5c843a78faa03b7d592e4c70a98bae915f469c5c1b2e04752677f2490.
+- qualification/reachability/result.json: SHA256 5849417108d550a094fd661dac2264c44d873c058794f4e536cc41bd32e84830.
+
+### Corpus-conditioned direction: balancing and explicit condition contrast
+
+The user proposed supplementary difficulty/style-balanced learning. This steers
+research without changing module ownership or accepting a Note revision.
+Analysis used only the named ranked manifest and human cohort. No new fit runs.
+The full coverage and condition-audit findings are preserved in
+control_condition_learning.md at product 5bf146e62767c920f9ad5dccce0b06c3cda5b44d.
+
+The inventory covered 6,923 TRAIN charts and 61,446 full sixteen-second windows
+with at least 32 H. It found 2,382 same-audio/scope/exact-H groups with distinct
+materializations. Whole-rating and head-width differences selected 1,763 candidate
+pairs. Actual local targets retained 1,339 pairs across 424 audios with both
+readouts in 2–6 and a difference of at least .5. Of those, 896 pairs on 253 audios
+have at most .1 local LN fraction on both sides; 1,143 on 357 audios have local
+LN-fraction difference at most .1. These are filtered candidate pools. Complete
+native-support eligibility remains a fitting-panel check. Timing matches do not
+permit swapping labels across different source prefixes. Whole-star bins are
+coverage attributes, not local targets.
+
+Human TRAIN coverage is 289 cells on 112 charts. Prominent jack/stream/trill/
+Tech/LN counts are 11/21/13/5/8. All five prominent Tech local readouts are 3–4.
+Prominent LN has four cells at 2–3, two at 3–4 and two at 4–5. These are stored
+human assessments, not newly asserted High-confidence judgments. Unknown style
+never becomes absent; structural sampling attributes never become style labels.
+
+The core-model factual-condition audit used seed 261390 to choose twelve distinct
+TRAIN audio pairs: identical H, local difficulty gap at least .75, both readouts
+in 2–6 and both local LN fractions at most .1. All 24 scopes passed the existing
+collator; no exclusions. Each source's own history, audio, H/row labels and global
+LN condition stayed fixed while its sixteen-second difficulty was correct or
+swapped with its partner. Style was unspecified. Summed neural R1 row scores
+excluded external recovery and LN preferences. Correct conditions were preferred
+for 12/12 lower versions and 2/12 higher versions; both sides ranked correctly
+in 2/12 pairs. Thus 22/24 scopes preferred the lower request. Mean
+correct-minus-swapped log probability was +1.684973 for low and −1.323055 for high.
+This is a small factual-history mechanism diagnostic, not generation quality or
+population accuracy. It does not assign all failure to generated-history drift.
+
+Inventory, scoped verification and neural audit took 6.080/19.183/9.221 seconds.
+The audit used MPS and one CPU thread; sampled peak physical footprint was
+2.2132 GiB and MPS driver allocation 1.3090 GiB. All processes are terminal and
+no dataset label changed.
+
+Selected direction for Design: matched balanced-source learning versus identical
+exposure plus scoped condition contrast. Allow existing R1 composition and
+condition interactions to adapt, rather than restricting learning to difficulty
+input columns. Do not enlarge the network by default. Negative conditions must
+respect observed control/timing coverage and difficulty tolerance. Partial ordinal
+style labels do not justify arbitrary shuffled negatives. R1-specific comparison
+on same-H examples prevents H from absorbing every conditional distinction.
+Positive genuine-source learning remains; generated scoped outcomes and Lens
+remain the criteria. Improving a conditional likelihood diagnostic alone is
+insufficient.
+
+LN articulation requires R/R1 coupling: an R-only event requires a release, which
+R1 cannot undo as a no-op; different R1 starts/subsets alter R's occupancy/age
+inputs. H still must not read row materialization. Long musical memory remains
+deferred. Source labels remain on their own genuine histories.
+
+Closest analogue: Chen et al., Condition Contrastive Alignment,
+https://arxiv.org/html/2410.09347v1, using matched/mismatched conditions and a
+frozen-reference likelihood ratio without another inference network. Its primary
+implementation was inspected at https://github.com/thu-ml/CCA/blob/main/LlamaGen_finetune.py.
+The proposed adaptation concerns continuous scoped targets, partial multilabel
+style and native-time model factors, not a new general contrastive method.
+CLICK, https://aclanthology.org/2023.findings-acl.65/, instead contrasts generated
+sequences with attribute labels; the current scalar difficulty proxy cannot
+supply general generated quality/style labels.
+
+No CCA, CLICK or new contrast loss has been implemented or fitted. The next fit
+still needs a bounded Card with exact exposure, trainables, loss, negative-condition
+rules, seeds and generated-outcome criteria. Standing execution authority continues;
+no acceptance or lifecycle transition is claimed.
+
+Artifact identities within 20260926-control-coverage-v1:
+
+- coverage.py: SHA256 5a28d3615fe8cf6631f35c4a9901d157ec3991e69f4459ddaff87ce9b1053502.
+- result.json: SHA256 6550641486d3e4974fc0704eee6362c5891e7c6eb130f144b02166ac58b05908.
+- paired_scopes.py: SHA256 39c9a6c7be3e465d9035074e39be7107bc6643aa48a29d0a727b685790d48467.
+- pair-verification.json: SHA256 b4c6452bf5ceb282fbd5a5b3ee300a574f8f6b22e56b68d17566a2977b72796f.
+- condition_audit.py: SHA256 b21ce7c5c524380f94d376444d0a63e8c315f768d416c023bb29b597309da810.
+- condition-audit.json: SHA256 6353d95acfee06ef45ea3b35cec0578bf2fbcc8a16a3352c0a466a6c85afbd1b.
