@@ -15809,3 +15809,43 @@ tail horizon beyond the target scope; this TAP-only pilot has not empirically
 exercised its future-tail scoring branch. Do not claim an LN outcome-learning
 benefit from these updates. Qualification adapters and analysis/render helpers
 were authored independently; no actor endpoint has yet been qualified.
+
+### Result Log: actor endpoint and decision to inspect native behavior
+
+The actor fit completed all 128 updates and 768 generated candidates in 1,184.001
+seconds. Checkpoint SHA-256:
+364c7b711bc39ab3384175b755658d2ef67a4c10b166f5eb85dc072d920e10e3.
+Frozen audio/H/R parameters are unchanged. All 384 factual source identities
+match the source-only arm. All 128 updates reached R1, composition and modulation;
+maximum row log-q discrepancy 3.417e-5. Peak footprint 3.860 GiB and MPS driver
+1.856 GiB. All 768 target continuations contained no LN, so this fit supplies no
+direct evidence about LN outcome credit beyond the implemented horizon rule.
+Main handle 90919 is terminal.
+
+Reserved actor MAE is .388944, improving initial .512480 by .123537 and source
+.591815 by .202872. Gap MAE is .685288, only .050674 better than initial and
+worse than source .536464; 23/24 comparisons have positive response. The primary
+paired-control gate fails. Secondary D MAE improves .731496 to .675625, but LN
+amount, one restored-D allowance and matched-style distance regress. Matched
+style mean .065841 exceeds the .057723 bound. Miraie low LN error rises .019619
+to .057815; Shippai low/high .004053/.005214 to .047500/.049136. Starry low
+restored D error rises .131861 to .389992, exceeding the .25 allowance by .008131.
+These failures are retained without changing the Card's criteria.
+
+Initial paired Lens inspection now includes page 2 for all sixteen seed-zero
+low/high contexts. Actor pages 2 for contexts 00, 02 and 06 have been viewed.
+They show ordinary moving singles and chord accents after thinning, rather than
+an obvious malformed construction. Actor head cardinality declined in nearly
+every displayed low and high case. Context 00 low moves 2.070 to 1.625 heads/H
+(reference 1.516), while high moves 2.484 to 2.258 (reference 2.672). This supports
+both a useful low-difficulty change and incomplete conditional separation.
+
+The Card allows native evaluation when numeric and qualitative progress is
+useful. Although its primary gate failed, lower absolute error and plausible
+lighter layouts make six native runs informative: the initial native D3 outputs
+were systematically too hard. Run the declared actor static/switch panel as a
+whole-system diagnostic, with prior initial outputs as the comparator. Do not
+reinterpret a native improvement as passing the failed paired/style/LN gates or
+adopt the checkpoint automatically. Actor paired, secondary and matched-style
+handles 54909, 51385 and 51667, analysis 76358, renderer 60582 and descriptor 84267
+are terminal. Native timings will be measured without a concurrent fit.
