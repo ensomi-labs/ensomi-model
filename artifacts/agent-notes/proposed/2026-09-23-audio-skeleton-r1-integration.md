@@ -14689,3 +14689,67 @@ H need not read materialization. Source/generated classification accuracy is not
 a playability result. No new Card is accepted and no new fit launched by this
 exploration. Standing local execution authority persists, the Note remains
 proposed, and the overall goal remains active.
+
+### Experiment Card: trajectory-kernel-probe-v1
+
+Revision: 1. Accepted: none. Owning Note remains proposed. Standing local
+research authority covers implementation and bounded probing. The preceding
+balanced-condition Card has terminal results; this is the active probe Card.
+
+Question: Can a compact, mirror-invariant comparison of physical H-to-H
+intervals detect the observed transition and LN failures before it becomes a
+training objective? Baseline source is clean
+6520ba16426492143f58867c76c27bf0c8805bed. Baseline evidence is the fixed
+balanced-condition owner: eight repeated groups in the aligned trill guard,
+source-history complementary preference at 23/23 decisions, and the reported
+Miraie/Starry/Shippaisaku articulation failures. No generation weights change.
+
+Selected primitive: a local H interval records the four actions at its left H,
+pre/post occupancy, committed LN age and attack/release clocks, and any release
+strictly before the next H as a flag plus native relative position. Interval
+length remains observed. All values are bounded transforms of physical facts;
+there is no beat grid or pattern taxonomy. Consecutive 1/2/4/8-interval blocks
+provide several short scales. Gaussian kernels with widths .125/.25/.5 on mean
+squared coordinate distance compare these blocks; average over reflection of
+all four columns. Score only cells fully inside the requested control range.
+Future LN ends beyond a cell are censored, never replaced by artificial tails.
+
+Closest analogues are GAIL occupancy matching and kernel MMD:
+https://arxiv.org/html/1606.03476v1,
+https://www.jmlr.org/papers/v13/gretton12a.html,
+https://proceedings.mlr.press/v37/li15.html.
+The adaptation uses finite physical interval blocks and discrete-policy score
+function gradients; it does not copy GMMN's differentiable image generator.
+A learned adversarial critic is deferred while this explicit signal is tested.
+
+For a later learning use, estimate squared distance of the expected generated
+embedding to the empirical source embedding using cross-products between
+independent rollouts. Exclude a rollout's self-product: otherwise the objective
+also penalizes between-chart diversity. Implement coefficients for the exact
+score-function gradient with a baseline independent of the sampled rollout.
+This probe validates that estimator by enumeration; it does not start a fit.
+
+Intervention: add a research-only interval representation/kernel helper and
+focused tests. No inference module, controls or checkpoint schema change. Test
+reflection and absolute-time-shift invariance, isolation from events after the
+scope, different alternating/repeating organization at identical H/counts,
+LN sustain/release sensitivity, and exact estimator gradients on a small finite
+policy. Do not use the kernel as a semantic style or playability label.
+
+Then measure the source and previously generated four style guards and three LN
+review cases from 20260926-balanced-condition-r1-v1, on their exact scopes. A
+legal deterministic group shuffle of the pure-tap trill scope holds timing and
+per-row count fixed as a structural negative control. Required: source against
+itself and its complete mirror are zero within 1e-10; the shuffle is separated
+by at least 1e-4; the existing repeated-group continuation is distinguishable.
+Inspect per-scale distances and relevant Lens action tables. Failure to separate
+these already established relations rejects this representation before fitting.
+Passing only establishes a usable comparison, not a playable policy.
+
+Use the existing Python/NumPy environment; model-backed source loading explicitly
+uses uv run --extra mps. New owner:
+artifacts/joint-audio/20260926-trajectory-kernel-r1-v1. No overwriting learned
+weights or existing run outputs. CPU one thread, existing 24 GiB Mac. Bound this
+probe to 300 seconds, excluding authoring and existing-file inspection. Stop on
+nonfinite values, incompatible data or a failed mathematical invariant. Persist
+terminal measurements before selecting the separate actor-learning comparison.
