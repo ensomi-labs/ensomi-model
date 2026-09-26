@@ -15437,3 +15437,32 @@ qualification and 5 GiB new storage. No network dataset changes, overwrite or
 resume. Stop on nonfinite values, missing/contradictory labels, unsupported source
 rows, frozen-weight drift, memory bound, STOP file or runtime bound. Any necessary
 protected-field change is recorded as a new proposed revision before proceeding.
+
+### Result Log: style discrimination preparation and integration
+
+Accepted: none; scoped-style-discrimination-r1-v1 revision 1. Product source
+remains clean at 0591f905809876d7dc4f41ebf1217ba4c2c31381. Preparation took
+29.146 seconds and retained 125 explicit absent/prominent human cells plus 884
+population scopes in local D2–6. Four explicit Low-confidence cells were excluded;
+no additional resolved-label conflict was found. All ten concept/level groups
+remain present. Missing local-D bins were not filled with fabricated examples.
+
+Frozen panel SHA-256:
+cab2e71e39c1e365f15c431b06cb7ad321af05977cbcd3e9edc8c8422d4f430f.
+Reference scores SHA-256:
+5b6934bf56b45961ec816c136e45a5a04997327d97838edb524d91e04890ee65.
+Driver SHA-256:
+baa609f29a407f7bb30ba74973eb954e6117a81e54f857c7c68c63f5c2f29e97.
+Shared helper SHA-256:
+61363a5c26c6e32263e6adddce5f07fa8ed8408599997df1cff15535f0e2ff45.
+Preparation script SHA-256:
+3dab2a9677d7fe9882021556676d2fadcae888df316956d138ce48705c2c7009.
+
+Four-update source/aligned smokes completed in 4.805/4.967 seconds, with identical
+first-update source loss 15.046506. All four checked alignment gradients reached
+the modulation matrix with finite nonzero norm. Both frozen hashes remained
+9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed.
+Peak footprints were 3.001/3.076 GiB, driver allocations 1.659/1.729 GiB.
+Smoke weights are discarded. Preparation handle 7606 and smoke handles 88783,
+27294 are terminal. Begin the two declared 400-update fits serially from the
+original modulated checkpoint, without changing their frozen code or inputs.
