@@ -15970,7 +15970,7 @@ Card or run is selected in this result log. The overall research goal stays acti
 
 ### Experiment Card: paired-response-r1-v1
 
-Revision: 1. Accepted: none. Proposed exploratory experiment under standing user
+Revision: 2. Accepted: none. Proposed exploratory experiment under standing user
 execution/implementation authority. The preceding common-prefix Card is complete.
 Previous goal turn classification: progress; complete native and Lens evidence
 was persisted with product report a99519ccee60925dce10a4200f88a6c049d37964.
@@ -16049,8 +16049,11 @@ on every style or high-LN condition, which remain independent qualifications.
 Files likely to change: a small outcome-learning helper and focused estimator
 tests under controlled_audio_continuation, plus ignored study drivers. No existing
 sampling behavior changes. Record a clean committed helper source before fitting.
-Four-update smokes use the same two arms but discarded weights. Then two fresh
-128-update runs, serially, with identical source identities and seeds.
+Four-update smokes use the same two arms but discarded weights. Start the fresh
+independent 128-update fit first; once measured footprint is stable below 6 GiB,
+the paired fit may overlap it, with identical source identities and seeds. Track
+combined footprint against an 18 GiB bound. Native latency runs wait until both
+fits are terminal.
 
 Primary progress: gap MAE drops at least .15 relative to both initialization and
 the continued independent arm; absolute MAE stays within .05 of both; positive
@@ -16136,3 +16139,25 @@ receipt hashes; the helper-only descendant has no inference behavior change.
 Qualification adapters use local D/rho on style guards directly, avoiding a
 second mismatched whole-control style panel. This implements the declared local
 comparison; driver, objective and fitting inputs remain unchanged.
+
+
+### Result Log: paired-response scheduling refinement
+
+Accepted: none; Card revision 2 changes scheduling only. The independent fit
+started under revision 1 and reached update 48 in 583.585 seconds with sampled
+footprint 5.280 GiB and driver allocation 3.319 GiB; no pressure or numeric failure
+was observed. The initial source-only gradient diagnostic completed under handle
+29158: source norm29.488 versus independent outcome618.959 and paired outcome1463.098
+on the exact first batch. This one observation is before clipping and is not an
+estimate of Adam displacement or quality. It briefly overlapped the independent
+fit; fitting elapsed time is not an isolated throughput benchmark.
+
+Use the available memory/CPU headroom to start the paired fit concurrently. Keep
+all implementation files, initial weights, data, objective, update counts, seeds
+and optimizer settings unchanged. No live driver or input file is edited. This
+revision allows overlap and tracks combined memory; the native latency comparison
+remains isolated after both fits. All results remain exploratory. The independent
+fit is live under 90026; do not restart it. At update37, 222 generated candidates
+included two target-scope LNs but no score horizon beyond the requested scope.
+The existing style-classifier postmortem still reports failed Trill/LN human-positive
+detection; it is not introduced as a reward or quality oracle in this study.
