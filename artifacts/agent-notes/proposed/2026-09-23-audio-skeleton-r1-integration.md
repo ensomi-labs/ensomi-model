@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 5bf146e62767c920f9ad5dccce0b06c3cda5b44d
+Product revision: b2a53511b876484e14e5b657635e0d0cb9487d6f
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -14397,3 +14397,70 @@ condition_alignment helper, its owning documentation and focused CPU/MPS tests.
 Both tests passed in0.53s: correct gradient direction, detached reference values
 and inability to reduce the symmetric loss by a common relative-likelihood shift.
 No inference network or checkpoint schema changed.
+
+### Result Log: balanced-condition preparation, cache replay and integration
+
+Accepted: none; Card balanced-condition-r1-v1 revision2. Clean intervention
+b2a53511b876484e14e5b657635e0d0cb9487d6f remains unchanged. Revised preparation
+completed in275.519s and froze128paired audio identities,1,024population scopes
+(256distinct audios per whole-star bin) and251human cells. There were149support
+rejection attempts, not149bad charts. Allfive concepts retain prominent fitting
+cells: jack10,stream20,trill9,Tech3,LN5. Excluded audio IDs include all designated
+difficulty/native/condition diagnostics and the four reserved style guards.
+Final per-item sampling weights sum to pool size; maximum relative probabilities
+are4(pair),4(population),2.1142(human). Short human scopes remain genuine scopes
+and their NLL normalizer is capped at1s; no labels are extended or invented.
+
+The reserved prominent/High-confidence source guards are:
+- Tech: b9ab4389b6b19842a035c955c5173d25d258b8ca838f60f5c570263c06bad297.
+- Jack: 826b7058701130fcf85d440152268b612f002a96f93773aa87e788d3026638ad.
+- Stream: 6a6a30d1cba7a12c97ceba4e26eec847e992d5616500c20fb90fc8a4444a770d.
+- Trill: b00fc0651520df1c9576ebc733a27e07049e010ac01a2d888eb0d4e58df6c030.
+
+Reference preparation completed128pairs/512conditioned row scores in86.881s
+and froze the1200update source draw sequence. Each four-update block contains
+two pair, one population and one human update. The two arms share these exact
+positive sources, controls and references. Successful preparation plus reference
+computation used362.400s, within the revised bound including the earlier failed
+allocation. The data/source/driver identities below are fixed for fitting.
+
+The artifact prefix replay was checked on unchanged core weights. Rebuilding
+448single-case prefix rows (two entering LNs) and976hold-case rows (one entering
+LN) preserved exact physical state and feedback, then reproduced all93/82next
+rows over8s under matched new difficulty requests/seeds. The check took5.948s.
+Each trained endpoint will rebuild its own temporal caches from the same raw
+prefix; copying core caches would be invalid because R/R1 history weights train.
+
+Both8update integration fits completed, using16identical source examples across
+16charts:8pair,4population,4human. Balanced took6.922s, aligned7.561s. All eight
+alignment gradient checks were finite and nonzero; first auxiliary loss was
+1.386294, matching2log(2) at the frozen reference. Source loss matched exactly
+on the first update. Frozen audio/H hash stayed
+9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed.
+Trainable parameters:3,187,773 within the unchanged4,583,985parameter model.
+Peak sampled footprints2.844/2.988GiB and MPSdriver1.483/1.616GiB are separate
+ledgers. Smoke checkpoints are discarded as starting weights.
+
+Main commands use ALIGN_ARM=balanced or aligned, ALIGN_RUN=balanced-1200 or
+aligned-1200, ALIGN_STEPS=1200, ALIGN_SECONDS=1800, then
+uv run --extra mps python
+artifacts/joint-audio/20260926-balanced-condition-r1-v1/train.py.
+Both start independently from core2500. The aligned run was launched after the
+balanced run passed384updates (253.425s, footprint5.581GiB, driver2.006GiB);
+main fits now overlap on the Mac, each with one CPU thread and its own MPS model.
+This changes wall-time scheduling, not exposure, weights or random draws.
+Live handles at launch are82535(balanced) and2666(aligned); consult their actual
+status before any continuation or restart. No trainer, objective or source edit
+is allowed while either fit is live. No checkpoint has yet qualified.
+
+Artifact identities within20260926-balanced-condition-r1-v1:
+
+- common.py: SHA256 86b4ad13cc2864dee77d774b7b3be98722226b0dc40941d5f9c16c4112b9df31.
+- prepare.py: SHA256 5d3aca14acdec70bc483dba32362059fb20b1f710bd16755f2dc7124042a8c17.
+- references.py: SHA256 a5f98d807f4513d5dd823539e076df2b27636985f585b833e7ccd933db3c81fc.
+- train.py: SHA256 c52a074b02ef426361327c8ac542fd2b813c2147ccfdbbfbe8c9572c0b19f773.
+- prefix.py: SHA256 ef7ef745dc80317a3c441605e2142b7f58ed1a4ee4c11efdaf535f70ff6dd25c.
+- panel.json: SHA256 7f8d56c8aeb3b5e33dd3dfe3d993a7311e97d9bea1c983ee2bd0a76d991d9c10.
+- references.json: SHA256 db6f5848b4fd8b2645c13df1fb6176feab173c1de7b6499628e7816311875cd8.
+- draws.json: SHA256 6f28c72d45e52b2fc9bfac4add1e7391447a678b8d95874ea8e5aa973a68afa9.
+- replay-probe.json: SHA256 d3d4a78e4c3d97ccdc866a3dc2d17f24660184b696dcf1054d0ca27ef9896683.
