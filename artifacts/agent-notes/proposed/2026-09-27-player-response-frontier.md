@@ -475,7 +475,7 @@ those proposal-learning problems. H musical activity and recovery intervals rema
 an independent unresolved part of the complete system. No new fitting Card or
 run is selected by this Result Log.
 
-## Experiment Card: player-state-r1-learning-v1, revision 1
+## Experiment Card: player-state-r1-learning-v1, revision 2
 
 Accepted: none. Standing research authority covers local implementation, profiling
 and fitting. Baseline product faf726d30cea3a0ad4f0140b884d3d52dddec4cc; baseline
@@ -535,8 +535,9 @@ suffixes onto these changed histories.
 
 Both arms receive one human and one population scope per update from the existing
 capped balanced weights, with deterministic frozen draws. Source loss is mean
-native row NLL per second, using genuine source styles and locally defined
-controls. The response arm adds100 times expected sustained excess per future
+native row NLL per second, using genuine source styles and both difficulty/LN fraction targets defined
+on the exact factual scope. Outside it, retain whole-chart controls and original
+human style scopes. The response arm adds100 times expected sustained excess per future
 second, averaging three independent four-second continuations and subtracting
 the other-draw mean as an action-independent baseline. All continuation scores
 and costs include the same actual generated prefix, requested ranges and native
@@ -583,3 +584,40 @@ broader style/held-demand/H-activity work. A negative or ambiguous result requir
 revising the information flow, training-state coverage or objective rather than
 blindly increasing parameters/steps. H breathing and comprehensive canonical C0
 remain outside this bounded intervention and inside the active overall goal.
+
+
+### Result Log: player-state input and private row scoring
+
+Accepted: none; player-state-r1-learning-v1 revision 2 clarifies factual LN
+control scope before fitting. The old common helper uses a legitimate whole-
+chart LN condition with a local difficulty override. The new comparison instead
+sets both targets on the factual training scope, exposing scoped LN controls
+without treating the global source condition as an erroneous label. Both arms
+use this same data construction. No fit has started.
+
+Clean implementation94d0b082282ae886709c72ffdc885b2f4e045252 adds24 observations
+per column: six-window attack/release rates and held fractions, plus last two
+complete attack masks, ages and known bits. A zero-initialized mirror-equivariant
+96-to-hidden projection enters R1 context, composition and consequence scoring;
+H/R inputs remain unchanged. The128-wide model adds12,288 parameters. Checkpoint
+options record player_state, and old checkpoints keep it disabled.
+
+The private row-trace scorer supports [a,b) without EOF or invented LN closure,
+using actual prefix rows, the timing-only H plan and complete audio encoding.
+It rebuilds current-weight neural history and native recovery/LN preferences.
+Tests first found NumPy integer timestamps crossing the exact-replay API's Python
+numeric boundary; converting that call's timestamps to a native list fixed the
+implementation. Four private-trace tests then pass in4.08s, including CPU/MPS
+probability and gradient equality with full-source scoring, partitioning/empty
+intervals and native sampled probabilities before open tails resolve. Earlier
+player-condition/sampling/ownership checks pass13 tests in7.13s; sampler checks
+also pass after the probability-replay refactor. Checkpoint round trip passes
+in2.22s. Distinct covered tests total18; no failed invariant is waived.
+
+Preparation freezes20 distinct TRAIN song groups/audio identities, excluding
+held audio identities and their song groups. They total2564.226 audio seconds.
+Bank plan SHA-2568aa54f1cd070866edd029eb6fcc024985b4c37e2529a88aa4357a0a6e86cfe9f;
+384 factual draw pairs SHA-256
+348a344dcb9245e474d6cd3fdc4320ad2773d908bc6ed4e48ebcfd7dcefd0524, covering197 unique
+human scopes and300 population scopes. Artifact owner remains
+20260927-player-state-r1-learning-v1. No generated requested styles are labels.
