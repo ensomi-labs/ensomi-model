@@ -13666,3 +13666,38 @@ MPSdriver1.5548GiB; counters overlap. Full-audio cache0hits/8misses.
 The smoke weights are not reused. These results establish a usable gradient and
 resource envelope, not quality. The declared128-update pair may proceed from
 core2500 without changing source, driver, panel or objective.
+
+### Experiment Card: range-outcome-r1-v1, revision2
+
+Accepted:none. Refine the objective before starting the main outcome fit. The
+eight-update smoke gave outcome-gradient norms0,.1456,.0752,.5616,.1547,2.2125
+on the informative subset, against source norms roughly53–126; the temporal
+normalization also defined a different objective from equal-weighted range
+control. A complete-song difficulty error already has range-level semantics.
+Dividing its gradient by audio seconds additionally downweights long songs.
+Source NLL/s and outcome cost have distinct aggregation contracts.
+
+Keep source imitation normalized per second, but use
+2*mean_i[a_i*M*log q_theta(candidate rows in the sampled interval)] for the
+outcome surrogate. This estimates the gradient of the expected whole-chart cost,
+with one uniformly sampled interval; it does not estimate cost/T_seconds.
+Costs, deadbands, leave-one-out baseline, coefficient2, sampling, parameter groups,
+optimizer, tests and qualification criteria stay fixed. No width/learning-rate/
+reward-weight search is introduced. The duration cancellation is a definition
+change and therefore a protected Card revision, not a silent gain adjustment.
+
+The ordinary continued-128 arm finished before this revision:128updates27.639s,
+unchanged frozen hash98c74f4d6363a1392332addbb02de4d14ccb8610ca86a7ed3a3528b16949c1fd,
+peak physical footprint2.7013GiB,MPSdriver1.3624GiB. Retain this exact control
+checkpoint. The changed expression is confined to ARM=outcome; continued's
+objective, source draws and optimization are identical, so rerunning it would
+add no evidence. Its original driver bytes are preserved as
+train-rate-normalized-v1.py with SHA9e34f12ce15373a5c9442c6412b348ace7d7bb80e1dcd6c64095763ec6f86a30.
+No live fit was edited. The main outcome arm under revision1 never started.
+
+Run the corrected8-update smoke in fresh smoke-outcome8-v2 from core2500, then
+the main128-update outcome arm in outcome-128-v2 if integration guards pass.
+Neither smoke initializes the main fit. The comparison explicitly pairs this
+new arm with continued-128; record both driver hashes and audit their branch
+difference. All remaining revision1 fields,1800s main bound and native/qualitative
+gates remain unchanged. This remains exploratory under standing user authority.
