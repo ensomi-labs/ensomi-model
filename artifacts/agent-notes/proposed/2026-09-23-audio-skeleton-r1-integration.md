@@ -16193,3 +16193,35 @@ planned collate_interval derives future H from complete row storage. Those adapt
 assumptions explain why simply truncating rows would be incorrect. Do not fill
 future rows with invented/source actions to evade that contract. No such change
 is implemented or authorized as a deviation of the live fitting comparison.
+
+### Exploration during paired-response fitting: outcome relabeling
+
+Unselected follow-up; no new Card, model change or run. Primary analogues checked:
+Ghosh et al., Learning to Reach Goals via Iterated Supervised Learning,
+https://arxiv.org/html/1912.06088v3, and Srivastava et al., Training Agents using
+Upside-Down Reinforcement Learning, https://arxiv.org/abs/1912.02877. GCSL reuses
+experienced state/action paths with the goal actually reached; UDRL conditions
+behavior on return/horizon commands. Neither source establishes chart quality,
+our nonadditive scoped-difficulty objective or the validity of a frozen stochastic
+R clock as a relabeling environment. GCSL's deterministic/full-support result
+must not be transferred without its assumptions.
+
+A possible adaptation labels a complete generated continuation by its realized
+scoped difficulty and LN fraction, retaining that continuation's own physical
+prefix, actions, actual LN endpoints, full audio and timing preview. It supplies
+dense conditional supervision on generated histories without pairing changed
+histories with old source suffixes. Unknown generated styles stay unknown; a
+requested style is not an observed label. Genuine source imitation and direct
+Lens review are still needed because achieving a scalar value does not make a
+chart good. Existing classifiers are not reliable enough to supply semantic
+quality rewards, per scoped_style_probe_postmortem.md.
+
+This could eventually include joint H/R/R1 learning: all generated decisions
+belong to the model, while exact chart execution is deterministic. Freezing R
+would leave an uncontrollable stochastic component, and conditioning on favorable
+release noise can create hindsight bias. Scoped D is nonadditive, so UDRL's return
+subtraction is not directly applicable. Remaining-goal state, actual outcome
+dependency horizons, policy/data coverage and distribution collapse need explicit
+handling. Sparse human labels and inadequate generated-state supervision remain
+alternatives to an architectural deficit. Decide only after the current matched
+fits and complete-audio qualification; no new experiment starts in parallel.
