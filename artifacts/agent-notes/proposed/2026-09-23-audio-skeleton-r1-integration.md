@@ -14753,3 +14753,31 @@ weights or existing run outputs. CPU one thread, existing 24 GiB Mac. Bound this
 probe to 300 seconds, excluding authoring and existing-file inspection. Stop on
 nonfinite values, incompatible data or a failed mathematical invariant. Persist
 terminal measurements before selecting the separate actor-learning comparison.
+
+### Result Log and revision: trajectory kernel local recency
+
+Probe revision 1 ran at clean source 0e5ca77 (full OID recorded in probe.json)
+in .690 seconds. Mathematical tests passed: three tests in .07 seconds. Source
+and mirror distances were zero within 2.3e-16. Trill's count-preserving group
+shuffle scored .116032; aligned seed 0 scored .107886, with one-cell .00573 but
+eight-cell .18732. The representation therefore sees the observed sequential
+relationship beyond marginal chord width.
+
+However, aligned stream seed 1 scored .22243 versus seed 0 .01252. Inspecting
+complete action rows and field contributions identified an inappropriate local
+comparison signal: the source had ancient LN releases in all columns, while the
+generated prefix had never released LN in two columns. In the pure-tap scored
+scope, release-known MSE was .5 and release-age MSE .4985. Those global history
+bits dominated differences in local organization. Actor training on revision 1
+would reward making otherwise unnecessary LN history. No actor fit started.
+
+Card trajectory-kernel-probe-v1 revision 2 changes the representation before
+learning: replace attack/release age-plus-known fields with decaying recency
+`H_gap / (H_gap + elapsed)`, zero when no predecessor exists. Old and absent
+inactive events converge to the same local comparison; active-LN occupancy and
+age remain explicit. Fourteen per-lane fields become twelve. Add a focused test
+that an ancient closed LN before a distant identical tap scope contributes less
+than 1e-4. All other settings and gates remain unchanged. Preserve probe.json and
+its revision-1 driver; write revision-2 results to probe-v2.json. Source data and
+existing checkpoints are unchanged. Recommendation remains REFINE until the
+revised physical comparison is checked. Note acceptance remains none.
