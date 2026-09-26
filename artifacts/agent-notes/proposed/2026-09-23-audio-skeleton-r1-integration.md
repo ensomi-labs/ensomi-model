@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 3cf169cda06c09b3487f12f6dcdacf81b4fc74da
+Product revision: 720c63240c14316af22a4b98adcc6aa10915a107
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -14998,3 +14998,115 @@ short-LN sets and independent tails. Source reference pages from the balanced
 owner remain the comparison context. Rendering is not equivalent to inspection.
 Lens handle76945isclosed. Kernel fit was most recently verified at120/128steps,
 1164.292s, footprint8.867GiB andMPSdriver3.426GiB; handle10220remainslive.
+
+### Result Log: physical-trajectory actor terminal evaluation
+
+Accepted: none; physical-trajectory-actor-v1 revision2. Both main fits are
+terminal. Kernel finished128updates in1241.324s, with384complete sampled training
+continuations and the exact same128target/384positive source identities as the
+continued arm. R1 received nonzero trajectory gradients on128updates, R on113;
+some tap-only samples had no stochastic R decision. Frozen audio/H stayed
+unchanged. Maximum row log-q discrepancy was2.5089e-5; total R discrepancy8.4336e-5.
+Kernel footprint peaked9.093GiB, MPSdriver3.454GiB, under all bounds.
+Kernel checkpointSHA256:
+c36eb6d94a8d98cdb7484db04870ecdc456c3fbb264e4a8bc6adb32b434d3e8d.
+Fitting handle10220isclosed. No fit driver, kernel helper or frozen panel changed
+while either fit ran; subsequent product commits changed documentation only.
+
+Both qualifications completed51charts: continued169.598s, kernel158.991s.
+All60scoped,24style,18LN and12native outputs completed and reparsed. Kernel
+qualification handle17840and native handle75565areclosed. Numeric analysis is
+terminal (handles15386and4265); Lens rendering handle89033isclosed.
+
+| Reserved style | Continued U-statistic | Kernel U-statistic |
+| --- | ---: | ---: |
+| Tech | .031131 | .039621 |
+| Jack | .031550 | .043481 |
+| Stream | .013500 | .028381 |
+| Trill | .128387 | .149884 |
+| Mean | .051142 | .065342 |
+
+The primary improves by -.014200: both absolute and relative gates fail.
+The three-LN mean improves .046833 to .030865, driven mainly by Miraie:
+.114907 to .061119. Starry .012677 to .013893 and Shippai .012914 to .017584
+worsen on this statistic. Do not promote the overall objective from the pooled
+LN average or interpret the kernel as independent human quality.
+
+Scoped difficulty MAE .806871 to .859223 passes the allowed .15 regression but
+is not an improvement. Global LN regression guards pass. Restored difficulty
+fails: singles/low1.402to1.746; Shippai/low.592to.966; Shippai/high.650to.928.
+These restored ranges are distinct from the overrides and were not pooled away.
+
+All six native H streams remain identical between arms. Static D3 whole-chart
+levels increased: Zenithfall4.136to4.474, Hysteric3.862to4.396, Take4.295to4.886.
+The local rho.6 override got closer: .674/.683/.741 continued versus
+.621/.627/.631 kernel. Better LN amount coexists with worse difficulty; it is
+not overall control success. Cached-Mel first30rows took.224–.438s; maximum
+8s publication service.390514s; full generation3.57–8.66s. These exclude model
+loading, waveform decoding and Mel extraction.
+
+Lens produced23contexts/86pages;14matched seed-zero pages were viewed, seven
+perarm: trill, Miraie, Starry Jet, Shippaisaku, Tech, stream and jack. Complete
+relevant action tables support the conclusions. The exact viewed list is in
+lens-review.json. Existing source reference pages remain the source context;
+no source human label was copied to generation, and no human playtest occurred.
+
+Miraie shows a real partial improvement: median LN duration107/101.5/99ms becomes
+183/183/183ms, with heads/H2.773/2.091/2.364 becoming2.045/2.091/2.000 against
+source2.0. Wider short-LN sets diminish and sustained holds appear. Tail-on-H
+counts remain13/42,9/35,16/41 versus source28/28, so articulation remains deficient.
+Starry gains sustained holds but has collective releases and later repeated
+chord sets; source's coordinated moving roles are not reliably recovered.
+Shippai tail-on-H counts fall68/86/77to57/69/67 while more holds span later H.
+Longer holds are not universally better and at-H tails are not a universal rule.
+
+Trill exact repeated groups fall7/10/4to4/3/2, but dominant complementary-pair
+coverage falls.750/.917/.708to.542/.542/.542. The kernel arm mixes several pairs
+instead of sustaining an exchange; fewer repeats alone would be a misleading
+success metric. Both jack seed-zero outputs retain recurrent chords. Tech and
+stream retain supplied timing, with strong two-key layers and pair changes;
+there is no demonstrated general quality gain. Some guard requests are global
+levels above their local source readouts, so density difference alone is not a
+failure label.
+
+Evaluation: REFINE, no adoption. The trajectory signal can change actual LN
+behavior, but this objective/architecture combination regresses structure and
+control. Keep core2500 selected. The algebraic conditional-readout restriction
+is independently established, not proven to be the sole cause of this fit's
+failure. Other live explanations include sparse conditional coverage, the
+strong noisy trajectory gradients and short-block reference limitations.
+Do not automatically scale this unchanged fit.
+
+Next direction: introduce a small identity-initialized condition–history
+interaction inside R1, motivated by the affine readout cancellation. A shared
+feature-wise modulation preserves mirror equivariance and allows audio, H
+preview and controls to alter a history-dependent placement preference. Preserve
+R1 ownership, exact replay, control scopes and the frontier. Keep any actual-
+versus-reference LN conditioning explicit if the interaction is extended to
+composition; do not leak requested LN amount through a supposedly reference
+branch. Decide the bounded trainable scope in a new Card before fitting. This
+is a subsequent architectural experiment, not an unreported modification of the
+completed comparison. No new architecture weights have been trained yet.
+
+Curated result owner is docs/research/physical_trajectory_matching.md at
+720c63240c14316af22a4b98adcc6aa10915a107. The readout analysis is in
+row_condition_interactions.md. Relative links and Git whitespace were checked;
+the latest four kernel tests already passed and no later executable edit
+invalidated them. All processes from this stage are terminal, both worktrees
+are intended to be clean after this note commit, nothing was pushed, and the
+full playability goal remains active.
+
+Terminal artifact SHA-256 identities:
+
+- probe-v2.json: ae70c8eedd5bd7c9a864a6b9fb224df53cd901b101b111472ab0eaf83612128d.
+- actor-panel.json: ed49a8b9e590291b1fd73a42e9d4074291037f1f53c532904a97458bd34261fb.
+- train_actor.py: aa7ceb32d3d5b743947cfa9caa8222921a9107a078576b5d9d89a28c183d1d8b.
+- qualify_actor.py: eacc14d3f675eaa51143d491ed6187b4ca41f14016c737ca321bfe6155cd8573.
+- native_actor.py: 9191acd74c14b6e5c09c1d1caca1077c54e13a5e4a855d8b5a782b745a86fcc3.
+- analyze_actor.py: ff98a778af8c3e9d2e966a8c45f344ce4295fd1aa0ec81fbc77bad25e64d9f02.
+- actor-comparison.json: 5b26b5d77bab31b70d192e0ff95e6b1a9b6c2dd32a3f11013b0bbf7be546185c.
+- analysis-continued.json: e8e271f83a12fa5aa20f24149d333c37b7fcbc747e97aef388f20b619d6e571c.
+- analysis-kernel.json: f8c0658eafd9599ea17b36bff2fc3ca1d87d1af7b7174c082a9015a192569f7b.
+- lens-review.json: 8e7e4666c5be2758fe8e272bf6e0b08cad0c4a48139d048fb44b72a1295f131e.
+- conditioning_probe.py: 23542be725f82d6826052e843953cdf48bdc726bdcd8da9773db30b4c07d0ed8.
+- conditioning-probe.json: 8018d13e854ea120c345490ef0b26da57ea53bc2cb7921542a8cb77c0026b931.
