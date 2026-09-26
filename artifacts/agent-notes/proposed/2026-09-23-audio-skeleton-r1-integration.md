@@ -5,9 +5,9 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-27
-Product revision: ba406ef827807e3a7045623dff0afa4e6084873b
+Product revision: 7ea3b956ebccdc4d4238bc52e5cb89762402f054
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
-Related: 2026-09-20-r1-response-recovery-handoff
+Related: 2026-09-20-r1-response-recovery-handoff; 2026-09-27-player-response-frontier
 
 ## Question and authority
 
@@ -16239,3 +16239,57 @@ benchmark. Paired handle 50594 remains live, last emitted step 56 at 1,128.769s,
 footprint 5.329 GiB. Start independent paired-prefix and secondary/local-style/LN
 qualification on CPU while the paired fit continues. Native latency remains
 queued until the fit is terminal. No input or fitting-code changes.
+
+### Result Log: completed paired-response comparison and priority change
+
+Accepted: none; paired-response-r1-v1 revision 2. This completion supersedes the
+historical live-handle snapshots above. Both fits and every qualification/native
+process are terminal. The paired arm completes 128 updates/768 candidates in
+2,055.555 seconds with checkpoint SHA-256
+66216f4745837a185ce8b935ead0724f7ce4aa142150bad6b6b1e0fd67920805. Peak sampled
+footprint is 5.548 GiB; driver allocation 3.403 GiB; maximum sampled/rescored
+error 3.051e-5. Both arms retain the declared frozen-parameter hash and have
+nonzero R1/composition/modulation gradients at all 128 updates. Their 384 factual
+source draws match exactly. The independent/paired training draws contain
+three/one scoped LN candidates; no outcome horizon extends past the requested
+scope. Driver/input hashes remain unchanged. Partial overlap makes fitting
+elapsed time unsuitable as an isolated throughput comparison.
+
+Reserved 48-output metrics, in initial/independent/paired order:
+absolute D MAE .388944/.552696/.532814; high-minus-low gap MAE
+.685288/.573771/.768151; positive gaps 23/24, 23/24, 22/24; excess LN candidates
+zero in all arms. Paired fails primary gap/absolute improvement versus initial,
+and gap improvement versus continued independent learning. It passes the
+independent absolute-error allowance, positive-response and LN guards, but
+fails one restored-D allowance. No model is promoted. Combined gap and KL terms
+were not ablated, so their individual causal contributions remain unresolved.
+
+Secondary D MAE is .675625/.733328/.663782; locally matched physical style
+distance .065841/.050836/.106994; LN geometry distance
+.028257/.034157/.032069. Distances remain diagnostics, not semantic style labels.
+After both fits stop, each arm receives six native static/switch outputs.
+Their H streams match initialization. Across three audios, static D MAE is
+.846663/.999424/.664506; override D MAE .571580/.096693/.521607; restored D MAE
+.640949/.979010/.454836. These distinct control ranges are not pooled. Paired
+has useful native gains despite failing the primary reserved comparison.
+
+All 210 new exports complete: 96 reserved, 102 secondary/local-style/LN, twelve
+native. First thirty rows take .217-.444 seconds in independent and .212-.430
+seconds in paired; slowest eight-second generation windows .354/.395 seconds.
+These include model audio encoding with loaded weights and cached canonical Mel,
+using one CPU thread; waveform-to-Mel and model loading are excluded. Eight
+independent-arm paired Lens pages were read (page 2 of cases 0/1/3/6, low and high).
+They show ordinary chord/single arrangements and many three-key chords in some
+high cases, not an endpoint-wide qualitative assessment. Broader planned Lens
+review is superseded by the user's severe long-jack and breathing report.
+No other prepared Lens panel is claimed inspected.
+
+Decision: REFINE; no adoption and no further scalar-only optimization selected.
+The reported 4-star Stream failure now owns the next work through Note
+2026-09-27-player-response-frontier. Its native reproduction and corpus/Lens
+comparison localize excessive sustained concentration. A later matched lineage
+comparison also preserves a useful paired-128 improvement on two bad windows;
+failed proxy gates do not erase that evidence. New committed-history response
+observations and the self-contained analysis are in product
+7ea3b956ebccdc4d4238bc52e5cb89762402f054. This adds a reference state, not a
+runtime repair. All Notes remain proposed, and the overall goal remains active.

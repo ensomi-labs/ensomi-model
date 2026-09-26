@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: ba406ef827807e3a7045623dff0afa4e6084873b
+Product revision: 7ea3b956ebccdc4d4238bc52e5cb89762402f054
 Scope: Canonical continuation-response semantics; sustained per-column demand, temporal variation, and publication-time playability for the audio/H/R/R1 system
 Related: 2026-09-23-audio-skeleton-r1-integration
 
@@ -91,7 +91,7 @@ reported distinction; rarity alone is not proof of poor quality. Low activity wi
 open holds is not full recovery, and low H-rate variance can be appropriate for
 some musical passages. Compare actual contexts, not only global aggregate counts.
 
-The ongoing paired-response fits are complete, with their original qualifications
+The paired-response fits are complete, with their original qualifications
 retained as comparative evidence. They are not adopted. Diagnostic owner:
 artifacts/joint-audio/20260927-player-response-frontier-v1. After corpus and native
 inspection, define one response specification and a bounded implementation/test
@@ -141,8 +141,88 @@ pressure and complete-row Lens inspection are necessary.
 The reproduction process56717 is terminal. A pre-event occupancy indexing issue
 at the very first row was corrected only after it ended; original results remain
 in result.json, recomputed facts in result-v2.json with metric-revision.json.
-No generated rows changed. Native ranked TRAIN corpus profiling now runs under
+No generated rows changed. Native ranked TRAIN corpus profiling completed under
 an explicit four-worker process, using full source rows and recomputed1x stars.
 It measures fixed real-time windows, sustained-column chains, activity variation
 and occupancy-aware no-action recovery. These remain descriptive source facts;
 no automatic Jack label or admissibility cutoff has been selected.
+
+## Result Log: corpus, Lens and checkpoint comparisons
+
+Accepted: none. Exploratory diagnosis under the standing implementation/research
+authority. Source ba406ef827807e3a7045623dff0afa4e6084873b changes no inference
+behavior from the user-tested source. All corpus and generation processes are
+terminal; no fitting run is live. The corpus's 6,923 ranked TRAIN charts finish
+in 30.904 seconds using four CPU workers. Manifest SHA-256
+4cea2672387b6293a4da0846be479d8bd9c857e55535dc8143bd11d65b06d2c4;
+metrics SHA-256 75d6a0e65df45c997cdf4c1416ddc4196da8be679d0146beaca2dd3a573cbd7f.
+Output owner remains 20260927-player-response-frontier-v1/corpus-reference.
+
+The [3.5,4.5) band has 1,972 charts in 1,613 groups. Each group has equal total
+weight, divided among its charts within the band. These are per-chart maxima,
+not a distribution over arbitrary individual windows. Maximum single-column
+attack-rate q99 values for .5/1/2/4/8/16-second windows are
+10/8/7/6/5.375/5 attacks per second; q999 values are
+10/9/8/6.5/5.75/5.375. The reproduced 7.75/s four-second episode is beyond that
+source range at q999. This supports a sustained-load defect without defining a
+universal physiological cutoff or labeling every rare arrangement BAD.
+
+Lens review covers native Zenithfall pages 0/1/2 and Hysteric page 1, plus
+source pages 0/1 for each of 22e16fc2, 4194d810 and human-stream. Exact source
+identities, review contexts and human evidence are in lens-corpus/plan.json;
+native contexts are in lens-reproduction/plan.json. The generated Zenithfall
+region visibly settles into a prolonged single-column sequence. Ranked
+Extra Mode (4.069 stars) has a slower 28-attack outer anchor across 4,154 ms,
+with changing accompanying groups. Ranked 3#006 wyax03 (4.289) reaches 7.5/s over
+four seconds through shorter groups and interruptions. Human-prominent Stream
+in Singularity (3.987), scope [105114,107943) ms, distributes movement across
+four columns with chord accents. Preserve these differences; no generated human
+labels or universal equal-lane rule are inferred. No additional listening or
+human playtest occurred. Remaining rendered pages are not claimed reviewed.
+
+Six lineage generations reuse exactly the two bad cases' controls and seeds.
+Every H stream matches the reported checkpoint. In its original Zenithfall
+window, Core2500/modulated-128/reported actor-128/paired-128 produce column heads
+[11,14,10,14]/[5,15,21,3]/[1,31,1,1]/[14,3,5,10]. In Hysteric they produce
+[16,15,14,15]/[18,16,17,16]/[4,4,28,1]/[11,8,8,12]. Paired-128 reduces the
+concentration in both cases. Hysteric contains 39 rather than 37 heads, so this
+benefit is not solely thinning. It remains two cases, and paired-128 fails its
+reserved control-response comparison; it is not promoted. This localizes a
+learned R1 failure on H that can support a less concentrated arrangement.
+
+Eight/thirty-two-second H-rate variation is not uniformly low in generated
+charts. Several nevertheless have almost no completely free interval beyond
+500 ms inside their active bodies. Activity CV, lane recovery, sustained holds
+and musical context answer different questions. Breathing cannot be repaired
+by a single whole-chart density or CV target.
+
+## Reference implementation and next decision
+
+Clean product 7ea3b956ebccdc4d4238bc52e5cb89762402f054 adds
+src/ensomi_model/research/player_response/state.py and
+docs/research/time_horizon_player_responses.md. CommittedPlayState retains exact
+replay, ordered complete rows, attack/release clocks and hold intervals over a
+32-second reference history, retaining ancient open LN origins. observe and
+advance respect committed no-row boundaries. observe_continuation evaluates a
+private legal future through an explicit endpoint, including empty futures and
+silence after the last action. It returns peak/terminal rates, rate integrals,
+held milliseconds and ordered coordination events. Inputs are not mutated.
+
+Box kernels are declared observations, not fitted human recovery curves. The
+canonical state has no requested difficulty/style input; controls will select
+acceptable responses without erasing prior load. Six focused tests pass in
+0.06 seconds, covering identical exact replay with different sustained history,
+empty futures with holds, endpoint-dependent recovery/exposure, compositional
+time advance, coordination order and mirror symmetry. Package layout passes
+one test/22 subtests in 0.09 seconds; diff and local document links pass. A real
+eight-second context with 66 future rows and 219 retained prefix rows takes
+5.283 ms for response observation alone on the M5, excluding prefix construction.
+
+Decision: REFINE the current frontier into an explicit response interface while
+retaining its learned row preference. The reference module is not wired into
+the sampler; no runtime repair, fitted response law or completed C0 is claimed.
+The next bounded intervention should calibrate sustained rate-duration responses
+against source contrasts, expose that state to R1, and assess candidate futures
+over real time. Preserve legal LN execution, direct audio and scoped controls;
+H remains responsible for timing and recovery intervals. Do not resume scalar
+difficulty-only tuning as a substitute for the reported playability failure.
