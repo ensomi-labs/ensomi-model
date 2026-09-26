@@ -226,3 +226,95 @@ against source contrasts, expose that state to R1, and assess candidate futures
 over real time. Preserve legal LN execution, direct audio and scoped controls;
 H remains responsible for timing and recovery intervals. Do not resume scalar
 difficulty-only tuning as a substitute for the reported playability failure.
+
+## Experiment Card: sustained-response-planning-v1, revision 1
+
+Accepted: none. Local exploratory implementation and execution use the owner's
+standing research authority. Baseline source is clean product
+7ea3b956ebccdc4d4238bc52e5cb89762402f054; baseline checkpoint is reported
+actor-128 SHA-256 364c7b711bc39ab3384175b755658d2ef67a4c10b166f5eb85dc072d920e10e3.
+No parameter fitting or replacement of the selected runtime is implied.
+
+Question: can an explicit sustained-load response over a private real-time future
+prevent the reproduced long-jack pathology at acceptable cost, using the existing
+R1 proposal distribution? The causal intervention is bounded response-based
+continuation selection. No H, audio, control encoding, count ownership or neural
+weight change is included. A failed result will motivate conditioning/learning
+changes rather than more random search at progressively larger budgets.
+
+Closest analogue: finite-horizon receding-horizon control, as defined by Mayne,
+Rawlings, Rao and Scokaert (2000), Constrained model predictive control: Stability
+and optimality, https://doi.org/10.1016/S0005-1098(99)00214-9. The transferable
+mechanism is evaluating hypothetical futures from the current state and applying
+only an initial portion. Here proposals are discrete stochastic chart trajectories;
+there is no plant-identification task, terminal Lyapunov condition or transferred
+stability theorem. Sampling-based MPC is an engineering analogue, not novelty or
+proof of playable generation. Immediate-gap costs alone miss sustained histories;
+an uncalibrated learned scalar is not selected as the response oracle.
+
+Fit one descriptive attack-rate envelope from the completed ranked TRAIN cohort,
+using per-chart maximum column rates at .5/1/2/4/8/16 seconds. Equalize total song
+group weights within each one-star-wide band centered at 2,2.5,...,6. Use q99,
+monotonize by cumulative maximum across requested difficulty, and linearly
+interpolate between knots. Report all raw/monotone values and counts. The
+normalization is a source-reference range, not a physiological threshold. It
+contains no requested style and does not label charts BAD by rarity alone.
+
+The canonical observations remain request-independent. For selection, integrate
+over each future control range the squared positive relative excess of per-column
+window rates above the corresponding requested-difficulty envelope. Sum columns
+and average the six durations, integrating in real seconds. Exact attack/expiry
+and control-boundary times determine the integral; no frame-grid approximation.
+LN press is an attack, releases are separate, and holds still affect legal
+proposal generation. This first selector measures sustained attacks only;
+coordination/hold burden and H breathing are not claimed solved by that scalar.
+
+Each decision forecasts 4 seconds and commits its first 2 seconds. Keep the
+original proposal when its cost is zero. Otherwise generate at most three
+additional proposals from the same committed boundary, with separate R/row RNG
+seeds and identical H/audio/controls. Select minimum integrated excess, retaining
+the earliest proposal on ties; stop when a zero-cost proposal is found. Commit
+only the selected two-second state, keeping rows and RNGs at that boundary.
+No rewrite of published rows, artificial LN closure, or control-boundary state
+reset. The bounded selected-trajectory law differs from native row sampling;
+old replay_row_scores must not be reported as its selected log probability.
+
+Fresh owner: artifacts/joint-audio/20260927-sustained-response-planning-v1.
+Source modules: player_response/envelope.py and
+controlled_audio_continuation/frontier.py, with focused tests. Calibrate from
+20260927-player-response-frontier-v1/corpus-reference/charts.jsonl and its pinned
+manifest. First compare the exact Zenithfall271201/Hysteric271212 reproductions.
+Then, only if either integrated excess improves by at least 50 percent without
+an obvious new pathology, run all nine existing 4-star Stream seed combinations.
+Source Lens counterexamples and human Stream are calibration checks, not held-out
+success claims. Further native guards use Zenithfall with Jack/Tech/Trill controls
+at 4 stars and LN coordination at 4 stars/rho .6, and a difficulty/LN switch case;
+new controls receive matched baseline and intervention runs.
+
+Primary: mean integrated excess drops at least 50 percent across the nine matched
+Stream cases, and both original hotspots lose their prolonged dominant-column
+sequence on Lens inspection. Report unchanged H, actual head counts, strongest
+4/8/16-second rates, and entire-chart tails so selection cannot hide relocation.
+No clear new Stream/Jack/Tech/Trill/LN organization loss in inspected contexts;
+no completed output with invalid physical replay or broken source audio.
+Do not promote merely because the self-chosen cost decreases. Keep all control
+ranges separate. Existing scalar stars are descriptive secondary outcomes only.
+
+Use one CPU thread, cached canonical Mel and loaded CPU weights on the M5/24 GiB;
+uv run --extra mps for model-backed commands and --group dev for tests. Seed rule:
+native seed XOR 0x6F17, then per-decision independent retry draws; record seeds.
+Compare model-loaded timing including audio encoding, first thirty published
+rows, and publication windows. Guard: first thirty rows at most 2 seconds and
+worst 2-second publication service below 2 seconds on these diagnostics; no
+unbounded search or additional GPU memory. At most 4 candidates per decision,
+180 seconds per full generation, 30 minutes total qualification, 2 GiB new
+artifacts, no download. Fresh outputs only, no overwrite or resume. Stop on
+nonfinite costs, execution error, clock/history mutation, H mismatch, resource
+limit or explicit STOP file. Commit clean implementation before native runs;
+freeze script and calibration identities while processes are live.
+
+Interpretation: success supports a useful first response-aware scheduler and
+supplies selected trajectories for a later declared learning experiment. It does
+not validate the whole frontier or prove human playability. Failure with all
+proposals similarly overloaded demonstrates a proposal-coverage/learning problem
+under this bounded search; it does not justify widening the search indefinitely.
