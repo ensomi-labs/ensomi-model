@@ -16225,3 +16225,17 @@ dependency horizons, policy/data coverage and distribution collapse need explici
 handling. Sparse human labels and inadequate generated-state supervision remain
 alternatives to an architectural deficit. Decide only after the current matched
 fits and complete-audio qualification; no new experiment starts in parallel.
+
+### Result Log: independent outcome continuation endpoint
+
+Accepted: none; paired-response-r1-v1 revision 2. The independent arm completed
+128 updates/768 candidates in 1,884.336 seconds; handle 90026 is terminal.
+Checkpoint SHA-256 5093225427a0abb18b89d15f0d07a2544192981cb6fca8ed193f5cfdceb46186.
+Frozen hash remains 8c21a572ba08b5c8f847e818f318d8c92ef7d8f070616eb5ce0d42d911f626a5.
+All 128 updates have nonzero R1/composition/modulation outcome gradients;
+max sampled/rescored row discrepancy 3.045e-5. Peak sampled footprint 5.538 GiB,
+MPS driver 3.399 GiB. The overlap means this duration is not an isolated training
+benchmark. Paired handle 50594 remains live, last emitted step 56 at 1,128.769s,
+footprint 5.329 GiB. Start independent paired-prefix and secondary/local-style/LN
+qualification on CPU while the paired fit continues. Native latency remains
+queued until the fit is terminal. No input or fitting-code changes.
