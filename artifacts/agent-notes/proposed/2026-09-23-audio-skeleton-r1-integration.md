@@ -15592,3 +15592,121 @@ scope independently. Unknown pair styles stay unknown, with separate style/LN
 guards. H must change when timing itself prevents the requested result; R1 keeps
 all count/layout ownership. No next Card or run has been started. The overall
 playability research goal remains active, and the selected core2500 is unchanged.
+
+### Experiment Card: common-prefix-outcomes-r1-v1
+
+Revision: 1. Accepted: none. Active exploratory Card under standing user authority;
+the preceding style-discrimination Card is complete. The previous goal turn made
+progress: two matched fits and 150 generated outputs established limited transfer
+of factual style learning and corrected the style-reference evaluation condition.
+
+Question: can the full R1 policy learn different difficulty outcomes from the
+same committed physical history, where both targets have a concrete executable
+local reference? Existing factual histories reveal the requested arrangement and
+can let the model rely on past pattern instead of responding to a changed goal.
+Use on-policy conditional branches to expose that distinction directly. This is
+an adaptation of score-function sequence-risk learning, already used by the
+paired-scope and trajectory studies, not a new estimator. It differs from the
+earlier 12,288 difficulty-column update by training all R1 parameters and using
+two independently executable reference bodies to define the requested targets.
+
+Baseline product source: e48e4ba210a51951d530e6ff3989f41ec9794455, clean.
+Initial checkpoint: layout-modulation-r1-v1/modulated-128, SHA-256
+b8aecd3e1f43339d2c1e3aff6d245a41e32a12008ddc20fd47e9eccb99544546.
+Its existing five-case scoped D MAE is .731496; corrected style mean is .047723.
+The new paired-prefix baseline is measured during preparation before fitting.
+No selected runtime checkpoint is changed by this experiment.
+
+Use the frozen 128 same-audio/same-local-H pairs in balanced-condition-r1-v1.
+Retain the 56 pairs with TAP-only target bodies and no entering source LN. For
+each, generate one initial-model prefix under midpoint difficulty, LN fraction
+zero and unspecified styles, using the low source's full H plan. Publish exactly
+through a-1, with seed 261811+original_pair_index. A generated entering LN makes
+that pair ineligible for this TAP-only test; do not close or edit it. Verify the
+two bodies have identical target H times, and replay each real source body after
+the common generated prefix under current row/spacing support and future H.
+Reject an infeasible body rather than transplanting its labels into training.
+
+The two admitted constructions are executable references, not human-approved
+hybrid charts. Recompute their full-prefix scoped difficulty after the shared
+prefix. Require both values in [2,6) and a gap of at least .6. Do not change body
+actions to meet a target. No source next-row label is used on the altered prefix.
+Save prefix/reference hashes, source identities, entering state, exact H and the
+eligibility reason for every pair. This explicitly handles incoming strain and
+boundary feasibility instead of assuming source targets remain attainable.
+
+Use seed 261810 to shuffle eligible pairs, reserve eight for current-phase
+qualification, and require at least sixteen training pairs. The reserved audios
+are excluded from all current-phase anchors. They may have appeared in earlier
+factual pretraining; do not describe them as unseen audios. Training cycles the
+remaining pairs for 128 updates. Each update also uses three genuine sources:
+the original low/high examples on their own histories and one broad population
+or prominent human scope, alternating those two pools and cycling their available
+difficulty bins/concepts. Retain prior native/style/qualification exclusions.
+
+Both arms use the same source draws and optimize deployed row-q NLL per second,
+averaged over the three sources. Freeze audio, H and the R timing parameters
+(`skeleton_temporal`, `release_clock`, `release_control`); train the complete R1,
+including history, layout, composition, direct audio/control projections and
+frontier energy. No count or column plan is added to H. R's fixed state-dependent
+transition law still responds to actual R1 LN choices. Learning rates remain
+3e-5 for inherited R1 and 3e-4 for composition/control/preview/modulation, AdamW
+weight decay .0001, clip 1. No architecture or deployed sampling-law change.
+
+The actor arm alone adds weight 10 times the average score-function surrogate
+over two requests and three independent draws each. Restore current-model caches
+from the fixed raw prefix, then fork low/high controls for [a,b). Each request
+uses its constructive reference D and unchanged LN request zero; after b the
+midpoint request resumes. Use seeds 261820+100*step+draw_index, paired across
+requests but independent within each request. Costs are separable by request:
+cD=max(abs(realized_D-requested_D)-.25,0)^2 and
+cLN=100*max(realized_scope_LN_fraction-.03,0)^2. Use a within-request leave-one-out
+baseline for each cost. There is no cross-request reward requiring a joint
+likelihood for shared random numbers.
+
+The D surrogate scores actual R1 choices from a through `score_end_ms`, including
+later actions needed to resolve relevant LN tails. The LN-amount surrogate scores
+only [a,b). Generate the real remainder for complete endpoints and H preview;
+never fabricate closure or feed future tails into generation. R likelihood has
+no direct parameter derivative because all R/audio/H parameters are frozen;
+its state-mediated effects remain inside the sampled outcomes. Verify deployed
+and rescored row support and log-q (maximum error .002), using actual generated
+histories and controls. Source NLL never receives a generated-prefix gold suffix.
+
+Preparation measures initial low/high continuations on the eight reserved
+prefixes, three seeds per request. Source-only and actor endpoints use the same
+prefixes, targets and qualification seeds 261830+10*reserved_index+draw_index.
+Primary gate: mean absolute scoped D error improves by at least .20 versus both
+initial and matched source-only; mean absolute error of the high-minus-low gap
+improves by at least .15 versus both; high output exceeds low in at least 80% of
+the 24 matched future-seed pairs. Scoped LN fraction may exceed .03 in at most
+one reserved continuation. These are progress criteria, not the full playability
+claim. Inspect seed-zero low/high contexts and any severe outlier with Lens.
+
+Retain the existing thirty five-case difficulty continuations as secondary
+coverage, with D MAE regression at most .10 versus initial, per-case/request LN
+error at most .03 worse and restored D error at most .25 worse. Run twelve
+locally matched style and nine LN guards for both endpoints; style mean may not
+exceed initial .047723 by more than .01, and inspect organization rather than
+assigning labels from distance. A candidate with useful numeric and qualitative
+progress receives the existing six native static/switch runs. Report per-field
+scopes, cached-Mel first-thirty-row and dense-window times, and real LN/articulation
+failures. No adoption follows automatically from a progress gate.
+
+Fresh owner: artifacts/joint-audio/20260926-common-prefix-outcomes-r1-v1.
+`uv run --extra mps python <owner>/prepare.py` freezes the panel and prefix bank;
+`baseline.py` measures the initial reserved outcomes. Four-update smokes precede
+fresh source/actor fits via `train.py`, PREFIX_ARM=source|actor,
+PREFIX_RUN=smoke-source4|smoke-actor4|source-128|actor-128,
+PREFIX_STEPS=4|128 and PREFIX_SECONDS=600|5400. Use one CPU thread plus MPS on the
+24 GiB M5, at most 18 GiB footprint or driver allocation, 5,400 seconds per main
+fit, 45 minutes qualification and 5 GiB new artifacts. No overwrite/resume or
+new network dataset. Stop on unsupported reference/generation, nonfinite values,
+sampling-score discrepancy, frozen-weight drift, STOP file or resource/time cap.
+
+Positive evidence would justify further whole-system control qualification;
+failure would reject this bounded full-R1 outcome recipe, not establish that
+difficulty control is impossible. Risks include noisy sparse outcome credit,
+exploitation of the difficulty proxy, loss of style/LN organization, the restricted
+TAP-only learning slice and finite fixed-prefix coverage. The canonical player
+frontier remains a separate semantic requirement; this strain readout is not C0.
