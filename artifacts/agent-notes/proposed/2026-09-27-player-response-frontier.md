@@ -475,7 +475,7 @@ those proposal-learning problems. H musical activity and recovery intervals rema
 an independent unresolved part of the complete system. No new fitting Card or
 run is selected by this Result Log.
 
-## Experiment Card: player-state-r1-learning-v1, revision 3
+## Experiment Card: player-state-r1-learning-v1, revision 4
 
 Accepted: none. Standing research authority covers local implementation, profiling
 and fitting. Baseline product faf726d30cea3a0ad4f0140b884d3d52dddec4cc; baseline
@@ -571,8 +571,8 @@ new severe pattern blocks promotion regardless of objective gain.
 Fresh owner artifacts/joint-audio/20260927-player-state-r1-learning-v1. Apple M5,
 24GiB unified memory; MPS gradients, CPU native sampling, one CPU thread per
 process; uv run --extra mps and --group dev for tests. At most18GiB footprint or
-MPS allocation,600s bank preparation,300s smoke,3600s per main arm,30minutes
-qualification and2GiB new artifacts. No overwrite/resume/download. Stop on
+MPS allocation,600s bank preparation,300s smoke,3600s per main arm,45minutes summed active qualification-command wall time
+and2GiB new artifacts. Report intervening analysis/review elapsed time separately. No overwrite/resume/download. Stop on
 nonfinite values, support disagreement, sampled/rescored log-q error>.002,
 frozen-weight drift, failed focused invariant, explicit STOP file or resource
 limit. Freeze live run inputs and record clean intervention source before fitting.
@@ -718,3 +718,26 @@ D4.170/rho0, D4.590/rho0 and D5.076/rho0. Source reference render handle57662 is
 terminal. Other pages remain unreviewed. An audit also finds no reserved-song-
 group overlap among any of the768 factual draws. This is a repeated developmental
 qualification, not an untouched test set.
+
+
+### Qualification accounting clarification
+
+Accepted: none; revision4 changes only qualification runtime accounting/allowance.
+The two native commands complete in417.624 and418.818 seconds (836.442 active
+command seconds), while interleaved analysis makes first-launch-to-observation
+elapsed time1829.238 seconds. The earlier30-minute wording did not distinguish
+active qualification execution from intervening analysis; do not claim its total
+elapsed bound was met. Before the remaining source-style comparisons, define a
+45-minute summed active command budget and report overall elapsed time separately.
+This is authorized by the standing overnight/local-research scope and remains
+exploratory. Model, data, seeds, metrics and output counts are unchanged. No
+training or qualification input file is modified while live.
+
+Both native comparisons are now terminal (source42908, response44343). The
+response native nine-Stream mean excess is.107160 versus source-only.144229 and
+initial.027516; whole-D MAE.741130 versus.852546 and.478926. Thus the added objective
+helps versus the source-only arm but fails the primary improvement versus initial
+and the difficulty allowance. Serious concentration remains in new locations.
+The source-style comparison is live under84983; do not restart it. The failed
+numeric gate does not cancel the planned source-style inspection or mixed LN/
+scope-control evidence. Neither fitted endpoint is promoted.
