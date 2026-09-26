@@ -12931,3 +12931,124 @@ reference after seeing results. Failure returns to multirow response learning,
 not further gain or tail-budget tuning. Potential later on-policy distillation
 would use projected soft targets on the same genuine generated states, never
 source suffix labels; it is not authorized by this revision's run procedure.
+
+
+### Result Log: causal-attack-work-v1, revision2
+
+Accepted:none; source94c69684bf82e6621412a4d8a92fa0afb9e8ff72. The first projection
+launch completed generation but failed JSON export because its diagnostic feasible
+flag was NumPy bool_. Converting that flag to Python bool fixes serialization;
+probabilities and assertions are unchanged. Failed source-projection remains;
+valid first outputs are source-projection-v2. Source-soft.py preserves the exact
+revision1 source driver before adding the new policy selector.
+
+Fixed-H singles seeds261101/261104/261105 now give3.555657/3.476283/3.553509stars,
+against core2500's4.852047/4.659696/4.832900. Mean error1.782774->.529710; all
+three new errors are<=.6. Chords2.873968 andholds3.385612 satisfy their relative
+star/LN guards. All H timestamps remain exact. The first singleton source case
+has18/783locally infeasible response queries; the other two singles seeds17/18.
+Every feasible query satisfies final excess mass<=.05000000000000003. For the
+first seed, mean/max projection KL is.34352/8.32959nats: some states require a
+large correction, so the neural policy has not already learned this behavior.
+
+The three permitted native3/.2 cases all complete with unchanged H traces:
+Zenithfall4.333540->3.650341; Hysteric3.314142->3.392043; Take4.520058->3.527568.
+Mean star error1.055913->.523317, an improvement.532596 above.35. Hysteric's.07790
+regression stays below.25. LN-fraction error mean.001690->.003933; each increase
+is below.02. All numeric expansion gates pass. This is development evidence,
+not held-out population coverage or final playability acceptance.
+
+Cached-Mel CPU generation took6.093/6.140/3.323s. First8s coverage plus shared
+full-audio encoding took.334/.392/.262s; maximum8s service windows.287/.217/.261s.
+These are not cold decode/Mel or first30-row timings. Native response infeasibility
+counts49/1653,4/1750,7/922; meanKL.05131/.01151/.19398. LN tails remain a quality
+limitation. The projection is applied after LN amount preference, and measured
+LN proportions confirm only the tested aggregate accuracy, not commutativity.
+
+All16pages and every action/articulation table were read forrevision1's four
+crops and revision2's first three peaks plus the matched singles crop. Native
+revision2 adds another8pages/tables: three peaks and Take125463–129464. The
+fast fixed-H crop is predominantly single-note flow with occasional doubles;
+slower chords retain varied doubles/triples and single transitions. Native Take's
+previous dense exchange now includes changing groups and a274ms LN spanning two
+interior attacks. Zenithfall retains a395ms LN through two attacks before a fast
+single-note section. The LN source still has numerous50–80ms tails and broad
+LN groups; this response excludes hold/release demand and does not repair that
+organization. Extra singles seeds have numeric but no additional Lens coverage.
+
+Projection verification checks mirrored categorical distributions and a native
+fork/control-change/replay sequence through20s. Both forks agree; parent state
+is unchanged; per-query requests are3/5/3 across14–18s; actual demand is retained
+across switches; every feasible query obeys its final bound. Recorded comparison
+includes all input hashes and threshold computations.
+
+A read-only lower-bound decomposition uses one unavoidable head per H:
+u=sum_H2*.125**(age/1000),v=sum_H.30**(age/1000),lower=.18*(v+u/4).
+Actual per-lane maximum is at least its mean, and materialized head count is at
+least H count, so this lower bound cannot exceed any current supported candidate's
+attack response. That inequality holds for all probed queries. It exceeds the
+reference on6Zenithfall H events, and on zero other studied source/native cases.
+Thus six Z events are already incompatible with the reference under this proxy
+from onset timing alone. Absence of such a lower-bound violation does not prove
+that a fully feasible low-demand arrangement exists; the bound ignores column
+recovery and hold constraints. Do not call6/49 a fraction of total model fault.
+
+Decision: REFINE with broader scoped/LN qualification. Keep the existing selected
+baseline until those guards are assessed; the categorical projection is a promising
+candidate. A later learning objective can distill its soft distribution on actual
+generated states, anchored by source imitation, instead of pretending source
+next-row labels are valid after changed histories. No such fit has begun.
+
+Input identities for this Result Log:
+- response.py: 04848386114b1df91a35c679dbda85ce02cee1029f1f0d5f0a1437b431e964b4
+- projection.py: 92fa4407984b53fe4f7848dec2dea69a972c96c6f6adc99654ed355bb961fd2a
+- reference.json: 42735224834a76e640871e22cf78adaafc5f613efd6bbf398ea5b12b9aeea951
+- source.py: f5a8d5e5dbdc363f9779559c480d30eaf469a281f43d448e7fd7c16ffa222b47
+- native.py: bb2c1cfce1dd22684f428154640ce14e24a2324139323823c2c577b5dee16d28
+- source-projection-v2/result.json: 0c8dcd11f2f1e83b1a7b11f5542eeab27508519ebb174adf442efadb8a37423a
+- source-projection-extra/result.json: f8bf3cc3d0af838c45a0f2765c32a2e5e6974e93d6e527e45ced8c874a6f82f7
+- source-base-extra/result.json: 77e258e95c77d9772b8303fc80e171cddfa173a0635afa102f67c49a1f5bb10b
+- native-projection-low/result.json: b92546d7122f3388c64443c230e1dd85b15fd7567409647d93ef24d3d35b2250
+- verification-projection.json: a4e7dd37e6e93b52de3d968b190520862fc359d405ce8d7bd8393e399fd71cfe
+
+
+### Experiment Card: attack-work-scoped-qualification-v1, revision1
+
+Owner:this proposed Note. Accepted:none. Standing local run authority. Keep the
+revision2 response/projection law, original2500 weights and frozen64-chart
+reference exactly unchanged. This is qualification of coupled controls, not
+another policy intervention. Source94c69684bf82e6621412a4d8a92fa0afb9e8ff72;
+baselines are the corresponding native-ln-moment, native-ln-moment-high and
+native-ln-moment-ceiling outputs of row-owned-restoration-v1.
+
+Eight full-audio BOS cases, same seeds as their named panel entries:
+Zenithfall/Hysteric/Take at3/.7; those same three at3/.2 with a5/.7 override over
+[105000,137000), requested after coverage96000; Hysteric5/.7; Take6/.2. Style
+remains unknown. Read no source chart/timing/target descriptor during generation.
+Check each generated H trace against its matching baseline after generation,
+and preserve the already published prefix through the live control update.
+Retain response history across scopes. Keep before/override/restored ranges
+separate, including actual head counts in short restored ranges.
+
+For the three static3/.7 cases, seek mean star-error improvement>=.35 and each
+case's error regression<=.25; LN-fraction-error regression<=.02. On high/ceiling
+cases permit star-error regression<=.35 and LN-error regression<=.02. On each
+switch range, compare the same full-prefix scoped strain readout against its own
+requestedD; permit error regression<=.35. Compare LN-error regression<=.04 only
+when both versions have>=64heads in that range; otherwise report counts and
+fractions without claiming precise proportion control. Every case must finish.
+A violated guard rules out general adoption of this law but does not erase the
+low-LN improvements. NLL is not a criterion.
+
+Inspect all three high-LN peaks and switch start/end neighborhoods with Lens,
+including entering/open holds and releases. Add an uninspected changed peak only
+if the numerical range/response evidence identifies a new concern. Preserve
+all source endpoints in inspection. No label inference from star rating or note
+counts, and no musical-fit claim without listening/aligned evidence.
+
+Fresh owner directory scoped-projection under causal-attack-work-v1, no overwrite,
+CPU1thread, eachcase120s/30000rows,total<=1200s. Only behavior-neutral result
+metadata is added to the shared driver before this run. Record its changed hash;
+keep the completed low-scope driver snapshot. No training, TEST, gain/quantile
+adjustment, remote push or default-policy adoption. Numeric/mechanical failures
+are recorded before deciding any next representation change.
