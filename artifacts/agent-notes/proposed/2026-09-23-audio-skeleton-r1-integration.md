@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 6520ba16426492143f58867c76c27bf0c8805bed
+Product revision: 3cf169cda06c09b3487f12f6dcdacf81b4fc74da
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -14692,7 +14692,7 @@ proposed, and the overall goal remains active.
 
 ### Experiment Card: trajectory-kernel-probe-v1
 
-Revision: 1. Accepted: none. Owning Note remains proposed. Standing local
+Revision: 2. Accepted: none. Owning Note remains proposed. Standing local
 research authority covers implementation and bounded probing. The preceding
 balanced-condition Card has terminal results; this is the active probe Card.
 
@@ -14705,7 +14705,7 @@ source-history complementary preference at 23/23 decisions, and the reported
 Miraie/Starry/Shippaisaku articulation failures. No generation weights change.
 
 Selected primitive: a local H interval records the four actions at its left H,
-pre/post occupancy, committed LN age and attack/release clocks, and any release
+pre/post occupancy, committed LN age and decaying attack/release recency, and any release
 strictly before the next H as a flag plus native relative position. Interval
 length remains observed. All values are bounded transforms of physical facts;
 there is no beat grid or pattern taxonomy. Consecutive 1/2/4/8-interval blocks
@@ -14781,3 +14781,116 @@ than 1e-4. All other settings and gates remain unchanged. Preserve probe.json an
 its revision-1 driver; write revision-2 results to probe-v2.json. Source data and
 existing checkpoints are unchanged. Recommendation remains REFINE until the
 revised physical comparison is checked. Note acceptance remains none.
+
+### Result Log: local-recency kernel and actor preparation
+
+Accepted: none. Probe revision 2 completed at clean
+3cf169cda06c09b3487f12f6dcdacf81b4fc74da in .903 s. All four focused tests passed in
+.09 s. All four source/mirror distances are zero. The same-count trill shuffle
+scores .129379. Aligned trill draws score .119812 and .133210; one-cell distances
+.00662/.01074 versus eight-cell .20739/.22179 distinguish marginal counts from
+sequence relations. The stream seed-1 score falls from .22243 to .01532 after
+removing ancient release availability, comparable to seed-0 .01365. This is a
+representation correction, not a model improvement. Existing action tables show
+some 75 ms repeats in that stream; it is not declared a perfect output.
+
+Actor preparation completed in 3.123 s, freezing 64 population scopes (16 per
+whole-star bin) plus 38 prominent human cells. All selected local difficulties
+are 2–6 and contain at least eight complete H intervals. Prominent counts are
+stream17, trill5, jack8, LN5 and Tech3. Existing qualification exclusions persist.
+Seed261510 owns selection and 128 target draws: population/human alternate;
+population star bins and human concepts cycle, with seeded selection inside each.
+Broad positive exposure reuses balanced draw records512:640. No source outcome
+or generated candidate was used to select fitting targets.
+
+The aligned starting candidate's four reserved style guards, using its two
+existing independent draws per guard, have distribution U-statistics:
+jack .025815, stream .010021, Tech .026007, trill .122272; mean .046029. These
+small-sample kernel values are not independent quality judgments. The prior
+five-case control MAE is .716383. The selected runtime model remains core2500.
+The aligned endpoint is only this experiment's initialization.
+
+### Experiment Card: physical-trajectory-actor-v1
+
+Revision: 1. Accepted: none. This is the active learning Card; the representation
+probe has terminal results. Standing local authority covers both implementation
+and execution, without changing the Note's proposed status.
+
+Question: Does matching short physical continuation distributions improve R/R1
+under generated history beyond continued balanced factual learning? Start both
+arms independently from aligned-1200 checkpoint
+67ef81fbb9fb2ecfc5ca19d8fc6767040b846e1ba8c41d4b8d61067abc08ee26.
+Clean product source is 3cf169cda06c09b3487f12f6dcdacf81b4fc74da. No network or
+inference schema changes. Freeze audio and H; train R and R1 with the same AdamW
+groups as the balanced fit: inherited3e-5, composition/control/preview3e-4,
+weight_decay.0001, clip1. Use eval mode with gradients. Full audio remains visible.
+
+Both arms receive the same three positive sources each update: one frozen actor
+target and the two sources from the frozen broad-exposure draw. Source loss is
+R timing plus deployed row-q NLL per second, averaged across the three. Existing
+paired factual condition alignment remains on broad paired examples, beta.1,
+weight1 with the original frozen core-reference scalars. Target source histories
+are always genuine; generated-history actions never receive gold next-row labels.
+
+The sole causal difference is an additional physical-distribution objective in
+arm kernel, weight20. For each target [a,b), reconstruct genuine source rows
+through max(0,a-16000)-1 under current weights. Fork three independent continuations
+from this same fixed initial physical state; generate the burn-in and target
+under the current policy, then complete the remaining song so source indexes
+have real paired endpoints. Only physical cells fully inside [a,b) define the
+kernel reward. Score-function log probability spans the whole generated burn-in
+plus target, not the completed remainder. R survival/events and complete-row q
+both participate. Endpoint completion is storage/validation, not an artificial
+closure at b. Use the committed local-recency kernel and exact independent-draw
+coefficients; no learned discriminator or temperature change.
+
+Generation uses a CPU copy of current weights and the same frozen full-audio
+encoding as MPS scoring. Rebuild raw-prefix caches after parameter changes.
+Record actual deployed row probabilities and release hazard likelihood while
+sampling. Require row log-probability parity within2e-3 and total R log-probability
+within .02 +1e-5*abs(sampled_R_log_probability) on smoke trajectories. This is
+necessary policy-gradient instrumentation, not an inference change. No timing or
+materialization labels beyond the scoring boundary may enter R1 inputs.
+
+Use actor-panel.json frozen by prepare_actor.py in
+artifacts/joint-audio/20260926-trajectory-kernel-r1-v1. Same target/broad draws in
+both arms; actor seeds261511+1000*step+draw_index. Integration: four fresh updates
+per arm, maximum600s each; discard smoke weights. Require finite losses and
+nonzero kernel gradients to both R and R1. Then128updates/arm from the initial
+checkpoint; continued bound900s, kernel bound5400s. Select only terminal128 weights.
+CPU one thread, MPS training, 24GiB Mac; stop above18GiB physical footprint or
+MPS driver allocation, on nonfinite gradients, support/probability mismatch,
+STOP file or time bound. Fresh output directories; no overwrite or resume.
+Commands use TRAJ_ARM=continued|kernel, TRAJ_RUN=smoke-continued4|smoke-kernel4
+or continued-128|kernel-128, TRAJ_STEPS=4|128 and TRAJ_SECONDS as above, then
+uv run --extra mps python artifacts/joint-audio/20260926-trajectory-kernel-r1-v1/train_actor.py.
+
+Qualification keeps three independent seeds per condition. Reuse four reserved
+style guards with their original source H and global/style controls, extending
+old seed0/1 by seed2. Primary distribution comparison is the mean independent-
+draw U-statistic over four guards; require improvement at least .005 and at least
+15% when the continued-arm mean is positive. This is a training-proxy gate only.
+Also require independent Lens evidence of improved repeated-group continuity
+or sustained/released LN roles, without collapse of jack, stream or Tech variety.
+Generate three LN references (Miraie, Starry Jet, Shippaisaku) with true global
+D/LN and original known styles, three seeds per arm, and inspect the established
+review ranges. At least two LN cases must show improved articulation or a clear
+trill improvement must coexist with no material LN regression. No classification
+accuracy substitutes for that comparison.
+
+Control guards reuse the five committed core prefixes, low/high requests and
+three future seeds from balanced qualification:60complete continuations. Kernel
+mean difficulty MAE must not regress more than .15 relative to continued; each
+case/request global LN error must not regress more than .03, and restored-range
+D error by more than .25. Retain prefix and open holds exactly. If no severe
+collapse or invalid output, repeat the twelve native static/switch runs with
+field-specific scope analysis and cached-Mel startup/window timing. A useful
+training signal alone does not qualify a playable system or replace core2500.
+
+Confounders: the reference is finite and possibly multimodal; sparse style cells
+may be repeatedly sampled; source-H training does not test H policy learning;
+source-prefix initialization does not cover every long generated prefix;
+short-block distribution matching misses longer musical relations; controls can
+make a source comparison imperfect. Continued-source pairing isolates the extra
+objective, not each representation design choice. A failed fit motivates
+reconsidering the signal/gradient or actor access, not automatic parameter scaling.
