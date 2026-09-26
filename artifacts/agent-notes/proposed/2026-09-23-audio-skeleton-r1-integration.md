@@ -14024,3 +14024,31 @@ PAIRED_ARM=paired. Fresh main invocations use PAIRED_ARM=source or paired,
 PAIRED_RUN=source-96 or paired-96, PAIRED_STEPS=96, PAIRED_SECONDS=1800.
 No smoke weights are reused. Source context order uses its own RNG, independent
 of candidate score-interval sampling, to preserve the paired imitation sequence.
+
+### Result Log: paired-scope integration smoke
+
+Accepted:none, Card paired-scope-controls-v1 revision1. Source2c2b8af and all
+recorded drivers were unchanged. smoke-paired4 completed4updates in40.1924s,
+including exact reconstruction of the24prefix bank. All4updates had nonzero
+difficulty gradients, all16candidates completed with exact prefix/H preservation,
+and the maximum CPU-generation/MPS-rescoring log-probability difference was
+1.5342632337933537e-5. Frozen effective weights were unchanged. All whole-song
+LN errors stayed inside the.03deadband in this smoke, so LN outcome gradients
+were zero; this is not a failure to preserve LN request ownership. Sampled peak
+physical footprint2.3263GiB, RSS1.3237GiB, MPSactive.2067GiB, MPSdriver1.2226GiB
+are separate memory ledgers. Terminal smoke checkpoint SHA256
+36de79a338433e84c66c261ee49d1efe331b35eff99b2978f8f26ef2ac64a17b is not reused.
+
+The first-update generated scope, requested2.107/3.607, realized3.807/3.930 and
+4.565/4.803 across its independent draws. This confirms a conditional difference
+is reachable but leaves a low-request overshoot; a short integration run does
+not establish training improvement. Main96update arms use fresh core weights.
+
+Qualification elaborates each existing difficulty field's actual restoration
+scope as[override_end,audio_end+1) for its error guard, and additionally reports
+the first16s after restoration. The original whole-song LN request is reported
+separately. The before-scope offline proxy can legitimately depend on an entering
+LN's future tail; exact committed prefix equality, not offline-before-rating
+equality, is the causal invariant. The five case/start/seed settings and all
+thresholds remain revision1. Qualifier artifact evaluate.py SHA256
+57b0b6dc5f9734ee83d3d1a66963c0d6aa6674d307b89cea56b536e72a86b3a6.
