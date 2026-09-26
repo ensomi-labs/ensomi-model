@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: c5fd73f9ea6851f88f6c268aa1aa64219bdbd591
+Product revision: b7a6c88e5634b14855410b7af64225848d6b936e
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -12649,3 +12649,42 @@ Positive evidence supports wider native/style qualification, not final release.
 If continued fitting matches or beats the prior, prefer the simpler model. If
 both fail, reconsider the controlled continuation objective or demand-response
 representation rather than silently increasing the bound or changing the goal.
+
+
+### Experiment Card: r1-composition-path-probe-v1, revision1
+
+Owner:this proposed Note. Accepted:none; standing read-only experiment authority.
+Sourceb7a6c88e5634b14855410b7af64225848d6b936e. The prior1000 endpoint completed
+1000updates in482.262s with2000accepted draws/1399uniqueTRAINcharts and unchanged
+frozen audio/timing hash. Its source-H singles seeds261101/261104/261105 give
+4.41647/4.33311/4.48155stars, already failing the absolute qualification bounds.
+Continued1000 remains in progress; the matched comparison is not yet interpreted.
+
+Question: is the remaining count inflation present in the newly supervised prior,
+in the bounded composition residual, or after complete-row consequence comparison?
+This is probability-path instrumentation, not another sampler or fit. Read the
+terminal prior and continued checkpoints and their seed261101/261102/261103
+source-H trajectories. On each genuine source and generated prefix, retain exact
+state, full audio, the same source-H preview and requested controls. Record
+expected heads at prior-only, post-composition/pre-consequence, final-model and
+empirical recovery-preference stages. Only the prior arm has a prior-only stage.
+Trim all padded queries to len(batch.row_index); compare observed H/head counts
+with saved trajectories. Never pair source labels with generated alternative states.
+
+Use full-chart aggregates and eight-second windows, separately by organization
+and history. A large prior-to-composition gap implicates the explicit residual;
+a large post-composition-to-final gap implicates the consequence/layout coupling;
+a high prior expectation already at source history implicates the fitted prior or
+its conditioning. These are path-local observations, not causal percentages or
+proof that suppressing any module will improve free generation. The strongest
+alternative is that all changes compensate one another under the row likelihood.
+Do not tune bounds or choose a model using this diagnostic.
+
+Fresh artifact files factor-prior.json and factor-continued.json under the current
+r1-composition-baseline-v1 owner, no overwrite. CPU1thread, at most300s per arm,
+no TEST, no gradient updates or product-code edits. Wrapper instrumentation must
+return exactly the original tensors and preserve normalization. LN amount feedback
+is omitted only for head-count moments because its actual projection preserves
+head/release-count family mass. Record input/script identities. If initial
+qualification fails, no full-audio expansion is authorized by that Card; subsequent
+research requires a new explicitly bounded direction rather than a gain search.
