@@ -318,3 +318,38 @@ supplies selected trajectories for a later declared learning experiment. It does
 not validate the whole frontier or prove human playability. Failure with all
 proposals similarly overloaded demonstrates a proposal-coverage/learning problem
 under this bounded search; it does not justify widening the search indefinitely.
+
+### Result Log: response-planning implementation and calibration
+
+Accepted: none; sustained-response-planning-v1 revision 1. Clean intervention
+24e786b4b8ef8c4752835371bd9fd415c5ed0891 adds a group-weighted AttackEnvelope,
+exact attack/expiry-time excess integral and ResponsePlanner. It forecasts four
+seconds, commits two, keeps zero-cost first proposals, and otherwise compares at
+most four candidates while preserving publication state and H. Native row replay
+probabilities are explicitly not the selected trajectory's law. Six focused tests
+pass in 1.17 seconds: manual area/partition equality, control references without
+state reset, history/hold distinctions, group weighting, unchanged zero-cost
+native trajectories, and bounded private selection with correct published state.
+The new implementation does not modify model weights or the default entrypoint.
+
+Calibration from charts.jsonl SHA-256
+e529cfd868b4ec4bc337803d1712bbb319d2cba730a47dcfc13cc6a9e8f00f3b completes.
+All nine difficulty bands contain sources; their group counts are
+1321/1875/1957/1819/1613/1298/766/391/125. Raw q99 curves already increase with
+difficulty, so monotonic adjustment changes no fitted value. At four stars the
+.5/1/2/4/8/16-second rates are 10/8/7/6/5.375/5 Hz. Endpoint six-star tails have
+only 125 groups and are less well supported. Calibration is descriptive training
+corpus evidence, not held-out validation or individual physiology.
+
+Exact integrated excess for the nine prior Stream outputs, in case/draw order:
+Zenithfall .0434756/.1061111/.0940127; Hysteric
+.0004430/.0010242/.0025064; Take 0/0/.0000749 seconds. These are squared relative
+excess integrals averaged across six windows and summed across columns, not
+elapsed time spent in an unwanted pattern. The source identity and full raw/
+monotone curves are in calibration.json; baseline responses are in
+baseline-response.json. Calibration process 25265 is terminal.
+
+The two-case native smoke now runs under handle 53417 via
+uv run --extra mps python artifacts/joint-audio/20260927-sustained-response-planning-v1/run.py smoke.
+Its config records clean source, checkpoint, driver, metric, calibration and
+panel hashes. Do not edit those inputs or restart while the process is live.
