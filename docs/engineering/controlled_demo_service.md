@@ -91,7 +91,8 @@ Audio encoding is cached only within one frozen model runtime. An LRU bounds
 retained Mel/encoding storage to `cache_mib` (256 MiB by default); active sessions
 can retain encodings after LRU eviction. The cache limit is therefore not a
 process-memory ceiling. There are at most two active sessions by default, with
-120-second idle expiration. Stop, EOS and replacement should release sessions
+120-second idle expiration, pruned on subsequent health or generation requests.
+Stop, EOS and replacement should release sessions
 explicitly. Restarting the service discards generation state.
 
 The client must retain an anchored audio clock, choose an entry with no incoming
