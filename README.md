@@ -55,6 +55,11 @@ provides a packaged audio-file entrypoint with incremental rows, settled chart
 coverage and verified playtest exports. Its runtime and musical-quality limits
 are documented in the [playback study](docs/research/audio_playback_system.md).
 
+The [controlled H/R/R1 latency benchmark](docs/research/controlled_audio_runtime_benchmark.md)
+measures full-audio preprocessing, scoped-control generation, feature-cache reuse
+and publication-window service on an M5 Mac. It provides local scheduling budgets
+and identifies the producer-watermark contract needed for client integration.
+
 ## Legacy code boundary
 
 > **Do not use mapper v2/v2.1, the pre-V3 timing stack, Control V3, or the
