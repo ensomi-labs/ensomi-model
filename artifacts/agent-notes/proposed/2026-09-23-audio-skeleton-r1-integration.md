@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 94c69684bf82e6621412a4d8a92fa0afb9e8ff72
+Product revision: 12b3e0d298477efe2c8eab58740d98397e02bec3
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -12939,7 +12939,7 @@ Accepted:none; source94c69684bf82e6621412a4d8a92fa0afb9e8ff72. The first project
 launch completed generation but failed JSON export because its diagnostic feasible
 flag was NumPy bool_. Converting that flag to Python bool fixes serialization;
 probabilities and assertions are unchanged. Failed source-projection remains;
-valid first outputs are source-projection-v2. Source-soft.py preserves the exact
+valid first outputs are source-projection-v2. source-soft.py preserves the exact
 revision1 source driver before adding the new policy selector.
 
 Fixed-H singles seeds261101/261104/261105 now give3.555657/3.476283/3.553509stars,
@@ -13052,3 +13052,136 @@ metadata is added to the shared driver before this run. Record its changed hash;
 keep the completed low-scope driver snapshot. No training, TEST, gain/quantile
 adjustment, remote push or default-policy adoption. Numeric/mechanical failures
 are recorded before deciding any next representation change.
+
+
+### Result Log: attack-work-scoped-qualification-v1
+
+Accepted:none; Cardrevision1. Executable source remains94c69684bf82e6621412a4d8a92fa0afb9e8ff72.
+All eight cases completed in51.757s total CPU generation, with matching baseline
+H traces and preserved published prefixes. The response state is retained through
+live updates. source-low.py preserves the completed low-scope driver; source.py
+adds only controls/forced-release result metadata and variable switch metadata.
+No weights, reference margins, .05 probability budget or sampling law changed.
+
+For3/.7, baseline->projection stars:
+Zenithfall5.026267->4.897361;Hysteric3.856342->3.748329;Take4.447355->3.755477.
+Mean error1.443321->1.133722, improvement.309599 below the.35 qualification bound.
+All per-case star/LN regression guards pass, but the aggregate improvement gate
+fails and Zenithfall remains1.897stars above request. LN fractions are
+.717832/.704396/.706317; LN duration medians140/132/100ms and fractions<=80ms
+.17464/.11024/.27973. This rules out treating the attack-only projection as a
+general control solution. No stronger gain/tail-budget setting was tried.
+
+Hysteric5/.7 remains4.533335stars/.70256LN exactly; Take6/.2 changes6.192151->5.933181
+with.202726LN. All high/ceiling relative guards pass. High difficulty is not
+flattened into the low target, but these cases do not establish style coverage.
+
+Each switch has three distinct effective ranges. Full-prefix scoped difficulty
+levels before/override/restored are:
+Z2.397131/3.786880/3.836845;
+H3.244151/4.255412/3.313379;
+T3.455468/4.797190/2.366350.
+Their requested levels are3/5/3. No range's difficulty-error regression exceeds
+.35. The unchanged Z override remains substantially under its requested5,
+showing that an upper-tail preference cannot correct underfill.
+
+Override LN fractions are.740964/.718009/.720930. Large restored ranges return
+to.206502/.203320. Take's7.237s restored tail contains30heads,12newLNs, fraction.4;
+baseline34heads/10LNs=.294118. Its LN regression is reported without the>=64head
+precision claim. Neither whole-chart aggregation nor a small-sample exemption
+should conceal this remaining short-range control weakness.
+
+Read all18Lens pages and every action/articulation table for the three high-LN
+peaks and six switch-boundary crops, including both paginated Z peak tables.
+Z295263–299264 has mostly single-head rows but densely interleaved holds/releases,
+including52–80ms tails and longer crossing holds. H147681–151682 includes two
+same-start LNs ending at151584 and151585ms, illustrating unresolved fine release
+organization without asserting that every near-coincident release is bad.
+T99564–103565 repeatedly hands off short holds between groups. At the control
+boundaries, previously opened holds retain endpoints across the switch: e.g.
+T's136718-start LN closes137251, and its136809-start LN closes137259. The images
+show a clear LN increase after105000, but this alone is not style or quality
+qualification. No source/human labels were added to generated charts.
+
+A difficulty-formula-only counterfactual replaces each LN end by its start while
+retaining every head time/column. High-LN whole-star values become
+Z3.778614,H3.270480,T3.373906, compared with4.897361/3.748329/3.755477.
+For Z295263–299264, scoped values5.088818 versus3.799534. This is not a proposed
+chart edit, a player-demand oracle, or a module-fault percentage; it exposes
+LN-dependent terms absent from the attack-only response while retaining a high
+head-only value on Z.
+
+The H-only response lower bound described in the preceding Result Log exceeds
+the reference at57Z H events between293865 and317744ms; actual generated-state
+infeasibility occurs109times. H/T have0onset-only lower-bound exceedances and
+0/8actual-state infeasible queries. The lower bound is checked against every
+supported candidate minimum. It gives a timing-owned necessary condition without
+feeding actual R1 counts/TAP state back into H. Zero violations are not proof of
+full feasibility or playability.
+
+Decision: REFINE. Retain the current selected core2500 baseline; the response
+projection remains an artifact-only candidate, with positive low-LN evidence
+and a failed broader LN gate. All current processes are terminal. No overnight
+fit, default-policy change, remote push or final-model release was started.
+Curated self-contained report:docs/research/causal_response_control.md,
+product12b3e0d298477efe2c8eab58740d98397e02bec3.
+
+Input/output identities:
+- source-low.py: f5a8d5e5dbdc363f9779559c480d30eaf469a281f43d448e7fd7c16ffa222b47
+- source.py: 976ed04c35ba76825995f3373d70abdeed855891492b6b05d0ae8d7ca1b95374
+- scopes.py: 360e972717c7a073e736a5e1b9ddc3e1c60a636c5e971e2b4ccba0fea9c9ea8c
+- scoped-projection/config.json: f5102fedba6973469b9bfefc09e072580112537fc6d8fa7053478b3bb594ff98
+- scoped-projection/result.json: c6946a681589f2ce9692529672e7f4dc1a07a9d4eeba00b7774b51f998078e25
+- scope-comparison.json: a7b8f7c7d1b23fbf3d19f2497b9a27ae6ee576d9f45f102af58120f81cce7d10
+- ln-metric-counterfactual.json: 04eeadc66f400873c35988c2fc2106bf4ad05a9b5cb66382da1876122bc552db
+- comparison.json: 5f1ec3e3cdc5f8e7f6372c3c906dde239aa0ff787ec770db85a4b0f14568b476
+
+
+### Research continuation: response semantics, timing feasibility and valid learning targets
+
+The goal remains active. The completed experiments support a specific change of
+research focus, not another scalar tuning sweep. Distinguish three live problems:
+
+1. Timing can commit unavoidable work. The H-only lower bound is derived solely
+   from its own timing history and the at-least-one-head invariant. It therefore
+   respects skeleton/R1 ownership. Any future timing intervention must specify
+   a normalized waiting-time law including survival and EOS, and preserve query
+   chunking/fork/control-update behavior. Scaling a bad-interval cumulative hazard
+   to a declared probability budget is one possible primitive; an ad hoc veto
+   or a per-chunk budget reset would define the wrong process. No such policy is
+   implemented or selected yet.
+2. Press history is not LN demand or musical articulation. A next representation
+   must preserve occupied-time/release relationships and candidate consequences.
+   A small shared active-LN audio representation is a concrete alternative:
+   retrieve full-audio features at committed LN starts, combine them with current
+   audio and exact ages, and supply the same causal hold cues to release timing
+   and R1. It must derive from audio plus permitted LN state, not R1 hidden-state
+   feedback, future source endpoints, typed count plans or prechosen release IDs.
+   R1 still owns simultaneous release subsets and complete rows. These dataflow
+   changes are hypotheses; the current observations do not prove they will fix
+   duration or near-coincident-tail behavior.
+3. Scoped controls describe outcomes of a range, not independent row quotas.
+   The upper-tail teacher cannot repair underfilled5-star scopes or guarantee
+   a short restored LN proportion. A multirow outcome/response objective must
+   address those failures while allowing rests, localized LN passages, long jacks
+   and irregular Tech timing. Use real corpus and generated-continuation outcomes
+   with their actual prefixes; never attach source suffix labels to changed states.
+
+A crucial learning invariant: while the categorical projection is active,
+common offsets of raw logits within either tier disappear after its two
+normalizations. Projected NLL alone therefore cannot calibrate the raw policy's
+between-tier mass. Detached projected soft targets can instead supervise raw
+policy probabilities on the same generated states, but that only addresses
+this teacher's limited overfill rule. Distilling unchanged probabilities in
+underfilled scopes supplies no new signal. The student must observe the teacher's
+replayable response and control-episode state, or the approximation from omitting
+that information must be explicit. Do not declare this a complete new objective
+before defining its scoped outcomes and omitted quality channels.
+
+Next work should inspect the owning timing/row batching interfaces and design one
+bounded discriminating study around these findings. No new Card is accepted and
+no implementation of these open alternatives has begun. User standing authority
+still permits necessary local design, implementation and bounded experiments;
+there is no new permission blocker. Full-audio train/inference symmetry, native
+millisecond timing, incremental LN endpoints and the existing scoped interface
+remain fixed. Long-range musical memory remains deferred.
