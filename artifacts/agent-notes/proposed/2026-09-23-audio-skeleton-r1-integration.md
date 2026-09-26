@@ -13534,3 +13534,98 @@ genuine generated continuations with the current small model. No new capacity
 sweep, general native expansion or long training run is authorized by this
 research recommendation itself; the standing user task supplies execution scope
 when a concrete next design is ready. Goal remains active and incomplete.
+
+### Experiment Card: range-outcome-r1-v1, revision1
+
+Accepted:none; standing user execution authority applies. Clean implementation
+baseline2b20c4fd2bd89bb6ad35a2acda1c60e8e8bd5cd7; original core2500 checkpoint
+SHA0f1ddfa5b351988fca04246ec080be106855f49b50fb493370c2d5afee1febb8.
+Outcome arm versus matched source-imitation continuation. The intervention is
+an additional score-function gradient from completed generated-chart control
+outcomes. No added network, audio encoder, H law, duration heuristic, count
+prior or attack-response projection. Hold cues remain disabled to isolate the
+objective. This adapts the sequence-outcome gradient underlying the cited MRT
+work; it does not claim its candidate-set approximation or translation guarantees.
+
+Implement shared recovery-cost calculation and differentiable reconstruction of
+the deployed row distribution, including per-episode LN feedback. Runtime behavior
+must remain identical. Reconstruct feedback from the actual complete prefix;
+scoring a crop cannot reset it or LN occupancy. Test native sampled probabilities
+against rescore, partitioned sums/gradients, scoped feedback reset and cross-boundary
+holds, plus CPU/MPS gradient transfer. Commit executable intervention before fitting.
+
+Freeze audio_input,audio_blocks,context,timing,context_timing,head_temporal,
+head_condition,head_base,head_control,skeleton_temporal,release_clock,release_control
+and normalization buffers. With no hold-cue branch, all parameter dependence of
+the generated joint law is in R1 row probabilities. Frozen R timing still reacts
+to sampled LN states, but contributes no direct parameter derivative. Score the
+actual supported distribution after recovery preference and projected LN feedback,
+not the raw neural proposal. H remains source timestamps during training only;
+generated rows/releases/history start from BOS and are never source labels.
+
+TRAIN panel is frozen at artifacts/joint-audio/20260926-range-outcome-r1-v1/panel.json,
+SHA1b6f62d12b41a34015ada3e6dad3e418414d4c4f7fe7251330fc1d316acaf69f, from the same
+ranked manifestSHA4cea2672387b6293a4da0846be479d8bd9c857e55535dc8143bd11d65b06d2c4.
+Seed261240 selected12distinct groups, six LN<=.2 and six LN>=.5, actual source
+stars2.726–4.327, audio89.062–176.854s. All prior five diagnostic and fresh-native
+panel audio identities are excluded; no TEST. All source8s intervals are compatible
+with the60/50/50profile; zero candidates were rejected for profile reasons. Request
+source whole-chart stars/LN amount, unknown style; the entire song is the first
+control range. Existing human style guards remain qualification, not fit labels.
+
+For each update, choose a chart in shuffled12-chart rounds and a uniform8s clock
+interval, using seed261240. Both arms use the same chart/interval sequence and
+one source row-NLL term under the deployed distribution, weighted by the existing
+uniform-interval NLL/s weight M/T_seconds. M is the interval count including EOF.
+The outcome arm additionally samples three complete continuations from BOS using
+its current policy and immutable source H times. Each candidate runs through the
+real audio end with all holds closed; no crop termination or spliced source future.
+For outcome D,rho on that complete generated chart and requested D*,rho*, define
+cost=max(abs(D-D*)-.35,0)^2 +100*max(abs(rho-rho*)-.03,0)^2.
+D is the existing native1x whole-chart mania rating, an explicitly limited proxy.
+LN proportion counts new heads. This deadband is tolerance for casual control,
+not a per-row demand floor or a chart-quality reward.
+
+Let a_i be candidate cost minus the mean cost of the other two candidates.
+Add2*mean_i[a_i*(M/T_seconds)*log q_theta(candidate rows in sampled interval)]
+to the source NLL/s. Costs/baselines and discrete generated histories are detached;
+row log probabilities are differentiable on those same histories. Uniform clock
+sampling estimates the whole-trajectory row-score gradient per audio second;
+the sampled interval retains its full generated prefix, open holds, controls and
+future H preview. Complete-song outcomes avoid an ambiguous right-censored LN
+difficulty target. This is a stochastic policy-gradient surrogate with a
+leave-one-out baseline, not likelihood training on relabelled source continuations.
+
+Fresh AdamW, row parameters3e-5, composition/row_control/preview_condition3e-4,
+weight_decay.0001, clip1, CPU1thread/MPS. First run an8-update integration/profile
+smoke; its weights are not reused. Require finite costs/gradients, actual sampling
+probability agreement and at least one nonzero outcome gradient. Then128updates
+per arm from core2500, at most1800s per arm, terminal checkpoints only. Three
+rollout seeds per update are261241+10000*step+i for i=0,1,2. No stochastic-module
+dropout or style-family dropout is added. Full audio is available identically to
+teacher scoring and generation. Stop on incomplete candidate, nonfinite values,
+source-support mismatch, changed frozen tensors, physical footprint or MPSdriver
+above18GiB. Record actual chart/interval choices and all candidate outcomes; no
+selection by NLL, best seed or best intermediate checkpoint.
+
+Fresh owner above; smoke-outcome8,outcome-128,continued-128 and qualification
+directories never overwrite or resume. Record source/driver/checkpoint identities,
+resource counters and the trajectory/interval probability distinction. Source
+imitation exposure and update counts are paired, not compute: only the outcome
+arm spends compute sampling its extra outcome supervision.
+
+Primary qualification: prior source-H singles seeds261101/261104/261105; compare
+mean absolute star error versus the matched128-update source arm. Seek improvement
+>=.30 and absolute error<=1.25 as an initial learning signal, not final playability.
+Chords/holds seeds261102/261103 must not regress star error by>.25 or LN error
+by>.03. All supplied H times remain exact, every song complete within120s. Run
+the two existing High-human LN-coordination guards and inspect actual source,
+paired and generated peak relationships in Lens; reject loss of mixed TAP/LN,
+trivial release shortening, uniform chords or collapsed sustained/overlapping roles.
+Changing stars alone cannot pass the qualitative gate. If primary passes, test
+the existing native Zenithfall/Hysteric/Take seeds at3/.2 and3/.7, separately:
+seek mean star-error improvement>=.25 in each LN stratum, no case regression>.25,
+LN-error regression<=.03 and preserved inspected organization. Otherwise refine
+the objective/estimator based on the failed mechanism, without automatic longer
+fits or capacity changes. Scoped override qualification follows a successful
+native result; this card does not certify mid-song control behavior.
