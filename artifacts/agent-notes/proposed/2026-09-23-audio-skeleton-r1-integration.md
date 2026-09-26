@@ -13721,3 +13721,54 @@ outcome target rather than a universal density reduction. The unchanged control
 checkpoint continued-128/step-128.pt has SHA
 2b63b1d9ff8d4f33417937a768e0f2769f1903645af10fe013fc4b2c7f6e53fb.
 Proceed with outcome-128-v2 from core2500; keep both training drivers immutable.
+
+### Result Log: range-outcome-r1-v1 terminal numerical comparison
+
+Accepted:none; revision2; clean sourcec3befb2fa397a6149e0f3090419e1210764d33b4.
+outcome-128-v2 completed128updates/384complete candidates in1065.566s.82updates
+had nonzero outcome gradients. All128source chart/interval draws match
+continued-128, and the frozen hash remains unchanged. Peak physical footprint
+3.4301GiB,peakRSS2.0348GiB,MPSactive.7931GiB,MPSdriver1.6110GiB. Maximum
+sampling/rescoring log-probability difference2.3381e-5. Both fits and all14source-H
+qualification generations are terminal; handles79718/90010 must not be restarted.
+Outcome checkpoint SHA
+c9ecb88c8667b75893a47a7fe8c874fbbd530517e08b271e6fef13ee77eb9d0a.
+comparison.json in the owner records all identities and declared numerical gates.
+
+Singles seeds261101/261104/261105, source2.998773stars, yield continued
+4.125034/4.234083/4.452311 versus outcome4.500425/4.281145/4.227019. Mean absolute
+error1.271702 versus1.337423 fails both improvement>=.30 and absolute error<=1.25.
+Chords error improves.839613 to.454313(stars2.263886 to2.649186); holds error
+worsens.186817 to.239682(stars3.191558 to3.244423), within its relative bound.
+The LN-fraction regression bounds also pass. Starry Jet3.751854 to3.889081 and
+Shippaisaku4.278177 to4.486789 further show that calibration is not broadly solved.
+Head counts rise on all five main cases:1212→1232,516→605,1211→1319,2112→2274,
+1874→1969. The two additional singles seeds move1160→1240 and1229→1211.
+No native expansion follows this failed primary result. Qualitative outcome
+inspection and mechanistic interpretation are still pending.
+
+### Experiment Card: r1-control-response-audit-v1, revision1
+
+Accepted:none; posthoc diagnostic of the failed outcome comparison, no new fit.
+Question: did the outcome update learn a useful context-dependent difficulty
+response, or mainly move R1's overall head propensity? Use the two terminal128
+checkpoints above, unchanged clean sourcec3befb2fa397a6149e0f3090419e1210764d33b4.
+Compare one-step row distributions on identical genuine source prefixes and
+identical continued-128 generated prefixes for singles[56000,64000),
+chords[8000,16000),holds[160000,168000). Keep each chart's global source stars/LN
+request, then override only stars to2,3,4,5,6 on that eight-second range. All other
+fields and the actual prefix remain unchanged; H preview is fixed diagnostic
+timing. Reconstruct the unchanged LN episode state, never relabel source actions
+as correct under the counterfactual control.
+
+Report mean expected heads at H rows separately for neural proposal and deployed
+q, each model/history/case/request; also retain supported probabilities and
+expected LN amounts. These are fixed-prefix conditional response curves, not
+generated range outcomes or an adoption gate. Full cached audio is identical.
+No stochastic sampling or optimizer; CPU1thread,≤120s, fresh
+artifacts/joint-audio/20260926-range-outcome-r1-v1/control-response.json. If curves
+show different context-sensitive directions, do not call the change a constant
+bias. If generated history preserves a high head expectation despite a low
+request, investigate state/control coupling and data coverage. Finite conditional
+response alone cannot establish correct scoped chart demand or causal fault
+percentages. Preserve all numerical qualification results above.
