@@ -161,6 +161,11 @@ H, so its missed exchange cannot be explained by timing incompatibility alone.
 These ownership distinctions remain essential when extending the learning signal
 to the complete audio-to-chart system.
 
+The [common-prefix outcome study](common_prefix_outcomes.md) tests that full-R1
+learning change. It improves absolute difficulty calibration and several native
+LN controls, while leaving conditional separation and reliable style control
+unresolved.
+
 Executable source: `0591f905809876d7dc4f41ebf1217ba4c2c31381`.
 Artifact owner: `20260926-scoped-style-discrimination-r1-v1`.
 Frozen panel SHA-256: `cab2e71e39c1e365f15c431b06cb7ad321af05977cbcd3e9edc8c8422d4f430f`.
