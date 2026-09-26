@@ -14951,3 +14951,50 @@ Its fitting handle74945isclosed. Kernel fitting handle10220was last confirmed
 live through16updates/173.119s, with footprint6.060GiB,driver2.999GiB.
 The kernel run must be polled, not restarted. The continued-arm qualification
 has been launched independently; it does not alter either model's fit.
+
+### Architecture finding: shared additive conditions cancel for mirrored rows
+
+Read-only inspection during the unchanged actor fit identified a specific R1
+interaction limit. JointHead's hand unaries and context-to-coupling matrix are
+linear; its learned action embeddings are parameters. For fixed weights its
+complete score vector is affine in the two hand states. Current audio, H preview
+and row controls are added as the same vector to both hands after nonlinear
+history/exact-state fusion. Their main-head score increment is independent of
+history and, by mirror equivariance, identical for reflected candidate pairs.
+Thus this path cannot change the repeat-versus-complement odds of reflected
+same-count groups using the current condition alone. Count normalization and
+LN feedback also cancel between these candidates. Nonlinear routing/frontier
+paths remain capable; this is not a whole-policy impossibility claim.
+
+conditioning_probe.py tested the algebra on32synthetic hand-state pairs under
+the aligned initialization, seed261580. Maximum state dependence of a shared
+shift was5.25e-6; mirror asymmetry3.81e-6. Trill absent-to-prominent changed the
+main two-TAP reflected-row difference by at most2.98e-6. The nonlinear routing
+change reached.00902 on these synthetic activations. This verifies the algebra,
+not actual generated quality. The probe handle43857isclosed.
+
+Curated owner: docs/research/row_condition_interactions.md, linked from the
+controlled model information contract. This is a documentation-only descendant
+of the fitting source; neither actor driver nor kernel helper was edited.
+Closest prospective primitive is FiLM (https://arxiv.org/abs/1709.07871): a
+condition-dependent feature scale can multiply each hand's historical state,
+with shared weights preserving reflection symmetry and identity initialization
+preserving the old policy. A small nonlinear residual fusion is another option.
+R1 retains all row decisions; no count plan moves into H and no new long musical
+memory is required. This architecture change is a subsequent comparison, not
+silently mixed into the ongoing objective comparison.
+
+Continued qualification completed51charts in169.598s:30scoped controls,12style,
+9LN. Handle30286isclosed. Analysis reports difficulty MAE.806871, four-style
+U-statistic mean.051142 and three-LN mean.046833. These are the comparator values,
+not a favorable quality judgment. A JSON serialization failure from NumPy integer
+counters was fixed in the analysis driver; the original error log is retained.
+No numerical definition changed. Both analysis handles9577and13740areterminal.
+
+Lens continued-arm rendering produced11contexts/41pages. Four pages have been
+viewed so far: trill seed0page0, Miraie seed0page0, Starry seed0page1 and Shippai
+seed0page1. The trill still contains adjacent repeated groups; Miraie has wide
+short-LN sets and independent tails. Source reference pages from the balanced
+owner remain the comparison context. Rendering is not equivalent to inspection.
+Lens handle76945isclosed. Kernel fit was most recently verified at120/128steps,
+1164.292s, footprint8.867GiB andMPSdriver3.426GiB; handle10220remainslive.
