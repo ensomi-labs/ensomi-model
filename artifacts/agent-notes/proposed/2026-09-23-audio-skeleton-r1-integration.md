@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 24fc4f1f724137787758ff50a5b5750d09d96a48
+Product revision: 0591f905809876d7dc4f41ebf1217ba4c2c31381
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -15269,3 +15269,76 @@ style-forks subdirectory in the modulation owner, no overwriting output.
 
 This is a fixed-H R1/control diagnostic, not a claim about the complete timing
 policy's response. It changes no active fitting code, weights, data or seeds.
+
+### Result Log: completed modulation learning, control and style inspection
+
+Accepted: none; layout-modulation-r1-v1 revision1. Clean fitting source
+24fc4f1f724137787758ff50a5b5750d09d96a48; self-contained result prose is now in
+docs/research/row_condition_interactions.md at
+0591f905809876d7dc4f41ebf1217ba4c2c31381. No runtime default changed.
+
+The 128-update modulated fit completed in1209.382s. Checkpoint SHA256:
+b8aecd3e1f43339d2c1e3aff6d245a41e32a12008ddc20fd47e9eccb99544546.
+All128target and384source identities matched the unmodulated fit. Frozen audio/H
+hash9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed
+was unchanged. Nonzero trajectory gradients occurred on115R,128R1 and128modulation
+updates. Maximum sampled/scored row log-q difference2.713e-5, R6.387e-5.
+Peak sampled footprint9.590GiB, MPSdriver3.503GiB, peakRSS4.621GiB. All processes
+from this study are terminal; no training or qualification handle remains live.
+
+Thirty scoped continuations, twelve style guards, nine LN guards and six native
+charts completed and reparsed. Style U-statistic mean fell.065342to.049535;
+scoped D MAE fell.859223to.731496. LN mean rose.030865to.032476. All predeclared
+numeric gates passed. Preserve those results without redefining the gate:
+native checked relative D regression, not absolute LN control or playability.
+
+Static native requestsD3,rho.2 returned ZenithD3.796/rho.112,
+Hysteric3.818/.148 andTake4.308/.163. Switched [64000,96000) requestsD4.5/rho.6
+returned before/override/restored rho.095/.444/.085 forZenith,
+.190/.623/.167 forHysteric and.161/.605/.180 forTake. Allsix Hsequences equal
+the corresponding unmodulated and continued-source sequences exactly.
+First30publication.240–.542s; maximum8s servicewindow.327s. These start from
+cached canonicalMel andloadedmodel, excludingwaveform/Mel/loading.
+
+review-audit/report.json reconstructs bounded LNfeedback from committedrows.
+Zenithstatic is atuppercap before46.2%ofHchoices; restoredswitch60.4%.
+This identifies limited correctiveauthority, notthecauseoflearnedLNunderproduction
+or evidence thatraisingthecap preservesarticulation. No cap changewas made.
+
+FocusedLens review viewed7of39guardpages and11of18additionalstyle/nativepages.
+qualitative-review.json lists eachviewedpage. TechretainsirregularHbutmuchofone
+pagehasregularcomplementarypairs;streamhasmovingsingles/chordaccents;
+jackviewhasoverlappingchordgroupsandoccasionalLNs;Starryhasmoresustainedholdroles;
+Shippai stillhasstaggeredindependentreleases. MiraieLNmedians157/107/106ms
+regressfromunmodulated183/183/183ms. No generated humanlabelorplaytestwasclaimed.
+
+The common-prefix style diagnostic froze3336rows, prefixSHA256
+c96dffa5e41f5045dfa973c10721c5000b24ff9cfc80d598c5c3c89f9811a75e,
+noenteringLN, andcompleted12forks withpreservedprefix/H. In modulatedseed261621,
+trillprominentraisedexactgrouprepetitions<100ms from7to13versusabsent. Fullsequence
+andLensshow3–5same-groupattackrunsfollowedbygroupchanges, notsustainedABexchange.
+Unknownotherstylesremainunknown;repetitionisnotautomaticallyunplayable.
+Aftertheoverride,trillbecomesunspecified, notabsent. FixedHdoesnotfreezeR's
+controlresponse, sothisisanR/R1diagnostic. Stylefidelityremainsunresolved.
+
+Read-onlycoverageandnatural-forkinspections:ofthe128frozenmatchedarrangementpairs,
+56havetap-onlytargetscopeswithnoenteringLN,19arewhollytapinbothcharts. Tenhave
+identicalprefixatscopestart,butalltenareempty. Noneprovidesanonemptysharedsource
+prefixattheselectedscope. Fourpairsshareatleast30initialrowsbutdivergelater.
+Theseareslicecounts,notcorpus-wideclaims.
+
+Inthe251-cellhumanpool,filteringlocalD2–6leavesprominentTech0/3/0/0,
+trill2/3/2/0,stream3/7/4/3,jack1/5/2/1andLNcoordination2/1/2/0acrossfourD bins.
+Fiveactortrilltargetscontainmixedfigureswithlocalizedexchangeepisodes.
+Foundationf-15fa68913bdb2bf3andactualsourcecontextsremainsemanticreference;
+humanlabelconfirmationdoesnotapproveinheritedmachinenoteselectionaslocalization.
+No humanannotationwasmodified. Missingstylelabelsarenotabsence.
+
+Evaluation: REFINE. Conditionalcapacityremovesarealmain-headlimitationandimproves
+thisboundedcomparison; pooleddistanceandregressiongatesdonotestablishplayability.
+The strongestremainingalternativeisthatsparseandrange-levelstylelearningfails
+toidentifytherelevantrelations,evenwithadequateconditionalcapacity. Rebalancing
+existingcellsalonecannotfillmissingdifficulty/stylecombinations. Next direction
+shouldcompareexplicitscope-levelstyleconditiondiscriminationagainstidentical
+balancedsourceexposure,then testactualcontrolledcontinuationsfromsharedprefixes.
+No adoption,Note lifecycletransition orremotepushis implied.
