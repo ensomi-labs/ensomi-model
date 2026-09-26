@@ -14894,3 +14894,42 @@ short-block distribution matching misses longer musical relations; controls can
 make a source comparison imperfect. Continued-source pairing isolates the extra
 objective, not each representation design choice. A failed fit motivates
 reconsidering the signal/gradient or actor access, not automatic parameter scaling.
+
+### Result Log: physical-trajectory integration and main launch
+
+Accepted: none; physical-trajectory-actor-v1 revision1. Clean source remains
+3cf169cda06c09b3487f12f6dcdacf81b4fc74da. Both four-update integrations completed;
+the twelve positive source identities and four target identities matched exactly.
+Continued took7.357s; kernel36.787s, with12independent generated continuations.
+All four kernel updates reached both R and R1 with finite nonzero gradients.
+R1 kernel gradient norms ranged19.859–951.940 before the common clip at1;
+R norms .443–82.034. The large variation is recorded, not a convergence claim.
+No loss scaling or optimizer setting was changed after this observation.
+
+Sampling/scoring maximum discrepancies were1.7204e-5 for complete-row log q and
+5.2962e-5 for total R log likelihood, below the fixed bounds. This checks the
+actual CPU sampled trajectories against differentiable MPS scoring, including
+release survival and conditioned deadlines. Frozen audio/H hash stayed
+9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed.
+Peak sampled footprints were3.220GiB continued and3.704GiB kernel; MPSdriver
+1.735/1.762GiB. Both smoke handles54721and79776areterminal.
+
+Smoke checkpoints, never reused as initial weights:
+continued24ec31dfbe57aea24db1b8fd94481ad1e0acf1016622fafcebbdc5d05f886d91;
+kernel6b353142cc4693a8d63d9278256f7a10fd716689bcf1b551d89e96d79bced72a.
+
+The main128update runs start independently from aligned-1200 with the frozen
+Card settings. Kernel usesTRAJ_SECONDS=5400; continued uses900. Their main run
+directories arekernel-128andcontinued-128 in the same artifact owner. They may
+overlap with one CPU thread each. Do not edit the actor driver or kernel helper
+while fitting is live. Qualification/harness authoring can proceed independently.
+
+Frozen actor evidence SHA-256:
+
+- train_actor.py: aa7ceb32d3d5b743947cfa9caa8222921a9107a078576b5d9d89a28c183d1d8b.
+- actor-panel.json: ed49a8b9e590291b1fd73a42e9d4074291037f1f53c532904a97458bd34261fb.
+- prepare_actor.py: 28ec51f5b659b55b54f1b559a1c2d8dea13f761d2fe422ff75546ca0fd29ca65.
+- probe.py: 4766e768cae518d30861575cbc1e83d21910df28f5bf4f1d004928b9fa67a02f.
+- probe.json: b06138e3e8f701e55ce0deeeb9911e15c4a5cfc72248f916cfb6dec42604ba89.
+- probe_v2.py: 91e8501f25fb4feae92f54204efd07c7c74a1b18e142ef3a88b81e643097033d.
+- probe-v2.json: ae70c8eedd5bd7c9a864a6b9fb224df53cd901b101b111472ab0eaf83612128d.
