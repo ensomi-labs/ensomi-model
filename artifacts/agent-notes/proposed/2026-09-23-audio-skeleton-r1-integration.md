@@ -14812,7 +14812,7 @@ The aligned endpoint is only this experiment's initialization.
 
 ### Experiment Card: physical-trajectory-actor-v1
 
-Revision: 1. Accepted: none. This is the active learning Card; the representation
+Revision: 2. Accepted: none. This is the active learning Card; the representation
 probe has terminal results. Standing local authority covers both implementation
 and execution, without changing the Note's proposed status.
 
@@ -14933,3 +14933,21 @@ Frozen actor evidence SHA-256:
 - probe.json: b06138e3e8f701e55ce0deeeb9911e15c4a5cfc72248f916cfb6dec42604ba89.
 - probe_v2.py: 91e8501f25fb4feae92f54204efd07c7c74a1b18e142ef3a88b81e643097033d.
 - probe-v2.json: ae70c8eedd5bd7c9a864a6b9fb224df53cd901b101b111472ab0eaf83612128d.
+
+### Qualification details and continued-arm completion
+
+Card physical-trajectory-actor-v1 revision2 fixes previously unspecified LN-guard
+seeds to261550+10*case_index+draw_index, ordered Miraie, Starry Jet, Shippaisaku.
+Qualification outputs are separate qualification-continued and qualification-kernel
+directories; each contains30scoped,12style and9LNcharts. Existing style seeds are
+261430+10*guard_index+i fori0/1/2; native seeds and settings remain unchanged.
+This revision changes no active fitting input, objective, driver or resource bound.
+No acceptance is implied.
+
+Continued-128 completed128updates in151.824s; checkpointSHA256
+97a16453bf489c1a4e656a9ebd676028af896b42add5242f45b08dadeba70b8a.
+Frozen audio/H unchanged. Sampled footprint5.157GiB andMPSdriver2.134GiB.
+Its fitting handle74945isclosed. Kernel fitting handle10220was last confirmed
+live through16updates/173.119s, with footprint6.060GiB,driver2.999GiB.
+The kernel run must be polled, not restarted. The continued-arm qualification
+has been launched independently; it does not alter either model's fit.
