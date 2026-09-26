@@ -193,10 +193,12 @@ preserves its timing responsibility and R1's spatial/count responsibility.
 Recovery state and open holds persist across control boundaries; no fictitious
 release or edit to committed rows is permitted.
 
-The reference state is implemented and tested. Fitted response curves, learned
-coordination responses, time-horizon proposal selection and H activity planning
-remain to be connected and evaluated. The long-jack and breathing failures are
-not declared resolved by this implementation or by the two improved lineage cases.
+The reference state is implemented and tested. A subsequent
+[bounded planning study](sustained_response_planning.md) connects a corpus-fitted
+sustained-attack reference to real-time continuation selection and reduces the
+reproduced concentration. Learned coordination responses, broader style quality
+and H activity planning remain unresolved. The reference state alone and the two
+improved lineage cases do not establish a complete playability repair.
 
 ## Evidence identity
 
