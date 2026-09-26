@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: 7ea3b956ebccdc4d4238bc52e5cb89762402f054
+Product revision: faf726d30cea3a0ad4f0140b884d3d52dddec4cc
 Scope: Canonical continuation-response semantics; sustained per-column demand, temporal variation, and publication-time playability for the audio/H/R/R1 system
 Related: 2026-09-23-audio-skeleton-r1-integration
 
@@ -392,3 +392,85 @@ valid expressive extremes from BAD arrangements. The selector is a bounded
 sustained-load preference, not a corpus-derived proof that cost-positive means
 unplayable. Follow-up R1 style learning must address short repeated-group bias
 without lowering this load threshold to force a Stream label.
+
+### Result Log: completed sustained-response planning qualification
+
+Accepted: none; sustained-response-planning-v1 revision 2. Clean implementation
+24e786b4b8ef8c4752835371bd9fd415c5ed0891; report and source link update in
+faf726d30cea3a0ad4f0140b884d3d52dddec4cc. All processes are terminal: smokes53417,
+remaining9789, guards48921, calibration25265 and render87832. No training process
+or selected-policy rollout remains active. Driver, calibration and reference
+metric hashes match each phase's recorded config after completion.
+
+All 19 new complete-song exports succeed, comprising fourteen planned and five
+new matched native guards. Native qualification from first smoke config through
+final guard output consumes 642.529 seconds of wall time; summed generation work
+is 416.401 seconds. Local output, including before/after audio playtest packages,
+is 28,442,897 bytes. No model parameters are added or trained. Six focused tests
+remain passing and unchanged; the final report's local links and diff checks pass.
+
+Across nine Stream cases, mean integrated excess falls .027516427 to .000424514,
+a 98.4572 percent reduction. All H times match; Take draws0/1 are exactly identical
+in every row. Maximum four-second column rates after selection are
+6.25/6/6, 5.25/6/6, 5.5/5.5/5.75 Hz in case/draw order. Whole-star MAE stays
+nearly unchanged, .478926 to .483918, so this does not establish difficulty control.
+Head counts are not uniformly reduced; Hysteric draw2 increases 3343 to3736.
+The 170ms chain diagnostic improves in most cases but Zenithfall0 grows1173 to1252ms.
+Do not hide that variation behind the lower aggregate cost. Primary sustained-
+load progress and the two original hotspot improvements hold; semantic Stream
+quality remains unqualified.
+
+The five new controls use native seeds272300 through272304. Jack excess falls
+.00006867 to zero with two replacements; both whole ratings remain about5.10 for
+request4. Tech falls1.644136 to.162401, but79 of179 selected horizons remain cost-
+positive; whole rating5.5805 to5.4494. Trill falls1.461985 to.530589 with63 positive
+horizons; rating5.6882 to5.5941. Both show limited proposal coverage under the
+fixed four-candidate budget, which is not enlarged. LN coordination/rho.6 yields
+exactly unchanged complete rows, rating4.8027 and fraction.7634; this preserves
+an existing LN-amount error rather than qualifying it. Trill's unspecified LN
+fraction moves.0104 to.0529; attack-only improvement cannot establish held demand.
+
+The actual mid-publication control update occurs at coverage63999. Requests are
+D3/rho.2 before64000, D4.5/rho.6 on[64000,96000), then restored D3/rho.2. Prefixes
+are preserved. Before-range outcomes are identical D2.226845/rho.299242;
+override outcomes identical D3.901016/rho.583587. Restored outcomes improve from
+D4.421816/rho.206358 toD4.205740/rho.199223, but difficulty remains too high.
+No pooling of those distinct ranges. All guard H streams match.
+
+Across fourteen planned runs, first thirty published rows take .327-.641 seconds,
+and worst two-second publication service is1.097385 seconds. The heaviest whole
+run takes82.900 seconds for357.796 seconds of audio. One CPU thread, loaded model
+and cached canonical Mel; includes model audio encoding and private forecasts,
+excludes waveform/Mel preprocessing and model load. Brief rendering/analysis
+activity occurred, so this is not an isolated system-load benchmark. The declared
+panel latency bounds hold; no universal realtime guarantee is inferred.
+
+Additional Lens review reads all three strongest-context pages for remaining
+Zenithfall0/2, page1 for remaining Hysteric0/1 and Take2; both Jack native/planned
+pages0/1; Tech native/planned page1; all Trill native/planned pages0/1/2. Exact
+coverage and limitations are in qualification-lens-review.json. The remaining
+Zenithfall contexts show broad movement and chord accents. Hysteric retains
+repeated columns/subsets. Take contains simultaneous holding and moving roles,
+which the current scalar does not evaluate. The matched Jack crop retains
+changing chord/single groups. The Tech body stays very dense. The original
+Trill crop's inner exchange followed by a long repeated column becomes broader
+movement after planning. This removes overload but does not establish preservation
+of requested exchange organization. Unlisted rendered pages remain unreviewed;
+no new human labels, listening, or human playtest are claimed.
+
+Playable before/after comparisons are packaged as zenithfall-before-after.osz
+and hysteric-before-after.osz under the owner. Each includes the same local audio,
+original and planned .osu charts, and a limitations note. Only Version metadata
+is changed for import labels; original artifact charts are preserved. They are
+research comparisons, not a newly trained or promoted runtime model.
+
+Decision: REFINE. Retain the explicit state/response and bounded planner as useful
+research components. Default sampler and selected runtime remain unchanged. The
+next learning intervention must let R1 use the time-based load information while
+preserving actual annotated organization; generated requested-style fields must
+not be relabeled as observed style. The current body still overproduces repeated
+groups, and the outcome-trained policy has important difficulty/style errors.
+Do not substitute tighter rate cutoffs or an expanding search budget for fixing
+those proposal-learning problems. H musical activity and recovery intervals remain
+an independent unresolved part of the complete system. No new fitting Card or
+run is selected by this Result Log.

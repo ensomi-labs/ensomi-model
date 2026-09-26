@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-27
-Product revision: 7ea3b956ebccdc4d4238bc52e5cb89762402f054
+Product revision: faf726d30cea3a0ad4f0140b884d3d52dddec4cc
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff; 2026-09-27-player-response-frontier
 
@@ -16293,3 +16293,26 @@ failed proxy gates do not erase that evidence. New committed-history response
 observations and the self-contained analysis are in product
 7ea3b956ebccdc4d4238bc52e5cb89762402f054. This adds a reference state, not a
 runtime repair. All Notes remain proposed, and the overall goal remains active.
+
+### Result Log: explicit sustained-response planning
+
+Note2026-09-27-player-response-frontier owns the completed follow-up. Product
+24e786b4b8ef8c4752835371bd9fd415c5ed0891 adds corpus-reference continuation costs
+and a four-second forecast/two-second publication planner, using at most four
+private R/R1 candidates with unchanged H. Report
+faf726d30cea3a0ad4f0140b884d3d52dddec4cc records19 new complete-song exports.
+Nine Stream cases reduce integrated sustained excess98.46 percent and break the
+two original extreme single-column episodes; first thirty rows are below.65s and
+all measured publication service below1.10s. Two zero-cost Take cases and the LN
+control case remain exactly identical. Six focused tests pass. All processes
+are terminal; no model parameters were fitted and no runtime was promoted.
+
+This is real sustained-load progress, not complete playability: whole-star MAE
+is nearly unchanged, short repeated-group bias remains, Tech/Trill still often
+exceed the reference, and LN amount/style and H breathing remain unresolved.
+Matched Lens inspection does not qualify semantic style preservation. Next work
+must improve the state-conditioned R1 proposal/learning objective with genuine
+style evidence, keeping the bounded scheduler and H ownership distinct. The
+source corpus's valid high-load exceptions preclude a universal hard percentile
+mask. The full goal remains active; the leaf Note retains all current evidence,
+source/checkpoint identities, limits and playable before/after packages.
