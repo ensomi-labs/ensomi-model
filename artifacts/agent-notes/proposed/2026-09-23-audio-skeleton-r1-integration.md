@@ -15346,7 +15346,7 @@ Note lifecycle transition or remote publication is implied.
 
 ### Experiment Card: scoped-style-discrimination-r1-v1
 
-Revision: 1. Accepted: none. This is the active Card; layout-modulation-r1-v1
+Revision: 2. Accepted: none. This is the active Card; layout-modulation-r1-v1
 is completed with the preceding exploratory Result Log. Standing user authority
 covers local implementation and fitting. The owning Note stays proposed.
 
@@ -15411,12 +15411,19 @@ source support. Source-only is a real matched fit, not an inferred comparator.
 Record source identities, score shifts and gradient/memory statistics. Source
 ranking is diagnostic only; it cannot select the endpoint.
 
-Qualification uses the unchanged thirty difficulty, twelve style and nine LN
-guard outputs per endpoint. Primary progress gate: mean reserved style kernel
-distance must improve by at least .005 and 10% versus the matched source-only
-arm, without exceeding the initial .049535. D MAE may regress by at most .10
-versus each comparator; per-case/request LN error by .03, restored D error by
-.25. As an independent semantic check, reuse the frozen neutral generated trill
+Qualification retains the unchanged thirty difficulty, twelve historical style
+and nine LN guard outputs per endpoint. Revision 2 additionally generates the
+four style scopes under their factual local D and local LN-head fraction, with
+both fields overridden on exactly the measured scope. All other conditions and
+the existing three seeds per scope stay fixed. Evaluate the initial, source-only
+and aligned checkpoints under this identical corrected schedule. Primary progress
+gate: this matched-condition mean style kernel distance must improve by at least
+.005 and 10% versus source-only, without exceeding the initial checkpoint under
+the same corrected schedule. The historical .049535 is not that baseline;
+the matched-condition baseline is pending measurement. D MAE in the unchanged
+thirty continuations may regress by at most .10 versus each comparator;
+per-case/request LN error by .03, restored D error by .25. As an independent
+semantic check, reuse the frozen neutral generated trill
 prefix and absent/prominent requests with seeds 261620/261621/261622, inspect
 complete actions and Lens context. A stronger repeated-group concentration
 without a recognizable exchange is a failure of this semantic objective even if
@@ -15468,3 +15475,29 @@ Peak footprints were 3.001/3.076 GiB, driver allocations 1.659/1.729 GiB.
 Smoke weights are discarded. Preparation handle 7606 and smoke handles 88783,
 27294 are terminal. Begin the two declared 400-update fits serially from the
 original modulated checkpoint, without changing their frozen code or inputs.
+
+### Evaluation amendment: factual controls for style-reference comparisons
+
+Card revision 2 changes only evaluation, not the two fitting arms, draws, losses,
+seeds or budgets. Code inspection identified a condition mismatch in the inherited
+style guard: generation requests whole-chart D/LN, while the kernel compares a
+local source segment. For Tech, the request is D5.803 but the source-local readout
+is D3.414. Local source LN fraction .0118 also differs from global .2691. A model
+can respond to the supplied condition and move farther from that reference.
+
+The historic outputs are retained as system observations. The primary style
+comparison now adds explicit factual local D and LN overrides for the exact
+reference scope. This change was specified before either endpoint's aggregate
+style comparison or the aligned endpoint existed; partial source-only generation
+was already running. Report the amendment as exploratory, not a preregistered
+unchanged comparison. No positive adoption claim follows from either metric.
+The existing common-prefix trill diagnostic already uses local D but retains
+global LN; keep it unchanged to isolate the requested style field.
+
+The source-only fit completed in 254.835 seconds with checkpoint SHA-256
+95a55c34b26214c06f6b8ec9c9f6cde29144d854b1214c80296af58efb084c07.
+Its frozen hash is unchanged. Source qualification on CPU overlaps the aligned
+MPS fit; neither elapsed-time comparison is a latency benchmark. Aligned fitting
+code and data remain exactly frozen. Additional matched-style outputs use fresh
+`matched-style/{initial,source,aligned}` directories and unchanged guard seeds;
+they do not overwrite historical qualification.
