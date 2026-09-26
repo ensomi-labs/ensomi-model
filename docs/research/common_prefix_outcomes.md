@@ -6,6 +6,11 @@ produced useful full-audio LN-amount changes despite worse results on some
 reserved controls. The checkpoint remains a research candidate; it does not
 replace the selected runtime model.
 
+A subsequent playtest and native reproduction identify a serious sustained-jack
+failure under four-star Stream control. The
+[time-horizon response investigation](time_horizon_player_responses.md) separates
+that failure from scalar calibration and defines the required player-state work.
+
 This study follows [difficulty-stratified style learning](scoped_style_discrimination.md).
 Balancing genuine examples supplies coverage, but their histories already contain
 the arrangement being learned. A generated continuation must respond to a new
@@ -259,6 +264,57 @@ validated repairs. Genuine source imitation, semantic organization, scoped
 control accuracy and physical feasibility must remain distinct evidence.
 Future joint H/R/R1 work should change H when timing is the limitation; this
 experiment demonstrates cases with unused R1 action space on fixed H.
+
+## Continuing outcome learning did not repair control
+
+Two additional 128-update fits start from the outcome checkpoint above, reusing
+the same 47 fitting/eight reserved prefixes. Both receive identical 384 factual
+source draws and generate 768 outcome candidates. One continues independent
+per-request costs. The other adds squared error of the expected high-minus-low
+difficulty gap and a trajectory KL penalty relative to the starting policy,
+weighted .1 per scope second inside the outcome multiplier ten. Audio/H/R remain
+frozen and no inference parameters are added. The
+[credit implementation](../../src/ensomi_model/research/controlled_audio_continuation/outcome_learning.py)
+uses independent other-draw estimates for the mean gap and causal KL cost-to-go;
+six finite-policy tests verify its gradients, including coupled low/high draws.
+
+| Reserved measure | Starting outcome model | Continued independent costs | Added paired response + KL |
+| --- | ---: | ---: | ---: |
+| Difficulty MAE | .38894 | .55270 | .53281 |
+| Gap MAE | .68529 | .57377 | .76815 |
+| Positive gaps | 23/24 | 23/24 | 22/24 |
+
+The added intervention misses the declared gap improvement and worsens absolute
+error versus initialization. It also misses a restored-difficulty allowance.
+Secondary difficulty MAE is .67563/.73333/.66378 in the same order. The locally
+matched physical style distance is .06584/.05084/.10699; this is still a geometric
+diagnostic, not a semantic verdict. This combined intervention does not isolate
+the two added terms as causes.
+
+Both endpoints complete six native static/switch cases after training ends,
+with H identical across checkpoints. Static difficulty MAE is .84666/.99942/.66451;
+harder-override MAE is .57158/.09669/.52161; restored-range MAE is
+.64095/.97901/.45484. Better performance in one range does not erase another
+range's error. The paired endpoint also reduces sustained concentration in two
+later Stream reproductions, as documented in the player-response investigation.
+That benefit is retained despite the failed primary calibration comparison.
+
+Fits take 1,884 and 2,056 seconds, partly overlapping after measured memory
+headroom; these are not isolated throughput measurements. Peak footprints are
+5.54/5.55 GiB. There are three/one training candidates with any scoped LN and no
+future-tail horizon beyond the requested scope. All 210 new qualification/native
+exports complete. Planned broad Lens review of these endpoints is superseded by
+the reported long-jack/breathing investigation; only eight independent-arm paired
+pages were inspected before that change. No full qualitative pass or adoption is
+claimed.
+
+Continuation source: `ba406ef827807e3a7045623dff0afa4e6084873b`.
+Owner: `20260927-paired-response-r1-v1`.
+Independent checkpoint: `5093225427a0abb18b89d15f0d07a2544192981cb6fca8ed193f5cfdceb46186`.
+Paired checkpoint: `66216f4745837a185ce8b935ead0724f7ce4aa142150bad6b6b1e0fd67920805`.
+The selected runtime model is unchanged.
+
+## Scope of the frozen audio representation
 
 The frozen Mel encoder was not trained only on the small diagnostic panels: its
 ranked-training ancestor updated all parameters with a pool of 6,923 charts on
