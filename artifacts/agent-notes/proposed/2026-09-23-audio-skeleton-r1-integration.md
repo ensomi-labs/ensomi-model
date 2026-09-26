@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: b2a53511b876484e14e5b657635e0d0cb9487d6f
+Product revision: 6520ba16426492143f58867c76c27bf0c8805bed
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -14447,11 +14447,11 @@ uv run --extra mps python
 artifacts/joint-audio/20260926-balanced-condition-r1-v1/train.py.
 Both start independently from core2500. The aligned run was launched after the
 balanced run passed384updates (253.425s, footprint5.581GiB, driver2.006GiB);
-main fits now overlap on the Mac, each with one CPU thread and its own MPS model.
+main fits overlapped on the Mac, each with one CPU thread and its own MPS model.
 This changes wall-time scheduling, not exposure, weights or random draws.
-Live handles at launch are82535(balanced) and2666(aligned); consult their actual
-status before any continuation or restart. No trainer, objective or source edit
-is allowed while either fit is live. No checkpoint has yet qualified.
+Handles at launch were82535(balanced) and2666(aligned). Both subsequently completed;
+the terminal evaluation below owns their outcome. No trainer, objective or source
+edit occurred during either fit. Neither endpoint qualified.
 
 Artifact identities within20260926-balanced-condition-r1-v1:
 
@@ -14464,3 +14464,228 @@ Artifact identities within20260926-balanced-condition-r1-v1:
 - references.json: SHA256 db6f5848b4fd8b2645c13df1fb6176feab173c1de7b6499628e7816311875cd8.
 - draws.json: SHA256 6f28c72d45e52b2fc9bfac4add1e7391447a678b8d95874ea8e5aa973a68afa9.
 - replay-probe.json: SHA256 d3d4a78e4c3d97ccdc866a3dc2d17f24660184b696dcf1054d0ca27ef9896683.
+
+### Result Log: balanced-condition terminal fitting and qualification
+
+Accepted: none; Card balanced-condition-r1-v1 revision 2. Execution remains
+exploratory under standing authority. Executable source stayed clean at
+b2a53511b876484e14e5b657635e0d0cb9487d6f. Product commit
+6520ba16426492143f58867c76c27bf0c8805bed subsequently records the findings in
+`docs/research/balanced_condition_alignment.md` and links that owner from
+`control_condition_learning.md`. No model default changed; nothing was pushed.
+
+Both 1,200-update fits completed normally. Each consumed 2,400 positive examples
+across 703 unique charts: 1,200 pair, 600 population and 600 human. All 1,200
+records were compared for identical step, kind and source_ids, not merely
+matching totals. Frozen audio/H hash remained
+9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed.
+Aligned logged 40 sampled finite, nonzero condition-path gradient checks. Each
+full-audio cache had 654 hits and 1,746 misses. Smoke weights were not reused.
+
+| Terminal fit | Seconds | Sampled footprint GiB | Peak RSS GiB | MPS active GiB | MPS driver GiB |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| balanced-1200 | 819.018 | 6.790 | 3.270 | .390 | 2.205 |
+| aligned-1200 | 906.022 | 7.904 | 3.246 | .427 | 3.325 |
+
+These memory ledgers overlap. The fits overlapped after balanced update 384;
+wall times are not isolated-device throughput comparisons. Neither exceeded
+1,800 seconds or 18 GiB. Preparation lifecycle durations including failed
+attempts totaled 620.745 seconds, below the revised 900-second bound.
+Checkpoint SHA-256 values:
+
+- Balanced: d3b4820842f65f581b54b1e49bdab957821bc1877f00155beda7b900c85221ea.
+- Aligned: 67ef81fbb9fb2ecfc5ca19d8fc6767040b846e1ba8c41d4b8d61067abc08ee26.
+
+Sixty fixed-H continuations, sixteen source-H style guards and twelve native
+charts completed and reparsed. Each trained endpoint rebuilt caches from the
+unchanged physical prefix. Fixed H and committed rows were preserved. No fit
+edits occurred. Qualification's exporter only linked audio when a file existed,
+avoiding masking an incomplete-export error. A plot color-key error was fixed
+before rendering; it did not change numeric inputs.
+
+The reserved twelve-pair neural audit improved from core 14/24 correct to
+balanced 17/24 and aligned 20/24. Balanced low/high correctness was 12/12 and
+5/12; aligned was 10/12 and 10/12. This remains factual-history row-factor
+ranking, not generated quality.
+
+Generated mean scoped difficulty absolute error was .784339 balanced versus
+.716383 aligned: improvement .067956, below the required .20. Mean high-minus-low
+rose from .194023 to .313251, below the required .40. Low-request MAE fell from
+1.092197 to .873097; high-request MAE rose from .476481 to .559670, within its .15
+regression guard. LN error and time guards passed. Starry Jet/low restored-range
+error rose from .120555 to .383310: regression .262755 exceeds .25 by .012755.
+That small excess is not the primary failure; both primary criteria already fail.
+
+| Case | Low/high request | Aligned mean low/high result |
+| --- | --- | --- |
+| Singles | 2.190 / 3.690 | 3.575 / 4.196 |
+| Chords | 2.000 / 3.500 | 2.253 / 2.576 |
+| Holds | 2.019 / 3.519 | 2.800 / 3.132 |
+| Starry Jet | 2.360 / 3.860 | 2.937 / 3.072 |
+| Shippaisaku | 2.563 / 4.063 | 3.932 / 4.088 |
+
+The comparison uses five cases and three seeds, without a population significance
+or fixed-H impossibility claim. More chord width at high difficulty is visible,
+but the response is too weak. Neither checkpoint qualifies for adoption.
+
+Native runs followed the Card: Zenithfall, Hysteric and Take; D3/rho .2 defaults;
+runtime D4.5/rho .6 override on [64000,96000), then restoration. The update followed
+publication through 63999 ms. H times matched exactly between arms for all six
+settings. Static and switch modes used different seeds, so their difference is
+not a paired causal estimate of switching controls. Aligned static whole-chart
+levels 3.895/3.696/4.205 still exceed 3; balanced levels were 3.985/3.717/4.584.
+
+| Aligned native case | D before / override / restored | LN fraction before / override / restored |
+| --- | --- | --- |
+| Zenithfall | 3.024 / 3.650 / 3.690 | .199 / .631 / .185 |
+| Hysteric | 3.206 / 4.406 / 3.543 | .198 / .713 / .166 |
+| Take | 4.009 / 4.178 / 4.184 | .185 / .774 / .222 |
+
+Reconstructed LN feedback starts at zero per effective episode and applies
+clip(offset + (rho * heads - LN_heads) / 8, -2, 2). Its lower cap was active before
+26.47% of Hysteric and 44.34% of Take override H rows in the aligned arm, versus
+14.71% and 37.26% balanced. This supports limited controller authority, not a
+unique causal attribution. Do not blindly raise its cap. Fitting used global LN
+and local difficulty while native testing used local LN and global difficulty;
+condition-clock mismatch is a live, untested alternative.
+
+With cached Mel and the model already loaded, first 30 rows took .197–.388 s;
+the maximum eight-second publication window took .346072 s; full songs took
+3.16–7.46 s. Waveform decoding, Mel extraction and loading are excluded. This
+leaves short-rollout headroom, not a cold-start or worst-case scheduler claim.
+
+### Result Log: Lens and R1 history-path diagnosis
+
+The artifact owner contains 41 qualification contexts/100 pages, 26 additional
+contexts/76 pages and eight source-style contexts/24 pages. Focused review viewed
+37 actual pages, listed in `lens-review.json`, and read the relevant complete
+action tables. It does not claim every rendered page was inspected. No generated
+chart inherited a human assessment or received a human-playtest claim.
+
+Source guard labels were confirmed on the human layer. Available metadata
+supplies labels, confidence and provenance, not an original written rationale.
+Jack outputs retain recurring chords. The aligned stream contains several
+75 ms chord-to-member returns. Aligned Tech preserves irregular supplied H while
+adding chord layers and some short LNs. Guards use true global difficulty: for
+example, Tech's whole value is 5.803 versus local source 3.414. Greater density
+alone is therefore not a local-target failure. Trill's only known field is
+prominent trill; other concepts are unknown, not absent.
+
+LN review facts count heads within the stated ranges and use full endpoints.
+Each tuple below is (LN count, median duration ms, LNs spanning interior H,
+tails on H):
+
+- Miraie 162686–166686 ms: source (28,183,7,28); aligned low (41,93,3,4),
+  high (54,91.5,8,1).
+- Starry Jet 196574–206575 ms: source (38,209,15,35); aligned low (41,114,6,12),
+  high (40,122.5,6,13).
+- Shippaisaku 84687–95276 ms: source (111,111,30,100); aligned low (125,111,46,50),
+  high (137,111,48,39).
+
+Starry Jet loses the sustained-lane role under moving shorter actions;
+Shippaisaku's matching median hides less coordinated tails and more overlap.
+These are passage comparisons, not universal at-H release constraints. R1 can
+cause capacity-driven release, but free-lane short tails also occur. Neither
+module alone is exonerated.
+
+The trill source alternates two groups at 78–79 ms in 288156–290040 ms, giving
+approximately 157 ms finger returns. Aligned seed 0 forms those groups but
+repeats the preceding group eight times, including four consecutive repetitions
+of one group. On genuine history, complement beats repeat at all 23 queries.
+On generated history, six of eight observed repeats have higher repeat than
+complement probability. Temperature alone cannot generally repair these choices.
+
+Exact two-TAP alternatives cancel count normalization and LN amount feedback.
+At 288705 ms, both prefixes' last three rows match and neither has active holds.
+Repeat-minus-alternate neural log-odds are -3.904868 on source history and
++2.595929 on generated history. Main joint-row contributions are -4.256688 and
++2.510262; routing +.303232 and +.061507; frontier2 +.048589 and +.024161;
+release residual zero. Recovery subtracts .937872 from both. Across the six
+repeats preferred by the deployed policy, the joint-row contribution is +1.771
+to +3.875, versus frontier2 +.019 to +.090. This locates a placement preference
+in R1's main row path, not H cardinality or frontier residual dominance.
+
+Audio, controls, preview, legality and occupancy are equal at that query. Replacing
+only generated TCN history with the source activation changes log-odds to
+-4.048290; replacing only exact replay features leaves +2.592061. The reverse
+history substitution changes source -3.904868 to +2.615622; exact-only substitution
+gives -4.027378. These are activation diagnostics, not constructed physical
+trajectories or permissible next-row teachers. They identify the immediate
+prediction path, not the share of every long-form failure attributable to R1.
+They do not justify removing longer history. No fit was run for these probes.
+
+Canonical pi0 excludes physiological fatigue and individual capacity. Existing
+frontier2 is a learned NLL energy, not calibrated canonical C0; it passively
+advances clocks rather than unrolling future actions. Preserve its conceptual
+ownership. An adversarial critic or scalar star readout is not canonical C0.
+
+Evaluation: REFINE. Matched positive exposure and difficulty alignment are
+insufficient for generation quality in this panel. Keep core2500 selected. Do
+not scale alignment-only training from the 20/24 ranking gain. Active-LN audio
+cues remain a separate promising option for release organization; this different
+fit does not discard their earlier evidence.
+
+Terminal evidence identities in `20260926-balanced-condition-r1-v1`:
+
+- qualify.py: 5710a4863b5bf4c356435a56a3dccff9fcc38031789fc5a9070e9f3d6dbc71e4.
+- audit.py: f9cb99192c3f757221a9e4c9ce620abde6726cfbfb9db5b1df97de1b9beffdbb.
+- native.py: 34855f0b5f5618956d2d61ceece4f37afdcb6d35f56e58b8ac8694dba31f8b87.
+- comparison.json: 81820771e483ab2358488865226835499607414734cc9175caf4df277fd4d30f.
+- native-comparison.json: d3382b72d8b861ccc5a63d8e36b0a6dc241121fe1619d487caae4b20336e7422.
+- lens-review.json: 44f2c067dd35c46d5a2c31bc405dcee253fd6e6a85de167f7bd20cb21b5f24fc.
+- lens-metrics.json: 65f02e6ff6a9642c0a7cc646f0bc3f34b1b22bd6642b655133dc3f0f82b0e190.
+- trill_components.py: 59c0cae646f9648128d780d77a29429c07bcf0100a2678e18de694cec0113257.
+- trill_input_paths.py: 0c5ced081d4b9585114194bad3e64f074f4cf729ad6a001cbb92633690c172d6.
+- trill-components.json: fb6197816d193abdf169735e265c580c9d13761caf3334517658cb1fcf9768b2.
+- trill-input-paths.json: f579ddb48a84b210bb3ad8db7d90c32d9666bb0931ffef47a338b6437dc1a220.
+
+All fitting, generation and probe processes are terminal; handles 36412, 59904
+and 49811 are closed. The curated report's relative links, math delimiters and
+Git whitespace were checked. No executable changes after b2 invalidated the two
+previously passing loss tests.
+
+### Explore: learning stable conditional continuations
+
+Question: Can a compact trajectory objective improve actual generated attack,
+hold and release organization without converting a factual source next row into
+a false label for an altered prefix? The selected baseline remains core2500;
+terminal balanced/aligned weights are diagnostic candidates.
+
+Closest analogues checked from primary papers:
+[GAIL](https://arxiv.org/html/1606.03476v1) matches expert/generated state-action
+occupancy without expert queries at every generated state.
+[Professor Forcing](https://arxiv.org/html/1610.09038v1) aligns training and
+free-running dynamics adversarially. These are established families; a finite,
+full-audio, scoped, LN-aware adaptation is not a new general imitation objective.
+
+Branch A: more factual condition learning. It can address remaining conditional
+bias, but better factual audit without better trajectories already occurred.
+Retain balanced positive coverage as an anchor; do not select scale-up from
+ranking accuracy alone.
+
+Branch B: conditional physical-trajectory imitation. Compare actual executed
+short continuations with corpus continuations under the same music, H and known
+controls, replaying each under its own actions. Observe attack relations,
+occupancy and release relationships across short scales, rather than only neural
+hidden states or a whole-star value. Supporting evidence would be improved
+organization on held-out audios under independent Lens inspection and scoped
+control guards. Falsifying evidence includes higher critic confidence while
+charts flatten, lose variety or exchange one bad pattern for another. A critic
+must not rely on source identity, timing quantization, density alone or unknown
+style as absent. It remains a training proxy, not C0.
+
+Branch C: persistent motif/relational planning within R1. This could represent
+group alternation and variation, but one source guard does not justify a
+prescribed motif vocabulary or a new latent planner. It must preserve chordjack,
+trill, Tech and mixtures without moving counts or columns into H. Defer expansion
+until an own-history learning comparison shows what current capacity cannot
+stabilize.
+
+Recommendation: REFINE toward Branch B. Define a small executed-continuation
+comparison and a trustworthy conditional critic/feature class before a new
+training Card. Preserve positive corpus learning, scoped controls, full audio
+and module ownership. R and R1 both participate when optimizing LN articulation;
+H need not read materialization. Source/generated classification accuracy is not
+a playability result. No new Card is accepted and no new fit launched by this
+exploration. Standing local execution authority persists, the Note remains
+proposed, and the overall goal remains active.
