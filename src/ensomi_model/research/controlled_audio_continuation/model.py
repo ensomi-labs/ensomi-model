@@ -17,6 +17,7 @@ from ..typed_audio_continuation.controls import ControlSchedule, PER_FIELD_SCOPE
 from ..typed_audio_continuation.program import Recovery
 from .composition_prior import CompositionPrior
 from .hold_audio import HoldAudioCues
+from ..player_response.conditioning import PlayerCondition
 
 
 class RowComposition(nn.Module):
@@ -72,7 +73,7 @@ class ControlledAudioModel(PlannedAudioModel):
     control_encoding = PER_FIELD_SCOPE
 
     def __init__(self, config, *, style_names=(), ln_reference=.17, recovery=Recovery(60, 50, 50),
-                 count_history_bound=None, hold_audio_width=0, layout_modulation=False):
+                 count_history_bound=None, hold_audio_width=0, layout_modulation=False, player_state=False):
         super().__init__(config)
         self.style_names = tuple(style_names)
         self.ln_reference, self.recovery = ln_reference, recovery
@@ -101,6 +102,9 @@ class ControlledAudioModel(PlannedAudioModel):
                                   if layout_modulation else None)
         if self.layout_modulation is not None:
             nn.init.zeros_(self.layout_modulation.weight)
+        if type(player_state) is not bool:
+            raise ValueError('Player-state conditioning must be boolean')
+        self.player_condition = PlayerCondition(config.hidden) if player_state else None
 
     @property
     def requires_full_audio_queries(self):
@@ -124,7 +128,8 @@ class ControlledAudioModel(PlannedAudioModel):
         return dict(style_names=list(self.style_names), ln_reference=self.ln_reference,
                     recovery=asdict(self.recovery), count_history_bound=self.count_history_bound,
                     hold_audio_width=self.hold_audio_width,
-                    layout_modulation=self.layout_modulation is not None)
+                    layout_modulation=self.layout_modulation is not None,
+                    player_state=self.player_condition is not None)
 
     def head_logits(self, audio, history, clocks, *, control):
         return super().head_logits(audio+self.head_control(control), history, clocks)
@@ -135,10 +140,14 @@ class ControlledAudioModel(PlannedAudioModel):
                                        context_addition=context)
 
     def planned_row_log_probs(self, audio, history, exact, legal, occupancy, preview, local, timing,
-                              *, control, response_allowed=None, ln_shift=0., hold_audio=None):
+                              *, control, response_allowed=None, ln_shift=0., hold_audio=None, player_features=None):
         allowed = legal if response_allowed is None else legal & response_allowed
         preview_value, control_value = self.preview_condition(preview), self.row_control(control)
         base = self.condition(history, exact, audio)+preview_value.unsqueeze(-2)
+        if self.player_condition is not None:
+            if player_features is None:
+                raise ContractError('Player-conditioned R1 requires committed-history observations')
+            base = base+self.player_condition(player_features)
         if self.hold_cues is not None:
             base = base+self.hold_cues.row_values(audio, hold_audio)
         hands = base+control_value.unsqueeze(-2)
@@ -176,6 +185,8 @@ class ControlledAudioModel(PlannedAudioModel):
             # music conditions arrangement through the prior and layout paths.
             consequence_context = (self.condition(history, exact, torch.zeros_like(audio))
                 + self.preview_condition(preview).unsqueeze(-2) + self.row_control(control).unsqueeze(-2))
+            if self.player_condition is not None:
+                consequence_context = consequence_context+self.player_condition(player_features)
         scores = scores+self.row_consequence.score(consequence_context, local, timing)
         return scores.masked_fill(~allowed, -torch.inf).log_softmax(-1)
 

@@ -2,11 +2,11 @@
 import numpy as np
 import torch
 
-from ..bounded_typed_continuation.contract import Arm
 from ..scoped_style_modeling.dataset import ContractError
 from ..typed_audio_continuation.allocation import ln_episodes
 from ..typed_audio_continuation.program import ACTIONS, Resources
 from ..typed_audio_continuation.response_preference import RecoveryPreference
+from ..oracle_time_continuation.replay import ExactReplayState, commit
 from .allocation import LnAmountFeedback, LnAmountState
 
 
@@ -53,22 +53,41 @@ def replay_row_scores(log_probs, example, controls, *, ln_feedback=LnAmountFeedb
     first, stop = np.searchsorted(times, (example.start_ms, example.end_ms))
     if log_probs.shape != (stop-first, 256):
         raise ContractError('Sampling scores must match every row in the requested interval')
+    return replay_trace_scores(log_probs, (source.row(i) for i in range(int(stop))), controls,
+        example.start_ms, example.end_ms, example.chart.duration_ms,
+        ln_feedback=ln_feedback, recovery_preference=recovery_preference)
+
+
+def replay_trace_scores(log_probs, rows, controls, start_ms, end_ms, duration_ms, *,
+                        ln_feedback=LnAmountFeedback(),
+                        recovery_preference=RecoveryPreference(head_pressure=4.)):
+    """Reconstruct native row preferences without requiring terminal LN closure.
+
+    Rows contain the complete actual prefix and continuation through end_ms
+    (exclusive). Only rows in [start_ms,end_ms) are scored. Future releases are
+    unnecessary; a true audio-end row still follows terminal occupancy rules.
+    Return differentiable CPU float64 probabilities with native arithmetic.
+    """
     values = log_probs.cpu().double()
     spans = ln_episodes(controls)
     allocation, recent = LnAmountState(), ()
+    replay = ExactReplayState()
     output = []
-    for i in range(int(stop)):
-        row = source.row(i)
+    for row in rows:
+        if row.time_ms >= end_ms:
+            break
         span = next((s for s in spans if s.start_ms <= row.time_ms < s.end_ms), None)
         allocation = allocation.in_scope(span)
-        if i >= first:
-            scores = values[i-first]
+        if row.time_ms >= start_ms:
+            scores = values[len(output)]
             if recovery_preference is not None:
-                cost = recovery_cost(source.state(Arm.R0, i).replay, recent, row.time_ms,
-                    example.chart.duration_ms, controls, recovery_preference)
+                cost = recovery_cost(replay, recent, row.time_ms, duration_ms, controls, recovery_preference)
                 scores = (scores-torch.from_numpy(cost)).log_softmax(-1)
             output.append(ln_feedback.scores(scores, allocation) if ln_feedback else scores)
         if ln_feedback is not None:
             allocation = ln_feedback.advance(allocation, row.actions.count(1), row.actions.count(2))
         recent = advance_recent_heads(recent, row, recovery_preference)
+        replay = commit(replay, row, is_terminal=row.time_ms == duration_ms)
+    if len(output) != len(values):
+        raise ContractError('Sampling scores must match every row in the trace interval')
     return torch.stack(output) if output else values

@@ -17,6 +17,8 @@ from ..typed_audio_continuation.program import ACTIONS
 from ..typed_audio_continuation.response_preference import RecoveryPreference
 from .allocation import LnAmountFeedback, LnAmountState
 from .sampling import recovery_cost, advance_recent_heads
+from ..player_response.conditioning import features_at
+from ..player_response.state import CommittedPlayState
 
 
 class ControlledSession(ContinuationSession):
@@ -34,6 +36,7 @@ class ControlledSession(ContinuationSession):
         self.ln_feedback, self.recovery_preference = ln_feedback, recovery_preference
         self.ln_scopes = ln_episodes(controls)
         self.recent_heads = ()
+        self.play_state = CommittedPlayState() if model.player_condition is not None else None
         self.row_demand_model, self.row_demand_feedback = row_demand_model, row_demand_feedback
         self.row_demand = DemandBalance()
         started = time.perf_counter()
@@ -51,7 +54,14 @@ class ControlledSession(ContinuationSession):
     def row_options(self, now):
         span = next((s for s in self.ln_scopes if s.start_ms <= now < s.end_ms), None)
         self.allocation = self.allocation.in_scope(span)
-        return {}
+        return ({} if self.play_state is None else
+                dict(player_features=self.tensor(features_at(self.play_state, now)[None])))
+
+    def step(self, **options):
+        update = super().step(**options)
+        if self.play_state is not None:
+            self.play_state = self.play_state.advance(self.cursor)
+        return update
 
     def release_window(self, preview, profile):
         return row_release_window(self.replay, self.cursor, preview, self.duration_ms, profile)
@@ -69,6 +79,8 @@ class ControlledSession(ContinuationSession):
         return self.ln_feedback.scores(log_probs, self.allocation) if self.ln_feedback else log_probs
 
     def record_row(self, row):
+        if self.play_state is not None:
+            self.play_state = self.play_state.observe(row)
         tap, ln = row.actions.count(1), row.actions.count(2)
         if self.ln_feedback is not None:
             self.allocation = self.ln_feedback.advance(self.allocation, tap, ln)

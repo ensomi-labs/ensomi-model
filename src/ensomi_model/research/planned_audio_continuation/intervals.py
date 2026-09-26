@@ -15,6 +15,7 @@ from .features import (
 )
 from .release import conditioned_release_logits
 from .counts import count_state, count_tokens
+from ..player_response.conditioning import features_before_rows
 from .spacing import allowed_rows as spaced_rows, check_head_capacity, release_limits, recovery_values, row_release_window
 
 
@@ -50,6 +51,7 @@ class PlannedInputs:
     response_allowed: torch.Tensor | None = None
     release_hold_starts: torch.Tensor | None = None
     row_hold_starts: torch.Tensor | None = None
+    row_player_features: torch.Tensor | None = None
 
 
 @dataclass(frozen=True)
@@ -203,7 +205,8 @@ def collate_interval(example, config, device='cpu', *, recovery=None):
         tensor(row_preview), tensor(local), tensor(future), tuple(waits), count_raw, count_clock,
         tensor(h_valid), None if response_allowed is None else tensor(response_allowed),
         tensor(ln_start_times([s.open_ln_start_ms for s in replays]), torch.long),
-        tensor(ln_start_times([s.open_ln_start_ms for s in row_states]), torch.long))
+        tensor(ln_start_times([s.open_ln_start_ms for s in row_states]), torch.long),
+        tensor(features_before_rows((source.row(i) for i in range(stop)), row_indices)))
     return PlannedBatch(inputs, tensor(head_event), tensor(release_event), base.targets.row_index.to(device),
                         example.weight_per_second)
 
@@ -271,6 +274,8 @@ def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, 
                           count_clock=inputs.count_clock)
         if model.config.minimum_action_gap_ms:
             counts['response_allowed'] = inputs.response_allowed
+        if getattr(model, 'player_condition', None) is not None:
+            counts['player_features'] = inputs.row_player_features
         rows = model.planned_row_log_probs(audio, _gather(model.temporal, row_history, x.row_history),
             x.row_exact, x.row_legal, x.occupancy, inputs.row_preview,
             inputs.consequence_local, inputs.consequence_timing, **counts, **conditions(x.row_times),
