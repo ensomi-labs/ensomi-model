@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 720c63240c14316af22a4b98adcc6aa10915a107
+Product revision: 24fc4f1f724137787758ff50a5b5750d09d96a48
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -15200,3 +15200,46 @@ algebraic finding; it can indicate insufficient signal, noisy trajectory credit,
 sparse semantic coverage or a poorly placed modulation. Do not silently add an
 LN-origin branch, alter the kernel weight or change trainable scope to salvage
 this comparison. Those would require an explicit subsequent revision/experiment.
+
+### Result Log: layout modulation implementation and integration
+
+Accepted: none; layout-modulation-r1-v1 revision1. Clean intervention source:
+24fc4f1f724137787758ff50a5b5750d09d96a48. The optional matrix is applied only to
+main JointHead inputs. Existing composition, LN reference, routing and frontier
+paths remain unchanged. Five new focused tests plus owning sampling/ownership
+checks passed:14tests in3.17s on CPU/MPS. They establish probability identity at
+zero, strict old/new loading, learnable reflected-candidate conditional odds,
+mirror equivariance, fixed-state H/R independence and native/scored parity.
+They are not chart-quality evidence.
+
+Both four-update integrations completed under unchanged Card settings. Reference
+39.623s, modulated39.754s. All twelve reference candidate row hashes and twelve
+positive source identities match the preceding kernel smoke; kernel objectives
+match exactly. Maximum source-NLL difference is1.12e-6 and maximum shared final
+weight difference3.85e-6, so this is behavioral reproduction rather than bitwise
+parameter equality. The unmodulated model's computational ordering changed in
+factoring shared projections; floating-point accumulation remains a limitation
+of reusing the prior full run. Its first four actual sampled trajectories agree.
+
+The modulated first update begins with the same three candidates as reference.
+All four updates have finite nonzero modulation gradients, as well as R/R1
+trajectory gradients. Modulated maximum row log-q discrepancy1.56e-5; R total
+5.30e-5. Frozen audio/H hash remains
+9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed.
+Footprints peak3.672/3.715GiB and MPSdriver1.760/1.760GiB, respectively.
+Smoke handles26493and68949areterminal; their weights are discarded.
+Reference smoke SHA256:
+16a91982d0217bebc43ee9dfea7d630ef152ada43185fd2c4a7d6b062c8167ff.
+Modulated smoke SHA256:
+b9e36537e5e5eb31df872740777d7c00a87bcf94e0efc59dc1f46b38d9c0ace9.
+
+Launch modulated-128 from the original aligned initialization, with identical
+frozen data and seeds, LAYOUT_STEPS=128 and LAYOUT_SECONDS=5400. Do not modify
+model, helper, objective or driver during fitting. Existing unmodulated and
+continued-source endpoints remain the declared comparators; no new default is
+selected. Qualification authoring may proceed without changing fitting inputs.
+
+Frozen modulation input identities:
+
+- train.py: 5c719eefd7713c7ee237962950f30fa75145bd408bd6140fe4a4773185b79b3f.
+- actor-panel.json: ed49a8b9e590291b1fd73a42e9d4074291037f1f53c532904a97458bd34261fb.
