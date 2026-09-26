@@ -15752,3 +15752,26 @@ sequence outcomes. Here the environment is a state-dependent fixed R clock,
 the reward is an offline scoped strain/amount cost, and independent within-request
 draws supply the leave-one-out baseline. No new critic or PPO approximation is
 introduced; performance claims from language tasks are not transferred.
+
+### Result Log: full-R1 outcome integrations
+
+Accepted: none; common-prefix-outcomes-r1-v1 revision 1. The four-update source
+and actor integrations completed in 5.107 and 33.879 seconds. Both optimize
+2,753,715 R1 parameters out of 4,600,369 total; H/audio/R timing remain frozen.
+The first source loss matched exactly at 15.276408. All four actor updates had
+nonzero R1, composition and modulation outcome gradients. First-update weighted
+outcome gradient norm was 127.51 versus source-only combined norm 32.35; the
+outcome signal is not numerically absent. This is an integration check, not
+evidence of generated-control improvement.
+
+Maximum generated/rescored row log-q discrepancy was 3.438e-5, below .002.
+Both fixed-parameter hashes remained
+8c21a572ba08b5c8f847e818f318d8c92ef7d8f070616eb5ce0d42d911f626a5.
+Peak footprints were 2.604/2.690 GiB, MPS driver 1.459/1.482 GiB.
+Source smoke checkpoint SHA-256:
+d4c2f7913a9d82d12cda89fd80c1b65795201289f4ef6335938169f23cedef9c;
+actor smoke checkpoint:
+751556331d41be3050a8d264d3b91e6a1755cc8e6cf1b7049a9649fba02b2011.
+Handles 3529 and 18039 are terminal. Discard smoke weights and launch the two
+declared 128-update fits from the original modulated checkpoint, serially. No
+fitting driver, helper, panel, optimizer or objective changes are made while live.
