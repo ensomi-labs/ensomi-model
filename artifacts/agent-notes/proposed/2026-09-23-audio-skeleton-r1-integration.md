@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 0c057afd71eb7da5fcfe3ab901aa721b14324e91
+Product revision: 2c2b8af0da7411804697863df2f8efb605f3c840
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -13989,3 +13989,38 @@ outcome experiment is not silently reclassified. If the paired pilot passes,
 design the corresponding native-H/runtime-switch qualification before adoption.
 If it fails, separate weak conditional reachability from optimization/data
 limitations; do not automatically lengthen the fit or widen the network.
+
+### Paired scoped-control implementation and frozen preparation
+
+Accepted:none; exploratory execution under standing user authorization. Clean
+intervention source2c2b8af0da7411804697863df2f8efb605f3c840 adds only the planned
+R1 difficulty-column parametrization, standard-weight export and scoped outcome
+dependency helper, with their focused tests and owning documentation. The six
+difficulty-tuning/sampling tests passed, including MPS finite gradients, exact
+frozen-column protection and ordinary checkpoint loading. No inference network
+is added. The baseline0c057af-to-intervention diff matches revision1.
+
+Artifact owner artifacts/joint-audio/20260926-paired-scope-controls-v1 contains
+common.py, prepare.py and train.py. Their immutable identities are:
+- common.py: SHA256 e44f100dd46859a2ad01fae62a7d2ccc270ae75cc85ca1407cbe635306468d63.
+- prepare.py: SHA256 6b85385f9eb78523b7d42bd514f97c19436092c5fbda055afbc1e0a7ae29dac1.
+- train.py: SHA256 3764a04da7163e9543b010b4b061079a17a75033e3333bd4167a4c43ea3a04ff.
+
+Preparation used uv run --extra mps python
+artifacts/joint-audio/20260926-paired-scope-controls-v1/prepare.py, CPU1thread,
+core2500, source-H diagnostic input, seeds261270–261281. It completed in23.0055s
+with24eligible16s contexts across12TRAINcharts and no exclusions. Each frozen
+prefix ends exactly at scope start minus1ms, including its actual open-LN state
+and global LN feedback. Panel SHA256
+6d269314688579c34eced22b2a6dff9eae46d2dae0b61ec8736b8ed89d30a22a; prefix-bank
+index SHA25692874333d134a61209e99252ed2dbb7908efecdb46619f2e18350d226d74c512.
+Each arm reconstructs the same prefix rows/state under the core model before
+copying only the two tuned affine matrices; history-cache weights remain fixed.
+
+Planned smoke invocation: PAIRED_RUN=smoke-paired4 PAIRED_STEPS=4
+PAIRED_SECONDS=180 uv run --extra mps python
+artifacts/joint-audio/20260926-paired-scope-controls-v1/train.py. Default
+PAIRED_ARM=paired. Fresh main invocations use PAIRED_ARM=source or paired,
+PAIRED_RUN=source-96 or paired-96, PAIRED_STEPS=96, PAIRED_SECONDS=1800.
+No smoke weights are reused. Source context order uses its own RNG, independent
+of candidate score-interval sampling, to preserve the paired imitation sequence.
