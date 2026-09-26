@@ -15967,3 +15967,127 @@ lowering both requested outputs. Source-only anchors do not by themselves prove
 preservation on generated states. Limited training/data, optimization and model
 coupling remain alternative explanations; no new architecture, loss escalation,
 Card or run is selected in this result log. The overall research goal stays active.
+
+### Experiment Card: paired-response-r1-v1
+
+Revision: 1. Accepted: none. Proposed exploratory experiment under standing user
+execution/implementation authority. The preceding common-prefix Card is complete.
+Previous goal turn classification: progress; complete native and Lens evidence
+was persisted with product report a99519ccee60925dce10a4200f88a6c049d37964.
+
+Question: can explicit conditional-response credit improve the difficulty gap
+without mainly shifting both requests, while a reference-trajectory constraint
+limits collateral changes on actual generated histories? Independent squared
+outcome costs did improve calibration but left a .685288 reserved gap MAE.
+This tests one combined training intervention, not separate attribution of the
+response and reference terms. No new inference architecture or H responsibility.
+
+Closest analogues: sequence-level REINFORCE with leave-one-out baselines
+(Ahmadian et al., https://arxiv.org/abs/2402.14740) supplies simple outcome credit;
+KL-constrained policy learning (Schulman et al., https://arxiv.org/abs/1502.05477)
+supplies the policy-preservation motivation. This is not TRPO, a monotonicity
+claim, a learned critic or an LLM-performance transfer. The paired mean-response
+estimator adapts cross-draw score-function moments to two chart controls; no
+novel-estimator claim. Factual style discrimination already failed to establish
+generated control; larger networks and a new pattern vocabulary are deferred
+because executable R1 action space exists and this learning mechanism is untested.
+
+Clean baseline source a99519ccee60925dce10a4200f88a6c049d37964. Start both arms from
+common-prefix-outcomes-r1-v1/actor-128, checkpoint SHA-256
+364c7b711bc39ab3384175b755658d2ef67a4c10b166f5eb85dc072d920e10e3.
+Keep that model frozen as the reference policy. Reuse the exact 47 fitting/eight
+reserved prefix bank and panel, SHA-256
+8fbeb1ae026bf65c1feda5667d3a98a54808183b4b12e5dff236765e8bcc99f7.
+Its common prefixes originated from modulated-128, not the new initialization;
+both current and reference caches must be rebuilt from those actual rows. The
+initialization's reserved MAE is .388944, gap MAE .685288, sign rate 23/24, no
+scope LN excess. Existing secondary MAE .675625 and native/static-scope results
+are in the owning product report. These are repeated exploratory qualifications,
+not a newly untouched test set.
+
+Both arms retain all 128 source draws, three genuine anchors per update, the
+full-R1 trainable set, frozen audio/H/R timing, optimizer, rates, clipping and
+original independent D/LN outcome losses from common-prefix-outcomes-r1-v1.
+Use three independent draws per request, same random seed across low/high for
+each draw index. New fitting seed 271010; rollout seeds 271020+100*step+i.
+The independent arm continues the original learning recipe. The paired arm adds
+squared error of the expected high-minus-low difficulty gap (weight one inside
+the existing outcome multiplier ten), plus .1 times trajectory KL per scope
+second relative to the frozen starting policy, averaged over the two requests.
+
+For D[c,i], sign s=(-1,+1), target gap Delta*, m=3, let
+v_i=D[high,i]-D[low,i]-Delta*. Let mean_others exclude the entire i-th pair.
+The added gap score coefficient for each trajectory is
+2*s_c*mean_others(v)*(D[c,i]-mean_others(D[c]))/m.
+This estimates the gradient of (E[D_high]-E[D_low]-Delta*)^2, not the expectation
+of the squared random difference; it does not add a penalty on output variance.
+The same-index coupled partner is never used as an independent baseline. Verify
+this coefficient against exact finite Bernoulli gradients with common random
+numbers before model fitting; a nontrivial estimator error stops the run.
+
+Reference preservation is KL(P_current||P_initial) for actual generated scope
+trajectories, rather than source-history imitation alone. Audio/H/R transition
+laws are identical and fixed, so their conditional likelihood factors cancel
+on a given trajectory; row log ratios remain. For row s, use the sum of sampled
+row log ratios from s to scope end as causal KL cost-to-go, minus an independent
+within-request other-draw total as baseline. Detach the cost coefficient and
+score current row log q. The explicit derivative of the sampled log q term has
+zero expectation. Divide by max(1,scope_seconds), a fixed per-context duration.
+Check this gradient against a finite two-step process including state-dependent
+second actions. It is a soft penalty, not a hard trust region. Sample estimates
+of KL can be negative; do not mistake that for an impossible distribution.
+
+Difficulty scores extend through real relevant LN tails; the KL and LN-amount
+terms use only [a,b). Every generated branch is completed to its real endpoint,
+never closed artificially. Reference/current scores use the same actual history,
+controls, support and feedback state. Original source next-row labels never move
+onto generated histories. This TAP-oriented panel may again fail to exercise
+future-tail credit; record the actual count rather than implying LN supervision.
+KL only covers visited paired-control states; it cannot guarantee preservation
+on every style or high-LN condition, which remain independent qualifications.
+
+Files likely to change: a small outcome-learning helper and focused estimator
+tests under controlled_audio_continuation, plus ignored study drivers. No existing
+sampling behavior changes. Record a clean committed helper source before fitting.
+Four-update smokes use the same two arms but discarded weights. Then two fresh
+128-update runs, serially, with identical source identities and seeds.
+
+Primary progress: gap MAE drops at least .15 relative to both initialization and
+the continued independent arm; absolute MAE stays within .05 of both; positive
+gaps in at least 90% of 24 pairs; at most one target LN fraction above .03. Reuse
+48 reserved generations per endpoint with seeds 261830+10*case+i. Retain thirty
+secondary control branches, twelve locally D/rho-matched style outputs and nine
+LN guards per arm. Secondary MAE may rise at most .10 from initialization;
+per-case LN error at most .03 and restored-D error at most .25. Historical failed
+allowances remain documented; these are incremental progress criteria, not a
+redefinition of final quality.
+
+Physical kernel distance is diagnostic here, not a semantic acceptance gate:
+common-prefix review showed legitimate 3+1/decorated-core Trill variants that the
+reference geometry penalizes. Use Lens on paired low/high seed-zero contexts,
+Jack/Stream/Tech/Trill and LN guards, and full target sequences where organization
+is disputed. Reject a new clear loss of observed organization or severe physical
+pathology; do not infer style absence from raw distance. Both fitted arms receive
+the six native static/switch cases regardless of the paired gate, so complete-audio
+attribution has a matched continued-learning comparator. Analyze every requested
+field's before/override/restored scopes separately; inspect dense/control-boundary
+contexts when they change materially. No automatic adoption or parameter scaling.
+
+Fresh owner artifacts/joint-audio/20260927-paired-response-r1-v1. Commands:
+uv run --extra mps python <owner>/train.py with RESPONSE_ARM=independent|paired,
+RESPONSE_RUN=smoke-independent4|smoke-paired4|independent-128|paired-128,
+RESPONSE_STEPS=4|128, RESPONSE_SECONDS=600|5400. CPU generation one thread, MPS
+fitting on the 24 GiB M5. At most 18 GiB footprint or driver allocation, 5,400s
+per main fit, 60 minutes qualification and 5 GiB new artifacts. No overwrite,
+resume or new dataset download. Stop on nonfinite values, sampled/rescored q
+error above .002, support disagreement, fixed-parameter drift, failed estimator
+check, explicit STOP file or resource/time limit. Driver/input hashes are frozen
+while a run is live. Record any necessary revision instead of editing live inputs.
+
+A positive result supports further joint calibration and broad control testing.
+A negative result rejects this bounded paired/KL recipe; it does not prove that
+R1 lacks representational capacity or that more iterations of the same loss will
+solve control. Main risks are score-gradient variance, inadequate target/state
+coverage, excessive attachment to a flawed reference, and proxy optimization
+without better music or player experience. Evaluation remains REFINE unless
+independent evidence establishes more; the overall playability goal stays active.
