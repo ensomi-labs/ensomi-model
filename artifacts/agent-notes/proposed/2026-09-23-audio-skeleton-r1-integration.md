@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: c3befb2fa397a6149e0f3090419e1210764d33b4
+Product revision: 0c057afd71eb7da5fcfe3ab901aa721b14324e91
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -13772,3 +13772,109 @@ bias. If generated history preserves a high head expectation despite a low
 request, investigate state/control coupling and data coverage. Finite conditional
 response alone cannot establish correct scoped chart demand or causal fault
 percentages. Preserve all numerical qualification results above.
+
+### Result Log: outcome Lens review and fixed-prefix control response
+
+Accepted:none. Both numerical qualification and the control audit are complete.
+The self-contained result is docs/research/outcome_learning_and_control_response.md
+at product0c057afd71eb7da5fcfe3ab901aa721b14324e91. Executable source stayed
+c3befb2fa397a6149e0f3090419e1210764d33b4 through all fits, qualification and audit.
+No trained checkpoint becomes the selected default, and the ultimate goal remains
+active. All process handles from this stage are terminal, including audit9730.
+
+Lens coverage in this owner is38images with all associated action/articulation
+pages: continued primary peaks(6), its two human review contexts(10), source
+passages at those primary peaks(6), outcome primary peaks(6), and its same two
+human contexts(10). Previously inspected source human contexts remain the source
+reference; their labels are not copied. Additional singles seeds are numerical
+checks. The main outcome seed is the worst of the three singles ratings and its
+peak was inspected. No waveform listening or player approval is claimed.
+
+Singles retains fast repeated added chords. Chords gains a sustained three-note
+chord passage near83198–86198ms, although its requested whole difficulty remains
+underfilled. Miraie retains many independent short releases:median145.5→149.5ms,
+<=80ms share.152008→.1375, versus source222ms and0. The source matched162655–166656
+has366ms interleaved holds followed by183ms mixed TAP/LN rows; both outputs add
+more fragmented releases to this organization.
+
+Expressiveness did not uniformly collapse. Outcome Starry Jet has LN0
+201157–203241(2084ms) spanning9interiorH and LN2 202199–203241(1042ms) spanning4,
+with independent activity on the other lanes. An834ms hold199907–200741 spans3H.
+Continued's longest hold starting in the annotated range is557ms. These observed
+relations improve that particular sustained-role comparison, without proving an
+intentional learned role or universal quality. Shippaisaku keeps mixed overlaps,
+including outcome709/659/772ms holds alongside110/221ms holds, but both outputs
+still contain many additional independent releases; outcome whole rating4.486789
+remains far from source/request3.625953 despite LN proportion.824276/.825839.
+No uniform-hold rule or release-snapping rule is inferred.
+
+The fixed-prefix audit completed60model/history/case/control queries in4.754s.
+Driver control_response.py SHAfd63971493682d7b4582800f4aa1e8375f5e50e33f95cc57b30b464d46812289;
+control-response.json SHA30914417fcc2cb9833d92a77b156a1b574bc68fda819da7d4b4995c2e4400017;
+full log probabilities in control-response-probabilities.npz SHA
+5dc895c0ee7925553ea5e1fbdb95745a0bd2e542bd903f8a2fdc0dcf3aba2f19.
+The three source cases are all TRAIN; generated identities were kept separate.
+Mean neural expected heads at requested3stars, source versus fixed generated
+history, are1.0729/1.4510(continued singles),1.0991/1.4633(outcome singles);
+2.0236/1.4488 and2.0205/1.4474(chords);1.6589/1.8855 and1.6840/1.9410(holds).
+On generated history, sweeping2→6stars gives outcome means
+1.4515→1.4998(singles),1.4319→1.4961(chords),1.9277→1.9793(holds).
+The change is not a literal constant logit bias: curves differ by context.
+
+Full-row distributions were also compared so the audit does not infer weak
+control from cardinality alone. Mean neural D2/D6 total variation on generated
+history is.04303/.05885/.05501 for outcome singles/chords/holds; deployed q is
+.17665/.06723/.15251 because recovery also uses the request. Source/generated
+history distance atD3 is.69614/.71875/.83756 before preferences. These history
+differences include column assignment, LN occupancy and support; they are not
+pure count-history effects or percentages of model fault. H preview was fixed,
+so the audit does not measure native-H adaptation or an actual counterfactual
+range outcome. Derived distances are saved in control-response-distance.json
+SHA51fd3f49e9bb7891103b926787910b8119ab7af0212280da22c56b1cb3a2c5d4.
+The standalone PNG/SVG control-response plot was rendered with Matplotlib and
+visually checked for readable axes/legend and accurate curve grouping.
+
+Interpretation: the small global-outcome fit failed to establish accurate
+contextual difficulty control. The conditional audit exposes substantial
+history dependence and weak neural difficulty response in these contexts.
+It does not show that all history dependence is undesirable or that every
+control field is ignored. Factual source imitation and one whole-song request
+per chart leave the response to a changed request on the same prefix weakly
+tested. A128-update/12-chart policy-gradient trial also leaves estimator variance
+and data coverage as substantial alternatives. Do not relabel this as proof
+that outcome learning generally cannot work, or compensate by increasing its
+gain without a new question.
+
+### Next direction: paired scoped requests from a shared generated prefix
+
+Favor a bounded design that branches one committed generated prefix into lower
+and higher difficulty requests on the same forthcoming range. Preserve the
+prefix, entering LNs, full audio and correct probability law. Use independent
+candidate groups for unbiased within-condition baselines; corresponding candidates
+may share random streams across the two requests to reduce irrelevant variation.
+Each request retains its own marginal sampling law. Source imitation keeps its
+genuine prefixes and labels; no source next action is attached to either altered
+continuation.
+
+This isolates the desired response more directly than pairing each training
+song with only its own factual whole-chart difficulty. Equal-and-opposite
+pressure under distinct requests may help separate control-specific changes
+from a shared head-propensity shift; that is a hypothesis, not a proven outcome.
+Control-range outcomes must be analyzed independently, with a declared treatment
+of entering holds, later tails and prefix strain. A fixed prefix is an
+intervention boundary: its sampling probability must not be silently included
+in the suffix objective or its state reset. Timing may be fixed for an R1
+diagnostic, but the final native system must qualify both modules together.
+Choose the next exact initial checkpoint, data, scope lengths and gradient
+estimator in a new Card before another fit; no existing failed endpoint is
+automatically adopted or resumed.
+
+An alternative analogue inspected was Ho and Ermon,
+[Generative Adversarial Imitation Learning](https://papers.neurips.cc/paper/6391-generative-adversarial-imitation-learning.pdf).
+Its learned distribution comparison can use expert trajectories without an
+expert-action oracle on generated states. That may eventually help corpus
+compatibility, but it introduces a learned objective and adversarial estimation;
+it does not supply canonical gameplay-response semantics or guaranteed quality.
+Do not add such a critic merely to repair the weak control response already
+identified here. Paired scoped control is the more direct next discriminating
+question. Recommendation REFINE to that design; no new fit is running.
