@@ -15775,3 +15775,37 @@ actor smoke checkpoint:
 Handles 3529 and 18039 are terminal. Discard smoke weights and launch the two
 declared 128-update fits from the original modulated checkpoint, serially. No
 fitting driver, helper, panel, optimizer or objective changes are made while live.
+
+### Result Log: source endpoint and reserved comparisons during actor fitting
+
+Source-only 128 updates completed in 116.180 seconds, checkpoint SHA-256
+ff9e1e8f9d8443e4543189e92ce6da9084ecb98a058a766dcd6bd45ada68d8f7.
+Frozen audio/H/R hash remained 8c21a572ba08b5c8f847e818f318d8c92ef7d8f070616eb5ce0d42d911f626a5.
+Peak footprint was 3.785 GiB and MPS driver allocation 1.862 GiB. Main source
+handle 25910 is terminal. Its 48 paired qualification outputs also completed:
+MAE .591815, gap MAE .536464, positive response 24/24, zero target-scope LNs.
+This improved contrast but worsened absolute calibration versus initialization.
+Actor gates must therefore also meet gap MAE <= .386464 versus this comparator;
+the tighter absolute-MAE comparator remains initialization at .312480.
+
+Source secondary qualification and locally matched style runs completed. The
+matched style mean is .048809, compared with initial .047723. Paired/source,
+secondary/source and matched-style/source handles 22402, 34924 and 13315 are
+terminal. They overlapped the actor fit on independent CPU processes; elapsed
+times from this overlap are not runtime benchmarks.
+
+Initial paired Lens rendering produced sixteen contexts/126 pages. Four pages
+have been viewed so far: contexts 00 and 06, low/high, page 2. Actual source
+reference bodies are retained separately. In context 00 the low draw uses
+2.070 heads/H versus the executable reference's 1.516; the high draw uses
+2.484 versus 2.672. Context 06 low uses 1.673 versus 1.138. These support an
+available R1 cardinality adjustment; they do not prescribe one layout or label
+the generated style. Renderer 28873 and descriptor 43164 are terminal.
+
+Actor fitting is still running under handle 90919, last observed at update 112
+and 1,043 seconds. Fitting code, helper, inputs, optimizer and objective remain
+unchanged. At update 72, all 432 sampled targets had zero LN fraction and no
+tail horizon beyond the target scope; this TAP-only pilot has not empirically
+exercised its future-tail scoring branch. Do not claim an LN outcome-learning
+benefit from these updates. Qualification adapters and analysis/render helpers
+were authored independently; no actor endpoint has yet been qualified.
