@@ -13878,3 +13878,114 @@ it does not supply canonical gameplay-response semantics or guaranteed quality.
 Do not add such a critic merely to repair the weak control response already
 identified here. Paired scoped control is the more direct next discriminating
 question. Recommendation REFINE to that design; no new fit is running.
+
+### Experiment Card: paired-scope-controls-v1, revision1
+
+Accepted:none; standing user execution authority applies. Clean baseline
+0c057afd71eb7da5fcfe3ab901aa721b14324e91 and core2500 checkpoint
+0f1ddfa5b351988fca04246ec080be106855f49b50fb493370c2d5afee1febb8.
+Hypothesis: scoped counterfactual outcomes at the same committed generated
+prefix can teach R1 to use difficulty conditions, without changing its shared
+history/arrangement parameters. Compare matched difficulty-only source imitation
+against that imitation plus paired low/high-request outcome gradients.
+This is an adaptation of conditional policy-gradient learning and paired random
+streams. Common random streams couple the requests without changing either
+marginal law; within-condition baselines use independent candidate draws.
+
+Both arms train only the existing difficulty input columns of row_control and
+the first composition affine. For Kstyle concepts and n=2+Kstyle, select value0,
+known-bit n, and the2*TIME_DIM scope-clock columns beginning2*n. For the five-style
+core, this is48columns in each128-output matrix,12,288effective weights. Freeze
+everything else, including audio/H/R, history encoders, geometry readouts, frontier
+parameters and LN/style control columns. Use PyTorch weight parametrization during
+training, then fold selected columns into ordinary model weights for generation
+and checkpoint export; no new inference module or parameter is added. Verify
+initial probability equality, exact immutability of all other weights, finite
+MPS gradients, unknown-difficulty behavior and standard checkpoint loading.
+
+Data uses the same12TRAINcharts from
+artifacts/joint-audio/20260926-range-outcome-r1-v1/panel.json SHA
+1b6f62d12b41a34015ada3e6dad3e418414d4c4f7fe7251330fc1d316acaf69f.
+For each chart, select16s scopes at a=32000 and the largest16s multiple with
+a+32000<=audio_end. Deduplicate scopes and require at least32source H rows.
+Record any exclusion before fitting. All prior diagnostic audio identities stay
+excluded from fine-tuning. Generate one fixed core-prefix bank under source
+whole stars/LN fraction and source H times, seeds261270+chart_index, saving rows
+through a-1. No source materialization enters those prefixes. Their cached history
+states may be reused only because all contributing weights remain frozen.
+
+For each scope[a,b), source proxy D0 is ScopeStrainTrace.level(a,b) applied to
+all source objects with head<b, retaining the complete history from0 and each
+object's real tail. Filtering by end-of-scope head time makes future unrelated
+heads irrelevant; it does not crop away incoming strain or truncate an LN tail.
+Use the same explicitly declared input rule for generated outcomes. This remains
+an offline approximate star readout, not canonical causal gameplay demand.
+Set center=clip(D0,2.75,5.25), low=center-.75, high=center+.75. Preserve each
+chart's original global LN request; all other control fields remain unchanged.
+
+Each outcome update forks a fixed prefix into two requests and two independent
+draws per request. Corresponding low/high draws share release/row random streams;
+seeds261271+10000*step+i for i=0,1. Set the difficulty override only on[a,b), then
+restore the original whole-chart request. H times remain fixed for this R1
+diagnostic; the artifact harness explicitly updates only R/row conditions.
+The production native-control interface is unchanged. Reset the hypothetical
+release-survival residual for the new request, never the committed prefix,
+LN obligation, recent actions or LN-amount episode. Every candidate continues
+to the true audio end for valid complete-tail outcomes and export.
+
+For each candidate use separate costs:
+cD=max(abs(scoped_level-request)-.35,0)^2;
+cLN=100*max(abs(whole_chart_LN_fraction-global_request)-.03,0)^2.
+LN's request still owns the whole song; there is no local LN quota. For each
+request independently, subtract the other draw's cost as a detached baseline.
+The difficulty outcome is determined once all LNs whose heads precede b have
+closed. Let tau=max(b,last_such_tail+1), an exclusive native-clock boundary.
+Rows after tau cannot change the declared difficulty readout. Estimate its
+conditional suffix score over[a,tau) using one uniformly selected8s interval
+and the interval-count importance weight, masking the final partial interval.
+Use a separate suffix score over[a,audio_end+1) for the whole-LN cost when its
+advantage is nonzero. Interval selection happens after generation and does not
+affect sampling. Neither score includes the fixed prefix's sampling probability.
+
+Add2*mean_over_four_candidates[aD*log_score_D+aLN*log_score_LN] to one source
+NLL/s term on the genuine source16s scope. The source difficulty condition uses
+its actual scoped D0; its LN request retains the source whole-chart fraction.
+No source next-row label is used on either generated suffix. Scoring replays
+the deployed recovery/LN policy on the actual completed candidate history.
+The fixed-prefix conditional objective does not claim to optimize the probability
+of the prefix bank itself. Both arms have identical source chart/scope draws.
+
+Fresh AdamW over selected columns only:lr1e-3,weight_decay.0001,clip1. Use shuffled
+context rounds with seed261270. First four updates as an integration smoke in
+fresh smoke-paired4, maximum180s; do not reuse those weights. Require finite costs
+and gradients, exact prefix preservation, nonzero difficulty gradient on at least
+one update, correct independent control extents, and actual sampled/rescored
+log-probabilities within.002. Then96updates per arm from core2500, at most1800s
+per arm, terminal checkpoints only. CPU1thread and MPS; stop on nonfinite values,
+incomplete candidate, support mismatch, frozen-weight drift, physical footprint
+or MPSdriver>18GiB. Record costs by request/scope, score horizons, draw identities,
+prefix hashes, checkpoints and resource ledgers. No source, driver or objective
+edit during a live fit. Fresh owner
+artifacts/joint-audio/20260926-paired-scope-controls-v1; no overwrite/resume.
+
+Primary evaluation uses core-generated common prefixes on singles[56000,72000),
+chords[8000,24000),holds[160000,176000),StarryJet[198240,214240),
+Shippaisaku[80000,96000), with the same source-scope-derived low/high requests.
+Keep existing human style spans for the two LN guards, without assigning their
+labels to generated results. Prefix seeds are261301–261305; three future seeds
+per case are261310+10*case_index+i for i=0,1,2, coupled across low/high and arms.
+Evaluate override and restored ranges independently and whole-LN amount on its
+own scope. Seek mean high-minus-low realized difficulty>=.40 and mean scoped
+absolute-error improvement>=.20 versus matched source-only tuning, with neither
+request stratum's mean error regressing>.15. These are pilot control signals,
+not final release criteria. Whole-LN error may not regress>.03; restored-range
+difficulty error may not regress>.25 per case/request mean. Preserve every fixed
+H and every committed prefix row and finish within120s per candidate.
+
+Inspect source, low/high paired contexts and new peaks through Lens. Reject
+trivial LN chopping, uniform chord inflation, lost meaningful mixed/overlapping
+roles or a control gain achieved by unacceptable patterns. The previous global
+outcome experiment is not silently reclassified. If the paired pilot passes,
+design the corresponding native-H/runtime-switch qualification before adoption.
+If it fails, separate weak conditional reachability from optimization/data
+limitations; do not automatically lengthen the fit or widen the network.
