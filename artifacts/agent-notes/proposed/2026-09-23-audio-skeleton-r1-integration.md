@@ -14247,3 +14247,128 @@ Artifact identities within 20260926-control-coverage-v1:
 - pair-verification.json: SHA256 b4c6452bf5ceb282fbd5a5b3ee300a574f8f6b22e56b68d17566a2977b72796f.
 - condition_audit.py: SHA256 b21ce7c5c524380f94d376444d0a63e8c315f768d416c023bb29b597309da810.
 - condition-audit.json: SHA256 6353d95acfee06ef45ea3b35cec0578bf2fbcc8a16a3352c0a466a6c85afbd1b.
+
+### Experiment Card: balanced-condition-r1-v1, revision1
+
+Accepted: none; standing user authority covers implementation and exploratory
+execution. Clean baseline 5bf146e62767c920f9ad5dccce0b06c3cda5b44d; initial model
+is core2500 SHA256 0f1ddfa5b351988fca04246ec080be106855f49b50fb493370c2d5afee1febb8.
+Question: does explicit scoped condition alignment improve generated control
+beyond identical balanced genuine-source exposure? The previous factual audit
+preferred the lower request in22/24scopes; higher versions ranked correctly2/12.
+The previous generated pilot improved MAE only.05282 and reached contrast.25390.
+These are development references, not the new matched source-only baseline.
+
+Both arms retain the existing architecture with no hold cues, count prior,
+object-demand predictor or response projection. Freeze audio and H parameters
+(the prefixes in active-ln-audio-cues-v1/train.py FROZEN and audio mean/std);
+train existing R and R1, including composition, row-control interactions and
+learned consequence scoring. Source loss is the true release-clock NLL plus
+replayed deployed row q-NLL, divided by scored seconds. It retains full genuine
+prefixes and real tails; there are no source labels on generated histories.
+
+Intervention only: on a real paired-H difficulty example add symmetric
+reference-relative condition alignment. For its summed neural R1 row log scores
+s+ under actual local D and s- under its partner's local D, and frozen-core
+reference scores r+/r-, define z+=.1*(s+-r+), z-=.1*(s--r-). Add
+softplus(-z+)+softplus(z-) with weight1 to source loss. References are detached.
+At initialization the auxiliary loss is2*log(2); shifting both relative scores
+by the same amount cannot reduce it. No extra inference scorer is introduced.
+This is CCA-inspired condition alignment with empirical paired negatives, not
+an exact independent-marginal NCE or CFG-equivalence claim. Positive-source
+learning remains an independent anchor. Scope-level comparison does not impose
+per-row monotonic cardinality. Style has no fabricated negative labels in this
+pilot; known human style is learned through the common source exposure.
+
+Data uses the frozen ranked manifest4cea2672387b6293a4da0846be479d8bd9c857e55535dc8143bd11d65b06d2c4,
+human cohort252fe593514adc5498011b55dbf62224cba55651025233fc1ed9235078bb95b8,
+and verified-pairs.json in20260926-control-coverage-v1. Exclude all audio IDs from
+previous five-case scoped qualification, the fresh-native panel and twelve-pair
+condition audit. Reserve four additional distinct-audio style guards, selected
+with seed261411 from human prominent/High-confidence Tech, jack, stream and
+trill, localD2–6, jack additionally heads/H>=2. Each guard must pass the existing
+collator; record rejected candidates. Their audio IDs are also excluded from fit.
+
+Freeze three fitting pools before either arm. Pair pool:128distinct-audio pairs,
+source duration60–360s, same exactH, both localD2–6, gap>=.75 andboth localLN<=.1;
+both source scopes must pass support. Population pool:256distinct-audio charts
+per whole-star integer bin2/3/4/5, duration60–360s, one random full16s scope with
+>=32H perchart, trying source scopes in a seeded shuffled order until support
+passes. No audio repeats across its four bins. Targets are actual localD, never
+the whole-star bin. Human pool:all remaining storedhuman cells with audio<=600s,
+at least onehead and valid source support on the exact annotated native scope;
+retain original metadata and all compatible co-occurring known labels. Keep
+short annotated scopes; cap their NLL/s normalizer at one second. Unknown style
+is never absent. Do not label structural attributes as styles. If fixed pair/
+population counts cannot be filled or any concept loses every prominent fitting
+cell, stop preparation and revise before fitting; no silent pool reduction.
+
+Use source-global LN requests in all three pools and a local difficulty override
+on the scored scope. Known human style spans preserve their own boundaries.
+Data balancing uses normalized inverse-square-root cell frequency, capped at
+four times uniform per-item weight. Pair cell=(floor(mean localD), H-rate bin);
+population cell=(floor(localD), H-rate bin, heads/H bin, LN-fraction bin);
+human cell=(concept, assessment, floor(localD)). H bins3/6/10Hz, head-width
+bins1.25/1.75/2.5, LN bins.2/.5/.8. Numeric targets remain continuous.
+
+Each shuffled block of four updates has two paired, one population and one human
+update. Paired updates score both real arrangements; other updates draw two
+examples. Average their source losses; only the alignment arm adds the paired
+auxiliary losses. Seed261410 owns pool selection and deterministic fit draws;
+reference scores are frozen before fit. Both arms receive the exact same source
+examples and controls. Full-song audio is encoded at training and inference;
+cache only frozen audio tensors. There is no model-size increase.
+
+Fresh AdamW:3e-5 inherited R/R1 weights;3e-4 composition,row_control,
+release_control,preview_condition; weight_decay.0001, clip1. Use eval mode with
+autograd for deterministic frozen audio and no dropout variation. First8updates
+perarm in fresh smoke-balanced8/smoke-aligned8, <=180s each; discard their weights.
+Require finite losses/gradients and nonzero alignment gradients on paired updates.
+Then1200updates/arm fromcore, <=1800s each, terminal checkpoint selection only.
+CPU1thread plus MPS on this24GiBMac. Stop on nonfinite values, support mismatch,
+frozen-weight drift, physical footprint or MPS driver>18GiB, time budget or STOP.
+No source/driver/objective edits during a live fit. Fresh artifact owner
+artifacts/joint-audio/20260926-balanced-condition-r1-v1, no overwrite or resume.
+Preparation/reference budget600s; pool identities and exclusions frozen before fit.
+
+Implementation adds a small alignment-loss helper and focused CPU/MPS tests for
+reference detachment, finite correct gradient direction and resistance to a
+common likelihood shift. Arbitrary native human scopes use an artifact interval
+adapter consumed by the existing collator. Qualification replays frozen prefix
+rows under each endpoint to rebuild temporal caches: trained history weights
+must never reuse core hidden caches. Physical rows, open LNs, amount feedback
+and coverage stay exact. Test replay equivalence under unchanged weights before
+using it to compare endpoints. This is instrumentation, not a new inference law.
+
+Qualification: reuse the previous five shared core-generated prefixes/scopes,
+low/high targets,3futureseeds and original style/LN conditions from
+20260926-paired-scope-controls-v1/qualification. Rebuild caches perendpoint and
+retain all supplied H. Sixty continuations, <=120s each. Primary: alignment
+improves mean scoped absolute difficulty error by>=.20 over balanced-only and
+mean high-minus-low>=.40. Each request stratum may not regress>.15. WholeLNerror
+may not regress>.03 and restored-range difficulty error>.25 percase/requestmean.
+The factual twelve-pair condition audit is secondary; improving it alone fails.
+Four reserved style guards generate fromBOS with sourceH and true globalD/LN plus
+original knownstyle spans, two seeds261430+10*guard_index+i perarm. Inspect source
+and outputs in the annotated scope and review context; do not inherit labels.
+
+Also run a compact native-H comparison after numerical qualification unless
+there is an incomplete/invalid output or obvious severe collapse. Native panel
+uses Zenithfall,Hysteric,Take from the established fresh-audio owner. Perarm and
+audio generate static(D3,LN.2) and a runtime switch from those controls to
+(D4.5,LN.6) on[64000,96000), then restore. Seeds261470+10*audio_index+mode_index,
+mode0static/1switch;12fullsongs total, <=180s each. Control update occurs after
+publication through63999ms via the production native update interface. Compare
+before/override/restored ranges and each control field separately. Record first30
+rows and publication-window latency from cachedMel; no waveform-latency claim.
+No new chart seed, redline target or future materialization enters H.
+
+Lens remains a quality gate: inspect the five low/high contexts, new dense peaks,
+reserved style episodes and native switch boundaries. Reject chord inflation,
+LN chopping or loss of meaningful mixed/sustained/repeated organization even
+if star error improves. The native pass is diagnostic even when fixed-H targets
+prove restrictive; a failed fixed-H score is not relabelled successful. Do not
+adopt either endpoint from NLL, alignment accuracy or one aggregate metric.
+A positive pilot motivates broader native qualification, not goal completion;
+a negative result separates exposure-only effects from the conditional objective
+without automatically increasing size or duration.
