@@ -12505,3 +12505,147 @@ supports the source-H substitution; only artifact driver/measurement code is
 needed. The chosen cases are training sources, so this tests mechanism, not
 held-out generalization. Stop on unavailable assets or an unsupported source H
 plan rather than silently editing its timing.
+
+### Result Log: low-difficulty-source-h-v1
+
+Accepted:none; Cardrevision1. Executable source remainsc5fd73f9ea6851f88f6c268aa1aa64219bdbd591.
+PanelSHAcb17d993279b21e0b951b2cab9775b5987a88caf050bbbbf53f0ae03dd715982.
+All source timestamps were verified integer-valued, increasing and within their
+audio. The first harness launch passed CompleteRow's float-valued timestamps
+directly to the integer-native fixed-H API; it failed before generation. Converting
+these already-integral values at the API boundary fixed the harness. No source
+time was rounded or edited. A mistaken result.reason attribute was also corrected
+to stop_reason. The failed native directory remains; valid results are native-v2.
+Final driverSHA748588a353137dae093459d67e7a3f560833166730edbbc25bf7c2a49cbdfb3c.
+
+All six generated charts completed and every supplied source H was preserved.
+Source/source-H/native-H stars:
+singles2.99877/4.85205/4.37396;
+chords3.10350/2.90748/2.39070;
+holds3.00474/3.49210/2.98952.
+Source/source-H mean heads per H:
+singles1.09962/1.73563,chords1.91707/1.72683,holds1.38400/1.54171.
+The source-H singles case adds498heads to the same783onsets. This establishes
+a concrete low-difficulty R1 failure with valid reference timing, not a general
+fraction of fault assigned to R1. The predeclared outcomes are mixed: neither
+the two-chart R1 threshold nor the timing-only threshold is met.
+
+The holds source-H arm has median LN duration154ms versus222ms in the source;
+12.9% of its releases end LNs<=80ms versus0% in the source. Its LN fraction is
+.86138 versus.84393 requested. Matching source timing does not preserve source
+LN relationships automatically. These observations warrant joint row/release
+qualification, not blanket removal of short LNs. All cached-Mel service times
+are.799–4.258s, not cold startup benchmarks. ResultSHA
+da71c8b67e8cd7b2996f52b88977424c680412a4d4139e580369c1a150eac8d1.
+
+The probability diagnostic queries each trajectory's genuine prefix and exact
+state at its own observed rows. It never attaches source labels to a generated
+prefix. Both histories share the supplied H times. Projected LN feedback is
+omitted only from the head-count expectation because it preserves that marginal;
+the actual empirical recovery preference is included. Genuine source history
+versus generated source-H history gives expected heads/H:
+singles1.23589/1.74010,chords1.92963/1.73499,holds1.36058/1.54037.
+Realized singles1359 heads agree with the own-history conditional expectation
+1362.50; the source-history expectation is967.70 against861actualsourceheads.
+There is both source-conditional bias and a larger difference once generation
+follows its own history/state. This does not isolate learned content memory
+from exact physical state or prove that more fitting alone cannot help.
+
+The diagnostic required two harness fixes (duration_ms on its preference view;
+IntervalExample takes index/width rather than start/end). Its first completed
+aggregate incorrectly counted padded repeated row queries. That output is kept
+as teacher-moments-padded-invalid.json and is not evidence. The corrected loop
+uses only len(batch.row_index) real targets, as the actual training loss already
+does; all H/head totals now exactly match the corresponding charts. Valid output
+teacher-moments-v2.jsonSHAea9bc05a6bbdc0d1f324982b5bfcecb67bedf7fc618f11b2787cdd12bd5fd29c;
+teacher.pySHAe4eb5381d083703dc00416cc52667132cfa39a83244c7a3aa66e4466cdc49fec.
+
+Lens images already read: both pages of source/source-H peaks for all three
+organizations (12pages). They show single-note flow becoming many doubles/triples
+in the singles arm, while the slower chord source remains a varied chord chart.
+The LN source-H peak has more broad simultaneous LN groups and shorter differing
+tails. Remaining native-H/matched images and full tables remain to inspect before
+a complete Lens coverage claim. No formal style labels or musical-fit verdict.
+
+Decision: REFINE toward R1's conditional composition and history feedback.
+The canonical frontier depends on chart history and proposed continuations;
+it does not require music as an input. Removing all chart-history information
+from a consequence model would be an unjustified sufficiency claim. The next
+proposal retains chart history and exact replay in that path, while separating
+its direct audio input from the arrangement preference.
+
+### Experiment Card: r1-composition-baseline-v1, revision1
+
+Owner:this proposed Note. Accepted:none; standing local implementation/fitting
+authority reaffirmed by the user. Baseline is clean c5fd73f9ea6851f88f6c268aa1aa64219bdbd591
+and the recorded controlled2500 checkpoint. Question: can a directly supervised
+audio/timing/control count prior reduce mode persistence on generated histories,
+without losing conditional LN allocation, layouts or chart-history consequences?
+
+One coherent R1 factorization intervention:
+
+1. Add a small mirrored count-family prior for(head count,release count), reading
+   full audio, the16-H preview, actual LN-age/occupancy information and per-field
+   controls. It receives no learned row-content embedding or generic TAP history.
+   This is an internal R1 distribution, never an upstream count plan.
+2. The existing full-context composition readout supplies a history-informed
+   correction. Center its active group logits and apply tanh with bound1 before
+   adding them to the new prior. Pairwise log-odds modification from this direct
+   residual is at most2; categorical additive offsets must not affect it.
+3. Keep unbounded local LN preferences, full-history/direct-audio layout choices,
+   and final complete-row consequence comparison. Consequence context retains
+   the chart-history encoder, exact replay, controls and proposed H timing, but
+   excludes the direct audio residual. This remains a learned preference, not
+   a calibrated realization of the full canonical frontier. Conditional layout
+   and consequence interactions can still alter final count-family mass; the
+   bound applies only to the explicit composition residual.
+4. Train the full row likelihood plus .25 times the new prior's source
+   head/release-count cross-entropy on the same real queries/support. The auxiliary
+   loss makes the prior learn its own conditional distribution instead of relying
+   entirely on teacher-forced history. It changes the objective and is reported
+   separately; no generated-prefix/source-suffix relabeling.
+
+The closest local analogue is the bounded audio baseline/history residual in
+H timing, applied here to the R1 factor where mode drift is observed. This is
+an architectural/learning adaptation, not proof that all drift is caused by the
+content encoder. A matched continued fit tests the alternative that additional
+source learning alone is enough. It retains the original R1 factorization and
+row objective. No feedback-gain search, new musical sections or long-range memory.
+
+Freeze the fine/coarse audio encoder and every H/release timing module in both
+arms. Train R1 temporal/exact/fusion/layout/consequence modules at3e-5, existing
+composition/row-control/preview and the new prior at3e-4, AdamW .0001,clip1.
+Start both from the same2500 weights with fresh optimizers, seed261210,batch2;
+same ranked corpus/75–25proposal sampler/scoped labels/15% family dropout and
+explicit60/50/50 source compatibility exclusions.1000updates per arm, at most
+1200s each, serial MPS,CPU1thread. Reset stochastic training RNG after model
+construction and compare actual draw records. Empty intervals contribute no
+R1 gradient while their unchanged timing likelihood remains diagnostic.
+
+Fresh artifacts/joint-audio/20260926-r1-composition-baseline-v1, arms continued-1000
+and prior-1000, no overwrite/TEST. Commit the executable source before fitting.
+Record copied/new parameters, exact frozen-module identities and script hashes.
+Fit terminal checkpoints only; do not choose by validation NLL. Stop on nonfinite
+gradients/losses, source-support inconsistency or budget. No capacity scaling
+beyond the small prior required by this factorization.
+
+Primary native comparison: source-H singles with seeds261101,261104,261105 in
+both arms, then source-H chords/holds with original261102/261103. Seek singles
+mean absolute star error at least.4 below continued fit and at most.6 absolute,
+with no seed above3.75stars. Chords/holds star error may worsen by at most.35
+against continued fit; LN-fraction error may worsen by at most.03. Inspect matched
+source/source-H organization and each new peak; reject all-single flattening
+of chord sources, loss of held-note relations or sustained quad defaults.
+
+If this passes, run native audio3/.2 and3/.7 on the three current fresh audios,
+and separate105000–137000 overrides with the same panel seeds. Require no static
+cell or scoped difficulty-error regression above.35 against the continued arm,
+and confirm meaningful variety with Lens rather than treating star/NLL as quality.
+All cases retain120s/30000row bounds, BOS, complete audio and unchanged interface.
+Since timing weights are frozen, unchanged controls must give identical native
+H traces across arms; the release/row states can differ legitimately.
+
+Positive evidence supports wider native/style qualification, not final release.
+If continued fitting matches or beats the prior, prefer the simpler model. If
+both fail, reconsider the controlled continuation objective or demand-response
+representation rather than silently increasing the bound or changing the goal.
