@@ -15243,3 +15243,29 @@ Frozen modulation input identities:
 
 - train.py: 5c719eefd7713c7ee237962950f30fa75145bd408bd6140fe4a4773185b79b3f.
 - actor-panel.json: ed49a8b9e590291b1fd73a42e9d4074291037f1f53c532904a97458bd34261fb.
+
+### Exploratory diagnostic: scoped trill requests from a common prefix
+
+This supplements, but does not change, the modulation Card's fitting or primary
+qualification gates. The question is whether a style request changes actual
+continuation organization on the same physical prefix and feasible H rhythm.
+Use the reserved trill source b00fc0651520df1c9576ebc733a27e07049e010ac01a2d888eb0d4e58df6c030,
+its original H plan and [288156,290040) scope. Build one prefix with the initial
+aligned checkpoint, global source D/LN and no requested styles, seed261610,
+publishing exactly through288155. Freeze raw rows, coverage and identity.
+No source suffix is used as a next-action teacher.
+
+For the unmodulated kernel-128 and modulated-128 endpoints, rebuild their own
+caches from this identical prefix. Fork three seeds261620/261621/261622 under
+trill=-1 or+1, with the same actual source-local difficulty override on the same
+scope and unchanged global LN request. Other style fields remain unknown. These
+are explicit counterfactual requests, not new human labels. Complete and reparse
+outputs; retain prefix and all H, inspect the target and following context.
+After the override, style becomes unspecified again; do not call that an absent
+style target. Report before/override/restored separately and do not infer style
+from one count statistic. Seed0 and any notable divergent outputs require Lens
+inspection. Runtime bound120s per continuation; total at most600s. Fresh
+style-forks subdirectory in the modulation owner, no overwriting output.
+
+This is a fixed-H R1/control diagnostic, not a claim about the complete timing
+policy's response. It changes no active fitting code, weights, data or seeds.
