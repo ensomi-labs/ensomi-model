@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-27
-Product revision: a99519ccee60925dce10a4200f88a6c049d37964
+Product revision: ba406ef827807e3a7045623dff0afa4e6084873b
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -16107,3 +16107,32 @@ The new local driver and reused-panel identities are frozen in the fresh owner's
 input-receipt.json. Main source remains clean. Four-update integrations now test
 sampling/rescoring, reference support, actual added gradients and resource use
 before any 128-update fit. Smoke weights will be discarded.
+
+
+### Result Log: paired-response four-update integrations
+
+Accepted: none; paired-response-r1-v1 revision 1. Independent and paired smokes
+completed in 37.760 and 43.000 seconds. Initial source loss is identical at
+14.656216; first sampled outcomes also match. Both runs preserve frozen
+8c21a572ba08b5c8f847e818f318d8c92ef7d8f070616eb5ce0d42d911f626a5.
+Maximum sampled/rescored log-q discrepancies are 2.297e-5 and 2.283e-5.
+Peak footprints 4.180/4.204 GiB, driver allocation 2.969 GiB. The paired gap
+term reaches R1 at first-step gradient norm 1096.19; KL is exactly zero at the
+reference initialization and has norm 133.65 at step four. These establish
+implementation activity, not qualification improvement. All four updates reach
+R1, composition and modulation. Handles 65540/21582 are terminal.
+
+Smoke checkpoint hashes: independent
+fe111ff97a664cc78ffcf1ae6bbef3453e73f10eb00edf0b7ce7653167a65dab;
+paired f07d81e4c4ce1ed9e08ceb5be4d55eedb27e6950b91e551d5a0cb2100d419c0a.
+Discard smoke weights. Main fits start fresh from the declared previous actor.
+Frozen helper hashes: new shared.py
+58128c7cf6de39318f2d14e0642f0ec5fb5180f7d3c11ae8c657340b3c701eae;
+train.py 2f473f73656eb436f2aa51774281d840d04169ae56dcf660713ff1019c396a5c;
+production outcome_learning.py
+f62d582b44a539c5ddad7ee88609903c9fcfc72ca794155295faa48d22d890dd.
+The exact previous actor reserved results are reused as initialization, with
+receipt hashes; the helper-only descendant has no inference behavior change.
+Qualification adapters use local D/rho on style guards directly, avoiding a
+second mismatched whole-control style panel. This implements the declared local
+comparison; driver, objective and fitting inputs remain unchanged.
