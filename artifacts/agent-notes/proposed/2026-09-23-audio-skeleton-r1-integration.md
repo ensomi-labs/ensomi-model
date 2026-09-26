@@ -14248,7 +14248,7 @@ Artifact identities within 20260926-control-coverage-v1:
 - condition_audit.py: SHA256 b21ce7c5c524380f94d376444d0a63e8c315f768d416c023bb29b597309da810.
 - condition-audit.json: SHA256 6353d95acfee06ef45ea3b35cec0578bf2fbcc8a16a3352c0a466a6c85afbd1b.
 
-### Experiment Card: balanced-condition-r1-v1, revision1
+### Experiment Card: balanced-condition-r1-v1, revision2
 
 Accepted: none; standing user authority covers implementation and exploratory
 execution. Clean baseline 5bf146e62767c920f9ad5dccce0b06c3cda5b44d; initial model
@@ -14292,7 +14292,8 @@ collator; record rejected candidates. Their audio IDs are also excluded from fit
 Freeze three fitting pools before either arm. Pair pool:128distinct-audio pairs,
 source duration60–360s, same exactH, both localD2–6, gap>=.75 andboth localLN<=.1;
 both source scopes must pass support. Population pool:256distinct-audio charts
-per whole-star integer bin2/3/4/5, duration60–360s, one random full16s scope with
+per whole-star integer bin2/3/4/5, allocating scarce bins in order5/4/3/2,
+duration60–360s, one random full16s scope with
 >=32H perchart, trying source scopes in a seeded shuffled order until support
 passes. No audio repeats across its four bins. Targets are actual localD, never
 the whole-star bin. Human pool:all remaining storedhuman cells with audio<=600s,
@@ -14305,8 +14306,8 @@ cell, stop preparation and revise before fitting; no silent pool reduction.
 
 Use source-global LN requests in all three pools and a local difficulty override
 on the scored scope. Known human style spans preserve their own boundaries.
-Data balancing uses normalized inverse-square-root cell frequency, capped at
-four times uniform per-item weight. Pair cell=(floor(mean localD), H-rate bin);
+Data balancing uses inverse-square-root cell frequency, with water-filling
+normalization that caps final sampling probability at four times uniform. Pair cell=(floor(mean localD), H-rate bin);
 population cell=(floor(localD), H-rate bin, heads/H bin, LN-fraction bin);
 human cell=(concept, assessment, floor(localD)). H bins3/6/10Hz, head-width
 bins1.25/1.75/2.5, LN bins.2/.5/.8. Numeric targets remain continuous.
@@ -14329,7 +14330,8 @@ CPU1thread plus MPS on this24GiBMac. Stop on nonfinite values, support mismatch,
 frozen-weight drift, physical footprint or MPS driver>18GiB, time budget or STOP.
 No source/driver/objective edits during a live fit. Fresh artifact owner
 artifacts/joint-audio/20260926-balanced-condition-r1-v1, no overwrite or resume.
-Preparation/reference budget600s; pool identities and exclusions frozen before fit.
+Preparation/reference budget900s including the failed ascending-allocation attempt;
+pool identities and exclusions frozen before fit.
 
 Implementation adds a small alignment-loss helper and focused CPU/MPS tests for
 reference detachment, finite correct gradient direction and resistance to a
@@ -14372,3 +14374,26 @@ adopt either endpoint from NLL, alignment accuracy or one aggregate metric.
 A positive pilot motivates broader native qualification, not goal completion;
 a negative result separates exposure-only effects from the conditional objective
 without automatically increasing size or duration.
+
+### Preparation refinement and loss implementation
+
+Accepted: none. Card revision2 preserves the model, objective, sample counts,
+seeds and evaluation. Its population allocation visits scarce high-star bins
+first. Ascending allocation reached256perbin2/3/4 but only240independent audios
+inbin5 after lower bins had consumed songs with harder sibling arrangements.
+It stopped before writing a panel or fitting weights. The first attempt had
+earlier stopped at an audio-identity metadata key before selection; that key
+was corrected to the five-case asset owner. Both stdout logs are retained.
+The revised preparation/reference bound is900s including the failed allocation.
+
+The sampler also caps final probability, using water-filling normalization.
+Clipping raw relative weights before renormalization would not strictly cap
+final probabilities at4timesuniform; the intended Card constraint is unchanged.
+Previous artifact driver/helper versions are retained as prepare-ascending-v1.py
+and common-capped-raw-v1.py. No learned checkpoint or frozen panel is overwritten.
+
+Clean intervention source b2a53511b876484e14e5b657635e0d0cb9487d6f adds only the declared
+condition_alignment helper, its owning documentation and focused CPU/MPS tests.
+Both tests passed in0.53s: correct gradient direction, detached reference values
+and inability to reduce the symmetric loss by a common relative-likelihood shift.
+No inference network or checkpoint schema changed.
