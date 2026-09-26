@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 2b20c4fd2bd89bb6ad35a2acda1c60e8e8bd5cd7
+Product revision: c3befb2fa397a6149e0f3090419e1210764d33b4
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -13629,3 +13629,40 @@ LN-error regression<=.03 and preserved inspected organization. Otherwise refine
 the objective/estimator based on the failed mechanism, without automatic longer
 fits or capacity changes. Scoped override qualification follows a successful
 native result; this card does not certify mid-song control behavior.
+
+### Result Log: range-outcome-r1-v1 integration and8-update smoke
+
+Accepted:none; Cardrevision1. Clean executable source
+c3befb2fa397a6149e0f3090419e1210764d33b4 extracts the existing recovery cost into a
+shared function and replays default recovery/LN feedback on complete actual
+prefixes for differentiable row scoring. Empty LN-count groups originally gave
+NaN backward derivatives despite valid forward probabilities; finite unused
+normalizers fix that without changing the distribution. MPS scoring first copies
+float32 scores toCPU and then casts tofloat64, retaining gradients across devices.
+The combined device/dtype conversion attempted initially cannot execute onMPS.
+
+Eighteen selected sampling/allocation/ownership/hold-audio tests passed in3.78s.
+They cover exact native proposal versus replayed probabilities, finite nonzero
+gradients, interval partition consistency across LN-control boundaries and held
+notes, and CPU/MPS agreement. Full237s Miraie generated1123rows identical to the
+previous cue checkpoint output with seed261103; no deployed trajectory changed.
+The first parity command compared a dictionary missing event_id against exported
+records and failed; the corrected complete-record comparison passes. This was
+instrumentation, not a sampling-law regression. Evidence: preference-parity.json
+in the new artifact owner. Product diff is scoped to the sampling helper, default
+preference reuse/differentiability, owning tests and documentation.
+
+Smoke owner smoke-outcome8; driverSHA
+9e34f12ce15373a5c9442c6412b348ace7d7bb80e1dcd6c64095763ec6f86a30;
+source/data/frozen-input identities are in its config.json. Model4,583,985params,
+2,737,331trainable. All8updates completed in65.668s,24complete generated candidates,
+five nonzero outcome-gradient updates, maximum nativeCPU/rescoredMPS log-probability
+difference3.0451e-5. The first selected interval was silent and all three first
+candidate costs were within tolerance, yielding a valid zero update. Costs and
+gradients remained finite. Frozen audio/H/R hash remains
+98c74f4d6363a1392332addbb02de4d14ccb8610ca86a7ed3a3528b16949c1fd.
+Peak physical footprint2.7681GiB,peakRSS1.4017GiB,MPSactive.7884GiB,
+MPSdriver1.5548GiB; counters overlap. Full-audio cache0hits/8misses.
+The smoke weights are not reused. These results establish a usable gradient and
+resource envelope, not quality. The declared128-update pair may proceed from
+core2500 without changing source, driver, panel or objective.
