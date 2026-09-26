@@ -741,3 +741,30 @@ and the difficulty allowance. Serious concentration remains in new locations.
 The source-style comparison is live under84983; do not restart it. The failed
 numeric gate does not cancel the planned source-style inspection or mixed LN/
 scope-control evidence. Neither fitted endpoint is promoted.
+
+### Diagnostic selected after the failed native gate
+
+No new fitting intervention or promotion. A bounded read-only probe will compare
+initial/source/response policies on identical old bank prefixes, using one context
+per each of20 bank songs: highest baseline-excess context when available, otherwise
+the first frozen ordinary context. Draw three new suffixes with seeds
+273020+10*case_index+i. This tests whether the fitted conditional objective improves
+in its training-state regime, not held-out quality. Then replay complete native
+response-policy generation on bank Stream4.5(case2) and Trill4.5(case14), at their
+original seeds/controls, to separate same-audio closed-loop behavior from the
+fixed-prefix observation. Frozen H equality must hold. Maximum300 active seconds,
+fresh conditional-probe output, unchanged fitted checkpoints and calibration.
+Run after the remaining response-style qualification, preserving its timing scope.
+
+The hypothesis is not yet established: a four-second objective on fixed old
+histories can omit states induced by an updated policy. Cross-audio generalization,
+control-scope coverage, conflicting factual gradients and incomplete response
+semantics remain alternatives. Relevant primary analogues are Ross,Gordon,Bagnell,
+A Reduction of Imitation Learning and Structured Prediction to No-Regret Online
+Learning (2011), https://proceedings.mlr.press/v15/ross11a.html, and Ross,Bagnell,
+Reinforcement and Imitation Learning via Interactive No-Regret Learning (2014),
+https://arxiv.org/abs/1406.5979. They motivate attention to learner-induced state
+distributions and cost information. Their assumptions/guarantees do not establish
+our chart semantics, and source style labels cannot be transplanted onto generated
+histories. Dynamic replay aggregation or an explicit calibrated response factor
+remain unselected follow-ups pending this distinction.
