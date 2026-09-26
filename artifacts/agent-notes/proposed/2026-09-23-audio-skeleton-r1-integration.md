@@ -15110,3 +15110,93 @@ Terminal artifact SHA-256 identities:
 - lens-review.json: 8e7e4666c5be2758fe8e272bf6e0b08cad0c4a48139d048fb44b72a1295f131e.
 - conditioning_probe.py: 23542be725f82d6826052e843953cdf48bdc726bdcd8da9773db30b4c07d0ed8.
 - conditioning-probe.json: 8018d13e854ea120c345490ef0b26da57ea53bc2cb7921542a8cb77c0026b931.
+
+### Experiment Card: layout-modulation-r1-v1
+
+Revision: 1. Accepted: none. This is the active Card; the physical-trajectory
+comparison has terminal results. Standing authority covers local implementation,
+training and qualification. No selected runtime checkpoint changes implicitly.
+Clean baseline: 720c63240c14316af22a4b98adcc6aa10915a107.
+
+Question: Can a small condition/history interaction in the main R1 layout path
+improve actual continuation organization beyond the affine head under the same
+physical-trajectory learning objective? The algebraic cancellation and actual
+trill attribution in row_condition_interactions.md motivate the intervention.
+Closest primitive: FiLM, https://arxiv.org/abs/1709.07871. The adaptation is a
+shared identity-initialized feature scale for an equivariant row policy, not a
+new general conditioning method.
+
+One intervention: optional layout_modulation in ControlledAudioModel. Let d be
+the sum of the existing projected local/global audio, H-preview and control
+vectors. Feed z_hand * (1 + tanh(W d)) to the main JointHead, sharing W across
+hands. W is a bias-free hidden-by-hidden matrix initialized to zero:16,384 new
+parameters for this checkpoint. Thus the initial policy is unchanged, while
+later shared conditions can change history-dependent reflected-candidate odds.
+The positive bounded scale ranges from0to2. Routing, release routing, composition,
+actual/reference LN branches and frontier retain their existing input paths.
+This targets the proved main-head restriction without changing those already
+nonlinear paths. H/R inputs, complete-row ownership, replay, scopes and output
+protocol are unchanged. No motif vocabulary or additional memory is introduced.
+
+Product scope: controlled model, focused modulation tests and owning research
+documentation. Check exact zero-initialized probability identity, old/new strict
+checkpoint restoration, nonzero learnable condition/history interaction for
+reflected same-count alternatives, mirror equivariance, unchanged H/R scores
+on fixed physical histories, and native cached/scored row parity. CPU/MPS checks
+cover the new multiply/linear path; do not rerun unrelated suites.
+
+Both architecture variants start from the same aligned-1200 initialization:
+67ef81fbb9fb2ecfc5ca19d8fc6767040b846e1ba8c41d4b8d61067abc08ee26.
+Reuse the frozen physical-trajectory actor panel
+ed49a8b9e590291b1fd73a42e9d4074291037f1f53c532904a97458bd34261fb,
+all128targets,384positive examples, independent generation seeds,16s burn-in,
+three draws, source anchors, factual condition alignment and kernel weight20.
+Freeze audio/H; train R/R1 as before, with layout_modulation added to the3e-4
+fast group. Other inherited weights stay3e-5, weight_decay.0001, clip1. The
+existing unmodulated kernel-128 run is the main comparator, not an adopted model.
+Its style U-statistic mean is .065342, control MAE .859223, and native static D3
+levels4.474/4.396/4.886. The continued-source guard comparator has style .051142,
+control MAE .806871 and native4.136/3.862/4.295. Baselines use three draws per
+reserved condition and are small-panel results, not population estimates.
+
+Before the main fit, run fresh four-update reference and modulated integrations.
+The reference reproduces the first four recorded kernel updates; compare source
+identities, objectives, candidate row hashes and sampling probabilities. Its
+weights are discarded. Modulated integration requires finite, nonzero modulation
+gradients and the existing actual-sampler row/R likelihood bounds. Discard those
+weights as well. Then train only modulated-128 from the initial checkpoint,
+using the same128update schedule. Select only the terminal checkpoint. No
+architecture, objective, data or driver edits while a fit is live.
+
+Primary study gate: reduce four-style mean U-statistic by at least .005 and15%
+relative to unmodulated kernel, and do not exceed the continued-source .051142.
+This remains a proxy gate. Lens must show improved coherent alternation or other
+appropriate organization without replacing it with narrow generic chord loops,
+and without sacrificing sustained/moving LN roles. Fewer repeats or longer holds
+alone do not count as success. Do not inherit source human labels for generation.
+
+Use the same qualification:30scoped continuations,12style guards,9LN guards for
+the new endpoint, plus six native static/switch runs. Reuse unchanged comparator
+outputs. Preserve committed prefixes and entering holds, rebuild caches under the
+new endpoint, and report before/override/restored fields separately. Control MAE
+must not exceed continued-source .806871 by more than .10. Each case/request LN
+error may not regress>.03, restored D error>.25. Each native static D3 readout
+may not exceed its continued-source comparator by>.10; inspect dense/switch
+contexts and retain cached-Mel first30/window timings. These are research
+progress gates, not a replacement for the ultimate playability requirement.
+
+New artifact owner: artifacts/joint-audio/20260926-layout-modulation-r1-v1.
+Reference/modulated smoke names are smoke-reference4 and smoke-modulated4;
+main name modulated-128. No overwrite or resume. Use uv run --extra mps with
+LAYOUT_ARM=reference|modulated, LAYOUT_RUN as above, LAYOUT_STEPS=4|128 and
+LAYOUT_SECONDS=600|5400, followed by train.py in that owner. CPU one thread plus
+MPS on the24GiB Mac. Stop on nonfinite values, violated source/score support,
+frozen-weight drift, footprint or MPSdriver>18GiB, STOP file or time bound.
+Training generation remains CPU with shared frozen full-song audio encodings.
+
+A positive result supports retaining the new conditional capacity for wider
+qualification, not automatic adoption. A negative result does not undo the
+algebraic finding; it can indicate insufficient signal, noisy trajectory credit,
+sparse semantic coverage or a poorly placed modulation. Do not silently add an
+LN-origin branch, alter the kernel weight or change trainable scope to salvage
+this comparison. Those would require an explicit subsequent revision/experiment.
