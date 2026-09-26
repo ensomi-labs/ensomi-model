@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 12b3e0d298477efe2c8eab58740d98397e02bec3
+Product revision: c1260d3737198e670f6b40254acbaf14fe0cf602
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -13333,3 +13333,34 @@ factorization remain unchanged. New output width equals the existing hidden128,
 so total added parameters are73,920, model total4,657,905. Recheck native/teacher,
 zero-transfer, gradients, mirror and normalized waiting behavior; commit this
 source before the32-update smoke. No old cue checkpoint has been fitted or released.
+
+
+### Result Log: active-ln-audio-cues-v1 integration and32-update smoke
+
+Accepted:none; Cardrevision2. Clean executable sourcec1260d3737198e670f6b40254acbaf14fe0cf602.
+The final hidden-conditioning implementation passed41selected tests in4.82s:
+controlled hold-audio/ownership and planned distribution/release-conditioning
+owners, including MPS loss/gradient comparison, old-origin retrieval, native
+query agreement and partition invariance. The earlier direct-output version
+also passed the selected checks but was refined before any fit; no scientific
+comparison used that version.
+
+Model4,657,905parameters,3,261,693trainable under this study;73,920new parameters.
+Only six hold_cues tensors are initialized; all other source tensors are consumed.
+Smoke command sets LN_AUDIO_ARM=cues,LN_AUDIO_RUN=smoke-cues32,LN_AUDIO_STEPS=32,
+LN_AUDIO_SECONDS=180 and invokes the new owner train.py with uv run --extra mps.
+DriverSHA4df86131921148706f2088af1e49068b342f2116f2527f85ead96b8b9ef13a31;
+reused samplerSHAf123b03e80611a3dd05b9a4ef0f066dee28ce43e0573fc9941dde81e2759f9c6.
+Both inference-mode validation and ordinary training use cache tensors created
+under inference_mode(False),no_grad, so a cached frozen encoding remains usable
+as an input to later weight gradients. The actual paired encoder/H frozen hash
+is9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed.
+
+The32updates completed in33.053s including initial/final validation,64distinct
+TRAINcharts,53population/11human accepted draws,three explicit source-release
+profile exclusions. Losses/gradients stayed finite and the frozen hash is unchanged.
+Peak sampled physical footprint3.955GiB,peakRSS2.225GiB,MPSactive.390GiB,
+MPSdriver1.795GiB; overlapping ledgers are not additive. The8-identity full-audio
+cache had0hits/108misses in this short sequence. These are integration/performance
+results, not chart-quality evidence. Smoke weights will not initialize the full
+comparison. The declared bounded1500-update pair may now start from core2500.
