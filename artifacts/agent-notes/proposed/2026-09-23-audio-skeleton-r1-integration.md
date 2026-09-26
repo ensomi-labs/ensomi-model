@@ -15710,3 +15710,45 @@ difficulty control is impossible. Risks include noisy sparse outcome credit,
 exploitation of the difficulty proxy, loss of style/LN organization, the restricted
 TAP-only learning slice and finite fixed-prefix coverage. The canonical player
 frontier remains a separate semantic requirement; this strain readout is not C0.
+
+### Result Log: executable paired references and initial outcomes
+
+Accepted: none; common-prefix-outcomes-r1-v1 revision 1, preparation stage.
+No product executable changed; source remains e48e4ba210a51951d530e6ff3989f41ec9794455.
+The first preparation stopped after six references on an empty BOS-prefix array
+serialization error. That attempt and its original scripts are preserved under
+`prepare-attempt1`; no model was fitted. Empty rows now serialize as shape (0,4),
+and the H digest explicitly hashes contiguous times rather than structured-row
+padding. These are preparation fixes, not changes to eligibility or the experiment.
+
+Fresh preparation completed in 105.560 seconds: 55 executable pairs, with 47
+training and eight reserved. Of 128 original pairs, 72 have source LN content or
+entering holds; one TAP-only high body failed current-state support at 144029 ms.
+All remaining references preserve their original body actions. Broad anchor pools
+retain 878 population and forty prominent human cells after reserved exclusions.
+Training target difficulties span 2.089–5.548. The frozen panel SHA-256 is
+8fbeb1ae026bf65c1feda5667d3a98a54808183b4b12e5dff236765e8bcc99f7.
+
+The initial checkpoint completed 48 reserved continuations in 49.880 seconds.
+Mean absolute D error is .512480; mean absolute high-minus-low gap error .735963;
+21/24 paired seeds (87.5%) have positive response. No generated target scope
+contains an LN. The primary intervention therefore must reach MAE at most
+.312480 and gap error at most .585963 relative to this initialization, as well
+as the declared matched source-only improvements. For every reserved target,
+an admitted body demonstrates execution support from the exact same prefix.
+These references are not claimed to be human-approved hybrid charts.
+
+Input hashes: shared.py
+202ff6d565ba68cc66f5789fa273ed30f7808f00b3cbdbae365d1fa06a48dab5;
+prepare.py 79f69b7a3d2150dcee00a83c2d41d7bed6fc8b86a59f3c8c1ba3d310185984cf;
+baseline.py b95d1898e34c42e0453c121ea95ad3c64270f73d1c70dede60b6ada811ffc2e1;
+train.py b02c91d28fad1f7c8e4a7e188f020150c3e2541b708247c12f35ce187c14cab1.
+Preparation handles 62387 (failed) and 32816 (complete), plus initial qualification
+89894, are terminal. Four-update integrations precede any main fitting.
+
+The external score-function analogue is Ahmadian et al.,
+https://arxiv.org/abs/2402.14740, which revisits simple REINFORCE methods for
+sequence outcomes. Here the environment is a state-dependent fixed R clock,
+the reward is an offline scoped strain/amount cost, and independent within-request
+draws supply the leave-one-out baseline. No new critic or PPO approximation is
+introduced; performance claims from language tasks are not transferred.
