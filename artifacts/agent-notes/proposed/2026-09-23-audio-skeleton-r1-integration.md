@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-27
-Product revision: faf726d30cea3a0ad4f0140b884d3d52dddec4cc
+Product revision: c4d9e730375ace301f8ae68d34afbab50a75e5a5
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff; 2026-09-27-player-response-frontier
 
@@ -16316,3 +16316,24 @@ style evidence, keeping the bounded scheduler and H ownership distinct. The
 source corpus's valid high-load exceptions preclude a universal hard percentile
 mask. The full goal remains active; the leaf Note retains all current evidence,
 source/checkpoint identities, limits and playable before/after packages.
+
+### Result Log: player-state-conditioned native policy learning
+
+Implementation94d0b082282ae886709c72ffdc885b2f4e045252 adds a12,288-parameter causal
+player-state projection to R1 and an open-ended row-trace scorer with CPU/MPS
+native-probability/gradient parity. Eighteen focused checks pass. A20-song replay
+bank supplies69 high-excess and80 ordinary contexts; genuine source annotations
+remain separate supervision. Source-only and source-plus-response384-update fits
+are complete with identical768 factual draws and frozen audio/H/R. The latter
+uses1152 four-second current-policy futures on fixed generated prefixes;272
+retain open LNs. No fabricated endpoints or generated pseudo-style labels enter
+training. Curated description is in player_state_conditioning.md at
+c4d9e730375ace301f8ae68d34afbab50a75e5a5.
+
+The source-only endpoint worsens nine-case native Stream excess and difficulty,
+although LN amount and restored-range difficulty improve in separate guards.
+It is not promoted. The response endpoint's native qualification is live under
+44343; source384 training28653, response384 training55349 and source native42908
+are terminal. Note2026-09-27-player-response-frontier owns exact artifacts,
+checkpoint hashes, remaining source-style qualification and interpretation.
+The goal remains active; main-model playability is not yet established.

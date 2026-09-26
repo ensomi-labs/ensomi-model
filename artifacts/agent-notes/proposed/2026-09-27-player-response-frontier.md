@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: faf726d30cea3a0ad4f0140b884d3d52dddec4cc
+Product revision: c4d9e730375ace301f8ae68d34afbab50a75e5a5
 Scope: Canonical continuation-response semantics; sustained per-column demand, temporal variation, and publication-time playability for the audio/H/R/R1 system
 Related: 2026-09-23-audio-skeleton-r1-integration
 
@@ -665,3 +665,56 @@ c67cb4087a017f0a425e58d658b67867f0969e6a68f26f6a84a2f93820e3a217, shared.py
 466e78ec80aedb7c9b4d1f85f8d7589c6c8b507be90403d41fa7763c799ff4f4. No live input is
 edited. Do not restart the live source-only run. The response arm starts from
 the same declared initialization, not smoke weights.
+
+### Result Log: completed player-state fits and first native comparison
+
+Accepted: none; player-state-r1-learning-v1 revision3. Both training handles are
+confirmed terminal: source28653 and response55349. Source-only completes384
+updates in401.496 seconds; checkpoint SHA-256
+7e0c5dba508af1968bed38b915246c822037c92c519846c1e3e0fb21b4693237. Response completes
+384 updates in1492.603 seconds; checkpoint SHA-256
+a91791fb7fda45190ddb0a2f1f17dc160b4e55e6cf1030cf3b17424d1a147ad6. Both consume the
+same768 factual source identities in the same order, verified from final logs.
+Frozen audio/H/R hash remains8c21a572ba08b5c8f847e818f318d8c92ef7d8f070616eb5ce0d42d911f626a5.
+The new projection norms are.503758/.512772. Sampled footprint peaks4.975/5.175GiB,
+MPS driver3.077/3.159GiB. Partial overlap precludes isolated fit-throughput claims.
+
+The response arm draws1152 private futures. There are445 positive-cost futures,
+162 nonzero response-gradient updates, and272 futures with open holds at the
+four-second horizon. Maximum sampled/rescored row discrepancy2.291e-5. All live
+input hashes still match configuration. The source code and smoke contract are
+explained in docs/research/player_state_conditioning.md, product
+c4d9e730375ace301f8ae68d34afbab50a75e5a5. No main-model quality claim follows from
+these fitting statistics.
+
+Source-only native qualification finishes14 outputs under handle42908 (terminal).
+Every H stream matches its baseline. The nine Stream mean excess worsens from
+.027516 to.144229, and whole-D MAE from.478926 to.852546. Strongest four-second
+column rates reach8.75Hz. Adding observable state and source likelihood alone
+does not teach its use as a load limit. Do not promote this endpoint or attribute
+the failure solely to the new projection: R1 weights, factual control coverage
+and supervision also changed. Generated-state response learning is the declared
+comparison still to qualify.
+
+Retain mixed effects instead of discarding all changes: the source-only LN guard
+moves from D4.8027/rho.7634 toD4.5124/rho.6396 for target4/.6. In the actual switch,
+before D2.2461/rho.1353, override D3.2746/rho.5828, restored D3.5679/rho.1937. The
+restored difficulty is closer than the initial4.4218, but override difficulty is
+farther from4.5 than the initial3.9010. Different ranges remain separate.
+
+Response native qualification is live under44343:
+uv run --extra mps python artifacts/joint-audio/20260927-player-state-r1-learning-v1/qualify.py response native.
+It starts only after both fits terminate. Do not restart it because a report is
+partial. Both endpoints still need twelve source-style outputs each via
+qualify.py source|response styles, then matched Lens review and final analysis.
+No such style outputs are yet claimed generated or judged.
+
+Four genuine high-confidence prominent source references are rendered in
+lens-references. Page1 of Tech/Jack/Stream/Trill has been read; the Trill page
+includes the end of its fixed two-plus-two exchange and subsequent movement.
+The reference label scopes remain158638-165038,44257-50924,79290-85290 and
+288156-290040ms respectively. Their local targets are D3.414/rho.0118,
+D4.170/rho0, D4.590/rho0 and D5.076/rho0. Source reference render handle57662 is
+terminal. Other pages remain unreviewed. An audit also finds no reserved-song-
+group overlap among any of the768 factual draws. This is a repeated developmental
+qualification, not an untouched test set.
