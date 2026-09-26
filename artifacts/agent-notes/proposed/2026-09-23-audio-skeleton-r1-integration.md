@@ -13185,3 +13185,129 @@ still permits necessary local design, implementation and bounded experiments;
 there is no new permission blocker. Full-audio train/inference symmetry, native
 millisecond timing, incremental LN endpoints and the existing scoped interface
 remain fixed. Long-range musical memory remains deferred.
+
+
+### Experiment Card: active-ln-audio-cues-v1, revision1
+
+Owner:this proposed Note. Accepted:none; standing local design/implementation/run
+authority. Previous goal turn is progress: matched fits, response-policy charts
+and scoped failures changed the next action. Clean baseline product
+12b3e0d298477efe2c8eab58740d98397e02bec3; core controlled2500 checkpointSHA
+0f1ddfa5b351988fca04246ec080be106855f49b50fb493370c2d5afee1febb8.
+Question: can a small shared representation of each active LN's audio origin
+improve release/row coordination and hold relationships, compared with the same
+amount of ordinary joint release/R1 continuation training?
+
+The current clock sees current audio, timing history and LN ages; R1 sees current
+audio, complete row history and exact replay. Neither explicitly retrieves fine
+and coarse audio at the active hold's actual start. A hold can outlive both the
+training fine-audio crop and the finite content history. The new representation
+uses a physical address already available in replay, without predicting endpoints
+or inventing a named musical section. This is a testable architectural hypothesis,
+not a finding that current information is mathematically insufficient.
+
+Closest analogue: Key-Value Memory Networks (Milleretal2016,
+https://arxiv.org/abs/1606.03126v2) separate addressing from the retrieved values.
+Here the address is exact committed LN start time, so no learned retrieval,
+codebook or persistent song latent is needed. A shared four-slot relation encoder
+is an adaptation of that memory-access idea, not a new general learning method.
+The paper's QA results imply no chart-quality guarantee.
+
+Intervention: for each active columnj, retrieve A(s_j) from the same complete-song
+encoding used for current A(t). Encode[A(s_j),A(t),asinh((t-s_j)/1000)] through a
+shared two-layer GELU MLP of width64; absent slots are exactly zero. The release
+clock receives a zero-initialized projection of the sum of these slot values,
+which cannot select a release identity. R1 receives a zero-initialized projection
+of the four ordered slots, with mirrored relative-hand views, in its context
+before composition and layout scoring. R1 continues to choose counts, kinds,
+release subsets and columns. The original frontier2 path remains. The shared
+encoder receives both release-time and row likelihood gradients. No R1 hidden
+state or TAP history enters the new release cue; no source future endpoint or
+future materialized row enters any cue. H receives no cue or new dependency.
+
+An optional hold_audio_width=0 preserves old checkpoints/default behavior;64
+selects the branch. Pass actual active-LN starts through row, release-grid and
+hypothetical release-wait batches. Inference reconstructs the same inputs from
+committed replay. Do not use a crop-clamped value for an older hold origin.
+Training gains an explicit full-encoded-audio path, used identically in both
+arms. The first comparison freezes the shared audio encoder and H; an in-memory
+cache may reuse only the frozen complete-song encoding. Source-gradient tests
+must establish that the path also remains differentiable when unfrozen. Runtime
+fork/control changes do not introduce mutable learned LN memory: exact replay
+plus unchanged full audio determines the cues.
+
+Implementation scope: controlled model/new hold-cue module; planned interval
+inputs/scoring and native session feature plumbing; owning research docs/tests.
+No YAML/CLI, canonical formulation, protocol, H support or sampler-policy changes.
+Tests cover a hold whose origin precedes the local crop, training/native query
+agreement including conditional release waits, complete-window partition
+consistency, mirror behavior, unchanged H/TAP-independence, gradients to both
+cue readouts/shared encoder, disabled-mode compatibility and data-only checkpoint
+loading. Commit the executable intervention before fitting.
+
+Two arms, cues64 and continued0, start from the same core with fresh AdamW
+optimizers and seed261230. Use the unchanged6923TRAIN/36VAL manifestSHA
+4cea2672387b6293a4da0846be479d8bd9c857e55535dc8143bd11d65b06d2c4 and human
+cohortSHA252fe593514adc5498011b55dbf62224cba55651025233fc1ed9235078bb95b8.
+Use the existing75% group/chart/time and25% human-chart/labeled-time proposals,
+retain each proposal branch across profile rejection, the same8s intervals,
+per-field scoped labels and15% family dropout. Reset Torch RNG after construction
+and compare actual draw records. No TEST. Annotation unknown stays unknown.
+
+Freeze audio_input,audio_blocks,context,head_temporal,head_condition,head_base,
+head_control,timing,context_timing and audio normalization buffers in both arms.
+Train release temporal/clock and inherited R1 modules at3e-5; composition,
+row_control,release_control,preview_condition and new hold cues at3e-4. AdamW
+weight_decay.0001,clip1,batch2. Optimize the existing joint interval likelihood;
+H loss is unchanged diagnostic, and no new duration target/ban is introduced.
+The changed gradient signal is the shared audio-origin representation, not
+projected NLL or relabeled generated histories. NLL never selects the checkpoint.
+
+Run a32-update integration/profile smoke first in fresh smoke-cues32. If finite
+loss/gradient and resource behavior hold, run1500updates per arm, at most1800s
+each, serial MPS withCPU1thread. Full-audio cache at most8audio identities; record
+peak memory ledgers separately and stop if process physical footprint or MPS
+driver exceeds18GiB, or on nonfinite values/source-support inconsistency. No
+capacity/gain sweep or resume. Freeze terminal checkpoints only. The TRAIN audio
+duration median/p90/p99/max is132/249.613/387.108/1800.775s; full-song costs must
+be measured rather than assuming every input is short.
+
+Fresh owner artifacts/joint-audio/20260926-active-ln-audio-cues-v1, directories
+smoke-cues32,cues-1500,continued-1500,source-cues,source-continued; no overwrite.
+Record source/script/checkpoint/frozen-input identities, actual draws and resource
+use. The original model and all response-projection/rate/prior alternatives stay
+off as additional interventions. Use ordinary projected LN amount/recovery
+sampling exactly as the original core for qualification.
+
+Primary generation: the existing source-H singles/chords/holds panel, seeds
+261101/261102/261103, from BOS with source whole stars/LN fraction and unknown
+style. The holds source is3.00474stars,.843931LN,median222ms,no<=80msLNs; original
+core generated3.49210stars,.861379LN,median154ms,12.9%<=80ms. Seek cues median>=185ms
+and <=80ms share<=.08, with an improvement of at least.03 in that short-tail share
+against continued fitting. Preserve realized LN-fraction error<=.04 and star
+error<=.65; singles/chords star-error regression<=.35 and LN-error regression<=.03
+against continued. Every H must remain exact and every case finish within120s/
+30000rows. Inspect source, matched and new peak LN relations with Lens; reject
+trivial uniform holds, loss of mixed TAP/LN organization or excessive chord mass.
+Longer holds alone are not a quality verdict or a ban on real short LNs.
+
+Qualitative guards also run two TRAIN charts with High human LN-coordination
+judgments and compatible H capacity: Starry Jet[Star],sourceSHA
+14e37ee256afa7ae6f3ba84e1cbdec139b6b69e5df72983021f1c97aa86f32d4,
+annotation[198241,204908),seed261231,1440H,duration250453; and Shippaisaku Shoujo
+[inabakumori Remix][Forlorn],sourceSHA
+a274bdff517762b92ef7ac4112e5a29038132ad9557d59abce4a2947336ecb61,
+annotation[86452,93511),seed261232,1202H,duration183973. Use their source whole
+stars/LN fraction and request ln-coordination=prominent only over the annotated
+range. These are seen-data mechanism/organization checks, not generalization.
+Inspect full context, entering holds and all endpoint relations; source labels
+are not copied to generated charts.
+
+If primary and qualitative guards pass, use the fixed three full-audio cases
+Zenithfall/Hysteric/Take at3/.7 and their existing seeds to test whether the new
+path transfers to native timing. Seek mean star-error improvement>=.35 against
+continued, no per-case regression>.25, LN-error regression<=.02 and no collapse
+of hold relationships. H traces must match across the two frozen-H/audio arms.
+If primary fails, do not scale or launch this native expansion. Similar or better
+continued results favor the simpler model. Failure calls for a revised scoped
+response/objective study, not hidden endpoint heuristics or more width.
