@@ -16091,3 +16091,19 @@ solve control. Main risks are score-gradient variance, inadequate target/state
 coverage, excessive attachment to a flawed reference, and proxy optimization
 without better music or player experience. Evaluation remains REFINE unless
 independent evidence establishes more; the overall playability goal stays active.
+
+### Result Log: paired-response estimator implementation
+
+Accepted: none; paired-response-r1-v1 revision 1. Clean intervention helper source
+ba406ef827807e3a7045623dff0afa4e6084873b adds only outcome_learning.py and its
+focused tests. Six finite-policy cases pass (0.51s): both ordering directions of
+coupled Bernoulli draws at m=2/3, and state-dependent two-step trajectory KL with
+zero/nonzero independent baselines. An initial test attempted two backwards on
+one freed graph; retaining the reference derivative's graph repairs that fixture.
+No estimator discrepancy or model fit occurred before the fix. No deployed
+architecture, control interface or sampling behavior changes.
+
+The new local driver and reused-panel identities are frozen in the fresh owner's
+input-receipt.json. Main source remains clean. Four-update integrations now test
+sampling/rescoring, reference support, actual added gradients and resource use
+before any 128-update fit. Smoke weights will be discarded.
