@@ -1,0 +1,14 @@
+defaults:
+  - controlled_demo_schema
+  - _self_
+  - override hydra/job_logging: disabled
+  - override hydra/hydra_logging: disabled
+hydra:
+  run:
+    dir: .
+  job:
+    chdir: false
+  output_subdir: null
+
+checkpoint_file: ${oc.env:ENSOMI_DEMO_CHECKPOINT,""}
+checkpoint_sha256: 364c7b711bc39ab3384175b755658d2ef67a4c10b166f5eb85dc072d920e10e3

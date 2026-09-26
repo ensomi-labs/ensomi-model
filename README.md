@@ -60,6 +60,10 @@ measures full-audio preprocessing, scoped-control generation, feature-cache reus
 and publication-window service on an M5 Mac. It provides local scheduling budgets
 and identifies the producer-watermark contract needed for client integration.
 
+The [local controlled-generation service](docs/engineering/controlled_demo_service.md)
+provides the H/R/R1 backend for the macOS Listen & Play demo. It serves confirmed
+chart windows with per-session state and reusable full-audio features.
+
 ## Legacy code boundary
 
 > **Do not use mapper v2/v2.1, the pre-V3 timing stack, Control V3, or the

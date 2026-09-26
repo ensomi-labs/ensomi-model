@@ -76,7 +76,7 @@ class ContinuationSession:
     def __init__(self, model, mel, duration_ms, *, seed, planner_factory,
                  chunk_ms=500, head_chunk_ms=500, max_rows=30000, max_seconds=90.,
                  stop_callback=None, correct_short_attacks=False,
-                 arrangement_profile=None, head_times=None, row_constraint='none', controls=None):
+                 arrangement_profile=None, head_times=None, row_constraint='none', controls=None, encoded_audio=None):
         if (type(duration_ms) is not int or duration_ms < 0 or
                 any(type(v) is not int or v <= 0 for v in (chunk_ms, head_chunk_ms, max_rows)) or
                 not np.isfinite(max_seconds) or max_seconds <= 0 or
@@ -98,9 +98,17 @@ class ContinuationSession:
         self.device, self.dtype = next(model.parameters()).device, next(model.parameters()).dtype
         _synchronize(self.device)
         self.started = time.perf_counter()
-        encoded, self.arrangement = model.encode_generation(
-            torch.as_tensor(np.array(mel, copy=True), dtype=self.dtype, device=self.device)[None],
-            seed=seed ^ 0x61F9, code=arrangement_profile)
+        if encoded_audio is None:
+            encoded, self.arrangement = model.encode_generation(
+                torch.as_tensor(np.array(mel, copy=True), dtype=self.dtype, device=self.device)[None],
+                seed=seed ^ 0x61F9, code=arrangement_profile)
+        else:
+            # The caller owns identity: this immutable encoding must use these frozen weights and full Mel.
+            if (model.config.profile_count or arrangement_profile is not None or
+                    encoded_audio.shape != (1, len(mel), model.config.conditioned_audio_width) or
+                    encoded_audio.device != self.device or encoded_audio.dtype != self.dtype):
+                raise ContractError('Cached audio requires the complete, matching unprofiled encoding')
+            encoded, self.arrangement = encoded_audio, {}
         profile_index = self.arrangement.get('arrangement_profile')
         self.encoded = model.condition_audio(encoded, profile_index)
         self.downstream_encoded = (self.encoded if model.config.profile_head_rate_downstream else
