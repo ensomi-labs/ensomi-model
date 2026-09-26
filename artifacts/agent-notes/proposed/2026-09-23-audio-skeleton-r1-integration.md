@@ -12847,3 +12847,87 @@ are actual generated charts, response trajectories and separate control ranges.
 If it fails, retain the negative result and revisit scoped multirow response
 prediction rather than silently increasing the penalty. Source rating and this
 response are proxies; neither alone demonstrates good playability or LN quality.
+
+
+### Result Log: causal-attack-work-v1, revision1
+
+Accepted:none; source94c69684bf82e6621412a4d8a92fa0afb9e8ff72. Calibration selected
+64distinctTRAINgroups,8per declared whole-star/LN stratum, then binned observations
+by their actual16-second scoped difficulty label. All choices were frozen before
+generation; no outputs informed the reference. Calibration took1.233s. Margins
+at2.5/3.5/4.5/5.5 are.294012/.278571/.282031/.240516. The5–6scoped bin has only
+five TAP and four LN charts contributing, despite balanced source selection;
+this is a small development reference, not a population quantile estimate.
+
+ReferenceSHA42735224834a76e640871e22cf78adaafc5f613efd6bbf398ea5b12b9aeea951;
+freezeSHAf64910bb94bdc1205421f14c1ad10bf9adb940a7dcca74a99d76da4acec6bc15.
+Response codeSHA04848386114b1df91a35c679dbda85ce02cee1029f1f0d5f0a1437b431e964b4;
+calibrationSHA9a8d0d26cf97d639cd477dc21b01c2745ef2b57dbbe0f9b5cb221e8c70006e6d;
+source driverSHAcb3cc13da553f5c40810fb0ee87c8c6885a645273d34be9490d5a02113abbb26.
+All three source-H cases complete, stars4.03634/2.90748/3.32066. Singles improves
+.81571 fromcore2500 but still has1.03757 absolute error, failing the.6 guard.
+No extra-seed or native expansion was started. LN fractions.02204/.002825/.86222;
+max attack-only responses4.29495/3.47884/3.58633. ResultsSHAdf5519f9677722c178f2d7220640c1c5599eb46f0963cb0a2340894ad683092f.
+
+An independent250-source-row exponential sum matches cached replay; split/direct
+time advance and mirrored candidate vectors agree at1e-12. A native20s test
+forked after10s and applied5/.7 controls at14–18s: both same-seed forks agree,
+parent rows/state remain unchanged, the control update retains actual demand,
+and replay of107generatedrows matches the cached response. VerificationSHA
+3b4bd8967e6661fa7b40742daf2515a90db718a00d59e228d9e5fee7687e316e.
+These checks establish the state implementation, not the response's semantics.
+
+Decision: REFINE. The finite penalty improves the observed excess but has no
+invariant relating the final row probability to the reference response. Its
+strength competes with arbitrary learned logits. Do not search stronger gains.
+The next revision changes the mathematical policy contract instead.
+
+### Experiment Card: causal-attack-work-v1, revision2
+
+Owner:this proposed Note; Accepted:none. Revision1's fixed penalty is superseded
+for further experiments; all its result evidence remains. Baseline, response
+state, calibrated reference, checkpoint, data exclusions, source-H cases/seeds,
+quality thresholds, resource bounds and initial expansion gates stay unchanged.
+No new calibration or generator fitting. Fresh outputs source-projection,
+source-projection-extra,source-base-extra and native-projection-low in the same
+artifact owner. Preserve revision1 scripts/results rather than overwriting them.
+
+Replace the fixed quadratic penalty with the minimum-KL categorical projection
+of the actual R1 sampling distribution. LetB be legal candidate rows whose
+attack response exceeds D+margin(D). When the complement is nonempty, require
+q(B)<=.05. If the original mass is already<=.05, return it unchanged. Otherwise
+rescale the two sets to.05/.95 while preserving all odds within each set. This is
+the closed-form minimizer of KL(q||p) for that one partition constraint, so it
+does not need a logit-strength sweep. The.05 budget is a policy choice tied to
+the95th-percentile reference; the marginal corpus quantile does not itself
+prove a5% conditional exceedance law or playability.
+
+When every supported row exceeds the reference, mark the request locally
+infeasible. Use the minimum-response supported tier as the recovery complement,
+with the same.05 excess-tier budget. Report these cases and the minimum feasible
+response separately; this fallback does not satisfy the original threshold.
+When every row lies in one tier, preserve the distribution. No row is made
+illegal or assigned zero mass solely by this preference. Release-only choices
+have identical attack responses and remain unaffected by this partition.
+
+Ordering changes necessarily: apply this projection after existing recovery and
+LN-amount preferences so its bound holds on the final sampled distribution.
+This can change LN mass through correlations between placement and LN choices;
+the scoped integral controller observes the actual selected row on the next
+update. There is no claim that the two preferences commute or simultaneously
+fix exact LN proportions. Retain the explicit LN-error regression guards.
+Neither H nor release-timing network receives attack-state input.
+
+Instrument pre/post excess probability, KL change, local infeasibility and
+realized responses on H rows. Verify the bound on every feasible generated H
+query, unchanged conditional odds within each tier, mirror behavior, and exact
+source-H preservation. The bound concerns this attack-only response; it cannot
+certify LN coordination or response channels excluded by the proxy.
+
+Use the same first three cases and thresholds asrevision1. Only after they pass
+and Lens shows retained organization, run the two extra singles seeds and three
+native3/.2 cases specified previously. Do not change the.05 budget or the frozen
+reference after seeing results. Failure returns to multirow response learning,
+not further gain or tail-budget tuning. Potential later on-policy distillation
+would use projected soft targets on the same genuine generated states, never
+source suffix labels; it is not authorized by this revision's run procedure.
