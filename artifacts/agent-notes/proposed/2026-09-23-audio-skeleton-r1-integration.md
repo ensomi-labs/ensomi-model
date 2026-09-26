@@ -14052,3 +14052,33 @@ LN's future tail; exact committed prefix equality, not offline-before-rating
 equality, is the causal invariant. The five case/start/seed settings and all
 thresholds remain revision1. Qualifier artifact evaluate.py SHA256
 57b0b6dc5f9734ee83d3d1a66963c0d6aa6674d307b89cea56b536e72a86b3a6.
+
+### Result Log: paired-scope96update endpoints
+
+Accepted:none, Card paired-scope-controls-v1 revision1. Both arms completed
+96updates from core2500 on clean source2c2b8af with unchanged common/train
+driver hashes. Their96source context records match exactly, four shuffled passes
+over24contexts. Source-only runtime36.2553s and paired runtime635.6904s include
+their declared data/cache preparation; only paired reconstructs the prefix bank
+and samples384complete suffix candidates. All96paired updates have nonzero
+difficulty gradients. No whole-LN cost exceeds its.03deadband, hence that term
+has no nonzero gradient in this particular fit. No weights outside the selected
+12,288difficulty entries changed. Maximum supported sampling/rescoring error
+2.2891500947253007e-5. Both jobs are terminal; no intermediate checkpoint selection.
+
+Source-only terminal checkpoint SHA256
+e6deaf34613a1a1851289d8dd3e2aa1901f11a3cad9219acd50bbdfa3d8a1ba4.
+Paired terminal checkpoint SHA256
+9f0f5a862793d7871179e21714bd09b41a30eaeacdab3a90eca3e5c7c081b73c.
+Source peak sampled footprint2.2112GiB, RSS1.1558GiB, MPSactive.1782GiB,
+MPSdriver1.2492GiB. Paired peaks2.7815/1.7189/.3014/1.2780GiB respectively;
+these are separate overlapping ledgers. training-comparison.json records exact
+context-order identity and per-round request-stratified errors. Training trends
+are not qualification evidence and neither model is adopted.
+
+Qualification launched with uv run --extra mps python
+artifacts/joint-audio/20260926-paired-scope-controls-v1/evaluate.py into the fresh
+qualification directory. It uses the five frozen diagnostic cases, core-generated
+common prefixes, source H timestamps,3paired future seeds/request/arm and true
+audio EOF. It retains existing human style requests for the two LN contexts.
+All output rows are independently exported/reparsed by the established writer.
