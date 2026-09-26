@@ -16161,3 +16161,35 @@ fit is live under 90026; do not restart it. At update37, 222 generated candidate
 included two target-scope LNs but no score horizon beyond the requested scope.
 The existing style-classifier postmortem still reports failed Trill/LN human-positive
 detection; it is not introduced as a reward or quality oracle in this study.
+
+### Result Log: paired-response active fit handoff
+
+Accepted: none; Card revision 2. Both processes are confirmed live, not inferred
+from files alone: independent exec handle 90026, paired exec handle 50594. Latest
+step records are independent 90/128 at 1,346.809s (540 draws), paired 26/128 at 586.821s
+(156 draws). Neither endpoint result/checkpoint exists yet. Last emitted sampled
+footprints are 5.297 and 4.937 GiB, combined about 10.234 GiB, below the revised 18 GiB
+bound. Maximum sampled/rescored errors remain below 2.71e-5. Do not restart either
+fit merely because one observation has no new output. Poll those same handles.
+
+The finite-check helper, shared driver and panel hashes still match input-receipt.
+Production source remains clean at ba406ef827807e3a7045623dff0afa4e6084873b. Local
+qualification adapters parse and are ready: baseline.py independent|paired;
+QUAL_ARM=independent|paired qualify.py; analyze.py [arm]; NATIVE_ARM=... native.py;
+native_compare.py; lens_pairs.py and lens.py. Qualification exports are not yet
+produced. Both arms must receive reserved, secondary, locally matched style/LN
+and six native runs; native timing waits for both training processes to finish.
+Initial reserved results are exact reused prior actor outputs with reuse.json.
+Continue from these artifacts rather than recreating the panel or training code.
+
+At an earlier snapshot, recorded draw-plus-outcome work accounts for 770.1/1161.3s
+in the independent arm and 234.5/423.2s in paired. This is elapsed subphase
+accounting under overlap, not a CPU/GPU utilization attribution. The driver
+currently generates the entire remainder even when no relevant LN crosses the
+scope. A future performance change could stop after all outcome dependencies are
+resolved, provided it preserves the full timing-only H preview for rescoring.
+Current SourceChart requires terminal LN closure and a post-seed suffix, and
+planned collate_interval derives future H from complete row storage. Those adapter
+assumptions explain why simply truncating rows would be incorrect. Do not fill
+future rows with invented/source actions to evade that contract. No such change
+is implemented or authorized as a deviation of the live fitting comparison.
