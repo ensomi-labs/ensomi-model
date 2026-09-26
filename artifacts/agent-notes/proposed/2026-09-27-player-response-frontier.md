@@ -227,7 +227,7 @@ over real time. Preserve legal LN execution, direct audio and scoped controls;
 H remains responsible for timing and recovery intervals. Do not resume scalar
 difficulty-only tuning as a substitute for the reported playability failure.
 
-## Experiment Card: sustained-response-planning-v1, revision 1
+## Experiment Card: sustained-response-planning-v1, revision 2
 
 Accepted: none. Local exploratory implementation and execution use the owner's
 standing research authority. Baseline source is clean product
@@ -302,7 +302,9 @@ ranges separate. Existing scalar stars are descriptive secondary outcomes only.
 
 Use one CPU thread, cached canonical Mel and loaded CPU weights on the M5/24 GiB;
 uv run --extra mps for model-backed commands and --group dev for tests. Seed rule:
-native seed XOR 0x6F17, then per-decision independent retry draws; record seeds.
+Stream native seeds are 271200+10*case+draw; guards use 272300+j for
+Jack/Tech/Trill/LN/switch respectively. Native seed XOR 0x6F17 initializes
+per-decision independent retry draws; record every retry seed.
 Compare model-loaded timing including audio encoding, first thirty published
 rows, and publication windows. Guard: first thirty rows at most 2 seconds and
 worst 2-second publication service below 2 seconds on these diagnostics; no
@@ -353,3 +355,40 @@ The two-case native smoke now runs under handle 53417 via
 uv run --extra mps python artifacts/joint-audio/20260927-sustained-response-planning-v1/run.py smoke.
 Its config records clean source, checkpoint, driver, metric, calibration and
 panel hashes. Do not edit those inputs or restart while the process is live.
+
+
+### Result Log: smoke inspection and expanded native comparison
+
+Accepted: none. Revision 2 fills the exact native guard seeds before those runs;
+all other protected fields are unchanged. The smoke and seven remaining Stream
+cases complete under the same frozen run.py and calibration. Handles 53417 and
+9789 are terminal. All nine H streams match their original counterparts.
+
+Smoke maximum four-second per-column rates fall from 7.75/7 to 6/6 Hz. Exact
+original-window counts change from [1,31,1,1] to [5,9,18,8], and from [4,4,28,1]
+to [7,12,15,10]. Whole proxies change 4.9844 to 4.8483 and 3.9434 to 4.3093; the
+second case illustrates why scalar improvement and sustained-load improvement
+are separate. Whole-song integrated excess falls .106111 to .002232 and .002506
+to zero. Runtime is 33.922/15.850 seconds for complete audio, first thirty
+published rows .615/.416 seconds, slowest two-second publication .953/.282 seconds.
+Zenithfall uses 239 candidates for 179 decisions, replacing 21 initial proposals;
+15 selected horizons retain nonzero cost. Hysteric uses 156/151, replacing four,
+with no selected horizon above the reference. The budget is never widened.
+
+Lens reviewed Zenithfall original pages 0/1/2/3, Hysteric original 1/2, and both
+new maximum-load contexts' pages 0/1. The prolonged nearly uninterrupted single-
+column episodes are broken. Short same-column runs, repeated chord groups and
+anchors remain; this is not a prominent-Stream quality pass. The new strongest
+Zenithfall context moves across columns with chord accents. Hysteric still has
+noticeable repeated anchors. No more severe new pathology is observed in these
+contexts, satisfying the declared expansion condition. Exact observations and
+review limits are in smoke-lens-review.json. Harness source
+22e5c84f5cacb8493bdab5f1d0fdc09c5373dc60 is read-only.
+
+Source contrast evaluation is deliberately retained: valid ranked Happy Love
+Expert and Extra Mode contexts receive positive excess .005942/.000805; the
+human Stream context receives zero. Quantile excess cannot distinguish all
+valid expressive extremes from BAD arrangements. The selector is a bounded
+sustained-load preference, not a corpus-derived proof that cost-positive means
+unplayable. Follow-up R1 style learning must address short repeated-group bias
+without lowering this load threshold to force a Stream label.
