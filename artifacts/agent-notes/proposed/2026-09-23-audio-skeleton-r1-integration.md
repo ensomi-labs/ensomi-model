@@ -4,8 +4,8 @@ Note ID: 2026-09-23-audio-skeleton-r1-integration
 Status: proposed
 Kind: research
 Created: 2026-09-23
-Updated: 2026-09-26
-Product revision: e48e4ba210a51951d530e6ff3989f41ec9794455
+Updated: 2026-09-27
+Product revision: a99519ccee60925dce10a4200f88a6c049d37964
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -15849,3 +15849,121 @@ reinterpret a native improvement as passing the failed paired/style/LN gates or
 adopt the checkpoint automatically. Actor paired, secondary and matched-style
 handles 54909, 51385 and 51667, analysis 76358, renderer 60582 and descriptor 84267
 are terminal. Native timings will be measured without a concurrent fit.
+
+### Result Log: complete-audio outcomes, semantic review and study closure
+
+Accepted: none; common-prefix-outcomes-r1-v1 revision 1. Execution and bounded
+evaluation are complete; this Note remains proposed. No additional fit followed
+the 128-update endpoints. All six native actor runs completed and reparsed,
+preserving committed prefixes during the runtime update. H timestamps match the
+initial checkpoint exactly for all six audio/mode cases. Audio/H/R timing weights
+remain fixed; changed R1 LN choices can still change R's state-dependent law.
+
+Static D3/rho.2 difficulty MAE across the three audios changes from .973458 to
+.846663; LN-fraction MAE from .058790 to .021652. Switching results are kept
+separate by control scope: before-override D MAE .690158 to .188542 and LN error
+.051317 to .009564; override D MAE .454773 to .571580 and LN error .061482 to
+.042775; restored D MAE 1.082900 to .640949 and LN error .055959 to .011536.
+The harder override loses difficulty accuracy despite useful lower-request and
+LN-amount improvements. Zenithfall's realized LN amounts before/during/after are
+.224806/.601604/.209870 against requests .2/.6/.2; corresponding difficulties
+are 3.021217/3.613694/3.695892 against 3/4.5/3. There is no native source-only
+arm, so these changes do not isolate outcome credit from continued factual
+learning. Static and switching modes use different seeds; compare endpoints
+within each mode, not modes as a causal control intervention.
+
+Native generation ran alone on one CPU thread, with loaded weights and cached
+canonical Mel. First thirty rows took .213979-.427683 seconds, including full
+audio encoding from Mel. The slowest publication window of up to eight seconds
+took .334527 seconds. This excludes waveform decoding, Mel construction and model
+loading, and is not a cold-audio startup claim or a service guarantee under load.
+
+Three offline capacity constructions retain every native H time, choose one
+existing head per H, retain about .2 of those heads as existing LNs with their
+true endpoints, and verify exact replay/current 60/50/50 support. Zenithfall
+reaches D3.280731/rho.200289, Hysteric D2.815580/rho.199886 and Take
+D2.890645/rho.199552, against actor D3.843763/3.770426/3.925799. These demonstrate
+additional R1 action space, not lower bounds, generated-model quality or an
+adopted note-deletion policy. Future tails are used only offline. Zenith's
+remaining error is not evidence that D3 is unreachable. An initial export attempt
+omitted AudioFilename and failed parsing; it is preserved in native-capacity-attempt1.
+The fresh corrected run uses the actual source audio and completes all three.
+
+Qualitative review is retained in qualitative-review.json. It covers 54 viewed
+pages: page 2 of all sixteen seed-zero paired contexts for each of initial/actor,
+selected style/LN and native contexts, and extended Trill/human-reference context.
+Thinner paired layouts retain moving singles and chord accents; many high requests
+also become thinner. Take's true peak contains moving singles, occasional chords
+and a sustained LN under other motion. Zenith's override gains overlapping LNs;
+its restored context retains older holds across the boundary. Some very short
+isolated LNs remain. No generated human labels, audio listening or human playtest
+is claimed. Unviewed rows and style dimensions remain unreviewed.
+
+The first lens-system native-Take selection used 94500-99500 ms because a local
+dense-start variable was overwritten by the Zenith boundary loop. Those images
+are ordinary contexts, not the maximum-density evidence. A corrected separate
+variable and fresh lens-system-v2 output select 103970-108970 ms, the maximum
+five-second H count; both pages were viewed for initial and actor. No model,
+numeric outcome or fitting input changed. Renderer 64529 is terminal.
+
+Trill requires a semantic distinction from the failed physical-distance guard.
+Actor matched draw zero maintains inner-column alternation for seventeen H rows
+with outer TAP accents, then transitions. Draw one sustains 3+1 disjoint-group
+exchange before varying the grouping. Initial draw one already has a 3+1 mode;
+no newly acquired style is claimed. A two-2-key-group coverage counter is not a
+generic Trill detector. Full groups and extended 285500-290800 context were read,
+without deleting intervening notes to invent alternation. These are provisional
+machine interpretations, not replacements for the numeric guard or human labels.
+
+The related human-modified Tear Rain example has source SHA-256
+1fe462e0773df58dd965d659f7c80da22fd37cf38c0f26f17e494717e6eb2ac1,
+scope 112953-113968 and review context 112600-114400, Foundation
+f-15fa68913bdb2bf3. Its original comment says the inner alternation lasts through
+the context; the outer notes become LNs. Generated outer TAP accents are a
+different background. The human comment supersedes the old machine boundary
+judgment at that source, but does not endorse inherited rationale/evidence or
+label the generated candidate. No annotation or Foundation was changed.
+
+Two supplementary absent/prominent Trill fork panels preserve their own common
+prefix/H/D/rho and change only the requested style. The inherited neutral prefix
+gives 11/0/4 changed target rows out of 24, without reliable knob-induced exchange.
+The actor's own matched-style prefix gives 0/14/0 changed rows, so two of three
+pairs are exactly identical. That panel uses local rho0, whereas the inherited
+panel retains global rho.02601156; their difference is not a pure prefix test.
+style-fork-row-comparison.json records exact comparisons. Style presence,
+reference-geometry similarity and conditional response must remain separate.
+
+An ancestor audit rejects the unsupported claim that the frozen encoder had only
+seen a small 48-audio pilot. The ranked step2400 ancestor under product source
+c348ca288746560247ab09d2a053fdc34ca63c54 optimizes every parameter, with a training
+pool of 6,923 charts/2,573 groups and 112 human-styled charts; sampling is 75%
+group/chart/8s and 25% human-labeled 8s. Its checkpoint SHA-256 is
+36c9767f38fc9b28416e635aa974bf98ee2785715622b6049f6120cef251c2b3.
+Pool size is not actual coverage or convergence; neither audio sufficiency nor
+insufficiency is established. Later row-ownership restoration freezes the Mel
+encoder. Broader joint adaptation remains a possible future intervention.
+
+All remaining process handles are terminal: native 67313, capacity 35203,
+inherited-prefix forks 77751, own-prefix forks 56640 and corrected Lens 64529.
+No experiment process is left running. Main fitting helper/driver hashes still
+match their recorded identities. The artifact owner uses about 161 MiB. The
+curated report is docs/research/common_prefix_outcomes.md, linked from the preceding
+style report, at product commit a99519ccee60925dce10a4200f88a6c049d37964. Local
+document links and staged whitespace were checked. No production executable
+changed and no additional model tests were warranted. No remote push occurred.
+
+Evaluation: REFINE. Keep actor-128 as a research candidate, with useful absolute
+calibration and native LN behavior, while retaining every failed primary and
+secondary allowance. The selected core2500 remains unchanged. The full objective
+is not complete: scoped style response, harder-request accuracy, musical
+organization and actual playability still require work. The limited TAP-only
+outcome slice does not establish LN-tail credit or whole-system robustness.
+
+Next question: calibrate the conditional response while retaining the arrangement
+prior on actual generated histories. Direct paired-response credit and explicit
+preservation on those histories are candidate mechanisms, not adopted repairs.
+Independent per-request costs allowed much of the measured gain to come from
+lowering both requested outputs. Source-only anchors do not by themselves prove
+preservation on generated states. Limited training/data, optimization and model
+coupling remain alternative explanations; no new architecture, loss escalation,
+Card or run is selected in this result log. The overall research goal stays active.
