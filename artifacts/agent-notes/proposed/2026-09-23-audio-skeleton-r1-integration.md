@@ -13701,3 +13701,23 @@ Neither smoke initializes the main fit. The comparison explicitly pairs this
 new arm with continued-128; record both driver hashes and audit their branch
 difference. All remaining revision1 fields,1800s main bound and native/qualitative
 gates remain unchanged. This remains exploratory under standing user authority.
+
+### Result Log: range-outcome-r1-v1 revision2 smoke
+
+Corrected driverSHAec495fc249bed37a92904a99fc1b6b5ebdfefd38ad3a154aaf7cfca19698c191,
+same clean sourcec3befb2fa397a6149e0f3090419e1210764d33b4 and pinned panel. Fresh
+smoke-outcome8-v2 completed8updates/24complete candidates in65.457s; frozen hash
+98c74f4d6363a1392332addbb02de4d14ccb8610ca86a7ed3a3528b16949c1fd is unchanged.
+Five updates have nonzero outcome gradients; their norms21.722/3.145/137.202/.694/
+152.063 now correspond to the whole-range risk. No nonfinite values occurred.
+Maximum sampledCPU/rescoredMPS log-probability difference2.2925e-5. Peak physical
+footprint2.7883GiB,peakRSS1.4177GiB,MPSactive.7887GiB,MPSdriver1.5550GiB.
+No quality claim or model selection follows this integration result.
+
+The data supplies both signs of control error. In the revision1 smoke, the
+Into the world case requested3.938stars but generated2.863–3.034, whereas Paper
+Witch requested3.318 and generated3.481–3.762. This supports a bidirectional
+outcome target rather than a universal density reduction. The unchanged control
+checkpoint continued-128/step-128.pt has SHA
+2b63b1d9ff8d4f33417937a768e0f2769f1903645af10fe013fc4b2c7f6e53fb.
+Proceed with outcome-128-v2 from core2500; keep both training drivers immutable.
