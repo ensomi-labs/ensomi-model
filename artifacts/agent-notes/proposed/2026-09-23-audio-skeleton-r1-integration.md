@@ -15358,15 +15358,17 @@ prominent requests. A range-level score comparison can train this distinction
 without claiming that every row instantiates its style.
 
 The closest local analogue is `condition_alignment.py` and the prior difficulty
-alignment comparison. The broader primitive is paired-content/condition
-discrimination, illustrated by Radford et al., PMLR139 (2021),
-https://proceedings.mlr.press/v139/radford21a.html. This experiment uses the
-generator's conditional row likelihood, not CLIP embeddings, a new critic or
-independent-marginal NCE. It is an application of existing machinery. Source
-history may still dominate generated continuation; the common-prefix check is
-therefore required. Increasing feedback bounds is deferred because it does not
-teach style relationships. A new latent pattern vocabulary is not needed to test
-whether the existing modulation can learn the explicit distinction.
+alignment comparison. Its direct external analogue is Condition Contrastive
+Alignment (Chen et al., 2024), https://arxiv.org/html/2410.09347v1, which trains
+matched versus mismatched conditions using reference-relative generator scores.
+The present use changes the supervision to known range-level style fields and
+uses row-factor scores. Explicitly flipped binary labels are not independent
+marginal samples, so neither the paper's density-ratio interpretation nor exact
+equivalence to guided sampling is claimed. No new critic or decoding pass is
+added. This is an application of existing machinery. Source history may still
+dominate generation; the common-prefix check is therefore required. Increasing
+feedback bounds does not teach style relationships. A new latent vocabulary is
+not needed to test whether modulation can learn the explicit distinction.
 
 Clean source baseline: 0591f905809876d7dc4f41ebf1217ba4c2c31381. Initial weights:
 layout-modulation-r1-v1/modulated-128, SHA-256
