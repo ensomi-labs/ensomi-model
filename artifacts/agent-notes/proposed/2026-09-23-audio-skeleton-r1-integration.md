@@ -15272,73 +15272,168 @@ policy's response. It changes no active fitting code, weights, data or seeds.
 
 ### Result Log: completed modulation learning, control and style inspection
 
-Accepted: none; layout-modulation-r1-v1 revision1. Clean fitting source
-24fc4f1f724137787758ff50a5b5750d09d96a48; self-contained result prose is now in
-docs/research/row_condition_interactions.md at
+Accepted: none; layout-modulation-r1-v1 revision 1. Clean fitting source:
+24fc4f1f724137787758ff50a5b5750d09d96a48. Self-contained results are in
+`docs/research/row_condition_interactions.md` at
 0591f905809876d7dc4f41ebf1217ba4c2c31381. No runtime default changed.
 
-The 128-update modulated fit completed in1209.382s. Checkpoint SHA256:
+The 128-update fit completed in 1,209.382 seconds. Checkpoint SHA-256:
 b8aecd3e1f43339d2c1e3aff6d245a41e32a12008ddc20fd47e9eccb99544546.
-All128target and384source identities matched the unmodulated fit. Frozen audio/H
-hash9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed
-was unchanged. Nonzero trajectory gradients occurred on115R,128R1 and128modulation
-updates. Maximum sampled/scored row log-q difference2.713e-5, R6.387e-5.
-Peak sampled footprint9.590GiB, MPSdriver3.503GiB, peakRSS4.621GiB. All processes
-from this study are terminal; no training or qualification handle remains live.
+All 128 target and 384 source identities matched the unmodulated fit. Frozen
+hash 9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed
+was unchanged. Nonzero trajectory gradients occurred on 115 R, 128 R1 and 128
+modulation updates. Maximum sampled/scored row log-q error was 2.713e-5; R error
+was 6.387e-5. Peak sampled footprint was 9.590 GiB, MPS driver 3.503 GiB and peak
+RSS 4.621 GiB. All processes from the modulation study are terminal.
 
 Thirty scoped continuations, twelve style guards, nine LN guards and six native
-charts completed and reparsed. Style U-statistic mean fell.065342to.049535;
-scoped D MAE fell.859223to.731496. LN mean rose.030865to.032476. All predeclared
-numeric gates passed. Preserve those results without redefining the gate:
-native checked relative D regression, not absolute LN control or playability.
+charts completed and reparsed. Mean style U-statistic fell .065342 to .049535;
+scoped D MAE fell .859223 to .731496. LN distance rose .030865 to .032476. All
+predeclared numeric gates passed. Native gates checked relative D regression,
+not absolute LN control or playability; preserve that distinction.
 
-Static native requestsD3,rho.2 returned ZenithD3.796/rho.112,
-Hysteric3.818/.148 andTake4.308/.163. Switched [64000,96000) requestsD4.5/rho.6
-returned before/override/restored rho.095/.444/.085 forZenith,
-.190/.623/.167 forHysteric and.161/.605/.180 forTake. Allsix Hsequences equal
-the corresponding unmodulated and continued-source sequences exactly.
-First30publication.240–.542s; maximum8s servicewindow.327s. These start from
-cached canonicalMel andloadedmodel, excludingwaveform/Mel/loading.
+Static native D3/rho .2 returned Zenith D3.796/rho .112, Hysteric 3.818/.148 and
+Take 4.308/.163. Switched [64000,96000) requests were D4.5/rho .6. Separately
+measured before/override/restored LN fractions were .095/.444/.085 for Zenith,
+.190/.623/.167 for Hysteric and .161/.605/.180 for Take. All six H sequences
+exactly equal the corresponding unmodulated and continued-source sequences.
+First-thirty-row publication took .240–.542 seconds; maximum eight-second service
+window took .327 seconds, from cached Mel and a loaded model.
 
-review-audit/report.json reconstructs bounded LNfeedback from committedrows.
-Zenithstatic is atuppercap before46.2%ofHchoices; restoredswitch60.4%.
-This identifies limited correctiveauthority, notthecauseoflearnedLNunderproduction
-or evidence thatraisingthecap preservesarticulation. No cap changewas made.
+`review-audit/report.json` reconstructs bounded LN feedback from committed rows.
+Zenith static was at its upper cap before 46.2% of H choices; the restored switch
+range was at that cap before 60.4%. This identifies limited corrective authority,
+not the cause of learned underproduction or evidence that a higher cap preserves
+articulation. No cap change was made.
 
-FocusedLens review viewed7of39guardpages and11of18additionalstyle/nativepages.
-qualitative-review.json lists eachviewedpage. TechretainsirregularHbutmuchofone
-pagehasregularcomplementarypairs;streamhasmovingsingles/chordaccents;
-jackviewhasoverlappingchordgroupsandoccasionalLNs;Starryhasmoresustainedholdroles;
-Shippai stillhasstaggeredindependentreleases. MiraieLNmedians157/107/106ms
-regressfromunmodulated183/183/183ms. No generated humanlabelorplaytestwasclaimed.
+Focused Lens review viewed seven of 39 guard pages and eleven of eighteen
+additional style/native pages; `qualitative-review.json` lists them. Tech retains
+irregular H but much of one page has regular complementary pairs. Stream has
+moving singles/chord accents; jack has overlapping chord groups and occasional
+LNs. Starry has more sustained hold roles; Shippai still has staggered independent
+releases. Miraie LN medians 157/107/106 ms regress from 183/183/183 ms. No generated
+human label, listening or human playtest was claimed.
 
-The common-prefix style diagnostic froze3336rows, prefixSHA256
+The common-prefix style diagnostic froze 3,336 rows, SHA-256
 c96dffa5e41f5045dfa973c10721c5000b24ff9cfc80d598c5c3c89f9811a75e,
-noenteringLN, andcompleted12forks withpreservedprefix/H. In modulatedseed261621,
-trillprominentraisedexactgrouprepetitions<100ms from7to13versusabsent. Fullsequence
-andLensshow3–5same-groupattackrunsfollowedbygroupchanges, notsustainedABexchange.
-Unknownotherstylesremainunknown;repetitionisnotautomaticallyunplayable.
-Aftertheoverride,trillbecomesunspecified, notabsent. FixedHdoesnotfreezeR's
-controlresponse, sothisisanR/R1diagnostic. Stylefidelityremainsunresolved.
+with no entering LN, and completed twelve forks with preserved prefix/H. In
+modulated seed 261621, a prominent trill request raised exact group repetitions
+below 100 ms from seven to thirteen compared with absent. The complete sequence
+and Lens show three-to-five-row same-group attack runs followed by group changes,
+rather than sustained A/B exchange. Unknown other styles remain unknown;
+repetition is not automatically unplayable. After the override, trill becomes
+unspecified, not absent. R also receives controls, so this is an R/R1 diagnostic.
 
-Read-onlycoverageandnatural-forkinspections:ofthe128frozenmatchedarrangementpairs,
-56havetap-onlytargetscopeswithnoenteringLN,19arewhollytapinbothcharts. Tenhave
-identicalprefixatscopestart,butalltenareempty. Noneprovidesanonemptysharedsource
-prefixattheselectedscope. Fourpairsshareatleast30initialrowsbutdivergelater.
-Theseareslicecounts,notcorpus-wideclaims.
+Read-only inventory of 128 frozen arrangement pairs found 56 tap-only target
+scopes with no entering LN and nineteen wholly tap-only chart pairs. Ten pairs
+have identical prefixes at the chosen scope, all empty. Four share at least
+thirty initial rows but diverge before the selected scope. These are slice counts.
 
-Inthe251-cellhumanpool,filteringlocalD2–6leavesprominentTech0/3/0/0,
-trill2/3/2/0,stream3/7/4/3,jack1/5/2/1andLNcoordination2/1/2/0acrossfourD bins.
-Fiveactortrilltargetscontainmixedfigureswithlocalizedexchangeepisodes.
-Foundationf-15fa68913bdb2bf3andactualsourcecontextsremainsemanticreference;
-humanlabelconfirmationdoesnotapproveinheritedmachinenoteselectionaslocalization.
-No humanannotationwasmodified. Missingstylelabelsarenotabsence.
+Filtering the 251-cell human pool to local D2–6 leaves prominent Tech counts
+0/3/0/0, trill 2/3/2/0, stream 3/7/4/3, jack 1/5/2/1 and LN coordination 2/1/2/0
+across the four difficulty bins. Five trill actor targets contain mixed figures
+with exchange episodes. Foundation f-15fa68913bdb2bf3 and actual source contexts
+remain the semantic references. Label confirmation does not approve inherited
+machine note selection as localization. No human annotation was modified.
 
-Evaluation: REFINE. Conditionalcapacityremovesarealmain-headlimitationandimproves
-thisboundedcomparison; pooleddistanceandregressiongatesdonotestablishplayability.
-The strongestremainingalternativeisthatsparseandrange-levelstylelearningfails
-toidentifytherelevantrelations,evenwithadequateconditionalcapacity. Rebalancing
-existingcellsalonecannotfillmissingdifficulty/stylecombinations. Next direction
-shouldcompareexplicitscope-levelstyleconditiondiscriminationagainstidentical
-balancedsourceexposure,then testactualcontrolledcontinuationsfromsharedprefixes.
-No adoption,Note lifecycletransition orremotepushis implied.
+Evaluation: REFINE. Conditional capacity removes a real main-head limitation and
+improves the bounded comparison, but pooled distances do not establish playability.
+Sparse range-level style supervision remains a plausible limitation. Rebalancing
+existing cells cannot fill missing combinations. The next comparison should hold
+balanced source exposure fixed and test explicit style-condition discrimination,
+then inspect controlled continuations from common generated prefixes. No adoption,
+Note lifecycle transition or remote publication is implied.
+
+### Experiment Card: scoped-style-discrimination-r1-v1
+
+Revision: 1. Accepted: none. This is the active Card; layout-modulation-r1-v1
+is completed with the preceding exploratory Result Log. Standing user authority
+covers local implementation and fitting. The owning Note stays proposed.
+
+Question: after adding conditional interaction capacity, can explicit factual
+style-condition discrimination improve actual scoped control beyond the same
+difficulty-stratified source exposure? The hypothesis is that ordinary source
+likelihood and block matching leave a weak distinction between known absent and
+prominent requests. A range-level score comparison can train this distinction
+without claiming that every row instantiates its style.
+
+The closest local analogue is `condition_alignment.py` and the prior difficulty
+alignment comparison. The broader primitive is paired-content/condition
+discrimination, illustrated by Radford et al., PMLR139 (2021),
+https://proceedings.mlr.press/v139/radford21a.html. This experiment uses the
+generator's conditional row likelihood, not CLIP embeddings, a new critic or
+independent-marginal NCE. It is an application of existing machinery. Source
+history may still dominate generated continuation; the common-prefix check is
+therefore required. Increasing feedback bounds is deferred because it does not
+teach style relationships. A new latent pattern vocabulary is not needed to test
+whether the existing modulation can learn the explicit distinction.
+
+Clean source baseline: 0591f905809876d7dc4f41ebf1217ba4c2c31381. Initial weights:
+layout-modulation-r1-v1/modulated-128, SHA-256
+b8aecd3e1f43339d2c1e3aff6d245a41e32a12008ddc20fd47e9eccb99544546.
+The initial four reserved source-H style distances average .049535, thirty scoped
+D continuations have MAE .731496. These are one fit and three sampling seeds per
+condition, not a confidence interval over fits. The matched source-only endpoint
+does not exist yet and will be fitted in this comparison.
+
+Both arms use identical 400-update draws: one eligible human style cell and one
+ranked population scope per update. Reuse the prior balanced panel and its audio
+exclusions. Human eligibility is local D in [2,6), explicit absent/prominent,
+no explicit Low confidence, and a consistent resolved label throughout the
+annotated range. Never infer missing labels. Cycle five concepts and two label
+levels equally; within each, cycle occupied integer local-D bins and sample a
+cell with seed 261700. Population scopes cycle local-D bins 2/3/4/5. Record the
+eligible counts, exact 400 draws, hashes and exclusions before fitting. The
+positive schedule explicitly gives the selected style its annotated scope;
+other factual styles, local D and whole-chart LN fraction use the existing source
+schedule. A negative flips only that known absent/prominent field, on the same
+scope and factual physical history. Supporting labels remain available as other
+conditions but are not contrast targets.
+
+Both arms optimize the average of two source losses: R NLL plus deployed row-q
+NLL per second, with a minimum one-second denominator. The sole arm difference
+is adding weight-one `condition_alignment` on the human example, beta .1,
+using summed neural row log probabilities and the frozen initial positive and
+negative scores. It raises the factual-condition score relative to the initial
+policy and lowers its opposite-condition score; no altered generated history
+receives a source next-action target. No trajectory-kernel training objective is
+used in either arm. Frozen audio/H and unchanged H/R/row interfaces; R/R1 train
+with AdamW 3e-5, condition/composition/preview/modulation paths 3e-4, weight decay
+.0001 and clip 1. The model architecture, source recovery and sampling policy
+are identical. No new product inference component is added.
+
+Run four-update source-only/aligned smokes, discard their weights, then both
+400-update arms from the initial checkpoint. Smoke requirements: finite loss,
+nonzero gradient to conditional modulation, unchanged frozen tensors and valid
+source support. Source-only is a real matched fit, not an inferred comparator.
+Record source identities, score shifts and gradient/memory statistics. Source
+ranking is diagnostic only; it cannot select the endpoint.
+
+Qualification uses the unchanged thirty difficulty, twelve style and nine LN
+guard outputs per endpoint. Primary progress gate: mean reserved style kernel
+distance must improve by at least .005 and 10% versus the matched source-only
+arm, without exceeding the initial .049535. D MAE may regress by at most .10
+versus each comparator; per-case/request LN error by .03, restored D error by
+.25. As an independent semantic check, reuse the frozen neutral generated trill
+prefix and absent/prominent requests with seeds 261620/261621/261622, inspect
+complete actions and Lens context. A stronger repeated-group concentration
+without a recognizable exchange is a failure of this semantic objective even if
+kernel or factual ranking improves. The other three held-out style contexts
+must be inspected for loss of their defining organization. Numeric progress
+alone cannot establish playability or trigger adoption.
+
+Only if the primary and qualitative checks warrant further qualification, run
+the existing six native static/switch cases. Report each field's scopes separately
+and retain generation-ahead service times. A failed pilot ends without scaling;
+a mixed result is REFINE, not automatic adoption.
+
+Fresh artifact owner: artifacts/joint-audio/20260926-scoped-style-discrimination-r1-v1.
+Commands use `uv run --extra mps python <owner>/prepare.py`, then `train.py` with
+STYLE_ARM=source|aligned, STYLE_RUN=smoke-source4|smoke-aligned4|source-400|aligned-400,
+STYLE_STEPS=4|400 and STYLE_SECONDS=300|1800. Qualification uses an endpoint arm
+argument and the frozen prior panel/seeds. CPU threads 1, MPS on the 24 GiB M5 Mac;
+at most 18 GiB footprint or driver memory, 1,800 seconds per main fit, 20 minutes
+qualification and 5 GiB new storage. No network dataset changes, overwrite or
+resume. Stop on nonfinite values, missing/contradictory labels, unsupported source
+rows, frozen-weight drift, memory bound, STOP file or runtime bound. Any necessary
+protected-field change is recorded as a new proposed revision before proceeding.
