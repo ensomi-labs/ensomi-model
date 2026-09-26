@@ -768,3 +768,27 @@ distributions and cost information. Their assumptions/guarantees do not establis
 our chart semantics, and source style labels cannot be transplanted onto generated
 histories. Dynamic replay aggregation or an explicit calibrated response factor
 remain unselected follow-ups pending this distinction.
+
+### Additional bounded information-flow diagnostic
+
+The response endpoint's new Zenithfall0 failure persists across roughly118-126s:
+one column receives70 attacks in8s (8.75Hz), with9.5Hz over4s and a41-attack chain
+spanning4412ms under the170ms gap criterion. This is stronger than a harmless
+aggregate metric fluctuation. Inspect its actual rows and freeze that same history,
+audio, H and controls for a small score-contribution probe. Compare full input,
+zeroed load coordinates0:18, zeroed last-two-mask coordinates18:20, the entire
+player-feature branch zeroed, and initial weights on the identical physical prefix.
+Read probability of the hot column and its conditional probability among singleton
+TAP rows; report expected head count separately. This diagnoses whether a new
+linear recency shortcut encourages copying versus a broader policy change. It is
+not a physical counterfactual or a new training run; no lesioned policy is adopted.
+Fresh feature-probe output, unchanged checkpoints, at most60 seconds CPU work.
+
+The initial conditional-probe invocation aborted before sampling because its
+outer inference_mode created model parameters without version counters, which
+the neural-cache ownership check requires. Leave that failed directory intact.
+Change the diagnostic wrapper to no_grad and use fresh conditional-probe-v2;
+training source, checkpoints and cache validation are unchanged. Process24378 is
+terminal; replacement diagnostic is live under78945. Rendering90266 is terminal
+with11 contexts/40 pages. Response-style qualification46828 is terminal with12
+outputs; source-style84983 also completes12. Main qualification totals52 exports.
