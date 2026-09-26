@@ -474,3 +474,112 @@ Do not substitute tighter rate cutoffs or an expanding search budget for fixing
 those proposal-learning problems. H musical activity and recovery intervals remain
 an independent unresolved part of the complete system. No new fitting Card or
 run is selected by this Result Log.
+
+## Experiment Card: player-state-r1-learning-v1, revision 1
+
+Accepted: none. Standing research authority covers local implementation, profiling
+and fitting. Baseline product faf726d30cea3a0ad4f0140b884d3d52dddec4cc; baseline
+actor-128 SHA-256364c7b711bc39ab3384175b755658d2ef67a4c10b166f5eb85dc072d920e10e3.
+The previous goal turn is progress: committed response planning,19 native exports,
+Lens comparisons and measured runtime. All prior processes are terminal.
+
+Hypothesis: explicit time-based demand coordinates plus generated-continuation
+risk learning can move native R1 toward less overloaded choices, while genuine
+annotated source rehearsal preserves organization. The response planner proved
+that alternatives exist, but candidate selection alone neither teaches the native
+policy nor certifies style. Test the learned proposal, with no planner at final
+qualification. Audio/H/R remain frozen; R1 still owns counts, lanes and TAP/LN.
+
+The representation adds one zero-initialized shared hand-coordinate projection
+of request-independent committed-player features to R1 context. Use six physical
+window attack/release rates and held fractions, plus the previous two complete
+attack groups and their ages/known bits. Do not send R1 row content into H or R.
+Existing exact clocks, direct full audio, H preview and scoped controls remain.
+Zero initialization must reproduce the old probability law. An explicit model
+option owns the feature contract and checkpoint round trip; old checkpoints
+remain unchanged. Compare source-only and source-plus-response fitting with the
+same new representation and identical source draws. This separates the added
+response objective, not all architectural causes.
+
+A row-trace scorer will replay native row probabilities over a legal private
+continuation without requiring EOF or closing open LNs. It takes actual complete
+prefix/future rows, a declared timing-only H plan, real audio duration and complete
+audio encoding. Future endpoints are targets only when actually proposed. The
+same source controls, recovery and LN-amount preferences apply. Verify CPU/MPS
+sampled-rescored probability and gradient parity, causality, mirror transformation,
+partition independence and open-hold horizons before fitting. This removes the
+old complete-SourceChart adapter's needless full-song continuation for four-second
+outcomes; it does not invent terminal releases or change sampled support.
+
+Closest mechanism: score-function estimation of expected trajectory cost using
+independent sampled continuations and other-draw baselines, already verified in
+outcome_learning.py and the preceding paired-response study. The new target is
+the explicit real-time sustained-response integral, not star rating alone.
+Source imitation and response learning have separate evidence roles. Generated
+requested-style fields never become observed semantic labels. No novelty claim.
+A larger encoder or more candidate search is not selected by this evidence.
+
+Prepare a bounded hard-context replay bank from twenty TRAIN audio identities,
+excluding every existing held native/style/control audio in the balanced source
+panel. Use its existing1024 population and251 human source scopes for factual
+rehearsal. Select five request families (Stream,Jack,Tech,Trill,LN coordination)
+across nominal difficulty2.5/3.5/4.5/5.5, drawing a distinct eligible audio near
+each nominal band. LN requests use fraction.6; other LN fields remain unknown.
+Generated controls are requests, not labels. Freeze selected identities, schedules,
+seeds, source-panel/calibration hashes and bank rows before fitting. Each bank
+stores the baseline's full native H/rows and up to twelve high-excess four-second
+contexts plus four ordinary contexts per audio on a two-second grid. Generated
+committed prefixes are valid conditioning states; each new suffix is sampled
+from the current policy. Factual source actions are never transplanted as gold
+suffixes onto these changed histories.
+
+Both arms receive one human and one population scope per update from the existing
+capped balanced weights, with deterministic frozen draws. Source loss is mean
+native row NLL per second, using genuine source styles and locally defined
+controls. The response arm adds100 times expected sustained excess per future
+second, averaging three independent four-second continuations and subtracting
+the other-draw mean as an action-independent baseline. All continuation scores
+and costs include the same actual generated prefix, requested ranges and native
+sampler preferences. No star-only reward, pseudo-style reward, output filtering,
+new response mask or source-future substitution is added. Train existing R1 at
+3e-5 and new projection/composition/control/modulation at3e-4, AdamW decay1e-4,
+clip1. Complete audio encoding is reused only while its weights stay frozen.
+
+First run an eight-update response smoke with discarded weights. Inspect actual
+nonzero outcome gradients, sampled/rescored parity, source gradients, finite
+outputs and footprint. If no positive-cost variation occurs, revise the bank or
+objective design before main fitting instead of claiming a working signal.
+Then run384 updates per arm, identical source identities/order, from the same
+zero-projection initialization. Seed272710; per-step suffix seeds272720+10*step+i.
+Bank native seeds272500+i. Save full identities before launch. Warm/replay caches
+must be rebuilt under current R1 weights. A source-only improvement alone does
+not establish value of the added response objective.
+
+Qualification reuses the nine reported four-star Stream cases, five matched
+other-style/scope-change guards and locally matched genuine style contexts.
+No planner during this comparison. Primary: at least50 percent lower mean
+sustained excess than both initialization and source-only, without renewed
+multi-second dominant-column episodes in the original failure contexts on Lens.
+Difficulty MAE may increase no more than.15 versus initialization on the Stream
+panel; known LN fraction errors may worsen no more than.05 on matching control
+ranges. Keep before/override/restored ranges separate. Do not call a response
+improvement a semantic style pass: inspect complete attack groups, temporal
+organization and LN roles against real source references. A clear style loss or
+new severe pattern blocks promotion regardless of objective gain.
+
+Fresh owner artifacts/joint-audio/20260927-player-state-r1-learning-v1. Apple M5,
+24GiB unified memory; MPS gradients, CPU native sampling, one CPU thread per
+process; uv run --extra mps and --group dev for tests. At most18GiB footprint or
+MPS allocation,600s bank preparation,300s smoke,3600s per main arm,30minutes
+qualification and2GiB new artifacts. No overwrite/resume/download. Stop on
+nonfinite values, support disagreement, sampled/rescored log-q error>.002,
+frozen-weight drift, failed focused invariant, explicit STOP file or resource
+limit. Freeze live run inputs and record clean intervention source before fitting.
+Native timing qualification runs after all fits stop. First thirty published
+rows must remain below2s and every measured two-second publication below2s.
+
+Positive evidence supports response-aware native proposal learning, still requiring
+broader style/held-demand/H-activity work. A negative or ambiguous result requires
+revising the information flow, training-state coverage or objective rather than
+blindly increasing parameters/steps. H breathing and comprehensive canonical C0
+remain outside this bounded intervention and inside the active overall goal.
