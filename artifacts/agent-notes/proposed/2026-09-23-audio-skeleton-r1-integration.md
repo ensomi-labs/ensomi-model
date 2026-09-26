@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: b7a6c88e5634b14855410b7af64225848d6b936e
+Product revision: 94c69684bf82e6621412a4d8a92fa0afb9e8ff72
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -12688,3 +12688,162 @@ is omitted only for head-count moments because its actual projection preserves
 head/release-count family mass. Record input/script identities. If initial
 qualification fails, no full-audio expansion is authorized by that Card; subsequent
 research requires a new explicitly bounded direction rather than a gain search.
+
+
+### Result Log: r1-composition-baseline-v1 and path probe
+
+Accepted:none; both Cardsrevision1. Training sourceb7a6c88e5634b14855410b7af64225848d6b936e;
+curated findings committed at94c69684bf82e6621412a4d8a92fa0afb9e8ff72.
+Both1000-update MPS fits completed,482.262s prior/457.611s continued. Every one
+of2000accepted draw records matches between arms, including proposal branch,
+source window and rejection attempts. Both see1399uniqueTRAINcharts,1514population
+and486human draws, with54profile exclusions. Frozen hash98c74f4d6363a1392332addbb02de4d14ccb8610ca86a7ed3a3528b16949c1fd
+is unchanged. Last-reported peak RSS2.664/4.014GiB and MPSdriver3.984/3.978GiB
+are overlapping ledgers. No nonfinite gradient, resume or checkpoint selection.
+
+Prior terminalSHAe1674f8aab1875e293a0522409d500b181b4ff190130ae57e4cd9eb6ee5b6be3;
+continuedSHA3f90dd80c190695e40886ce7c4151177d8d482f2ba8f5fbb214a99e82a20fc80.
+On22compatible in-range VAL intervals, row NLL/s is12.1993 at the original
+checkpoint,11.7786 after continued training,12.0425 after prior training. The
+prior starts at15.2953 because its count law changes. These are fitting
+measurements, not the selection objective. Timing NLL is identical throughout.
+
+All ten source-H generations complete with exactly preserved H times.
+Singles seeds261101/261104/261105: continued4.63464/4.70488/4.82794stars;
+prior4.41647/4.33311/4.48155. Error means1.723713/1.411603, improvement.312111.
+The prior fails all three singles bounds: improvement.4, absolute.6, maximum3.75.
+Chord prior/continued3.01753/3.00784 againstsource3.10350; holds3.11066/3.28396
+againstsource3.00474. These secondary star/LN guards pass. No full-audio expansion
+was launched, and the original2500 plus projected LN feedback remains selected.
+
+Native qualification scriptSHA6d63e3347d63097f4668cf89fc12601016a9e3c711f2b3c38d4a1d977d7a7e8b.
+Results source-priorSHA c2eec1ba75f421cbce09bbc7c1f2b72bef7c02c545bab9cef8f435214566ca63,
+source-continuedSHA063e4b803b7c68666c5d1758f5b2437285bb2b0192197c4c207803eeda8e11a8.
+Prior CPU generation overlapped continued MPS fitting; its service times cannot
+be used as isolated latency measurements. Artifacts comparison.json records
+threshold calculations and exact input hashes.
+
+Factor probeSHA29d8c02dec7838fc25e7a95c5479570147c40832ed0bc3b6fd0b6c7757963c3b.
+Its wrappers return the original tensors and assert the pre-consequence count
+marginal matches the count readout. All actual H/head totals match the input
+trajectories. For singles, prior alone gives1.49830/1.49967 expectedheads/H on
+source/generated histories. After composition:1.34082/1.63739; after consequence:
+1.32402/1.63712; after empirical recovery:1.32031/1.61069. Actuals1.09962/1.61047.
+Ordinary continuation gives final expected1.22158/1.69914,actuals1.09962/1.69221.
+The prior has source-conditional bias, and history correction still amplifies
+generated composition. Consequence comparison is not the main source of this
+increase. This does not identify a universal module fault fraction.
+Probe resultsSHA32923db614bd314caa45905ae189c4d24a05f3044f1cb80f0437d0d7dda4403c
+andd9a4cbd02f28ba2c300e9dd5a09d5ff162381390ec678f5f6044cfc8ce54fe3f.
+
+Lens coverage: read all24pages and every action/articulation table for the ten
+new peak crops and paired first-seed singles56970–60971 crops. The earlier
+source-timing study now also has all20pages and tables read, including native-H
+and matched singles. At77–78ms row intervals, frequent doubles/triples replace
+source single flow. Continued seed261101 sustains alternating01/23 groups from
+78266 through80054ms, with two155–156ms gaps; this organization is plausible at
+higher demand but does not satisfy the3-star request. Slower chord outputs retain
+mixed chords and single transitions. LN outputs retain overlaps but use many
+short isolated tails; prior median146ms and14.9%<=80ms versus source222ms/0%.
+No formal style labels or audio-fit judgment were added.
+
+Decision: REFINE. Do not increase the bound or scale this prior fit. Lower source
+NLL and bounded content modulation are insufficient for controlled free history.
+The next distinction is between imitation preference and an explicitly defined
+response of the actually generated chart. A numerical response trained solely
+as another unconstrained row-logit term is not independently identified.
+
+### Exploration: finite response state and scoped outcome guidance
+
+The immediate failure is persistent excess attack workload, even though individual
+recovery gaps are supported. A short-gap rarity preference does not measure
+sustained work over multiple rows. A small, causal response state is therefore
+worth testing before a larger generator or another count prior. It must act on
+R1 candidates, preserve timing-module ownership, and declare the demand channels
+it omits. A single scalar is not the complete canonical frontier.
+
+Closest analogues and limits:
+- The existing mania strain owner supplies exponential individual/overall attack
+  accumulation. Its complete LN calculation reads future endpoints; those terms
+  cannot be copied into a causal runtime state. A deliberately attack-only
+  exponential basis can be computed from committed presses and elapsed time.
+- FUDGE (Yang/Klein2021, https://aclanthology.org/2021.naacl-main.276/) learns a
+  future attribute predictor to reweight generator probabilities. The transferable
+  idea is a separately supervised outcome signal; its text results do not establish
+  chart-quality or realtime guarantees. A future learned guide could predict
+  scoped control outcomes from legal candidate continuations without treating
+  source next rows as labels on generated prefixes.
+- DAgger (Ross/Gordon/Bagnell2011,
+  https://proceedings.mlr.press/v15/ross11a.html) addresses learner-induced states
+  using expert action queries. No such action oracle exists here, so the source
+  suffix cannot be relabeled as the desired action after a generated prefix.
+- Posterior regularization (Ganchevetal2010,
+  https://www.jmlr.org/beta/papers/v11/ganchev10a.html) separates structural moment
+  constraints from model parametrization. Here a response preference remains an
+  empirical sampling policy until source/generation comparisons support it.
+
+The proposed primitive is an adaptation of an existing response accumulator and
+soft constrained sampling. No novelty or canonical response sufficiency claim.
+Long-range musical memory remains deferred. Full audio and the R1 likelihood
+continue to supply musical arrangement and style preferences.
+
+### Experiment Card: causal-attack-work-v1, revision1
+
+Owner:this proposed Note. Accepted:none; standing local implementation/run authority.
+Clean baseline94c69684bf82e6621412a4d8a92fa0afb9e8ff72, original controlled2500
+checkpoint, all optional rate/prior branches off, projected LN feedback and the
+existing recovery preferences unchanged. Question: can a separately defined
+causal attack-response preference reduce sustained low-difficulty overfill while
+preserving slower chords and LN choices? This is a sampling-policy probe; no
+new generator weights or fitted quality labels are claimed.
+
+State: four press traces u_j and one overall trace v, initialized zero. Over
+elapsed dt, u decays by.125**(dt/1000),v by.30**(dt/1000). A TAP or LN head in
+columnj adds2 to u_j and1 to v. Release/no-head rows add nothing. Candidate
+response is.18*(v+max_j u_j) after the row. These constants follow the existing
+attack strain primitive, but max-over-all-columns and zero initialization are
+declared differences. The response excludes hold occupation and release demand;
+its time decay must never be described as the player's total rest. Exact LN
+state and the existing release/row frontier paths remain active.
+
+Calibration before generation: select64TRAIN ranked charts,8each in whole-star
+bins[2,3),[3,4),[4,5),[5,6.000001] crossed with LNfraction<=.1 or>=.5, excluding
+the three diagnostic charts. Order by SHA256(seed261220 plus sourceSHA),onechart
+per song group globally. Do not substitute VAL/TEST or select by generated output.
+For16-second source scopes with full-prefix strain label in2–6, retain400-ms
+causal response peaks including inherited state. Pool attack-response minus
+source-scoped difficulty, weighting by cell duration/source audio duration so
+long songs do not dominate. For each difficulty bin, use the larger95th-percentile
+excess of the two LN strata, floored atzero. Interpolate these four margins at
+2.5/3.5/4.5/5.5stars, using nearest endpoints beyond them. This is a small declared
+reference sample, not a population guarantee. Freeze its result before any rollout.
+
+Policy: at a known difficulty requestD, score each R1 row by minus
+(max(0,response_after-D-margin(D))/.35)**2. It is a finite preference, never a
+hard legality mask, per-row head quota, or universal anti-repeat objective.
+Apply after the existing response preferences and before projected LN feedback,
+which then preserves the new head/release-family mass. UnknownD gets no new
+preference. Preserve this causal state across control changes, silence and session
+forks; mirror histories give mirror-equivalent scores. Timing receives no added
+row/count input. No gain/threshold search after inspecting output.
+
+First qualify the three source-H cases with original seeds261101/261102/261103;
+baseline source-H stars4.85205/2.90748/3.49210. Require singles absolute error<=.6
+and improvement>=.5; chords/holds error may worsen<=.35, LNfractionerror<=.03.
+Inspect matching singles56970–60971 and each new peak, preserving action/LN tables.
+Reject flattening of the chord source or sustained quads. If this passes, repeat
+singles seeds261104/261105 against core2500 and run native3/.2 on the three existing
+audios. Require mean star-error improvement>=.35, each-case regression<=.25,
+LNerrorregression<=.02 and completed native generation. No high-LN/switch expansion
+unless these gates pass; any such expansion needs an appended bounded procedure.
+
+Fresh owner artifacts/joint-audio/20260926-causal-attack-work-v1; CPU1thread,
+calibration<=300s, each generation<=120s/30000rows, total<=1200s, no overwrite.
+Use an artifact-only policy subclass for this initial probe; record its full
+source/script/calibration/checkpoint identities. Verify semigroup, replay and
+mirror equivalence on real selected rows, including a fork and scoped update.
+Do not certify implementation through only restating its arithmetic. Main outputs
+are actual generated charts, response trajectories and separate control ranges.
+If it fails, retain the negative result and revisit scoped multirow response
+prediction rather than silently increasing the penalty. Source rating and this
+response are proxies; neither alone demonstrates good playability or LN quality.
