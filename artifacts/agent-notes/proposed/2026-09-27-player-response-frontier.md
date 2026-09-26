@@ -97,3 +97,52 @@ artifacts/joint-audio/20260927-player-response-frontier-v1. After corpus and nat
 inspection, define one response specification and a bounded implementation/test
 that addresses sustained concentration and real-time-horizon behavior. Keep this
 Note proposed; no acceptance or remote publication is implied.
+
+## Implementation decision after source inspection
+
+The existing frontier2 cannot serve as the required response interface. Keep its
+useful exact candidate-action coordinates and row preference path, but introduce
+an explicit committed-history player state and time-horizon continuation-response
+operator. This is not a claim that its history TCN cannot encode any coordination
+or repeated attacks. Its learned context can distinguish histories; the missing
+part is declared response semantics, training/calibration and the required API.
+
+RowConsequence.score currently returns one learned scalar per complete candidate
+row. Its inputs include the action's post-occupancy, last-attack/release clocks,
+LN age, next H and second H. Planned consequences passively advance that immediate
+post-action state; they do not simulate intervening future actions. There is no
+explicit future-duration argument, continuation Y, or dedicated demand-state
+advance through no-row time. Its context also contains audio and controls, and
+its score is learned as part of normalized row likelihood. It is therefore a
+conditional arrangement preference rather than an independently calibrated C0.
+
+The replacement response interface must consume the same committed rows for
+training/replay/inference, advance on actual milliseconds, preserve active LN
+origins/occupancy, and evaluate legal candidate continuations through an explicit
+end time, including empty endings. Accumulation/decay laws are candidate
+representations to fit/compare against corpus and mapper-defined response
+contrasts, not human capacity curves supplied by the repository. Keep the
+canonical response independent of the requested difficulty; apply difficulty
+when selecting an admissible response region. R1 retains all spatial/count and
+TAP/LN decisions; H owns timing variation and silence.
+
+## Reproduction evidence
+
+Nine native outputs under 4 stars + Stream prominent completed using the reported
+checkpoint, across Zenithfall, Hysteric and Take with seeds271200+10*case+i. Other
+style fields and LN amount are unknown. Zenithfall draw1 has31 of34 heads on one
+column over4 seconds (7.75 attacks/s); other columns are not pinned by holds at
+those attacks. Hysteric draw2 has28 of37 heads on one column over4 seconds
+(7 attacks/s), again with no other held columns. This reproduces the reported
+failure family, not the user's unavailable exact chart. Their whole proxies are
+4.9844 and3.9434. A130ms chain cutoff misses the longer episodes: time-based
+pressure and complete-row Lens inspection are necessary.
+
+The reproduction process56717 is terminal. A pre-event occupancy indexing issue
+at the very first row was corrected only after it ended; original results remain
+in result.json, recomputed facts in result-v2.json with metric-revision.json.
+No generated rows changed. Native ranked TRAIN corpus profiling now runs under
+an explicit four-worker process, using full source rows and recomputed1x stars.
+It measures fixed real-time windows, sustained-column chains, activity variation
+and occupancy-aware no-action recovery. These remain descriptive source facts;
+no automatic Jack label or admissibility cutoff has been selected.
