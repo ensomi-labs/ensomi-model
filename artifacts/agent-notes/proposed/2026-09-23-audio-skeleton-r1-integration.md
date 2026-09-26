@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: 0591f905809876d7dc4f41ebf1217ba4c2c31381
+Product revision: e48e4ba210a51951d530e6ff3989f41ec9794455
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -15113,8 +15113,8 @@ Terminal artifact SHA-256 identities:
 
 ### Experiment Card: layout-modulation-r1-v1
 
-Revision: 1. Accepted: none. This is the active Card; the physical-trajectory
-comparison has terminal results. Standing authority covers local implementation,
+Revision: 1. Accepted: none. Execution is complete; see the modulation Result Log.
+The physical-trajectory comparison has terminal results. Standing authority covers local implementation,
 training and qualification. No selected runtime checkpoint changes implicitly.
 Clean baseline: 720c63240c14316af22a4b98adcc6aa10915a107.
 
@@ -15346,8 +15346,8 @@ Note lifecycle transition or remote publication is implied.
 
 ### Experiment Card: scoped-style-discrimination-r1-v1
 
-Revision: 2. Accepted: none. This is the active Card; layout-modulation-r1-v1
-is completed with the preceding exploratory Result Log. Standing user authority
+Revision: 2. Accepted: none. Execution is complete; see the terminal Result Log.
+Layout-modulation-r1-v1 has the preceding exploratory Result Log. Standing user authority
 covers local implementation and fitting. The owning Note stays proposed.
 
 Question: after adding conditional interaction capacity, can explicit factual
@@ -15501,3 +15501,94 @@ MPS fit; neither elapsed-time comparison is a latency benchmark. Aligned fitting
 code and data remain exactly frozen. Additional matched-style outputs use fresh
 `matched-style/{initial,source,aligned}` directories and unchanged guard seeds;
 they do not overwrite historical qualification.
+
+### Result Log: scoped style discrimination completed
+
+Accepted: none; scoped-style-discrimination-r1-v1 revision 2. Fitting source
+remained 0591f905809876d7dc4f41ebf1217ba4c2c31381, with unchanged driver/shared
+hashes and the frozen panel already recorded. Source-only and aligned fits both
+completed 400 updates; all 800 genuine source identities and their order matched.
+Actual exposure was 102 distinct human cells and 277 population scopes on 326
+charts/323 audios. Largest repeated human-cell draw count was 23. This does not
+add coverage to missing difficulty/style combinations.
+
+Source-only fitting took 254.835 seconds, aligned 303.954 seconds. Checkpoint
+SHA-256 values are, respectively:
+95a55c34b26214c06f6b8ec9c9f6cde29144d854b1214c80296af58efb084c07;
+a867547cf39d1284ca66daaca83e7f58f70851c3e8706c9971a1e7a665790214.
+Both retain frozen audio/H hash
+9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed.
+All eleven scheduled aligned modulation-gradient checks were finite and nonzero.
+Peak sampled footprints were 7.133/7.288 GiB, MPS driver 3.291/3.408 GiB.
+
+Historical qualification completed 51 candidates per endpoint in 149.051/161.051
+seconds. Corrected matched-style qualification completed twelve candidates for
+each of initial/source/aligned in 66.275/80.645/81.127 seconds. Twelve common-prefix
+forks also completed. All 150 generated exports passed their save/reparse path.
+Concurrent CPU work makes these elapsed times resource records, not benchmarks.
+The artifact owner occupies approximately 115 MiB, within the declared budget.
+
+Corrected style mean U-statistics were initial .047723, source .057098, aligned
+.045661. The aligned gain over its matched source arm was .011437 (20.0%),
+passing .005 and 10% gates; gain over initialization was only .002062 (4.3%).
+Per-style aligned distances were Tech .035626, Jack .012756, Stream .011355,
+Trill .122905. Stream remained worse than initial .006760; trill was almost
+unchanged from initial .123060. Preserve the evaluation amendment: these values
+use factual local D/LN requests, unlike historical whole-chart style guards.
+
+Scoped D MAE was initial .731496, source .768166, aligned .738113. All declared
+D, LN and restored-range regression allowances passed. Fast-single low request
+2.190 remained 3.642 after alignment, versus 3.689 initially. Slow-chord high
+request 3.500 became 2.514, versus 2.750 initially. The unused R1 difficulty
+response therefore remains. LN structure distance was .032476 initially,
+.026898 source-only and .028625 aligned; no new LN semantic success is inferred.
+
+Factual condition discrimination strengthened for Jack (source 6.681 to aligned
+12.734 summed log-probability gap) and Stream (8.208 to 18.300). Tech worsened
+(-.918 to -3.433), and Trill stayed small (.094 to .195). These four genuine
+teacher-history sequences are diagnostics, not selection evidence.
+
+Common-prefix target-row comparison: source absent/prominent forks changed
+1/0/0 of 24 rows; aligned changed 0/15/0. Thus two aligned pairs are exactly
+identical in the target scope. The second source pair gives exact A,A,B,B group
+repetition with A=[23], B=[01]. The aligned prominent counterpart changes some
+rows but retains predominantly doubled groups; it does not recover sustained
+single-row A/B exchange. Forbidding repeated groups would damage legitimate Jack
+expression and is not the chosen repair.
+
+Lens rendered sixteen contexts/fifty pages; sixteen pages were viewed, covering
+matched seed-zero Tech/Jack/Stream/Trill for all three endpoints plus decisive
+fork context. Full target actions were compared. Jack retains repeated chord
+membership; Stream retains moving flow with occasional repetitions; Tech often
+uses complementary pairs over its irregular fixed H. Trill remains mixed flow
+or repeated groups. `qualitative-review.json` and `fork-row-comparison.json`
+record the exact observations and limits. No human label, listening judgment or
+playtest was claimed. The semantic gate is not established, so native expansion
+and larger training are not run. No model is adopted.
+
+All handles are terminal and closed: fitting 62653/44681, historical qualification
+46019/12926, matched-style 86306/69362/58558, forks 12644/13022, factual diagnostic
+68599, analysis 20879 and Lens 27150. No experiment process remains active.
+Product report is `docs/research/scoped_style_discrimination.md`, committed at
+e48e4ba210a51951d530e6ff3989f41ec9794455, with a link from the modulation report.
+Scoped documentation links and whitespace were checked. No production executable
+changed after the previously verified modulation implementation. No remote push.
+
+Evaluation: REFINE. The conditional-discrimination intervention helps compared
+with this matched source-learning recipe, but does not solve the user's requested
+difficulty response or stable scoped style control. The source-only regression
+does not isolate balancing as its cause: continued factual learning also omits
+the initial trajectory objective. Sparse labels, source-history dependence and
+the learning signal remain competing mechanisms; no loss-weight escalation is
+selected from these results.
+
+Next design question: use empirically observed same-H arrangement pairs to define
+different difficulty targets, then train the full R1 policy on common physical
+prefixes with outcome-level credit. This is distinct from the earlier restricted
+update of difficulty-input columns. Retain genuine source imitation only on its
+own history. Different source prefixes do not prove target attainability from
+every common state; account for actual entering LN/attack state and measure each
+scope independently. Unknown pair styles stay unknown, with separate style/LN
+guards. H must change when timing itself prevents the requested result; R1 keeps
+all count/layout ownership. No next Card or run has been started. The overall
+playability research goal remains active, and the selected core2500 is unchanged.
