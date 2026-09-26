@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-26
-Product revision: c1260d3737198e670f6b40254acbaf14fe0cf602
+Product revision: 2b20c4fd2bd89bb6ad35a2acda1c60e8e8bd5cd7
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff
 
@@ -13364,3 +13364,173 @@ MPSdriver1.795GiB; overlapping ledgers are not additive. The8-identity full-audi
 cache had0hits/108misses in this short sequence. These are integration/performance
 results, not chart-quality evidence. Smoke weights will not initialize the full
 comparison. The declared bounded1500-update pair may now start from core2500.
+
+### Result Log: active-ln-audio-cues-v1 matched fits and source-H qualification
+
+Accepted:none; Cardrevision2. Both fits and all qualification used clean executable
+sourcec1260d3737198e670f6b40254acbaf14fe0cf602. The self-contained analysis is
+docs/research/active_ln_audio_cues.md at product commit
+2b20c4fd2bd89bb6ad35a2acda1c60e8e8bd5cd7. This is an exploratory result under the
+standing implementation/run authority; Note status stays proposed.
+
+Both1500-update fits completed from core2500, in841.679s(cues) and789.725s(continued),
+including validation. All3000actual accepted draws match, spanning1889TRAINcharts,
+2216population/784human proposals. Each arm rejected46source-release profile
+incompatibilities,16row support incompatibilities and10empty release windows.
+No source/training-driver change occurred between or during the fits. Both audio/H
+hashes remain9b25aa8cb36b37a9f295fc41b4386d85fef83e9bae903589d2d5c09caed48fed.
+Each full-audio cache had19hits/3025misses. Peak sampled physical footprint was
+14.0688/13.5578GiB; peakRSS3.0051/4.7376GiB; MPSactive.5811/.5744GiB;
+MPSdriver7.3999/7.1558GiB. Ledgers overlap and are not additive. No resource stop,
+nonfinite loss, frozen-weight change or incomplete generation occurred.
+
+Owner artifacts/joint-audio/20260926-active-ln-audio-cues-v1. Completed handles
+are77334(cues),12794(continued),96168/28939(qualification); none remain running.
+Do not poll or restart those handles. Terminal checkpoint identities:
+
+- cues-1500/step-1500.pt:
+  f17b97dd4205539c68ffb20e59befe20f42e378f55bdb3b2bbc79fa514d429cd.
+- continued-1500/step-1500.pt:
+  b9688cf1664de34e3efc7952786242fa139f5d29d6ec1e81e94b2182d6529a2d.
+
+DriverSHA remains4df86131921148706f2088af1e49068b342f2116f2527f85ead96b8b9ef13a31;
+panelSHA411e6bdcecdd1bff7869241d8428fcffdc0689832d0491b1fea83a41fbff3b92;
+qualifierSHA2a35885bf17a942859529877f1dd43ede6dd44ce7231b5ba95dd8b3aa62826d8.
+source-cues/result.json SHA9d137448e09f33c16f7d43e624393ddcc592aefc75580dd909993241dfa9d43c;
+source-continued/result.json SHA7a275b3917a95a1fc8c8f3073f4a4dbd74aa8e2b71998739cc2fbfd1e82771e6.
+comparison.json records the complete terminal identities, draw equality, frozen
+hashes, all numerical gates and validation diagnostics. Posthoc relations.py SHA
+b4fbb731a5bf1ec345e5c7445d4e7323c6c4c4843a6b40c00e8a32c736c98c71 produced
+relations-cues.json and relations-paired.json; these physical relationship summaries
+are additional interpretation, not changed gates, quality labels or fit targets.
+
+Each arm's qualification generated all five complete source-H charts from BOS,
+preserving exact supplied H times. Source whole stars/LN fraction were requested;
+only the two specified human ranges requested prominent LN-coordination. The
+standard LN integral/recovery policy stayed identical. No response projection,
+rate readout, count prior, source tail or source row context was supplied.
+
+| Case | Source stars | Continued stars | Cue stars | Continued/cue LN fraction |
+| --- | ---: | ---: | ---: | ---: |
+| singles | 2.998773 | 4.375371 | 4.161716 | .009531/.007341 |
+| chords | 3.103499 | 2.654489 | 2.654489 | 0/0 |
+| holds | 3.004741 | 2.575766 | 2.558289 | .845957/.854592 |
+| starry-jet | 3.634870 | 3.814052 | 3.773349 | .279927/.284064 |
+| shippaisaku | 3.625953 | 3.949839 | 3.986900 | .828315/.828283 |
+
+Primary holds median is183ms in both arms; <=80ms share is.045272/.033831.
+Cues miss median>=185 and improve the short share only.011441, below.03.
+All other declared numerical gates pass, including holds star/LN errors and
+singles/chords relative regressions. This does not make singles acceptable:
+source861heads at783H become1259/1226heads, with persistent fast-flow chord
+inflation. Chords rows.jsonl is byte-identical between arms; all other cases
+differ. The requested native3/.7 expansion was not launched. No wider fit or
+gain/width change follows these results.
+
+Lens inspection read56images across the two source human contexts(10), cue
+outputs plus matched primary sources(26), and continued outputs plus the matched
+holds crop(20). Every accompanying paginated actions/articulation table was read,
+including full endpoint and entering-hold context. No generated chart inherited
+a source human label; no human record or pin changed. No waveform listening test
+was performed. Important relations:
+
+- Shippaisaku source human scope86452–93511 has83LNheads,median111ms,73releases
+  at H times and0noncoincident releases within20ms of another H. Continued has
+  88LNheads,median110,21at-H releases and20near-H noncoincident releases; cues
+  have83LNheads,median110,71at-H and2near-H. Full context84687–95276 contains
+  159physical rows in continued versus99in cues, with85Htimes in each. Cues
+  retain mixed110/220/331ms holds, including a441ms hold86452–86893 across
+  three intervening H times. Continued fragments the regular flow with many
+  short independent releases. Whole-chart <=80ms fractions are.082908/.034018.
+  This is a useful local organization gain, not a universal release-snapping rule.
+- Starry Jet source scope198241–204908 contains two1250ms holds spanning five
+  intervening H each and an833ms hold spanning three. Neither generated arm has
+  a hold starting in this scope with more than one intervening H. Continued/cues
+  maximum duration is445/417ms. Whole-song long holds remain possible, so this
+  is missing sustained organization rather than a hard duration-support cap.
+- Miraie matched51863–55864 source forms regular overlapping205–426ms holds
+  and differentiated simultaneous endpoints. Both generated versions still add
+  many independent releases. Cues have some longer overlapping roles but also
+  58/67ms holds; a lower short-tail share alone does not establish source-like
+  articulation. The continued peak162044–166045 largely becomes sequential
+  183ms holds plus TAP chords; source-H singles peaks retain excess chords.
+
+The22scored validation midpoint intervals have initial H/R/row/joint NLL/s
+32.9434/1.32179/12.19927/46.46447. Cues finish
+32.9434/1.34904/11.89002/46.18247; continued
+32.9434/1.34325/11.87991/46.16657. Two in-range intervals are profile-excluded.
+These diagnostics neither select terminal checkpoints nor rank playability.
+The near-equal likelihoods and median durations miss the large local difference
+in Shippaisaku. Source style coverage also limits interpretation: TRAIN has
+8prominent LN-coordination human cells on8charts;27draws intersect them, covering
+10unique chart/time intervals, all from the human proposal branch. This is
+potential overlap before15%family dropout, not actual enabled supervision count.
+
+CPU1thread source-H generation including full encoding from cached Mel took
+.8036–4.0263s per song. Qualification ran after each corresponding fit was terminal,
+without a concurrent fit. Waveform/Mel preparation, native H, first30rows and
+control-switch latency were not qualified for these terminal checkpoints.
+
+Evaluation: REFINE. The extra cue is not justified as a general selection by
+this comparison, but the Shippaisaku relationship gain merits retaining it as an
+optional candidate. Its shared use in R and R1 prevents attributing the gain to
+one factor. Frozen audio, one fit seed and one rollout seed per chart limit the
+negative result too. The original core2500/default LN feedback remains the
+reference; neither fitted arm becomes a released playable model. Code/default
+interfaces and the Pulsefield V3 decision ownership are unchanged. Documentation
+claims/links and staged whitespace checks passed; no repeated behavior-test run
+was needed for the final documentation-only commit. The41selected implementation
+passes recorded above still refer to the unchanged executable source.
+
+### Exploration: outcome learning on generated ranges
+
+The remaining control problem is not addressed by another origin feature alone.
+At fixed correct H times, both arms still turn the mostly single-note3star chart
+into a substantially denser arrangement. Source imitation trains conditional
+choices on source histories; deployment must maintain a useful joint outcome
+on its own histories. No fault percentage follows from this source-H diagnostic.
+
+Closest objective analogue: Shen et al.,
+[Minimum Risk Training for Neural Machine Translation](https://aclanthology.org/P16-1159/),
+especially Equations11–14. A sampled candidate set approximates a sequence-level
+expected loss, and gradients act through model probabilities without requiring
+the outcome measure to be differentiable. The transferable primitive is a
+multi-event outcome objective on genuine generated continuations. Translation
+quality results, sentence references and their sample/temperature choices do not
+transfer as beatmap-quality guarantees. This would be an adaptation of an existing
+objective, not a novel general learning principle.
+
+A competing imitation analogue is Ross et al.,
+[DAgger](https://proceedings.mlr.press/v15/ross11a.html), Algorithm3.1. It obtains
+expert actions on states visited by the learner. The beatmap corpus does not
+provide those actions on altered histories. Attaching the source next row after
+a generated-prefix change would therefore lack the required expert supervision.
+The earlier projected teacher offers only its declared response preference, not
+such an oracle or a complete quality target.
+
+Live branches: improve supervised coverage for rare style controls; train range
+outcomes on generated histories; or add a representation of sustained roles.
+The first can improve label use but does not directly address self-generated
+control drift. The third remains plausible, but a short semantic record does
+not yet justify arbitrary latent plans or leaking R1 decisions into H. Favor
+designing the outcome-learning branch next, retaining source imitation for
+expressiveness and musical fit. Any difficulty readout remains a proxy, and
+source-bound Lens comparisons remain necessary for acceptance.
+
+Before a fit, define the outcome for a whole requested control range, including
+the prefix, entering holds, right-boundary censoring and time after the last row.
+Do not reset physical history or close holds at a loss-window edge. Underfill
+must be judged at range level, not repaired with a lower bound at every row.
+Score the actual policy used to sample: recovery preferences and replayable LN
+feedback alter the probability law, so raw-model likelihood is not automatically
+the log probability of a deployed sample. Generated states and feedback must
+be replayed consistently. H keeps its own timing-only information; R1 owns all
+materialization choices. Do not promote arbitrary release-at-H rates, duration
+statistics or human style strength into a universal quality reward.
+
+Outcome: TEST for a subsequent bounded design, not an accepted or executed Card.
+First settle the scoring/outcome definition and show a meaningful gradient on
+genuine generated continuations with the current small model. No new capacity
+sweep, general native expansion or long training run is authorized by this
+research recommendation itself; the standing user task supplies execution scope
+when a concrete next design is ready. Goal remains active and incomplete.
