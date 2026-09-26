@@ -13311,3 +13311,25 @@ of hold relationships. H traces must match across the two frozen-H/audio arms.
 If primary fails, do not scale or launch this native expansion. Similar or better
 continued results favor the simpler model. Failure calls for a revised scoped
 response/objective study, not hidden endpoint heuristics or more width.
+
+
+### Experiment Card: active-ln-audio-cues-v1, revision2
+
+Owner unchanged; Accepted:none. No fitting or generation has begun. Revision1's
+implementation at2662c17f2ffc5dfaceb117821e4f85a6fded022f adds66,368parameters
+and passed41selected tests; a final explicit empty-shape reshape change was
+followed by six focused passes. All other revision1 protected fields stay fixed.
+
+Refine one coupling choice before the fit: project the summed hold slots into
+the release clock's hidden preactivation, before its GELU, instead of adding
+an independent10-logit residual. Current controls already reach that hidden
+preactivation through the existing release-control/audio path. Their nonlinear
+interaction can therefore change the interpretation of an origin cue; a purely
+additive output residual would impose separable origin/control effects. This
+is a necessary conditioning-design refinement, not a result-driven parameter
+sweep. The release cue still cannot choose an identity, and its encoder still
+reads only audio/origin/age. R1 cue placement and the LN-reference probability
+factorization remain unchanged. New output width equals the existing hidden128,
+so total added parameters are73,920, model total4,657,905. Recheck native/teacher,
+zero-transfer, gradients, mirror and normalized waiting behavior; commit this
+source before the32-update smoke. No old cue checkpoint has been fitted or released.
