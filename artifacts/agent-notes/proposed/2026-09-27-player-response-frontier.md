@@ -475,7 +475,7 @@ those proposal-learning problems. H musical activity and recovery intervals rema
 an independent unresolved part of the complete system. No new fitting Card or
 run is selected by this Result Log.
 
-## Experiment Card: player-state-r1-learning-v1, revision 2
+## Experiment Card: player-state-r1-learning-v1, revision 3
 
 Accepted: none. Standing research authority covers local implementation, profiling
 and fitting. Baseline product faf726d30cea3a0ad4f0140b884d3d52dddec4cc; baseline
@@ -576,7 +576,10 @@ qualification and2GiB new artifacts. No overwrite/resume/download. Stop on
 nonfinite values, support disagreement, sampled/rescored log-q error>.002,
 frozen-weight drift, failed focused invariant, explicit STOP file or resource
 limit. Freeze live run inputs and record clean intervention source before fitting.
-Native timing qualification runs after all fits stop. First thirty published
+Main arms may overlap after a stable source-only footprint and smoke footprint
+sum below18GiB; monitor the combined budget. Fitting elapsed times under overlap
+are not isolated throughput measurements. Native timing qualification runs after
+all fits stop. First thirty published
 rows must remain below2s and every measured two-second publication below2s.
 
 Positive evidence supports response-aware native proposal learning, still requiring
@@ -621,3 +624,44 @@ Bank plan SHA-2568aa54f1cd070866edd029eb6fcc024985b4c37e2529a88aa4357a0a6e86cfe9
 348a344dcb9245e474d6cd3fdc4320ad2773d908bc6ed4e48ebcfd7dcefd0524, covering197 unique
 human scopes and300 population scopes. Artifact owner remains
 20260927-player-state-r1-learning-v1. No generated requested styles are labels.
+
+
+### Result Log: replay bank and eight-update learning smoke
+
+Accepted: none. Bank process62513 completes20 native songs in254.470 seconds,
+producing69 high-excess contexts and80 ordinary contexts. Every native export
+completes. Records SHA-256
+53ed0a0bf953439ebfbe83a4cf6eff8c203d19232c9b102f7c94428a0f5381d1. The high-excess
+examples occur in Jack/Tech/Trill requests at several difficulties; all four
+selected Stream and LN songs have zero baseline excess. This bank is a deliberate
+training stress slice, not an unbiased estimate of failure prevalence.
+
+The eight-update response smoke completes in37.763 seconds (handle3753 terminal),
+checkpoint SHA-256
+2a4c7ddd038c47f293afb8c67d0084cf6abcbca0c0a183616f8197c592cc2d64. Discard these
+weights. Five of24 sampled futures have positive cost; two updates have nonzero
+response gradients. Eight futures still hold keys at the response endpoint and
+are scored without invented closures. Maximum CPU-sampled/MPS-rescored log-q
+error is1.8813e-5; frozen hash remains
+8c21a572ba08b5c8f847e818f318d8c92ef7d8f070616eb5ce0d42d911f626a5. Peak footprint
+3.033GiB, MPS driver1.713GiB. The new projection norm reaches.1043. These establish
+learning activity and parity, not quality improvement.
+
+At the strong Trill2.5 context, source gradient norm20.836 versus response283.517;
+future costs/second are .036861/.006772/.001191. Another update has source42.696
+versus response.788. The large-gradient case may dominate its clipped update;
+retain actual style/difficulty qualification rather than infer preservation from
+source loss. Other-draw baselines cancel prefix costs when continuations do not
+differ. Empty decision traces correctly have no R1 gradient.
+
+The initial source loss9.0525681648 is exactly shared by smoke and the fresh main
+source-only arm. Source-only384 is live under28653, at112 updates/114.547s with
+footprint3.709GiB and driver1.983GiB. Revision3 permits overlap with the response
+arm after that stable measurement; estimated combined footprint with smoke is
+under7GiB, below18GiB. Data, objectives, weights, steps and seeds are unchanged.
+A metadata-only detach removes a Torch scalar-conversion warning before main
+launch: main train.py SHA-256
+c67cb4087a017f0a425e58d658b67867f0969e6a68f26f6a84a2f93820e3a217, shared.py
+466e78ec80aedb7c9b4d1f85f8d7589c6c8b507be90403d41fa7763c799ff4f4. No live input is
+edited. Do not restart the live source-only run. The response arm starts from
+the same declared initialization, not smoke weights.
