@@ -7,12 +7,12 @@ fewer attacks can become longer simultaneous holds, and a similar total count
 can lose a repeated rhythmic figure. A sustained-load ceiling cannot supply
 the missing musical structure.
 
-The next architecture direction is a shared multiscale audio representation
-and history attention queried by current musical context. This is a proposal,
-not an implemented or qualified replacement. The evidence below motivates the
-information path; it does not prove that attention or more parameters will fix
-generation. A subsequent [memory prototype](audio_history_memory.md) implements
-the path and its causal scoring checks; trained musical benefit remains open.
+The architecture direction is a shared multiscale audio representation and
+history attention queried by current musical context. A
+[memory prototype](audio_history_memory.md) implements the path and its causal
+scoring checks, but trained musical benefit remains open. The evidence below
+motivates the information path; it does not prove that attention or more
+parameters will fix generation.
 
 ## Matched ranked sources
 
