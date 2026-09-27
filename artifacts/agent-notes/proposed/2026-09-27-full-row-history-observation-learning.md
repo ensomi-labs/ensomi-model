@@ -118,3 +118,22 @@ evaluation has a separate 2400-second total, 300 seconds per case, 8 GiB footpri
 The realtime benchmark worktree is unchanged; native observations do not replace
 its 30-row/eight-second readiness contract. The full playable-system goal remains
 active and unproven.
+
+## Frozen execution inputs
+
+Prepared plan SHA 94bb0e42bcc352a97f0f3ad25063ddf50b745773390ddf517a2884bb3b6e5645
+pins all five executable experiment scripts and the reused factual source plan.
+The resolved trainable set is 2,753,715 of 4,600,369 parameters. The visibility
+list contains exactly 64 independently selected window indices. Native plan SHA
+fdddd43cbd945ad7de14abb257e54fb71f8a3f4d858b3b72421b395bb2c484d8
+passes the actual qualification plan validator for all fourteen cases, including
+scope-owned amount gates.
+
+Commands use `uv run --extra mps python` followed by the owner directory's
+run.py, validate.py and evaluate.py. The supervisor starts and waits for each
+worker as a real subprocess, verifies its completion and checkpoint identities,
+then advances to the next declared segment. It does not infer liveness from a
+receipt or retry a failed worker. Validation uses a separate bounded CPU process
+to avoid retaining training allocations. Native evaluation produces 31 new
+outputs: three initial style guards and fourteen per fitted arm; it reuses the
+eleven already pinned ordinary baseline cases.
