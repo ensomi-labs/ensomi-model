@@ -48,10 +48,17 @@ def sustained_attack_witnesses(trace, scope, envelope, stars, *, limit_per_windo
                 excess = float((intensity*(right[first:last]-left[first:last])/1000).sum()/len(reference))
                 peak = first+int(np.argmax(rates[first:last]))
                 context = trace.interval_features(start,end)
+                peak_time=float(left[peak])
+                peak_counts=[int(np.searchsorted(t,peak_time,side='right')-
+                                 np.searchsorted(t,peak_time-width,side='right')) for t in trace.heads]
+                peak_held=(trace.held_area(peak_time)-trace.held_area(max(0.,peak_time-width)))/width
                 episodes.append(dict(column=column,start_ms=start,end_ms=end,duration_ms=end-start,
                     starts_at_scope_boundary=bool(start==a),ends_at_scope_boundary=bool(end==b),
                     history_start_ms=start-width,excess_seconds=excess,
                     peak_Hz=float(rates[peak]),peak_at_ms=float(left[peak]),
+                    peak_window=dict(start_exclusive_ms=peak_time-width,end_inclusive_ms=peak_time,
+                        attacks_per_column=peak_counts,attack_Hz_per_column=[n*1000/width for n in peak_counts],
+                        held_fraction_per_column=peak_held.tolist()),
                     H_Hz=float(context[0]),attack_Hz_per_column=context[1:5].tolist(),
                     held_fraction_per_column=context[5:9].tolist(),
                     LN_head_Hz=float(context[9]),release_Hz=float(context[10])))

@@ -23,6 +23,7 @@ def test_localizes_concentration_and_retains_free_peer_context():
     assert witness['column']==1
     assert witness['duration_ms']>4000
     assert witness['peak_Hz']==10
+    assert witness['peak_window']['attacks_per_column']==[0,40,0,0]
     assert witness['attack_Hz_per_column'][0]==0
     assert witness['held_fraction_per_column']==[0.,0.,0.,0.]
     assert concentrated['excess_seconds']>0
@@ -62,8 +63,10 @@ def test_chord_repetition_and_held_peers_remain_distinguishable():
     chord_w=sustained_attack_witnesses(ChartTrace(chord,6000),scope,ENVELOPE,4)['windows']['4000']['episodes'][0]
     held_w=sustained_attack_witnesses(ChartTrace(held,6000),scope,ENVELOPE,4)['windows']['4000']['episodes'][0]
     assert all(rate>0 for rate in chord_w['attack_Hz_per_column'])
+    assert chord_w['peak_window']['attacks_per_column']==[40,40,40,40]
     assert chord_w['held_fraction_per_column']==[0.,0.,0.,0.]
     assert held_w['held_fraction_per_column'][1:]==[1.,1.,1.]
+    assert held_w['peak_window']['held_fraction_per_column'][1:]==pytest.approx([.975,.975,.975])
     assert held_w['release_Hz']==0
 
 

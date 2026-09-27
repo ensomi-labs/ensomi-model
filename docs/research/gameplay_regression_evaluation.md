@@ -191,7 +191,10 @@ or event-count horizon is used. The report retains each window's full integral
 and the largest episodes, with explicit omitted counts.
 
 Each episode records its duration, peak time, contributing history start and
-simultaneous per-column attack rates and held fractions. Thus a concentrated
+simultaneous per-column attack rates and held fractions. The peak's contributing
+trailing window is also reported separately: pressure can persist after the
+sequence that caused it, so episode-wide peer averages alone can hide idle peers
+during that sequence. Thus a concentrated
 sequence with idle peers can be distinguished from repeated chords or attacks
 beside occupied fingers before Lens review. A control boundary clips the
 observation and changes the requested reference when appropriate; it never
