@@ -671,3 +671,54 @@ partial-value/mask effects and generated-history sensitivity. A principled repai
 may improve control masking/representation rather than merely scaling the audio
 encoder or making R1 compensate for timing density. No such model repair has
 been selected or run in this comparison.
+
+
+## Result Log: completed native qualification and developmental review
+
+Qualification10927 is terminal/complete: all84 exports (28 per arm) are reparsed
+and verified in2779.291689 seconds including numerical analysis and11 overviews.
+No fitting/evaluation process remains live. Lens renderer21375 is also terminal:
+32 development contexts/108 pages prepared. Supplemental8093 and fixed-facts1313
+are terminal. Final review/verdict writer9581 is terminal/complete.
+
+Numerical comparison SHAde54acb1677de9ac95051432a11ddd42145e71f3f4ce088a1fb6ab3c1b28484d.
+All exports are mechanically valid. Evaluated scopes contain no below20ms attacks.
+Across all28 cases, maximum first30 seconds are.909829/.861919/1.590627 and maximum
+2s service seconds.383188/.495560/1.141449 for unfitted/baseline/memory. Actual2s
+lookahead publication replay reports no missed deadline. These are loaded-model,
+cached-Mel clocks, including model audio encoding, not complete client coldstart.
+The Stream pressure and star-MAE failures recorded above remain unchanged.
+
+Switch ranges remain separate. Unfitted/baseline/memory scoped difficulties are
+2.491686/4.768310/3.172982 before,3.654299/5.655576/5.209840 override, and
+4.169557/6.215895/5.097657 restored, against3/4.5/3. Every LNfraction error is <=.10;
+memory restored difficulty fails by2.097657. No pooled switch difficulty score.
+
+All11 whole-song overview figures and45 actual Lens pages have been read. The
+45 pages cover every source/baseline/memory page in the four fixed developmental
+contexts; unfitted Lens pages, remaining developmental contexts, detailed
+reserved/style and supplemental-pressure contexts remain unreviewed. Harness
+revision22e5c84f5cacb8493bdab5f1d0fdc09c5373dc60. Review JSON
+SHAcea2cad049653fc920fe0f0a5fc6ab803eedbbbc3e7a09cc1e0fea4da2b07018.
+No audio listening, real player test or new human annotation is claimed: the
+attempted5s Classic audio tool explicitly returned unsupported audio input.
+
+Max Burning source hold[70879,72142) has0 new heads; baseline11, memory6, unfitted6.
+Memory adds a local pause relative to continued baseline, without the source's
+held voice or a clear improvement over unfitted. Classic[88589,93589) memory's
+closer LN fraction hides62H/76heads vs source29/47, baseline41/59; source interleaves
+mixed groups while memory changes TAPrun to almostallLNrun. No clear gain.
+Styx[1800,11800) memory reduces baseline91heads to54 but raises anyheld.6703 to.8478
+(source.2434); fewer attacks are not unoccupied recovery. Alternate LNarrangements
+can still be valid. Blizzard[40342,56342) baseline and memory both122LNheads;
+totalheads140 to155 drives memory's lower LNfraction. Anyheld.9695 to.9523 remains
+above source.6931. This is not sufficient evidence of improved organization.
+
+qualification-verdict.json statusnot_qualified/adoptfalse records failed Stream
+pressure, Stream MAE and restored difficulty guards, with at-least-two convincing
+developmental gains not established. This means no checkpoint promotion, not a
+Note lifecycle transition or a claim that memory can never help. Main EVAL
+improvements remain reusable: all-scale pressure review, prefix/scoped workload,
+held occupation/recovery, shifted audio correspondence and actual publication
+clocks. Proceed to a separately owned bounded fixed-prefix H probe before another
+large fit; preserve request masks, annotation scope honesty and module ownership.
