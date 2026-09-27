@@ -550,3 +550,31 @@ Training reconstructs the same controller from the full true prefix. A remaining
 flat or excessively held texture must not automatically be attributed only to
 encoder capacity. This is an information-flow/approximation observation, not a
 measured new failure cause or authority to change this fixed comparison's policy.
+
+## Qualification execution preparation
+
+This goal continuation is verified learning progress: supervisor38761 remains
+live and reaches339 completed updates, with the next340–371 process started.
+The308–339 segment's footprint peak15.1968GiB stays below the unchanged18GiB
+limit despite a larger active peak5.6753GiB. No model/input/optimizer changes.
+
+A behavior-neutral wrapper serializes the already declared evaluation sequence:
+qualify_all.py SHAb78ca057f49f8d33050b97bdcaf6b9da3b14d6a37116ecbac1d3372e77374758.
+After both fits complete, command caffeinate -i uv run --extra mps --extra render
+python artifacts/joint-audio/20260927-audio-memory-joint-fit-v1/qualify_all.py.
+It requires both384-step endpoints, runs unfitted/baseline/memory qualifiers in
+order, then analyze.py and plot_qualification.py. Fresh qualification-run owns
+logs and process status. Any nonzero stage exit stops the wrapper; no overwrite
+or automatic retry. A successful wrapper means measurements completed, never
+semantic qualification or model promotion. Existing7200s native-evaluation budget
+and all frozen cases/ranges/guards remain. No native quality run has started yet.
+
+plot_qualification.py SHA8a79b0abb8acf6b50e264cd4f642eaaafed26c0eb22479886ddb14bc5db223ee
+prepares eleven source/common-clock figures: six developmental conditions, four
+reserved songs and the live switch. It plots canonical Mel, two-second H pacing,
+four-second column pressure, exact held occupation and250ms all-free recovery
+measured in eight-second windows, plus per-column activity. These retrospective
+curves help locate large-scale flattening and held-texture substitution; they
+are not generation features or a pooled control score. Numerical reports remain
+range-specific and each figure is unreviewed until viewed. Syntax checks pass;
+actual rendering/visual correctness remains to be verified on completed outputs.
