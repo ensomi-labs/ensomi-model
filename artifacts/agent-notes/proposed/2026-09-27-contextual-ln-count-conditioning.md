@@ -4,7 +4,7 @@ Note ID: 2026-09-27-contextual-ln-count-conditioning
 Status: proposed
 Kind: research
 Created: 2026-09-27
-Updated: 2026-09-27
+Updated: 2026-09-28
 Product revision: 9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8
 Scope: R1 LN-count conditional expressiveness, paired factual learning and native organization evaluation
 Related: 2026-09-27-candidate-supply-and-response-selection, 2026-09-27-ln-continuation-preference-diagnosis
@@ -131,7 +131,7 @@ population and 76 human-annotation draws. Recomputed whole-song SR bands contain
 69/56/79/52 draws in 2/3/4/5-star bands. There are 122 whole-song control draws,
 216 with known LN condition, and 22 held-out validation charts relative to this
 fit. Ancestor exposure and repeated research use are not claimed absent.
-The prepared population excludes the five audio identities used in the prior
+The prepared population excludes the four audio identities used in the prior
 six-context candidate panel. Complete-source release/row profile conflicts and
 empty row windows account for 4/4/9 rejected draws across preparation and
 validation. Acceptance changes the proposed mixture; actual exposures are
@@ -340,3 +340,11 @@ remain the 21 tests recorded above. No executable source changed after them.
 All preparation/training/recovery/evaluation/render handles are terminal. The
 overall playable 2–6-star goal remains active and unachieved. Note remains
 proposed, accepted revision none; no remote publication.
+
+## Source-exclusion count correction
+
+The source-plan SHA a766382082fa7e0b8674f88d9c7be128b41cf16d1fa7e881beb367336dbaddf4
+contains four excluded audio identities, not five. Max Burning was not in that
+set but had zero accepted training draws. This corrects the prose count; the
+frozen data, original exclusion rule and reported runs are unchanged. The broader
+full-row study explicitly excludes all five audios in its native panel.

@@ -99,3 +99,66 @@ Preparation verifies the checkpoint, both audio/Mel identities, reused exports,
 the documentation-only source delta and actual qualifier plan validation.
 Projection checks preserve unknown values and every non-star coordinate.
 Execution command is uv run --extra mps python followed by the owner run.py.
+
+## Result Log: native-v1 and fixed-history row-code follow-up
+
+Card style-difficulty-response-v1 revision 2 remains unaccepted/proposed.
+All ten new cases complete normally in 139.8666s; two pinned cases are reused.
+Observed peak task footprint is 656,065,952 bytes. No retry, weight change,
+recovery change or benchmark run occurred. Output owner is the declared
+20260928-style-difficulty-response-v1/native-v1, cases SHA
+88ae0e1bacb38745c96a65f3edd830b4d9b951b35fdf873c32c934af60773709.
+Input/output call-site ranges verify 0 to -.5 only for the shifted neural arm,
+with original D4 controls and 60/50/50 recovery retained in case identities.
+
+| Audio / seed | Unspecified style stars | Stream stars | Stream neural code -1 stars |
+| --- | --- | --- | --- |
+| Zenithfall 271200 | 4.918388 | 5.070924 | 4.388294 |
+| Zenithfall 271201 | 5.206211 | 5.133506 | 4.586096 |
+| Classic 273110 | 4.450135 | 4.365737 | 4.374811 |
+| Classic 273111 | 4.452409 | 4.359785 | 4.004647 |
+
+The repeated .5-star style-increment criterion is not met on either audio.
+The neural-offset .5-star reduction criterion is met on Zenithfall only.
+The promising two-seed Zenithfall quality condition is not met: seed 271200
+attack excess rises .0110051 to .0126765 seconds, while seed 271201 remains
+.586096 stars from the D4 request despite lower excess .0238275 to .0021776.
+Do not adopt a universal correction, infer a full response curve, or shift the
+player reference to preserve the result.
+
+Twelve Lens pages were read: both unshifted/shifted Zenithfall 271201 at
+[41094,49094) and Classic 273110 at [88589,93589). Repeated-column blocks
+remain in Zenithfall despite lower stars/excess; Classic remains TAP/chord flow
+without a general quality improvement. Review SHA
+134384050320e1e6ed8ff1a74081546d9cb6a3d1c49c9ab43dc2049a663656ec.
+These are agent observations, not human labels or listening/playtesting.
+
+A separately recorded secondary read-only diagnosis changes only the current R1
+code at the same factual generated prefix, H preview, exact state and D4 recovery.
+It scores four unshifted Stream cases, Zenithfall [40000,48000) and Classic
+[88000,96000), with 58/63/64/70 H queries. Within the one-TAP/no-release family,
+mean absolute repeat-probability changes are .013523/.010015/.013796/.008423;
+query maxima .032421/.029989/.029893/.023432. Expected heads decrease by
+.039–.045 per query. The four-case record SHA is
+165e72c6b706b63c77ca4de66e3502f19630ccd8a8001669e5c0fececc702ea5;
+the run completes in 4.6504s under its declared 180s/4-GiB bound.
+
+This secondary probe is exploratory and does not revise the primary Card.
+It narrows the mechanism: large uniform immediate routing changes are not
+observed in these fixed histories; the native intervention also changes timing,
+composition and reached histories. It does not assign a causal percentage to H
+or rule out amplification of small local row changes.
+
+REFINE: preserve the neural difficulty input as an available control, but do not
+apply the -1 correction as a quality fix. Broader full-R1 factual learning is
+owned separately; future demand/selection work must distinguish relational
+organization, not only scalar difficulty or excess thresholds. No checkpoint
+promotion, Note lifecycle transition or remote publication occurs.
+
+The durable numerical/relational synthesis is
+docs/research/full_row_learning_and_difficulty_response.md at product
+db4f89603942324b0fcd7ffe27ffd5c11f07b6d1. The whole playable-system goal remains
+active. Current evidence supports preserving the broader arrangement candidate
+while addressing scoped amount/difficulty coupling and independently evaluated
+continuation responses; it does not justify another unchanged source-NLL extension
+or a universal neural offset. All jobs and diagnostics for this record are terminal.

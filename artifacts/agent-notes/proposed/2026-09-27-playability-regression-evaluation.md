@@ -4,10 +4,53 @@ Note ID: 2026-09-27-playability-regression-evaluation
 Status: proposed
 Kind: research
 Created: 2026-09-27
-Updated: 2026-09-27
-Product revision: 9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8
+Updated: 2026-09-28
+Product revision: db4f89603942324b0fcd7ffe27ffd5c11f07b6d1
 Scope: Reusable exact-time chart observations, scoped regression comparisons, multi-scale pressure/texture and audio-linked diagnostics
 Related: 2026-09-27-audio-history-memory, 2026-09-27-four-star-musical-phrasing, 2026-09-27-player-response-frontier
+
+## Consecutive-head observations and ranked contrasts
+
+Product 6fa3a544e52624c9922c050743bd351aa2dc4f9f adds head_recurrence to every
+scope report. A column's causal age counts consecutive H groups containing its
+TAP/LN press, retaining pre-scope history and excluding future events. Release-
+only rows do not reset head membership. Exact age histograms, per-column repeat
+counts, gaps and bounded witnesses are observations, not Jack labels or masks.
+
+The counterexample has identical H times and per-column totals in rotation and
+eight-head column blocks, with zero existing D4 excess in both. Ages distinguish
+1 from 8 and repeat counts 0 from 28. Scope additivity, causal-prefix equality,
+long-gap visibility, empty reports and mirror facts are verified. Thirty affected
+tests, including actual native qualification, pass in 12.86s.
+
+Read-only census owner 20260928-recurrence-observations-v1 completes 1,972 ranked
+TRAIN metadata-star [3.5,4.5) charts from 1,613 groups in 3.67s. Unweighted chart
+q50/q90/q95/q99 repeated-head fractions are .155401/.286265/.328373/.423637.
+Age-at-least-eight head fractions are 0/.003575/.006946/.023184. These are
+metadata-band descriptors, not recomputed-star or style-conditioned thresholds.
+Ranked record SHA
+5cebefa1dccdd7aff6d7c3c19672ee3ba91e124dd2e8eb8188498988dbfa2f08.
+
+All four earlier neural-minus-one cases increase recurrence despite some lower
+stars/excess. Broader full-row learning subsequently lowers it, with mixed LN
+control results. New combined-control witnesses show that low averages can
+still leave isolated repeated-column episodes. No new BAD threshold is inferred.
+
+Two retrieved ranked counterexamples are recomputed at 4.2609802865 and
+3.7696308847 stars and actually viewed: Brave Freak Out (TV Size), Limit Breaker,
+source SHA 43f20aa3129a415b5bca7d2a5c1923b6a28267cb561d24e69ccecab8e9198eee;
+Termination of Desires, Eternity,
+source SHA fb0e61e4ec6277177aeef3a38d8b34abd44df860f22f78a020f94c6075d64987.
+Both contain sixteen recurring-column TAPs with twelve companion heads, whereas
+the two new generated witnesses have twelve/sixteen recurring heads with zero/two
+companions. This motivates adding companion counts, columns and head share to
+run witnesses. They include the pre-scope run portion and are not additive scope
+workload. Accompaniment does not automatically relieve the recurring finger.
+
+The companion distinction adds a genuine same-run-timing/different-role fixture.
+The expanded selected owners pass 31 tests in 11.51s, without exclusions.
+No sampling, checkpoint or pressure-envelope behavior changes. Human labels,
+musical alignment and physiological demand are not inferred from these features.
 
 ## User priority and ownership
 
@@ -284,3 +327,9 @@ not a source-copy criterion. No new model is promoted. The formal self-contained
 document docs/research/native_pattern_failure_analysis_zh.md defines proposal
 coverage and conditional selection failure separately, preserves the user's
 original problem statements, and records both causal limits and next questions.
+
+The companion observer and result synthesis are committed in product
+db4f89603942324b0fcd7ffe27ffd5c11f07b6d1. The self-contained report is
+docs/research/full_row_learning_and_difficulty_response.md; the evaluation
+guide owns use/measurement semantics. All model and sampler paths remain unchanged
+by the observer commits. No trained endpoint is promoted.

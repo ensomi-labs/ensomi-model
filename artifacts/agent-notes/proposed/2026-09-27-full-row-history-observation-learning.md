@@ -267,3 +267,26 @@ No Note lifecycle transition, human-label creation or remote publication occurs.
 The numerical findings and their limits are incorporated into the self-contained
 product report docs/research/native_pattern_failure_analysis_zh.md at
 0f5ec10b34c43fe21a6143d371a2f2bc36070e47.
+
+## Lens follow-up on ordinary full R1
+
+Twenty-four time-proportional pages have now been viewed across source and both
+ordinary-fit seeds, at Classic [88589,93589), STYX [1800,7800) and Blizzard
+[40342,46342). Action/context records retain entering holds and complete actual
+endpoints. Review record SHA
+1c8324d43f3ab49c3928475ce4befbf3c18a9301c357ff5c7e09f099bda0f19d,
+under the declared owner's review-v1. No new human labels/listening/playtesting.
+
+Classic regains mixed LN/TAP activity in both seeds, with paired endings in one
+and sustained holds under other-column TAPs in the other. STYX remains mostly
+LN locally although its whole-song amount improves; its reference passage is
+TAP flow, which does not make every alternative LN interpretation invalid.
+Blizzard remains near-continuous changing holds; its reference sustained-anchor/
+TAP/short-LN contrast is not restored. Continuing-hold/TAP pairs are source 12,
+full seeds 0/1. A longer hold in seed 1 is accompanied mostly by LN entries,
+demonstrating why duration alone is inadequate.
+
+The replicated two-song organization criterion is still not established. The
+missing-view arm and broader style guards have no new semantic approval.
+Ordinary full R1 remains a research parent only. Its broader factual exposure
+comparison is owned by 2026-09-28-broader-full-row-learning.

@@ -60,3 +60,51 @@ The four case plans retain the exact previously shifted controls/assets/seeds.
 The artifact-owned projection implementation is copied byte-for-byte from the
 earlier probe, with the new model/source identity and four-case runner. No
 product inference option is silently introduced.
+
+## Result Log: combined four-case native probe
+
+All four cases complete in 62.9490s with peak observed footprint 585,991,488
+bytes; no retry or model update. Source and scripts match the frozen plan.
+Native cases SHA
+d6537a316c0fd53ae88343f2049511b9280d8a0e90a37e5d18a2d27d3e7c8857.
+Actual H timelines match all four earlier shifted ordinary-fit outputs.
+
+| Case | Stars | Repeated-head fraction | Max prefix H age | Attack excess |
+| --- | --- | --- | --- | --- |
+| Zenithfall 271200 | 4.233853 | .101948 | 12 | 0 |
+| Zenithfall 271201 | 4.633034 | .108352 | 16 | 0 |
+| Classic 273110 | 4.112000 | .104046 | 5 | 0 |
+| Classic 273111 | 3.937381 | .123442 | 6 | 0 |
+
+The Zenithfall two-seed .5-star condition fails on seed271201. The specified
+excess and recurrence-average bounds pass; Classic star errors improve.
+Seventeen Lens pages cover old/new recurrence witnesses and ranked
+counterexamples. Old witnesses become sparse or predominantly LN/mixed flow.
+New Zenithfall witnesses remain mostly isolated column blocks of twelve/sixteen
+heads over 1.702/2.170s. Their accompaniment is zero/two heads. Two actual ranked
+near-four examples contain sixteen-head recurrent voices with twelve companions,
+so a blanket length rule would erase valid organization. This does not prove
+the generated blocks have excessive physiological demand; their musical/style
+appropriateness remains unresolved.
+
+Lens review SHA
+569814040c1cfa957d48b12238c75c17d8dc4ac7c73601b85ff5de93619eb010.
+Companion comparison SHA
+e29c53a6d6c1e9e53781aa46bf5c7f2d07deab4656fc621ae3fc8d469b59e974.
+No human labels, listening, player tests or model promotion. Primary gates are
+not revised after seeing the results; companion observations are secondary.
+
+REFINE. The newer row model retains much better average recurrence under the
+lower code than the earlier model, but the remaining star error and changed
+local texture do not establish a general actuator mapping. Keep the broader
+arrangement branch and pursue scope-level control/state coupling and independent
+continuation semantics; do not declare this constant offset the solution or
+continue source likelihood optimization unchanged. Goal remains unachieved.
+
+The durable numerical/relational synthesis is
+docs/research/full_row_learning_and_difficulty_response.md at product
+db4f89603942324b0fcd7ffe27ffd5c11f07b6d1. The whole playable-system goal remains
+active. Current evidence supports preserving the broader arrangement candidate
+while addressing scoped amount/difficulty coupling and independently evaluated
+continuation responses; it does not justify another unchanged source-NLL extension
+or a universal neural offset. All jobs and diagnostics for this record are terminal.

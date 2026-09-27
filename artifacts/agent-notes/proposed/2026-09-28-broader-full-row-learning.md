@@ -135,3 +135,68 @@ pins every worker/runner/validation/evaluation script, source examples, parent
 checkpoint and native/baseline panel. The trainable count remains 2,753,715.
 Commands use uv run --extra mps python followed by the owner's run.py,
 validate.py and evaluate.py in that order, waiting for confirmed completion.
+
+## Result Log: broader-full-row-v1 terminal comparison
+
+All 32 fitting workers complete normally, followed by matched validation and all
+twenty native cases. Training consumes 893.5226s with maximum sampled footprint
+5,633,691,776 bytes; native generation/evaluation consumes 319.0608s. No retry,
+frozen-weight change or sampling intervention occurs. The declared source remains
+0f5ec10b34c43fe21a6143d371a2f2bc36070e47 with executable source clean; prose edits
+are outside that execution scope. Endpoint SHA
+5206b1e4dcbff9820a1e84ecf1ba02aee22c60105cae93d8f648ab6458780ea5.
+Native cases SHA
+c657aee0c275fd46b06401945b387b4a75f431978332c368ee134fb2af138db9.
+Validation cases SHA
+5ef067f5ed37de78aba45dc191ce6934ef980dcf411088b4fb00f8c2877f3c39.
+
+Ordinary source NLL improves 1.6183327542 to 1.5724699156 nats/row. Exact H
+timelines match all twenty parent cases. The nineteen whole D4 cases' macro
+absolute star error changes .6302848443 to .6221869240, missing the .1 secondary
+improvement criterion. No under-20ms or publication failures appear; maximum
+qualifier startup/service are .943613/.372182 seconds.
+
+Known-LN control regresses: Classic request .217153 produces .360472/.437791,
+STYX .485281 produces .564394/.696268 and Blizzard .838046 produces
+.968517/.976295. Three LN amount checks that previously passed now fail. STYX
+s0 newly fails D4 difficulty at 2.991099 stars. The live D4.5/LN .6 override
+produces .940984 LN fraction and newly fails its difficulty check; before and
+restored ranges remain distinct, without invented quantity quotas.
+
+All declared attack-excess guards pass. Four Stream cases' repeated-head
+fractions change .211/.153/.302/.391 to .105/.070/.120/.172 and whole-song
+maximum consecutive-H column ages change 21/16/8/17 to 8/7/7/6. These recurrence
+observations are supplementary diagnostics, not retroactive primary gates.
+LN use also increases, so lower recurrence alone is not proof of a routing fix.
+
+Twelve additional Lens pages inspect four parent recurrence witnesses and two
+LN contexts. Zenithfall seed271201 [41606,45072) is now distributed TAP flow with
+no LN, establishing a local gain beyond simply occupying the repeated column.
+Other Stream witnesses become mixed TAP/LN activity. Classic s1 retains plausible
+mixed organization while overproducing whole-song LN amount. Blizzard s1 remains
+mostly LN flow without the source anchor/TAP relationship. Review SHA
+20b96468127bad0782a1b3c2627568a0c78503684175fd29e20a92b89aaed8d3.
+These are agent readings, not human annotation, listening or playtesting.
+
+A secondary fixed-parent-history probe compares parent and endpoint laws on
+the same four Stream contexts. One-TAP-family repeat probability changes
+.470/.700/.415/.742 to .406/.685/.387/.739. It does not establish recovery from
+every older bad state; changed occupancy and reached histories remain involved.
+The diagnostic is in fixed-prefix-routing-v1 and does not alter the Card's
+comparison or training. Native quality is not attributed to one module.
+
+REFINE. The endpoint is an arrangement candidate with measurable local gains,
+but the control guards and replicated LN-organization requirement do not qualify
+it. Preserve its new behavior for comparison; do not extend this recipe solely
+on NLL or substitute the endpoint as a playable release. The scope-control state
+gap and independently grounded continuation responses remain live questions.
+The separate composition probe checks whether earlier neural-code actuation
+retains these gains. No Note lifecycle transition or benchmark rerun occurs.
+
+The durable numerical/relational synthesis is
+docs/research/full_row_learning_and_difficulty_response.md at product
+db4f89603942324b0fcd7ffe27ffd5c11f07b6d1. The whole playable-system goal remains
+active. Current evidence supports preserving the broader arrangement candidate
+while addressing scoped amount/difficulty coupling and independently evaluated
+continuation responses; it does not justify another unchanged source-NLL extension
+or a universal neural offset. All jobs and diagnostics for this record are terminal.
