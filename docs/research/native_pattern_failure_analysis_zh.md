@@ -12,6 +12,8 @@ H 指必须出现至少一个新 head 的时间；head 包括 TAP 和 LN press�
 
 本文的数学分别用于定义对象、证明实现的表达限制、分解可观测风险和提出待验证的近似。没有把尚未定义完成的 canonical response 写成一个已经校准的人体模型，也没有将候选架构写成既定 V3 契约。
 
+更具体的诊断命题是：**现有系统能表示大量合法行，但用于学习和选择的若干投影，把目标要求区分的未来合并了；在这些投影上优化，再经生成历史反馈，可能稳定地产生不合适的组织。** 这里的“合并”有可证明的实例：同 LN 总量／时长仍有不同持有关系，同攻击轨迹仍有不同 LN 后果，同 count 的不同布局不受 count-only 更新直接影响。“稳定地产生”描述重复观测，不声称已经证明了动力系统吸引子。以下将对象定义、代数限制、受控实测和待验证机制分别论证。
+
 ## 原始问题判断及其证据状态
 
 以下判断来自目标提出者对实际生成和谱面创作的要求。它们不是从某个现成指标反推出来的需求。证据栏区分已测机制、同类复现和仍待检验的解释。
@@ -25,6 +27,7 @@ H 指必须出现至少一个新 head 的时间；head 包括 TAP 和 LN press�
 | 缺少多尺度呼吸、variation 和与音乐的呼应；音频进入编排的作用可能有限 | 已有 memory Hysteric 的 16 秒窗口四列攻击为 `[93,97,96,104]`，相关 excess episode 持续 47.662 秒；共享加法条件的主行头存在下述代数限制 | 问题既可能是分配，也可能是所有列都承压；音频“被输入”不证明其能调节所有相对编排偏好。该长窗口尚未做完整 Lens 判断 |
 | Attention／更大容量可能必要，但须根据整体职责来决定 | 4.584M→7.617M 的匹配 memory 实验完成后仍未晋级；换 source H 却能改善部分 LN 关系 | 不能仅凭参数少判断根因；目标、信息交互、状态分布和容量应分别验证，允许在证据支持时 scaling |
 | 首先要学到广泛真实分布，其次要能采到并接受合适续写 | outcome recipe 只有 47 个固定前缀场景；当前选择器未覆盖 LN／协调响应 | 提案覆盖与选择能力是两个独立可失败的条件，须分别量化 |
+| 应考虑按难度平衡各 style 的学习；4★ 的 Stream／LN 组织不能照搬高难压力 | 完整 R1 源谱续训改善两 seed 的 Stream 攻击 excess，但同两输出升至 5.071／5.134★；Jack、Tech、Trill guards 也未满足 4★ 目标 | 数据条件覆盖、style 与 difficulty 的耦合需要单独定位；这些 guards 都用 Zenithfall，尚不能排除音频特异性 |
 | 应由 continuation/frontier 根据后果拒绝坏提案，而非写形态禁令 | 短 LN 在真实高覆盖谱中普遍存在；多数被检查的短尾有继续持有的合法替代 | 不新增时长／图形硬过滤；需要比较具体候选在具体历史下的后果 |
 | 控制可独立缺省并在中途限定范围生效；不同范围不能混合抵消 | Stream-only 条件曝光很少；全曲 LN request 被 override 打断后存在评估单位陷阱 | 缺失模式、范围语义和状态连续性属于训练／评估契约，不是 UI 细节 |
 | Mel 初级表示已经人工确认；先让可解释的 audio encoder 直接 condition skeleton 和 R1，联合学习 | H/R/R1 已读取 Mel 派生表示，但部分条件路径存在候选 odds 抵消；source-H 与 native-H 结果不同 | 应检查具体交互及联合目标，不把“音频是否充分”当成先决评估；不能预设已有大规模音乐预训练的能力或额外语义标签 |
@@ -33,7 +36,7 @@ H 指必须出现至少一个新 head 的时间；head 包括 TAP 和 LN press�
 | R1 当前状态可以调整；模块、规模与 recipe 都可改变，最终接口、控制、质量、实时性和 V3 formulation 才是约束 | memory 扩大及多种微调均有完整 native 失败；旧端点仍有运行余量 | 失败不要求固守小模型，也不支持无目标扩容；每个扩展须说明新增哪种可区分关系 |
 | 增量 LN 协议可以在 head 发布后再发布 release；首窗不能依赖真实 30 行种子 | native session 从 BOS 建立历史，普通发布边界保持开放 LN；benchmark 有 30 行／8 秒 readiness | 新模型要生成自己的启动上下文，不能为渲染预先闭合所有 LN，或只评估已成功生成足够行的前缀 |
 
-最初试玩的 long-jack 文件未保留，后续数字来自同模型谱系、相同控制类型的复现，不声称重建了那次具体输出。上述用户判断、ranked 源谱事实、程序测量和模型侧 Lens 阅读具有不同证据来源；不把它们合并成新的人类标注。
+最初试玩对应提交 a99519ccee60925dce10a4200f88a6c049d37964；用户明确只设置了 Stream control，没有保留生成文件。后续数字来自同模型谱系、相同控制类型的复现，不声称重建了那次具体输出。上述用户判断、ranked 源谱事实、程序测量和模型侧 Lens 阅读具有不同证据来源；不把它们合并成新的人类标注。
 
 用户对 `<20ms` 同列 attack 的强烈排除、对 21–36ms 的担忧以及“4★ 不应有这种极端 long jack”的判断，是任务的玩家侧依据；其中 attack 明确指 TAP／LN press。它们不是本研究测得的生理阈值。已有 recovery census 也显示研究支持并非无损：60/50/50ms profile 与 8,774 张 ranked 谱中的 558 张至少一个关系冲突，60/50/40ms 对应 420 张。该结果要求审计支持覆盖，不能推导这 558／420 张整谱或其中所有窗口都应被丢弃。
 
@@ -77,6 +80,44 @@ $\mathcal O_W$ 包括不同语义的 difficulty、style 与 LN-head fraction，�
 
 这还区分了三种 memory：精确执行 memory 保存不可近似的占用／时钟；音乐组织 memory 保存本次生成已经作出的编排选择及其音频关系；玩家响应 memory 保存会改变未来需求的历史后果。它们可以共享计算，但训练语义不同。用完整音频替代音乐组织 memory 不充分，因为不同编排听到的是同一首歌；用音乐 history embedding 代替玩家状态，则还缺响应充分性的验证。
 
+### 信息契约与本体：谱、状态、解释、控制不是同一变量
+
+在本文中，“玩家状态”始终指 V3 canonical profile 下的 gameplay-demand 表示。用户关于手部能力、jack 累积和协调的判断决定需要保留哪些区别；现有 beatmap+audio 数据没有测量某个真实玩家的疲劳、疼痛或失误概率。将一个可计算衰减状态称为真实生理状态，会超出 formulation 与数据依据。
+
+给定完整音频，生成的信息集合可以写为
+
+$$
+\mathscr I_t=\sigma\!\left(A,h_t,c^{\rm announced}_t\right).
+$$
+
+训练与推理都允许读取未来音频；未来源谱不在这个集合中。私有候选 $Y$ 是基于 $\mathscr I_t$ 产生的假设；只有选定前缀提交后才扩充 $h_t$。这使“audio 非因果”与“chart history 因果”同时成立，二者不矛盾。
+
+一个分析用的运行状态拆分是
+
+$$
+S_t=(x_t,m_t,d_t,\Omega_t,w_t).
+$$
+
+| 分量 | 所表示的对象 | 充分性／正确性针对什么 |
+| --- | --- | --- |
+| $x_t$ | 精确占用、LN 起点、最近动作时钟等 replay 事实 | 行合法性及声明的执行约束；不能用 learned prediction 覆盖事实 |
+| $m_t$ | 本次编排已经选择的音乐／动作组织 | 未来提案的条件分布；同一音频的不同编排可有不同 $m_t$ |
+| $d_t$ | 历史对可能未来的 gameplay 响应 | 下文的 frontier 响应等价关系；不要求保存歌曲语义或 motif 身份 |
+| $\Omega_t$ | 当前请求的身份、作用范围、已实现数量及剩余范围 | scoped-control accounting；不是均匀前缀配额，也不是人体负担 |
+| $w_t$ | 已提交覆盖、可撤销的计划、缓存／随机流的所有权 | 发布和分支协议；未来 H preview 不等于已提交谱面 |
+
+这不是要求五个互不共享的网络。它要求所有被保存的信息有明确用途：缺失的 scope 累计 LN 数不能靠改名为 player state 解决；完整音频不能说明这一遍生成选择了哪种伴奏组织；更长的内容 cache 也不自动成为经过校准的 frontier。
+
+对某模块输入投影 $\chi(S_t,A,c,Y)$，若存在两个待比较对象 $z,z'$ 满足
+
+$$
+\chi(z)=\chi(z'),\qquad \mathcal C_0(z)\ne\mathcal C_0(z'),
+$$
+
+任何仅依赖 $\chi$ 的确定 readout 都无法区分它们。这是**输入投影限制**。若输入已可区分，但训练标签仍把两者赋为相同目标，则是**监督投影限制**。若两者均可区分，实际 rollout 仍偏向错误未来，则需要审查学习、支持和闭环选择。三者可以共存，不能用同一种“模型不理解音乐”笼统代替。
+
+Ranked 的证据角色也可形式化。声明总体内观察到的是 $P_{\rm ranked}(\mathcal B,A,\mathcal O)$，其中 $\mathcal O$ 是可用 annotation／difficulty 读出。若两个响应函数 $\mathcal C_0$ 与 $\mathcal C'_0$ 对这些观察给出相同解释，却在未标注的反事实续写上不同，现有数据不能唯一选择其一。这不削弱 ranked 作为高质量正常谱面依据的价值；它界定了从“学习真实组织”到“比较任意生成后果”之间仍需补充的响应定义和对照。
+
 ### 从真实分布到受控选择，而不是从一个总分定义所有好谱
 
 一个分析用的选择目标是，在学到的广泛提案 $q$ 附近偏好符合请求且后果合适的未来。固定音频、历史、scope 和 horizon，若 $J(Y)$ 是**已经有独立依据**的某个有限响应损失，则
@@ -107,6 +148,30 @@ $\mathcal I_j$ 含当前因子允许读取的该轨迹前缀；私有分支使�
 其关键依赖是 $a_j\to x_{j+1}\to W_{\kappa,j+1}\to(e_{j+1},a_{j+1})$，而 $A,c$ 还直接进入 R1，不能把行编排画成只依赖 skeleton。整条 $q(T_H,Y)=q^H(T_H)q(Y\mid T_H)$ 分解本身不丢失联合表达能力；限制来自各条件核实际只读取哪些变量、多少 preview，以及训练是否覆盖这些组合。有限 H preview 不是完整编排计划。当前 H **调用核**不读取已提交动作内容是一项架构选择，也不应误写成整个联合分布在观察 R1 动作后仍具有同样的后验条件独立性。
 
 若只截取普通 horizon 的轨迹，末尾未发生事件的 survival 项也必须保留。该观察边界不等于真实 EOF，不能用强制 LN 闭合替代右删失。
+
+### 模块独自合法，不等于组合后仍有可实现的未来
+
+这里只讨论由精确 replay 和 recovery profile 决定的支持，不把 learned preference 当成支持 mask。固定 $(g,e]$ 内一个未提交 H 计划 $T_H$、边界 $g$ 和终点 $e$，定义
+
+$$
+\mathcal V_\kappa(g,T_H,e)
+=\{x:\exists Y\in\mathcal S_\kappa(x;g,e),\ \operatorname{Heads}(Y)=T_H\}.
+$$
+
+$\operatorname{Heads}$ 只抽出出现新 head 的行时刻，不包含和弦大小。$\mathcal V_\kappa$ 是“至少存在一个实现”的状态集合。已经可实现的 H 计划，并不允许 R1 任意选择当下合法行；所选行还须留下一个可延续的后状态。概念上是
+
+$$
+x\in\mathcal V_\kappa(g,T_H,e),\qquad
+q^1(a\mid x)>0
+\Longrightarrow
+x^+(a)\in\mathcal V_\kappa(t_a,T_H^{>t_a},e),
+$$
+
+其中也要推进事件／无事件边界并保持 release 可实现性。这是支持闭合要求，不是新增的 pattern 禁令。
+
+当前 [spacing 实现](../../src/ensomi_model/research/planned_audio_continuation/spacing.py) 已包含一个具体的存在性构造：H 满足四列 HH 容量；R1 从候选后状态检查未来 H 能否以每次一个 TAP 和最早合法释放实现。原占用／最近动作造成的限制在 $\max(HH,HR+RH,1+RH)$ 毫秒内消退，之后由四-H 容量约束承接。该有限检查以足够 preview、整数毫秒、当前 recovery profile 和真实 EOF 为前提；不是对任意更复杂支持条件的通用证明。
+
+例如 HH=60ms 时，H 为 $0,10,20,30,40$ms 的五次新攻击不能由四列完成，必须被 H 容量条件排除。反之，一个可以“每次一键”完成的计划，仍可能与请求的低难度、LN 声部或自然呼吸不相容。**可实现性只回答存在合法续写；frontier 要比较这些续写的后果；提案还要把足够概率分给合适续写。** 不能把这三个量词层次混成“有可行性检查，所以生成应可玩”。
 
 若原始逐毫秒 release hazard 为 $p_k$，且必须在可行窗 $[a,b]$ 内释放，则第一事件分布是
 
@@ -231,6 +296,29 @@ $$
 对不同列的 LN，重叠比例可能代表不同协调组织；同列合法 LN 不重叠。$e_i-s_j$ 的符号区分交叠、恰好交接和空隙。用 H 坐标或局部时间尺度再表达这些量，可以检验关系是否被 timing 扭曲；毫秒量仍须保留，因为同一相对形态在不同速度下的游玩需求不同。实际建图必须声明邻接范围，开放尾点则保持未知。
 
 该表示的作用是说明监督缺口：两个分布可以有相同的 LN 比例与时长直方图，却有不同的 $p(r_{ij},r_{jk}\mid A,h,c)$。独立采样好看的单个 LN 时长，不保证得到可跟随的连续关系；把所有长度拉齐同样没有解决这个联合分布问题。
+
+### 一个可执行的非充分性反例：边缘统计相同，动作关系不同
+
+LN 也与 TAP 及其他 LN 的离散进入／释放动作交互。定义行前已开始、且该行不释放的持有指示
+
+$$
+L_k^\circ(t)=\sum_{i:k_i=k}\mathbf1\{s_i<t<e_i\},
+\qquad
+B^{HT}_{kk'}(W)=\sum_{t\in W\cap\operatorname{RowTimes}(\mathcal B)}
+L_k^\circ(t)\,\mathbf1\{a_{k'}(t)=\mathrm{tap}\}.
+$$
+
+$B^{HT}$ 是“某列继续持有时另一列 TAP”的 pair 数；把 TAP 换为 LN press 或 release，可得到不同关系。再按 canonical hand mapping 分为同手与异手。一次 TAP 位于两个持续 LN 下时贡献两个 pairs，但仍只有一次 TAP；这些不是可直接相加的生理负荷单位。开放 LN 使用已观察前缀确认的继续持有事实，不读取 horizon 之后的尾点。
+
+[关系回归测试](../../tests/research/gameplay_evaluation/test_hold_interactions.py) 构造了两张合法谱：H、每个 head 的列和类型、LN 数、时长直方图、H-span 直方图、总占用以及 any-held 比例都相同，只改变部分尾点与 LN 对象的配对。其 hold–TAP pairs 分别为 **7 与 5**，hold–LN-entry pairs 为 **3 与 5**。因此，令 $M$ 收集上述边缘统计，$B$ 收集关系统计，则有
+
+$$
+M(\mathcal B_1)=M(\mathcal B_2),\qquad B(\mathcal B_1)\ne B(\mathcal B_2).
+$$
+
+不存在仅由 $M$ 恢复所有 $B$ 的函数。这是表示非充分性的构造证明，不是这两张合成谱谁更好的判断。相应 [LN interaction observer](../../src/ensomi_model/research/gameplay_evaluation/hold_interactions.py) 已接入 scope report，也分别报告 release–head 同时关系及 co-start 的错开释放。它补充了原 duration/span 指标的盲区；没有把“更多关系”或“更少关系”设为奖励。
+
+对生成结构的含义是：可解释 primitive 应能跟踪 LN 对象的起点、仍持续的角色、与其他动作的关系，以及完整行的联合选择。它可以实现为有起点音频信息的四个 occupied-lane tokens、带状态的 hazard 或其他关系网络；不能只给四列各采一个“合理长度”。这些是待比较的表达方式，均不要求 head 发布时预先固定未来 release，也不要求僵化的 chorus／section 标签。
 
 ### LN 尾由两条释放路径共同决定
 
@@ -444,6 +532,85 @@ actor 的真源谱 anchors 与生成状态上的 outcome 分开，没有将生�
 
 memory 的已核验曝光只有 **6.368 秒**具有“只知道 Stream prominent、其他 style 未知”的条件。已知 style 范围为 .260–10 秒，生成请求可长达 144–358 秒；style dropout 主要按整组处理。独立可选 controls 的接口不等于训练覆盖了相应缺失模式。固定前缀 scope-clock probe 只产生较小 H 变化，因此该覆盖差距是待测 caveat，不能直接宣布为主要根因。
 
+### 后续训练证据：哪些解释已经被缩小
+
+[匹配 count-only 研究](contextual_ln_count_learning.md) 与完整 R1 续训使用相同 actor128 父模型，以及 256 个八秒事实窗口、224 张谱、214 song groups 和 22 个验证窗口。所有 factual 样本都保持其真实过去；控制可独立缺失，完整音频始终可用。两种研究均关闭 LN amount feedback，保留 60/50/50ms recovery 和默认 recovery preference。
+
+Count-only 只更新 143,011 个 composition 参数。固定历史、支持和 counts $m$ 时，布局与释放身份的条件分布不变；KL 链式分解为
+
+$$
+\mathrm{KL}(\pi_0\Vert\pi_1)
+=\mathrm{KL}(\pi_0(m)\Vert\pi_1(m))
++\mathbb E_{\pi_0(m)}
+\mathrm{KL}\!\left(\pi_0(a\mid m)\Vert\pi_1(a\mid m)\right).
+$$
+
+被测 count-only 更新的第二项最大为 $5.84\times10^{-14}$ nats，符合其代数限制。它不能直接修复同 counts 下的分指或释放身份。允许真实 LN request 进入 contextual readout 后，两种 count-only fit 都改善验证 NLL，却使 Classic 的 LN 比例从 .145／.191 降到 .048／.019；中位 H-span 从 1 变成 2 伴随着 LN 消失，不能解释为持续组织变好。Contextual 路径的独立 NLL 优势仅 .000088 nats/row，没有观察到对应质量收益。
+
+完整 R1 研究放开 history、exact/readout、layout、routing、release、composition 和 local frontier 等 **2,753,715 / 4,600,369** 个参数，仍冻结共享 audio encoder 与 H/R 网络。普通分支保持完整历史；辅助分支在固定的 64/256 窗口隐藏 learned history observation，以 TRUNCATED 表示代替，实际占用、时钟、最近行、音频、H preview 和 target 均不改。不是用生成历史冒充真实前缀。两分支各 128 updates、batch 2；主要条件／composition 路径 LR $10^{-4}$，其余 R1 为 $3\times10^{-5}$，AdamW、weight decay $10^{-4}$、gradient cap 1。训练目标仍为按时间归一的源谱行 NLL。
+
+验证值为 22 窗口的 macro mean nats/row，各观察条件分别计算。这些 chart 对本次 fit 留出，不声称模型祖先从未见过或此前研究未检查过：
+
+| 权重 | 完整历史观察 | 缺失 learned-history 观察 |
+| --- | ---: | ---: |
+| actor128 初始 | 1.730817 | 2.957741 |
+| 普通完整 R1 fit | 1.618333 | 3.008688 |
+| 缺失观察辅助 fit | 1.623110 | 2.335572 |
+
+辅助分支学到了对应缺失条件的鲁棒性，但这不是“音频被更好利用”或“原生生成更好”的测量。所有 native 评估都恢复完整历史，从 BOS 使用模型生成 H。14 个 cases 包括四首 LN/control 歌各两 seed、一个中途 override、两个 Stream seeds 和三个 style guards。两个 fit 共 28 份输出，加 3 份新增初始 guards；原来的 11 份 baseline 按身份复用。逐 case 导出核验表明，初始／普通／辅助三者 **H 时刻完全一致**。
+
+| 歌曲／条件 | 初始 LN 比例，s0 / s1 | 普通完整 R1 fit | 缺失观察辅助 fit | 请求 LN 比例 |
+| --- | --- | --- | --- | ---: |
+| Classic | .145 / .191 | .217 / .154 | .198 / .040 | .217 |
+| STYX | .939 / .933 | .519 / .487 | .438 / .428 | .485 |
+| Blizzard | .993 / .993 | .972 / .953 | .947 / .908 | .838 |
+
+普通 fit 改善 STYX 的数量，Classic 不再出现 count-only 的大幅 LN 丢失，但 Blizzard 两 seed 仍未通过数量条件。该结果支持“训练真正拥有布局／历史／释放选择的 R1”作为后续研究父模型；它没有隔离其中哪个模块贡献，也没有证明扩大可训练参数本身是原因。
+
+对只指定 D4 和 Stream prominent 的两份 Zenithfall，LN 未指定；下表的 $J_{\rm attack}$ 是前文定义的全曲 excess，单位秒：
+
+| Seed | 初始 stars / $J_{\rm attack}$ | 普通完整 R1 fit | 缺失观察辅助 fit |
+| --- | --- | --- | --- |
+| 271200 | 4.861 / .043476 | 5.071 / .011005 | 5.012 / .030037 |
+| 271201 | 4.984 / .106111 | 5.134 / .023828 | 5.236 / .087103 |
+
+普通 fit 降低这个攻击通道，却增加整体 stars，证明两者不能互换。辅助 fit 没有稳定优于普通 fit；两 seed 的攻击 excess 都超出相对普通 fit 的 .005 秒 guard。其他 style 也不能由 Stream 结果代替：Tech guard 的初始／普通／辅助 $J_{\rm attack}$ 为 1.30685／2.95179／3.50569，stars 为 5.801／5.964／6.082。普通 fit 的 Jack 与 Trill guards 分别为 5.069、5.644★。
+
+这些 style guards 都在同一 Zenithfall 音频上，不能据此把难度偏高全部归因于 style。完整 R1 的新输出尚未完成对应的 Lens／音乐语义检查；上述结果仅是数量、难度和攻击诊断，两个端点均未晋级。它们足以拒绝“只要改善 source NLL 或隐藏历史就能解决异常组织”的推断，但不否定更广 source 学习、音频交互或历史表示的价值。
+
+### 为什么固定状态的小变化会变成原生轨迹的大变化
+
+为使不同权重可比较，这里把 $S_j$ 定义在完整行／无行历史、时钟和协议事实的共同空间上，各模型从它重算自己的 learned summaries。$K_{\theta,j}$ 是从一个生成决定到下一个决定的概率核，包含真实 elapsed time、状态更新和已声明的 sampling transforms。变长生成可在终止后用吸收状态补齐到有限最大步数；普通 horizon 的 no-event 决定也属于过程。到达分布满足
+
+$$
+d^\theta_{j+1}=d^\theta_jK_{\theta,j}.
+$$
+
+从同一初始分布出发，两策略的精确差可写成望远镜和：
+
+$$
+d^{1}_{n}-d^{0}_{n}
+=\sum_{j=0}^{n-1}
+d^{1}_{j}(K_{1,j}-K_{0,j})
+K_{0,j+1}\cdots K_{0,n-1}.
+$$
+
+末项之后的空乘积取恒等算子。这个恒等式说明，结果不仅取决于源谱状态上的单步偏差，还取决于新策略访问的状态以及后续转移如何传播差异。它没有假设每次误差都会单调放大，也不证明某种吸引子存在。
+
+已完成的 crossed-prefix 诊断在 15,642 个共同 H 时刻上，分别把新旧权重放到各自真实 native 历史，测量 $F_{wh}=\mathbb E[n_{LN}]/\mathbb E[n_H]$。对每个共同查询：
+
+$$
+\Delta_w=\tfrac12[(F_{10}-F_{00})+(F_{11}-F_{01})],\qquad
+\Delta_h=\tfrac12[(F_{01}-F_{00})+(F_{11}-F_{10})],
+\quad \Delta_w+\Delta_h=F_{11}-F_{00}.
+$$
+
+在两边都无占用且完整行支持相同的子集，mean $|\Delta_h|$ / mean $|\Delta_w|$ 在 Classic 两 seeds 为 **6.42／7.57**（696／703 queries），STYX 为 **25.89／6.35**（21／26 queries）。历史项包含动作内容、精确时钟及累计事实；不是 TCN 的因果责任比例。它说明仅比较旧前缀上的新 logits 会漏掉显著的到达状态作用。
+
+同一 count-only fit 在固定旧前缀上的预期 release/H 反而增加：Classic 为 .00551／.00995，STYX 为 .03307／.03819。实际 LN 中位长度变长，可以来自 LN 起点和存活对象总体改变，不能自动解释为“学会继续持有”。这要求区分条件决策、对象存活选择和最终边缘统计。
+
+[DAgger 的原始研究](https://proceedings.mlr.press/v15/ross11a.html) 为“策略改变自己将见到的状态”提供了直接方法论类比；这里没有能给任意生成前缀提供正确下一行的 expert oracle，不能直接搬用其保证。需要在当前策略真实到达的状态上学习有依据的后果，同时把事实 source imitation 保持为独立、条件一致的目标。
+
 ### 目标、采样分布与梯度的区别
 
 完整 teacher-forced likelihood 的正确形式是
@@ -556,7 +723,7 @@ $$
 \log\frac{p(l\mid u,\rho)}{p(l'\mid u,\rho)}=l-l'.
 $$
 
-这条显式路径不能学习“同样提高 LN 请求，在不同音乐／历史中应如何不同地改变类型倾向”。一个可解释的修改是让 $f_l$ 直接读取实际 $\rho$，仍保留解析偏移作为先验；它不需要让 skeleton 接管 LN 数或和弦。**这是路径表达能力的结论，不是已验证的质量修复。** 实际完整 law 的 frontier、layout 和 memory 条件路径还会贡献控制依赖，memory 的 $u$ 本身也可能依赖实际请求，所以不能把上述导数当成整个模型的导数。相关比较应同时区分未训练的 law 变化、匹配真实源谱学习，以及最终 native 质量。
+这条显式路径不能学习“同样提高 LN 请求，在不同音乐／历史中应如何不同地改变类型倾向”。已经实现并比较的 contextual 变体让 $f_l$ 直接读取实际 $\rho$，仍保留解析偏移作为先验；它不需要让 skeleton 接管 LN 数或和弦。**这是路径表达能力的结论，不是已验证的质量修复。** 实际完整 law 的 frontier、layout 和 memory 条件路径还会贡献控制依赖，memory 的 $u$ 本身也可能依赖实际请求，所以不能把上述导数当成整个模型的导数。上述 count-only 对照已分别测量未训练的 law 变化、匹配真实源谱学习与最终 native 质量，未建立修复收益。
 
 ## 5. 架构应该如何按职责调整
 
@@ -569,6 +736,49 @@ $$
 待比较的两个假设是：H 是否需要更明确的跨事件节奏关系／共享局部音乐变量；R1/R 是否需要可持续追踪的 LN 起点音乐信息和 entry–continuation–release 关系。年龄、TCN 和 attention 理论上可能学到它们，现有实验没有证明已经学会。新增表示应提高不同后果的可分辨性，而不只是增加 token。
 
 H 神经网络完全不读已提交动作摘要，是研究选择而非 V3 必然。有限、声明清楚的玩家响应摘要可以成为比较方向；不能因此把 head 数／布局转移给 H，或重新允许无法解释的 generic R1 hidden state 支配所有 timing。
+
+### Scope 控制是对完整结果的条件，不是每一步的配额
+
+固定已公告的请求和范围 $W=[a,b)$，令 $\Lambda_W(\mathcal B;c)>0$ 表示对完整范围结果的软符合度。比如 LN 总量通道可用
+
+$$
+\Lambda_W(\mathcal B;\rho)
+=\exp\!\left[-\lambda
+\left(\frac{N_{LN}(W)}{N_{\rm head}(W)}-\rho\right)^2\right],
+\qquad \lambda>0,\quad N_{\rm head}(W)>0.
+$$
+
+这是说明条件语义的例子，不是新采用的 reward；无 head 的情形必须另行声明，不把比例设为零。Difficulty、style 可以有各自的符合度或比较规则，ordinal style 不因此自动变成等距实数。若用于联合选择，还要声明冲突处理，不能让某一通道改善抵消另一通道不可接受的退化。
+
+在固定 proposal $q$ 上，对完整未来按 $\Lambda_W$ 重加权。定义未来期望符合度
+
+$$
+\Psi_W(h)=\mathbb E_{Y\sim q(\cdot\mid h,A,c)}
+[\Lambda_W(h\oplus Y;c)].
+$$
+
+令 $z$ 是完整生成过程的下一个决定，包含其时间／无事件或终止语义，$h'=h\oplus z$。在 $\Psi_W(h)>0$ 且未来覆盖该范围时，重加权后的下一步分布精确满足
+
+$$
+\pi_W(z\mid h,A,c)
+=q(z\mid h,A,c)\frac{\Psi_W(h')}{\Psi_W(h)}.
+$$
+
+归一性来自条件期望的塔式法则。这是完整结果条件化的恒等式，不要求现在就实现精确求和，也不引入新的谱面合法性。它是前文分布重加权在序列上的具体含义。
+
+关键是 $\Psi_W$ 依赖音乐、剩余范围、已经分配的 heads/LNs，以及当前状态下还可能怎样继续；通常不只是 $\rho N_{\rm head}^{\rm prefix}-N_{LN}^{\rm prefix}$ 的函数。纯 TAP 的前半段与后半段 LN 可以整体满足请求，不应仅因前缀比例偏低便受到同样的固定校正。这为替代前缀反馈提供了直接方向：学习范围结果或未来可分配量，而非加大纠偏 gain。
+
+最小可解释的 accounting 输入可包含
+
+$$
+\Omega_W(t)=
+\left(N_{\rm head}(W\cap(-\infty,t]),N_{LN}(W\cap(-\infty,t]),t-a,b-t,\operatorname{id}(W)\right),
+\quad a\le t<b.
+$$
+
+这只是实际已完成部分的事实。未提交未来的 counts 是预测，不是这个状态中的事实。当前 plain actor 的精确 replay 保留总行／head 数而没有累计 LN starts，有限 history 也不能保留任意久之前的分配；关闭 clipped amount feedback 后，这是一项具体的信息缺口假设，但尚未完成相同可见输入／不同 scope 分配的碰撞实验，不能宣布它造成了当前回归。
+
+中途 override 必须按请求身份处理已拥有和剩余的范围；被打断的两段不能各变成一份新的全量要求。重新计算新请求的未来符合度不需要清空 $x_t,m_t,d_t$。玩家侧仍请求 4★ 时，若研究内部 difficulty-code 校准，必须保持响应参照与评价仍为 4★，不能把调低模型输入偷换成降低验收标准。
 
 ### 玩家状态与 continuation response
 
@@ -675,6 +885,56 @@ $$
 
 应保留两个不同验证：held-out ranked 及 source-backed 关系对照，检查正常复杂形态不会被一律压制；当前策略的完整 native 输出，检查响应在模型实际到达状态上能否拒绝已知失败。候选内排序变好之后，还要重新测闭环状态分布、局部变化和运行时限。响应模型、提案模型与 scheduler 可以联合优化，但必须分别记录训练标签、目标和被改变的概率 law。
 
+### 行能量、续写 value 与 frontier 具有不同的定义域
+
+如果 $L_r$ 是已有独立语义依据的一个响应通道，可以对当前完整行 $a$ 定义某个后续策略 $\pi$ 下的 real-time action value：
+
+$$
+Q^{\pi,\Delta}_r(h_t,a)=
+\mathbb E_{Z\sim\pi(\cdot\mid h_t\oplus a,A,c)}
+\left[L_r(h_t,a\oplus Z,t+\Delta)\right].
+$$
+
+这里 $a$ 含确定的候选事件时间 $t<t_a\le t+\Delta$，$Z$ 覆盖其后直到固定真实时间 $t+\Delta$ 的未来；需要给定 $\pi$、$\Delta$、response 通道及私有终止规则，$Q$ 才是明确的学习目标。它对后续未来取了平均。Frontier $\mathcal F_h(Y,e)$ 则评价指定的完整候选 $Y$；不能把二者混用。预测同一个行的平均后果，可能漏掉该行之后两个不同续写的好坏差别。
+
+当前 local frontier2 是 $g_\theta(h_t,a)$，只有观察行 likelihood 的监督，没有上述 $(\pi,\Delta,L_r)$ 的校准任务。因此“已经有 frontier2”与“continuation 会拒绝这个 long jack／LN 组织”之间缺少的是目标映射与验证，不只是更多输入特征。
+
+即使选择了软重加权目标，正确的一步能量也一般不是当前行成本。若完整轨迹损失为 $L_r$，应涉及
+
+$$
+g^\star(h,a)
+=\log\mathbb E_{Z\sim q(\cdot\mid h\oplus a)}
+\exp[-L_r(h,a\oplus Z)/\tau]
++\text{一个与 }a\text{ 无关的常数}.
+$$
+
+它是未来后果的 log expectation；与 $-Q_r^{q,\Delta}/\tau$ 一般不同。把均值代价当成它，是需要声明的近似。该式沿用前文完整轨迹重加权的条件，绝不为一个尚未正确的 $L_r$ 提供语义保证。
+
+有限 horizon 还会隐藏末端债务：一条 LN 可以合法地在 forecast 结束时仍开放，但未来仍须处理其释放与占用。若某响应通道明确具有可加成本，可以研究
+
+$$
+\widehat J_{t,e}(Y)
+=J_{t,u}(Y_{\le u})
++\widehat V_r(u,S_u;e),\qquad t<u<e.
+$$
+
+$\widehat V_r$ 估计声明后续策略和终点下的剩余后果，必须保留开放 LN 与当前 player state。对于非可加的协调／组织响应，不能擅自套用这个 Bellman 型分解，而应直接学习跨 horizon 的完整比较。二者都不能通过在 $u$ 伪造释放来“结清”未来。真实重规划是否把负担不断推向窗口之外，需要闭环 rollout 检查。
+
+响应误差对选择的影响也可量化。对同一有限候选集 $\mathcal Y_K$、同一已定义通道，若所有候选满足
+
+$$
+|\widehat L_r(Y)-L_r(Y)|\le\varepsilon,\qquad
+\widehat Y=\arg\min_{Y\in\mathcal Y_K}\widehat L_r(Y),
+$$
+
+则
+
+$$
+L_r(\widehat Y)-\min_{Y\in\mathcal Y_K}L_r(Y)\le2\varepsilon.
+$$
+
+这是相对于该候选集的排序保证；无法覆盖的好候选仍不在界内。若训练目标对所有 LN 变体都给零，尚无理由认为相对于真实 LN 响应的 $\varepsilon$ 小。先建立会区分目标关系的独立对照，再扩大 planner 预算，才有机制上的依据。
+
 ### Planner 与 scheduler
 
 Planner 从同一已提交边界展开候选、调用响应算子、选择未来；scheduler 管理预算、时限、缓存与不可撤销前缀。固定 H 的原型有利于隔离 R/R1，却无法修复所有 timing 问题。没有合适的 R/R1 续写时，可以比较未提交的 H 候选，同时保留已发布行依赖的短期可行性承诺。
@@ -739,7 +999,7 @@ $$
 
 ### B. 更广的真实分布是否被 recipe 保住
 
-同一父模型、相近算力和一致 native panel 下，比较真源谱继续训练、改善数据／control 缺失模式覆盖的训练、再加入完整 continuation-response 目标。保留同音频多种真实编排，不合并成帧级并集。
+已完成的 count-only 与完整 R1 比较表明：不能用某个控制 readout 的局部续训替代编排学习；完整 R1 的部分 native 改善也没有消除难度／style 回归。后续应在同一父模型、相近算力和一致 native panel 下，比较更广的真实分布学习与加入独立 continuation-response 目标。保留同音频多种真实编排，不合并成帧级并集。
 
 核验实际接受曝光，而不只看 sampler 配置：song groups、难度、LN 覆盖与持续关系、style 已知／未知组合、控制范围长度、被 profile 排除的窗口。真源谱 imitation 使用真实前缀，生成状态学习使用自身真实后果；分开记录梯度贡献、源谱能力保留与 native 分布漂移。
 
@@ -755,7 +1015,7 @@ $$
 
 | 比较 | 什么结果会改变判断 | 什么结果不能算成功 |
 | --- | --- | --- |
-| 实际 LN 请求进入 contextual type-count，匹配真实 source 学习 | 在相同数据、起点与预算下，条件交互和 native LN 组织同时改善；hold/release、其他 styles、难度与时限无对应退化 | 仅未知／参考条件的恒等测试通过，或 LN 总比例更准；这些不证明编排改善 |
+| 完整 R1 学习与缺失观察辅助 | 源谱拟合改善必须伴随完整 native 关系／控制改善；辅助分支须超越相同普通 R1 续训 | count-only／contextual 对照尚未建立可晋级的质量收益；缺失观察分支目前只明确改善辅助条件，不能据此继续放大 |
 | 更广真实分布与独立 control 缺失模式 | held-out source 能力和从 BOS 的完整生成共同改善；已知失败 bank 也不退化 | 只增加配置里的曲目数，实际接受窗口不变；或更稀疏所以失败绝对数下降 |
 | 有独立 LN／协调依据的 continuation response | 同一候选集的语义排序改善，并在重新规划的完整轨迹中维持；合理面条／jack 反例仍被保留 | 把原来的 attack cost 蒸馏到更大网络、只提高四秒指标，或用自己产出的标签验证自己 |
 
@@ -779,6 +1039,8 @@ $$
 
 它仍是诊断，不能自动判断 LN stream 好坏。持续压力、占用、恢复、多尺度变化、音乐对应和发布时限独立报告。评估应允许高覆盖面条、Tech、LN coordination 和合理 jack，不奖励全部变稀或变整齐。
 
+新增 LN interaction observer 从同一 scope 输出持续持有与 TAP／LN entry／release 的类型关系、同手／异手 pairs、进入 scope 的 LN 起点、每个已涉入 LN 的区间内伴随动作，以及可回看的 witnesses。统计只读取范围内已观察事件，不使用未来尾；边界不强制闭合。计数的区间可加性、私有前缀与同范围完整谱的一致性、镜像以及前述相同边缘／不同关系反例均有测试。这个 observer 能揭示原有边缘指标看不到的差异，仍没有将其自动转换为需求等级或好坏标签。
+
 [Native qualification](gameplay_regression_evaluation.md#executable-native-qualification) 实际运行了 16 份 source-H 输出。memory 数值条件全部通过，状态仍是 `review_required`；actor 两个 Blizzard 输出的全曲 LN 数量条件失败。两者均未晋级。完整 source-H 诊断用时 122.01 秒；它是有参考时间输入的机制实验，不是可部署音频生成的质量通过。
 
 全曲 LN 请求被后续 override 打断后，前段和恢复后的片段不自动变成新的总量请求。各段分别报告，只对完整声明范围检查总量，避免评估重新强迫前缀均衡。
@@ -799,15 +1061,37 @@ $$
 | --- | --- | --- | --- |
 | H 的节奏关系／条件分布偏移是 LN 异常的重要来源 | Source-H 改善部分关系，但同时改变数量、音乐对应和到达状态；actor Classic 仍有显著差异 | 在固定预算下比较 native-H 与 authored-H 条件下合适 R/R1 候选的供给，再检查相近 H 密度下的节奏关系 | H 表示、关系建模或 training recipe；不能把 R1 的 counts 转给 H |
 | 持续／释放选择缺少对 LN 关系的建模 | 许多 H 行可以保持原布局并继续持有；H-span 偏好仍不同于参考，但这不等于每次 release 都错 | 同一真实到达前缀，对合法 hold/release 分支展开实际未来，比较占用、entry/release 协调及独立阅读结果 | LN origin／持续关系表示、R/R1 联合提案学习和 continuation response |
-| 窄条件曝光和 outcome 目标使提案分布偏移 | 47 个固定前缀、source H、标量目标与稀少的 Stream-only 曝光；source-only 也会退化 | 同父模型、同算力、匹配源谱样本，分别改变曝光／缺失模式和 outcome 目标，保留 native BOS 检查 | Recipe、保真约束、目标通道和当前策略状态刷新；不能先认定仅 RL 有问题 |
+| 窄条件曝光和 outcome 目标使提案分布偏移 | 47 个固定前缀、source H、标量目标与稀少的 Stream-only 曝光；count-only 改善 NLL 却退化，完整 R1 仅部分改善 | 同父模型、同算力，改变实际曝光／目标并保留 native BOS 检查；跨音频检查 D4 与 style 条件交互 | Recipe、保真约束、目标通道和当前策略状态刷新；不能先认定仅 RL 有问题 |
+| 相比持续比例纠偏，模型缺少范围分配信息 | plain actor 没有明确累计 LN accounting；完整 scope 条件化依赖剩余可达结果 | 同可见局部状态／不同已分配数量的合法历史对照；比较具备真实 scope 记账后是否改善整段总量且保留局部分段 | 控制状态与未来结果预测；不把 prefix ratio tracking 换个名字移进 player state |
 | 当前响应表示／监督不足，导致已有好候选未被接受 | 本地 frontier 没有实际未来输入；planner 不含 LN／协调响应 | 用同一候选集比较原选择、独立评价的最佳候选和 richer-history 响应模型 | 独立响应学习、状态充分性、搜索／提交职责；只加输入而不改目标未必有效 |
 | 模型容量限制了广泛真实分布与音乐关系 | 有合理动机，但现有更大 memory 端点未通过 native 质量 | 明确记录目标／覆盖，用同一独立 evaluator 做匹配的容量／交互比较，区分必要的联合修改与无关差异 | 可以扩大网络、attention 或训练预算；以 native coverage／selection 和时限决定，而非参数量直觉 |
 
-已有候选证据将下一步收敛到两项相互补充的工作：让提案的类型／持续关系在更广 source 分布与真实控制条件下学习；让 continuation response 获得攻击以外、具有独立依据的 LN／协调比较。单靠扩大候选数或进一步拟合现有标量均缺少修复机制。H 关系建模、历史交互和容量扩展仍是开放方向，不能由这个小面板排除。约束是证据、语义和实时契约可追踪，不是维持现有模块数量或参数规模。
+已有证据将下一步收敛到两项相互补充的工作：以完整 R1 事实学习的部分进展为起点，继续学习更广的类型／持续／布局关系与真实 control 条件；让 continuation response 获得攻击以外、具有独立依据的 LN／协调比较。单靠扩大候选数、count-only 拟合或强化现有标量均缺少充分修复机制。近期 difficulty/style 对照应先分开音频因素与条件作用，再决定是否采用难度平衡、校准或新的联合训练目标；已有单音频 guards 不支持直接选定其中一个答案。
+
+H 关系建模、音频交互、LN origin 表示和容量扩展仍是开放方向。长程音乐检索可保持独立分支，当前的语义缺口不要求先完成它。允许联合调整模块和 recipe，但每个改动要说明：新增或保留了哪种区别、谁作决定、用什么监督学习，以及哪类 native 反例可以否定收益。最终依据是可玩性、表达力、控制与实时接口，而非维持现有模块数量或参数规模。
 
 ## 8. 版本与证据身份
 
-Source-H 实验 source：`24061b918be7075f1efc70341675fe066c2e45b6`；候选供给实验 source：`9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8`。环境均为 Apple M5、24 GiB、Torch 2.11.0、CPU 单线程，没有并发训练。LN 关系和同支持偏好评估是只读分析，不改变生成。候选运行完成 192 条，用时 432.59s，峰值进程 RSS .784GiB；这是含诊断工作的运行，不作为 production latency。所有所列实验已结束，本分析没有产生新训练端点。
+本文分别引用 source-H、同前缀候选、count-only／crossed-prefix 以及完整 R1 续训；这些是不同干预，不能当作一次只改变单一因素的连续消融。Count-only 与 crossed-prefix 的完整身份和已读 Lens 范围见 [匹配学习报告](contextual_ln_count_learning.md)；其中的数字及本报告所需结论已在正文给出，普通 clone 不需要本地输出才能理解论证。
+
+完整 R1 训练 source 为 0882315ef23097e44e031707abd382d971b8c82c，生成评估 source 为 13eefbc67d3e7668910efc612e2f35ba50a30798；后者仅增加 LN interaction observer、测试和说明，不改模型或采样 law。环境 Apple M5、24 GiB、Torch 2.11.0，训练 MPS／CPU 一线程，验证和生成 CPU 一线程。两个 fit 的 128 updates 共用时 290.011s，31 份新增 native 输出共 492.669s；新输出 semantic review 仍为 pending。普通／辅助分支的 qualifier 最大 startup 为 .894／.778s，最大 service 为 .338／.344s，不能替代 30 行／8 秒 benchmark。
+
+完整 R1 实验标识为 20260927-full-row-history-views-v1。以下文件位于其训练、验证与 native 记录中；模型二进制、音频和输出没有提交到产品仓库：
+
+| 完整 R1 证据 | SHA-256 |
+| --- | --- |
+| 冻结训练 plan | 94bb0e42bcc352a97f0f3ad25063ddf50b745773390ddf517a2884bb3b6e5645 |
+| 冻结 14-case native plan | fdddd43cbd945ad7de14abb257e54fb71f8a3f4d858b3b72421b395bb2c484d8 |
+| 普通 fit checkpoint | 32afd48e5dbad6714401735e01200963c9d447e9f8ca92057bf6c7b67ab36406 |
+| 缺失观察辅助 checkpoint | 8ddf378e3e728f6b6a84c34fc5477b2cb3276782cfe40bf4da9222ce80350dde |
+| Source 验证 result | aba3f9c89427a82c2d8ac1b4219be9a7a5ad3df1d1a43cae98d0485377df4b71 |
+| 普通 fit native cases | 6baf9ae418289c21d294ad4c5c6a2a71def08acba89794b690aaaa95742bef5b |
+| 辅助 fit native cases | 191d61b8f613b2260e9c08f27fe8a2ae10380f2d87a9cad319f5251b818bc6ad |
+| 新增初始 style guards | 5aaf6c4ce3cd174b3badee9fe78cd2087daf9c4ea64afe4e8d5cef96a371af8b |
+
+### 较早机制诊断的身份
+
+Source-H 实验 source：`24061b918be7075f1efc70341675fe066c2e45b6`；候选供给实验 source：`9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8`。环境均为 Apple M5、24 GiB、Torch 2.11.0、CPU 单线程，没有并发训练。LN 关系和同支持偏好评估是只读分析，不改变生成。候选运行完成 192 条，用时 432.59s，峰值进程 RSS .784GiB；这是含诊断工作的运行，不作为 production latency。这些机制实验均已结束；它们本身不产生新的训练端点。
 
 | 证据 | SHA-256 |
 | --- | --- |
