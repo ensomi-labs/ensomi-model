@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: f65de370416255477f81993bfd594680ba40cbd6
+Product revision: 720457b8651d40095c2247b5992c3318b2cb5ced
 Scope: Nonlinear multiscale full audio, elapsed-time history attention, native and teacher-scored H/R/R1 integration
 Related: 2026-09-27-four-star-musical-phrasing, 2026-09-23-audio-skeleton-r1-integration
 
@@ -102,3 +102,41 @@ and recorded script/input hashes; tests can run during implementation. Exact
 commands are recorded with their result before a main learning comparison is
 selected. No large training run is authorized by a passing integration metric
 alone; the standing goal permits designing and then executing a suitable follow-up.
+
+
+## Implementation and live integration handoff
+
+Previous turn classification: progress. Core intervention is committed at
+b130dfb6b0e9d4617b8ec8a235b334287b4813e4; independent evaluation code is138a1f5,
+and CPU/MPS audio-padding checks plus report are720457b8651d40095c2247b5992c3318b2cb5ced.
+The product worktree is clean before profiling. The latter two commits do not
+change the architecture comparison's native model law.
+
+Implemented AudioMemoryModel/MemorySession, indexed half-second memory selection,
+full-prefix teacher scorer and explicit checkpoint family. Native H/R logits and
+row probabilities agree with current-weight teacher replay under nonzero memory;
+tap layout/count cannot leak into H/R. Thirty-six affected checks pass in13.68s,
+plus two nonzero audio-padding checks on CPU/MPS in4.03s. Eight evaluation-package
+checks pass separately. Initial test collection needed the new test package's
+__init__.py; that setup failure did not run model tests.
+
+The full prototype has7,616,517 parameters versus core4,583,985. The first
+preflight attempt80268 terminates before sampling because the observation driver
+omitted PublicationLog's required callback argument. Retain its preflight folder.
+Set callback=None, keep model/data/procedure unchanged, and run fresh preflight-v2.
+Replacement handle77659 is live. Command:
+uv run --extra mps python artifacts/joint-audio/20260927-audio-history-memory-v1/preflight.py.
+Never restart this handle merely because an observation times out.
+
+The declared learning draws are eight32-second intervals: chart i%4, interval
+index1+i//4, seeds273200+i. Both native profiles use Max Burning at seed273200;
+full-law equality is checked before learning. Inherited parameters lr3e-5, new
+modules3e-4, clip1. Full audio/H/R/R1 update jointly, with native row preferences
+replayed on factual prefixes. This is an integration smoke, not a quality fit;
+weights are discarded for subsequent main fitting. The frozen config records
+actual script/source/model/plan identities. Existing limits remain1800 active
+seconds and18GiB sampled memory. No main quality fit has started.
+
+User steering makes reusable EVAL a priority alongside the model. The separate
+Note2026-09-27-playability-regression-evaluation owns those algorithms and real
+historical calibration. Do not choose or promote a new model solely from NLL.

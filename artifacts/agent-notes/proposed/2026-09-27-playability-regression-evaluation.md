@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: f65de370416255477f81993bfd594680ba40cbd6; audio-memory implementation currently dirty
+Product revision: 720457b8651d40095c2247b5992c3318b2cb5ced
 Scope: Reusable exact-time chart observations, scoped regression comparisons, multi-scale pressure/texture and audio-linked diagnostics
 Related: 2026-09-27-audio-history-memory, 2026-09-27-four-star-musical-phrasing, 2026-09-27-player-response-frontier
 
@@ -64,3 +64,46 @@ No new trained checkpoint may be selected using only its optimized training cost
 This first library is not a complete playability oracle. It is intended to make
 specific prior failures repeatably visible, with auditable coverage and actual
 witness times, before an expanded quality comparison is designed.
+
+
+## Result Log: initial reusable implementation and real historical replay
+
+Implementation138a1f5c777e8d968eb4d54e080fbce3c5de5c07 adds exact-clock ChartTrace,
+Scope, multiscale adjacent-window contrasts, Mel/chart correspondence and a
+non-pooled report. Eight focused tests pass, including complete Mel/chart-clock
+alignment and explicit unevaluable constant inputs. Product guide:
+ docs/research/gameplay_regression_evaluation.md.
+
+Exploratory run at clean720457b8651d40095c2247b5992c3318b2cb5ced:
+uv run --extra mps python artifacts/joint-audio/20260927-gameplay-evaluation-v1/run.py.
+Handle21230 is terminal, exit0. In17.877s, it reparses actual osu bytes for41
+reports: four ranked sources, ten matched generated conditions and27 historical
+Stream cases (initial actor, bounded planner and failed response-trained endpoint,
+nine each). Identified output/input hashes, independent named scopes and complete
+numeric evidence are retained under this artifact owner's results directory.
+
+Recomputed mean J reproduces earlier evidence exactly: initial .0275164272,
+planned .0004245142, failed response .1071601211. Worst costs .1061111,.0022319,
+.7035150. Response Zenithfall0's four-second peak is9.5Hz. This detects the known
+sustained-load regression, but J was itself optimized and is not an independent
+semantic metric. The newly replayed four-star Max Burning Stream output reaches
+8.25Hz on one column despite whole proxy3.86; it warrants a targeted witness
+inspection. No generated label is inferred automatically.
+
+Independent occupation/texture facts reproduce STYX's phrase .2434 source vs
+.9537 actor any-held time, and Blizzard .6931 vs.9451. Multi-scale audio/chart
+aligned-minus-shift-median diagnostics are lower in the actor than the source
+at all three measured scales for the four matched unknown-style comparisons.
+For Classic Pursuit, source .183/.212/.171 versus actor .042/.082/.044 at1/4/16s;
+for STYX, source .301/.417/.358 versus actor .051/.142/.145. These support further
+investigation of temporal musical correspondence, not a causal encoder diagnosis.
+
+The bounded planner's pressure improvement is not a uniform correspondence gain:
+Zenithfall's16s mean diagnostic .1654 -> .1238, while Hysteric .2966 -> .4271.
+Keep these dimensions distinct. A learned relation may favor superficial loudness
+tracking or reject deliberate dump/steady positives; this diagnostic has no BAD
+threshold and is not a training reward. Closest statistic source is Kornblith et
+al., https://proceedings.mlr.press/v97/kornblith19a.html; its neural-representation
+results do not validate chart quality. More real positive exceptions and independent
+fault-injection/cross-song calibration are needed before fixed model-selection
+rules. The framework is useful executable evidence, not a complete quality oracle.
