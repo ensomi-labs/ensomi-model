@@ -33,7 +33,7 @@ needed if this missing observation does not explain the control regression.
 
 ## Experiment Card: scoped-ln-allocation-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: user's continuing goal explicitly authorizes local
 research, implementation, experiments and suitable commits. This is exploratory;
@@ -93,6 +93,7 @@ LN/recurrence witnesses. Normal short/long/overlapping roles remain admissible.
 No candidate is promoted solely by the primary metric.
 
 Use Apple M5, 24 GiB, Torch 2.11, explicit mps extra, one CPU thread.
+Frozen factual inputs are extracted on CPU; only the small adapters fit on MPS.
 Factual preparation/fit maximum 1800 seconds and 12 GiB process footprint;
 native maximum 180 seconds per case and 1800 seconds across both arms, 4 GiB.
 Output owner artifacts/joint-audio/20260928-scoped-ln-allocation-v1, fresh
@@ -140,3 +141,29 @@ b712ae448d12e29c28f78d1a4e59ad46cad957e19dcfb86fb573a1b384d05b82.
 Commands are recorded in plan.json: uv run --extra mps python followed by the
 owner-relative run.py and evaluate.py. The fit command has started; evaluation
 has not. Completion requires the live process result, not this entry.
+
+## Revision 2: bounded cache execution after a terminal memory stop
+
+The revision-1 process terminated before any optimizer update. Its preserved
+fit-v1/failure.json reports 174.703122 seconds and peak process footprint
+12,904,709,504 bytes, exceeding the 12-GiB guard. The last progress record had
+256 cached training windows; this is not a completed fit. No cause attribution
+to active tensors versus driver/runtime storage is available from that counter.
+
+Revision 2 uses CPU for frozen factual extraction, matching native inference,
+and retains MPS for the two small adapter fits. Data, source OID, checkpoint,
+initialization seed, arm difference, optimizer, objective and terminal evaluation
+are unchanged. New fit-v2 and native-{context,progress}-v2 directories preserve
+the failed attempt. The evaluator additionally checks unknown-LN object identity
+immediately after each complete case and honors the study STOP between cases;
+the qualifier's own STOP remains available during a case.
+
+Revised frozen plan SHA:
+8e9cab84b87c324ef07ddfa1d7cb7f8bca3a66eea99b2bda1d4382cb809b1c3a.
+Fit script SHA:
+cecb31e81a8a35cd5f18adfa7823d12816a2e9d07f364ac80018d71a7b8b67df.
+Evaluation script SHA:
+ece99dac4dca343a6b229b68910796bb81c812ce4db89d8d640af941c9f7979c.
+Run commands use the same owner with run_v2.py and evaluate_v2.py, respectively.
+The original plan/scripts remain unchanged. This is an execution refinement,
+not a changed scientific arm or an accepted/adopted result.
