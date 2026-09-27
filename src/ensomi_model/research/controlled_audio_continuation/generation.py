@@ -26,9 +26,9 @@ class ControlledSession(ContinuationSession):
                  ln_feedback=LnAmountFeedback(), recovery_preference=RecoveryPreference(head_pressure=4.),
                  max_seconds=120., head_times=None, row_demand_model=None,
                  row_demand_feedback=DemandFeedback(), onset_rate_model=None,
-                 onset_rate_feedback=DemandFeedback()):
+                 onset_rate_feedback=DemandFeedback(), planner_type=HeadPlanner):
         controls = ControlSchedule(controls.spans, model.style_names)
-        planner = partial(HeadPlanner, onset_rate_model=onset_rate_model, onset_rate_feedback=onset_rate_feedback)
+        planner = partial(planner_type, onset_rate_model=onset_rate_model, onset_rate_feedback=onset_rate_feedback)
         super().__init__(model, mel, duration_ms, seed=seed, planner_factory=planner,
                          controls=controls, max_seconds=max_seconds, head_times=head_times)
         self.audio_seconds += getattr(self.planner, 'activity_seconds', 0.)

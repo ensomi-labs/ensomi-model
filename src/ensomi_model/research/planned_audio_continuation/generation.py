@@ -74,6 +74,13 @@ class HeadPlanner:
     def finished(self):
         return self.cursor == self.duration_ms
 
+    def query_options(self, times):
+        return {}
+
+    def record_head(self, time_ms):
+        """Extend subclass state after the chosen H and its temporal cache update."""
+        pass
+
     @torch.no_grad()
     def fill(self, count):
         while len(self.queue) < count and not self.finished:
@@ -89,7 +96,8 @@ class HeadPlanner:
             options = ({} if self.controls is None else dict(control=torch.as_tensor(
                 self.controls.at(anchors.cpu().numpy(), encoding=self.model.control_encoding),
                 dtype=self.dtype, device=self.device)))
-            logits = self.model.head_logits(audio, history, clocks, **options).flatten()
+            logits = self.model.head_logits(audio, history, clocks, **options,
+                                            **self.query_options(anchors)).flatten()
             native = (bins[:, None] * 10 + torch.arange(10, device=self.device)).flatten()
             if self.onset_curve is not None:
                 shift = self.onset_rate_feedback.shift(self.onset_balance, self.onset_curve, native.cpu().numpy())
@@ -108,6 +116,7 @@ class HeadPlanner:
             self.last_head, self.residual = self.cursor, None
             self.queue.append(self.cursor)
             self.generated.append(self.cursor)
+            self.record_head(self.cursor)
             if self.onset_curve is not None:
                 self.onset_balance = self.onset_balance.advance(self.cursor, 1, self.onset_rate_feedback.memory_ms)
             if self.controls is not None:

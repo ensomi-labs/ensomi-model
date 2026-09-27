@@ -11,7 +11,8 @@ The next architecture direction is a shared multiscale audio representation
 and history attention queried by current musical context. This is a proposal,
 not an implemented or qualified replacement. The evidence below motivates the
 information path; it does not prove that attention or more parameters will fix
-generation.
+generation. A subsequent [memory prototype](audio_history_memory.md) implements
+the path and its causal scoring checks; trained musical benefit remains open.
 
 ## Matched ranked sources
 

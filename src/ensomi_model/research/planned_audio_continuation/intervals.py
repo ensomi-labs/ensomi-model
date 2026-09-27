@@ -223,12 +223,16 @@ def _gather(module, encoded, indices):
     return torch.where((indices >= 0)[:, None, None], encoded[indices.clamp_min(0)], boundary)
 
 
-def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, encoded_full=None):
+def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, encoded_full=None,
+                   history_options=None):
     """Score true prefixes, optionally reusing a differentiable full-song encoding.
 
     LN-origin models require encoded_full so an old hold cannot read a clipped
     local crop. Caller-owned encodings may be cached only while audio weights
     remain frozen. Their real frame count still comes from the complete song.
+    history_options(kind, times, indices) may add model-specific query inputs.
+    Indices identify the last known event in that factor's local raw sequence;
+    a hazard-bin timestamp alone must not be used to infer the observed prefix.
     """
     x = inputs.base
     if encoded_full is None:
@@ -250,6 +254,8 @@ def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, 
     def holds(starts, times):
         return model.hold_audio_options(downstream, starts, times, audio_starts=audio_starts,
                                         frame_counts=x.frame_count)
+    def memories(kind, times, indices):
+        return {} if history_options is None else history_options(kind, times, indices)
     row_history = model.temporal(x.raw, x.history_valid)[0] if x.raw.shape[1] else None
     skeleton_history = (model.skeleton_temporal(inputs.skeleton_raw, x.history_valid)[0]
                         if inputs.skeleton_raw.shape[1] else None)
@@ -257,16 +263,20 @@ def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, 
                     if inputs.head_raw.shape[1] else None)
     audio = interpolate_audio(encoded, x.timing_times[None], audio_starts, x.frame_count)[0]
     h = model.head_logits(audio, _gather(model.head_temporal, head_history, inputs.head_history),
-                          inputs.head_clock, **conditions(x.timing_times))
+                          inputs.head_clock, **conditions(x.timing_times),
+                          **memories('head', x.timing_times, inputs.head_history))
     if not model.config.profile_head_rate_downstream:
         audio = interpolate_audio(downstream, x.timing_times[None], audio_starts, x.frame_count)[0]
     r = model.release_logits(audio, _gather(model.skeleton_temporal, skeleton_history, x.timing_history),
                              inputs.release_clock, **conditions(x.timing_times),
+                             **memories('release', x.timing_times, x.timing_history),
                              **holds(inputs.release_hold_starts, x.timing_times))
     for wait in inputs.release_waits:
         audio = interpolate_audio(downstream, wait.times[None], audio_starts, x.frame_count)[0]
         raw = model.release_logits(audio, _gather(model.skeleton_temporal, skeleton_history, wait.history),
-                                   wait.clocks, **conditions(wait.times), **holds(wait.hold_starts, wait.times))
+                                   wait.clocks, **conditions(wait.times),
+                                   **memories('release', wait.times, wait.history),
+                                   **holds(wait.hold_starts, wait.times))
         conditional = conditioned_release_logits(raw.flatten()[wait.native_indices])
         r = r.flatten().index_copy(0, wait.destinations, conditional[wait.offsets]).reshape_as(r)
     if len(x.row_times):
@@ -284,6 +294,7 @@ def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, 
         rows = model.planned_row_log_probs(audio, _gather(model.temporal, row_history, x.row_history),
             x.row_exact, x.row_legal, x.occupancy, inputs.row_preview,
             inputs.consequence_local, inputs.consequence_timing, **counts, **conditions(x.row_times),
+            **memories('row', x.row_times, x.row_history),
             **holds(inputs.row_hold_starts, x.row_times))
     else:
         rows = h.new_empty((0, 256))

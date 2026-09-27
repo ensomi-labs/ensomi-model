@@ -170,6 +170,9 @@ class ContinuationSession:
     def record_row(self, row):
         pass
 
+    def release_options(self, times):
+        return {}
+
     def control_at(self, times):
         return ({} if self.controls is None else dict(control=self.tensor(
             self.controls.at(times, encoding=self.model.control_encoding))))
@@ -221,6 +224,7 @@ class ContinuationSession:
                 history = self.model.skeleton_temporal.read(self.skeleton_cache)[None].expand(len(bins), -1, -1)
                 logits = self.model.release_logits(audio, history, self.tensor(clocks),
                     **self.control_at(anchors.cpu().numpy()),
+                    **self.release_options(anchors),
                     **self.model.hold_audio_options(self.downstream_encoded,
                         self.tensor(ln_start_times([self.replay.open_ln_start_ms]*len(bins)), torch.long),
                         anchors)).flatten()
