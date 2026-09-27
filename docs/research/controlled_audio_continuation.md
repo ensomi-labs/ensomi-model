@@ -109,6 +109,12 @@ record it in their probability options. Expressiveness and replay tests do not
 establish musical improvement. The [formal failure analysis](native_pattern_failure_analysis_zh.md)
 explains the path-specific limitation and the required learning/native comparison.
 
+The [matched source-learning comparison](contextual_ln_count_learning.md) trains
+both laws on 256 factual windows. It finds negligible additional likelihood gain
+from the contextual path and native regressions in both count-only refits; neither
+endpoint is qualified. Count-family improvement does not establish better routing
+or LN organization.
+
 Optional LN-amount feedback then tilts the resulting distribution inside each
 fixed `(head count, release count)` family. It preserves that family's probability
 mass and conditional layout odds at fixed new-LN count. The old scalar
