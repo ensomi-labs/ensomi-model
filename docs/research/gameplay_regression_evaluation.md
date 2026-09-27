@@ -297,6 +297,16 @@ Unknown targets are not assigned invented values. A diagnostic phrase inside a
 whole-song amount request should leave its local amount target unknown unless
 that phrase is itself a requested control scope.
 
+LN amount gates additionally require a matching, completed declared request
+extent with no conflicting override. An original whole-song request interrupted
+by a later announcement does not retroactively impose its total ratio on the
+already committed prefix. A restored fragment likewise is not a new total-amount
+scope unless explicitly requested as one. Such fragments still receive separate
+occupation, recovery and realized-ratio reports, but their `ln_fraction` target
+must be null. An explicit override's complete requested duration can be assessed.
+This prevents evaluation from silently reintroducing the prefix-balance preference
+being investigated. Difficulty response proxies remain separately declared criteria.
+
 Optional `switch` supplies `announce_after_ms` and the new `ControlSpan` as `span`.
 The runner publishes through the announcement before updating controls and checks
 that prior rows stay unchanged. Before, override and restored scopes must be
@@ -330,6 +340,7 @@ these are different ledgers. An incomplete trace cannot pass publication checks.
 `run_status=complete` means execution completed. `candidate_status=failed` blocks
 numerically failed or incomplete candidates; the CLI exits 2. A numerically clear
 candidate instead returns `review_required`, with `promoted=false` and pending
-semantic review. Declared `review_contexts` and automatically located pressure
-contexts remain unreviewed until actually inspected. No module test, successful
-command or missing review record creates a playable qualification.
+semantic review; the CLI exits 3, so an ordinary success exit cannot accidentally
+stand for completed qualification. Declared `review_contexts` and automatically
+located pressure contexts remain unreviewed until actually inspected. No module
+test, successful command or missing review record creates a playable qualification.

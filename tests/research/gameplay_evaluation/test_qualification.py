@@ -114,6 +114,25 @@ def test_recovery_override_reaches_runtime_without_desynchronizing_H_capacity(tm
     with pytest.raises(ValueError,match='H-capacity'):run_qualification(settings)
 
 
+def test_interrupted_global_amount_cannot_become_a_retrospective_prefix_target(tmp_path):
+    settings,plan=fixture(tmp_path)
+    path=tmp_path/'plan.json'
+    for index in (0,2):
+        bad=json.loads(json.dumps(plan));bad['cases'][0]['scopes'][index]['ln_fraction']=.5
+        path.write_text(json.dumps(bad));settings.plan_sha256=digest(path)
+        with pytest.raises(ValueError,match='declared request scope'):run_qualification(settings)
+    interrupted=json.loads(json.dumps(plan))
+    interrupted['cases'][0]['scopes']=[dict(name='whole',start_ms=0,end_ms=1001,ln_fraction=.5)]
+    path.write_text(json.dumps(interrupted));settings.plan_sha256=digest(path)
+    with pytest.raises(ValueError,match='declared request scope'):run_qualification(settings)
+    plan['cases'][0]['scopes'][1]['ln_fraction']=.2
+    path.write_text(json.dumps(plan));settings.plan_sha256=digest(path)
+    result=run_qualification(settings)
+    assert result['run_status']=='complete'
+    checks=json.loads((tmp_path/'run/cases.json').read_text())[0]['checks']
+    assert [c['name'] for c in checks if c['name'].endswith(':LN_amount')]==['override:LN_amount']
+
+
 def test_hydra_projection_packaging_and_lightweight_help(tmp_path):
     settings,_=fixture(tmp_path)
     overrides=[f'{k}={v}' for k,v in asdict(settings).items() if k in
@@ -132,3 +151,7 @@ def test_hydra_projection_packaging_and_lightweight_help(tmp_path):
     assert actual.returncode==2,actual.stdout+actual.stderr
     assert json.loads((tmp_path/'run/result.json').read_text())['candidate_status']=='failed'
     assert json.loads((tmp_path/'run/cases.json').read_text())[0]['identity']['ln_feedback'] is False
+    pending=subprocess.run([*command,*overrides,f'output_dir={tmp_path / "pending"}',
+        'startup_seconds_limit=15','service_seconds_limit=15'],capture_output=True,text=True)
+    assert pending.returncode==3,pending.stdout+pending.stderr
+    assert json.loads((tmp_path/'pending/result.json').read_text())['candidate_status']=='review_required'

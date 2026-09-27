@@ -106,8 +106,39 @@ preferences exceed the finite correction or a scope contains few heads.
 Each effective LN request episode starts with zero correction; difficulty/style
 boundaries alone do not reset it. There is no per-row quota, scope-expiry catch-up
 or remaining-time input. Learned local all-TAP and LN passages remain possible.
-Training uses the learned law; this controller is an explicit sampling policy
-whose quality must be assessed on generated, separately reported ranges.
+The raw interval scorer returns the neural row law. A training runner using
+`sampling.replay_row_scores` instead includes the deployed preferences and this
+feedback, reconstructed from the complete factual prefix. The
+[joint memory fit](audio_memory_joint_fit.md) uses that latter objective. Removing
+the controller from a fitted model can therefore also expose compensation learned
+under its training policy; the endpoint's actual scoring procedure must be stated.
+
+This controller adds a preference for prefix balance. For a scope requesting
+fraction .5, a valid arrangement of 64 TAP heads followed by 64 LN heads meets
+the final amount. The correction nevertheless reaches +2 after the first 32 TAP
+heads. Because projection discards further positive debt, it finishes that valid
+sequence at -2 rather than zero. No musical requirement says those intermediate
+prefixes must already have the final ratio. Contextual neural preferences can
+overcome the bias, but finite support does not make it semantically neutral.
+
+An offset is per new LN: at +2, two rows in the same head/release-count family
+differing by four LN starts receive a relative factor of $\exp(8)$ before the
+shared normalizer. Although the instantaneous head/release-count marginal is
+preserved, different LN choices change subsequent occupancy, releases and future
+R1 count choices. Whole-trajectory head counts and workload need not be preserved.
+
+The [native qualification entrypoint](gameplay_regression_evaluation.md#executable-native-qualification)
+supports a fixed-weight `ln_feedback=false` comparison while retaining direct
+controls and the analytic requested-ratio tilt. Compare total amount against
+local TAP/LN organization, held occupation and actual recovery at matching H;
+separate control ranges and replicate seeds. A lower amount error alone cannot
+establish a better controller, and switching it off is not itself a validated
+replacement for scope-level control.
+
+The [fixed-weight native ablation](ln_feedback_scope_ablation.md) records the
+scope-semantic witness, complete on/off results, inspected passages and remaining
+learning questions. It finds that disabling feedback often destabilizes total
+LN amount without establishing replicated musical-organization gains.
 
 `sampling.replay_row_scores` reconstructs the default deployed row distribution
 for learning from a completed generated trajectory. It replays recovery and LN

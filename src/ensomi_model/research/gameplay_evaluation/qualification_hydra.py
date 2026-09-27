@@ -1,4 +1,4 @@
-"""Native candidate evaluation; numeric failure exits 2 and never promotes a model."""
+"""Native evaluation: exit 2 for failed gates, 3 while semantic review is pending."""
 from dataclasses import fields
 import json
 
@@ -31,6 +31,7 @@ def cli(config:DictConfig):
             numeric_status=record.get('numeric_status'),reason=record.get('reason')),allow_nan=False),flush=True))
     print(json.dumps(result,indent=2,allow_nan=False),flush=True)
     if result['candidate_status']=='failed':raise SystemExit(2)
+    raise SystemExit(3)
 
 
 if __name__=='__main__':cli()

@@ -96,9 +96,13 @@ their own scopes:
 | Override / 4.5 | 3.65430 | 5.65558 | 5.20984 |
 | Restored / 3 | 4.16956 | 6.21590 | 5.09766 |
 
-All three memory LN fractions are within .10 of their requests, but restored
-difficulty misses its ±1 guard. A successful amount control cannot cancel this
-failure. No whole-song score pools the three requested ranges.
+All three memory LN fractions are within .10 of the active conditioning values,
+but only the explicit override is a completed LN-total request. The preceding
+prefix and restored fragment are diagnostic under the original whole-song
+request extent; the [scope assessment correction](ln_feedback_scope_ablation.md#correct-quantity-scopes-after-live-changes)
+explains why they cannot be treated as new total-amount targets. Restored
+difficulty misses its separately declared ±1 guard. No whole-song score pools
+the three ranges.
 
 ## What the regressions reveal
 
@@ -275,8 +279,9 @@ remain distinct. There are no below-20-ms same-column attacks in evaluated scope
 
 For the live switch, substituted scoped difficulties become 1.8090 / 2.7403 /
 2.2287 against requests 3 / 4.5 / 3. Restored difficulty improves, while before and
-override now miss the ±1 bound. All LN fractions remain within .10. Pooling the
-ranges would conceal these opposing outcomes.
+override now miss the ±1 bound. All LN fractions remain within .10 of active
+conditioning values, with the same completed-scope distinction above. Pooling
+the ranges would conceal these opposing outcomes.
 
 Nine Lens pages cover the same Classic Pursuit and Blizzard Heights passages.
 Classic now interleaves TAP/chords and held voices through both pages, providing

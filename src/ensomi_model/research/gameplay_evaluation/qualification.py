@@ -59,13 +59,25 @@ def _plan(path):
         scopes=[Scope(s['name'],s['start_ms'],s['end_ms']) for s in case['scopes']]
         if not scopes or len({s.name for s in scopes})!=len(scopes) or any(s.end_ms>duration+1 for s in scopes):
             raise ValueError('Cases require unique observed scopes')
-        for span in case['controls']:ControlSpan(**span)
+        spans=[ControlSpan(**span) for span in case['controls']]
         if case.get('switch') is not None:
             if case.get('head_times_ms') is not None:
                 raise ValueError('Live control changes require a native H planner')
             switch=case['switch'];span=ControlSpan(**switch['span'])
             if not 0<=switch['announce_after_ms']<span.start_ms<span.end_ms<=duration+1:
                 raise ValueError('Live control scope must follow its announcement')
+            spans.append(span)
+        names=tuple(sorted({name for span in spans for name in span.style}))
+        schedule=ControlSchedule(tuple(spans),names)
+        for target in case['scopes']:
+            rho=target.get('ln_fraction')
+            if rho is None:continue
+            a,b=target['start_ms'],target['end_ms']
+            owned=any(span.start_ms==a and span.end_ms==b and span.ln_fraction==rho for span in spans)
+            consistent=all(span.ln_fraction==rho for span in schedule.resolved_ranges(a,b))
+            if not owned or not consistent:
+                raise ValueError('LN amount gates require a complete, unoverridden declared request scope; '
+                                 'interrupted or restored fragments are diagnostic only')
     return plan
 
 
@@ -137,6 +149,7 @@ def _inspect(case,saved,result,deadlines,settings,envelope,identity):
     for target,measurement,scope in zip(case['scopes'],report['scopes'],scopes):
         stars=target.get('stars');rho=target.get('ln_fraction')
         measurement['requested_stars']=stars;measurement['requested_LN_fraction']=rho
+        measurement['LN_amount_assessment']='declared_total' if rho is not None else 'no_total_target_for_this_scope'
         measurement['difficulty_proxy']=asdict(scoped_difficulty(objects,scope.start_ms,scope.end_ms))
         check(scope.name+':below20ms_attacks',not measurement['short_attacks'],len(measurement['short_attacks']),0)
         if stars is not None:

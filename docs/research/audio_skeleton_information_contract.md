@@ -65,6 +65,23 @@ sampling intentionally responds to R1's feasibility constraint. H prediction
 and release preferences retain the restricted neural information paths above;
 head count and release identity remain R1 decisions.
 
+This neural isolation is a research modeling restriction, not a consequence of
+the V3 chart language or of factoring timing before complete rows. Under it,
+two histories with identical H/R times and LN projection but different TAP
+concentration cannot change H's preferences. R1 can respond through layout and
+counts, and the scheduler can enforce feasibility, but neither establishes that
+the timing policy can adapt its pacing to the differing gameplay responses.
+Finite H lookahead is not a complete optimal future plan.
+
+A comparison with a declared, bounded summary of committed action responses is
+therefore a separate architecture question. Such an experiment would need to
+specify the summary, train/native replay invariants and probability dependencies,
+while retaining separate H/R event roles and R1's complete-row decisions. The
+current implementation still enforces the restricted inputs above; identifying
+the limitation does not establish that additional feedback improves generation.
+A feedback variant would be a different conditional model with its own declared
+inputs and native evaluation.
+
 ## Dependencies in the earlier flat joint model
 
 The [flat joint timing path](../../src/ensomi_model/research/joint_audio_continuation/context_model.py)
