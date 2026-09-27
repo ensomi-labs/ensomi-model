@@ -217,3 +217,32 @@ input-hash pins and STOP condition. This revision changes the active interventio
 and procedure, keeps the Card proposed/acceptance none, and is authorized by the
 standing research goal. Reuse the verified native probe scorer without altering
 model code or probability calculations. Preserve run-v1/run-v2 and their scripts.
+
+
+## Result Log: additive component probe complete
+
+63147 is terminal/complete:150 laws,10.80266s,.96338GiB peakfootprint, no model edits.
+components-v1/result.json SHA828a0b6c2a44399290197390bdb1b4ce77ee35d2fa2d98ca99292b4ad6752ee6;
+components.npz SHA79ad5963f7fa298486741a4ba0dae36e70a1a82264cdcf23373bfadeb85116ab.
+
+Using common unfitted-survival weights, memory base-minus-unfitted logit change
+has median+.5213 on12 generated prefixes, residual change-.0716. Replacing only
+that base with unfitted output increases restricted wait median25.0percent;
+8/12 are >=20percent, meeting the declared consistency threshold. Its wait
+relative to the fully unfitted law has median+5.5percent, compared with actual
+memory-17.2percent. Restoring only the unfitted residual gives median-19.6percent
+versus unfitted, failing to restore waits. Baseline continuation shows similar
+but smaller base changes+.3328; base replacement median+21.1percent,6/12>=20.
+
+The3 human-prefix memory base changes+.5723 but residual changes-1.0774 under
+the same weighting. Their audio/control/history contexts differ from the12
+native contexts, so these are conditional observations, not a paired global
+teacher-native estimate. They illustrate compensation that the summed hazard
+likelihood alone does not identify. Zeroing the entire residual greatly increases
+waits (memory generated median+486percent); it is not a proposed pacing repair.
+
+REFINE: base drift is a consistent local contributor at the sampled memory
+prefixes; complete-chart density and quality remain unproven. A separately owned
+native diagnostic will retain fitted H residual/R/R1 and replace only the H base
+output with the common unfitted full-audio/control path. Do not change training
+or promote a two-model pipeline based only on these probes.
