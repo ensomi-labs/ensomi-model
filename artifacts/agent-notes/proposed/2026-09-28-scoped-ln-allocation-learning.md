@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: 073b6b68fa59b4be99be093cdf284f8c16e08492
+Product revision: c0db49c142612750e04b586cfbd396a2e9036126
 Scope: R1 scoped LN allocation observations, learned within-family preference, matched factual fitting and native evaluation
 Related: 2026-09-28-broader-full-row-learning, 2026-09-27-ln-continuation-preference-diagnosis
 
@@ -115,3 +115,28 @@ compatibility, zero initialization, unknown-condition identity, gradients and
 native-versus-replay law. Report source NLL, native controls, response channels,
 actual lens observations and runtime separately. The continuing goal remains
 unachieved; this proposed Note does not authorize a lifecycle transition.
+
+## Frozen implementation and execution identity
+
+Product c0db49c142612750e04b586cfbd396a2e9036126 implements the two optional
+allocation modes, immutable declared/effective accounting, source query helper,
+native integration and checkpoint metadata. It changes no existing checkpoint
+law by default. Announced-control snapshots are explicit: factual replay of an
+earlier query cannot use a control update that had not yet been announced.
+
+The 511-row observability gap is now a concrete legal-history construction:
+old exact replay and 512 common final rows agree while earlier LN totals differ
+by 64. This verifies missing factual information, not causation of quantity drift.
+Twenty-five selected ownership, sampling, allocation and frontier tests pass in
+12.70 seconds, including CPU/MPS; the subsequently added live-announcement test
+passes separately in 1.56 seconds. No test establishes native quality.
+
+Run owner: 20260928-scoped-ln-allocation-v1. Frozen plan SHA:
+ba3d3ab72807a75dadc9ba6dc9aa904a93d4a43a42cf83b898d2d9107ac867f4.
+Fit script SHA:
+7e1912044a2769bed0689f5b9434e8044b47b28d0b79e40bfd332b44fd5d9444.
+Evaluation script SHA:
+b712ae448d12e29c28f78d1a4e59ad46cad957e19dcfb86fb573a1b384d05b82.
+Commands are recorded in plan.json: uv run --extra mps python followed by the
+owner-relative run.py and evaluate.py. The fit command has started; evaluation
+has not. Completion requires the live process result, not this entry.
