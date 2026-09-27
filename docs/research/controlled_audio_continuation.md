@@ -92,6 +92,23 @@ The LN proportion uses unbounded learned local preferences and a scoped log-odds
 shift within a fixed head-count/release-count group. The group's mass reads the
 actual controls. Local all-TAP passages remain possible under a high-LN request.
 Empirical head/release recovery preferences compare R1's complete candidates.
+
+The default `ln_conditioning='reference_tilt'` computes those local LN-count
+preferences with the LN request replaced by `ln_reference`, then applies the
+analytic log-odds shift. The experimental `contextual_tilt` option instead feeds
+the actual request into that count readout while retaining the analytic shift.
+This lets the explicit type-count path learn interactions between LN request,
+audio and history. It adds no parameters or support restrictions and does not
+move head-count or layout decisions into H. At fixed weights, head/release-family
+mass before the final consequence score is preserved; the consequence score can
+still reweight families when their internal type distribution changes.
+
+Unknown LN requests and requests equal to the reference retain the old law.
+Old checkpoints omit this option and load as `reference_tilt`; opt-in checkpoints
+record it in their probability options. Expressiveness and replay tests do not
+establish musical improvement. The [formal failure analysis](native_pattern_failure_analysis_zh.md)
+explains the path-specific limitation and the required learning/native comparison.
+
 Optional LN-amount feedback then tilts the resulting distribution inside each
 fixed `(head count, release count)` family. It preserves that family's probability
 mass and conditional layout odds at fixed new-LN count. The old scalar

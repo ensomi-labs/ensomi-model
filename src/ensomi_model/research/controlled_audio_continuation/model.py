@@ -73,10 +73,14 @@ class ControlledAudioModel(PlannedAudioModel):
     control_encoding = PER_FIELD_SCOPE
 
     def __init__(self, config, *, style_names=(), ln_reference=.17, recovery=Recovery(60, 50, 50),
-                 count_history_bound=None, hold_audio_width=0, layout_modulation=False, player_state=False):
+                 count_history_bound=None, hold_audio_width=0, layout_modulation=False, player_state=False,
+                 ln_conditioning='reference_tilt'):
         super().__init__(config)
         self.style_names = tuple(style_names)
         self.ln_reference, self.recovery = ln_reference, recovery
+        if ln_conditioning not in ('reference_tilt', 'contextual_tilt'):
+            raise ValueError('LN conditioning requires reference_tilt or contextual_tilt')
+        self.ln_conditioning = ln_conditioning
         if count_history_bound is not None and (not math.isfinite(count_history_bound) or count_history_bound <= 0):
             raise ValueError('Composition history bound must be finite and positive')
         self.count_history_bound = count_history_bound
@@ -125,11 +129,14 @@ class ControlledAudioModel(PlannedAudioModel):
         return dict(hold_audio=holds)
 
     def probability_options(self):
-        return dict(style_names=list(self.style_names), ln_reference=self.ln_reference,
+        options = dict(style_names=list(self.style_names), ln_reference=self.ln_reference,
                     recovery=asdict(self.recovery), count_history_bound=self.count_history_bound,
                     hold_audio_width=self.hold_audio_width,
                     layout_modulation=self.layout_modulation is not None,
                     player_state=self.player_condition is not None)
+        if self.ln_conditioning != 'reference_tilt':
+            options['ln_conditioning'] = self.ln_conditioning
+        return options
 
     def head_logits(self, audio, history, clocks, *, control):
         return super().head_logits(audio+self.head_control(control), history, clocks)
@@ -167,9 +174,15 @@ class ControlledAudioModel(PlannedAudioModel):
         layout = layout+self.release_residual(hands, occupancy.any(-1))
         actual = self.composition.logits(audio, base, preview, control)
         known = control[:, 3+len(self.style_names)] > 0
-        reference = control.clone()
-        reference[:, 1] = torch.where(known, 2*self.ln_reference-1, control[:, 1])
-        raw = self.composition.logits(audio, base, preview, reference)
+        if self.ln_conditioning == 'contextual_tilt':
+            # Let type counts learn condition/context interactions directly;
+            # head/release family mass and the final consequence remain owned
+            # by their existing factors. The ratio tilt is still explicit.
+            raw = actual
+        else:
+            reference = control.clone()
+            reference[:, 1] = torch.where(known, 2*self.ln_reference-1, control[:, 1])
+            raw = self.composition.logits(audio, base, preview, reference)
         rho = ((control[:, 1]+1)/2).clamp(.0001, .9999)
         shift = torch.where(known, torch.logit(rho)-math.log(self.ln_reference/(1-self.ln_reference)), 0.)+ln_shift
         active = (allowed[:, None] & self.composition.members[None]).any(-1)
