@@ -276,3 +276,21 @@ Analysis plan revision 2 SHA
 pins the scope-separated comparison and frozen Lens contexts before native
 results. Existing multiscale contrast quantiles and feature witnesses are
 retained; greater variation is not assigned a positive label.
+
+## Realtime integration requirement found during the fit
+
+Read-only inspection of codex/stream-generation-benchmark at
+4ec631ef71d1ca71e36e5c383d4997efffdebb05 confirms a loader/behavior distinction:
+its ControlledAudioModel constructor does not support the newer player_state
+or scope_allocation options, and benchmark.py constructs ControlledSession
+without overriding its default LN feedback. Current study models contain the
+scope module and are evaluated with LN feedback off. The old benchmark cannot
+therefore be treated as a measurement of these exact endpoints by merely
+swapping checkpoint filenames. Its worktree remains untouched.
+
+A retained candidate needs the current probability implementation and explicit
+sampling settings integrated with the benchmark's 30-row/eight-second,
+watermark, private-state and control-update contracts. Do not silently ignore
+unknown checkpoint options or add a second quantity controller during that
+integration. Current two-second qualification is useful distinct evidence,
+not a substitute for this compatibility and runtime work.
