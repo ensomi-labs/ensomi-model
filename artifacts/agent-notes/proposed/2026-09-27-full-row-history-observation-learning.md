@@ -137,3 +137,36 @@ receipt or retry a failed worker. Validation uses a separate bounded CPU process
 to avoid retaining training allocations. Native evaluation produces 31 new
 outputs: three initial style guards and fourteen per fitted arm; it reuses the
 eleven already pinned ordinary baseline cases.
+
+## Fitting and source validation complete
+
+All eight declared workers are confirmed terminal and complete. Both arms reach
+128 updates in 290.011 total seconds. No memory restart or source/optimizer
+change was needed. Final model SHAs: full
+32afd48e5dbad6714401735e01200963c9d447e9f8ca92057bf6c7b67ab36406,
+missing 8ddf378e3e728f6b6a84c34fc5477b2cb3276782cfe40bf4da9222ce80350dde.
+Segment receipt SHA 3532ec0e3f8cd560bf4de23abd38df520dc452b5d3281833a88cab88ef182a0b.
+Frozen weights stay tensor-equal at every completed segment.
+
+Separate CPU validation on the same 22 charts yields full/missing-view row NLL:
+initial 1.730817/2.957741; full-R1 fit 1.618333/3.008688;
+missing-view fit 1.623110/2.335572. Missing-view robustness improves in its own
+condition, with only .00478 higher ordinary-source NLL than full-R1 fitting.
+This does not establish any native-quality gain; the complete comparison remains
+necessary. No checkpoint is promoted from these measurements.
+
+Before native evaluation, product 13eefbc67d3e7668910efc612e2f35ba50a30798 adds a
+behavior-neutral LN interaction observer to scope reports. Training/model source
+remains 0882315ef23097e44e031707abd382d971b8c82c. The descendant changes only
+evaluation, tests and its guide; it does not change any probability/sampler or
+decision criterion. The observer distinguishes continuing-hold interactions
+with TAPs, LN starts and releases, including canonical hand relationships and
+co-start staggered releases. It reads only events within the observed scope,
+retains incoming origins and assigns no BAD/style/strain label.
+
+Four new semantic tests plus existing temporal/LN/actual-native qualification
+owners pass 24 tests in 12.20 seconds. An initial NumPy boolean aggregation
+caused non-JSON integers in qualification output; the real qualifier tests caught
+it before any research generation. Explicit Python booleans fixed the report,
+and all selected tests pass without exclusions. These added descriptors are
+diagnostic, not a post-hoc replacement for the frozen primary comparison.
