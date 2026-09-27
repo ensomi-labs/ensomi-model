@@ -123,7 +123,7 @@ This is a mixed result, not proof of a full musical or control repair.
 On the same four *parent-native* prefixes used below, switching only model
 weights reduces one-TAP-family repeat probability from .470/.700/.415/.742 to
 .406/.685/.387/.739. These fixed-history changes are smaller than the native
-recurrence differences and are not uniform recovery from every old bad prefix.
+recurrence differences and do not establish recovery from every old bad prefix.
 Changed reached histories and LN occupation remain part of the mechanism.
 The checkpoint is retained as an arrangement candidate, not promoted, and the
 same recipe is not extended merely because source likelihood improved.
@@ -180,6 +180,57 @@ repetition into several column-local jack blocks, including right and right-inne
 runs. It does not establish the requested continuous multi-finger flow. Classic
 remains a TAP/chord mixture, with some repeated left-inner attacks after the
 offset; no general musical/style benefit is assigned.
+
+## Combining the broader row model with the same neural offset
+
+A subsequent four-case interaction probe applies the same neural-only -1
+projection to the broader endpoint, retaining the actual D4 request and recovery.
+The H sequences exactly match the earlier shifted ordinary-fit outputs for
+each audio/seed. This makes the changed rows comparable under those generated
+times, without claiming an isolated effect on reached history.
+
+| Stream case | Achieved stars | Repeated-head fraction | Maximum prefix H age | Attack excess |
+| --- | ---: | ---: | ---: | ---: |
+| Zenithfall 271200 | 4.234 | .102 | 12 | 0 |
+| Zenithfall 271201 | 4.633 | .108 | 16 | 0 |
+| Classic 273110 | 4.112 | .104 | 5 | 0 |
+| Classic 273111 | 3.937 | .123 | 6 | 0 |
+
+Three cases are within .5 stars of D4; the second Zenithfall case misses the
+prespecified two-seed condition. Recurrence averages retain much of the broader
+model's improvement, but two new Zenithfall witnesses contain mostly isolated
+12/16-head runs over 1.702/2.170 seconds. The older dense witness in the first
+seed becomes sparse under the changed H plan; the other becomes LN flow.
+Thus neither disappearance of an old witness nor zero attack excess establishes
+the complete repair. Seventeen pages inspect old/new witnesses, Classic
+transfer cases and the ranked comparisons below.
+
+Actual ranked data also prevents turning these lengths into a ban. Two
+independently recomputed source examples are:
+
+| Ranked source | Whole stars | Inspected recurrent run | Other-column heads during those 16 H |
+| --- | ---: | --- | ---: |
+| LiSA — Brave Freak Out (TV Size), Limit Breaker | 4.260980 | 23282–25532ms, 150ms HH gaps | 12 |
+| HOYO-MiX — Termination of Desires, Eternity | 3.769631 | 74916–77208ms, median/max HH gap 105/209ms | 12 |
+
+Both have 16 TAPs on the recurring column and changing accompaniment on the
+others. Source SHA identities are
+43f20aa3129a415b5bca7d2a5c1923b6a28267cb561d24e69ccecab8e9198eee
+and fb0e61e4ec6277177aeef3a38d8b34abd44df860f22f78a020f94c6075d64987.
+The two generated witnesses have zero/two companion heads respectively.
+That difference concerns arrangement roles; adding accompaniment would not
+automatically relieve the recurring finger or prove better music. Cadence,
+history, requested style and audio correspondence still matter.
+
+The reusable observer now reports companion counts and columns alongside each
+run, retaining legitimate anchor/jack examples. The composition is retained as
+a diagnostic, not a universal calibration or qualified release. It takes 62.95s
+on CPU one thread with observed footprint 585,991,488 bytes. Source is
+6fa3a544e52624c9922c050743bd351aa2dc4f9f; owner is
+20260928-broader-control-composition-v1. Native cases SHA:
+d6537a316c0fd53ae88343f2049511b9280d8a0e90a37e5d18a2d27d3e7c8857;
+Lens reading SHA:
+569814040c1cfa957d48b12238c75c17d8dc4ac7c73601b85ff5de93619eb010.
 
 ## An evaluation distinction that stars and threshold excess can miss
 

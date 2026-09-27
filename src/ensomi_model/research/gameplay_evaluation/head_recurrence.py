@@ -36,10 +36,18 @@ def _observations(times, actions, start_ms, end_ms):
         for chosen in order:
             i,k,s=int(rows[chosen]),int(columns[chosen]),int(starts[chosen])
             t0,t1=float(clocks[s]),float(clocks[i]);gaps=np.diff(clocks[s:i+1])
+            companions=heads[s:i+1].copy()
+            companions[:,k]=False
+            companion_count=int(companions.sum())
+            run_heads=int(age[i,k])+companion_count
             candidates.append(dict(column=k,run_start_ms=t0,last_observed_head_ms=t1,
                 observed_consecutive_H=int(age[i,k]),span_ms=t1-t0,
                 median_HH_gap_ms=None if not len(gaps) else float(np.median(gaps)),
                 maximum_HH_gap_ms=None if not len(gaps) else float(gaps.max()),
+                companion_heads=companion_count,
+                companion_heads_per_column=list(map(int,companions.sum(0))),
+                head_rows_with_companions=int(companions.any(-1).sum()),
+                recurrent_column_head_share=int(age[i,k])/run_heads,
                 started_before_scope=bool(t0<start_ms),
                 future_membership_unobserved=bool(i==n-1)))
     return dict(heads=total,heads_with_previous_H=eligible,heads_repeating_previous_H_column=repeated,
@@ -58,6 +66,8 @@ def head_recurrence(trace, scope):
     pre-scope history and never use events at/after the exclusive end. Release-
     only rows do not reset head membership; no elapsed-gap threshold is imposed.
     Durations and HH gaps must accompany any interpretation of a long run.
+    Witness companion counts cover the whole observed run, including its
+    pre-scope part; they are context, not additive scope workload.
     These observations do not label Jack/Stream style or assign player demand.
     """
     trace._scope(scope)

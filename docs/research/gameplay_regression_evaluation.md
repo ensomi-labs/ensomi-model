@@ -98,6 +98,12 @@ retain earlier membership. Events at or beyond the exclusive end are not read,
 so prefix ages and witnesses agree between a private prefix and the same scope
 of a longer trace. Event counts add across adjacent scopes; quantiles do not.
 
+Witnesses also report companion heads by column, rows with companions and the
+recurrent column's share of all heads in the run. These contextual counts include
+the pre-scope portion of an incoming run and are not additive scope workload.
+The same repeated-finger timing can accompany other voices or occur alone;
+neither case is assigned a quality label by the observer.
+
 There is no gap-based reset. A slow repeated note and a fast repeated note can
 have the same age, so witnesses include real span, median/max HH gap, incoming
 run status and whether a later H was observed to end membership. This is not

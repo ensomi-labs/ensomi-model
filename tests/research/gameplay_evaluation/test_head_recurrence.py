@@ -82,3 +82,18 @@ def test_empty_and_actual_scope_report_serialize_without_inventing_recurrence():
     assert observed['heads']==0 and observed['repeat_heads_per_column']==[0,0,0,0]
     assert observed['prefix_H_run_age'] is None and observed['witnesses']==[]
     json.dumps(result,allow_nan=False)
+
+
+def test_equal_recurrent_finger_timing_can_have_different_companion_roles():
+    solo=rows_for_columns([0]*4,gap=150)
+    accompanied=[CompleteRow(r.time_ms,(1,int(i%2==0),int(i%2==1),0))
+                 for i,r in enumerate(solo)]
+    a,b=measure(solo)['witnesses'][0],measure(accompanied)['witnesses'][0]
+    for key in ('column','observed_consecutive_H','span_ms','median_HH_gap_ms','maximum_HH_gap_ms'):
+        assert a[key]==b[key]
+    assert a['companion_heads']==0 and a['recurrent_column_head_share']==1
+    assert b['companion_heads']==4 and b['recurrent_column_head_share']==.5
+    assert b['companion_heads_per_column']==[0,2,2,0]
+    # The witness keeps pre-scope accompaniment just as it keeps its run age.
+    incoming=measure(accompanied,300,600)['witnesses'][0]
+    assert incoming['companion_heads']==4 and incoming['started_before_scope']
