@@ -115,7 +115,7 @@ terminal; no learning updates have run when this Card is committed.
 
 ## Experiment Card: audio-memory-joint-fit-v1
 
-Revision: 1. Accepted revision: none. Owning Note remains proposed. The user's
+Revision: 2. Accepted revision: none. Owning Note remains proposed. The user's
 standing authorization explicitly includes model implementation, local experiments
 and overnight compute. This is an exploratory comparison, with no automatic
 runtime adoption, Note acceptance, remote push or final-system completion.
@@ -300,3 +300,50 @@ inspection priorities, not automatic BAD labels. Neither driver updates weights
 or selects earlier fit checkpoints. Model evaluation and Lens review remain
 outstanding. Source/example evidence and every run stay exploratory; no Note
 status change or model/default promotion.
+
+## Result Log and Card revision2: avoid expanded attention products
+
+Baseline74054 completes384 updates in1227.9036s. Final checkpoint
+baseline-384/step-384.pt SHAa6916403daf6c658f0952d1181703732156f4ac37a8e5b773007c5dc4e2c5c24.
+Sampled footprint12.3900GiB, active MPS2.6185GiB, driver5.1481GiB. These ledgers
+are overlapping, not additive. No qualification has run and no quality claim.
+
+Memory62347, sourceb69d360bd044ff11327c98b50a4d514f11728470, stops normally at
+its recorded memory guard after10 completed updates, during update11, in90.7736s.
+Footprint reaches18.3099GiB, active sampled peak5.3297GiB, driver14.4726GiB.
+Its terminal partial checkpoint SHA b45bc0a00e1cac057223622973eeea34a858d09de733dc83f8d7681e4c155f9a
+is retained only as failed-run evidence, not a quality candidate or restart seed.
+The driver did not tag the exact failing phase; do not infer byte ownership from
+counter differences. Update11 begins with391.732s full audio. Prior short-input
+stability did not establish diverse-corpus memory stability. Both fits are now
+terminal; no current learning process remains at this revision's creation.
+
+Revision2 preserves the architecture, information flow, parameters, training
+law, all768 examples, controls, seeds, inherited initialization,384-update endpoint,
+18GiB limit and frozen qualification. It changes only the implementation of the
+history attention contraction and the fresh retry destination. Replace explicit
+query-times-key and attention-times-value elementwise products with PyTorch2.11
+scaled_dot_product_attention, dropout0, retaining the learned age bias, invalid
+mask, two-hand sharing and zero null key/value. API reference:
+https://docs.pytorch.org/docs/2.11/generated/torch.nn.functional.scaled_dot_product_attention.html.
+The avoidable query/cell/channel intermediates are identifiable in code; that
+alone does not prove they explain all observed memory growth.
+
+Before the retry, compare nonzero outputs and input/parameter gradients against
+the old analytic contraction on CPU and MPS, and run the affected memory/native
+law tests. Preserve zero-law, causality and scoped rollback. Record a clean code
+commit and script hash. Start again from core2500, not the partial10 updates.
+Keep original train.py; create train_sdpa.py and fresh memory-sdpa-384. The
+baseline endpoint remains the comparator because the changed contraction belongs
+only to the added module; no baseline math changed. The retry has10709 active
+seconds, so original90.7736s plus retry stays inside the previous10800s arm budget.
+Add phase/branch/step-tagged resource observations to explain any subsequent
+limit without attributing overlapping counters. Do not silently raise the limit,
+shorten full audio, or remove model history. Another resource failure requires
+its own concrete adjustment; no unchanged retry loop.
+
+Qualification resolves the memory endpoint from memory-sdpa-384 after both arms
+complete. Same28-case plan, seeds, scope guards and7200s evaluation budget.
+This is an exploratory numerical-equivalence/performance repair within the user
+research task. It does not establish the causal benefit of memory or accept the
+Note. Original revision1 procedure and terminal evidence remain above.
