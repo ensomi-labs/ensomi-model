@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-27
-Product revision: 24061b918be7075f1efc70341675fe066c2e45b6
+Product revision: 9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff; 2026-09-27-player-response-frontier
 
@@ -16472,3 +16472,28 @@ regression evaluation against approximately four-star ranked organization.
 Noodly high-coverage LN streams are valid; irregular hard-to-follow fragmentation
 and concentrated sustained attacks are the reported faults. This narrows the
 next learning/coupling investigation beyond global LN amount.
+
+### Formal diagnosis is the next-turn entrypoint
+
+The user asks this turn to deliver concrete problems and mathematical,
+self-contained architectural/training insights rather than solve every failure
+immediately. Product 9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8 adds
+docs/research/native_pattern_failure_analysis_zh.md and reusable LN relationship
+evaluation. Read this document and owning Note
+2026-09-27-ln-continuation-preference-diagnosis before selecting the next change.
+
+The completed diagnosis covers 2,506 ranked charts, 36 native release ledgers,
+16 source-H interventions and 18 read Lens pages. Most tested short tails are
+not deadline-forced; H regularity affects realized LN rhythm, while persistent
+R1 span differences are not themselves proof of a bad arrangement. The document
+separates proposal coverage from continuation selection, exact support from
+player response, valid likelihood from its incomplete quality objective, and
+whole-scope controls from prefix balance. Twenty selected checks pass.
+
+The updated goal is actually playable 2–6-star generation, with expressive
+styles and scaling when needed, preserving the REALTIME path named
+codex/stream-generation-benchmark. Its ref
+4ec631ef71d1ca71e36e5c383d4997efffdebb05 is read-only inspected and its distinct
+startup/watermark/session ownership contracts are summarized in the document.
+No new fit is live, no model is promoted, all Notes remain proposed, and no
+remote push occurred. The full goal remains active.

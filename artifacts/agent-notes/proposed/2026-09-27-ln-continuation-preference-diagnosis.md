@@ -5,7 +5,7 @@ Status: proposed
 Kind: investigation
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: 24061b918be7075f1efc70341675fe066c2e45b6
+Product revision: 9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8
 Scope: Native release preference, R1 consequence scores, continuation response coverage and ranked four-star temporal organization
 Related: 2026-09-27-controller-semantics-and-native-qualification, 2026-09-27-player-response-frontier, 2026-09-27-playability-regression-evaluation
 
@@ -181,7 +181,7 @@ this diagnostic is not a checkpoint promotion attempt.
 
 Use the packaged qualification CLI through source_head.py, source
 24061b918be7075f1efc70341675fe066c2e45b6. Pin the prepared plan and script hashes
- before execution. Fresh source-head-v2 output, 16 complete exports, CPU one
+before execution. Fresh source-head-v2 output, 16 complete exports, CPU one
 thread, 4 GiB process bound, 540 seconds per checkpoint, 180 per case and 1,200
 overall. No training, overwrite or automatic retry; stop on STOP, source drift,
 noninteger source times, unsupported H capacity or incomplete generation.
@@ -193,3 +193,113 @@ source-head-v1 exits at Hydra validation before any model case executes; preserv
 its plan, identity and actor log. No scientific input or bound changes. Use
 fresh source-head-v2 rather than overwriting or claiming native evidence from
 the failed startup.
+
+## Source-H result and completed technical handoff
+
+Supervisor 62497 completes all 16 exports in 122.014907 seconds, preserving
+weights, R/R1, controls, feedback and recovery within each endpoint. Product
+source for generation is 24061b918be7075f1efc70341675fe066c2e45b6. Source-H plan
+SHA 799664d00b9d3df568c30246e74b020ac11791a183496e6dd397901af8b1abb9;
+two-arm ledger SHA a66a892062a8d7cb29db07f7fdc6af5c81b287345e73b89daf0ba8df2ea045c2.
+Memory passes its numeric gates but remains review_required; actor fails whole
+LN amount on both Blizzard seeds. Neither endpoint is promoted, and authored H
+is a privileged diagnostic input, not a deployable repair.
+
+The decomposition preserves distinct LN onset groups, reporting simultaneous
+unequal holds separately. H coordinates interpolate the actual H sequence and
+are not beat positions. Whole-song median nearest-prior-group absolute log
+duration changes, seed 0 / 1:
+
+| Endpoint / song | Native H | Source H | Source reference |
+| --- | --- | --- | --- |
+| Actor Classic | .4952 / .4791 | .4253 / .4387 | .0047 |
+| Memory Classic | .2737 / .3365 | .0093 / .0093 | .0047 |
+| Actor Blizzard | .3578 / .3633 | .1719 / .0938 | .0113 |
+| Memory Blizzard | .2687 / .3326 | .1291 / .2027 | .0113 |
+
+Memory Classic's H-coordinate change median is already zero on native H and
+remains zero on source H. H interval geometry therefore propagates into LN
+duration variation even when the relative release-span choice is stable. The
+source-H intervention also changes H count, alignment and later states; do not
+assign a percentage of responsibility to pure jitter from this intervention.
+Classic's source median H span is 2, memory is 1 on both H conditions. This is
+a remaining preference difference, not proof that every alternative with span
+1 is wrong. A source chart is one valid arrangement among many.
+
+A stricter legal alternative check keeps all actual heads, columns and TAP/LN
+kinds and changes only current releases to continued holding. Every memory
+Classic H-release row and 99.87745% of memory Blizzard H-release rows admits
+that exact alternative. These are short-support existence facts, not proof of
+better future gameplay. Decomposition identity SHA:
+c051e8e1d2b92c15fbb67d071ee36812102e754d5cb9195aadad5032a0f82506.
+
+Render 67094 creates 18 pages; all are actually viewed: actor/memory source-H
+Classic [88589,93589), two pages each, and Blizzard [40342,56342), seven each.
+Memory Classic shows clearer interleaved LN/TAP rhythm at seed 0. Actor Classic
+still moves from early LN groups to predominantly TAP/chords. Blizzard shows
+regularized entry times and sustained overlapping voices; these views do not
+establish a general organization repair. High coverage is not itself a fault.
+Seed-1 pages remain unreviewed; no listening, player trial or human label claim.
+Review SHA 8a29c9408b389b08d382502c6573f56ae53d9051ab832f811b320f9b11ef91db,
+harness 22e5c84f5cacb8493bdab5f1d0fdc09c5373dc60.
+
+### User-requested stopping point and formal document
+
+The user explicitly limits this turn to concrete findings, architectural and
+training insights/hypotheses, and a self-contained technical document. They
+request an ontological/formal mathematical treatment and preservation of their
+original views with corresponding evidence. No further fit is started.
+
+Product 9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8 supplies
+docs/research/native_pattern_failure_analysis_zh.md. It distinguishes chart
+legality, recovery support, proposal law, deployed policy and canonical player
+response; gives H/R/R1 factorization with censored waiting terms; separates
+candidate energy from identifiable response semantics; derives LN interval/H
+geometry; records source-versus-native state distribution and recipe caveats;
+states player-state sufficiency and time-advance invariants; and separates
+proposal coverage, selection regret and selected-policy likelihood. Original
+user judgments and evidence limits are tabulated. Source-H effects are causal
+at the intervention level, not a unique attribution to H jitter or a proof that
+R1 must copy source durations. Capacity and coupled architecture/recipe changes
+remain allowed when the mechanism and comparisons are explicit.
+
+The user's updated active goal targets actually playable 2–6-star maps under
+the osu!mania difficulty algorithm, preserving Tech, LN coordination, chordjack,
+dump and other expressive organization. It allows model/training scaling while
+preserving realtime operation, explicitly naming codex/stream-generation-benchmark.
+It no longer imposes a separate not-too-complex architecture condition. Only
+local commits are authorized; no remote publication was performed.
+
+The benchmark branch is read-only inspected at
+4ec631ef71d1ca71e36e5c383d4997efffdebb05. Its resident 30-row/8-second readiness
+and producer watermark semantics differ from this qualifier's two-second lead
+criteria. Its older checkpoint's measured margins are not a guarantee for new
+memory or search workloads. The document preserves independent per-session
+state/RNG ownership, incremental LN publication, real EOS and the distinction
+between completed silence and pending delivery. The benchmark worktree is not
+edited and its suite is not rerun.
+
+### Reusable evaluation and verification
+
+The same product commit adds gameplay_evaluation/hold_relations.py and includes
+LN timing relationships in every scope report. Completed tails keep their true
+endpoints; open tails remain censored. An unresolved preceding onset group is
+not silently replaced by an older completed group. Millisecond variation and
+H-span variation are distinct; simultaneous unequal holds are a separate
+relation. This is diagnostic evidence, not a shape mask or a new player-cost
+oracle. It adds no sampler or neural-model behavior change.
+
+Final command:
+`uv run --extra mps --group dev pytest -q tests/research/gameplay_evaluation/test_hold_relations.py tests/research/gameplay_evaluation/test_temporal.py tests/research/gameplay_evaluation/test_qualification.py`
+passes 20 tests in 14.39 seconds, including actual native export and CLI paths.
+Document links and display-math brace/delimiter checks pass; no rendered-math
+compiler result is claimed. git diff --check passes. Product commit is local;
+unrelated AGENTS.md edits and the untracked architecture walkthrough remain
+untouched. All compute/render/test handles are terminal and no fit is live.
+
+Next work should begin from the self-contained document: measure suitable
+proposal supply versus selection failure on actual reached prefixes, then
+choose the relevant proposal/recipe/response intervention. Do not treat the
+new LN descriptors as a reward for uniform durations, restart the old fixed
+prefix training unchanged, or claim this diagnostic solved playability.
+The full goal remains active; Note status proposed, accepted revision none.

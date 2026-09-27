@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: 24061b918be7075f1efc70341675fe066c2e45b6
+Product revision: 9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8
 Scope: Reusable exact-time chart observations, scoped regression comparisons, multi-scale pressure/texture and audio-linked diagnostics
 Related: 2026-09-27-audio-history-memory, 2026-09-27-four-star-musical-phrasing, 2026-09-27-player-response-frontier
 
@@ -265,3 +265,22 @@ assessment preserves the correction. All four arms still fail other gates.
 This is a control-semantics correction, not a threshold relaxation to pass a
 candidate. Future qualification rejects nonmatching or conflicting amount scopes.
 Full results and identities live in docs/research/ln_feedback_scope_ablation.md.
+
+### LN relationship diagnostics and proposal-versus-selection evaluation
+
+Product 9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8 adds hold_relations to scope
+reports. It separates real-time LN duration variation from spans across the
+actual H sequence, retains pre-scope groups and genuine cross-scope tails,
+censors unknown tails, and avoids replacing an unresolved prior group with an
+older completed one. Simultaneous unequal holds remain distinct from temporal
+changes. These are observations and witnesses, not shape filters or rewards for
+uniformity. Twenty selected temporal/qualification checks pass in 14.39 seconds.
+
+Owner 2026-09-27-ln-continuation-preference-diagnosis completes a 2,506-chart
+ranked census, release-origin analysis of 36 outputs and 16 complete source-H
+interventions; all 18 newly rendered pages are read. H contributes to LN rhythm
+variation, while remaining R1 span differences require continuation evidence,
+not a source-copy criterion. No new model is promoted. The formal self-contained
+document docs/research/native_pattern_failure_analysis_zh.md defines proposal
+coverage and conditional selection failure separately, preserves the user's
+original problem statements, and records both causal limits and next questions.
