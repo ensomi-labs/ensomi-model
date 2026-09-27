@@ -60,19 +60,20 @@ def test_attention_is_hand_equivariant_audio_query_sensitive_and_empty_safe():
 
 
 @pytest.mark.parametrize('device',['cpu','mps'])
-def test_standard_attention_matches_expanded_reference_and_all_gradients(device):
+@pytest.mark.parametrize('queries',[4,257])
+def test_standard_attention_matches_expanded_reference_and_all_gradients(device,queries):
     if device=='mps' and not torch.backends.mps.is_available():pytest.skip('MPS unavailable')
     torch.manual_seed(101)
     layer=HistoryAttention(24,16,12,width=128,heads=4).to(device)
     torch.nn.init.normal_(layer.output.weight,std=.1)
-    query=torch.randn(4,2,24,device=device,requires_grad=True)
+    query=torch.randn(queries,2,24,device=device,requires_grad=True)
     history=torch.randn(67,2,16,device=device,requires_grad=True)
     audio=torch.randn(67,12,device=device,requires_grad=True)
-    memory=gather_memory(history,audio,np.arange(67)*500,[-1,10,50,65],
-                         [0,5500,25500,32500],span_ms=64000,cell_ms=500)
+    memory=gather_memory(history,audio,np.arange(67)*500,np.resize([-1,10,50,65],queries),
+                         np.resize([0,5500,25500,32500],queries),span_ms=64000,cell_ms=500)
     actual=layer(query,memory)
     raw=layer.memory_norm(torch.cat((history,audio[:,None].expand(-1,2,-1)),-1))
-    q=layer.query(layer.query_norm(query)).reshape(4,2,4,32)
+    q=layer.query(layer.query_norm(query)).reshape(queries,2,4,32)
     def selected(projection):
         values=projection(raw).reshape(67,2,4,32)
         padded=torch.cat((values.new_zeros((1,2,4,32)),values),0)
@@ -85,10 +86,10 @@ def test_standard_attention_matches_expanded_reference_and_all_gradients(device)
         ~memory.valid[:,None,None],-torch.inf)
     scores=torch.cat((torch.zeros_like(scores[...,:1]),scores),-1)
     weights=scores.softmax(-1)[...,1:]
-    expected=layer.output((weights[...,None]*v).sum(-2).reshape(4,2,128))
+    expected=layer.output((weights[...,None]*v).sum(-2).reshape(queries,2,128))
     parameters=(*layer.parameters(),query,history,audio)
-    actual_grad=torch.autograd.grad(actual.square().sum(),parameters)
-    expected_grad=torch.autograd.grad(expected.square().sum(),parameters)
+    actual_grad=torch.autograd.grad(actual.square().mean(),parameters)
+    expected_grad=torch.autograd.grad(expected.square().mean(),parameters)
     torch.testing.assert_close(actual,expected,atol=3e-6,rtol=3e-5)
     for a,b in zip(actual_grad,expected_grad):
         torch.testing.assert_close(a,b,atol=3e-6,rtol=3e-5)

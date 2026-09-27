@@ -38,6 +38,11 @@ This avoids explicitly expanding the query/key and weighted-value products over
 every query, cell and channel. CPU and MPS tests compare nonzero outputs and all
 input/parameter gradients with the original expanded contraction; backend memory
 and throughput still require workload measurements.
+During gradient-enabled scoring, more than 128 queries use groups of 128 with
+activation checkpointing. The shared projected key/value tables remain available;
+each group's expanded gathers are recomputed for backward. Every query and all
+audio/history gradients are retained. Inference without gradients uses the direct
+path. This bounds saved query-specific activations without shortening history.
 
 Output projections start at zero, reproducing the baseline probability law.
 The full-audio encoding can be cached for generation. Learned history/audio
@@ -83,13 +88,13 @@ Save `model.checkpoint()` with `torch.save`; the matching `load_model` in the
 memory package reads `controlled-audio-memory/v1`. This research family does not
 silently replace the existing packaged runtime or its default checkpoint.
 
-Fifteen memory-specific test cases cover index-capped causality, empty memory, hand equivariance,
+Seventeen memory-specific test cases cover index-capped causality, empty memory, hand equivariance,
 query sensitivity, exact zero-initialization compatibility, joint CPU/MPS
 gradients, checkpoint roundtrip, teacher/native row and H/R query agreement,
 skeleton ownership, fork/control rollback, and padding-independent audio and memory
-values/gradients, and standard-attention equivalence to the expanded contraction.
+values/gradients, and direct/checkpointed attention equivalence to the expanded contraction.
 The original integration also checked affected distribution, ownership and sampling
-owners, with 40 distinct checks before the two contraction-equivalence cases.
+owners, with 40 distinct checks before the four contraction-equivalence cases.
 These are implementation checks.
 
 ## Bounded Mac integration
