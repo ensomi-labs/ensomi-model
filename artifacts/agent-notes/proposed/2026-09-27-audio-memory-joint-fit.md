@@ -410,3 +410,38 @@ Fresh memory-checkpoint-384 endpoint,10627s remaining arm time and18GiB guard.
 Original and SDPA attempts are terminal, baseline384 is complete; qualification
 still awaits a completed matched memory endpoint. Implementation equivalence is
 verified, while large-input resource benefit is still an empirical question.
+
+## Live revision3 handoff
+
+Only main fit handle96244 is live. It runs the pinned train_checkpoint.py memory
+command and writes memory-checkpoint-384. Do not restart it or launch another
+accelerator fit on an observation timeout. At last observed step21/384,
+162.5240s elapsed; sampled footprint peak13.1952GiB, active4.5291GiB,
+driver8.2419GiB. No resource/contract/nonfinite failure so far. The previous
+step11 failure is passed. This does not establish stability for all384 examples.
+
+Matched update11/population/scoring, identical source
+2d4720a783bc89740ecd12493183e6a2352ad29a3d58873c8c77f36040494bbb:
+standard SDPA footprint19.3968GiB, active4.7980GiB, driver15.5376GiB;
+checkpointed groups footprint10.3399GiB, active3.0202GiB, driver6.4943GiB.
+The changed saved-activation policy has a measured resource benefit at this
+same input/phase. Do not turn it into a full allocator root-cause attribution or
+a whole-corpus guarantee. All source/audio/history information and gradients are
+retained, with parity already tested. Earlier failed10-step weights are not used.
+
+Next actions: poll96244; if it completes384, verify final result/checkpoint hash,
+then run qualifier arms unfitted,baseline,memory sequentially with no concurrent
+fit, followed by analyze.py and the frozen Lens review scopes. Keep per-control
+ranges separate. No native model quality qualification has run yet. If another
+resource stop occurs, use its tagged phase and active-versus-driver behavior to
+choose a concrete execution repair; do not silently retry unchanged or raise the
+18GiB bound. Periodic exact optimizer/RNG checkpoint/resume in fresh processes is
+an available implementation alternative if accumulated process state proves the
+remaining constraint, but is not yet selected or authorized by this Card revision.
+
+Terminal handles in this goal turn:12951 qualification-plan builder;15135 trainer
+syntax/runtime check;74054 completed baseline fit;96809 failed witness audit
+adapter then45835 successful audit;36048 qualifier/analyzer import;76365 final
+witness audit;73558 nine-page Lens render;62347 original memory bound stop;
+66456 local SDPA docs;54620 fifteen memory checks;41712 SDPA bound stop;70713
+seventeen checkpointed-memory checks. Only96244 needs resumption.
