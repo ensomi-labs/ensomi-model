@@ -10,8 +10,16 @@ def _observations(times, actions, start_ms, end_ms):
     automatic reset: witness durations and gap statistics carry the real clock.
     """
     times=np.asarray(times)
-    heads=np.isin(np.asarray(actions),(1,2))
-    keep=heads.any(-1)&(times<end_ms)
+    observed=times<end_ms
+    times=times[observed];actions=np.asarray(actions)[observed]
+    heads=np.isin(actions,(1,2))
+    change=(actions==2).astype(np.int8)-(actions==3).astype(np.int8)
+    before=change.cumsum(0)-change
+    # A release at this H is a simultaneous action, not a continuing hold.
+    continuing=(before>0)&(actions!=3)
+    origins=np.maximum.accumulate(np.where(actions==2,times[:,None],-np.inf),axis=0)
+    keep=heads.any(-1)
+    held=continuing[keep];starts_at_head=origins[keep];releases=(actions==3)[keep]
     clocks=times[keep];heads=heads[keep]
     n=len(clocks);index=np.arange(n)[:,None]
     if n:
@@ -38,6 +46,8 @@ def _observations(times, actions, start_ms, end_ms):
             t0,t1=float(clocks[s]),float(clocks[i]);gaps=np.diff(clocks[s:i+1])
             companions=heads[s:i+1].copy()
             companions[:,k]=False
+            other_holds=held[s:i+1].copy();other_holds[:,k]=False
+            other_releases=releases[s:i+1].copy();other_releases[:,k]=False
             companion_count=int(companions.sum())
             run_heads=int(age[i,k])+companion_count
             candidates.append(dict(column=k,run_start_ms=t0,last_observed_head_ms=t1,
@@ -47,6 +57,14 @@ def _observations(times, actions, start_ms, end_ms):
                 companion_heads=companion_count,
                 companion_heads_per_column=list(map(int,companions.sum(0))),
                 head_rows_with_companions=int(companions.any(-1).sum()),
+                continuing_other_hold_pairs=int(other_holds.sum()),
+                continuing_other_hold_pairs_per_column=list(map(int,other_holds.sum(0))),
+                head_rows_with_continuing_other_holds=int(other_holds.any(-1).sum()),
+                maximum_continuing_other_holds=int(other_holds.sum(-1).max()),
+                other_hold_starts_at_run_start_ms=[
+                    float(starts_at_head[s,c]) if c!=k and held[s,c] else None for c in range(4)],
+                companion_releases=int(other_releases.sum()),
+                companion_releases_per_column=list(map(int,other_releases.sum(0))),
                 recurrent_column_head_share=int(age[i,k])/run_heads,
                 started_before_scope=bool(t0<start_ms),
                 future_membership_unobserved=bool(i==n-1)))
@@ -67,7 +85,9 @@ def head_recurrence(trace, scope):
     only rows do not reset head membership; no elapsed-gap threshold is imposed.
     Durations and HH gaps must accompany any interpretation of a long run.
     Witness companion counts cover the whole observed run, including its
-    pre-scope part; they are context, not additive scope workload.
+    pre-scope part; they are context, not additive scope workload. Continuing
+    other-column holds and simultaneous releases remain distinct from heads;
+    zero companion heads does not mean the other fingers are free.
     These observations do not label Jack/Stream style or assign player demand.
     """
     trace._scope(scope)

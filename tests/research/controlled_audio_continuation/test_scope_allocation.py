@@ -38,7 +38,7 @@ def test_request_identity_keeps_declared_and_effective_counts_across_overrides()
     assert child.features(400)[2] == .25 and child.features(400)[6] == .5
     assert child.features(400)[8] == pytest.approx(.25)
     assert child.features(500)[8] > child.features(400)[8]
-    assert child.observe(CompleteRow(350, (0, 0, 0, 3))) is child
+    assert state.observe(CompleteRow(150, (3, 0, 0, 0))) is state
     assert not child.features(1000).any()
 
 

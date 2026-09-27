@@ -97,3 +97,25 @@ def test_equal_recurrent_finger_timing_can_have_different_companion_roles():
     # The witness keeps pre-scope accompaniment just as it keeps its run age.
     incoming=measure(accompanied,300,600)['witnesses'][0]
     assert incoming['companion_heads']==4 and incoming['started_before_scope']
+
+
+def test_no_companion_heads_can_still_mean_three_other_fingers_are_holding():
+    common=[CompleteRow(200+125*i,(0,0,1,0)) for i in range(4)]
+    free=[CompleteRow(0,(1,1,0,1)),*common]
+    held=[CompleteRow(0,(2,2,0,2)),*common]
+    a,b=[measure(rows,200,900)['witnesses'][0] for rows in (free,held)]
+    assert a['observed_consecutive_H']==b['observed_consecutive_H']==4
+    assert a['companion_heads']==b['companion_heads']==0
+    assert a['continuing_other_hold_pairs']==0
+    assert b['continuing_other_hold_pairs']==12
+    assert b['continuing_other_hold_pairs_per_column']==[4,4,0,4]
+    assert b['maximum_continuing_other_holds']==3
+    assert b['other_hold_starts_at_run_start_ms']==[0.,0.,None,0.]
+    # A later true close cannot change the witness at the earlier horizon.
+    later=[*held,CompleteRow(1000,(3,3,0,3))]
+    assert measure(held,200,900)==measure(later,200,900)
+    released=[*held[:-1],CompleteRow(575,(0,3,1,0))]
+    c=measure(released,200,900)['witnesses'][0]
+    assert c['continuing_other_hold_pairs']==11
+    assert c['companion_releases']==1
+    assert c['companion_releases_per_column']==[0,1,0,0]

@@ -61,7 +61,11 @@ class LnScopeState:
         return cls(program, ((0, 0),)*len(program.requests), ((0, 0),)*len(program.requests))
 
     def update_controls(self, controls):
-        """Extend announced requests without reassigning already observed rows."""
+        """Extend announced requests without reassigning already observed rows.
+
+        The caller must append only spans starting after its observed boundary,
+        as ControlledSession requires. Old intervals cannot be replaced.
+        """
         program = LnScopeProgram.build(controls)
         n = len(self.program.requests)
         if program.requests[:n] != self.program.requests:

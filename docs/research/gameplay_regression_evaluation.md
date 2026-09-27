@@ -101,8 +101,17 @@ of a longer trace. Event counts add across adjacent scopes; quantiles do not.
 Witnesses also report companion heads by column, rows with companions and the
 recurrent column's share of all heads in the run. These contextual counts include
 the pre-scope portion of an incoming run and are not additive scope workload.
-The same repeated-finger timing can accompany other voices or occur alone;
-neither case is assigned a quality label by the observer.
+Continuing holds on other columns are reported separately as hold/head pairs,
+per-column counts, affected head rows, maximum simultaneous other holds and
+their original starts at run entry. Simultaneous companion releases are also
+separate; a hold closed at that H is not counted as continuing. These facts use
+all preceding rows, including pure releases, but never future endpoints.
+
+Zero companion heads therefore does not imply that the other fingers are free.
+A regression fixture has identical recurring heads with either three fingers
+free or three continuing holds, yielding zero versus twelve hold/head pairs.
+The same repeated-finger timing can carry different LN obligations; neither
+case is assigned a quality label by the observer.
 
 There is no gap-based reset. A slow repeated note and a fast repeated note can
 have the same age, so witnesses include real span, median/max HH gap, incoming
