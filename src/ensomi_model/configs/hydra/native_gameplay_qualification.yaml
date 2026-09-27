@@ -1,0 +1,31 @@
+defaults:
+  - native_gameplay_qualification_schema
+  - _self_
+  - override hydra/job_logging: disabled
+  - override hydra/hydra_logging: disabled
+
+checkpoint_file: ''
+checkpoint_sha256: ''
+plan_file: ''
+plan_sha256: ''
+output_dir: ''
+envelope_file: null
+envelope_sha256: ''
+ln_feedback: true
+cpu_threads: 1
+max_seconds: 1800.0
+max_case_seconds: 300.0
+footprint_limit_bytes: 8589934592
+lead_ms: 2000
+service_ms: 2000
+startup_seconds_limit: 2.0
+service_seconds_limit: 2.0
+difficulty_error_limit: 1.0
+ln_fraction_error_limit: 0.1
+
+hydra:
+  run:
+    dir: .
+  job:
+    chdir: false
+  output_subdir: null

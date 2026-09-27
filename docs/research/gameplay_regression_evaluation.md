@@ -266,3 +266,70 @@ control, publication or inspected-organization guard. Report partial gains with
 their tradeoffs, leave unreviewed dimensions unreviewed, and retain ranked positive
 exceptions to automatic BAD classification. The framework supplies repeatable
 facts and witnesses; each experiment must declare its own promotion criteria.
+
+## Executable native qualification
+
+[`run_qualification`](../../src/ensomi_model/research/gameplay_evaluation/qualification.py)
+executes generation, verified osu export/reparse, independent scoped measurements
+and publication checks in one call. It supports `controlled-audio/v1` and
+`controlled-audio-memory/v1` checkpoints. Its packaged entrypoint is:
+
+```bash
+uv run --extra mps python -m ensomi_model.research.gameplay_evaluation.qualification_hydra \
+  checkpoint_file=/path/to/model.pt checkpoint_sha256=CHECKPOINT_SHA256 \
+  plan_file=/path/to/plan.json plan_sha256=PLAN_SHA256 \
+  output_dir=/path/to/fresh-run
+```
+
+The canonical settings are
+[`native_gameplay_qualification.yaml`](../../src/ensomi_model/configs/hydra/native_gameplay_qualification.yaml).
+Hydra is confined to startup; training code can call `run_qualification` directly
+with a `QualificationConfig`. The runtime uses the requested number of CPU
+threads. Weights and cached Mel are ready at each measured generation start;
+complete model audio encoding and actual row publication are included.
+
+A plan has format `native-gameplay-qualification/v1` and a nonempty `cases` list.
+Each case supplies a unique `key`, `seed`, complete-audio `asset` containing
+`audio_file`, `audio_sha256`, `mel_file`, `mel_sha256`, `duration_ms`, a list of
+`ControlSpan` dictionaries in `controls`, and named half-open `scopes`. Each scope
+may declare requested `stars`, `ln_fraction` and `maximum_excess_seconds`.
+Unknown targets are not assigned invented values. A diagnostic phrase inside a
+whole-song amount request should leave its local amount target unknown unless
+that phrase is itself a requested control scope.
+
+Optional `switch` supplies `announce_after_ms` and the new `ControlSpan` as `span`.
+The runner publishes through the announcement before updating controls and checks
+that prior rows stay unchanged. Before, override and restored scopes must be
+declared separately. Optional `head_times_ms` enables a fixed-H diagnostic, which
+is explicitly identified and cannot combine with a live switch. Native candidate
+assessment must not substitute that diagnostic for generated timing.
+
+An optional plan `recovery` changes the row/release profile, while HH must match
+the checkpoint's H-capacity law. `ln_feedback=false` disables only the projected
+amount controller; direct model controls and its analytic requested-ratio tilt
+remain active. The checkpoint, policy, plan, audio and Mel identities, source
+revision and executable working-tree status are recorded. Paths and assets are
+caller supplied; a fresh clone does not contain the private evaluation corpus.
+
+When `envelope_file` and `envelope_sha256` are supplied, pressure witnesses and
+all-scale review contexts are generated. A declared pressure bound without an
+envelope or explicit scope difficulty is rejected instead of silently ignored.
+Other default gates check complete mechanical export, below-20-ms attacks over
+all coverage, startup after thirty rows and required lookahead, service time,
+playback deadlines, difficulty error and LN amount error in their declared scopes.
+Their limits are explicit startup settings. No pressure quantile is silently
+converted into a universal BAD threshold.
+
+The output retains `settings.json`, `plan.json`, identities, per-case osu files,
+actual `publications.json`, scoped `evaluation.json`, `cases.json` and the final
+`result.json`. Numeric failure does not remove a completed case or skip later
+cases. Runtime failure retains its reason, stops further generation and identifies
+unrun cases. The resource guard observes task footprint on macOS and RSS elsewhere;
+these are different ledgers. An incomplete trace cannot pass publication checks.
+
+`run_status=complete` means execution completed. `candidate_status=failed` blocks
+numerically failed or incomplete candidates; the CLI exits 2. A numerically clear
+candidate instead returns `review_required`, with `promoted=false` and pending
+semantic review. Declared `review_contexts` and automatically located pressure
+contexts remain unreviewed until actually inspected. No module test, successful
+command or missing review record creates a playable qualification.

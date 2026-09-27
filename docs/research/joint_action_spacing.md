@@ -101,3 +101,86 @@ count-marginal conditioning, cached scores, chunking, forks, EOS and actual
 training/checkpoint round trips. Whole-song structure, control response and
 runtime require the separate native comparison; these checks alone do not
 establish a playable endpoint.
+
+## Distinct intervals in the controlled model
+
+The controlled model uses a `Recovery(hh, rh, hr)` profile rather than one common
+gap. The H-capacity law uses `hh`; R1 checks actual same-column attacks against
+`hh`, release-to-head against `rh`, and held duration against `hr`. For example,
+with `hh=60`, H times [0,10,20,30] exclude another H before 60 ms. R1 is never
+asked to cancel a fifth mandatory head at 40 ms.
+
+For a candidate row at $t$, a closed column becomes attack-ready at
+$\max(h+HH,r+RH)$ from its latest attack and release. A retained hold starting
+at $s$ can release at $\max(t+1,s+HR)$ and become attack-ready at the later of
+that release plus RH and its last attack plus HH. All restrictions inherited
+from the candidate state expire within
+
+$$
+L=\max(HH,HR+RH,1+RH)
+$$
+
+milliseconds. The same one-TAP-per-H continuation argument therefore checks
+through $t+L$. Beyond it, the global four-H capacity condition prevents exhausting
+all four closed columns. The preview must reach that horizon, declare actual
+completion, or contain more than $4\lceil L/HH\rceil$ future Hs. For both
+60/50/50 and 60/50/40, nine future Hs suffice; the controlled models supply sixteen.
+This is an existence guarantee within the declared recovery condition, not a
+guarantee of appropriate difficulty, texture or future action probabilities.
+
+The actual controlled R deadline uses `row_release_window`, which additionally
+reads the closed columns' exact TAP/release recovery clocks. It simulates their
+earliest feasible TAP assignment; the first H that cannot be served requires an
+LN release no later than that H minus RH. The preference network still receives
+only its declared audio, timing, controls and LN inputs. R1 must choose a release
+subset whose post-state retains a feasible continuation. This closes the gap
+between a free-but-still-recovering column and a currently usable column without
+passing a generic row embedding to the release network.
+
+Ten spacing tests pass against the current code, including an independent
+native-clock enumeration of release subsets and TAP executions, unequal intervals,
+post-row viability, silent waiting through the release deadline and insufficient
+preview rejection. They support the implemented finite continuation argument;
+native qualification separately checks actual complete outputs and publication.
+
+## Ranked support excluded by 60/50/50 and 60/50/40
+
+Re-reading the same byte-verified 8,774-chart
+[ranked 2–6-star census](ranked_2to6_action_reference.md) quantifies the stronger
+profiles. Every original source and metadata hash matches. Counts use unmodified
+source head/release times and strict `<` comparisons, as the masks do. Affected
+charts contain at least one excluded action relationship; this does not mean a
+training procedure necessarily discards that entire chart.
+
+| Official snapshot stars | Charts | Affected by 60/50/50 | Affected by 60/50/40 |
+| --- | ---: | ---: | ---: |
+| [2,3) | 3,238 | 9 (.28%) | 5 (.15%) |
+| [3,4) | 2,906 | 72 (2.48%) | 33 (1.14%) |
+| [4,5) | 2,047 | 281 (13.73%) | 207 (10.11%) |
+| [5,6] | 583 | 196 (33.62%) | 175 (30.02%) |
+| All | 8,774 | 558 (6.36%) | 420 (4.79%) |
+
+There are 571 HH intervals below 60 ms in 38 charts: 529 TAP-to-TAP and 42
+TAP-to-LN. RH below 50 ms contributes 3,743 intervals in 329 charts, comprising
+1,472 LN-to-TAP and 2,271 LN-to-LN transitions. HR below 50 ms excludes 13,930
+actual LNs in 403 charts; lowering only HR to 40 ms leaves 2,420 excluded LNs
+in 150 charts. These categories overlap at chart level and must not be added
+to estimate affected-chart totals.
+
+The exclusion is also nonuniform by LN amount. Among 439 charts with LN-head
+fraction above .5, 89 are affected by 60/50/50 and 67 by 60/50/40. Only four of
+592 TAP-only charts are affected. This is a meaningful change to expressive
+support, especially at higher difficulty; describing a profile as a research
+setting does not remove that consequence. Ranked examples with short coordinated
+tails remain valid counterexamples to treating every excluded interval as BAD.
+
+The audit establishes coverage costs, not authority to relax all constraints or
+evidence that doing so repairs sustained jacks. The current LN-feedback ablation
+retains each checkpoint's saved profile, keeping that distinct intervention out
+of the controller comparison.
+
+Owner: `20260927-controller-semantics-v1/support-census-v2`, 51.32 CPU seconds.
+Source freeze SHA-256:
+`bd7685153cdf0aab98bd2dc70e7063a31775db49db919b4b1114a003b1227c28`.
+The first zero-chart attempt used an incorrect parser adapter; its failure record
+is retained separately and contributes no measurements.
