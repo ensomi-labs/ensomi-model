@@ -111,3 +111,27 @@ Fresh owner artifacts/joint-audio/20260928-broader-full-row-learning-v1.
 Preparation pins data, validation, model, scripts and the twenty-case panel;
 results append to this note. The stream-generation-benchmark worktree remains
 unchanged.
+
+## Frozen execution inputs
+
+Preparation completes in 263.55s with source-plan SHA
+fb1d2634f8061c3fb55da2bcd369b9ea51872358dcafe50d8a85b082582c553f.
+The 1,024 accepted training windows cover 748 charts and 651 song groups:
+763 population, 261 human; recomputed star bands 2/3/4/5 have 238/258/259/269
+windows. There are 505 whole-control draws and 835 known-LN draws. Factual
+source interaction observations occur in 498 windows for continuing-hold/TAP
+pairs and 408 for continuing-hold/LN-entry pairs. These are exposure counts,
+not new semantic labels or altered supervision weights.
+
+Rejected draws: nine row/support conflicts, 24 source release-window conflicts,
+32 empty supervision windows and five no-eligible-release conflicts. The actual
+accepted distribution is retained. All five native-panel audio identities are
+excluded; the 22 original validation windows and their controls are copied
+unchanged. Total distinct source identities including validation are 770.
+
+Fit plan SHA
+04a07294455d9560fd12cae9648c916dfa4580c2e9ab6f111bfaa5086f593e7e
+pins every worker/runner/validation/evaluation script, source examples, parent
+checkpoint and native/baseline panel. The trainable count remains 2,753,715.
+Commands use uv run --extra mps python followed by the owner's run.py,
+validate.py and evaluate.py in that order, waiting for confirmed completion.
