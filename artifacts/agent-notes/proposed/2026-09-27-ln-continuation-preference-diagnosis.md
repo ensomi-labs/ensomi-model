@@ -5,7 +5,7 @@ Status: proposed
 Kind: investigation
 Created: 2026-09-27
 Updated: 2026-09-28
-Product revision: 0f5ec10b34c43fe21a6143d371a2f2bc36070e47
+Product revision: 073b6b68fa59b4be99be093cdf284f8c16e08492
 Scope: Native release preference, R1 consequence scores, continuation response coverage and ranked four-star temporal organization
 Related: 2026-09-27-controller-semantics-and-native-qualification, 2026-09-27-player-response-frontier, 2026-09-27-playability-regression-evaluation
 
@@ -388,3 +388,58 @@ requested curated document changes on the product branch; no model or sampler
 code changes, new fitting, remote push or benchmark rerun occurs. Unrelated
 AGENTS.md edits and the architecture walkthrough remain untouched. The playable
 system goal remains active and unachieved; Note status stays proposed.
+
+## Pattern ontology, formation mechanisms and effective training measure
+
+Product 073b6b68fa59b4be99be093cdf284f8c16e08492 deepens the requested
+self-contained analysis in docs/research/native_pattern_failure_analysis_zh.md.
+Only that document changes. The code audit baseline is
+db4f89603942324b0fcd7ffe27ffd5c11f07b6d1. No architecture implementation,
+fit, new native generation, player judgment or checkpoint promotion is part
+of this revision. Existing proposed Cards and their acceptance states do not
+change.
+
+The report preserves the original user positions as distinct requirements,
+corpus-informed expectations and mechanism hypotheses, including the question
+about R1-restored's staged objectives. It records the later two-audio controls
+and legitimate ranked recurring-anchor counterexamples without using them to
+dismiss the extreme four-star long-jack observation.
+
+The new formal distinctions are:
+
+- H and pure-release timing are chart projections; H-row releases remain R1
+  decisions. Full conditional factorization is separated from finite-preview,
+  finite-history and state-projection approximations.
+- Local support normalization contains path-dependent normalizers and is not
+  generally the base trajectory law conditioned once on complete feasibility.
+  This is a mathematical mechanism, not measured attribution of current defects.
+- LN duration is a mixture over entry contexts and conditional survival.
+  Changing which LNs start can lengthen a histogram without improving their
+  continuation policy. Pooled-object and chart-median estimands stay distinct.
+- Long-jack persistence is a conditional sequence process. Per-column counts
+  and zero attack excess can hide different pressure-transfer ordering.
+- Per-second row NLL induces a row-exposure measure distinct from uniform
+  windows, balanced star strata and macro per-row validation. The report does
+  not claim that this weighting caused the observed drift or should simply
+  be removed.
+- Access to full audio differs from jointly updating the encoder and H/R.
+  Recent full-R1 improvements are scoped to frozen encoder/H/R parameters;
+  changed row states can still change actual release outcomes.
+- Response-equivalent history compression and deterministic append/update
+  closure are different requirements. A recursively constructed state can
+  satisfy computational closure while losing target-response distinctions.
+
+Architecture implications preserve module ownership and separate scoped amount
+accounting from demand state. Active-LN origin cues already have a limited
+source-H result; a sustained musical role still requires joint relations and
+appropriate learning. No shape blacklist, duration reward or universal
+difficulty-code correction is selected.
+
+Verification: 87 display-math blocks pass delimiter/grouping checks; 22 local
+links, three named artifact hashes and two finite probability examples are
+verified. The existing equal-count/zero-excess recurrence and equal-marginal/
+different-LN-relation tests pass (2 tests, 0.14 seconds). This checks the claimed
+counterexamples, not all mathematical proofs or rendered math. Source, model
+and sampler files are unchanged. git diff --check passes. User changes to
+AGENTS.md and the separate architecture walkthrough remain untouched. The
+document and this proposed-note update are committed locally, not pushed.
