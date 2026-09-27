@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-27
-Product revision: baed4d720f3efc0c03ab8c2249bb96110497a586
+Product revision: 24061b918be7075f1efc70341675fe066c2e45b6
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff; 2026-09-27-player-response-frontier
 
@@ -16430,3 +16430,45 @@ training coupling of Hbase/history and native recurrence, with broader phrasing/
 LN response still necessary. EVAL now explicitly rejects the demonstrated
 pressure-zero/average-star-improved false success. Goal remains active, Notes
 remain proposed, no remote publication or default sampler/checkpoint change.
+
+### Controller critique audited; native qualification is now executable
+
+Owner 2026-09-27-controller-semantics-and-native-qualification completes an
+8,774-chart recovery support census and 36 paired native LN-feedback outputs,
+with all 18 on/off H streams exactly equal. The controller adds prefix-balance
+bias beyond a scoped total request, demonstrated on a feasible ranked TAP/LN
+choice. Removing it nevertheless destabilizes amounts: actor STYX rises from
+about .50 to .94 LN fraction, memory Classic falls from about .21 to .07. No
+replicated local organization gain across two songs is established after
+18 new Lens pages and six verified prior counterpart pages. No model promoted.
+
+The hypothetical fifth H at 40 ms is already excluded under HH60. Actual
+60/50/50 support excludes at least one relationship in 558 of 8,774 ranked
+charts (6.36%), including 281 of 2,047 at 4–5 stars (13.73%). Coverage is not a
+BAD label or proof of player limits. H preference isolation is now documented
+as a modeling restriction, not a necessary consequence of V3 or complete-row
+ownership. No neural feedback architecture is silently changed.
+
+Products 226725c5838dab2ef7f381741079ea7c35bb4dc7 and
+24061b918be7075f1efc70341675fe066c2e45b6 provide the real packaged native runner,
+control-extent-aware LN amount checks and pending-review exit 3. The original
+global request's interrupted prefix/restored fragment remain diagnostic; only
+complete declared LN requests receive total gates. Original evidence remains
+immutable and all four ablation arms still fail after assessment correction.
+Eight focused qualification tests pass; the stronger amount regression passes
+again separately. All runs are terminal; no fit is live.
+
+The next direction is learned LN conditional/ratio conditioning/history and
+training-policy coupling with refreshed current-policy BOS outcomes and true
+source-prefix anchors. Further memory expansion and the tentative H count/time
+factorization are deferred. Do not resume unchanged fixed-bank four-second
+training, sweep controller strength blindly or treat an amount proxy as musical
+gain. Curated owner: docs/research/ln_feedback_scope_ablation.md. Goal remains
+active, Notes proposed, no new default and no remote push.
+
+Latest user priority: establish the specific origin of fragmented, irregular
+LN lengths and unresolved long jacks, then improve those mechanisms and their
+regression evaluation against approximately four-star ranked organization.
+Noodly high-coverage LN streams are valid; irregular hard-to-follow fragmentation
+and concentrated sustained attacks are the reported faults. This narrows the
+next learning/coupling investigation beyond global LN amount.

@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: b69d360bd044ff11327c98b50a4d514f11728470
+Product revision: 24061b918be7075f1efc70341675fe066c2e45b6
 Scope: Reusable exact-time chart observations, scoped regression comparisons, multi-scale pressure/texture and audio-linked diagnostics
 Related: 2026-09-27-audio-history-memory, 2026-09-27-four-star-musical-phrasing, 2026-09-27-player-response-frontier
 
@@ -236,3 +236,32 @@ publication checks. The diagnostics and real counterexample are documented in
  gameplay_regression_evaluation.md and audio_memory_joint_fit.md at14ee1534fbffcd6e809482f9ce748383358cb5a1.
 No broad suite rerun is claimed: the new waiting-law owner has4 passing checks;
 previous17 existing gameplay checks retain their previously recorded evidence.
+
+### Executable native qualification and completed-quantity scope semantics
+
+Product 226725c5838dab2ef7f381741079ea7c35bb4dc7 adds the packaged typed/Hydra
+qualification runner, and 24061b918be7075f1efc70341675fe066c2e45b6 adds completed
+LN-request assessment and non-success exit 3 while semantic review is pending.
+The runner executes BOS generation, explicit live updates, byte-pinned inputs,
+export/reparse, separate scope diagnostics and actual publication traces.
+Numeric failure retains outputs and witnesses; no successful computation or
+unperformed semantic review promotes a model. Eight focused tests pass in
+11.41 seconds, plus the strengthened amount-scope test in 2.59 seconds. Previous
+package-layout evidence remains valid; no broad suite claim.
+
+Owner 2026-09-27-controller-semantics-and-native-qualification completes 36 native
+outputs with the real runner. All 18 feedback-on/off H pairs match. Disabling
+projected LN feedback often worsens total amounts without establishing replicated
+local organization gains. Eighteen new Lens pages are read; six byte-identical
+memory-on counterparts retain earlier review. Other seeds/passages remain
+unreviewed. No listening or player test is claimed.
+
+One evaluation trap is corrected explicitly: a whole-song request interrupted
+by a later override does not retroactively make the committed prefix a completed
+LN-total scope. Restoring the earlier extent also does not create a new quota.
+Those fragments remain separate diagnostics; the complete explicit override
+is assessed. Frozen original reports remain unchanged and a separate versioned
+assessment preserves the correction. All four arms still fail other gates.
+This is a control-semantics correction, not a threshold relaxation to pass a
+candidate. Future qualification rejects nonmatching or conflicting amount scopes.
+Full results and identities live in docs/research/ln_feedback_scope_ablation.md.
