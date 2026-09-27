@@ -211,3 +211,23 @@ Each native arm has max 1,500 seconds, 180 seconds per case, 4-GiB footprint,
 CPU one thread; runs are serial. Record all output identities and separate
 mechanism findings from adoption. A NLL-only gain, density collapse, degraded
 scoped controls or unresolved timing failure does not justify a success claim.
+
+### Frozen execution identities and preparation receipt
+
+Learning plan SHA aa0c50f563b58b5d555677207e927bcfdc5878b2dc34e96df3a3c75455816e08
+pins all five worker/likelihood/validation/native scripts and their exact
+commands before fitting. The source plan SHA is
+1b59345d6760294685e9475dc6431797f6a6094417ae24f9c89eb04425a15871.
+Preparation completes in 411.99 seconds with 1,024 accepted windows, 736 TRAIN
+charts, 257 human draws, 26 no-row intervals and 40 windows rejected by the
+old strict profile but accepted by restored support. One proposed window is
+rejected by the restored profile. These are actual exposure counts, not a
+coverage claim for all possible source relations.
+
+Native 28-case plan SHA
+f67b6dbadd0ee4e2a67575a569bd69f56fc3387cfb551f629546eae5ca97ea9c;
+strict parent's eight-case added range plan
+2b581db7ec3f47f8d63eee75f9c1bc4108cff30e1f72a929c86e9b0a5ef86303.
+The twenty reused parent cases are byte-verified at
+daecd5bfb7613ea48bda480b5da89d4a697a6f8350cf73cd16be3d2dc66049e6.
+No training or quality conclusion is attached to this preparation receipt.
