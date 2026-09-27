@@ -578,3 +578,24 @@ curves help locate large-scale flattening and held-texture substitution; they
 are not generation features or a pooled control score. Numerical reports remain
 range-specific and each figure is unreviewed until viewed. Syntax checks pass;
 actual rendering/visual correctness remains to be verified on completed outputs.
+
+## Result Log: both matched fits complete
+
+Supervisor38761 is terminal/complete. It resumes115 valid updates through nine
+segments and finishes384; every update1..384 appears exactly once in the combined
+ledger. Final memory checkpoint SHA7efcbe4bd6da3a4ec9ead01f24fdda63803ea930ebe76bdc7781fbf080a97e81,
+linked at memory-resumed-384/step-384.pt, actual owner segments/372-384/step-384.pt.
+Supervisor elapsed2067.7109s; total memory-arm accounting3058.4878s including the
+two discarded ten-step attempts and original115-step process, below10800s.
+The final segment peaks at10.4951GiB footprint; all resumed segments stay below
+18GiB. The actual final384 trajectory uses source7fdad44331c75da035fdb9720d0875aa02bdd732,
+identical frozen examples/controls and recovered AdamW state, with no endpoint
+selection by loss. Baseline remains SHAa6916403daf6c658f0952d1181703732156f4ac37a8e5b773007c5dc4e2c5c24,
+384 updates in1227.9036s. Both actual checkpoint bytes and contiguous update
+ledgers are independently checked before native evaluation.
+
+This establishes completion of the bounded learning comparison, not improved
+playability. No accelerator fit remains live. Launch the already pinned
+qualify_all.py sequence next, with MPS and render extras selected, on CPU/one
+thread internally. Preserve all pending semantic and numerical qualification
+fields until actual outputs are inspected. Note lifecycle remains proposed.
