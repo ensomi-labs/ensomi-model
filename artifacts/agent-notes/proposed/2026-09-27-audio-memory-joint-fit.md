@@ -115,7 +115,7 @@ terminal; no learning updates have run when this Card is committed.
 
 ## Experiment Card: audio-memory-joint-fit-v1
 
-Revision: 2. Accepted revision: none. Owning Note remains proposed. The user's
+Revision: 3. Accepted revision: none. Owning Note remains proposed. The user's
 standing authorization explicitly includes model implementation, local experiments
 and overnight compute. This is an exploratory comparison, with no automatic
 runtime adoption, Note acceptance, remote push or final-system completion.
@@ -364,3 +364,32 @@ Fresh output memory-sdpa-384, no prior partial-weight resume. Resource samples
 now record audio/scoring/backward phase and exact step/branch. The completed
 baseline remains its original source/driver/checkpoint; all model math shared
 with baseline is unchanged. No qualification output exists yet.
+
+
+## Card revision3: bounded activation materialization
+
+Standard SDPA retry41712 is terminal:10 updates,81.3772s, then the same18GiB
+limit during update11/population/scoring. Exact final sample:footprint19.3968GiB,
+active4.7980GiB, driver15.5376GiB; run-wide active peak5.3408GiB. Partial checkpoint
+SHAd6fbb630c27646eca0e89f26b30b777b79a76306fe55dea19c3023015bb4e273 remains
+failed-run evidence. Standard contraction alone did not solve diverse-input
+memory. Do not claim the allocator or a specific buffer owns the driver residual.
+
+The reader still gathers K/V separately for every query/cell/hand/channel and
+retains them for backward. Bound that materialization: project shared K/V tables
+once, evaluate query groups of128 under non-reentrant activation checkpointing,
+and recompute those small gathers during backward. Concatenate every query output
+and retain full gradients into query, historical states, full audio, age bias and
+all parameters. Inference without gradients keeps the direct SDPA path. This
+changes computation/storage, not history span, audio coverage, row law, target
+examples or optimizer objective. Compare257-query nonzero outputs and all input/
+parameter gradients to the original analytic formula on CPU/MPS, alongside
+existing native-law tests, before another main run.
+
+Fresh retry train_checkpoint.py writes memory-checkpoint-384, again initialized
+from core2500. Preserve both failed runs and original scripts.10709s is superseded
+by10627s for this retry, keeping both failed attempts plus the retry inside the
+original10800s memory-arm budget. All other fixed comparison and qualification
+fields remain. Update only the memory checkpoint resolver after both384-update
+arms complete. Do not reduce complete-song audio or the64s memory to make the
+budget pass. Source commit, tests and driver hashes must be pinned before launch.
