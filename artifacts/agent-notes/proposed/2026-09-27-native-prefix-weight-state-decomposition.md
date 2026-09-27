@@ -81,3 +81,42 @@ probability/invariant failure, STOP or budget. Output compact per-H evidence
 and per-case/per-scope summaries. Existing Lens witnesses supply context; new
 semantic claims require further views. Outcome interpretation remains REFINE
 for this exploratory unaccepted Card. Full playability remains unproven.
+
+## Completed result
+
+Run-v1 completes all eleven cases and 15,642 common H clocks in 264.202 seconds,
+maximum observed task footprint 690,537,864 bytes. Frozen plan SHA:
+df593608e2370d22629794d7892f8dec6c4331d5b91894f5b42df9e0dfec8097.
+Summary SHA: dfa1ce6e800ec082c7d09c23812099d04794dbde5cb10f102bddfa9d91b72dda.
+Each H clock has all four crossed laws. All support, normalization, frozen
+non-composition and telescoping checks pass. The maximum conditional-layout KL
+is 5.8391e-14 nats, confirming the count-only update's fixed-history limit.
+
+On shared-support/all-free queries, mean absolute history/weight LN-ratio effect
+is 6.42 and 7.57 for Classic (696/703 queries), and 25.89 and 6.35 for STYX
+(21/26 queries). All four exceed the diagnostic criterion. These are not
+independent statistical samples or fractions of causal responsibility. Exact
+clocks, cumulative row/head counts and content still differ across histories.
+Blizzard has only seven/six shared-free queries and remains near saturated LN
+preference; its full-query history effect is not interpreted as an isolated
+memory effect.
+
+At old fixed prefixes the refit raises expected releases per H by .00551/.00995
+in Classic and .03307/.03819 in STYX. Their larger realized median holds cannot
+alone establish better retention preferences: starts, reached states and the
+observed hold population also change. Specific object retention remains open.
+
+Evaluation: REFINE. Prioritize full-row decision learning and actual reached
+states over another count-only calibration. Do not turn history sensitivity
+into a claim that all history dependence is bad. The next bounded branch is
+factual missing-observation training compared with ordinary full-R1 learning;
+it keeps real physical facts and source targets, without borrowing suffixes for
+generated histories. Its own owner is
+2026-09-27-full-row-history-observation-learning.
+
+Product 0882315ef23097e44e031707abd382d971b8c82c records this analysis in
+docs/research/contextual_ln_count_learning.md and adds the optional R1 observation
+mask. CPU/MPS observation-independence/gradient, true-BOS, factual support,
+skeleton ownership, cached sampling and layout checks pass 18 tests in 9.04s.
+No model or decoding policy is promoted. Note remains proposed; accepted
+revision none. The original unrelated product edits remain untouched.
