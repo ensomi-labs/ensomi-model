@@ -599,3 +599,75 @@ playability. No accelerator fit remains live. Launch the already pinned
 qualify_all.py sequence next, with MPS and render extras selected, on CPU/one
 thread internally. Preserve all pending semantic and numerical qualification
 fields until actual outputs are inspected. Note lifecycle remains proposed.
+
+## Partial evaluation: timing growth and request-support mismatch
+
+Qualification supervisor10927 is live and now runs the memory arm. Unfitted and
+baseline arms each complete all28 exports; the memory arm has completed all9
+Stream cases and several controls, but other styles/held textures/figures remain
+pending. No model is promoted. The frozen Stream guards already fail against the
+unfitted comparator: mean J is.0444656702 unfitted,.7855264799 baseline,
+.3823017792 memory. Corresponding whole-star MAE for requested4 is1.152139973,
+1.517114657 and1.334521732. Memory improves this baseline continuation but regresses
+against unfitted on pressure and exceeds its+.15 MAE guard. This is not a claim
+that all architecture components are useless; complete remaining comparisons.
+
+On matched Zenithfall seed271200, baseline continuation changes H from3582 to6390
+and total heads5003 to6892. Mean heads per H falls from about1.40 to1.08 while
+whole stars rise5.5476 to5.9997 and J.025427 to2.29216. Thus increased timing-event
+occurrence is a major measured part of this regression; reducing chord counts
+alone cannot restore missing gaps when every H must materialize a head. Memory
+produces5514 H/5968 heads,5.3074stars,J.203907 on that same case. Respect H/R1
+ownership when diagnosing this; no unreachable-difficulty theorem is claimed.
+
+The memory Hysteric seed271212's largest episode belongs to the16s response,
+[252419,300081),47.662s. Its peak16s window(248806,264806] has column attacks
+[93,97,96,104], no held columns, and its episode H rate is20.058/s. The global
+four-second maximum7Hz occurs around72.032s elsewhere. This is why a4s-only
+inspection selector can miss the principal sustained multi-finger burden.
+These are exact trajectory facts; the new episode still requires Lens review.
+
+EVAL-only descendant ef49d63a8c328eac7fa5e41dd8273cfbc435e204 adds
+pressure_review_contexts, its focused regression fixture and documentation.
+It changes no model, sampler or existing numerical metric function. The new
+fixture has no4s excess but16s excess and preserves incoming history separately
+from the scored scope. One focused test passes. Existing16 metric tests/owners
+are unchanged. The helper ranks already measured episodes across all scales,
+without automatic BAD labels or revised acceptance thresholds. It is not called
+by the in-flight qualifier, so generated paths and measurements are unchanged.
+Supplemental_pressure.py will retain each arm/scope's largest episode after the
+full comparison; this supplements the frozen4s/fixed contexts rather than
+replacing them. No condition ranges are pooled.
+
+Frozen-exposure audit37208 is terminal. Result control-exposure-audit.json
+SHAf5ba7eb47f7a139d6bce096e12541e19e95a75a837cfadbc2ad0df0893502beb,
+computed directly from preparation-final-v2/draws.json with ControlSchedule's
+actual partial-override resolution. Repeated examples count repeatedly. Scored
+seconds by known style mask: none21722.180; all five1272.035; Tech-only157.880;
+LN-only66.565; Jack-only32.114; Stream-only8.919; Trill-only9.889. Of Stream-only
+exposure, prominent1 occurs twice on the same3.184s source interval,6.368s total;
+other Stream-only regions are supporting0. Visible style-scope duration quantiles
+are.260/3.334/4.900/6.000/10.000 seconds. Global test requests span144–358s on the
+Stream panel. Label-cell balance did not equal balanced inference request masks
+or scope-duration support.
+
+Confirmed code facts: finalize_controls.py drops the entire style family with
+probability.15, without independently sampling subsets of known style fields.
+ControlSchedule PER_FIELD_SCOPE passes two original-boundary clock vectors for
+each known attribute. Its time_features include an unbounded asinh(seconds)
+coordinate and bounded bases up to4096ms. Full bundles often share annotation
+boundaries; clocks derived from short annotation boxes therefore reach a
+substantially different domain for long single-style requests. Missing style
+means unknown, not absent; never patch this by assigning absent labels to fields
+the user did not request. Preserve original human scopes and judgments.
+
+Interpretation remains a hypothesis: sparse partial-condition support and long
+style-clock extrapolation could drive excess H intensity; self-excitation under
+generated H history and other source-likelihood/rollout mismatches remain live
+alternatives. Neither the data audit nor untrained counterfactual features prove
+causal attribution. Before another large fit, finish the fixed comparison and
+use bounded fixed-prefix H-hazard probes to separate scope-clock effects,
+partial-value/mask effects and generated-history sensitivity. A principled repair
+may improve control masking/representation rather than merely scaling the audio
+encoder or making R1 compensate for timing density. No such model repair has
+been selected or run in this comparison.
