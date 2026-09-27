@@ -347,3 +347,20 @@ complete. Same28-case plan, seeds, scope guards and7200s evaluation budget.
 This is an exploratory numerical-equivalence/performance repair within the user
 research task. It does not establish the causal benefit of memory or accept the
 Note. Original revision1 procedure and terminal evidence remain above.
+
+Revision2 implementation ec9c1efe5282cb106d6d9302fcf33af6b5672cb4 replaces only
+the added history reader's contraction with standard SDPA, retaining the masked
+age bias and explicit null values. Fifteen memory-owner tests pass in10.06s,
+including new nonzero CPU/MPS output and all input/parameter gradient comparisons
+against the expanded reference. Native H/R/row parity, ownership, zero law,
+checkpoint, fork/rollback and padding tests remain covered. No claim that this
+already resolves large-corpus memory: that is measured by the retry.
+
+Frozen fresh trainer train_sdpa.py SHA6e7a80119222fe6d81e30e4a3e70e1c160bd0adfedddb1cde8d0dce1e6a40543;
+updated endpoint resolver qualify.py SHA0e3911648d172fee6aa959c621452b336e17fb6e0b6082a39261d804b5e521bd.
+Retry command caffeinate -i uv run --extra mps python
+artifacts/joint-audio/20260927-audio-memory-joint-fit-v1/train_sdpa.py memory.
+Fresh output memory-sdpa-384, no prior partial-weight resume. Resource samples
+now record audio/scoring/backward phase and exact step/branch. The completed
+baseline remains its original source/driver/checkpoint; all model math shared
+with baseline is unchanged. No qualification output exists yet.
