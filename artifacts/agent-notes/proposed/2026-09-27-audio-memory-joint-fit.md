@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: baed4d720f3efc0c03ab8c2249bb96110497a586
+Product revision: 7fdad44331c75da035fdb9720d0875aa02bdd732
 Scope: Matched baseline/memory full-audio H/R/R1 fitting and fixed temporal, semantic-control and publication regression qualification
 Related: 2026-09-27-audio-history-memory, 2026-09-27-playability-regression-evaluation, 2026-09-23-audio-skeleton-r1-integration
 
@@ -512,3 +512,41 @@ prepares the declared development/reserved/style contexts only after analysis;
 prepared images remain explicitly unreviewed until read. No Note acceptance or
 model/default promotion. Revision4 is an authorized exploratory execution repair
 under the user's existing research goal, with no new permission request needed.
+
+
+## Revision4 execution handoff
+
+Supervisor38761 is confirmed live. It runs resume_segments.py and owns one child
+MPS trainer at a time. First three segments complete:116–147 in256.7144s, peak
+footprint16.1692GiB;148–179 in237.4218s,13.6108GiB;180–211 in234.4870s,11.7967GiB.
+Their checkpoint SHAs are respectively
+7558c7d753a44dac5a94f6b98b43f739880f45b4602794a4e8de4c15c008de7f,
+8ad22d4ade106adf9927f5cabc6474ac9f01b1a2049a0c41e5507f269d0c8ec1,
+3cdcfc1b18515e483d2f075ac08cb8108239abfc0dbfe460a1c29ec6cfc06b21.
+At last observed update218, segment212–243 was still learning. Its tagged logs
+are under memory-resumed-384/segments/212-243. Read progress.json for the current
+child; the supervisor advances automatically, so this path will become stale.
+Do not launch another trainer, restart38761 on timeout, or reuse the terminal96244.
+Every source update through211 has been recorded exactly once in the combined
+ledger. The process-lifetime method has now worked across real parameter/optimizer
+checkpoints and different sources, without shrinking full audio/history.
+
+Next: poll38761 until terminal. If complete384, verify memory-resumed-384/result.json
+and final checkpoint hash, then run qualify.py unfitted, baseline, memory in that
+order, sequentially with no active fit. The qualifier already resolves the resumed
+endpoint. Run analyze.py, then render_qualification.py development/reserved/styles
+as needed and inspect actual pages. Every quality guard remains unchanged and
+pending. No fitted generation, successful style control, breathing improvement,
+latency qualification, or new model promotion has yet been established.
+
+Read-only coupling check for interpreting the pending results: current
+controlled_audio_continuation/allocation.py uses projected integral LN feedback,
+gain1/8 and bounded log-odds offset±2. For a.5 request,32 successive TAP heads
+can move the offset from0 to+2. This is a head-count-dependent correction speed,
+not a requirement that each musical phrase have.5 LNs. It preserves P(heads,
+releases) and layout odds inside each count family, so occupation may still fail
+through LN type/timing interactions even when the aggregate fraction improves.
+Training reconstructs the same controller from the full true prefix. A remaining
+flat or excessively held texture must not automatically be attributed only to
+encoder capacity. This is an information-flow/approximation observation, not a
+measured new failure cause or authority to change this fixed comparison's policy.
