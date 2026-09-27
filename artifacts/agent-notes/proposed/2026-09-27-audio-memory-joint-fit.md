@@ -393,3 +393,20 @@ original10800s memory-arm budget. All other fixed comparison and qualification
 fields remain. Update only the memory checkpoint resolver after both384-update
 arms complete. Do not reduce complete-song audio or the64s memory to make the
 budget pass. Source commit, tests and driver hashes must be pinned before launch.
+
+Revision3 source7fdad44331c75da035fdb9720d0875aa02bdd732 retains shared projected
+K/V tables and checkpointed128-query gathers;17 memory-owner tests pass in10.36s.
+The257-query CPU/MPS cases exercise multiple checkpoint groups and compare all
+input/parameter gradients to the original expanded formula, alongside direct
+four-query cases. Existing teacher/native and ownership/rollback checks pass.
+Only this model family's implementation and its tests/guide change; no baseline
+factor, training objective or frozen data changes.
+
+train_checkpoint.py SHA186df999c9a2dbd7acf9833dc58405835ca749fcabb95e492401a27f96d93470;
+qualify.py SHA357e08aa283b6d5d2872f46a9513be2d2df00c84111b79287aa58cba3551c817.
+Command caffeinate -i uv run --extra mps python
+artifacts/joint-audio/20260927-audio-memory-joint-fit-v1/train_checkpoint.py memory.
+Fresh memory-checkpoint-384 endpoint,10627s remaining arm time and18GiB guard.
+Original and SDPA attempts are terminal, baseline384 is complete; qualification
+still awaits a completed matched memory endpoint. Implementation equivalence is
+verified, while large-input resource benefit is still an empirical question.
