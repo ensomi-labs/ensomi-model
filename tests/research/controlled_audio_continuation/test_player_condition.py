@@ -65,7 +65,7 @@ def test_zero_projection_preserves_old_law_and_nonzero_projection_only_condition
     net = conditioned(old).eval()
     c = source()
     controls = ControlSchedule((ControlSpan(0, 1001, stars=4, ln_fraction=.4),), old.style_names)
-    batch = collate_interval(IntervalExample(c, 0, 1001), net.config, recovery=net.recovery)
+    batch = collate_interval(IntervalExample(c, 0, 1001), net.config, recovery=net.recovery, player_state=True)
     encoded = old.encode_audio(torch.from_numpy(c.mel)[None]).detach()
     scores = [score_interval(m, batch.inputs, None, controls=controls, encoded_full=encoded) for m in (old, net)]
     for field in ('head', 'release', 'row'):
@@ -101,7 +101,7 @@ def test_live_player_condition_matches_source_replay_across_no_row_boundaries():
     pieces = []
     for i in range(IntervalExample(c, 0, 137).count):
         example = IntervalExample(c, i, 137)
-        batch = collate_interval(example, net.config, recovery=net.recovery)
+        batch = collate_interval(example, net.config, recovery=net.recovery, player_state=True)
         scores = score_interval(net, batch.inputs, None, controls=controls, encoded_full=encoded)
         pieces.append(replay_row_scores(scores.row[:len(batch.row_index)], example, controls))
     torch.testing.assert_close(torch.cat(pieces), torch.stack(recorded), atol=3e-5, rtol=3e-6)

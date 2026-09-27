@@ -38,7 +38,7 @@ def setup(device):
 def test_open_private_trace_matches_full_source_row_likelihood_and_gradients(device):
     net, c, rows, heads, controls, encoded = setup(device)
     scope = Scope(c, 100, 601)
-    batch = collate_interval(scope, net.config, device, recovery=net.recovery)
+    batch = collate_interval(scope, net.config, device, recovery=net.recovery, player_state=True)
     full = score_interval(net, batch.inputs, None, controls=controls, encoded_full=encoded)
     expected = replay_row_scores(full.row[:len(batch.row_index)], scope, controls)
     private = tuple(r for r in rows if r.time_ms < scope.end_ms)

@@ -70,8 +70,12 @@ class PlannedScores:
     row: torch.Tensor
 
 
-def collate_interval(example, config, device='cpu', *, recovery=None):
-    """Keep teacher head plans distinct from future row/LN materialization."""
+def collate_interval(example, config, device='cpu', *, recovery=None, player_state=False):
+    """Keep teacher head plans distinct from future row/LN materialization.
+
+    Enable player_state only for R1 checkpoints that consume those observations;
+    legacy models need no additional full-prefix player-state replay.
+    """
     base = collate_rows(example, config, 'cpu')
     x = base.inputs
     source = example.chart.source
@@ -206,7 +210,8 @@ def collate_interval(example, config, device='cpu', *, recovery=None):
         tensor(h_valid), None if response_allowed is None else tensor(response_allowed),
         tensor(ln_start_times([s.open_ln_start_ms for s in replays]), torch.long),
         tensor(ln_start_times([s.open_ln_start_ms for s in row_states]), torch.long),
-        tensor(features_before_rows((source.row(i) for i in range(stop)), row_indices)))
+        (tensor(features_before_rows((source.row(i) for i in range(stop)), row_indices))
+         if player_state else None))
     return PlannedBatch(inputs, tensor(head_event), tensor(release_event), base.targets.row_index.to(device),
                         example.weight_per_second)
 
