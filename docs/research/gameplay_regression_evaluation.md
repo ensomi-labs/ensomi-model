@@ -35,6 +35,38 @@ variation is not a quality objective. The
 [native LN and pressure analysis](native_pattern_failure_analysis_zh.md)
 defines the measurements, causal comparison and interpretation limits.
 
+`LN_interactions` describes what happens while a hold continues, using the
+[typed interaction observer](../../src/ensomi_model/research/gameplay_evaluation/hold_interactions.py).
+At a row, a continuing LN started earlier and does not release on that row.
+Count its relations to new TAP heads, new LN heads and other LN releases,
+separating same-hand and opposite-hand pairs under the canonical mapping.
+Release/head coincidences are separate relations: a hold ending at this row
+does not also count as continuing through its new heads. Co-start hold/release
+pairs identify one member of a simultaneously started group releasing while
+another continues; this is a subset of the hold/release channel.
+
+These are pair counts, not independent actions or calibrated strain. One TAP
+under two continuing holds contributes two pairs but one TAP to the event
+denominator. Reports retain raw counts, rates per second, per-hold observed
+companion-row quantiles and bounded origin/time witnesses. A missing TAP
+denominator is `null`, not zero. Larger or smaller values are not inherently
+better: anchors, LN streams and independent releases can all be appropriate.
+
+Only actions inside the half-open scope contribute. Incoming holds retain their
+true origins; holds without an observed release stay open in this observation.
+The observer does not read later tails, even when the trace contains them, so a
+private-prefix report matches the same scope of a longer trace. Event/pair counts
+add across adjacent scopes; involved-hold counts need not, because the same hold
+can cross both. Existing duration descriptors retain their separate retrospective
+endpoint semantics.
+
+A focused counterexample swaps two LN tails while preserving all head times,
+head types, total LN fraction, duration/H-span distributions, total occupied
+time and any-held fraction. The typed relations still distinguish a long LN
+accompanying TAPs from one accompanying new LNs. This catches a lost arrangement
+relationship that the matching marginals cannot identify; it is not a rule
+declaring either synthetic chart BAD.
+
 Trailing per-column attack peaks use .5/1/2/4/8/16-second windows, retain prefix
 attacks and return witness clocks. Successive same-column attacks below 20 ms
 have explicit endpoint witnesses. These attack checks count TAP and LN press;
