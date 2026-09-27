@@ -207,3 +207,32 @@ counterexample role and do not invent a new human assessment. The actual peak
 contexts, not episode-wide averages after pressure lingers, expose the relevant
 idle-peer versus organized-counterline difference. These observations calibrate
 inspection, not a universal acceptance threshold.
+
+
+### Additional reusable timing diagnostics and native false-success evidence
+
+Productfc641aa740a7528decbb0b5b522aa91039d06ff1 adds first_event_law and paired
+waiting-law comparisons, with4 focused passing tests: native sampler agreement,
+right censoring, invalid/forced clocks and equal-amount timing differences.
+This is a mechanistic instrument, not expected rollout counts or quality score.
+Owner2026-09-27-head-control-hazard-probe records339 input laws and150 component
+laws, all terminal. No inferred human labels or model promotion.
+
+The matched384 joint fit completes84 exports and fails native pressure/star/
+restored-range gates. Its16s Hysteric witness has[93,97,96,104] attacks with all
+columns unheld and a47.662s positive episode, while a4s-only selector points
+elsewhere. Productef49d63a8c328eac7fa5e41dd8273cfbc435e204 adds all-scale review
+context selection and a regression test. This episode's detailed Lens review
+remains unperformed; do not label it agent-confirmed BAD from metrics alone.
+
+A14-export H-base substitution provides a false-success reference: Stream mean
+J becomes0 and starMAE improves1.334522 to1.162118, but median H ratio.318318,
+three first30 times>2s and before/override difficulty failures block promotion.
+Restored-range difficulty improves while other ranges worsen. All9 Lens pages
+on two fixed development contexts are read; Classic changes local type mix,
+Blizzard continues chained LNs with anyheld.922 and no250ms all-column recovery.
+No single improved channel substitutes for scope, occupation, organization and
+publication checks. The diagnostics and real counterexample are documented in
+ gameplay_regression_evaluation.md and audio_memory_joint_fit.md at14ee1534fbffcd6e809482f9ce748383358cb5a1.
+No broad suite rerun is claimed: the new waiting-law owner has4 passing checks;
+previous17 existing gameplay checks retain their previously recorded evidence.

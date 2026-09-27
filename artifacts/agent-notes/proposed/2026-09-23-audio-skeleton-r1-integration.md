@@ -16409,3 +16409,24 @@ frozen source draws and evaluation cases/guards. Do not restart completed
 preflights, claim musical benefit from integration tests, or resume rejected
 player-state training. The full playable-system goal remains active, with no
 new default model or sampler promotion and no remote push.
+
+
+### Joint memory fit and native H-base diagnostic complete
+
+The matched384-update fits and84-case qualification are terminal, owned by
+2026-09-27-audio-memory-joint-fit. Memory fails Stream J/starMAE and restored
+control difficulty; it is not promoted. Fixed-prefix probes then localize a
+substantial H-base contribution. A14-case complete native substitution retains
+fitted Hmemory/residual/R/R1 while reading the unfitted audio/control base. It
+reduces Stream J to0 but removes too much timing (median H ratio.318), fails
+before/override difficulty and three startup bounds. Nine additional Lens pages
+confirm a local Classic type-mix change and continued Blizzard LNtexture.
+
+Curated findings:docs/research/audio_memory_joint_fit.md at14ee1534fbffcd6e809482f9ce748383358cb5a1.
+Leaf owners2026-09-27-head-control-hazard-probe and2026-09-27-head-base-native-replay
+contain all identities, execution bounds and next reasoning. All jobs terminal;
+no fit should be restarted and no new model is qualified. Next work concerns
+training coupling of Hbase/history and native recurrence, with broader phrasing/
+LN response still necessary. EVAL now explicitly rejects the demonstrated
+pressure-zero/average-star-improved false success. Goal remains active, Notes
+remain proposed, no remote publication or default sampler/checkpoint change.
