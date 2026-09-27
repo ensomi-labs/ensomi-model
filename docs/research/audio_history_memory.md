@@ -76,10 +76,10 @@ Save `model.checkpoint()` with `torch.save`; the matching `load_model` in the
 memory package reads `controlled-audio-memory/v1`. This research family does not
 silently replace the existing packaged runtime or its default checkpoint.
 
-Nine new test cases cover index-capped causality, empty memory, hand equivariance,
+Eleven new test cases cover index-capped causality, empty memory, hand equivariance,
 query sensitivity, exact zero-initialization compatibility, joint CPU/MPS
 gradients, checkpoint roundtrip, teacher/native row and H/R query agreement,
-skeleton ownership, and fork/control rollback. Together with affected distribution,
-ownership and sampling owners, 36 tests pass. These are implementation checks.
+skeleton ownership, fork/control rollback, and padding-independent real audio features. Together with affected distribution,
+ownership and sampling owners, 38 distinct checks pass. These are implementation checks.
 Native startup/dense-service profiling and a trained musical-quality comparison
 remain required before drawing a model-quality conclusion.

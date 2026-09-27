@@ -187,3 +187,16 @@ def test_nonzero_native_head_and_release_queries_match_source_prefix_scoring():
         batch=collate_interval(IntervalExample(c,i,377),net)
         score_interval(net,batch,controls,encoded)
     assert matched['head']>100 and matched['release']>10
+
+
+@pytest.mark.parametrize('device',['cpu','mps'])
+def test_nonzero_audio_pyramid_padding_cannot_change_real_song_features(device):
+    if device=='mps' and not torch.backends.mps.is_available():pytest.skip('MPS unavailable')
+    torch.set_num_threads(1);torch.manual_seed(95)
+    net=network().to(device).eval();activate(net)
+    mel=torch.randn(1,137,128,device=device)
+    padded=torch.nn.functional.pad(mel,(0,0,0,263))
+    valid=torch.arange(400,device=device)[None]<137
+    a=net.encode_audio(mel)
+    b=net.encode_audio(padded,valid)[:,:137]
+    torch.testing.assert_close(a,b,atol=3e-5,rtol=3e-5)
