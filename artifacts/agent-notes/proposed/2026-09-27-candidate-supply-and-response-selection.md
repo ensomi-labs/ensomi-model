@@ -109,3 +109,87 @@ row equivalence had already passed before this metadata failure.
 Preserve run-v1 and failure.json; correct only the projection's General header
 and use fresh run-v2. No model, seed, case, response, candidate budget or endpoint
 changes. Do not describe this failed adapter attempt as complete evaluation.
+
+## Completed exploratory result: 192 native candidate futures
+
+Accepted revision remains none. The standing research authority permitted the
+run; completion is not Card acceptance, a SUPPORTED decision or promotion.
+Run-v2 completes six contexts and 192 futures in 432.593369 seconds, peak RSS
+0.783875 GiB, CPU one thread. Every reached prefix, unchanged candidate zero
+through 16 seconds, shared H and exported/reparsed review projection passes its
+recorded parity checks. Source remains the frozen product
+9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8; no model weights changed.
+
+Each of the five LN contexts has zero four-second attack cost for its first
+four candidates. The existing planner would stop at candidate zero in all five.
+Across their 160 candidates, 159 have zero 16-second attack excess; the exception
+is actor Classic candidate 7 at 0.0004418993291761148. This corrects an early
+progress inference that all LN future costs were zero. It is evidence that
+this response channel does not distinguish most LN alternatives, not evidence
+that those alternatives are playable.
+
+Eight-second LN-head min/median/max and number of candidates whose median H span
+equals one are: actor Classic 3/23/32 and 16/32; memory Classic 18/36/42 and
+30/32; actor Blizzard 39/47/54 and 18/32; memory Blizzard 35/57/64 and 21/32;
+memory STYX 19/27/31 and 29/32. These are separate control/context populations.
+The one-H preference often persists despite candidate variation; this does not
+prove good support is absent or that a one-H hold is inherently bad.
+
+The Stream positive control selects candidate 2 from the first four. Candidate
+0 has J4/J16 0.006502976/0.014369201, candidate 2 has 0/0.000867, candidate 3
+has 0.0000281/0.0000281. Four of 32 candidates have zero J16. These are
+un-replanned proposal tails; a real planner replans after two seconds, so this
+is not a measured closed-loop deployment regret.
+
+Same-query removal and renormalization of the frontier2 energy shows expected
+release count increasing when g is added: actor Classic .7443 to .8690, memory
+Classic .8059 to .8664, actor Blizzard .6885 to .7638, memory Blizzard .6957 to
+.8428, memory STYX .7536 to .8125. Existing release preference is substantial
+before g. This local contribution analysis does not execute an ablated policy
+and cannot establish that disabling g improves native organization.
+
+### Same-support history analysis
+
+The behavior-neutral analysis refinement groups all-free H queries by exact H
+time and complete row support mask. Insufficient future-H horizon is excluded.
+The neural LN ratio is E[LN heads]/E[heads] after g but before recovery preference
+and amount feedback. Exact clocks and content history can still differ.
+
+At actor Classic 100474 ms, candidates 27 and 6 have the same 80-row support,
+but ratios .0097176 and .896589, with feedback +.258896 and -.979699. At memory
+Classic 91522 ms, candidates 6 and 28 similarly give .0179256 and .947934, with
+feedback +2 and +.320255. Audio, controls, H time, occupancy and support match.
+The feedback favors the low-LN history more, so its sign does not explain this
+neural preference difference. This is not an isolated intervention on memory
+and does not prove an attractor, semantic badness or a unique hidden-path cause.
+
+### Independent visual record and limits
+
+All 24 rendered Classic pages were viewed: actor 0/4/23 and memory 0/8/19, four
+pages each over [88588,96588). The retained agent observations are now stored in
+lens-classic-v1/review.json. They are not human annotation, listening or player
+trial evidence. Other contexts/candidates lack equivalent review.
+
+The longer-LN alternatives shift or extend TAP/LN blocks. Memory candidate 19
+has longer relations and more late mixing, but at the same 114 heads per eight
+seconds it increases LN heads from 27 to 41 and any-held fraction from .31625
+to .63375. No overall superiority or complete semantic coverage rate is
+assigned. Lower duration variation is not treated as a quality label.
+
+Result identities, all under artifacts/joint-audio/20260927-candidate-supply-v1:
+
+- run-v2/cases.json: d7013ab48171cc5a2edcbdfc6f5d7a23d9c8869a072e9180b5ca90fe5a1041df.
+- analysis-v1/cases.json: d1971e102d6082f4d94ecb34a823c8ef711c777d44231d886f0f1bb4ef7ad29b.
+- support-relation-v1/cases.json: bc42317941815e9b4cd40fd7a5a31d352582b278aeb2e778812bb03312feb28a.
+- lens-classic-v1/review.json: c3f6258e5dec05bb0a10f2bfb3b2c55d0794c402d9830aa63c8c43ce9bb5175a.
+
+Evaluation: REFINE. Preserve this candidate set for independent LN/coordination
+comparisons; broader candidate search alone does not fill the missing response
+semantics. Improve proposal conditioning/coverage and independent response
+learning as distinct, possibly coupled interventions. Product document
+docs/research/native_pattern_failure_analysis_zh.md at
+a96049fb1d734e8dbf0d8cb2fda3f4eb43169562 contains the self-contained evidence,
+formal invariance of attack-only cost to release changes, attribution limits
+and further discriminating comparisons. No new fit or model promotion follows
+from this result log. The contextual LN-count prototype has its separate owner,
+2026-09-27-contextual-ln-count-conditioning; matched learning remains pending.

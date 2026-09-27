@@ -303,3 +303,46 @@ choose the relevant proposal/recipe/response intervention. Do not treat the
 new LN descriptors as a reward for uniform durations, restart the old fixed
 prefix training unchanged, or claim this diagnostic solved playability.
 The full goal remains active; Note status proposed, accepted revision none.
+
+## Deeper formal analysis and original user views
+
+Product documentation commit a96049fb1d734e8dbf0d8cb2fda3f4eb43169562 expands
+the same self-contained report in response to the request for a more ontological
+and mathematical account. It preserves the user's original observations and
+requirements beside code facts, corpus measurements, causal interventions and
+unresolved hypotheses. It does not replace them with claims inferred from an
+aggregate metric or turn agent visual review into human labels.
+
+The added analysis separates the chart object, proposal support, musical
+organization, canonical gameplay response, optional scoped observations and
+selected policy. It derives LN interval relations and competing H/R release
+survival, conditional best-achievable risk versus materialization gap, complete
+joint likelihood versus local NLL, fixed-bank versus BOS state objectives, and
+the explicit reference-ratio LN-count path's restricted control interaction.
+The latter is path-specific: actual controls may still enter frontier/layout or
+memory, so no universal fixed-odds claim is made about the whole model.
+
+Player state is characterized by equivalence of histories under declared
+future responses. A state collision that erases a response difference Delta
+imposes at least Delta/2 worst-case scalar prediction error. This distinguishes
+representation insufficiency from a readout that misorders distinguishable
+states. Event-time hold input and no-row evolution, per-finger allocation versus
+total intensity, and independent response-label requirements make the proposed
+architecture changes falsifiable. These are analysis/proposal statements, not
+a completed physiological response specification.
+
+The completed 192-future evidence belongs to
+2026-09-27-candidate-supply-and-response-selection and is summarized in the
+curated document. Its 159/160 zero-cost LN futures expose the existing attack
+channel's blind spot, while same-support history witnesses narrow—but do not
+uniquely identify—the type-preference mechanism. Source-H improvement is not
+converted into a percentage of H versus R1 responsibility.
+
+Documentation verification checks 13 relative links, all 50 display-math blocks'
+delimiter/brace balance and inline delimiters, the new candidate table values,
+and the five evidence SHA values against their named artifacts. git diff --check
+passes. KaTeX is absent from the project runtime; no rendered-math compilation
+is claimed. This commit changes only the requested report. The existing model
+prototype, tests, AGENTS.md change and separate architecture walkthrough remain
+outside the documentation commit. No new fit was started for this revision.
+Status remains proposed; there is no lifecycle transition or remote push.
