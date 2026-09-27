@@ -175,6 +175,72 @@ from value/mask effects and H-history sensitivity before another large fit.
 The memory checkpoint is not promoted. No conclusion that attention cannot help
 follows from this joint comparison.
 
+## Fixed-prefix timing diagnosis
+
+A follow-up holds complete audio, observation clocks and H prefixes fixed across
+the three checkpoints. Twelve contexts come from four predetermined relative
+clocks on each of three failed memory generations. Three additional contexts
+come from genuine prominent-Stream annotations with all five style fields known.
+Each query evaluates the exact first-event distribution over the next two seconds,
+including censoring, rather than treating unchanged-history hazards as expected
+rollout counts. The [waiting-law evaluator](gameplay_regression_evaluation.md#diagnosing-next-event-timing)
+also reports paired distribution distances. Dense-prefix queries agree with
+native append/cache scoring to a maximum absolute logit difference of 9.54e-7.
+
+The control-support gap does not explain most immediate sensitivity on this slice.
+For memory, replacing the long Stream scope with a ten-second scope increases
+restricted mean waiting time by a median 1.0%; capping only the unbounded style
+clock coordinates at `asinh(5 seconds)` changes it by 1.2%. No context reaches
+the predeclared 20% material-change threshold. The other checkpoints have similarly
+small changes. Removing all style requests produces a larger median 10.2% change,
+but changes the requested condition. On the three human prefixes, retaining only
+the already-known Stream label changes the median by .2%. These are conditional
+diagnostics, not proof of correct long-scope or singleton control behavior.
+
+Removing alternating older H events while preserving the latest four, last H and
+physical support increases memory's median wait by 27.0%; six of twelve contexts
+reach 20%. This is a substantial but heterogeneous history effect, below the
+predeclared eight-of-twelve consistency rule. Nulling only its attention read
+increases the median by 8.2%, with one material context. Neither observation
+supports deleting history or attention as a complete repair.
+
+The native H logit has two additive terms: an audio/control base and a bounded,
+elapsed-time-gated residual that reads H history. Source likelihood constrains
+their sum; it does not uniquely identify the two terms. A second probe exchanges
+their outputs between fitted and unfitted checkpoints at the same inputs. Each
+term retains its own checkpoint's complete-audio encoder; learned feature vectors
+are not transferred between encoders.
+
+| Memory model, twelve fixed generated prefixes | Median relative change in restricted mean wait |
+| --- | ---: |
+| Actual memory law versus unfitted law | -17.2% |
+| Unfitted base + memory residual, versus actual memory | +25.0% |
+| Unfitted base + memory residual, versus unfitted law | +5.5% |
+| Memory base + unfitted residual, versus unfitted law | -19.6% |
+
+Restoring only the base reaches a 20% wait increase in eight of twelve contexts.
+Restoring only the residual does not recover the unfitted law. With common
+unfitted-survival weighting over query clocks, the median fitted-minus-unfitted
+base change is +.521 logit units, while the residual change is -.072. The separate
+three-human-prefix cohort has changes +.572 and -1.077. Different songs, controls
+and prefixes confound a direct comparison between those cohorts; the observations
+show that compensating components can behave differently across contexts.
+
+This identifies a consistent local base contribution to faster next events.
+It does not establish its contribution to complete-chart pressure: every chosen
+event changes the next history and R1's downstream choices. Bounding a logit
+residual also does not bound difficulty or require rhythmic relief. A complete
+native substitution comparison is needed before changing the training objective
+or treating a two-model combination as useful generation.
+
+The input probes score 339 laws in 22.31 seconds; component exchanges score 150
+in 10.80 seconds on one CPU thread, each below 1 GiB sampled process peak. These
+are instrument runtimes, not generation latency. One earlier zero-record attempt
+failed because parameters created inside inference mode lacked native-cache
+version counters; using a no-gradient context preserves those counters without
+changing query math. Owner: `20260927-head-control-hazard-probe-v1`, `run-v2` and
+`components-v1`, source `fc641aa740a7528decbb0b5b522aa91039d06ff1`.
+
 ## Reproduction identities
 
 Model source: `7fdad44331c75da035fdb9720d0875aa02bdd732`; evaluation-only descendant:
