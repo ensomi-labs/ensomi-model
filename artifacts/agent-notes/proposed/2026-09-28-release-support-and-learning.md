@@ -294,3 +294,21 @@ watermark, private-state and control-update contracts. Do not silently ignore
 unknown checkpoint options or add a second quantity controller during that
 integration. Current two-second qualification is useful distinct evidence,
 not a substitute for this compatibility and runtime work.
+
+## Completed matched fit
+
+Both arms complete 512 updates in 1,338.75 seconds. Maximum sampled worker
+footprint is 6,091,968,880 bytes. Every rr1 segment verifies frozen tensors;
+optimizer moments and verified parent checkpoint identities carry through
+all 32 serial workers. Terminal checkpoints under fit-v1/496-512:
+
+- rr1.pt: 6537341d698071ac0c7dfc41d46ffa6bac39ddfc42cb2e703c11fdb9e62a2583.
+- joint.pt: 209aa9c29b97b9850ad50928418bc1830ef5dea552b853dfdebf5fb43872b69c.
+
+Fit summary SHA
+926d7949b2fb6c9960f9e2632fb1cb18cf4978ad27a65bbe67fffecebcb4f58d.
+Across successive 128-update blocks, joint-minus-rr1 same-draw H NLL per second
+averages -.0597, -.2380, -.3277 and -.4553. Row differences stay small and
+mixed. These are online comparisons on changing examples, not a fixed-data
+learning curve or evidence of native quality. Validation/native review remain
+required; neither terminal is promoted.
