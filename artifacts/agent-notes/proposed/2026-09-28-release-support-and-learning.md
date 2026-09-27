@@ -245,3 +245,34 @@ Fit-v1, supervisor-v1 and native outputs are still unused. All scientific
 inputs, arms, budgets, losses, criteria and seeds remain unchanged; the new
 plan pins corrected script bytes before rerunning. This was a study wrapper
 error, not evidence against the model or a checkpoint result.
+
+## Interim execution evidence
+
+Revision-2 plan SHA
+210cbf5320e370e8d6c4679322555bab635c2ab215eb68b8d7e8636adcbfc6a4.
+The corrected initial validation reproduces strict-parent row NLL
+1.571176095629661 versus prior 1.571176097399668. Restored-support row NLL is
+1.571162529652034; H/R/row per-second means are
+32.0191259384 / 1.3190457032 / 11.4171410547. This checks the full-coarse,
+halo-fine and scoped-progress factual path, not native quality.
+
+The first 16-step worker completes in 34.83 seconds at 4,045,737,776-byte
+peak footprint. Trainable counts are 3,274,110 for rr1 and 4,670,322 for joint.
+The pilot observes nonzero gradients in the declared audio/H/R/R1 paths and
+verifies all rr1-frozen tensors remain bitwise unchanged. Later segments are
+running serially; a completed pilot is not a completed fit.
+
+Actual 1,024-draw exposure: 85,246 heads, 22,837 LN starts and 22,761 releases;
+661 song groups. Recomputed [2,3)/[3,4)/[4,5)/[5,6] window counts are
+205/272/263/284; recovered windows 1/3/11/25. All 26 sampled no-row intervals
+have no eligible R milliseconds, so they supply H silence rather than an
+additional empty-held training slice. Other windows retain actual R survival.
+Known-style exposure is 534.694 seconds and Stream-only-prominent exposure
+15.372 seconds. These are repeated training seconds, not independent annotated
+episodes or evidence of broad Stream-only conditional coverage.
+
+Analysis plan revision 2 SHA
+87c2ba7b307cf55e674d6aee338c1d6ca734e5dc243ce1bfc01e73d5c68fd9ed
+pins the scope-separated comparison and frozen Lens contexts before native
+results. Existing multiscale contrast quantiles and feature witnesses are
+retained; greater variation is not assigned a positive label.
