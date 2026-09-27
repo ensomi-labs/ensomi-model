@@ -70,8 +70,9 @@ conditions can be independently missing. Human style labels keep their original
 scopes; missing or unreviewed dimensions are not negative labels. There are 216
 draws with a known LN request.
 
-The five audio identities in the earlier candidate-supply panel are excluded
-from this fit. Twenty-two validation charts are held out relative to this fit;
+The four audio identities in the earlier candidate-supply panel are excluded
+from this fit. Max Burning was outside that exclusion set, but receives zero
+accepted training draws in this frozen sample. Twenty-two validation charts are held out relative to this fit;
 absence of ancestor exposure or previous research inspection is not claimed.
 Preparation rejects four source release-window conflicts, four row-support
 conflicts and nine windows without row supervision across training/validation.

@@ -82,6 +82,37 @@ These distinctions catch failures that an average cannot:
 - Fewer heads can coexist with much less actual recovery.
 - A new control range can inherit already accumulated attack pressure.
 
+## Consecutive head membership
+
+The scope field head_recurrence records whether a finger keeps participating in
+consecutive head-bearing rows. TAP and LN press both count; release-only rows
+do not reset this head sequence. Each attack receives its current prefix age:
+one at a new run, two at its second consecutive H group, and so on. A missing
+column in an H group resets that column's age.
+
+The [observer](../../src/ensomi_model/research/gameplay_evaluation/head_recurrence.py)
+returns exact age histograms, quantiles, repeated-head counts per column and
+timed witnesses. The repeated fraction uses heads with a preceding H as its
+denominator; heads at the first H have no such opportunity. Scope boundaries
+retain earlier membership. Events at or beyond the exclusive end are not read,
+so prefix ages and witnesses agree between a private prefix and the same scope
+of a longer trace. Event counts add across adjacent scopes; quantiles do not.
+
+There is no gap-based reset. A slow repeated note and a fast repeated note can
+have the same age, so witnesses include real span, median/max HH gap, incoming
+run status and whether a later H was observed to end membership. This is not
+a complete Jack/Stream classifier, physiological state or sampling constraint.
+Intervening H groups can split a musically related repeat.
+
+A regression fixture keeps H times and all four column totals identical between
+finger rotation and four eight-head column blocks. Both traces have zero
+sustained attack excess under the stated D4 references, yet their maximum ages
+are one and eight. This makes an organizational difference visible when the
+threshold response is silent. The
+[full-R1 and control study](full_row_learning_and_difficulty_response.md)
+shows actual cases where lower stars coexist with more recurrence; corpus
+quantiles are descriptive, not automatic rejection thresholds.
+
 ## Multi-scale phrasing observations
 
 For each half-window length .5/1/2/4/8/16 seconds, compare adjacent left/right
