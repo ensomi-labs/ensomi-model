@@ -82,7 +82,7 @@ a promoted result; config options must reach runtime. Avoid broad unrelated test
 
 ### Experiment Card: ln-feedback-scope-ablation-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: user's ongoing research/experiment/local-commit request,
 reinforced by the expert-feedback task. Exploratory, with no inferred acceptance,
@@ -139,3 +139,14 @@ execution oracle tests supply complementary implementation evidence.
 The broader goal remains active: expressive playable full-audio H/R/R1 generation
 with scoped controls and real-time publication. This work does not redefine success
 as a runner passing, a sparse chart, or a better single proxy.
+
+
+## Revision2: ancillary parser adapter correction
+
+The support-census attempt is terminal/failed before its first chart because
+iter_source_objects expects text lines, not a Path. Preserve that empty attempt
+and failure receipt. Correct the adapter to UTF-8-sig source lines, consistent
+with the existing census, and use fresh support-census-v2. The population,
+thresholds, source hashes and1200s bound remain unchanged. This is not model
+or quality evidence. Main LN ablation plan is unchanged and not yet run.
+Corrected census script SHAf81b05deee4d0626fb22b3523d2a594c778e3438ddd4548ae16b20368ce7780d.
