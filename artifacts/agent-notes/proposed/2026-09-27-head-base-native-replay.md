@@ -85,3 +85,14 @@ sufficient. Improvements in J with worse held occupation, rhythm or switch
 response are a tradeoff requiring separate diagnosis, not an overall gain.
 No default model/interface changes and no next fit are authorized by a pass alone;
 the user's broader research goal remains the execution authority.
+
+
+## Execution handoff
+
+Wrapper SHA345b01fd92842305fc526caaa909b9ecb59abc1604209d7d80dfb6575ca7df5c; syntax compilation passes.
+The original qualifier is pinned tobce8addba20e903581d5fae84f3a2d773494717abc2dda1fc33db44fc39ea8af.
+All required library code is committed atfc641aa740a7528decbb0b5b522aa91039d06ff1;
+the wrapper is experiment-owned instrumentation. Native queries1/50/500 compare
+the substituted formula to captured base/residual factors. The extra full-audio
+encoding is included in session start and audio timing. Start the bounded run;
+no further fitting or model promotion.
