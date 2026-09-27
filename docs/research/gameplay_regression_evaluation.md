@@ -228,3 +228,24 @@ excess, ensuring this failure family still receives an inspection context.
 Owners: `20260927-gameplay-evaluation-v1` and
 `20260927-audio-history-memory-v1/preflight-v3`.
 Historical replay source: `720457b8651d40095c2247b5992c3318b2cb5ced`.
+
+## Diagnosing next-event timing
+
+[`first_event_law`](../../src/ensomi_model/research/gameplay_evaluation/waiting.py)
+evaluates native-ms Bernoulli hazards along a fixed prefix's no-event branch.
+It retains both per-ms first-event probability and the right-censored no-event
+atom. Reports include survival at declared elapsed horizons, a median when
+reached, and the restricted mean `E[min(wait, horizon)]`. This is not an expected
+event count in a generated continuation: after the first event, history changes.
+
+Paired comparisons hold audio, observation clock and prefix fixed unless a named
+intervention changes one of them. Total variation compares timing mass and the
+censoring atom; restricted Wasserstein distance measures displacement in ms.
+Thus equal probability of an event somewhere in two seconds cannot hide a shift
+from long waits to immediate attacks. Four focused tests cover native-sampler
+agreement, censoring, invalid/forced clocks and equal-amount timing differences.
+
+This instrument localizes timing sensitivity to controls or history. It does not
+assign BAD labels, certify learned control semantics, or replace complete native
+rollouts. A hypothetical input lesion must be labeled as such. In particular,
+removing another known style changes the request and need not preserve the law.
