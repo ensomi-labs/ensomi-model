@@ -200,3 +200,22 @@ def test_nonzero_audio_pyramid_padding_cannot_change_real_song_features(device):
     a=net.encode_audio(mel)
     b=net.encode_audio(padded,valid)[:,:137]
     torch.testing.assert_close(a,b,atol=3e-5,rtol=3e-5)
+
+
+@pytest.mark.parametrize('device',['cpu','mps'])
+def test_key_value_table_padding_preserves_values_and_gradients(device):
+    if device=='mps' and not torch.backends.mps.is_available():pytest.skip('MPS unavailable')
+    torch.manual_seed(97)
+    layer=HistoryAttention(12,8,6,width=16,heads=4).to(device)
+    torch.nn.init.normal_(layer.output.weight,std=.1)
+    history=torch.randn(7,2,8,device=device);audio=torch.randn(7,6,device=device)
+    query=torch.randn(3,2,12,device=device);times=np.arange(7)*200
+    output=[];gradients=[]
+    for padding in (0,121):
+        h=torch.nn.functional.pad(history,(0,0,0,0,0,padding))
+        a=torch.nn.functional.pad(audio,(0,0,0,padding))
+        memory=gather_memory(h,a,times,[2,4,6],[510,990,1400],span_ms=2000,cell_ms=100)
+        value=layer(query,memory);output.append(value)
+        gradients.append(torch.autograd.grad(value.square().sum(),layer.key.weight)[0])
+    torch.testing.assert_close(*output,atol=3e-6,rtol=3e-6)
+    torch.testing.assert_close(*gradients,atol=3e-6,rtol=3e-6)

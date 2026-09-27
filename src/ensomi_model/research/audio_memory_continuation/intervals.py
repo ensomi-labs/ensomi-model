@@ -68,9 +68,12 @@ def score_interval(model,batch,controls,encoded_full):
     encoded = model.condition_audio(encoded_full,None)
     downstream = model.condition_audio(encoded_full,None,downstream=True)
     def values(module,raw,valid,count):
-        return module(raw,valid)[0,:count] if count else encoded.new_empty((0,2,module.config.hidden))
+        # Keep the existing 128-event bucket through key/value projections.
+        # Selection still uses real event times/indices and can never read padding.
+        return module(raw,valid)[0] if count else encoded.new_empty((0,2,module.config.hidden))
     def music(times,audio):
-        return interpolate_audio(audio,torch.as_tensor(times[None],device=audio.device),
+        padded=_pad_first(times,edge=True)
+        return interpolate_audio(audio,torch.as_tensor(padded[None],device=audio.device),
             frame_counts=x.frame_count)[0]
     contexts = {
         'head': (values(model.head_temporal,batch.head_raw,batch.head_valid,len(batch.head_times)),

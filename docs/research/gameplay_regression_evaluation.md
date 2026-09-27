@@ -83,6 +83,30 @@ be optimized as a musical-quality reward. Its role is to help distinguish a
 changed temporal relationship from a changed global mean, with source comparisons
 and actual listening/Lens judgments supplying the missing interpretation.
 
+## Publication deadlines
+
+[`publication_report`](../../src/ensomi_model/research/gameplay_evaluation/publication.py)
+reads the actual wall time and settled-through audio clock of each publication.
+Private forecasts contribute no playable buffer. Given a required lookahead, it
+computes the minimum startup delay that would avoid starvation in that observed
+trace, identifies the limiting publication, and tests a supplied startup delay.
+Inclusive native coverage makes `previous_coverage + 1` the next unknown time.
+An incomplete trace cannot certify full playback, even with a large startup.
+
+For publication $i$ at wall time $w_i$, prior settled time $g_{i-1}$ in
+milliseconds, and lookahead $L$, the observed startup lower bound is
+
+$$
+s_{\min}=\max_i\left[w_i-\max\left(0,
+\frac{g_{i-1}+1-L}{1000}\right)\right]_+.
+$$
+
+The zero clamp covers initial buffer preparation before playback. The initial
+coverage is -1; a trace's wall-clock origin and excluded startup work must be
+declared. This catches a late dense passage even when total generation is faster
+than playback. It is an observation-based bound, not a guarantee under another
+machine load or decoding policy.
+
 ## Use and qualification status
 
 ```python
@@ -100,11 +124,47 @@ completion. Reports retain separate scopes and contain no pooled pass verdict.
 `feature_order` names every contrast coordinate. Artifact arrays are diagnostic
 evidence, not new human annotations or source labels.
 
-Eight focused tests cover concentrated versus distributed attacks at equal
+Eleven focused tests cover concentrated versus distributed attacks at equal
 timing/counts, smeared LN tails at equal head fractions, carried recovery and
 open holds, flattened temporal activity at equal totals, cross-boundary short
-attacks, constant-input handling, and canonical-Mel/chart alignment. These verify
-algorithmic distinctions. Real ranked exceptions and historical generated failures
-must still calibrate regression rules before the framework can qualify a model.
-Latency, runtime stress, semantic style and player experience remain separate
-evaluation dimensions; none is certified by these tests.
+attacks, constant-input handling, canonical-Mel/chart alignment, startup buffer
+requirements, local stalls hidden by good average speed, and incomplete traces.
+These verify algorithmic distinctions. Real ranked exceptions and historical
+generated failures must still calibrate regression rules before the framework
+can qualify a model. Semantic style and player experience remain separate
+evaluation dimensions; neither is certified by these tests.
+
+## Historical replay evidence
+
+An initial replay reparses actual osu bytes for 41 reports in 17.88 seconds:
+four ranked sources, ten source-matched generated conditions and nine outputs
+each from the initial actor, bounded planner and failed response-trained actor.
+Model/audio identities, seeds and named ranges remain separate.
+
+The existing sustained-response mean is reproduced exactly: .0275164 for the
+initial actor, .0004245 for the planner and .1071601 for the failed response fit.
+Its new Zenithfall failure reaches 9.5 attacks/s on one column over four seconds.
+This catches a native regression despite that fit's improved training-bank cost.
+The cost was optimized, so it cannot independently establish musical improvement.
+
+Occupation measurements reproduce STYX's phrase changing from 24.34% any-held
+time in the source to 95.37% in the actor. Multi-scale correspondence supplies a
+different diagnostic: on Classic Pursuit, aligned-minus-shift-median values are
+.183/.212/.171 for the source and .042/.082/.044 for the actor at 1/4/16 seconds.
+These are small developmental comparisons, not significance or quality thresholds.
+
+Pressure and correspondence improvements need not agree. On Zenithfall, the
+planner's sixteen-second correspondence difference averages .1238 versus the
+initial actor's .1654 despite a large pressure improvement; on Hysteric it rises
+from .2966 to .4271. Keeping those dimensions separate prevents one successful
+objective from being presented as a complete repair.
+
+The memory prototype's actual publication trace also passes the two-second
+lookahead check with startup .9583 seconds; its observed minimum is .6521 seconds.
+The inherited core trace needs .3814 seconds and uses startup .5379 seconds.
+These clocks begin with loaded weights and cached Mel, including model audio
+encoding. They are not complete client cold-start measurements.
+
+Owners: `20260927-gameplay-evaluation-v1` and
+`20260927-audio-history-memory-v1/preflight-v3`.
+Historical replay source: `720457b8651d40095c2247b5992c3318b2cb5ced`.

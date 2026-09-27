@@ -76,10 +76,50 @@ Save `model.checkpoint()` with `torch.save`; the matching `load_model` in the
 memory package reads `controlled-audio-memory/v1`. This research family does not
 silently replace the existing packaged runtime or its default checkpoint.
 
-Eleven new test cases cover index-capped causality, empty memory, hand equivariance,
+Thirteen new test cases cover index-capped causality, empty memory, hand equivariance,
 query sensitivity, exact zero-initialization compatibility, joint CPU/MPS
 gradients, checkpoint roundtrip, teacher/native row and H/R query agreement,
-skeleton ownership, fork/control rollback, and padding-independent real audio features. Together with affected distribution,
-ownership and sampling owners, 38 distinct checks pass. These are implementation checks.
-Native startup/dense-service profiling and a trained musical-quality comparison
-remain required before drawing a model-quality conclusion.
+skeleton ownership, fork/control rollback, and padding-independent audio and memory
+values/gradients. Together with affected distribution, ownership and sampling
+owners, 40 distinct checks pass. These are implementation checks.
+
+## Bounded Mac integration
+
+The full prototype has 7,616,517 parameters versus core2500's 4,583,985. On one
+118.334-second Max Burning audio, both zero-initialized models produce identical
+complete rows at seed 273200. They request the source's 4.0005 stars and .0429 LN
+fraction, with styles unknown. One CPU thread, loaded weights and cached Mel give:
+
+| Measurement | Core2500 | Memory prototype |
+| --- | ---: | ---: |
+| Complete-audio encoding, s | .2090 | .2356 |
+| First thirty rows, s | .5379 | .9583 |
+| Complete generation, s | 6.5025 | 13.4471 |
+| Slowest two-second publication service, s | .1677 | .4098 |
+
+These timings exclude waveform decoding, Mel construction and model loading.
+They demonstrate headroom on one chart, not a general dense-passage guarantee.
+The [publication evaluator](gameplay_regression_evaluation.md#publication-deadlines)
+finds no missed deadlines in either actual trace when playback begins at its
+first-thirty-row time and requires two seconds of settled future coverage.
+
+Eight MPS updates score 32-second source intervals with differentiable full-song
+audio. Every audio/H/R/R1 and added-memory parameter group changes, all gradients
+remain finite, and fitting takes 53.29 seconds. These smoke weights are not a
+musical-quality candidate and do not initialize the main fit.
+
+Sampled footprint reaches 15.19 GiB and MPS driver memory 12.63 GiB, while active
+MPS storage after updates is about .37 GiB. Variable-shape retention therefore
+needs attention before a long fit. The teacher scorer now keeps its existing
+128-event padding through memory key/value projection rather than slicing every
+table back to a distinct real event count. Only real indices are selectable;
+CPU/MPS values and gradients retain parity. A longer cold/warm shape comparison
+is still needed to establish resource stability. No quality improvement follows
+from this engineering change or the integration learning check.
+
+Integration source: `720457b8651d40095c2247b5992c3318b2cb5ced`.
+Owner: `20260927-audio-history-memory-v1`, successful `preflight-v3`.
+Integration checkpoint SHA-256:
+`bd5cee5e5d532272e12784a78a8fb152d9f1842874e5b48b611832e36de58fb2`.
+Two earlier driver attempts ended on missing callback/duplicate report-key
+errors; their partial outputs are retained and are not completed comparisons.
