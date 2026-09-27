@@ -127,3 +127,16 @@ At completion append input/source hashes, elapsed/resources, individual paired
 results and limitations. Revise the proposed Card if its protected slice or
 intervention changes. Select a follow-up based on this evidence before another
 large fit; no checkpoint/default promotion follows from a positive probe.
+
+
+## Execution handoff
+
+Reusable waiting-law code and four focused tests are committed at
+fc641aa740a7528decbb0b5b522aa91039d06ff1. Native-hazard sampler parity, right censoring,
+invalid/forced clocks and equal-amount timing distinctions pass. Model/training/
+sampling code is unchanged. The script SHA is7d40adc2f59c83464f31a658b55234b15dedaa3fcd3bd6aa128e9eba00ee9b2c; syntax compilation passes.
+Plan and all six sources/audio/Mel/checkpoint hashes were verified during
+preparation. The exact15 query clocks and variants remain Card revision1.
+
+Run the pinned probe now into fresh run-v1 under standing user authorization.
+No result, model improvement or human acceptance is implied by this handoff.
