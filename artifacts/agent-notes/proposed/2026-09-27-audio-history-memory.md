@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: 251ba0f47970b18f739a3441893e1e0ab9a858cd
+Product revision: baed4d720f3efc0c03ab8c2249bb96110497a586
 Scope: Nonlinear multiscale full audio, elapsed-time history attention, native and teacher-scored H/R/R1 integration
 Related: 2026-09-27-four-star-musical-phrasing, 2026-09-23-audio-skeleton-r1-integration
 
@@ -192,3 +192,44 @@ Positive resource evidence means the repeated warm multiset plateaus and new
 scope shapes fit the bound; it does not establish all-corpus memory bounds.
 Failure requires targeted allocation/shape investigation, not an unchanged
 large fitting launch. No process is live at the time of this revision commit.
+
+
+## Result Log: completed cold/warm/new-scope stability
+
+Card revision2, accepted none; exploratory evaluation REFINE toward a matched
+quality fit. Stability handle73509 is terminal, exit0, at source251ba0f. Twenty-four
+updates finish in110.0038s. Cold/warm/new-scope peak footprint14.9993/15.0289/15.9777
+GiB; driver12.5657/12.5813/12.8608GiB. Forward-phase active peaks4.5113/4.3170/4.0754
+GiB are not comparable to preflight's audio/update-only active samples. Warm
+identical shapes plateau; the new scopes add about.95GiB process footprint.
+All remain below the declared18GiB stop. Padding does not materially lower the
+cold peak, so do not claim it resolved the full allocation cause.
+
+One diagnostic post-gradient cache release changes driver12.8608 ->1.4467GiB and
+process footprint15.9778 ->14.6574GiB, with active.2200GiB unchanged. Ledgers overlap
+and have distinct release timing; do not infer a live-tensor leak or add them.
+The probe supports bounded training on tested shapes, not all-corpus memory
+stability. No per-step cache eviction is adopted. The third phase uses index3
+as declared; it is EOF-reaching for three charts but Classic Pursuit continues
+past128s, so it is not that chart's final interval. All24 observations are kept.
+These probe weights are not saved or reused for main fitting.
+
+Reportae2b40199c24c9f1fd3d9c63de4b3ba540d54d45 and link correctionbaed4d7 describe
+verified implementation/profiling and keep quality unproven. Product worktree is
+clean. All native/preflight/stability/test handles are terminal; no background
+training or job needs polling. The first two profiling attempts are terminal
+instrumentation failures, not pending work. No new model/default sampler is
+promoted. Active goal remains unachieved.
+
+Next: design and execute one substantive matched joint-learning comparison from
+core2500, using this memory prototype versus matched baseline continuation and
+fixed source draws/controls. Include full-audio gradients, sufficiently long
+scored spans, actual global and scoped controls, genuine style labels only, and
+closed-loop native quality/latency checks. Freeze the reusable evaluation panel
+and its failure witnesses before fitting. Keep the four-star source cases as
+exposed developmental diagnostics, not untouched validation; establish reserved
+groups separately. Do not continue unchanged failed player-state fits, nor keep
+adding minor statistics/microbenchmarks after the present bounded resource check.
+Additional memory optimization (for example standard SDPA instead of expanded
+pointwise attention products) is only a candidate if the main workload demands it.
+The broader-corpus guard remains necessary.

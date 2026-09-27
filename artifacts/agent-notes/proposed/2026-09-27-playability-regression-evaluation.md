@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: 720457b8651d40095c2247b5992c3318b2cb5ced
+Product revision: baed4d720f3efc0c03ab8c2249bb96110497a586
 Scope: Reusable exact-time chart observations, scoped regression comparisons, multi-scale pressure/texture and audio-linked diagnostics
 Related: 2026-09-27-audio-history-memory, 2026-09-27-four-star-musical-phrasing, 2026-09-27-player-response-frontier
 
@@ -107,3 +107,43 @@ al., https://proceedings.mlr.press/v97/kornblith19a.html; its neural-representat
 results do not validate chart quality. More real positive exceptions and independent
 fault-injection/cross-song calibration are needed before fixed model-selection
 rules. The framework is useful executable evidence, not a complete quality oracle.
+
+
+## Publication and positive-counterexample checks
+
+Publication evaluator is committed in251ba0f47970b18f739a3441893e1e0ab9a858cd.
+It computes startup required by actual settled-coverage timestamps, carries an
+explicit lookahead, finds the limiting publication and refuses to certify an
+incomplete trace. A synthetic case generates10s in7.2s overall but needs3s startup
+because of a late dense publication; average faster-than-realtime alone would
+miss it. Eleven evaluation tests pass in.31s. Actual core/memory native traces
+with2s lookahead require.3814/.6521s startup, below their first30 times.5379/.9583s.
+Neither has a deadline miss in that trace. Full model loading/waveform/Mel work
+is excluded from the recorded clock origin. No general load guarantee follows.
+
+Positive source replay34485 is terminal, exit0. Happy Love Expert source
+22e16fc2... has scoped4s peak7.5Hz and J.00593949; Extra Mode4194d810... has6.5Hz
+and J.00080477; human Streamd4ec7882... has4.25Hz and J0. No<20ms attack appears in
+these scopes. These are prior ranked context positives, not new generated human
+labels. The first cost's tiny difference from the earlier rounded report follows
+this probe's explicit half-open source scope and endpoint b-1. Preserve the
+positive excess counterexamples; a percentile alone is not a BAD classifier.
+
+The newly flagged Max Burning Stream output is now inspected through Lens.
+Rendering32346 is terminal; all six source/generated pages on[18174,25175) were
+read. It has33 column2 attacks in(19174,23174], with free other lanes. Generated
+motion becomes an almost isolated same-column sequence after19.2s, then repeats
+that column with sparse chord accompaniment through23.3s. The ranked source uses
+changing groups spread across columns. This is an agent-confirmed instance of
+the user's regression family despite whole proxy3.8617. Exact viewed coverage,
+source/output hashes, controls and seed273100 are in new-fault-lens-review.json.
+No human annotation or literal listening is claimed. Treat it as a fixed failure
+witness for future candidates, not an automatically generalized style label.
+
+All evaluation and rendering handles are terminal. The framework has useful
+independent channels and detected a new failure location, but no universal
+quality score or fully calibrated promotion contract. Next freeze a regression
+suite with known failures AND ranked positive exceptions, coverage requirements,
+per-control-range reporting and independent native trajectories before judging
+the main memory fit. New candidate gains cannot be inferred solely from NLL,
+optimized J, CKA, or a lack of schema/test errors.

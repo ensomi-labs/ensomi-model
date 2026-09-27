@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-27
-Product revision: f65de370416255477f81993bfd594680ba40cbd6
+Product revision: baed4d720f3efc0c03ab8c2249bb96110497a586
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff; 2026-09-27-player-response-frontier
 
@@ -16379,3 +16379,33 @@ does not. This is a justified architecture hypothesis, not a proven repair.
 No new fit is live or promoted. Read the new owning Note before designing the
 next bounded implementation/training comparison; do not resume unchanged
 player-state fitting or a narrow load-cap sweep. The full goal remains active.
+
+
+### Audio-history prototype and reusable evaluation are implemented
+
+Productbaed4d720f3efc0c03ab8c2249bb96110497a586 follows implementationb130dfb,
+evaluation138a1f5, and publication/padding251ba0f. New owner
+2026-09-27-audio-history-memory records a7,616,517-parameter nonlinear multiscale
+audio + separate H/R/R1 query-memory prototype. Current music retrieves past
+music/arrangement pairs without violating skeleton ownership. Forty distinct
+related checks pass. Eight full-audio joint updates and a fresh24-update resource
+probe complete; they are discarded integration weights, not a quality fit.
+The warmed shape set plateaus around15GiB footprint; new scopes reach15.98GiB,
+below18GiB. Native first30 is.958s and max2s service.410s on one118s song, versus
+core.538/.168s, with exact zero-initialized trajectory equality. All jobs terminal.
+
+The user's explicit EVAL priority is owned by
+2026-09-27-playability-regression-evaluation. Model-independent exact-time scopes,
+held/recovery observations, multiscale contrasts, music/chart correspondence and
+publication-deadline evaluation are implemented with11 tests. Forty-one real/
+historical chart reports reproduce failed-fit overload and contrasting texture
+facts. A new3.86-proxy Stream output with33 same-column attacks in4s was flagged
+and confirmed in six Lens source/generated pages. Three ranked positives with
+nonzero excess prevent a blanket percentile BAD rule. See curated
+ gameplay_regression_evaluation.md and audio_history_memory.md.
+
+Next substantial step is a matched joint quality fit against baseline with
+frozen source draws and evaluation cases/guards. Do not restart completed
+preflights, claim musical benefit from integration tests, or resume rejected
+player-state training. The full playable-system goal remains active, with no
+new default model or sampler promotion and no remote push.
