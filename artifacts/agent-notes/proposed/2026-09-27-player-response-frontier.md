@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: c4d9e730375ace301f8ae68d34afbab50a75e5a5
+Product revision: 565d5589bb2dea56292ab3853846d7abf928c604
 Scope: Canonical continuation-response semantics; sustained per-column demand, temporal variation, and publication-time playability for the audio/H/R/R1 system
 Related: 2026-09-23-audio-skeleton-r1-integration
 
@@ -792,3 +792,88 @@ training source, checkpoints and cache validation are unchanged. Process24378 is
 terminal; replacement diagnostic is live under78945. Rendering90266 is terminal
 with11 contexts/40 pages. Response-style qualification46828 is terminal with12
 outputs; source-style84983 also completes12. Main qualification totals52 exports.
+
+
+### Result Log: completed player-state fit qualification and diagnostics
+
+Accepted revision: none; Card player-state-r1-learning-v1 revision 4 remains
+proposed. Evaluation: REFINE. Product report and opt-in legacy collation are
+committed at 565d5589bb2dea56292ab3853846d7abf928c604. The previous goal turn made
+progress: implemented a causal input/open-trace scorer, completed two fits and
+produced discriminating quality/generalization evidence. The full system goal
+remains active. Neither fitted endpoint is promoted.
+
+All 52 planned exports complete: 28 native and 24 genuine-style continuations.
+All paired H streams agree. The four qualification commands consume 1,357.073
+active seconds; this does not erase the earlier total-elapsed accounting
+clarification. Native nine-Stream mean J: initial .0275164, source .1442286,
+response .1071601. Whole-D MAE: .478926, .852546, .741130. The response endpoint
+fails both 50-percent improvement comparisons and the initial-plus-.15 D bound.
+Latency passes this bounded loaded-model/cached-Mel check: response first thirty
+rows .67346–1.29785 seconds; maximum two-second publication .50023 seconds.
+
+The response Zenithfall seed-zero chart has 38 attacks on column 1 within four
+seconds, 70 within eight seconds, and a 41-attack/4,412-ms chain at gap <=170 ms.
+Other columns are unheld. Lens confirms the sustained sequence in all four
+rendered pages. The response Hysteric seed-two chart has a 33-attack hot column
+within four seconds. This is a substantive new generation failure.
+
+Retain separate control effects. LN target 4/.6 gives source 4.5124/.6396 and
+response 4.3989/.6556 versus initial 4.8027/.7634. Response switch ranges are
+before 2.6007/.1518, override 4.2277/.5743, restored 4.4360/.1845. The restored
+range still substantially overshoots D3; do not pool it with the D4.5 override.
+The source-style D values and interpretation are preserved in the product report;
+scalar closeness is not a semantic pass.
+
+Lens coverage is durably recorded in
+artifacts/joint-audio/20260927-player-state-r1-learning-v1/lens-review.json:
+7 of 14 reference pages and 17 of 40 generated pages were viewed. These include
+all four response Zenithfall failure pages and matched seed-zero style scopes.
+The source Zenithfall1 and response Hysteric2 failure pages remain unread, as do
+unlisted pages and other style seeds. Jack retains repeated/overlapping chord
+organization; Stream movement remains but mixes changing pairs/short jacks;
+the human Trill reference's distinct fixed two-plus-two episode is less clearly
+preserved. No generated human labels, listening or human playtest are claimed.
+
+Conditional probe replacement 78945 completes in 148.425 seconds. Across three
+fresh four-second draws at one frozen training-bank prefix per 20 songs, mean J
+is initial .00876930, source .01947785, response .00343964. This is training-domain
+improvement, not held-out performance. Complete current-policy rollouts on bank
+Stream4.5 and Trill4.5 also complete with unchanged H: Stream stays J0; Trill falls
+.385476 -> .009320. Thus fixed-prefix training alone is not an established cause
+of all full-rollout failure. Cross-audio/control/state coverage, conflicting
+supervision and broader generalization remain alternatives. Four Stream training
+songs were initially safe, so the bank lacks that family of failing states.
+
+Feature probe 24262 completes. On the actual response Zenithfall [118000,126000)
+history, mean hot-column attack probability is .697037 full, .694292 with load
+features zeroed, .695175 with last-two masks zeroed, .692460 with the entire added
+branch zeroed, and .644267 under initial weights. All physical history/audio/H/
+controls/legality/preferences are fixed. The .458-percentage-point full-branch
+effect is small relative to the broader fitted-policy change; a new recency
+shortcut alone is not supported as the explanation. These are input lesions,
+not physical counterfactuals or new full trajectories.
+
+Post-experiment collation change is opt-in player_state=True for the older
+planned interval collator. Native sessions and row traces used in the experiment
+are unchanged. The affected condition/trace/sampling command completes 12 tests
+in 7.23 seconds (handle 90132, exit 0). All experiment/training/qualification/
+rendering/diagnostic handles are now terminal; no live job needs restarting.
+
+### Direction update: four-star phrasing and audio dependence
+
+The user emphasizes that low/moderate difficulty must have pressure variation,
+rests and rhythmic distribution across fingers at several scales. Avoiding
+single-column peaks alone can leave a rigid chart. They identify limited audio
+conditioning as a possible contributor and request comparison with real ranked
+charts near four stars. This expands the immediate investigation beyond load
+caps while preserving the overall audio/H/R/R1 and scoped-control objective.
+
+Do not launch another unchanged fit or the previously brainstormed marginal-load
+preference. Next inspect complete matched source/generated passages, measure
+multi-scale timing and finger-load variation, and trace the full-audio path into
+H and R1. Distinguish what information is representable, what was actually trained,
+and what the policy demonstrably uses. Full audio remains available at training
+and inference; R1 owns row content and also requires direct audio. H owns event
+timing and musical spacing. No hard chorus labels, arbitrary density ceiling or
+uniform-lane target should substitute for learned musical organization.

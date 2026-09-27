@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-27
-Product revision: c4d9e730375ace301f8ae68d34afbab50a75e5a5
+Product revision: 565d5589bb2dea56292ab3853846d7abf928c604
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff; 2026-09-27-player-response-frontier
 
@@ -16337,3 +16337,23 @@ It is not promoted. The response endpoint's native qualification is live under
 are terminal. Note2026-09-27-player-response-frontier owns exact artifacts,
 checkpoint hashes, remaining source-style qualification and interpretation.
 The goal remains active; main-model playability is not yet established.
+
+
+### Completed player-state evidence and broader phrasing investigation
+
+Product 565d5589bb2dea56292ab3853846d7abf928c604 records the completed 52-export
+qualification and two diagnostics in docs/research/player_state_conditioning.md.
+Both 384-update endpoints fail native Stream load/difficulty gates and are not
+promoted. Response training improves fixed-prefix training-bank futures and two
+same-bank full rollouts; this does not generalize to the reserved developmental
+panel. Removing the added player input changes hot-column probability by less
+than .5 percentage points on the new failure trace, so that branch alone does
+not explain the regression. All process handles, including final 12-test check
+90132, are terminal. The leaf Note owns exact identities and Lens page coverage.
+
+The user's new steering prioritizes real ranked four-star phrasing: rests,
+multi-scale pressure variation and rhythmic movement across fingers, with limited
+audio conditioning as a live hypothesis. Next investigation compares genuine
+source/generated passages and audio information flow into H and R1; it does not
+continue narrow peak suppression as a substitute for musical organization. No new
+fit is launched, no runtime is promoted, and the full goal remains active.
