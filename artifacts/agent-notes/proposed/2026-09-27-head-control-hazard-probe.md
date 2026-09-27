@@ -22,7 +22,7 @@ selection bias and changed audio features remain alternatives.
 
 ### Experiment Card: head-control-hazard-probe-v1
 
-Revision: 1
+Revision: 2
 Owning Agent Note ID: 2026-09-27-head-control-hazard-probe
 Accepted revision: none
 
@@ -140,3 +140,19 @@ preparation. The exact15 query clocks and variants remain Card revision1.
 
 Run the pinned probe now into fresh run-v1 under standing user authorization.
 No result, model improvement or human acceptance is implied by this handoff.
+
+
+## Revision2: cache-version-compatible execution
+
+Run-v1/14836 is terminal/failed after0 records. It constructed model parameters
+inside torch.inference_mode, so native cache ownership could not read tensor
+version counters. This is an instrument setup failure before any comparison,
+not model evidence. Preserve run-v1 and probe-v1.py unchanged.
+
+Revision2 replaces the main no-gradient context with torch.no_grad, preserving
+parameter version counters required by the native runtime. Query math, every
+checkpoint/input/clock/variant and thresholds remain unchanged. Fresh output
+run-v2, no overwrite or automatic retry; the same900s/8GiB bound applies. The
+active exact command still invokes probe.py. This correction is authorized by
+the ongoing experiment; Card remains proposed and acceptance none.
+Script SHAab85ba64275b33ede2b29d9559ea628a6fbbf1e59de54fae297bb52c40f1a1d0.
