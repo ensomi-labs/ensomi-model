@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: baed4d720f3efc0c03ab8c2249bb96110497a586
+Product revision: b69d360bd044ff11327c98b50a4d514f11728470
 Scope: Reusable exact-time chart observations, scoped regression comparisons, multi-scale pressure/texture and audio-linked diagnostics
 Related: 2026-09-27-audio-history-memory, 2026-09-27-four-star-musical-phrasing, 2026-09-27-player-response-frontier
 
@@ -147,3 +147,42 @@ suite with known failures AND ranked positive exceptions, coverage requirements,
 per-control-range reporting and independent native trajectories before judging
 the main memory fit. New candidate gains cannot be inferred solely from NLL,
 optimized J, CKA, or a lack of schema/test errors.
+
+## Result Log: exact pressure episode and peak-context localization
+
+Source58321912c22dd2f6bd0dabf50e52a116e1203bae adds reusable
+sustained_attack_witnesses. Sourceb69d360bd044ff11327c98b50a4d514f11728470
+adds the contributing peak-window peer counts/holding separately from episode
+averages. This distinction matters because pressure can persist after the
+sequence that caused it; peers may become active later and obscure the original
+concentration in an episode-wide average. No model/sampler/trainer source changes.
+Five new tests pass; all16 package tests pass before the final peak-context
+extension, and the changed five pass afterward. Existing eleven owners unchanged.
+Commands use uv run --extra mps --group dev pytest -q with the package and then
+its test_witnesses.py owner. No new quality labels, thresholds or strain law.
+
+Historical audit first handle96809 failed after four generated cases because its
+source-map coverage retained a NumPy integer instead of the required Python int.
+Correct the audit adapter, preserving source times. Handle45835 completes all
+seven cases; the enhanced final audit76365 also completes all seven. Preserve
+witness-audit.json and witness-audit-v2.json in20260927-gameplay-evaluation-v1.
+Whole-trajectory J matches the existing exact integral to1e-10 on all three
+historical initial/planned/failed-response comparisons.
+
+The failed-response Zenithfall0 has a4s-reference positive episode
+[120610,128143), duration7533ms. Its peak window(118841,122841] has attacks
+[6,38,4,1] and no held columns: pressure is concentrated while peers are free.
+The initial Zenithfall271201's largest4s episode instead lies[184543,188141),
+with peak-window[3,0,30,1]; this is an additional inspection location, not a new
+human semantic label. The paired planner has no4s-positive episode, while its
+other-scale whole J remains.0022318945. Max Burning Stream's peak window is
+[6,3,33,4], reproducing the inspected8.25Hz regression and whole J.0800069107.
+
+Ranked counterexamples remain explicit: Happy Love has[30,5,17,6] in its7.5Hz
+peak window and a2358ms positive episode clipped at the reference scope end;
+Extra Mode has[26,7,8,5] and923ms; the human Stream example has no excess.
+Happy Love J.0059418449 uses exact[a,b) observation here; the earlier.00593949
+probe used[a-1,b-1), explaining its small endpoint difference. A positive
+corpus-envelope episode is not automatically BAD. The added facts localize
+pressure and peer context; they do not supply independent validation of an
+objective already used for selection. No fresh listening or playtest occurs.

@@ -260,3 +260,43 @@ microbenchmark. Remaining confounders include only384updates, repeated rare
 human anchors, factual rather than counterfactual controls, inherited checkpoint
 exposure, matched seeds with diverging stochastic paths, and both capacity changes
 bundled together. NLL is an optimization diagnostic, not the research endpoint.
+
+## Execution handoff: matched baseline running
+
+Baseline384 launches under74054 with the frozen trainerSHA7a66b3c494eb14fa9a3f0250c00f41996fed8ae1987f8560ca0364b221538af7
+and command caffeinate -i uv run --extra mps python
+artifacts/joint-audio/20260927-audio-memory-joint-fit-v1/train.py baseline.
+At observed step222/384,722.45s elapsed, sampled footprint11.1335GiB and driver
+peak4.9619GiB. No contract/nonfinite/resource failure. NLL does not qualify it.
+Do not restart74054 on a short observation timeout. Memory fit has not started.
+Preparation builder12951 and import-only driver check36048 are terminal.
+
+Behavior-neutral evaluation descendants58321912c22dd2f6bd0dabf50e52a116e1203bae
+andb69d360bd044ff11327c98b50a4d514f11728470 touch only the evaluation module,
+its tests and guide; model/trainer/dependency contents are identical to the
+recorded baseline. The memory arm may run this exact descendant after checking
+that audit, recording its actual source OID. This does not alter the causal
+intervention, controls, exposure, optimizer or fit budget. Unrelated AGENTS.md
+and architecture-walkthrough changes remain preserved and unstaged.
+
+Qualification and analysis drivers are implemented and import-checked, not run:
+qualify.py SHA9d253994ef50a2d02f6e5cff8609e2f1c33e3e75e89adc79df5266f7032081de;
+analyze.py SHA52acef65639869383eb62b471902b3e7cd3396aaa4cd2c6f4ce04e1c2e937a74.
+The qualifier waits for both384-step endpoints, then runs unfitted/baseline/memory
+sequentially on CPU with one thread, fresh qualification-<arm> destinations.
+Command uv run --extra mps python with the owner/qualify.py path and arm argument.
+Per-case300s budget stays inside the declared7200s total across all arms.
+It saves actual row/coverage publication, onset-preserving fixed-H checks,
+unchanged published prefixes across the live switch, full reparsed osu reports,
+scoped proxy/pressure/occupation/texture/correspondence, and precise overload
+witnesses. Endpoint/asset/plan hashes are verified. Partial failures stay visible.
+
+Analyze.py makes paired independent-range reports and guard results, retaining
+semantic/meaningful-improvement status as pending. Its review plan includes the
+frozen seven developmental/historical windows, top two new Stream pressure
+contexts, all four original fixed-H style scopes, and each reserved song's
+largest added/removed8s occupation and maximum4s pressure contexts. These are
+inspection priorities, not automatic BAD labels. Neither driver updates weights
+or selects earlier fit checkpoints. Model evaluation and Lens review remain
+outstanding. Source/example evidence and every run stay exploratory; no Note
+status change or model/default promotion.
