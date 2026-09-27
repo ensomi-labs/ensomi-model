@@ -186,3 +186,24 @@ probe used[a-1,b-1), explaining its small endpoint difference. A positive
 corpus-envelope episode is not automatically BAD. The added facts localize
 pressure and peer context; they do not supply independent validation of an
 objective already used for selection. No fresh listening or playtest occurs.
+
+### Lens checks of episode context
+
+Render73558 completes nine pages for the initial Zenithfall's newly located
+[181674,188674), failed-response Zenithfall[117841,124841), and ranked Happy Love
+[136712,143712). All nine pages are viewed; preserve pressure-episodes-lens-review.json
+and lens-pressure-episodes/plan.json in the evaluation owner. No audio listening.
+The two generated cases show a dominant, largely isolated repeated column lasting
+through several seconds, with occasional peer taps/chords rather than shared
+burden. The initial model's late-song occurrence is an additional agent-confirmed
+Stream-to-jack regression location beyond its previously inspected41s failure.
+
+The ranked counterexample also sustains one column for a long passage. Its short
+repeated groups interleave with a recurrent counterline of singles and alternating
+chords, producing articulated multi-column cells. Do not confuse its shorter or
+boundary-clipped positive-excess episode with a short actual repeating pattern.
+Duration or peak rate alone would lose this distinction. Preserve the source's
+counterexample role and do not invent a new human assessment. The actual peak
+contexts, not episode-wide averages after pressure lingers, expose the relevant
+idle-peer versus organized-counterline difference. These observations calibrate
+inspection, not a universal acceptance threshold.
