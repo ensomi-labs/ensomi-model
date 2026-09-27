@@ -82,7 +82,7 @@ a promoted result; config options must reach runtime. Avoid broad unrelated test
 
 ### Experiment Card: ln-feedback-scope-ablation-v1
 
-Revision: 2
+Revision: 3
 Accepted revision: none
 Execution authority: user's ongoing research/experiment/local-commit request,
 reinforced by the expert-feedback task. Exploratory, with no inferred acceptance,
@@ -150,3 +150,42 @@ with the existing census, and use fresh support-census-v2. The population,
 thresholds, source hashes and1200s bound remain unchanged. This is not model
 or quality evidence. Main LN ablation plan is unchanged and not yet run.
 Corrected census script SHAf81b05deee4d0626fb22b3523d2a594c778e3438ddd4548ae16b20368ce7780d.
+
+
+## Revision3: frozen qualification handoff and completed support census
+
+Census60605 is terminal/complete:8774 sources/metadata hashes verified,51.31546s,
+no missing/changed files. 60/50/50 affects558 charts (6.36percent),60/50/40 affects
+420 (4.79percent). By2–3/3–4/4–5/5–6 stars the affected counts are9/72/281/196
+versus5/33/207/175; denominators3238/2906/2047/583. At5–6 stars these are33.62
+and30.02percent. HH<60:571events/38charts; RH<50:3743/329; HR<50:13930/403;
+HR<40:2420/150. Local exclusions are not synonymous with whole-chart training
+rejection or BAD labels. Existing10 spacing/oracle tests pass unchanged in1.02s.
+Curated finite-support argument and coverage now live in joint_action_spacing.md.
+
+Runner source226725c5838dab2ef7f381741079ea7c35bb4dc7 is committed. Seven focused
+qualification tests pass (8.13s), including actual controlled/memory generation,
+exports, live scope changes, numeric versus pending-review status, complete
+continued evaluation after numeric failure, incomplete-case rejection, pressure
+bounds/witnesses, profile/H-capacity consistency and an actual Hydra CLI run
+returning2 on a numeric failure. Package-layout test also passed22 subtests.
+Earlier runner fixtures incorrectly combined fixed H with a live update; the
+runtime rejected it. Correct fixtures use a real seeded H generator. No failure
+was waived, and the qualifier explicitly rejects unsupported fixed-H/live updates.
+
+The frozen nine-case plan SHA is4ab74f18ece7b747a9410ca259f7e2a882c379744795228365f96ce99b621e02;
+models ledger SHA99f48ecc0591f13887781101c49cdba773d5816a7b62f28071c12bb881863253.
+Original actor/memory checkpoint bytes and every audio/Mel hash are verified.
+Each of four songs has seeds0/1 as declared; diagnostic phrase scopes deliberately
+have no invented local difficulty/LN target. The switch has separate actual
+requested ranges. Each checkpoint keeps its saved recovery profile. Primary
+intervention and interpretation criteria remain as Card1.
+
+Use `uv run --extra mps python artifacts/joint-audio/20260927-controller-semantics-v1/run_ablation.py`.
+The supervisor calls the packaged Hydra qualifier four times, sequentially, into
+fresh actor-feedback-on/off and memory-feedback-on/off directories. Exit2 from a
+complete numerically failed candidate is retained as data; incomplete execution
+stops the study. Overall2400s, percase300s,8GiB and no concurrent workload remain.
+State/config lives in ablation-run-v1. No fit is live, no architecture expansion
+is implemented and no model is promoted. Card remains proposed, acceptance none.
+Supervisor SHA39259dc5c7a6cc8ed553228cf9c405cce73ea046bf4274edc36c82bf0219e752.
