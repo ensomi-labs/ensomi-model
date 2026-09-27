@@ -102,7 +102,7 @@ cached native versus rescored law, ownership, sampling and layout checks pass:
 
 ## Experiment Card: contextual-ln-factual-fit-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: the standing user goal explicitly authorizes local model
 design, learning experiments, full-Mac compute and commits. This Card remains
@@ -157,6 +157,16 @@ does not change because those parameters and factual conditioning are fixed.
 Save both unfitted laws and steps 8/32/64/128; assess the unfitted law change
 separately from learning. No adaptive sample selection or silent resumes.
 
+Revision 2 permits one explicit process restart from the paired step-64
+checkpoints after the first attempt hits its task-footprint bound. Restore both
+optimizers, use exactly draws 129–256 and steps 65–128, keep model/data/loss/device
+unchanged, and verify initial validation against the saved step-64 values within
+3e-5 nats/row per chart and arm. Fresh fit-resumed-v1 output; the original
+fit-v1, logs and failure remain. The new process is bounded to 1200 seconds and
+the same 12-GiB footprint; this plus the failed attempt remains below the
+original 1800-second total allocation. resume-execution.json pins both checkpoint
+hashes and resume.py. This is an execution change, not a broader fitting budget.
+
 Primary learning diagnostic: macro mean validation NLL per row, with paired
 per-chart values, aiming for at least .02 nats/row contextual improvement over
 the matched trained reference. This is not a quality gate. Native evidence uses
@@ -199,3 +209,21 @@ contextual arm improves paired learning and native organization, continue that
 branch. If likelihood improves without native gains, investigate conditional
 state/response coverage instead of calling this a successful repair. Larger
 joint fitting remains available but is not implied by a numeric pass here.
+
+## First fitting attempt and recovery
+
+The first process is confirmed terminal with a memory-guard failure while
+materializing a late training example. No automatic retry or failed-step
+checkpoint is used. Steps 0/8/32/64 were durably saved for both arms. At step 64,
+macro validation NLL per row is 1.67490443 for reference and 1.67480173 for
+contextual, versus 1.73081704 and 1.73063310 initially. No substantive conditional
+path advantage is yet established. Task footprint grew during diverse full-song
+and row shapes despite frozen non-composition weights; the allocator/graph
+cause is not isolated by these counters.
+
+Use the explicit revision-2 resume command:
+`uv run --extra mps python artifacts/joint-audio/20260927-contextual-ln-fit-v1/resume.py`.
+A fresh process restores the last common saved optimizer/weight state; duplicated
+work after step 64 in the failed attempt is compute spent, not additional updates
+in the final model lineage. Native evaluation must use the completed resumed
+step-128 endpoints and original step-0 laws. No model is promoted.
