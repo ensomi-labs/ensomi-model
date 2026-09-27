@@ -113,9 +113,23 @@ MPS storage after updates is about .37 GiB. Variable-shape retention therefore
 needs attention before a long fit. The teacher scorer now keeps its existing
 128-event padding through memory key/value projection rather than slicing every
 table back to a distinct real event count. Only real indices are selectable;
-CPU/MPS values and gradients retain parity. A longer cold/warm shape comparison
-is still needed to establish resource stability. No quality improvement follows
-from this engineering change or the integration learning check.
+CPU/MPS values and gradients retain parity.
+
+A fresh 24-update probe repeats the eight intervals twice, then visits four BOS
+and four interval-index-three scopes. It completes in 110.00 seconds. Peak
+footprint is 15.00 GiB in the first cycle, 15.03 GiB in the repeated cycle, and
+15.98 GiB with the new scopes. Driver peaks are 12.57/12.58/12.86 GiB respectively.
+The repeated shape set plateaus; arbitrary corpus shapes remain untested. New
+forward-phase sampling finds active-storage peaks of 4.51 GiB, a phase omitted
+from the earlier audio/update-only sampling.
+
+After gradients are released, a one-time diagnostic cache release lowers driver
+memory from 12.86 to 1.45 GiB, while process footprint only falls from 15.98 to
+14.66 GiB. Those overlapping ledgers must not be added or interpreted as the same
+allocation. The bucket change does not materially lower the cold peak, and the
+probe does not establish a complete memory root cause. It supports bounded fitting
+with the declared 18-GiB guard on the tested shapes. No quality improvement follows
+from the repair or these discarded integration updates.
 
 Integration source: `720457b8651d40095c2247b5992c3318b2cb5ced`.
 Owner: `20260927-audio-history-memory-v1`, successful `preflight-v3`.
@@ -123,3 +137,4 @@ Integration checkpoint SHA-256:
 `bd5cee5e5d532272e12784a78a8fb152d9f1842874e5b48b611832e36de58fb2`.
 Two earlier driver attempts ended on missing callback/duplicate report-key
 errors; their partial outputs are retained and are not completed comparisons.
+Stability source: `251ba0f47970b18f739a3441893e1e0ab9a858cd`, `stability-v1`.

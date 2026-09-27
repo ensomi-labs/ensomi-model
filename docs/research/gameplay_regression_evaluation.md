@@ -165,6 +165,22 @@ The inherited core trace needs .3814 seconds and uses startup .5379 seconds.
 These clocks begin with loaded weights and cached Mel, including model audio
 encoding. They are not complete client cold-start measurements.
 
+The evaluation also locates a previously unreviewed Max Burning Stream failure:
+the actor's whole-chart proxy is 3.8617, but column 2 receives 33 attacks in
+(19174,23174] ms, or 8.25 Hz over four seconds. All six source/generated Lens
+pages on [18174,25175) are subsequently read. They confirm an extended same-column
+sequence, initially almost alone and then with occasional chord accompaniment;
+other columns are free. The ranked source distributes changing groups over the
+columns. This agent-confirmed regression witness is retained separately from
+human annotations, along with its controls, seed 273100 and exact output bytes.
+
+Three previously inspected ranked counterexamples are also replayed. Happy Love
+Expert reaches 7.5 Hz over four seconds with positive excess about .00594;
+Extra Mode reaches 6.5 Hz with excess .000805; the human-prominent Stream
+reference has zero excess. None has a below-20-ms attack in the inspected scope.
+The valid positive-excess examples prevent a universal percentile-to-BAD rule.
+Reference context and sustained organization remain necessary for interpretation.
+
 Owners: `20260927-gameplay-evaluation-v1` and
 `20260927-audio-history-memory-v1/preflight-v3`.
 Historical replay source: `720457b8651d40095c2247b5992c3318b2cb5ced`.
