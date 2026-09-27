@@ -259,3 +259,84 @@ d1c7d334e15607e78b3b98c4e780bf381647580bbb32caa7eb67568d8bbc61a8;
 contextual ef4acc8eb34c60ec006cb0bc2976cd4b14b810b9ca8843cdc5ddc0c599fa8ea1.
 Frozen non-composition weights remain byte-equal at save checks. Native output
 and semantic evaluation are still required before any organization claim.
+
+## Completed native comparison and interpretation
+
+Native-v2 is terminal/complete: four arms, eleven cases per arm, 44 complete
+exports in 502.893 seconds. Every case has identical actual H timestamps across
+all four arms. The fitted reference/contextual complete row sequences are also
+identical for both Classic seeds, both STYX seeds, both Blizzard seeds and the
+control-switch case. Their differences occur in Max Burning and Stream cases.
+
+Both unfit arms fail numerical checks in 5/11 cases; both fits fail 7/11.
+Classic LN fractions change from .14509/.19127 to .04845/.01855; both formerly
+passing amount checks now fail. STYX changes from reference .93939/.93268 to
+.22339/.43939, with only the latter passing amount. Blizzard remains
+.98939/.98870 after fitting. No new default or model promotion follows.
+
+At fixed H, Classic's median LN span increases from one to two in both seeds,
+while most LNs disappear. This is a useful regression witness against rewarding
+duration/span similarity without amount and contextual organization. Stream
+seed 271201 changes from J .106111, stars 4.984, heads 4292 to reference-fit
+J .119669, stars 5.167, heads 4734, and contextual-fit J .134512, stars 5.275,
+heads 4766. Contextual-minus-reference pressure .014843 exceeds the .005 guard.
+Seed 271200 improves attack excess to about .023 but grows head count and remains
+near five stars. These seeds and control scopes cannot cancel one another.
+
+All under-20-ms and publication checks pass in this panel. Maximum observed
+qualifier startup is .987559 seconds and service .322125 seconds. These are
+two-second-lead qualifier observations, not the other branch's 30-row/eight-second
+readiness benchmark or a guarantee under production workload.
+
+### Lens review
+
+Renderer 32464 completes 32 pages. Twenty-four distinct pages are actually
+viewed: source, reference-unfit and reference-fit for Classic [88589,93589),
+STYX [1800,7800), Blizzard [40342,46342), all seed zero. The remaining eight
+contextual-fit pages are byte-identical to reviewed reference-fit pages; their
+coverage is recorded as reuse, not eight new observations.
+
+Classic reference has LN/TAP interleaving; the fitted view is all TAP/chords.
+STYX reference is a TAP episode despite its whole-song LN fraction. The fit has
+more TAP accents and longer holds than the predominantly-LN unfit output, but
+no overall/musical quality verdict follows. Blizzard reference sustains anchor
+voices alongside TAP accents and paired short holds before thinning out; the
+fit remains serial LN flow without restoring this relation. High coverage or
+short holds alone are not labelled bad. No new listening, playtesting or human
+annotation is claimed. Seed-one and other unrendered passages remain unreviewed.
+
+Native arms SHA 9860a8154e08af64539dbd5b6676b2d365be5ad85ca563a8080ba75c29c1d908;
+per-case/scope analysis SHA 0015cee6a626bd4a8fd8a3eccd23d2894918ad0514d0fc35334879ee09e4e1de;
+Lens review SHA dcb813c6db657887fbcbfbb9b5376b1f31ddd37616bf21d70863921d391afbaa.
+They belong to this experiment's native-v2, analysis-v1 and lens-v1 owners.
+
+Evaluation: REFINE. The additional LN-input path has no material learning or
+native-quality gain in this bounded fit. Shared factual count learning improves
+NLL but produces native regressions. Do not scale this count-only intervention
+as though it repaired organization. This does not reject broader joint training,
+larger models or the general benefit of actual control conditioning.
+
+The structural scope matters: at a common fixed prefix, composition cancels
+from odds between rows with the same head/LN/release counts. With layout and
+consequence frozen, this fit cannot directly teach new within-family column or
+release-identity decisions. Later prefix differences can change those odds only
+indirectly. A repair aimed at these relations must train/redesign their actual
+owners and verify actual reached-state behavior, not only source likelihood.
+
+Read-only source inspection also identifies a distinct, untested control-state
+question. Plain exact replay stores cumulative rows/heads, not cumulative LN
+starts; finite content history cannot recover arbitrarily old scope allocation.
+The disabled amount controller stores only a clipped offset. A learned factual
+scope-progress input may separate whole-scope allocation from fixed prefix
+balancing, but interruption semantics and native benefits still need design and
+testing. This is not claimed as the cause of the current regressions or as a
+replacement for player-response/LN-relationship learning.
+
+The self-contained report is docs/research/contextual_ln_count_learning.md at
+product 80bbde1090e58faf4795fa6ff88d83f3c6082186, linked from the owning model
+guide. Relative links, math delimiters/braces, evidence SHA values and table
+summary checks pass; no rendered-math compilation claim. Model behavior checks
+remain the 21 tests recorded above. No executable source changed after them.
+All preparation/training/recovery/evaluation/render handles are terminal. The
+overall playable 2–6-star goal remains active and unachieved. Note remains
+proposed, accepted revision none; no remote publication.
