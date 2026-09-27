@@ -22,7 +22,7 @@ selection bias and changed audio features remain alternatives.
 
 ### Experiment Card: head-control-hazard-probe-v1
 
-Revision: 2
+Revision: 3
 Owning Agent Note ID: 2026-09-27-head-control-hazard-probe
 Accepted revision: none
 
@@ -156,3 +156,64 @@ run-v2, no overwrite or automatic retry; the same900s/8GiB bound applies. The
 active exact command still invokes probe.py. This correction is authorized by
 the ongoing experiment; Card remains proposed and acceptance none.
 Script SHAab85ba64275b33ede2b29d9559ea628a6fbbf1e59de54fae297bb52c40f1a1d0.
+
+
+## Result Log: revision2 complete
+
+20696 is terminal/complete. Run-v2 scores339 laws in22.31425s, peakfootprint.97034GiB.
+Native append/query audit maximum absolute logit error is9.5367e-7 for all3 models.
+Result SHAfb88f69563385eb98638f9f6a4b0dcfad9d216285f7f5dbd35794ff71e122a78;
+probability archive SHAbeb75a9246b7522aef738ef6ba8007d8d691a4011880c413ee144f95caef1c0b.
+No fitting, new generated chart, quality qualification or threshold change.
+
+On12 fixed generated prefixes, style10s-scope median restricted-wait changes are
++1.4/+1.4/+1.0 percent for unfitted/baseline/memory; asinh caps+1.7/+1.7/+1.2.
+Neither has any >=20percent context. Clock extrapolation is therefore deprioritized
+as a sufficient local explanation. It remains a verified support mismatch, and
+these probes cannot rule out cumulative effects in a changed long rollout.
+
+Style-unknown median changes+13.2/+13.5/+10.2percent, with4/12 >=20percent for each.
+Supporting instead of prominent changes only about+3percent. On3 human prefixes,
+full-bundle to Stream-only changes median+1.0/+1.2/+.2percent and never20percent.
+These are different requests, not an invariance test or semantic-control pass.
+
+Thinning older H while retaining the last4 increases median wait by36.0/28.2/27.0
+percent, but only7/7/6 of12 contexts cross20percent. Thus the predefined8/12
+consistent-branch threshold is not met; effects are substantial but heterogeneous.
+Memory-null changes median+8.2percent on generated prefixes, with1/12>=20percent.
+On human prefixes it changes-8.8percent, with one-27.6percent case. Retrieval can
+reduce source-conditioned intensity; this evidence does not warrant deleting it.
+
+Actual paired generated-prefix medians are32.57/29.36/28.23ms, while the three
+human-source medians are63.97/62.39/60.90. These separate cohorts are confounded by
+music and conditions and must not be treated as a teacher-versus-native estimate.
+Per-context components suggest a common upward base-rate drift offset differently
+by the residual. Existing component summaries used each law's own survival weights;
+use exact vectors/common weights before attributing the change.
+
+## Revision3: additive-component diagnostic
+
+Extend the same fixed15 contexts/checkpoints with a separately saved component
+probe; no scope/source selection based on these results. Record actual per-ms H
+base and residual vectors and form two one-component exchanges for each fitted
+model: unfitted base plus fitted residual, and fitted base plus unfitted residual.
+The audio encodings for each component are those of its own checkpoint on the
+same complete waveform; no cross-width learned feature substitution is performed.
+Also evaluate zero residual with the checkpoint's actual base as a mechanism
+lesion. Preserve the same native support mask and head clocks in each pair.
+
+This is a post-hoc next-event law, not an executable hybrid generator or trained
+model. Component outputs are not identified physical quantities; the base and
+residual can trade off under likelihood fitting. Compare each exchange to both
+actual fitted and unfitted laws. Use the same20percent material waiting-change
+threshold and8/12 consistency count for generated contexts; report human3
+separately. The primary question is whether base drift or residual change can
+account for the local fitted-minus-unfitted probability shift at these exact
+prefixes. No claim of explaining complete-chart counts follows.
+
+Command `uv run --extra mps python artifacts/joint-audio/20260927-head-control-hazard-probe-v1/components.py`.
+Fresh components-v1; no overwrite/resume. Same900s/8GiB CPU-one-thread bounds,
+input-hash pins and STOP condition. This revision changes the active intervention
+and procedure, keeps the Card proposed/acceptance none, and is authorized by the
+standing research goal. Reuse the verified native probe scorer without altering
+model code or probability calculations. Preserve run-v1/run-v2 and their scripts.
