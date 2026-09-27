@@ -877,3 +877,13 @@ and what the policy demonstrably uses. Full audio remains available at training
 and inference; R1 owns row content and also requires direct audio. H owns event
 timing and musical spacing. No hard chorus labels, arbitrary density ceiling or
 uniform-lane target should substitute for learned musical organization.
+
+
+### Follow-up ownership
+
+Note2026-09-27-four-star-musical-phrasing now owns the broader matched source/
+audio investigation and proposed multiscale audio/history-attention direction.
+Its ten native exports and all analysis/rendering handles are terminal. Product
+f65de370416255477f81993bfd594680ba40cbd6 preserves the report. This response Note
+continues to own the sustained-load state/planner/learning results; no Note
+lifecycle or default-model adoption is implied by the follow-up.

@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: 565d5589bb2dea56292ab3853846d7abf928c604
+Product revision: f65de370416255477f81993bfd594680ba40cbd6
 Scope: Ranked four-star source/generated musical phrasing, multi-scale timing and finger-load variation, audio information flow into H and R1
 Related: 2026-09-27-player-response-frontier, 2026-09-23-audio-skeleton-r1-integration
 
@@ -84,3 +84,96 @@ native output directory, no overwrite or implicit resume. Stop on native contrac
 failure, incomplete export or bound. Rendering/analysis is separate elapsed work.
 Primary analogues are the local full-audio/history and shared-profile studies;
 new hierarchy analogues will be researched only after the observed distinction.
+
+
+## Result Log: matched source/native phrasing observations
+
+Card four-star-phrasing-observation-v1 revision 1; Accepted revision none.
+Generation handle 21894 is terminal, exit 0, with ten complete exports in
+111.5518 seconds. Per-song runs are 8.129–14.446 seconds. Core/actor H streams
+match in all four unknown-style comparisons. Analysis44979, rendering75236 and
+held-scope calculation8969 are terminal, exit 0. No fitting or other live process
+remains. Source code and immutable model/plan identities are in native/config.json;
+script/result hashes are in evidence-digests.json. The analysis reports actual
+source-active scopes; figures additionally show the entire audio clock.
+
+Product f65de370416255477f81993bfd594680ba40cbd6 preserves the self-contained
+report and architecture direction in
+ docs/research/four_star_phrasing_and_audio_memory.md.
+All local links and git diff --check pass; no new product behavior is introduced
+by that report. The earlier opt-in collation change retains its twelve-test
+check from 565d5589bb2dea56292ab3853846d7abf928c604.
+
+Source/actor H counts on the same source-active scope are Max Burning736/748,
+Classic Pursuit1132/1042, STYX795/563, Blizzard887/914. Eight-second H-rate CV is
+.1707/.1311, .1586/.0745, .0963/.2257 and .3221/.2641 respectively. Hence variation
+is not uniformly lost; increasing a CV would not establish better phrasing.
+Classic has fewer H yet flatter intermediate pacing. Max Burning's source
+70.878–72.142s sustains one voice without new heads; the actor inserts five H
+and develops overlapping holds. The separate Stream request's largest H gap is
+467ms versus source1264ms, with its own controls and output retained separately.
+
+On STYX [1800,11800), source102 heads/20 LN become actor78/62. Mean held columns
+.3719 -> 1.9642; any-held time24.34 -> 95.37 percent. Fewer attacks do not imply
+relief. On Blizzard [40342,56342), the source's globally.838 LN chart locally uses
+39 LN among82 heads (rho.4756); actor96 among101 (rho.9505), with any-held time
+69.31 -> 94.51 percent. This loses a local texture contrast within the same
+whole-chart request. The generated whole fraction.9409 also overshoots .8380.
+These are observed arrangement/occupation quantities, not calibrated strain.
+
+Viewed all four whole-song overview plots. Lens read pages2 and3 of every
+source/actor context:16 of56 rendered pages, covering five seconds per chart
+side. Exact viewed names and observations are in lens-review.json. Original
+Max Burning changes moving chord/single groups into a sustained voice and back;
+Classic repeats short-LN/chord figures without long blanks; STYX develops from
+taps toward holds; Blizzard's quieter texture mixes separated taps with short
+paired holds. The actor often replaces these with repeated-column taps or more
+continuous held texture. Source need not be the only valid arrangement. No
+human labels, literal listening, semantic pass or population coverage is claimed.
+
+## Architecture interpretation and selected research direction
+
+The user additionally suspects missing attention-like historical understanding
+and permits scaling when needed. Current global audio already has attention,
+but H/R/R1 history uses query-independent causal TCN summaries. Their committed
+tokens do not bind audio at historical times to the selected pattern. Current
+music is fused after compression. This imposes a concrete information-routing
+burden; it does not prove a TCN cannot learn the behavior or that attention alone
+will fix it. R1's additive mirrored-head cancellation was partly addressed by
+actor layout modulation and must not be reintroduced by an identical shared
+attention vector.
+
+Selected Explore result: TEST the joint audio/history information path, rather
+than another narrowly adjusted sustained-load penalty. Develop nonlinear
+multiscale audio tokens plus current-music-queried committed history; retain
+fast local decoding and exact/player state. H memory contains only H and aligned
+audio. R memory contains timing roles and allowed LN occupancy/origin facts.
+R1 memory contains complete committed actions/aligned audio and reads H preview;
+R1 still owns counts, columns, TAP/LN and release subsets. Real elapsed time,
+causal chart masks and complete audio in both train/infer are required. No hard
+chorus labels or uniform per-lane activity target. New model capacity can be
+several times4.6M if actual startup/dense-passage profiling warrants it.
+
+Primary analogues checked: Music Transformer https://arxiv.org/abs/1809.04281
+for relative retrieval of repeated musical structure; Transformer Hawkes Process
+https://proceedings.mlr.press/v119/zuo20a.html for asynchronous event-history
+attention; MusicVAE https://proceedings.mlr.press/v80/roberts18a.html for a separate
+possible slower arrangement process. None establishes playable 4K results or
+our factorization. This is an adaptation of known primitives, no novelty claim.
+The slower sampled plan remains a distinct future branch, not implemented.
+
+Keep supervision/control confounders visible. Recent R1 fits froze audio/H/R;
+they cannot test improved musical audio representation or H pacing. A global
+LN target can coexist with locally TAP-heavy passages. The finite integral LN
+feedback pushes toward a global fraction after such a passage and may compete
+with musical texture, but its causal contribution is unmeasured. Do not replace
+the architectural question with another low-level controller sweep, and do not
+claim the attention proposal already resolves that issue.
+
+Next Design task must set a concrete memory/encoder implementation, matched
+training comparator, actual history/training-window scope, source/annotation
+coverage, native multi-scale/Lens guards, and Mac startup/dense-service budget.
+Jointly train the new audio/history path; preserve full-song conditioning and
+actual scoped controls. No such new architecture fit has been launched yet.
+Current default model/sampler and scoped interface are unchanged. The complete
+playable-system goal remains active and unachieved.

@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-23
 Updated: 2026-09-27
-Product revision: 565d5589bb2dea56292ab3853846d7abf928c604
+Product revision: f65de370416255477f81993bfd594680ba40cbd6
 Scope: Released R1 timing sensitivity; canonical audio-conditioned joint timing/action learning, native playability and inference
 Related: 2026-09-20-r1-response-recovery-handoff; 2026-09-27-player-response-frontier
 
@@ -16357,3 +16357,25 @@ audio conditioning as a live hypothesis. Next investigation compares genuine
 source/generated passages and audio information flow into H and R1; it does not
 continue narrow peak suppression as a substitute for musical organization. No new
 fit is launched, no runtime is promoted, and the full goal remains active.
+
+
+### Four-star musical phrasing and attention direction
+
+New proposed Note2026-09-27-four-star-musical-phrasing owns a matched four-audio,
+ten-export study, all terminal. Product f65de370416255477f81993bfd594680ba40cbd6
+records actual source/generated phrasing in
+ docs/research/four_star_phrasing_and_audio_memory.md. Ten exports take111.55s;
+16 Lens pages and four complete-song Mel/activity plots are read. Some large
+changes follow music, while local/intermediate rhythmic and TAP/LN texture
+contrasts are lost. Lower head count does not imply recovery: STYX's inspected
+span has fewer generated heads but any-held time95.37% versus source24.34%.
+Classic's eight-second H-rate CV halves despite fewer H. Global high-LN sources
+also contain locally TAP-heavy contrasts that generation can flatten.
+
+The selected next direction is nonlinear multiscale audio memory and attention
+that binds current music to past chosen timing/actions, respecting separate
+H/R/R1 histories. Global audio already uses attention; historical materialization
+does not. This is a justified architecture hypothesis, not a proven repair.
+No new fit is live or promoted. Read the new owning Note before designing the
+next bounded implementation/training comparison; do not resume unchanged
+player-state fitting or a narrow load-cap sweep. The full goal remains active.
