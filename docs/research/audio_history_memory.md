@@ -6,6 +6,11 @@ miss. This prototype adds a nonlinear multiscale audio path and separate
 context-queried H/R/R1 histories. It implements a research hypothesis, not a
 qualified replacement for the selected model.
 
+The [matched 384-update joint fit](audio_memory_joint_fit.md) completes but fails
+native pressure, difficulty and restored-range guards. Its measured runtime
+passes; the failed quality comparison identifies timing-density growth and
+control-support gaps that require separate diagnosis.
+
 ## Audio and history paths
 
 [`AudioPyramid`](../../src/ensomi_model/research/audio_memory_continuation/audio.py)
