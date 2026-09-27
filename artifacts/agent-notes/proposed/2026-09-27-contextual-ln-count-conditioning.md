@@ -102,7 +102,7 @@ cached native versus rescored law, ownership, sampling and layout checks pass:
 
 ## Experiment Card: contextual-ln-factual-fit-v1
 
-Revision: 2
+Revision: 3
 Accepted revision: none
 Execution authority: the standing user goal explicitly authorizes local model
 design, learning experiments, full-Mac compute and commits. This Card remains
@@ -200,6 +200,16 @@ a766382082fa7e0b8674f88d9c7be128b41cf16d1fa7e881beb367336dbaddf4.
 Native-plan SHA:
 292f223ecd704ca6fa4f4051aa987b26ed89e7d5beecc442a10bb79c155eae8a.
 
+Revision 3 supersedes only that native-plan identity with native-plan-v2.json,
+SHA 48379544b1b012fec14c8223a16f23275bc476a967a798d0c2c4cb6e6389d863.
+The copied historical plan incorrectly retained LN amount gates on the before
+and restored fragments of an interrupted global request. Clear those two gates
+while preserving their diagnostic scopes, all actual controls, seeds, audio,
+checkpoints, and the valid complete override gate. The current qualifier rejects
+the old plan before generating any case, as intended by scoped-amount ownership.
+Use evaluate-v2.py, native-execution-v2.json and fresh native-v2. Preserve the
+terminal native-v1 failure; no output is silently replaced.
+
 Main confounders: small exposure budget; contextual law changes before learning;
 composition includes head/release family mass as well as type preferences;
 unchanged H/R/frontier can remain bottlenecks; feedback-off differs from the
@@ -227,3 +237,25 @@ A fresh process restores the last common saved optimizer/weight state; duplicate
 work after step 64 in the failed attempt is compute spent, not additional updates
 in the final model lineage. Native evaluation must use the completed resumed
 step-128 endpoints and original step-0 laws. No model is promoted.
+
+The initial recovery adapter had a duplicate metadata keyword and failed Python
+parsing before creating an output directory or updating a weight. Its script
+and identity are preserved as resume-parse-failed.py and
+resume-execution-parse-failed.json. The corrected resume script SHA is
+fac81e5ed222c04fa1e070044ae761eab88c85ee09b4576dd4ddd9196c554391.
+
+Recovery completes through step 128. Step-64 validation values match the saved
+values exactly in the reported means; the per-chart 3e-5 invariant passes.
+Final validation row NLL is 1.665880293 reference versus 1.665792120 contextual,
+an advantage of only .000088173, far below the .02 learning discriminator.
+The failed attempt consumed 264.001 seconds, stopping during step 128 at
+12,890,079,216 task-footprint bytes. The recovered process consumes 121.829
+seconds with peak observed footprint 9,041,733,880 bytes. Total executed fit time
+including duplicated work is about 385.83 seconds. There is no evidence yet of
+a material learning benefit from the new conditioning path.
+
+Final weights: reference
+d1c7d334e15607e78b3b98c4e780bf381647580bbb32caa7eb67568d8bbc61a8;
+contextual ef4acc8eb34c60ec006cb0bc2976cd4b14b810b9ca8843cdc5ddc0c599fa8ea1.
+Frozen non-composition weights remain byte-equal at save checks. Native output
+and semantic evaluation are still required before any organization claim.
