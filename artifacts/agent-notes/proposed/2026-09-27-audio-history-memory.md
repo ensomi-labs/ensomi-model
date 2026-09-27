@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-27
 Updated: 2026-09-27
-Product revision: 720457b8651d40095c2247b5992c3318b2cb5ced
+Product revision: 251ba0f47970b18f739a3441893e1e0ab9a858cd
 Scope: Nonlinear multiscale full audio, elapsed-time history attention, native and teacher-scored H/R/R1 integration
 Related: 2026-09-27-four-star-musical-phrasing, 2026-09-23-audio-skeleton-r1-integration
 
@@ -20,7 +20,7 @@ Note acceptance, runtime promotion or final-system completion is implied.
 
 ## Experiment Card: audio-history-memory-integration-v1
 
-Revision: 1. Accepted revision: none. Exploratory implementation/profiling under
+Revision: 2. Accepted revision: none. Exploratory implementation/profiling under
 standing user authorization. One combined architecture intervention is evaluated
 for correct information flow, trainability and feasible runtime before a main fit.
 No fitted-quality claim or broad architecture adoption follows from this stage.
@@ -86,9 +86,16 @@ full-audio encoding, first30 rows, two-second publication maxima and peak memory
 Data for bounded profiling: the four verified ranked audio assets in
 20260927-four-star-phrasing-v1/plan.json (SHA9ed61800275342fa03e8282b54985c6d33930e2ac3666b124d9f177b333d24d9).
 Teacher fixtures must satisfy the existing source-execution contract; any source
-rejection is reported rather than silently relabeled. The integration learning
-check is at most8 joint updates on declared valid source intervals, not a main
-fit or quality candidate. Seeds273200–273207; discard its weights after profiling.
+rejection is reported rather than silently relabeled. The initial integration learning
+check is8 joint updates. Revision2 adds a fresh24-update stability probe after
+observed variable-shape driver-memory growth and a behavior-neutral128-event
+key/value padding repair. Cold8 and warm8 repeat case i%4, interval index1+i//4;
+the final8 use the four BOS intervals followed by each final interval index3.
+All intervals use width32000ms. Start again from core2500/zero-output memory with
+seed273200, step seeds273200+i, old/new lr3e-5/3e-4, AdamW decay1e-4, clip1.
+No frozen modules or per-update cache eviction. Sample audio/forward/update and
+final cleanup/cache-release phases. These are integration/resource probes, not
+main fits or quality candidates; discard their weights for main fitting.
 Same complete-song audio at inference and training. No target-derived external
 encoder or borrowed generated style labels.
 
@@ -147,3 +154,41 @@ This is an observation-record construction error, not a native model failure.
 Retain that folder, merge saved fields with explicit report.update, and use fresh
 preflight-v3. The model/source/data are unchanged. The preceding live-handle entry
 is superseded; replacement status is recorded on its next authoritative poll.
+
+
+## Result Log: complete integration and resource-stability revision
+
+Preflight-v3 handle37997 is terminal, exit0. Eight joint updates complete in
+53.2898 seconds; total successful-run time74.5629 seconds. Checkpoint SHA
+bd5cee5e5d532272e12784a78a8fb152d9f1842874e5b48b611832e36de58fb2 is integration-only.
+All inherited audio/H/R/R1 and added groups change with finite gradients. The
+zero-output full native trajectory exactly matches baseline before training.
+
+Core/memory CPU times on118.334s audio: complete6.5025/13.4471s; first30 rows
+.5379/.9583s; maximum2s publication .1677/.4098s; audio encoding .2090/.2356s.
+These are loaded-model/cached-Mel measurements, not complete client cold start.
+The new publication evaluator independently checks both coverage traces against
+2s lookahead with startup at first30: both have zero deadline misses. Required
+observed startups are.3814/.6521s. It catches local stalls even when average
+speed is faster than realtime; three focused scheduler tests pass.
+
+MPS sampled footprint reaches15.1936GiB, driver12.6257GiB, after-update active
+about.37GiB. This is not evidence of monotonically growing live tensors. The
+teacher memory path had sliced already-padded states back to arbitrary real N
+before linear key/value projections. Preserve the128-event bucket and pad audio
+lookups consistently, while selection uses only true event indices. Product
+251ba0f47970b18f739a3441893e1e0ab9a858cd includes this repair; CPU/MPS value and
+gradient parity pass. All13 memory tests pass in10.72s, and40 distinct affected
+checks have passed across the unchanged owners. Eleven evaluation tests pass.
+No model-quality gain is claimed.
+
+Card revision2 is needed because the next probe extends the declared update/data
+and resource-observation procedure. It remains proposed; user standing overnight
+research authority permits execution without Note acceptance. Run from clean
+251ba0f into fresh stability-v1, maximum1800 active seconds/18GiB; no overwrite.
+Command: uv run --extra mps python
+artifacts/joint-audio/20260927-audio-history-memory-v1/stability.py.
+Positive resource evidence means the repeated warm multiset plateaus and new
+scope shapes fit the bound; it does not establish all-corpus memory bounds.
+Failure requires targeted allocation/shape investigation, not an unchanged
+large fitting launch. No process is live at the time of this revision commit.
