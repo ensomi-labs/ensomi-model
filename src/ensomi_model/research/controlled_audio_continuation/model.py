@@ -18,6 +18,7 @@ from ..typed_audio_continuation.program import Recovery
 from .composition_prior import CompositionPrior
 from .hold_audio import HoldAudioCues
 from ..player_response.conditioning import PlayerCondition
+from .scope_allocation import ScopedLnAllocation
 
 
 class RowComposition(nn.Module):
@@ -74,7 +75,7 @@ class ControlledAudioModel(PlannedAudioModel):
 
     def __init__(self, config, *, style_names=(), ln_reference=.17, recovery=Recovery(60, 50, 50),
                  count_history_bound=None, hold_audio_width=0, layout_modulation=False, player_state=False,
-                 ln_conditioning='reference_tilt'):
+                 ln_conditioning='reference_tilt', scope_allocation='none'):
         super().__init__(config)
         self.style_names = tuple(style_names)
         self.ln_reference, self.recovery = ln_reference, recovery
@@ -109,6 +110,12 @@ class ControlledAudioModel(PlannedAudioModel):
         if type(player_state) is not bool:
             raise ValueError('Player-state conditioning must be boolean')
         self.player_condition = PlayerCondition(config.hidden) if player_state else None
+        if scope_allocation not in ('none', 'context', 'progress'):
+            raise ValueError('Scoped LN allocation requires none, context or progress')
+        self.scope_allocation_mode = scope_allocation
+        self.scope_allocation = (None if scope_allocation == 'none' else ScopedLnAllocation(
+            config.conditioned_audio_width, config.hidden, self.preview_condition.in_features,
+            width, 3+len(self.style_names), scope_allocation))
 
     @property
     def requires_full_audio_queries(self):
@@ -136,6 +143,8 @@ class ControlledAudioModel(PlannedAudioModel):
                     player_state=self.player_condition is not None)
         if self.ln_conditioning != 'reference_tilt':
             options['ln_conditioning'] = self.ln_conditioning
+        if self.scope_allocation is not None:
+            options['scope_allocation'] = self.scope_allocation_mode
         return options
 
     def head_logits(self, audio, history, clocks, *, control):
@@ -148,7 +157,7 @@ class ControlledAudioModel(PlannedAudioModel):
 
     def planned_row_log_probs(self, audio, history, exact, legal, occupancy, preview, local, timing,
                               *, control, response_allowed=None, ln_shift=0., hold_audio=None, player_features=None,
-                              history_visible=None):
+                              history_visible=None, allocation_features=None):
         """Score complete rows, optionally hiding the learned content observation.
 
         ``history_visible`` is a query-aligned boolean training-view mask. False
@@ -215,7 +224,9 @@ class ControlledAudioModel(PlannedAudioModel):
             if self.player_condition is not None:
                 consequence_context = consequence_context+self.player_condition(player_features)
         scores = scores+self.row_consequence.score(consequence_context, local, timing)
-        return scores.masked_fill(~allowed, -torch.inf).log_softmax(-1)
+        log_probs = scores.masked_fill(~allowed, -torch.inf).log_softmax(-1)
+        return (log_probs if self.scope_allocation is None else self.scope_allocation(
+            log_probs, audio, base.mean(-2), preview, control, allocation_features))
 
 
 def warm_model(path, *, device='cpu', recovery=Recovery(60, 50, 50)):

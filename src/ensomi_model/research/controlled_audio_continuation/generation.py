@@ -16,6 +16,7 @@ from ..typed_audio_continuation.demand import DemandBalance, DemandCurve, Demand
 from ..typed_audio_continuation.program import ACTIONS
 from ..typed_audio_continuation.response_preference import RecoveryPreference
 from .allocation import LnAmountFeedback, LnAmountState
+from .scope_allocation import LnScopeState
 from .sampling import recovery_cost, advance_recent_heads
 from ..player_response.conditioning import features_at
 from ..player_response.state import CommittedPlayState
@@ -37,6 +38,7 @@ class ControlledSession(ContinuationSession):
         self.ln_scopes = ln_episodes(controls)
         self.recent_heads = ()
         self.play_state = CommittedPlayState() if model.player_condition is not None else None
+        self.scope_state = LnScopeState.empty(controls) if model.scope_allocation is not None else None
         self.row_demand_model, self.row_demand_feedback = row_demand_model, row_demand_feedback
         self.row_demand = DemandBalance()
         started = time.perf_counter()
@@ -54,8 +56,11 @@ class ControlledSession(ContinuationSession):
     def row_options(self, now):
         span = next((s for s in self.ln_scopes if s.start_ms <= now < s.end_ms), None)
         self.allocation = self.allocation.in_scope(span)
-        return ({} if self.play_state is None else
-                dict(player_features=self.tensor(features_at(self.play_state, now)[None])))
+        options = ({} if self.play_state is None else
+                   dict(player_features=self.tensor(features_at(self.play_state, now)[None])))
+        if self.scope_state is not None:
+            options['allocation_features'] = self.tensor(self.scope_state.features(now)[None])
+        return options
 
     def step(self, **options):
         update = super().step(**options)
@@ -79,6 +84,8 @@ class ControlledSession(ContinuationSession):
         return self.ln_feedback.scores(log_probs, self.allocation) if self.ln_feedback else log_probs
 
     def record_row(self, row):
+        if self.scope_state is not None:
+            self.scope_state = self.scope_state.observe(row)
         if self.play_state is not None:
             self.play_state = self.play_state.observe(row)
         tap, ln = row.actions.count(1), row.actions.count(2)
@@ -107,6 +114,8 @@ class ControlledSession(ContinuationSession):
         retain = min(self.duration_ms, self.cursor+max(recovery.hh, recovery.hr+recovery.rh, 1+recovery.rh))
         self.planner.update_controls(controls, span.start_ms, self.cursor, retain_through_ms=retain)
         self.controls, self.ln_scopes = controls, ln_episodes(controls)
+        if self.scope_state is not None:
+            self.scope_state = self.scope_state.update_controls(controls)
         self.row_demand_curve = self.demand_curve(controls)
         self.residual = None
 
