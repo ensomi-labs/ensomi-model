@@ -115,7 +115,7 @@ terminal; no learning updates have run when this Card is committed.
 
 ## Experiment Card: audio-memory-joint-fit-v1
 
-Revision: 3. Accepted revision: none. Owning Note remains proposed. The user's
+Revision: 4. Accepted revision: none. Owning Note remains proposed. The user's
 standing authorization explicitly includes model implementation, local experiments
 and overnight compute. This is an exploratory comparison, with no automatic
 runtime adoption, Note acceptance, remote push or final-system completion.
@@ -445,3 +445,70 @@ adapter then45835 successful audit;36048 qualifier/analyzer import;76365 final
 witness audit;73558 nine-page Lens render;62347 original memory bound stop;
 66456 local SDPA docs;54620 fifteen memory checks;41712 SDPA bound stop;70713
 seventeen checkpointed-memory checks. Only96244 needs resumption.
+
+
+## Goal continuation and Card revision4: exact state recovery across processes
+
+Previous goal turn classification: progress. It completed the matched baseline,
+implemented/replayed temporal regression witnesses and established equivalent
+checkpointed history reads. This continuation polls the confirmed live96244
+rather than restarting on elapsed observation. It advances to115 updates and
+then becomes terminal at the18GiB guard during update116/human/backward.
+Elapsed818.6261s, footprint18.0957GiB, driver10.0907GiB, active at the failing
+phase.4448GiB, active run peak4.5291GiB. Low post-backward active storage with
+continuing process growth supports trying process-lifetime recovery; it does not
+identify the complete host/driver residual. The update116 gradients were discarded
+before optimizer.step, so the saved model/moments belong to115 completed updates.
+
+Final valid partial checkpoint memory-checkpoint-384/step-115.pt
+SHA8f426b2b13617e9c130b14b2d7ff069e952f09550f034411ca79c8cfc4eaf2eb.
+Keep it as the beginning of the continuing trajectory, not an endpoint selected
+by NLL. Earlier original/SDPA ten-step runs remain discarded initializations.
+
+Revision4 resumes this exact115-step checkpoint, advancing the same frozen draws
+through384 in fresh processes of at most32 complete updates. Restore all model
+weights, AdamW state and CPU/MPS RNG; retain the existing per-update seed274100+step,
+two microbatches, learning rates, clipping, full audio/history gradients and exact
+controls. No loss/data/model change. Each child writes a fresh segment directory,
+checks the complete exposure identity, and saves at its final completed update.
+A segment failure stops the supervisor; there is no automatic unchanged retry.
+Concatenated update ledgers must contain1..384 exactly once. Only384 qualifies.
+
+The32-step process cap is an execution bound, not a shorter context or prediction
+horizon. All elapsed history and complete audio are still reconstructed from the
+source under the current weights. No learned cache crosses parameter updates.
+No fresh source-NLL curriculum, sampling rejection or gradient family is added.
+Only process-local caches/materializations are released between segments.
+
+CPU recovery proof97406 completes using actual step64 parameters/moments
+(SHAbbff6a202df88a587134cfe60b0cc0b3cdd125ae36845c7b96f16768bb8c772e):
+two deterministic synthetic-gradient AdamW updates, with serialization/reload
+between them, produce exactly equal parameters, all optimizer states and RNG
+state to uninterrupted execution. Proof report resume-verification.json
+SHA694444c438c206ceed4bed22155e393e1d28fa6d27d785cc8df4579b11d31e3f.
+Temporary proof weights are deleted. This checks recovery mechanics, not model
+quality, a source-loss gradient or bitwise cross-process MPS determinism.
+
+Source remains7fdad44331c75da035fdb9720d0875aa02bdd732, executable model/tests
+committed; unrelated AGENTS.md and untracked walkthrough are preserved. Drivers:
+train_segment.py SHA5c05d019fddf689df50bed3ef6fe951157400aaf4a5052f7fc4b19f7ed835885;
+resume_segments.py SHA227a444320481055f07887eb40a9b0179bf7e68aaf7930ef6b05ea1fdb1b4589;
+qualify.py SHAbce8addba20e903581d5fae84f3a2d773494717abc2dda1fc33db44fc39ea8af.
+Command caffeinate -i uv run --extra mps python
+artifacts/joint-audio/20260927-audio-memory-joint-fit-v1/resume_segments.py.
+Fresh output memory-resumed-384, with child segment directories and immutable
+checkpoint ancestry. Existing artifacts are not overwritten. Final step384 is
+linked to the last segment checkpoint for the qualifier; its actual hash is
+recorded. The supervisor includes previous90.7736+81.3772+818.6261 seconds in the
+original10800s memory-arm budget, leaving about9809s before launch overhead.
+Keep18GiB per-process guard; do not run concurrent accelerator fits.
+
+Baseline384 and every frozen qualification rule/asset/control/seed remain as in
+revision1. The qualifier now resolves memory-resumed-384, requires both384-step
+endpoints, and then measures native generation without a concurrent fit. Full
+model quality remains untested. Rendering driver render_qualification.py
+SHA569f62acccc97a796c87890a3cea695f409d6b9ed21947a150637dd9fb896dab
+prepares the declared development/reserved/style contexts only after analysis;
+prepared images remain explicitly unreviewed until read. No Note acceptance or
+model/default promotion. Revision4 is an authorized exploratory execution repair
+under the user's existing research goal, with no new permission request needed.
