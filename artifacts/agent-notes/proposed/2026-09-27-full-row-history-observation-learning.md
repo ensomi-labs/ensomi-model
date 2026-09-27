@@ -4,7 +4,7 @@ Note ID: 2026-09-27-full-row-history-observation-learning
 Status: proposed
 Kind: research
 Created: 2026-09-27
-Updated: 2026-09-27
+Updated: 2026-09-28
 Product revision: 0882315ef23097e44e031707abd382d971b8c82c
 Scope: Matched full-R1 factual learning, optional content-observation masking, native organization and style guards
 Related: 2026-09-27-native-prefix-weight-state-decomposition, 2026-09-27-contextual-ln-count-conditioning
@@ -170,3 +170,100 @@ caused non-JSON integers in qualification output; the real qualifier tests caugh
 it before any research generation. Explicit Python booleans fixed the report,
 and all selected tests pass without exclusions. These added descriptors are
 diagnostic, not a post-hoc replacement for the frozen primary comparison.
+
+### Result Log: full-row-factual-views-native-v1
+
+#### Experiment and reproduction
+
+Owner 2026-09-27-full-row-history-observation-learning; Card
+full-row-factual-views-v1 revision 1; accepted revision none. This is exploratory
+execution under standing local research authority, not an accepted or adopted
+model. Training source 0882315ef23097e44e031707abd382d971b8c82c and evaluation
+source 13eefbc67d3e7668910efc612e2f35ba50a30798 are recoverable commits; the
+latter's observer-only difference is recorded above. Unrelated AGENTS.md and an
+untracked architecture walkthrough were outside the execution source scope.
+
+The frozen fourteen-case plan, factual data/checkpoint identities, seeds and
+commands are unchanged from the Card and frozen inputs. evaluate.py invokes
+the native qualification runner on initial-guards, full and missing, preserving
+whole-audio generation from BOS, feedback off, original recovery and full history.
+Eleven initial cases are reused from the pinned count-study baseline, with three
+new initial style guards and fourteen outputs per fitted arm. No output was
+overwritten or retried. All 31 new generations complete normally in 492.669s
+within the 2400s native budget, on Apple M5 CPU one thread. Fitting separately
+completed both 128-update arms in 290.011s on MPS. There was no new training in
+the subsequent formal-document revision.
+
+Evidence owner artifacts/joint-audio/20260927-full-row-history-views-v1:
+native-v1/full/cases.json SHA
+6baf9ae418289c21d294ad4c5c6a2a71def08acba89794b690aaaa95742bef5b;
+native-v1/missing/cases.json SHA
+191d61b8f613b2260e9c08f27fe8a2ae10380f2d87a9cad319f5251b818bc6ad;
+native-v1/initial-guards/cases.json SHA
+5aaf6c4ce3cd174b3badee9fe78cd2087daf9c4ea64afe4e8d5cef96a371af8b.
+All 31 export hashes are verified against these records. Complete H timestamp
+sequences parsed from every output match the corresponding initial baseline
+for both fitted arms, including the live-control case.
+
+#### Results
+
+Whole-song LN fractions, with seeds separate:
+
+| Case | Initial | Full R1 | Missing view |
+| --- | --- | --- | --- |
+| Classic s0 / s1 | .145 / .191 | .217 / .154 | .198 / .040 |
+| STYX s0 / s1 | .939 / .933 | .519 / .487 | .438 / .428 |
+| Blizzard s0 / s1 | .993 / .993 | .972 / .953 | .947 / .908 |
+
+Requests are .2171533, .4852810 and .8380463 respectively, all D4 with styles
+unknown. Ordinary full R1 preserves both Classic amount passes and restores
+both STYX passes, but fails both Blizzard amount checks. Missing view loses
+Classic s1 and passes only Blizzard s1. The control override is still a separate
+case; its fragments are not pooled into whole-song ratios or new quotas.
+
+Stream-only Zenithfall, D4 and LN unknown:
+
+| Seed | Initial stars / attack excess seconds | Full R1 | Missing view |
+| --- | --- | --- | --- |
+| 271200 | 4.861 / .043476 | 5.071 / .011005 | 5.012 / .030037 |
+| 271201 | 4.984 / .106111 | 5.134 / .023828 | 5.236 / .087103 |
+
+Both missing-view excess values exceed full R1 by more than the declared .005s
+guard. Its auxiliary source NLL gain therefore does not establish a native win.
+Tech guard initial/full/missing excess is 1.30685/2.95179/3.50569s, with stars
+5.801/5.964/6.082. Full R1 Jack/Trill guards are 5.069/5.644 stars. Every added
+style guard uses Zenithfall, so style causality remains confounded with audio.
+
+The new outputs retain semantic_review pending. No new Lens, listening or
+playtest judgment is inferred from these values. The primary replicated
+organization criterion is not established. Maximum qualifier startup/service
+seconds are .894/.338 for full and .778/.344 for missing; these are not the
+separate 30-row/eight-second benchmark. Neither checkpoint is promoted.
+
+#### Plan conformance
+
+No protected field was changed. The declared evaluation-only source descendant
+adds LN interactions without altering generation or the comparison criteria.
+Reuse of the eleven initial outputs and pending semantic work are explicit.
+This result log does not mark incomplete semantic qualification as complete.
+
+#### Evaluation and decision
+
+REFINE. Full R1 learning can improve some ordinary LN amount and Stream attack
+outcomes without changing H, whereas count-only repair cannot directly learn
+within-count routing. This does not isolate the contribution of any one trained
+module. Attack excess and whole difficulty move in opposite directions in the
+Stream cases, while Tech pressure worsens. Missing-history robustness improves
+only its declared source observation task and fails native pressure guards
+relative to ordinary full R1; do not scale it on auxiliary NLL alone.
+
+Retain ordinary full R1 as a research parent, not a qualified playable release.
+Complete semantic inspection before claiming improved LN relationships; use
+the separate proposed 2026-09-28-style-difficulty-response-probe to distinguish
+audio-specific failure from style/control response. Independent LN/coordination
+response remains necessary because the attack-only planner is unchanged.
+No Note lifecycle transition, human-label creation or remote publication occurs.
+
+The numerical findings and their limits are incorporated into the self-contained
+product report docs/research/native_pattern_failure_analysis_zh.md at
+0f5ec10b34c43fe21a6143d371a2f2bc36070e47.

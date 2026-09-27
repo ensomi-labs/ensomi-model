@@ -4,8 +4,8 @@ Note ID: 2026-09-27-ln-continuation-preference-diagnosis
 Status: proposed
 Kind: investigation
 Created: 2026-09-27
-Updated: 2026-09-27
-Product revision: 9f5ed1d9d5d1a596578f8e4e242cf49e175d2bb8
+Updated: 2026-09-28
+Product revision: 0f5ec10b34c43fe21a6143d371a2f2bc36070e47
 Scope: Native release preference, R1 consequence scores, continuation response coverage and ranked four-star temporal organization
 Related: 2026-09-27-controller-semantics-and-native-qualification, 2026-09-27-player-response-frontier, 2026-09-27-playability-regression-evaluation
 
@@ -346,3 +346,45 @@ is claimed. This commit changes only the requested report. The existing model
 prototype, tests, AGENTS.md change and separate architecture walkthrough remain
 outside the documentation commit. No new fit was started for this revision.
 Status remains proposed; there is no lifecycle transition or remote push.
+
+## Formal system analysis with later learning evidence
+
+The self-contained report at product
+0f5ec10b34c43fe21a6143d371a2f2bc36070e47 retains the original user diagnosis,
+including the a99519c Stream-only playtest without a retained output, difficulty
+and style balance, nonuniform pressure and breathing, LN organization, full-audio
+symmetry, module ownership and avoidance of shape blacklists. Code facts, source
+examples, agent readings and human judgments remain distinct.
+
+The expanded formal analysis separates exact replay, musical organization memory,
+canonical demand state, scoped-control accounting and publication state. It
+distinguishes input-projection collisions from supervision that collapses
+different consequences. The canonical profile does not become a physiological
+fatigue model merely by introducing event-time decay.
+
+Added derivations cover recovery-support viability versus actual playability;
+the equal-marginal/different-LN-interaction counterexample; count/layout KL;
+closed-loop reached-distribution propagation; the conditional future potential
+for whole-scope controls; and the different domains of local row energy,
+policy-specific action value and continuation frontier. A finite-candidate
+2-epsilon selection regret bound explains why a correctly grounded response is
+needed before more search can provide a useful guarantee. Horizon-end value is
+proposed only for declared additive response channels; open holds remain open.
+
+The count-only and crossed-prefix results narrow the direct-LN-input hypothesis.
+The already completed full-R1 and missing-view study adds numerical evidence of
+partial amount/attack gains with unresolved stars/style regressions. The report
+does not claim that new outputs passed semantic review or that reduced attack
+excess solved long jacks. Full-R1 empirical ownership remains in
+2026-09-27-full-row-history-observation-learning; proposed difficulty/style work
+remains separate and unexecuted in this document turn.
+
+Verification checks all 18 local links, delimiter/grouping balance for 70 display
+math blocks, eight added evidence/model hashes and all 31 new export hashes.
+Complete H timelines agree across initial/full/missing for all fourteen cases.
+git diff --check passes. This is syntax and evidence validation, not a rendered
+math-compiler claim or a proof of every modeling approximation. Only the
+requested curated document changes on the product branch; no model or sampler
+code changes, new fitting, remote push or benchmark rerun occurs. Unrelated
+AGENTS.md edits and the architecture walkthrough remain untouched. The playable
+system goal remains active and unachieved; Note status stays proposed.
