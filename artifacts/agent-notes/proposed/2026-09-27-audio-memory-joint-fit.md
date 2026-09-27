@@ -59,3 +59,30 @@ coverage, input/script hashes, all reserved groups, exact evaluation cases/seeds
 per-range guards and the Mac runtime/memory stop. Reserved canonical validation
 songs will be selected separately from the exposed developmental diagnostics;
 no claim of being unseen by every inherited checkpoint is allowed without audit.
+
+### Preparation exposed a target-support conflict
+
+Initial preparation39869 terminates after96 logged update pairs because a retained
+human Tech-supporting anchor has no admitted32s context among200 proposals.
+Keep the partial preparation directory; no fit has started. The source is ranked
+Senbonzakura [Oriental Cherry], SHA48becb6ae141b18562e17de67239ee0a38f9bd424ddf1acc5567c9a5f0dee04f,
+wholeD5.8448, local annotatedD4.4017 on[173990,175704). Nearby true LNs last42–43ms;
+HH minimum85ms and RH minimum57ms. Thus the rejection is not a too-fast repeated
+attack. Four tested covering contexts fail the old60/50/50 support, and relaxing
+HR to40 alone admits a534-row32s context. Probes26426 and50396 are terminal.
+
+Revise the common experiment profile to Recovery(hh=60,rh=50,hr=40) for both
+baseline and memory arms, including their untrained comparison. Preserve the
+actual source endpoints; do not relabel short LNs as TAP or retime them. This
+common protocol adaptation is separate from the architecture intervention and
+must be reported against the old selected60/50/50 runtime. It is not a claimed
+cause or repair of all previous held-texture problems. No default profile changes.
+
+Fresh preparation-v2 is live under99761. It pre-admits one32s context per original
+human anchor, trying up to8 positions while retaining its actual annotation
+scope; exclusions and reasons are explicit. Recompute capped human sampling
+weights over admitted anchors. Both arms use the same frozen context/controls;
+population clock-partition sampling is unchanged. This avoids silently replacing
+an unreachable anchor or narrowing its scored context to make a test pass. The
+initial preparation is not the final input identity. Any further coverage loss,
+especially rare prominent styles, must be reported before the fit Card is fixed.
