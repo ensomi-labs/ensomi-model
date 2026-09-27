@@ -140,3 +140,10 @@ seconds and18GiB sampled memory. No main quality fit has started.
 User steering makes reusable EVAL a priority alongside the model. The separate
 Note2026-09-27-playability-regression-evaluation owns those algorithms and real
 historical calibration. Do not choose or promote a new model solely from NLL.
+
+Preflight-v2 handle77659 is terminal after saving the baseline export: the
+measurement driver merged duplicate generation_seconds keys from save_rollout.
+This is an observation-record construction error, not a native model failure.
+Retain that folder, merge saved fields with explicit report.update, and use fresh
+preflight-v3. The model/source/data are unchanged. The preceding live-handle entry
+is superseded; replacement status is recorded on its next authoritative poll.
