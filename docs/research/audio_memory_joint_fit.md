@@ -234,12 +234,77 @@ native substitution comparison is needed before changing the training objective
 or treating a two-model combination as useful generation.
 
 The input probes score 339 laws in 22.31 seconds; component exchanges score 150
-in 10.80 seconds on one CPU thread, each below 1 GiB sampled process peak. These
+in 10.80 seconds on one CPU thread, each below 1 GiB reported process peak. These
 are instrument runtimes, not generation latency. One earlier zero-record attempt
 failed because parameters created inside inference mode lacked native-cache
 version counters; using a no-gradient context preserves those counters without
 changing query math. Owner: `20260927-head-control-hazard-probe-v1`, `run-v2` and
 `components-v1`, source `fc641aa740a7528decbb0b5b522aa91039d06ff1`.
+
+## Native H-base substitution: a diagnostic improvement that still fails
+
+A complete rollout comparison replaces only H's additive base with the unfitted
+model's own full-audio/control/base path. Fitted H memory and residual, R, R1,
+recovery, controls and case seeds remain unchanged. This is a two-model diagnostic
+whose additional audio encoding is included in startup measurements. It neither
+transfers learned feature coordinates between encoders nor gives row content to H.
+The nine Stream cases, four ordinary developmental songs and live switch all
+export and reparse successfully in 307.49 seconds on one CPU thread.
+
+| Measurement | Native memory | H-base substitution |
+| --- | ---: | ---: |
+| Nine-Stream mean pressure $J$, s | .38230 | 0 |
+| Nine-Stream whole-star MAE | 1.33452 | 1.16212 |
+| Median paired H-count ratio | 1 | .31832 |
+| Maximum first thirty rows, s, these 14 cases | 1.51601 | 2.26711 |
+| Maximum two-second service, s, these 14 cases | .93949 | .54825 |
+
+The component intervention substantially changes actual timing, beyond its modest
+fixed-prefix waiting effect. For Zenithfall seed 271200, H falls from 5,514 to 995,
+heads from 5,968 to 1,258, and whole difficulty from 5.3074 to 2.4051 against a
+four-star request. Its any-held fraction rises from .057 to .387 with LN amount
+unspecified. Across the three Zenithfall seeds the resulting difficulties are
+2.195–2.405. Native histories amplify the component change; a fixed-prefix effect
+size cannot predict this complete-trajectory outcome.
+
+The diagnostic passes the original mean-pressure and star-MAE guards against
+unfitted, but fails startup and scoped difficulty guards. Three cases exceed the
+two-second first-thirty-row bound. Once playback begins with the measured startup,
+the actual publication traces have no deadline misses; startup and later service
+remain distinct. There are no below-20-ms same-column attacks in evaluated scopes.
+
+For the live switch, substituted scoped difficulties become 1.8090 / 2.7403 /
+2.2287 against requests 3 / 4.5 / 3. Restored difficulty improves, while before and
+override now miss the ±1 bound. All LN fractions remain within .10. Pooling the
+ranges would conceal these opposing outcomes.
+
+Nine Lens pages cover the same Classic Pursuit and Blizzard Heights passages.
+Classic now interleaves TAP/chords and held voices through both pages, providing
+a local improvement over memory's TAP-run-to-LN-run separation. However, it has
+18 H / 28 heads versus memory's 62 / 76 and source's 29 / 47; its any-held fraction
+rises to .6414 from memory's .4770, versus source's .4212. Changed type organization
+does not by itself establish improved recovery or appropriate requested workload.
+
+Blizzard remains a predominantly chained-LN passage across all seven pages.
+Heads decrease from memory's 155 to 99, but its 86 LN heads give fraction .8687,
+any-held time .9220 and no all-column recovery credit after 250 ms. Source values
+are 82 heads, fraction .4756 and any-held time .6931. A different LN arrangement
+may be valid, but reducing attacks has not established the desired texture and
+relief contrasts. No listening, real player test or human annotation is claimed.
+
+The base path is consequently a demonstrated contributor to this native density
+regression, while simply restoring it is an inadequate repair. The experiment
+also supplies a concrete evaluation counterexample: zero overload and improved
+average difficulty error can coexist with underfilled requests, held-texture
+substitution and startup failure. Separate response, scope, semantic and latency
+checks prevent this diagnostic from being promoted as a playable improvement.
+
+Owner: `20260927-head-base-native-replay-v1`. Plan SHA-256:
+`8c76ae534b46709ac89b81b1b98f6560b27149fa5c0282c4da887a220fb7ae83`.
+Result SHA-256:
+`14051839450611e4cdeb039bb2a87e384fb49e7a3832700cbfd84f374c6dd3c7`.
+The model hashes are the common core2500 and memory endpoint recorded below;
+every report declares both factor owners and its wrapper identity.
 
 ## Reproduction identities
 

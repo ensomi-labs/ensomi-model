@@ -249,3 +249,20 @@ This instrument localizes timing sensitivity to controls or history. It does not
 assign BAD labels, certify learned control semantics, or replace complete native
 rollouts. A hypothetical input lesion must be labeled as such. In particular,
 removing another known style changes the request and need not preserve the law.
+
+## Rejecting gains that move the failure elsewhere
+
+The [matched memory fit and H-base diagnostic](audio_memory_joint_fit.md) provide
+an actual regression example. Replacing only the fitted H base reduces nine-case
+pressure excess from .38230 to zero and whole-star MAE from 1.33452 to 1.16212.
+It still fails: H counts have median ratio .318, three startups exceed two
+seconds, and the before/override control ranges undershoot difficulty despite an
+improved restored range. Lens and occupation measurements find continued LN
+texture where fewer attacks could otherwise be mistaken for recovery.
+
+Future comparisons should retain these as independent evidence channels. A
+passing pressure objective or average proxy cannot override a failed scoped
+control, publication or inspected-organization guard. Report partial gains with
+their tradeoffs, leave unreviewed dimensions unreviewed, and retain ranked positive
+exceptions to automatic BAD classification. The framework supplies repeatable
+facts and witnesses; each experiment must declare its own promotion criteria.
