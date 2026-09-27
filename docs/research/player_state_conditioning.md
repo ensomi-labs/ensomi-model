@@ -305,6 +305,9 @@ style labels cannot simply be attached to altered generated histories.
 Neither more training of this unchanged setup nor removal of the new projection
 is justified as the next repair. H breathing, held demand, coordination and
 stable scoped style/difficulty control remain unresolved system requirements.
+The [matched four-star phrasing study](four_star_phrasing_and_audio_memory.md)
+examines those broader musical differences and proposes audio-conditioned history
+memory as a complementary architecture direction.
 
 ## Evidence identity
 
