@@ -1,5 +1,6 @@
 """Composable evidence reports with stable scope identities and no pooled verdict."""
 from .alignment import MelDescriptors, audio_correspondence
+from .hold_relations import hold_relations
 
 
 FEATURES = ('H_Hz','column0_attack_Hz','column1_attack_Hz','column2_attack_Hz','column3_attack_Hz',
@@ -18,6 +19,7 @@ def evaluate_scopes(trace,scopes,*,mel=None,identity=None):
     reports=[]
     for scope in scopes:
         row=trace.scope_report(scope)
+        row['LN_timing_relations']=hold_relations(trace,scope)
         row['contrasts']=trace.contrasts(scope)
         row['audio_correspondence']=(None if descriptor is None else audio_correspondence(trace,descriptor,scope))
         reports.append(row)

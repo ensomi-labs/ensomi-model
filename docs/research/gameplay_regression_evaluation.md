@@ -22,6 +22,19 @@ spent freely recovered after .25/.5/1 seconds without an action. Recovery credit
 begins at the actual previous action plus that duration, not at the scope start.
 Adjacent scope credits therefore add without a fictitious restart.
 
+`LN_timing_relations` supplements these amounts with complete hold durations,
+duration relationships between distinct LN onset groups, simultaneous-group
+spread and a second coordinate based on the actual H sequence. H coordinates
+linearly interpolate observed head timestamps; they are not beats or a timing
+grid. Comparing milliseconds and H spans helps separate irregular H intervals
+from release-span choices. Open holds remain censored, real tails may extend
+beyond the selected scope, and a predecessor group before that scope remains
+available. Largest-change contexts are inspection witnesses, not automatic BAD
+labels. Short or unequal holds are never rejected by this analysis, and smaller
+variation is not a quality objective. The
+[native LN and pressure analysis](native_pattern_failure_analysis_zh.md)
+defines the measurements, causal comparison and interpretation limits.
+
 Trailing per-column attack peaks use .5/1/2/4/8/16-second windows, retain prefix
 attacks and return witness clocks. Successive same-column attacks below 20 ms
 have explicit endpoint witnesses. These attack checks count TAP and LN press;
