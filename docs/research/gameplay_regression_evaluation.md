@@ -214,6 +214,17 @@ integral is the existing diagnostic, not an independent validation score; its
 added value is localization and inspectable context. It does not automatically
 classify real ranked repetitions as bad patterns.
 
+[`pressure_review_contexts`](../../src/ensomi_model/research/gameplay_evaluation/review.py)
+ranks retained episodes across every response scale by integrated excess and
+includes the peak's contributing history in each proposed inspection range.
+Reviewing only the largest four-second peak can miss sustained eight- or
+sixteen-second load, including passages where all columns remain busy rather
+than one isolated column repeating. The original scored scope remains attached
+when an inspection context extends into its incoming history. Overlapping
+contexts are allowed; selection does not merge control scores or label quality.
+A regression fixture has no four-second excess but sustained sixteen-second
+excess, ensuring this failure family still receives an inspection context.
+
 Owners: `20260927-gameplay-evaluation-v1` and
 `20260927-audio-history-memory-v1/preflight-v3`.
 Historical replay source: `720457b8651d40095c2247b5992c3318b2cb5ced`.
