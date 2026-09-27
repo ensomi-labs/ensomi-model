@@ -25,7 +25,7 @@ history. Descriptive duration regularity is not an automatic good-pattern label.
 
 ## Experiment Card: native-candidate-supply-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: the user's standing goal authorizes local research,
 experiments, implementation and commits. No inferred acceptance or remote push.
@@ -95,3 +95,17 @@ work rather than tightening shape masks. A finite sample cannot prove absence
 of suitable support. Cross-horizon deterioration indicates a horizon/state
 problem even if a four-second score improves. All branches still require full
 native qualification before any deployment or checkpoint promotion.
+
+## Execution adapter correction
+
+Frozen plan SHA 1f4cd14092f59189d1117235eabc5aaf696cd54ba1506e1fe2a5bdc1dfc06ca3.
+First attempt 57128 is terminal/failed during the first candidate's optional
+offline difficulty parsing: the minimal source-free header omits AudioFilename
+until the complete export wrapper supplies it. The private review projection
+uses the lower-level exporter, so it must explicitly reference the original
+audio. The native prefix, candidate zero, physical validation and projection
+row equivalence had already passed before this metadata failure.
+
+Preserve run-v1 and failure.json; correct only the projection's General header
+and use fresh run-v2. No model, seed, case, response, candidate budget or endpoint
+changes. Do not describe this failed adapter attempt as complete evaluation.
