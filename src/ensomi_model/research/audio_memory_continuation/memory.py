@@ -1,10 +1,10 @@
 """Elapsed-time sampling and context-dependent reads of committed event memory."""
 from dataclasses import dataclass
-import math
 
 import numpy as np
 import torch
 from torch import nn
+from torch.nn import functional as F
 
 from ..scoped_style_modeling.dataset import ContractError
 
@@ -84,22 +84,22 @@ class HistoryAttention(nn.Module):
         n, hands = query.shape[:2]
         if hands != 2 or memory.indices.shape[:1] != (n,):
             raise ContractError('History attention requires aligned two-hand queries and memory')
-        cells, dimension = memory.valid.shape[1], self.width//self.heads
+        dimension = self.width//self.heads
         paired = memory.audio.unsqueeze(-2).expand(-1, 2, -1)
         raw = self.memory_norm(torch.cat((memory.history, paired), -1))
         q = self.query(self.query_norm(query)).reshape(n, 2, self.heads, dimension)
+        selected_indices = torch.cat((memory.indices.new_full((n,1),-1),memory.indices),-1)
         def selected(projection):
             values = projection(raw).reshape(len(raw),2,self.heads,dimension)
             padded = torch.cat((values.new_zeros((1,2,self.heads,dimension)),values),0)
-            return padded[memory.indices+1].permute(0,2,3,1,4)
+            return padded[selected_indices+1].permute(0,2,3,1,4)
         k,v = selected(self.key),selected(self.value)
         ages = memory.age_seconds
         clocks = torch.stack((torch.log1p(ages), torch.exp(-ages/2), torch.exp(-ages/16)), -1)
-        bias = self.time_bias(clocks).permute(0, 2, 1)[:, None]
-        scores = (q.unsqueeze(-2)*k).sum(-1)/math.sqrt(dimension)+bias
-        scores = scores.masked_fill(~memory.valid[:, None, None], -torch.inf)
+        bias = self.time_bias(clocks).permute(0, 2, 1)
+        bias = bias.masked_fill(~memory.valid[:, None], -torch.inf)
         # A null memory is always available, including at genuine BOS.
-        scores = torch.cat((torch.zeros_like(scores[..., :1]), scores), -1)
-        weights = scores.softmax(-1)[..., 1:]
-        value = (weights[..., None]*v).sum(-2).reshape(n, 2, self.width)
+        bias = torch.cat((torch.zeros_like(bias[..., :1]), bias), -1)
+        value = F.scaled_dot_product_attention(q.unsqueeze(-2),k,v,
+            attn_mask=bias[:,None,:,None],dropout_p=0.).reshape(n,2,self.width)
         return self.output(value)

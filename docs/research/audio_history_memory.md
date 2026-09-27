@@ -32,6 +32,13 @@ share weights in mirrored coordinates. Their outputs modify the corresponding
 local histories, allowing relative layout choices to depend on retrieved content.
 Counts, columns, TAP/LN and release subsets remain R1-owned.
 
+The readers use PyTorch scaled dot-product attention with a learned elapsed-time
+bias, an explicit invalid-memory mask and a zero null key/value. Dropout is zero.
+This avoids explicitly expanding the query/key and weighted-value products over
+every query, cell and channel. CPU and MPS tests compare nonzero outputs and all
+input/parameter gradients with the original expanded contraction; backend memory
+and throughput still require workload measurements.
+
 Output projections start at zero, reproducing the baseline probability law.
 The full-audio encoding can be cached for generation. Learned history/audio
 values cannot be reused across training parameter updates. The first teacher
@@ -76,12 +83,14 @@ Save `model.checkpoint()` with `torch.save`; the matching `load_model` in the
 memory package reads `controlled-audio-memory/v1`. This research family does not
 silently replace the existing packaged runtime or its default checkpoint.
 
-Thirteen new test cases cover index-capped causality, empty memory, hand equivariance,
+Fifteen memory-specific test cases cover index-capped causality, empty memory, hand equivariance,
 query sensitivity, exact zero-initialization compatibility, joint CPU/MPS
 gradients, checkpoint roundtrip, teacher/native row and H/R query agreement,
 skeleton ownership, fork/control rollback, and padding-independent audio and memory
-values/gradients. Together with affected distribution, ownership and sampling
-owners, 40 distinct checks pass. These are implementation checks.
+values/gradients, and standard-attention equivalence to the expanded contraction.
+The original integration also checked affected distribution, ownership and sampling
+owners, with 40 distinct checks before the two contraction-equivalence cases.
+These are implementation checks.
 
 ## Bounded Mac integration
 
