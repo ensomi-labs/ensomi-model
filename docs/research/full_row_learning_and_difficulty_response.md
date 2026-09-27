@@ -130,6 +130,11 @@ same recipe is not extended merely because source likelihood improved.
 
 Endpoint SHA:
 5206b1e4dcbff9820a1e84ecf1ba02aee22c60105cae93d8f648ab6458780ea5.
+The subsequent [scoped allocation study](scoped_ln_allocation.md) keeps these
+inherited tensors fixed and tests factual amount progress against a matched
+context-only adapter. It partially improves quantity, preserves unknown-LN
+outputs and exposes further held-finger/articulation evaluation needs; it does
+not promote this parent or its adapters.
 Owner 20260928-broader-full-row-learning-v1, frozen source-plan SHA
 fb1d2634f8061c3fb55da2bcd369b9ea51872358dcafe50d8a85b082582c553f,
 fit-plan SHA 04a07294455d9560fd12cae9648c916dfa4580c2e9ab6f111bfaa5086f593e7e,

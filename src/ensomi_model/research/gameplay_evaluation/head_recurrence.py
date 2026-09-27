@@ -19,6 +19,8 @@ def _observations(times, actions, start_ms, end_ms):
     continuing=(before>0)&(actions!=3)
     origins=np.maximum.accumulate(np.where(actions==2,times[:,None],-np.inf),axis=0)
     keep=heads.any(-1)
+    head_indices=np.flatnonzero(keep);head_actions=actions[keep]
+    release_prefix=np.vstack((np.zeros((1,4),dtype=np.int64),(actions==3).cumsum(0)))
     held=continuing[keep];starts_at_head=origins[keep];releases=(actions==3)[keep]
     clocks=times[keep];heads=heads[keep]
     n=len(clocks);index=np.arange(n)[:,None]
@@ -52,6 +54,10 @@ def _observations(times, actions, start_ms, end_ms):
             run_heads=int(age[i,k])+companion_count
             candidates.append(dict(column=k,run_start_ms=t0,last_observed_head_ms=t1,
                 observed_consecutive_H=int(age[i,k]),span_ms=t1-t0,
+                recurrent_TAP_heads=int((head_actions[s:i+1,k]==1).sum()),
+                recurrent_LN_heads=int((head_actions[s:i+1,k]==2).sum()),
+                releases_in_run_span_per_column=list(map(int,
+                    release_prefix[head_indices[i]+1]-release_prefix[head_indices[s]])),
                 median_HH_gap_ms=None if not len(gaps) else float(np.median(gaps)),
                 maximum_HH_gap_ms=None if not len(gaps) else float(gaps.max()),
                 companion_heads=companion_count,
@@ -88,6 +94,8 @@ def head_recurrence(trace, scope):
     pre-scope part; they are context, not additive scope workload. Continuing
     other-column holds and simultaneous releases remain distinct from heads;
     zero companion heads does not mean the other fingers are free.
+    Recurrent TAP/LN types and all releases between the first and last observed
+    head retain articulation that head membership alone cannot distinguish.
     These observations do not label Jack/Stream style or assign player demand.
     """
     trace._scope(scope)

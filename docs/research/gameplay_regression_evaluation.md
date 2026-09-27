@@ -106,6 +106,10 @@ per-column counts, affected head rows, maximum simultaneous other holds and
 their original starts at run entry. Simultaneous companion releases are also
 separate; a hold closed at that H is not counted as continuing. These facts use
 all preceding rows, including pure releases, but never future endpoints.
+The recurring column's TAP/LN-head split and per-column release counts in the
+inclusive first-to-last-head span also distinguish a TAP run from repeated LN
+press/release articulation. Releases after the last observed head are outside
+that span even if they are visible elsewhere in the evaluation trace.
 
 Zero companion heads therefore does not imply that the other fingers are free.
 A regression fixture has identical recurring heads with either three fingers

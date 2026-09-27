@@ -119,3 +119,17 @@ def test_no_companion_heads_can_still_mean_three_other_fingers_are_holding():
     assert c['continuing_other_hold_pairs']==11
     assert c['companion_releases']==1
     assert c['companion_releases_per_column']==[0,1,0,0]
+
+
+def test_same_recurrence_can_be_taps_or_ln_presses_with_intervening_releases():
+    taps=rows_for_columns([0]*4,gap=200)
+    longs=[r for i in range(4) for r in (
+        CompleteRow(i*200,(2,0,0,0)),CompleteRow(i*200+100,(3,0,0,0)))]
+    a,b=[measure(rows,0,750)['witnesses'][0] for rows in (taps,longs)]
+    assert a['observed_consecutive_H']==b['observed_consecutive_H']==4
+    assert a['median_HH_gap_ms']==b['median_HH_gap_ms']==200
+    assert (a['recurrent_TAP_heads'],a['recurrent_LN_heads'])==(4,0)
+    assert (b['recurrent_TAP_heads'],b['recurrent_LN_heads'])==(0,4)
+    assert a['releases_in_run_span_per_column']==[0,0,0,0]
+    # The true fourth release is after the witness's last head, so is excluded.
+    assert b['releases_in_run_span_per_column']==[3,0,0,0]
