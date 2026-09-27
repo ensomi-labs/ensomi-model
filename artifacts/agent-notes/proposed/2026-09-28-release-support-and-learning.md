@@ -98,7 +98,7 @@ single active experiment. Neither is accepted or adopted.
 
 ## Experiment Card: release-support-joint-learning-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: the continuing user goal explicitly authorizes research,
 training, suitable product/Note commits and available Mac resources. Execution
@@ -231,3 +231,17 @@ strict parent's eight-case added range plan
 The twenty reused parent cases are byte-verified at
 daecd5bfb7613ea48bda480b5da89d4a697a6f8350cf73cd16be3d2dc66049e6.
 No training or quality conclusion is attached to this preparation receipt.
+
+### Revision 2: correct the padded-query scoring wrapper
+
+Initial validation terminated before any optimizer update: the new wrapper
+passed padded row queries into replay_row_scores, which correctly requires
+exactly the actual rows in the interval. Correct the wrapper to slice by
+len(batch.row_index), matching the established factual scorer. Preserve the
+failed validation-initial-v1/failure.json and original plan.json.
+
+Use plan-v2.json and fresh validation-initial-v2 / validation-terminal-v2.
+Fit-v1, supervisor-v1 and native outputs are still unused. All scientific
+inputs, arms, budgets, losses, criteria and seeds remain unchanged; the new
+plan pins corrected script bytes before rerunning. This was a study wrapper
+error, not evidence against the model or a checkpoint result.
