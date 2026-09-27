@@ -181,6 +181,36 @@ reference has zero excess. None has a below-20-ms attack in the inspected scope.
 The valid positive-excess examples prevent a universal percentile-to-BAD rule.
 Reference context and sustained organization remain necessary for interpretation.
 
+## Localizing sustained-pressure episodes
+
+[`sustained_attack_witnesses`](../../src/ensomi_model/research/gameplay_evaluation/witnesses.py)
+localizes the existing corpus-envelope excess at exact attack and expiry clocks.
+For each column and window, consecutive positive-excess intervals form an
+episode. Actual zero-excess time separates episodes; no arbitrary gap merging
+or event-count horizon is used. The report retains each window's full integral
+and the largest episodes, with explicit omitted counts.
+
+Each episode records its duration, peak time, contributing history start and
+simultaneous per-column attack rates and held fractions. Thus a concentrated
+sequence with idle peers can be distinguished from repeated chords or attacks
+beside occupied fingers before Lens review. A control boundary clips the
+observation and changes the requested reference when appropriate; it never
+forgets incoming attacks. Boundary-clipped witnesses are marked explicitly.
+
+```python
+from ensomi_model.research.gameplay_evaluation.witnesses import sustained_attack_witnesses
+
+witnesses = sustained_attack_witnesses(trace, scope, corpus_envelope, stars=4)
+```
+
+Five focused tests verify concentration at unchanged timing/counts, scope
+partition additivity against the existing exact excess integral, relief-separated
+episodes, retained totals when witnesses are truncated, and chord/held-peer
+context. An unknown difficulty has no invented reference capacity. The witness
+integral is the existing diagnostic, not an independent validation score; its
+added value is localization and inspectable context. It does not automatically
+classify real ranked repetitions as bad patterns.
+
 Owners: `20260927-gameplay-evaluation-v1` and
 `20260927-audio-history-memory-v1/preflight-v3`.
 Historical replay source: `720457b8651d40095c2247b5992c3318b2cb5ced`.
