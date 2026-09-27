@@ -147,7 +147,21 @@ class ControlledAudioModel(PlannedAudioModel):
                                        context_addition=context)
 
     def planned_row_log_probs(self, audio, history, exact, legal, occupancy, preview, local, timing,
-                              *, control, response_allowed=None, ln_shift=0., hold_audio=None, player_features=None):
+                              *, control, response_allowed=None, ln_shift=0., hold_audio=None, player_features=None,
+                              history_visible=None):
+        """Score complete rows, optionally hiding the learned content observation.
+
+        ``history_visible`` is a query-aligned boolean training-view mask. False
+        uses the learned TRUNCATED boundary for a non-BOS prefix; genuine BOS
+        keeps its original boundary. Exact replay facts, audio, controls and
+        support remain factual. Omission preserves the ordinary native law.
+        """
+        if history_visible is not None:
+            if (history_visible.dtype != torch.bool or history_visible.shape != (len(history),) or
+                    history_visible.device != history.device):
+                raise ValueError('History visibility must be a query-aligned boolean tensor')
+            hidden = ~history_visible & ~exact[:, 0, -1].bool()
+            history = torch.where(hidden[:, None, None], self.temporal.boundary[1][None, None], history)
         allowed = legal if response_allowed is None else legal & response_allowed
         preview_value, control_value = self.preview_condition(preview), self.row_control(control)
         base = self.condition(history, exact, audio)+preview_value.unsqueeze(-2)

@@ -167,6 +167,64 @@ new human labels, listening or player-trial evidence. Seed-1 views and other
 passages remain unreviewed; the replicated semantic-improvement requirement is
 not met and no broader style-preservation claim is made.
 
+## Crossed weights and actual reached histories
+
+A subsequent read-only diagnostic evaluates both reference weight endpoints on
+both actual native histories at 15,642 matching H clocks across the eleven cases.
+It reconstructs the same feedback-off deployed row law, with each history's true
+LN state, clocks, content and support. This is not a rollout in which one history
+was substituted into the other policy.
+
+Let $F_{wh}(t)$ be expected new-LN count divided by expected head count, with
+weight endpoint $w\in\{0,1\}$ and history source $h\in\{0,1\}$. A symmetric
+decomposition is
+
+$$
+\Delta_w=\tfrac12[(F_{10}-F_{00})+(F_{11}-F_{01})],\qquad
+\Delta_h=\tfrac12[(F_{01}-F_{00})+(F_{11}-F_{10})],
+\qquad \Delta_w+\Delta_h=F_{11}-F_{00}.
+$$
+
+The history term includes changed occupation, clocks, counts and support; it is
+not a causal percentage attributable to the TCN alone. At queries where both
+histories have no held lane and exactly the same complete-row support, the ratio
+of mean absolute history effect to mean absolute weight effect is:
+
+| Case | Eligible queries | History / weight effect |
+| --- | ---: | ---: |
+| Classic s0 | 696 | 6.42 |
+| Classic s1 | 703 | 7.57 |
+| STYX s0 | 21 | 25.89 |
+| STYX s1 | 26 | 6.35 |
+
+All four meet the declared exploratory criterion of at least 20 matched queries
+and a ratio above two. Exact clocks and historical content still differ inside
+this subset. The observation supports investigating behavior on reached states;
+it does not establish that dependence on history is intrinsically harmful.
+
+At fixed old histories, the refit increases expected releases per H query by
+.00551/.00995 in Classic and .03307/.03819 in STYX. Longer realized median holds
+therefore cannot alone establish a generalized preference to preserve current
+holds. Which LNs start, which histories are reached and which holds survive can
+change the observed duration population. Specific anchor-retention effects need
+their own conditional comparison.
+
+Blizzard remains near a saturated LN preference: on seed-zero old histories,
+the expected LN/head ratio is .99399 before fitting and .98567 after fitting;
+on the fitted histories it is .99582 and .98992 respectively. Only seven/six
+queries in its two seeds meet the all-free/shared-support restriction, so that
+subset is not used as broad evidence for Blizzard.
+
+The KL chain decomposition numerically confirms the count-only limit. The
+largest conditional-layout KL at a fixed history is $5.84\times10^{-14}$ nats;
+the complete-row change is accounted for by family mass, up to arithmetic.
+This is a mechanism check, not a quality score. The diagnostic completes in
+264.20 seconds on CPU one thread, with maximum observed footprint 690,537,864
+bytes. Its owner is `20260927-crossed-prefix-laws-v1`; frozen plan SHA is
+`df593608e2370d22629794d7892f8dec6c4331d5b91894f5b42df9e0dfec8097`
+and summary SHA is
+`dfa1ce6e800ec082c7d09c23812099d04794dbde5cb10f102bddfa9d91b72dda`.
+
 ## Consequences for the next model change
 
 The evidence favors moving beyond count-only repair. The new explicit LN

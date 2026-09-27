@@ -115,6 +115,16 @@ from the contextual path and native regressions in both count-only refits; neith
 endpoint is qualified. Count-family improvement does not establish better routing
 or LN organization.
 
+For factual missing-observation training, `planned_row_log_probs` accepts an
+optional query-aligned `history_visible` boolean tensor. False replaces the
+learned content observation with the existing TRUNCATED boundary at non-BOS
+queries. Actual BOS keeps its original boundary. Exact replay features, including
+the last row, current occupancy and clocks, remain true; audio, preview, controls,
+support and target rows are unchanged. This hides one observation channel rather
+than substituting a different chart history. It does not remove every historical
+fact or supply a correct source suffix for a generated prefix. Native callers
+omit the mask; no new parameter, checkpoint option or sampling rule is required.
+
 Optional LN-amount feedback then tilts the resulting distribution inside each
 fixed `(head count, release count)` family. It preserves that family's probability
 mass and conditional layout odds at fixed new-LN count. The old scalar
