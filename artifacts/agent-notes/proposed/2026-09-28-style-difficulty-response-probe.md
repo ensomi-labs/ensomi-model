@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: 13eefbc67d3e7668910efc612e2f35ba50a30798
+Product revision: 0f5ec10b34c43fe21a6143d371a2f2bc36070e47
 Scope: Fixed-model native style/difficulty coupling on two audios, without changing player reference
 Related: 2026-09-27-full-row-history-observation-learning
 
@@ -25,14 +25,15 @@ mapping is adopted from two audios.
 
 ## Experiment Card: style-difficulty-response-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: standing user goal authorizes local model/system research,
 native experiments and commits. No adoption or remote publication is inferred.
 
 Frozen model: full-R1 step128, SHA
 32afd48e5dbad6714401735e01200963c9d447e9f8ca92057bf6c7b67ab36406;
-source 13eefbc67d3e7668910efc612e2f35ba50a30798. Keep weights, full audio,
+source 0f5ec10b34c43fe21a6143d371a2f2bc36070e47, a documentation-only descendant
+of baseline 13eefbc67d3e7668910efc612e2f35ba50a30798. Keep weights, full audio,
 recovery 60/50/50, user stars 4, unspecified LN and feedback OFF. Both seeds per
 audio retain their existing frozen values. Compare three conditions on Zenithfall
 and Classic: style unspecified; Stream prominent; Stream prominent with only the
@@ -74,3 +75,27 @@ CPU one thread, 900 seconds total, 180 per case, 4 GiB task-footprint bound.
 Stop on STOP, source/hash drift, incomplete/illegal generation or resource bound.
 Preserve all failures and outputs; no automatic retry or promotion. Existing
 publication and below-20-ms checks remain. The realtime benchmark is unchanged.
+
+## Revision 2 execution clarification
+
+The source advance contains only the requested formal diagnosis document;
+model, sampler, evaluator, tests and dependencies are unchanged. The projection
+is an explicit artifact-owned wrapper, not a checkpoint or product modification.
+prepare.py pins three plans and run.py/projection.py hashes before execution.
+The original neural control tensor is cloned; only known-star coordinate zero
+changes by offset/2 at H, R and R1 calls. Invocation statistics retain the
+actual known input/output value ranges, and each case verifies original D4
+controls and unchanged recovery in its evaluation identity.
+
+Zenithfall seeds are 271200/271201; Classic seeds are 273110/273111. The three
+generation arms contain four unspecified-style, two new unshifted Stream and
+four shifted Stream cases. Two unshifted Zenithfall Stream cases are reused.
+No hypothesis, metric, guard, budget or adoption condition changes. Acceptance
+remains none; execution uses the standing user research authorization.
+
+Frozen plan SHA:
+625114fdfe3a8f43d1fe4606a1b21963de89f2d742c4af3a2afa5146340fb3b7.
+Preparation verifies the checkpoint, both audio/Mel identities, reused exports,
+the documentation-only source delta and actual qualifier plan validation.
+Projection checks preserve unknown values and every non-star coordinate.
+Execution command is uv run --extra mps python followed by the owner run.py.
