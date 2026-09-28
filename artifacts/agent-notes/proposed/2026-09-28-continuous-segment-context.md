@@ -161,3 +161,27 @@ Preparation validates actual segment support before fitting, records excluded
 source pieces and supervises true BOS pieces only from natural draws. It also
 pins the imported factual-data helper. CPU2,1200s preparation bound, exclusive
 output, no overwrite or automatic restart. Model training has not started.
+
+## Prepared data and frozen learning handoff
+
+Preparation process76824 is terminal exit0 after141.101s. It froze1024general
+draws (479natural/283balanced/262human),256true-BOS auxiliaries and44fixed
+validation cases, from817charts. General source rows27213, BOSrows3988;
+release-risk clocks1316504and245483. No support exclusions. Selected original
+draw indices5128–6152exclude the three pinned audio identities. Human unknown-
+style time removed across visibility views totals2990218ms; duplicate visibility
+views are not independent physical durations. No human-selected piece remains
+without an active style field. BOS source pieces are475–4000ms, none below100ms.
+The source/checkpoint identities remain exclusions from this fit, not claims
+of being unseen by inherited weights.
+
+Data SHA2f4d6f92310abfaebfbfb1549215fb01c9f4465797c6245b298b2bd505ad04dc.
+Fit plan392a17758c6f3938bbf7d2b07e8e72441ab43ec53f3f2f36d7fa983973966c83
+pins fit.py, fit_worker.py, data, parent and factual helper. Source4c8463a2028cc451a06aeabc302e20673522ed77.
+First execute the16update profile, inspect actual terminal receipt/resources,
+then continue to64and256only from successful optimizer/RNG checkpoints. Workers
+have240s/16GiB bounds, controller3600s/8GiB saved-output bound. Each worker owns
+an exclusive directory/log; a directory without a success receipt blocks automatic
+continuation and requires authoritative process inspection. No NN job was live
+when these scripts or source were written. Initial optimizers are fresh in both
+arms, and every subsequent segment resumes them fully.
