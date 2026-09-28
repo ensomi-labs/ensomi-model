@@ -219,3 +219,27 @@ The new scripts, actual checkpoint hashes and fresh native-64-source-H-v1 /
 validation-64-v1 outputs are pinned by native-64-plan.json and
 validation-64-plan.json in the owning artifact directory before execution.
 Metrics remain distinct; successful script completion cannot qualify a model.
+
+## Step64native and fixed validation outcome
+
+Native process74517 and validation91408 both finished exit0. Native plan SHA
+495fe891d46370bb171125c36f132c91dee96de445f07a7b937e1c6579b87220;
+validation52c9df3f7ace3cd3828cae533d66a97157dc67d942f07cee267c76ed7e257118.
+Code-only checkpoint31b2e4a74af3cbc88fe20b1df9f5212bad149f18b30f8ef74ef49873d5da003b;
+continuous5ae49b90b81a8bbfc85ca4df06b896a5f4ea66cb662adf5a94e2a60c623460ce.
+
+All six source-H outputs complete but remain numeric failures. Code-only
+STYX/Kimi/Celestial: stars4.1023/3.5908/4.5221, LF.2355/.2952/.2446,
+<=40ms LN counts17/2/8. Continuous:4.3906/3.9017/4.4417, LF.3960/.3847/.3840,
+<=40ms counts19/4/13. Every40ms prevalence gate fails; continuous Celestial also
+fails80ms. This is not a demonstrated context-quality gain. Higher LF helps
+STYX's amount request but worsens the lower-LN requests. Model generation times
+5.3–9.9s, cached-Mel first8s/30row startup .44–.67s; no speed barrier in this slice.
+
+On44fixed views, factual mean NLL/s code-only15.5772 versus continuous15.4250;
+BOS10.0744 versus10.0800. The slight factual likelihood gain coexists with worse
+native extreme-tail counts. No checkpoint is promoted. Full256learning and the
+preplanned multi-seed/native-H evaluation remain necessary before deciding this
+small-exposure context comparison; the step64negative result is retained, not
+rescored into success. Continue from the successful64optimizer/RNG states under
+the unchanged fit plan. Source code remains frozen during worker execution.
