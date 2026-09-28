@@ -125,3 +125,29 @@ Result categories are confirmed readout/recipe limitations, corpus-supported
 coordination hypotheses, and unresolved response distinctions. Persist source
 and scope identities, actual Lens reading and counterexamples in a self-contained
 technical report before selecting the next learning intervention.
+
+## Execution freeze and readout mechanism
+
+The census plan SHA is
+13c0d6f388a9981cf61f4ab8376cedb55be37bf65c55ad9708f6566ca7448cb3.
+It pins two read-only scripts, all 6924 TRAIN pairs, six exact generated
+contexts and both completed native case ledgers. Run scan.py in the new owner
+with explicit mps/render/dev extras. This implementation uses one CPU process
+and a 3-GiB RSS guard inside the larger resource envelope; there is no MPS
+allocation, fit or concurrent generation. A 64-source receipt precedes the
+rest of the same pass. No new source selection depends on descriptor results.
+
+Direct inspection of individual_strain_evaluate and overall_strain_evaluate
+identifies a flat direction of the declared 20241007 readout. When all holds
+end before the next distinct H, prior different-time holds are no longer active;
+same-time chord members cannot trigger the start-time inequality. Individual
+and overall additions remain 2 and 1 regardless of tail positions within that
+cell. H/columns therefore determine the same per-head strain trace, whole rating
+and scoped proxy, while the required release timeline can differ. This is a
+specific target projection, not a claim that all short LNs are bad.
+
+A preliminary calculation confirms exact equality for 64 repeated four-LN
+chords at 320ms spacing: equal 160ms holds and durations 25/295/75/245ms both
+score 2.9772972939913482. The mean occupied-column time is also equal over the
+same full horizon. It is a synthetic readout counterexample, not a ranked
+quality example or a new human demand label. Corpus comparisons remain required.
