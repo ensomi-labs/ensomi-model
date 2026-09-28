@@ -51,7 +51,7 @@ and sampling checks pass1.94s. Existing R1/H/R weights are unchanged.
 
 ## Experiment Card: optional-control-response-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: explicit user instruction to repair recipes and models,
 plus the active full-system goal. Exploratory, no adoption claim.
@@ -94,3 +94,19 @@ This supports a real coverage defect but rejects it as a sufficient account
 of the huge native LN bias. No matched NN fine-tune was launched on a false
 primary-cause claim. Query-view support stays available for the next sound
 recipe; native-prefix/timing/proposal corrections now have higher priority.
+
+## Revision-two scope-shape diagnostic
+
+The small LN-visibility effect was measured with the original other controls
+and annotation scopes. A separate probe now makes both inputs match the user
+shape: D4 plus only Stream, no LN amount or other style labels. Compare the
+original local Stream boundaries with whole-song Stream boundaries, keeping
+identical factual audio/H/history. This isolates the style-scope bounds between
+those two views and checks a second real train/deployment distribution gap.
+Do not reinterpret local labels as whole-song training gold.
+
+Same14source/intervals and15effective evaluation scopes, separate reports.
+Also report integrated H survival mass on the unchanged teacher histories;
+it is not expected native head count. CPU2threads/180s, no neural training,
+fresh scope-probe-v1, pinned scope_probe.py/scope-probe-plan.json under the
+same owner. Scope/data/checkpoint choice does not depend on this probe's outputs.
