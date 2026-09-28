@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: 265358048481fcd69c75fd4b0de5302853f616a5
+Product revision: 784ac6fc0e03aa6600c2c805c778ab788d6b126d
 Scope: Ranked TRAIN release support, factual interval admission, R/R1 likelihood and native playability
 Related: 2026-09-28-scoped-ln-allocation-learning, 2026-09-28-broader-full-row-learning, 2026-09-27-ln-continuation-preference-diagnosis
 
@@ -350,3 +350,161 @@ ead4c8344c0e32b847d8f8e445c3d0250791cb28fe3bb8a9d2b68c43a9d6f831.
 This post-hoc diagnostic was not a prespecified winning criterion. Preserve
 the proof and develop a reusable evaluator after pinned native runs finish;
 do not modify the running experiment's product source or sampling policy.
+
+## Final result: neither trained endpoint qualifies
+
+Evaluation outcome: REFINE. Both 512-update fits, final validation, all four
+serial native arms and every rendering/analysis process are terminal. No model
+is promoted, no note lifecycle transition is made, and the overall playable
+2–6-star generation goal remains active. All training/native executions used
+265358048481fcd69c75fd4b0de5302853f616a5; the later evaluator and report are
+separate, committed post-hoc work.
+
+Ninety-two new complete maps plus twenty byte-verified strict-parent outputs
+give 112 comparison records. New native work takes 1,596.83 seconds. Every
+case completes with export/reparse equality and no less-than-20-ms same-column
+attack failure. Profile-only/RR1/joint startup maxima are .931/1.023/.897s;
+service maxima are .410/.422/.345s. These are the two-second qualifier's
+measurements, not the outstanding 30-row/eight-second client qualification.
+
+| Arm | D4 star MAE, 19 whole-song cases | Rich-LN fraction MAE, six cases |
+| --- | ---: | ---: |
+| Strict parent | .584488885 | .099117203 |
+| Profile only | .565434894 | .106349848 |
+| R/R1 | .583464252 | .061129150 |
+| Joint | .566762641 | .089384423 |
+
+Both arms fail the primary .10 improvement criterion. R/R1 adds four numeric
+qualification failures, joint three. The LN mean improves, but STYX seed 0
+in R/R1 undershoots its request (.369538 versus .485281); joint seed 1 also
+undershoots (.362486). Other references still overshoot. Do not explain all
+LN failures as a single upward shift. The live .6 override reaches .795597
+in R/R1 and .763736 in joint, versus .897163 for profile-only; it is improved
+but unresolved. Its difficulty proxy is respectively 3.554666/4.196048,
+against requested 4.5.
+
+D2/D6 responses stay ordered, but only joint Classic seed 0 meets the declared
+one-star tolerance at both ends. Joint D2 Zenithfall returns 4.460224/4.199297.
+R/R1 and joint Classic D6 seed 1 fall to 4.657215/4.807386, new underestimation
+failures. This defeats qualification even with improved factual NLL.
+
+Final comparison SHA
+8bd6920ab2557f7d923bc35c778615ea99ec1a2a5e5d34e967f324c5815d9857.
+Native cases SHA, profile/RR1/joint respectively:
+6ac009c49a065c492415d8dc1a679d25e3703133a56e9db1cac1191a64abdd22,
+8d96488b4743a4bdbde5874870717b48523875242224580657dddaee5212abf1,
+5ecb95f59e36159e178c22390190495046fdde15028897afd45018e0d052213c.
+
+### Read organization, not only aggregate passes
+
+Beatmap-lens review is complete for 76 pages: forty frozen reference/generated
+pages, twenty-seven failure/context pages, six slower-anchor pages, and three
+same-support profile-only comparator pages. Source Classic/STYX/Blizzard
+recompute to 4.0000/4.0044/3.9277 stars. Zenithfall source is 5.8735 stars and
+is only a same-audio organization reference, not a matched four-star chart.
+There is no new human label, audio-listening or playtest claim.
+
+The R/R1 Stream Zenithfall seed 271201 case regresses to a column-3 run of
+21 heads (20 TAP and one LN press), 31789–34357ms, median/max HH 127/162ms,
+with only two companion heads. Other columns are not all held, and the run
+continues after the earlier column-1 hold releases. Same-support profile-only
+has exactly the same H, distributes attacks around a different hold and has
+whole-map maximum run seven. R/R1 learning is the controlled intervention;
+it does not isolate R parameters, R1 parameters and induced histories.
+
+Joint distributes that specific window, but another D4 Stream seed has only
+maximum run five and still incurs .080000 seconds of attack excess. Its
+entire inspected 235440–251441ms span is continuous cross-column TAP/chord
+flow with no LN. The 16-second peak counts are 67/91/86/66 and a column-1
+excess episode lasts 30.205s. Removing isolated long jack does not establish
+recovery or music-responsive phrasing. R/R1 STYX seed 0 instead has eleven
+TAPs at 7358–8923ms with up to three other held fingers and 25 continuing-
+hold/head pairs while its whole-map attack cost is zero. This exposes the
+attack-only observer's different blind spot; neither statistic is a universal
+pattern prohibition.
+
+Blizzard references show a persistent anchor with TAP accents and paired short
+LNs. Both learned endpoints' inspected outputs remain dominated by changing
+holds; amount improvement does not demonstrate recovery of that organization.
+Classic has a locally all-TAP R/R1 case despite better whole-song fraction.
+Such local purity can satisfy a whole-song request and is not an automatic BAD
+label. A slower joint Classic thirteen-TAP anchor has a different cadence and
+six companion heads; preserve ranked anchored-jack counterexamples.
+
+Reading receipts, in the same four-part order:
+aacc8367d062dad22c0985ac81b12dabab04eab4762190225fca7e82b56c9cc3,
+b8b1cc4a3abce9b361414a6ceb156631358482115c1cbb8123e8b41228a4f91b,
+e92d68858b8a518686b369f8dfb7e2ac9f17050739e28818813c75bdae2b4a5e,
+3430edf6ab236526f5d2035a5c1b7f26f6f5748424a0f21162320821589212e5.
+
+### Separate timing feasibility, protocol and allocation
+
+The reusable H-only bound and eleven focused tests are committed at
+dcc21bdc3a1f7c40d36d8302d26a706b30ed5bc2. The selected test command is
+`uv run --extra mps --extra render --group dev pytest -q tests/research/gameplay_evaluation/test_head_difficulty.py`;
+all eleven pass in .39 seconds. Tests cover first-object/first-chord accounting,
+all 256 layouts for four H with three hold choices and two rates, randomized
+legal mixed charts, quiet section advances and prefix completions. The bound
+is diagnostic, not a new sampler mask or a scoped difficulty target.
+
+Joint D2 Zenithfall seed 1 reduces H count 1899 to 1399 but the floor changes
+2.674991 to 2.685472, with actual stars rising 3.375850 to 4.199297. Fewer total
+H has not removed the necessary peak burden. Classic's cyclic same-H witness
+still proves lower-star row choices exist. This does not show that the joint
+NLL improvement came only from silence or assign causal percentages.
+
+R/R1 and profile-only H match in 28/28 cases. Against the strict parent they
+match in 27/28. The live override is announced at 63999ms and starts at 64000ms;
+support-dependent retention keeps old H/no-H decisions to 64099ms versus
+64059ms, moving one resampled H from 64260 to 64256ms. The remaining H match.
+This is update_controls feasibility retention, not an action-embedding input
+to the H network. The original post-hoc assertion of universal pairing failed
+and is preserved; corrected panel-v2 records this exception explicitly.
+Panel result SHA
+cecdaa4d43747f1aee704b9ea5db49c153525168a8e8d687c2317ebe81aec06e.
+
+### Recipe and architectural hypotheses now made concrete
+
+The 6906 metadata 2–6 TRAIN charts after panel exclusion have whole-chart
+LN fraction >=.5 in 4.94% under equal-chart weighting and 6.09% under equal-
+group-then-chart weighting. Accepted population exposure is 33.90%, and among
+217 windows with LN control hidden it remains 30.41%. Independent hiding
+does not undo the balanced sampler. Learning rare conditions and choosing an
+unknown-control prior require distinct decisions. This is measured exposure
+reweighting, not an identified causal share of a particular failure or proof
+that the desired default must equal the corpus prior. Prior audit SHA
+288b163235f058b856cf223b430928a25402bb4248d79a3b03dd36f05c5fb5be.
+
+The bounded H audio base is linear in F_A + W_c c, so its audio/control mixed
+partial is zero. The nonlinear bounded history residual can still interact,
+but its gate is zero at BOS and decays with time since H. This establishes a
+particular expressivity limit, not full-model audio blindness or a proven cause
+of the peak-pressure failure. Conditional audio queries, multiplicative
+modulation or a nonlinear base are candidate primitives. The nearest repository
+analogue is row_condition_interactions.md; no novelty or tested benefit claim.
+
+The useful next direction changes the conditional path or learning/selection
+target, rather than scaling this unchanged factual recipe. Preserve broad
+corpus imitation while learning independently justified scope/gameplay future
+consequences on actual generated histories. Continuation must distinguish LN
+entry/release/coordination and retained holds from attack-only cost. Scope
+allocation, musical organization and player response keep separate semantics.
+A new intervention still needs its own bounded design; none is trained here.
+
+## Durable result and publication state
+
+Product report docs/research/release_support_joint_learning.md and five
+inspected figures are committed at 784ac6fc0e03aa6600c2c805c778ab788d6b126d.
+The formal native-pattern analysis retains the user's original views and
+adds the result to its evidence/hypothesis mapping. Its preceding mathematical
+extension is 265358048481fcd69c75fd4b0de5302853f616a5: information projection,
+joint timing/row reweighting, LN origin/survival mixture, state equivalence,
+distributional propagation and response/selection distinctions are analytical
+claims under stated assumptions, not new human measurements.
+
+All three touched documentation files pass local path/fragment checks and
+math delimiter/brace checks; ten named result hashes were reverified. Final
+owned diffs pass whitespace checks. User-owned AGENTS.md changes and the
+untracked audio_architecture_walkthrough_zh.md remain untouched and uncommitted.
+No remote push. The benchmark worktree remains unchanged; retained-candidate
+integration is still required before any realtime product claim.
