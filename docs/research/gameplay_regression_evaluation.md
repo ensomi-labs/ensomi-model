@@ -91,6 +91,58 @@ rejection rules. The study defines follow-up comparisons for target collisions,
 history compression and candidate supply versus selection; those comparisons
 are not yet an implemented canonical response evaluator.
 
+## Conditional LN release decisions
+
+The [release calibration observer](../../src/ensomi_model/research/gameplay_evaluation/release_calibration.py)
+accepts a complete observed prefix, a half-open scope, its exact row clocks
+and the evaluated policy's normalized log probabilities in ROW_ACTIONS order:
+
+```python
+report = release_calibration(
+    trace, scope, query_times_ms, row_log_probabilities, origin="reference",
+)
+```
+
+The caller supplies the actual probability law, including its support and
+sampling preferences, and retains checkpoint, source and control identities.
+Different control ranges should receive separate reports. The observer does
+not run a model, choose a tail or change the probability law.
+
+Each LN open before a query supplies a release risk: its actual age, strict-past
+one-second H count, other held fingers, marginal release probability, observed
+release and whether finite row support permits continuing. New LN starts at
+that same row are not entering risks. H queries and pure-R queries remain
+separate: pure-R marks condition on a time chosen upstream, so their calibration
+cannot establish that R chose an appropriate time.
+
+Full release-subset probabilities are obtained by summing complete rows with
+the same four-bit release mask. Marginal and pair Brier errors are accompanied
+by the full subset Brier error. Two policies can have identical per-finger
+release marginals while one assigns zero probability to the observed shared
+release. Pair observations retain same-hand and shared-origin relationships;
+they are dependent observations, not extra physical actions.
+
+Per-hold continuation products multiply no-release probabilities at H queries
+where the factual hold actually continues. They retain incoming origins and
+censor unobserved ends. These are teacher-path diagnostics, not a rollout
+lifetime distribution: alternative actions would change subsequent histories
+and release times. With no evaluated H opportunity, the product is undefined.
+A probability-one erroneous release produces a zero product, a recorded
+certainty count and undefined infinite-log summary rather than invalid JSON.
+
+`origin` is required and distinguishes reference, generated and synthetic
+traces. Only independently supplied actions support a calibration claim.
+Scoring a model against its own sampled decisions can describe where releases
+were optional or forced, but self-calibration is not evidence of good charts.
+In particular, a singleton pure-R mark has perfect conditional calibration
+even when the upstream release event was musically or physically inappropriate.
+
+Clocks must align exactly, and finite support must respect entering occupancy
+and H/R role. Unsupported observed rows remain visible instead of disappearing.
+Probability normalization errors within 2e-5 are recorded and corrected as
+floating-point roundoff; larger errors fail. No threshold on LN duration,
+release gap or any calibration score is a BAD rule.
+
 ## Consecutive head membership
 
 The scope field head_recurrence records whether a finger keeps participating in
