@@ -7,6 +7,7 @@ from ensomi_model.research.player_response.action_response import (
     transition_impulses, source_peaks, action_response,
     source_work, window_work_maxima, recovery_potential,
     candidate_work,
+    rolling_work_check,
 )
 from ensomi_model.research.player_response.state import CommittedPlayState
 from ensomi_model.research.player_response.envelope import AttackEnvelope,sustained_response
@@ -134,3 +135,24 @@ def test_hypothetical_row_work_matches_exact_state_transitions_including_wait():
             work=(recovery_potential(after.values,env.limits(4.))-
                   recovery_potential(before.values,env.limits(4.))).sum(-1).mean()
             assert values[i,j] == pytest.approx(work,abs=1e-10)
+
+
+def test_work_budget_cannot_restart_at_a_publication_boundary():
+    env=ActionEnvelope((2.,6.),reference().maximum,'rolling',(4000.,8000.),((.05,.08),(.05,.08)))
+    old=((1900,.03),);future=((3900,.03),)
+    assert rolling_work_check(future,2000,env,((-1,6000,4.),))['acceptable']
+    report=rolling_work_check((*old,*future),2000,env,((-1,6000,4.),))
+    assert not report['acceptable']
+    witness=report['ranges'][0]['windows'][0]
+    assert witness['maximum_work']==pytest.approx(.06) and witness['at_ms']==3900
+    assert rolling_work_check(old,2000,env,((-1,6000,4.),))['acceptable']
+
+
+def test_rolling_checks_keep_control_ranges_separate_and_include_incoming_scope_event():
+    env=ActionEnvelope((2.,6.),reference().maximum,'scoped',(4000.,),((.05,),(.05,)))
+    ranges=((-1,2000,4.),(2000,6000,4.))
+    # Identical requests still belong to separately declared ranges.
+    assert rolling_work_check(((1900,.03),(3900,.03)),2100,env,ranges)['acceptable']
+    report=rolling_work_check(((2000,.03),(3900,.03)),2100,env,ranges)
+    assert not report['acceptable']
+    assert len(report['ranges'])==1 and report['ranges'][0]['start_ms']==2000

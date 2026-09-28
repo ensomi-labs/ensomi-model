@@ -68,10 +68,10 @@ the new scope; published rows remain untouched. A selected code otherwise
 persists through partial publication and empty observed time.
 
 `GuidedSegmentSession` adds the existing independent action-response energy.
-`ResponsePlanner` can inspect its actual private futures. Neither the scalar
-code nor source likelihood is itself a player-response frontier. The known
-sliding-window acceptance limitation remains; this prototype does not silently
-claim to repair it.
+`ResponsePlanner` can inspect its actual private futures and retain rolling
+committed-work budgets. Neither the scalar code nor source likelihood is itself
+a player-response frontier. The independent response's discrimination remains
+an empirical qualification requirement.
 
 ## Learning and qualification
 
@@ -105,6 +105,37 @@ The design is related to shared subsequence variables in
 prediction in [ACT](https://tonyzhaozh.github.io/aloha/). It preserves exact
 discrete rows and cross-boundary physical state; it does not copy independent
 subsequence execution or averaging of continuous action predictions.
+
+## Bounded pilot outcome
+
+The matched one-state/four-state pilot trained 32 updates on 158 factual
+segments: 3,960 target rows and 160,831 native release-risk clocks. Only one
+segment supervised the actual first source row; the others began from factual
+prefixes. Resets marked TRUNCATED are not substitute BOS examples. This exposure
+does not establish decoder convergence or adequate startup learning.
+
+Six complete source-H generations used three actual approximately four-star
+sources, with one seed per arm and source: STYX, Kimi and Celestial. These audio
+bytes were excluded from this pilot, not declared unseen by the inherited
+backbone. Requests used D4 and each source's whole-chart LN fraction. All outputs
+remain unqualified. They contain 21–25 ms holds, generated LN fractions cluster
+around .25–.30 despite source requests .485/.131/.075, and Celestial outputs
+measure approximately 5.05 stars. Some continuing held roles appear, but their
+companion TAP organization and short-hold behavior still fail inspection.
+
+All 85 four-state prior selections used code1. The longer history and future
+audio observations reach the decoder through that code, so this result does
+not show meaningful segment-plan conditioning. The one-state prior is constant
+by construction; it cannot transmit its varying inputs through its categorical
+output. The decoder still receives direct current full-audio features and H
+preview. A deterministic plan-context path and adequate source learning are
+distinct follow-up hypotheses; more codes or forced entropy are not justified
+by this result.
+
+The [acceptance diagnosis](r1_short_hold_acceptance_zh.md) separately checks
+whether the independent frontier catches these proposals. Raw pilot generation
+did not use that planner. A later actual planner execution does publish a 25 ms
+hold with zero scored work, establishing a separate selection failure.
 
 Implementation:
 [model](../../src/ensomi_model/research/segment_audio_continuation/model.py),

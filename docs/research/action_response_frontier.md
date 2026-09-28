@@ -245,8 +245,17 @@ improve future recovery. The explicit rollout can observe those differences,
 but four samples need not contain a useful alternative. This reactive energy is
 not a prospective action value or a learned persistent role plan.
 
-The aligned four-second acceptance also does not bound every sliding window.
-Source-H Stream's committed prefix reached maximum 4 s added work .051639 and
-maximum 8 s work .087604, above respective references .049906/.061507. A rolling
-budget across publication boundaries remains necessary; lowering pressure on
-selected horizons alone is not a complete runtime guarantee.
+Aligned four-second acceptance did not bound every sliding window. Source-H
+Stream's committed prefix reached maximum 4 s added work .051639 and maximum
+8 s work .087604, above respective references .049906/.061507. The planner now
+retains the committed per-event work ledger and checks every calibrated trailing
+horizon at newly proposed events. Only the selected publication's charges enter
+that ledger; rejected private futures cannot spend or clear it. A regression
+case passes both four-second forecasts but is refused by the inherited
+eight-second budget without changing its committed prefix.
+
+Declared control ranges keep separate work observations, including adjacent
+ranges with equal values. Their incoming physical state remains continuous.
+This fixes publication-boundary budget resets, not the response definition.
+The [short-hold acceptance diagnosis](r1_short_hold_acceptance_zh.md) reproduces
+25 ms holds accepted at zero work and rejects a smooth-potential-only repair.

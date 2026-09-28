@@ -13,7 +13,9 @@ import torch
 
 from ..player_response.envelope import sustained_response
 from ..player_response.state import CommittedPlayState
-from ..player_response.action_response import ActionEnvelope, ActionResponseState, action_response
+from ..player_response.action_response import (
+    ActionEnvelope, ActionResponseState, action_response, rolling_work_check,
+)
 from ..scoped_style_modeling.dataset import ContractError
 
 
@@ -51,7 +53,21 @@ class ResponsePlanner:
         self.state_type = ActionResponseState if isinstance(envelope,ActionEnvelope) else CommittedPlayState
         self.state = (self.state_type.from_rows(session.rows, session.coverage)
                       if session.coverage >= 0 else self.state_type())
+        self.work_events=()
+        if isinstance(envelope,ActionEnvelope) and envelope.work_windows_ms and session.coverage>=0:
+            ranges=self._ranges(-1,session.coverage)
+            _,report=action_response(ActionResponseState(),session.rows,session.coverage,envelope,ranges)
+            self.work_events=tuple(report['work_events'])
         self.decisions = []
+
+    def _ranges(self,start,end):
+        if start<0 and end==0:
+            return ((start,end,self.session.controls.resolved_ranges(0,1)[0].stars),)
+        ranges=tuple((s.start_ms,s.end_ms,s.stars)
+            for s in self.session.controls.resolved_ranges(max(0,start),end))
+        if start<0:
+            ranges=((-1,ranges[0][1],ranges[0][2]),*ranges[1:])
+        return ranges
 
     def update_controls(self, span):
         self.session.update_controls(span)
@@ -72,11 +88,7 @@ class ResponsePlanner:
             start = current.coverage
             publish_end = min(end_ms, current.duration_ms, max(0, start)+self.config.publication_ms)
             forecast_end = min(current.duration_ms, max(0, start)+self.config.horizon_ms)
-            ranges = tuple((s.start_ms, s.end_ms, s.stars)
-                           for s in current.controls.resolved_ranges(max(0,start), forecast_end))
-            if start < 0:
-                # -1 is the pre-audio BOS sentinel, not an unrequested scope.
-                ranges = ((start,ranges[0][1],ranges[0][2]),*ranges[1:])
+            ranges=self._ranges(start,forecast_end)
             tick = time.perf_counter()
             best, best_cost, proposals = None, float('inf'), []
             for i in range(self.config.maximum_candidates):
@@ -88,6 +100,11 @@ class ResponsePlanner:
                 future = proposal.rows[len(current.rows):]
                 response = action_response if isinstance(self.envelope,ActionEnvelope) else sustained_response
                 _, report = response(self.state, future, forecast_end, self.envelope, ranges)
+                if isinstance(self.envelope,ActionEnvelope) and self.envelope.work_windows_ms:
+                    rolling=rolling_work_check((*self.work_events,*report['work_events']),start,
+                        self.envelope,self._ranges(-1,forecast_end))
+                    report['rolling_work']=rolling
+                    report['acceptable'] &= rolling['acceptable']
                 cost = report.get('selection_cost',report['excess_seconds'])
                 if not np.isfinite(cost):
                     raise ContractError('A frontier proposal has nonfinite response cost')
@@ -107,5 +124,9 @@ class ResponsePlanner:
             for row in best.rows[len(current.rows):]:
                 state = state.observe(row)
             self.state, self.session = state.advance(publish_end), best
+            if isinstance(self.envelope,ActionEnvelope) and self.envelope.work_windows_ms:
+                past=(*self.work_events,*proposals[selected]['work_events'])
+                oldest=publish_end-max(self.envelope.work_windows_ms)
+                self.work_events=tuple((t,w) for t,w in past if oldest<t<=publish_end)
             self.decisions.append(decision)
         return self.session.coverage

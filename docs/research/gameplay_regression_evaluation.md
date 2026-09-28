@@ -198,6 +198,20 @@ amount, long-tail/coverage, style, musical organization and runtime checks remai
 independent. Reducing the number of LNs or lengthening every tail cannot alone
 qualify the complete model.
 
+A qualification plan can attach fitted `fragmentation_references` to each
+scope. Each entry is the result of `fit_fragmentation_reference`; the pinned
+plan preserves the fitted population, coordinate and quantile. The requested
+difficulty and LN amount stratum must match that reference. A failed prevalence
+check now makes numeric qualification fail even when difficulty, amount and
+publication checks pass. Different control ranges retain separate measurements.
+
+Calibrate the reference on the same observation unit: a whole-chart prevalence
+bound must not be reused as a short-window capacity bound. The offline check
+uses resolved actual tails and retains their furthest accessed time; it is not
+an online cutoff or a prohibition on an individual short LN. The
+[short-hold acceptance diagnosis](r1_short_hold_acceptance_zh.md) distinguishes
+this distribution check from continuation pressure acceptance.
+
 ## Consecutive head membership
 
 The scope field head_recurrence records whether a finger keeps participating in

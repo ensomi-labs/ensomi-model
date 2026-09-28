@@ -155,3 +155,34 @@ def test_hydra_projection_packaging_and_lightweight_help(tmp_path):
         'startup_seconds_limit=15','service_seconds_limit=15'],capture_output=True,text=True)
     assert pending.returncode==3,pending.stdout+pending.stderr
     assert json.loads((tmp_path/'pending/result.json').read_text())['candidate_status']=='review_required'
+
+
+def test_fitted_short_LN_gate_is_applied_to_each_scope_before_numeric_acceptance(tmp_path):
+    from ensomi_model.research.gameplay_evaluation.qualification import _inspect
+    from ensomi_model.research.gameplay_evaluation.ln_fragmentation import fit_fragmentation_reference
+    from ensomi_model.research.oracle_time_continuation.schema import CompleteRow
+    from ensomi_model.research.joint_audio_continuation.generation import NativeGeneration,save_rollout
+    settings,plan=fixture(tmp_path)
+    settings.difficulty_error_limit=100
+    reference=fit_fragmentation_reference([dict(group_id='source',source_sha256='fixture',
+        stars=4.,heads=100,LN_heads=10,short_LNs=1,threshold_ms=40.)])
+    case=plan['cases'][0];case.pop('switch')
+    case['controls']=[dict(start_ms=0,end_ms=1001,stars=4.)]
+    case['scopes']=[dict(name=name,start_ms=a,end_ms=b,stars=4.,fragmentation_references=[reference])
+        for name,a,b in [('early',0,500),('late',500,1001)]]
+    rows=tuple(CompleteRow(t,a) for t,a in [(0,(2,0,0,0)),(25,(3,0,0,0)),
+        (300,(0,1,0,0)),(600,(0,0,2,0)),(850,(0,0,3,0))])
+    metrics=dict(operational_startup_seconds=.1,maximum_service_seconds=.1,
+        first30_rows_seconds=.1,generation_seconds=.1,audio_encode_seconds=.01,
+        head_source='fixture',controls=case['controls'])
+    result=NativeGeneration(rows,True,'complete',1000,metrics)
+    saved=save_rollout(tmp_path/'explicit',result,audio_file=case['asset']['audio_file'])
+    report,record=_inspect(case,saved,result,dict(trace_meets_deadlines=True,deadline_misses=0),
+                           settings,None,{})
+    checks={c['name']:c for c in record['checks']}
+    assert not checks['early:short_LN_exposure_40ms']['passed']
+    assert checks['late:short_LN_exposure_40ms']['passed']
+    assert checks['early:difficulty']['passed'] and checks['late:difficulty']['passed']
+    assert record['numeric_status']=='failed'
+    assert report['scopes'][0]['short_LN_exposure'][0]['observation']['short_LNs']==1
+    assert report['scopes'][1]['short_LN_exposure'][0]['observation']['short_LNs']==0

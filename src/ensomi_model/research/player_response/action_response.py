@@ -228,6 +228,39 @@ def window_work_maxima(times, work, windows_ms):
         np.searchsorted(times,times-width,side='right')],initial=0.)) for width in windows_ms]
 
 
+def rolling_work_check(events, after_ms, envelope, ranges):
+    """Check new charges against trailing budgets, retaining committed charges.
+
+    Events are (time, added_work) under their own control request. Ranges must
+    start at actual control boundaries, not the current publication boundary.
+    Separate ranges never pool their charges; inherited physical response is
+    already present in each new charge. Only windows ending at a new event can
+    introduce a violation. Waiting cannot spend work or reset the ledger.
+    """
+    events = np.asarray(events,float).reshape(-1,2)
+    reports=[]
+    for begin,end,stars in ranges:
+        if end <= after_ms:
+            continue
+        selected=(events[:,0]>=begin)&(events[:,0]<end)
+        if end==ranges[-1][1]:
+            selected |= events[:,0]==end
+        times,work=events[selected].T
+        new=np.flatnonzero(times>after_ms)
+        checks=[]
+        if stars is not None and len(new):
+            cumulative=np.r_[0.,np.cumsum(work)]
+            for width in envelope.work_windows_ms:
+                sums=cumulative[new+1]-cumulative[np.searchsorted(times,times[new]-width,side='right')]
+                index=int(np.argmax(sums));value=float(sums[index])
+                limit,_=envelope.work_limit(stars,width)
+                checks.append(dict(window_ms=width,maximum_work=value,limit=limit,
+                    at_ms=float(times[new[index]]),accepted=value<=limit+1e-12))
+        reports.append(dict(start_ms=begin,end_ms=end,stars=stars,windows=checks,
+            accepted=stars is not None and all(c['accepted'] for c in checks)))
+    return dict(ranges=reports,acceptable=bool(reports) and all(r['accepted'] for r in reports))
+
+
 @dataclass(frozen=True)
 class ActionEnvelope:
     """Ranked-chart response references, not an identified physiological C0."""
@@ -324,6 +357,7 @@ def action_response(state, continuation, end_ms, envelope, ranges):
             or any(r.time_ms <= state.time_ms or r.time_ms > end_ms for r in future)):
         raise ValueError('Action response needs a complete real-time horizon and ordered private rows')
     current, index, reports = state, 0, []
+    work_events=[]
     work_sums = np.zeros((len(ranges),len(TAUS_MS),28))
     tau = np.asarray(TAUS_MS)[:,None]/1000
     for begin,end,level in ranges:
@@ -352,8 +386,10 @@ def action_response(state, continuation, end_ms, envelope, ranges):
                 request = ranges[owner][2]
                 if request is not None:
                     reference = envelope.limits(request)
-                    work_sums[owner] += np.maximum(0.,recovery_potential(current.values,reference)-
-                                                  recovery_potential(before,reference))
+                    charge=np.maximum(0.,recovery_potential(current.values,reference)-
+                                         recovery_potential(before,reference))
+                    work_sums[owner] += charge
+                    work_events.append((stop,float(charge.sum(-1).mean())))
             else:
                 current = current.advance(stop)
         by_kind = {k:float(costs[:,s].sum(-1).mean()) for k,s in zip(KINDS,SLICES)}
@@ -374,4 +410,5 @@ def action_response(state, continuation, end_ms, envelope, ranges):
                         fully_scored=fully_scored,
                         added_work=sum(r['added_work'] for r in reports),
                         selection_cost=sum(r['added_work'] for r in reports),
+                        work_events=work_events,
                         acceptable=acceptable)

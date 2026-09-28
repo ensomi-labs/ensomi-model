@@ -35,6 +35,7 @@ from .report import evaluate_scopes
 from .review import pressure_review_contexts
 from .temporal import ChartTrace,Scope
 from .witnesses import sustained_attack_witnesses
+from .ln_fragmentation import short_ln_exposure, fragmentation_check, ln_usage_band
 
 
 def _write(path,value):
@@ -71,6 +72,11 @@ def _plan(path):
         schedule=ControlSchedule(tuple(spans),names)
         for target in case['scopes']:
             rho=target.get('ln_fraction')
+            for reference in target.get('fragmentation_references',()):
+                stars=target.get('stars')
+                if (stars is None or not reference['stars_min']<=stars<=reference['stars_max']
+                        or reference['amount_band']!=ln_usage_band(rho)):
+                    raise ValueError('Fragmentation reference must match the declared difficulty and LN request')
             if rho is None:continue
             a,b=target['start_ms'],target['end_ms']
             owned=any(span.start_ms==a and span.end_ms==b and span.ln_fraction==rho for span in spans)
@@ -159,6 +165,16 @@ def _inspect(case,saved,result,deadlines,settings,envelope,identity):
             observed=measurement['LN_head_fraction'];error=None if observed is None else abs(observed-rho)
             check(scope.name+':LN_amount',error is not None and error<=settings.ln_fraction_error_limit,error,
                   settings.ln_fraction_error_limit)
+        if target.get('fragmentation_references'):
+            measurement['short_LN_exposure']=[]
+            for reference in target['fragmentation_references']:
+                exposure=short_ln_exposure(objects,scope.start_ms,scope.end_ms,
+                    threshold_ms=reference['threshold_ms'])
+                verdict=fragmentation_check(exposure,reference)
+                measurement['short_LN_exposure'].append(dict(observation=exposure,
+                    reference=reference,check=verdict))
+                check(f"{scope.name}:short_LN_exposure_{reference['threshold_ms']:g}ms",
+                    verdict['status']=='passed',verdict['observed'],verdict['limit'])
         if envelope is not None:
             witness=sustained_attack_witnesses(trace,scope,envelope,stars)
             measurement['pressure_witnesses']=witness
@@ -191,6 +207,10 @@ def run_qualification(settings,*,resolved_yaml=None,on_case=None):
     numerically clear result returns 'review_required', never 'qualified'. Runtime
     failures retain completed earlier cases and a failed-case record. Corpus-
     envelope excess is diagnostic unless a scope declares an explicit bound.
+    A scope's fragmentation_references are fitted prevalence bounds, retained
+    in the pinned plan. Their observation unit must match the evaluated scope;
+    a whole-chart prevalence reference is not a short-window capacity limit.
+    Each bound gates only its own scope, using real resolved tails offline.
     """
     settings.validate();_verified(settings.checkpoint_file,settings.checkpoint_sha256)
     _verified(settings.plan_file,settings.plan_sha256);plan=_plan(settings.plan_file)
