@@ -184,3 +184,35 @@ rows/open holds and all failures, no restart/overwrite. Measure actual whole
 stars, LN amount, fixed-scope hold/TAP interactions, native-time response work,
 plan usage and publication latency. Render fixed scopes if materialized.
 All other Card conditions and no-promotion boundary remain.
+
+## Completed native output and observer evidence
+
+All six source-H runs completed and reparsed successfully, process14735 exit0.
+K1 STYX/Kimi/Celestial stars are4.4671/4.0380/5.0449 and LN fractions
+.2795/.2902/.2954. K4 values are4.6237/3.9726/5.0587 and .2451/.3026/.2966.
+All85K4 plan selections are code1. No useful prior plan diversity is established;
+the code-only long-history/future-audio path is ineffective in these observations.
+The direct current audio/H paths remain. Only1of158fit views supervises the true
+first source row, so startup exposure is a concrete recipe weakness. These are
+hypotheses about current learning, not proof of representational impossibility.
+
+The typed TAP observer is committed as3ea1827b9c638e87b6be89bfae5031ebc8110d9a.
+Its87gameplay-evaluation checks passed5.73s before commit. It includes zero-TAP H
+in group transitions and retains the origin of a single continuing held role;
+no clock cutoff converts those counts into semantic Stream labels.
+
+inspection-v1 rendered30Lens pages. Twelve were actually read: both Kimi source
+pages and all generated Kimi/STYX pages for both arms. Remaining Celestial and
+other source pages were not reviewed in this pass. K1 Kimi has10successive TAP H
+under one held role, but mainly singles and repeated-finger subruns; source has
+19interior TAP H/28heads with steady jump/single alternation. K4 Kimi keeps only
+a2Hsingle-held body. Both STYX samples have11Hheld-role TAP bodies but short LN
+clusters and weak surrounding organization. These partial roles do not qualify
+the output. inspection-v1's unreviewed status must not be represented as a
+complete review; this paragraph records exactly what was seen.
+
+All six outputs contain21–25ms LNs. At <=40ms the counts are30/16/20 for K1 and
+22/11/15 for K4, respectively; strict <40ms counts differ. This is the user's
+priority regression. The native pass was raw proposal generation, not frontier
+acceptance. Follow-up response analysis belongs to2026-09-28-response-blindspot.
+No checkpoint, demo or benchmark branch was promoted.

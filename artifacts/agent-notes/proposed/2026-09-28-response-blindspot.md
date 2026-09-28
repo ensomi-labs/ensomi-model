@@ -42,7 +42,7 @@ rules or deleting legitimate short-LN source examples are not interventions.
 
 ## Experiment Card: response-potential-blindspot-v1
 
-Revision: 2
+Revision: 3
 Accepted revision: none
 
 Baseline source3ea1827b9c638e87b6be89bfae5031ebc8110d9a. The TAP observer
@@ -92,3 +92,61 @@ own a fresh accepted-prefix-v1 destination, CPU2,150s model-session bound, no
 retry/overwrite. Same clean product revision and frozen action reference as
 the offline probe. Checkpoint9c60831599bbda301d75c28c161630e1ec2fbdb0a654149608624443a14bb7d9.
 All other protected comparison fields remain unchanged.
+
+## Result Log: confirmed acceptance blind spot and failed isolated repair
+
+probe.py process76733 finished exit0 in75.573s. Existing source_work and the
+matched offline excess implementation agreed numerically on every source.
+The old4s budget reproduced exactly at .0499055392; the quadratic budget is
+39.5872943. Held-out4s errors are21/1368 versus15/1368. The six new segment outputs
+pass5/6 under old work and6/6 under quadratic work. The intended short-LN
+separation fails; do not adopt the isolated quadratic repair. This does not
+prove that every graded or structured response model would fail.
+
+Exact full-state checks give zero candidate work for isolated23/25/40/80/150/
+300ms LN releases. A21ms release adds .0000152991, also below budget.32same-finger
+TAPs125ms apart have4s work .0199242 versus0for four-finger rotation; both pass.
+This distinguishes representational sensitivity from useful acceptance.
+
+Actual planner process94701 finished exit0 in1.1946s. On K1 STYX sourceH it
+published a25ms LN at1122–1147ms. The first four decisions all chose candidate0
+with work0. Its committed prefix hash is
+1159900549ad5507623b1354e7682b2968c086b41ff8dde3f50a7e7da3fb85eb.
+No hypothetical endpoint or full-chart export was manufactured.
+
+The3.5–4.5star cohort contains1839charts with LN. Equal-song/chart weighted
+<=40ms/LN prevalence is .10647%; its99th chart percentile is1.17647%. Generated
+values are3.26–8.67%. These describe LN-only prevalence; the existing formal
+fragmentation gate uses short-LN/all-heads and request-conditioned cohorts.
+
+## Fixed execution defects and revision-three regression replay
+
+Product822f34f632c4e9fde0cda5626ce65433f1f2d945 preserves committed added-work
+charges across publication boundaries, checking every fitted sliding horizon.
+Actual control ranges remain separate; incoming physical state persists.
+A real-response regression rejects an8s budget breach that passes each4s
+forecast, leaving the committed session/state/ledger unchanged. This does not
+fix the zero-cost definition. The existing LN prevalence observer is connected
+to per-scope numeric qualification via pinned fragmentation_references.
+
+Selected checks:16action/frontier tests1.28s,14qualification/fragmentation
+checks5.32s,11response-guidance/segment checks2.84s. The new qualification fixture
+initially lacked an audio filename, then its controls metadata; both setup
+errors were fixed without changing the failing-short-LN assertion. Curated
+r1_short_hold_acceptance_zh.md preserves the formal mechanism and counterexamples.
+
+Revision3 adds a bounded offline quality replay using the existing prevalence
+observer, not a new runtime rule. Fit40/80ms coordinates on fitting song groups
+only inside3.5–4.5star, stratified by each actual requested LN fraction. Check
+all six complete outputs separately, the three real source positives and the
+matching held-out groups. Use true whole-chart heads/tails; do not apply a
+whole-chart prevalence quantile to short windows or let realized output LN
+amount choose its reference. Retain complete output on quality exit2.
+
+Frozen quality-replay-plan SHA
+ec6acca895936821abe56e83c4a93a3ba33d9a4d5ee47d208d66230a3613c744,
+script quality_replay.py, fresh quality-replay-v1, source822f34f632c4e9fde0cda5626ce65433f1f2d945.
+Finite6924source-record replay plus six generated and three source parses;
+CPU, expected under120s/2GiB, no training or mutation of existing outputs.
+No overwrite, automatic restart, model promotion or remote publication.
+Card acceptance remains none. Overall goal remains active and unmet.
