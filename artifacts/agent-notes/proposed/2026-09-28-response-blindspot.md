@@ -42,7 +42,7 @@ rules or deleting legitimate short-LN source examples are not interventions.
 
 ## Experiment Card: response-potential-blindspot-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 
 Baseline source3ea1827b9c638e87b6be89bfae5031ebc8110d9a. The TAP observer
@@ -74,3 +74,21 @@ Exclusive fresh probe-v1, one CPU process,1200s and3GiB RSS bound, no GPU or
 training. Stop on resource/STOP, malformed source, hash mismatch or numerical
 nonconformance. No overwrite or automatic restart. Record partial output and
 terminal status on failure. No change to deployed selection in this probe.
+
+## Revision-two actual acceptance witness
+
+Add one behavior-preserving diagnostic of the existing ResponsePlanner: the
+one-state segment pilot checkpoint on STYX source H, full audio, D4, source
+whole LN fraction and seed281100, from BOS through8000ms. The actor has no
+quantity/recovery/response guidance; the actual independent planner alone
+chooses four-second futures and publishes two-second prefixes. Retain exact
+decisions, observed short holds and any open holds; do not fabricate a complete
+chart or endpoint. This establishes whether the existing selector actually
+publishes the defect rather than inferring acceptance from offline scores.
+
+accepted_prefix.py and accepted-prefix-plan.json SHA
+0c22eceb9c48feb0d4491ba307547ebd1b05a2f815db8b86bdf62293889ffad4
+own a fresh accepted-prefix-v1 destination, CPU2,150s model-session bound, no
+retry/overwrite. Same clean product revision and frozen action reference as
+the offline probe. Checkpoint9c60831599bbda301d75c28c161630e1ec2fbdb0a654149608624443a14bb7d9.
+All other protected comparison fields remain unchanged.
