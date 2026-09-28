@@ -195,8 +195,9 @@ not be compared with individual ranges in a changing control program. A floor
 below the request says nothing about whether a matching playable continuation
 exists or receives proposal probability.
 
-In the release-support study, a D2 Zenithfall H plan has floor 2.928770 even
-though R1's chosen map is 3.664578. Changing R1 alone cannot reach exactly 2
+In the [release-support study](release_support_joint_learning.md), a D2
+Zenithfall H plan has floor 2.928770 even though R1's chosen map is 3.664578.
+Changing R1 alone cannot reach exactly 2
 on that plan. A Classic plan instead has floor 1.841016, and an explicitly
 constructed legal one-TAP-per-H continuation reaches 2.113209 versus the
 model's 3.282442. The latter is an existence witness, not a cyclic-routing
