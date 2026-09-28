@@ -69,7 +69,7 @@ def replay_trace_scores(log_probs, rows, controls, start_ms, end_ms, duration_ms
     Return differentiable CPU float64 probabilities with native arithmetic.
     """
     values = log_probs.cpu().double()
-    spans = ln_episodes(controls)
+    spans = ln_episodes(controls) if ln_feedback is not None else ()
     allocation, recent = LnAmountState(), ()
     replay = ExactReplayState()
     output = []
