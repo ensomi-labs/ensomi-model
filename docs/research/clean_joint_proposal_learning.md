@@ -140,7 +140,7 @@ All 24 pages of nine fixed contexts are read: STYX [1800,7800), Blizzard
 each arm. This is an intermediate visual review, not complete-song semantic
 qualification, audio listening or a human playtest.
 
-Both inherited Blizzard views are entirely TAP in the selected six seconds.
+The inherited and early Blizzard views are entirely TAP in the selected six seconds.
 Local TAP purity can be valid, but their almost absent whole-chart LN cannot
 satisfy the high amount request. A longer median among the few surviving
 holds would not count as an articulation repair.
