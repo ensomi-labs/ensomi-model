@@ -102,9 +102,12 @@ draws and verify intended gradients, finite losses, exact imports, checkpoint
 resume and current probability-path agreement. A failed pilot stops without
 automatic recipe change. Fresh model quality is not expected after 32 updates.
 
-Retain fixed evaluations at initial, 512, 2048 and 4096 updates. Validation
-likelihood diagnoses fit but does not select a winner. Native evidence uses the
-existing 28-case panel with separate D2/D4/D6, LN/style and live-switch ranges;
+Retain fixed validation at initial, 32, 512, 2048 and 4096 updates. Validation
+likelihood diagnoses fit but does not select a winner. Interim native evidence
+at 512 and 2048 uses eight fixed witnesses: seed-zero Classic/Zenithfall D2/D6,
+Blizzard/STYX seed one, Stream Zenithfall 271201 and live control switch.
+Final native evidence uses the existing 28-case panel with separate D2/D4/D6,
+LN/style and live-switch ranges;
 initial/fresh early runs can stop at resource bounds and remain incomplete,
 not be resampled until they look good. At the final endpoint compare all arms
 and the existing profile-only reference. Inspect H floors, sustained responses,
@@ -186,3 +189,32 @@ fresh 45.55102973 / 1.70081769 / 33.27794954.
 Macro row NLL is 1.57275295 / 1.64922791 / 4.32740172.
 These verify finite distinct initial laws and factual replay, not a quality
 ordering or evidence against the fresh initialization.
+
+## Pilot completed; longer comparison authorized to execute
+
+All three 4675633-parameter models finish the paired 32 updates, training all
+audio/H/R/R1 paths. Fit plus checkpoint verification takes 113.12 seconds
+(optimizer loop 108.45), peak sampled process footprint 4672623464 bytes.
+All required gradient roots are nonzero; each saved checkpoint strictly reloads
+with exact parameter equality. Current/early import 383/382 tensors; fresh
+imports only the two shared Mel normalization buffers. Four scope-allocation
+tensors are omitted only from current; missing modulation matrices are zero.
+
+Pilot inherited/early/fresh checkpoint SHA:
+82d5b0029324d3806cbdcb7e480743b2d9222316c34818f62221f1f1866971d8 /
+8bd51abe79b44ae6e423513740c52ea0af8c82957ded5c2093788436a39a7a18 /
+2d8644ac6a7eeec4c79a31f92e760685476d9c837033db522bed8a9dc7aec562.
+The matching validation macro row NLL is 1.65113611/1.65161087/3.53933923;
+H NLL per second is 31.70371923/31.72703899/45.36095056. Fresh improves
+its row diagnostic; inherited row validation worsens despite better H NLL.
+Do not describe all metrics as improving or infer playability from this pilot.
+
+The fixed longer execution continues the saved optimizer states from step 32
+to 4096, in serial 32-step workers. Source chunks were frozen before use;
+producer can continue ahead without reading training results. Final source
+ledger and chunk equality are checked after producer completion. Validation
+and native runs pause optimizer work at the declared milestones. Numeric
+failure is preserved, not resampled or auto-promoted. The full supervisor
+has a ten-hour elapsed limit, per-child limits and a 24-GiB owner storage cap.
+Native semantic/Lens review remains agent work and cannot be inferred from
+the runner's complete flag.
