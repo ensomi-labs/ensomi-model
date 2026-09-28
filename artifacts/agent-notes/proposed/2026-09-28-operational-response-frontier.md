@@ -56,7 +56,7 @@ exploratory, not a retrospectively accepted intervention.
 
 ## Experiment Card: action-response-calibration-v1
 
-Revision: 3
+Revision: 4
 Accepted revision: none
 Execution authority: explicit current user request and ongoing system goal.
 
@@ -162,3 +162,26 @@ output in fresh work-pooled-v1. This is CPU-only reaggregation of immutable
 source-work records,60s/1GiB bound, no new model samples or optimizer changes.
 Record the fixed generated-case decisions and preserve the original8.3%
 pointwise rejection and normalized-budget defect as failed alternatives.
+
+## Derived reference and actual native-gate probe
+
+Official pooled reference SHA8c5ed4bfd17d779bb4c8a79ba2704145679accc77381e8ca53e612db55804ba2;
+plan764be93253207d5f4c6cabf15b9d25cf6857c25b206f5fa0145b0ce01449a95c.
+All9source positives pass. At4s, joint80STYX/Blizzard/Stream and baseline4096
+Stream/jack all exceed the added-work budget; parent2048Blizzard/Stream fail.
+ParentSTYX and baseline4096STYX/Blizzard pass this pressure coordinate only.
+Held-out21/1368failure is not zero; wider semantic response remains unproven.
+
+Revision4 adds an actual gate-only native probe on the three unchanged joint80
+audio/control/seed cases. Model checkpointb57934728a77abfef0d4bd1ea6387d7cb6f8582c6e450bdd890bfeb1d380ebd6;
+full audio, no gold H; CPU2threads,360s per case,2s publication/4s forecasts,
+at most4R/R1candidates, H unchanged. Publish only acceptable selected prefixes.
+On exhaustion/time cap, keep the prefix and actual open holds; no fabricated
+tail or full-playability claim. Record real batch-publication startup/service,
+candidate reports and missing suffixes. This probes proposal coverage and runtime,
+not only offline detection. No demo/default integration or promotion yet.
+
+Source tests now12pass, including BOS profile ownership and its true4000ms
+duration. An unexecuted first native plan is preserved; native_gate_v2.py pins
+the corrected source via native-gate-v2-plan.json. Fresh native-gate-v1 output,
+no overwrite/restart. STOP and the session's time/row limits remain active.
