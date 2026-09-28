@@ -93,7 +93,7 @@ and proposal log probabilities are not selected-policy probabilities.
 
 ## Experiment Card: ordinary-fresh-bootstrap-v1
 
-Revision: 4
+Revision: 5
 Accepted revision: none
 
 First establish a reproducible positive population from the existing1973ranked
@@ -226,4 +226,41 @@ and keep short-tail, RH, repetition, role continuity and rhythm observations
 separate. Teacher-prefix/source-H continuations can distinguish source learning
 from policy-induced-prefix drift. No generated-chart quality is established by
 the backend comparison or by fitting these deliberately oversampled units.
+
+## Capacity512 result and revision5 generated evidence
+
+Fresh512fit completed in235.73s, peak1,892,403,720bytes. Mean factual H NLL/s
+on the16fit units changed31.01186to10.72888(-65.4percent); R/R1 changed
+23.07761to2.29225(-90.1percent). Both pass the declared learning screen only.
+Checkpoint SHA is f7b2037ce5338c593b4f3b7ff01e3c5d20a1cea79b7d3f3461043e6457898167.
+
+Generate12whole-song completions:4sources times3modes, one fixed seed290031.
+Modes are source-prefix/source-H at the aligned inspected-plan start,
+BOS/source-H, and BOS/native-H. Source prefix is replayed as actual committed
+rows with open holds and neural history; no future row materialization enters.
+Full audio and the same global source-star/LF controls are used in all modes.
+No response guidance, count feedback or post hoc chart correction is enabled.
+Only generated-prefix runs receive whole-chart qualification checks; a teacher
+prefix must not dilute its continuation's failures into a whole-chart pass.
+Inspect the fixed source ranges independently, retaining unresolved facts until
+their actual generated tails. Source-H is a diagnosis, not the audio task.
+
+The plan SHA is19c951f2e34948cb092f80edb31f018da7e62318f31b9119f00046b72cf1c495,
+exclusive output capacity-native-512-v1, CPU4threads,900s total/90s per case,
+no overwrite or automatic retry. Numeric checks include whole-star error<=.5,
+whole-LF error<=.1, whole-chart40/80ms LN burden and same-finger4/8s maxima.
+Existing evaluators additionally report RH/HR, recurring column membership,
+TAP/held-role organization and local H-lattice coverage. No aggregate score can
+cancel a failed tail coordinate. Actual Lens review remains required.
+
+New references use the current train components only and keep validation
+exceedances visible. capacity-references-v1.json SHA is
+9605dd3769b13fc2f7e7fe02f3209fc21ce04657efc678970c7f00103fec18a1.
+40ms LN burden limits: TAP-majority0 (5/215validation charts exceed), mixed
+.00596125(0/113), LN-majority.00604230(0/11). The LN-majority validation is small.
+80ms limits:.0845461(2/215),.253020(0/113),.319486(1/11).
+Same-finger4s maximum23has12/361held-out exceedances;8s maximum43has2/361.
+These are empirical tail warnings with known false positives, not physiology
+or universal style bans. Their observation unit is a whole chart; use scoped
+descriptive evidence instead of applying these prevalence cutoffs to short crops.
 Do not scale or fuse solely because the loss falls.
