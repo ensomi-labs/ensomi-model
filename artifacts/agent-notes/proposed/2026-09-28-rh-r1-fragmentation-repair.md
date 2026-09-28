@@ -290,3 +290,17 @@ learns, but this recipe is not qualified. Do not scale it automatically or
 promote on B80. H's missing shared rhythmic relationships and birth/release
 control calibration remain live causes. Hierarchical-H reasoning and its
 chart-only diagnostic now have a separate proposed owning Note.
+
+Product observer and self-contained docs committed at
+a6c912f5c31cd843103048640febf0d9927d04ea. The neural implementation exercised
+by all above checkpoints is965d670; this descendant adds only the H-rhythm
+observer/tests and docs/images. The research worktree is clean. Do not rerun
+old source-guarded scripts against a newer executable tree without a fresh
+declared plan. No remote push, main merge or benchmark update occurred.
+
+Final native80 result SHA5bff5abb42c865135061d66ec7cb8bcafe0ff6207bdfa82630daeb1c51f3adf8;
+Lens80review446d5759a05cd02d7b522e43f3e6f644e2817230b1388c4afc6974d840569466.
+The earlier supervisor29252 has now also terminated exit0 after all84final
+native cases; its own result receipt confirms completion. No training or
+evaluation process from this Note remains live. The overall playable-system
+goal remains active and unmet.

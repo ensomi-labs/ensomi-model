@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: 965d6702640a9dc3d6331ddd776daee4e7341d4b plus scoped observer/document implementation
+Product revision: a6c912f5c31cd843103048640febf0d9927d04ea
 Scope: Primary subdivision, ornament structure and end-to-end audio-to-chart rhythm
 Related: 2026-09-28-rh-r1-fragmentation-repair, 2026-09-28-ordinary-fourstar-rhythm-and-holds
 

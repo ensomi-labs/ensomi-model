@@ -2,6 +2,11 @@
 
 Note ID: 2026-09-28-clean-joint-proposal-learning
 Status: proposed
+
+Latest execution state: supervisor29252 is terminal exit0. All three arms
+reached4096updates and completed their28-case final native evaluations.
+See the appended final execution receipt below before relying on older live
+status entries. The overall playable-system goal remains active and unmet.
 Kind: research
 Created: 2026-09-28
 Updated: 2026-09-28
@@ -343,3 +348,33 @@ Continue the fixed4096 endpoint; do not alter the live recipe or duplicate
 workers. The independent evaluator/corpus-document branch is now
 2c67bb6b70df425d7bca68a455488833a6720372, clean and not merged into the
 guarded main executable tree. The ordinary-fourstar corpus subagent is complete.
+
+## Final execution receipt
+
+Supervisor29252 completed normally, no restart. The4096-step receipt is
+supervisor-v1/result.json, SHA 0368262cb45ea335122c0c9b16722f186b8080ef48afca7aa817727baf399729.
+Actual supervisor seconds: 16957.50895841699. All8192draws matched their
+frozen source ledger. No checkpoint was promoted.
+
+inherited: 28/28complete, 19/28numeric failures.
+Checkpoint SHA eaa17a02606ee08542a20a33547bd35b5aaa02964cf6db52ab5e5aa54d74427f;
+result SHA a08e03cdceb39c96c03c658fe473ea7a38222d0d36bf9335c0fc804957fd8a9b.
+
+early: 28/28complete, 18/28numeric failures.
+Checkpoint SHA 1138d679fbff2f30f8a3e1add3b5f4ac2f7cac1b7b669595cd529de2fefa06e5;
+result SHA 784d68c9564828a89d2121d10dabe616baf875ee37254756eb90833a67484341.
+
+fresh: 28/28complete, 17/28numeric failures.
+Checkpoint SHA 2eacf8328135dcd1b729a096522a5dc1569a929cda9fe83c61805900330bd559;
+result SHA 9602996936755a4fa5251456b8dbb7bb66960ddf0f3a8f2047658f40f49c0fa4.
+
+Validation4096 macro row NLL inherited/early/fresh1.61091/1.60646/1.84232;
+H NLL/sec30.11214/30.14575/32.76122. These remain proxies, not a quality
+ranking. Full final84-case semantic review is not complete. Inherited4096
+fixed Stream case271201 is6.96432stars, rho.25340: reduced LN fraction did
+not fix its requested D4difficulty. The same three H timing witness scopes
+still have weak shared-lattice coverage; see hierarchical-head-rhythm Note.
+
+Main executable guard no longer has a live owner. Preserve the user changes
+to AGENTS.md and untracked audio_architecture_walkthrough_zh.md. No source
+was merged from release-calibration and no remote push occurred.
