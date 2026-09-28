@@ -150,3 +150,28 @@ Finite6924source-record replay plus six generated and three source parses;
 CPU, expected under120s/2GiB, no training or mutation of existing outputs.
 No overwrite, automatic restart, model promotion or remote publication.
 Card acceptance remains none. Overall goal remains active and unmet.
+
+## Completed red regression replay
+
+quality_replay.py completed exit2 as designed: quality failure, no runtime error.
+All six outputs fail40ms prevalence and pass80ms prevalence. Three real source
+positives pass both. Frozen references SHA
+34c95e6ac476a4c43ecdc0a6eb69715aef7f3d2db39b7889ce09c885ceeabb43;
+checks082e15018558fa16a9da84b8fea5d8f709abbd6855a21c9da672418edb83ac00.
+Mixed40ms all-head bound .0050987890, fit491charts/432groups, held-out1/145
+exceedance. TAP-majority bound .0006230530, fit932charts/784groups, held-out3/208.
+At80ms corresponding held-out exceedances are5/145 and7/208. These are conditional
+empirical quality coordinates, not legal support limits or physiological truth.
+
+STYX supplies a decisive metric-collision witness: source110<=80ms holds and
+zero<=40ms; K1 output65<=80ms but30<=40ms. All-head80ms burden improves from9.81%
+to5.25% while40ms burden worsens from0to2.42%. The single broad tail count would
+mislabel the change as improvement. New qualification plumbing preserves both
+coordinates, each under the same declared control range and frozen reference.
+
+No NN training ran in this diagnosis. No model is qualified. All processes are
+terminal. The next research action should repair the blocked continuous plan
+information path and compare adequately exposed source/BOS learning, rather
+than further tune this scalar work potential. This next fit is not yet frozen
+or launched; its exact paired data, resource segmentation and checkpoints need
+a proposed Card before execution under standing user authority.

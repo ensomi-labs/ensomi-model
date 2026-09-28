@@ -216,3 +216,28 @@ All six outputs contain21–25ms LNs. At <=40ms the counts are30/16/20 for K1 an
 priority regression. The native pass was raw proposal generation, not frontier
 acceptance. Follow-up response analysis belongs to2026-09-28-response-blindspot.
 No checkpoint, demo or benchmark branch was promoted.
+
+## Completed visual comparison and next structural question
+
+All30fixed-scope Lens pages are now actually reviewed:10source and20generated.
+New immutable review record inspection-v1/review-complete-v1.json SHA
+1c90f52e23fcc59bb858478f42cc8d5f08600807115e0e3cdb8ba70ae5da78b3.
+It does not overwrite the original unreviewed render receipt. No audio audition
+or human playtest is claimed. Celestial source preserves a roughly2.4s held-role
+transfer across0/1/2/3 with recurring companion TAPs. K1 instead becomes highly
+LN-dominated at12–16s; K4 has more TAP but still changing short/medium holds and
+joint entries. STYX's inspected6s span is pure TAP despite whole LF.485, an
+important distinction between whole-range amount and temporally uniform mixing.
+
+For p(Y|x,g)=sum_z pi(z|g)q(Y|x,z), K1 has zero derivative with respect to g,
+where g is the longer history/future-audio summary fed only to the prior. K4's
+85observed code1choices provide no evidence that it restored this path.
+A direct continuous context u=f(g) into q(Y|x,z,u) is the selected structural
+question to test next, preserving discrete private choice as optional diversity.
+This is a reasoned information-path repair, not a claim that more parameters
+alone solve player response. Both comparator arms should receive the same true
+BOS/prefix exposures and sufficient new-decoder source learning; H and all
+complete-row/cardinality ownership remain unchanged. Full R/R1 factors must
+still agree between native generation and scoring. No new Card or run has yet
+been frozen for that comparison. The failed short-LN outputs remain fixed
+regressions rather than a new imitation target.
