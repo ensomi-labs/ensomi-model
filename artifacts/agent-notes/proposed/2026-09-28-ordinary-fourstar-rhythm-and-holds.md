@@ -99,9 +99,9 @@ LN-duration medians 196/162/132 ms, and next-same-finger recovery medians
 TAP-majority LN duration <=80/60/40 ms has 5.8107/1.2073/.1362 percent mass.
 Same-finger release→head <=40 ms has .0065 percent mass (five pooled events
 among 164052 opportunities). The primary agent recomputed the three duration
-fractions from raw per-LN observations. Same-entry LN groups have identical
-tails in 73.4/52.1/34.2 percent of opportunity-weighted charts in the three
-strata. 92.3 percent of TAP-majority LN heads lie within 2 ms of whole/half-beat
+fractions from raw per-LN observations. The song- and chart-weighted fractions
+of same-entry LN groups with identical tails are 73.4/52.1/34.2 percent in
+the three strata. 92.3 percent of TAP-majority LN heads lie within 2 ms of whole/half-beat
 positions under source redlines. This does not mean every grid position is
 occupied, and unclassified events are not automatically Tech.
 
