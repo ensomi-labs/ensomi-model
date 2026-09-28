@@ -48,7 +48,7 @@ this is an adaptation with a different information path, not a novelty claim.
 
 ## Experiment Card: action-segment-prototype-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 
 Baseline source33645c91437e39fe13ddfe977655e40828ab7a89 and joint80 checkpoint
@@ -100,3 +100,49 @@ amount, difficulty, pressure and publication timing. Prior-generated output
 must carry the improvement; posterior fitting or forced-code samples alone
 do not qualify. The final goal remains complete native2–6star generation with
 scoped controls, style diversity and realtime publication.
+
+## Implementation and revision-two frozen pilot
+
+Product7d31b1e797b3ee1a4d4aed551e03375dbb925818 implements the model, exact
+segment marginal and branchable execution. There is no learned recognition
+network: four conditional whole-segment R/R1 scores are enumerated. The old
+count/layout/consequence actor heads are removed from this family. A shared
+nonlinear complete-row decoder has two code-modulated layers. A short local
+TCN resets with TRUNCATED, while the frozen longer encoder is read by the prior
+once per plan. Active holds keep factual birth-row geometry and original audio.
+The independent response mechanism remains external.
+
+31affected CPU/MPS checks pass6.03s. They include exact sampling/conditional
+likelihood across plan cuts, actual open holds across those cuts, gradients to
+prior/decoder/birth context with no H/audio gradient, fork/control ownership,
+and full birth-context reflection. Source review caught an absolute-coordinate
+birth representation; encoding the birth row in each hand's relative frame
+fixed it before fitting. No quality claim follows from these tests.
+
+Revision2 makes the control-visibility partition explicit: hide an LN request
+without revealing its old source extent as a reset clock. Each of the two
+visibility views selects one piece from its own visible partition and receives
+original_weight * partition_count / view_count. The shared8s source sample keeps
+its total expected weight. The first four updates are the resource profile
+inside the same32-update pilot, not four extra updates.
+
+Preparation-v1 failed before data output due to a duplicate seeds keyword.
+The failed script/plan and failure receipt remain. prepare_v2.py completed
+with128draws,158views and126charts. Source data SHA
+11d7bbae0badacf54900f9cec16a67f0379f30b4ccb3138d29e54966e8a3594d;
+preparation plan093317b6dae62d28911a047f29b35973f841dafa841c33d43278a2bd66d5a129.
+Actual4star cases are STYX[1800,7800), Kimi[80000,84500), Celestial[8800,19500),
+D4 with their actual whole-chart LN fractions and two fixed seeds each. Their
+audio bytes are excluded from this pilot, not declared unseen by the inherited
+backbone. Case ledger5a6d27afd567324e4e3b63d49561b4d76dcdd4a3c2ad26233eb048d635e52b8d.
+
+fit.py uses MPS, CPU2,32updates and4factual draws per update, both visibility
+views where applicable. Paired shared parameters and code0 are identical at
+initialization. New modules use3e-4, inherited materializer paths3e-5, release
+flow1e-3; AdamW weight decay1e-4 and norm clipping1. Source learning uses raw
+actor probabilities with no LN feedback or recovery energy to absorb. Frozen
+audio/H/prior-history fingerprints are verified at saved steps4/16/32. Full
+audio encodings are reused only because their entire producing path is frozen.
+This is a compound comparison to the old actor and a matched1-vs4-state test.
+Bounds remain1800s,16GiB footprint and4GiB output; exclusive pilot-v1, no
+automatic restart. Fit plan.json pins code and every dependency.
