@@ -28,7 +28,7 @@ role claims new human judgments or a measured physiological threshold.
 
 ## Bounded exploratory evidence plan
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: continuing research goal and explicit corpus/subagent request.
 
@@ -73,3 +73,13 @@ The live three-arm fit remains unchanged and owns all accelerator work.
 Future architectural choices should preserve timing/R1 ownership: H gives
 head-bearing times, R gives pure-release times, R1 chooses head counts,
 columns/types and release identities while seeing audio and the skeleton.
+
+Revision two adds a second audio view before extraction: Kimi no Bouken
+(TV Size) [Create Your Adventure], beatmap 1969732/set 866848, source SHA
+8e07788cc8271d6eb08b907b2f06a84fdf2a5daa283593b5a77fa1f7f9ee3134,
+reported 4.01555 stars and .1308 LN fraction. Inspect [80000,84500) ms.
+Its column-0 LN spans 80858–83858 with 19 internal TAP rows/28 TAP actions,
+including nine jump rows across the other three fingers. This is a selected
+contrast with denser free-finger organization, not additional prevalence
+evidence. Prepare separate fresh bundle-kimi and kimi-audio outputs in the
+same owner; all frontend, resource and interpretation conditions stay fixed.
