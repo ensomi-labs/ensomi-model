@@ -56,7 +56,7 @@ exploratory, not a retrospectively accepted intervention.
 
 ## Experiment Card: action-response-calibration-v1
 
-Revision: 2
+Revision: 3
 Accepted revision: none
 Execution authority: explicit current user request and ongoing system goal.
 
@@ -137,3 +137,28 @@ response/admission hypothesis, not silent relaxation against generated cases.
 Fixed native outputs and nine source positives remain the same. Failure of
 these guards still prevents demo adoption. CPU1200s/3GiB, fresh work-v1,
 no overwrite or automatic restart; work-plan.json pins code/scripts/inputs.
+
+## Work calibration and revision-three normalization correction
+
+Work calibration57540 completed exit0,46.658s,100892672bytesRSS; reference
+f422d0e29f9bd968a6339956be82c7a8775612ed6a2d02d340bf286438e43d49.
+The original monotone-across-difficulty adjustment flattened every work budget
+to the2star normalized-tail value~.155. That was inappropriate: the response
+coordinates had already been normalized by difficulty-specific limits.
+Keep this completed result; do not overwrite or present its rule as adopted.
+
+Revision3 fits one shared dimensionless work tolerance per horizon from all
+original fitting song groups, equal song then chart,99th percentile unchanged.
+Difficulty continues to act through monotone physical response limits; higher
+requests cannot become stricter just because a normalization-tail estimate
+fluctuates. No held-out group or generated chart fits the shared tolerance.
+An exploratory calculation gives500/2000/4000/8000ms budgets
+.02635431/.04396386/.04990554/.06150666. At4s,21/1368held-out charts fail(1.54%);
+all9previously read ordinary/specialist source positives pass. These are
+calibration diagnostics, not validated complete player demand.
+
+Freeze pool_work.py/pooled-work-plan.json before official derived-reference
+output in fresh work-pooled-v1. This is CPU-only reaggregation of immutable
+source-work records,60s/1GiB bound, no new model samples or optimizer changes.
+Record the fixed generated-case decisions and preserve the original8.3%
+pointwise rejection and normalized-budget defect as failed alternatives.
