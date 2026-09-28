@@ -35,6 +35,26 @@ def next_boundary(start_ms,duration_ms,controls,span_ms):
     return end
 
 
+def training_intervals(controls,start_ms,end_ms,duration_ms,span_ms,*,require_style=False):
+    """Partition a factual crop using visible boundaries and active supervision.
+
+    A style-selected draw must retain an actually observed style field inside
+    each selected piece, including explicit zero labels. An annotation elsewhere
+    in the original crop does not license an unlabelled piece to inherit its
+    sampling weight. Natural draws can keep those pieces. The caller owns the
+    resulting conditional-population and interval sampling weights.
+    """
+    pieces=[];cursor=start_ms
+    while cursor<end_ms:
+        stop=min(end_ms,next_boundary(cursor,duration_ms,controls,span_ms))
+        if stop<=cursor:raise ValueError('Training interval extends beyond the source audio')
+        n=2+len(controls.style_names)
+        known=controls.at([cursor])[0,n+2:2*n].any()
+        if not require_style or known:pieces.append((cursor,stop))
+        cursor=stop
+    return tuple(pieces)
+
+
 def collate_segment(rows,heads,start_ms,end_ms,duration_ms,model,*,device='cpu'):
     """Reset only the local learned observation; retain the actual full prefix."""
     trace=collate_joint_trace(rows,heads,start_ms,end_ms,duration_ms,model,device=device)

@@ -112,6 +112,15 @@ and style-known/LN-hidden conditions use the same source sampling mass, with
 correct importance weights for their visible segment partitions. Unannotated
 style-balanced data must not silently become unconditional supervision.
 
+`training_intervals(..., require_style=True)` retains only pieces with an
+actually observed style field, including explicit zero labels. A human-selected
+eight-second crop can overlap an annotation while its sampled shorter piece
+falls entirely outside it: 36 of 60 human-branch views in the initial pilot did
+so. That piece must not inherit the expert sampling weight as unlabelled data.
+Condition the human branch on its eligible annotated duration and keep the
+corresponding importance factor. Natural-population draws can retain unlabelled
+pieces; genuine BOS auxiliaries must come from that natural branch.
+
 Measure posterior-versus-prior information and aggregate code use separately:
 uniform use can mean useful diverse plans or a completely ignored code. Native
 prior samples, including complete BOS rollouts, are the quality evidence.

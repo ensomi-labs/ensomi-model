@@ -12,6 +12,7 @@ from ensomi_model.research.segment_audio_continuation.model import (
 )
 from ensomi_model.research.segment_audio_continuation.segments import (
     collate_segment,marginal_log_probability,score_segment,next_boundary,plan_condition,prefix_observation,
+    training_intervals,
 )
 from ensomi_model.research.controlled_audio_continuation.conditional_views import StyleWithoutLn
 from ensomi_model.research.segment_audio_continuation.generation import SegmentSession
@@ -44,6 +45,16 @@ def test_hidden_LN_scope_is_not_revealed_as_a_private_plan_boundary():
         ControlSpan(3000,5000,style={'tech':0.})),('tech',))
     assert next_boundary(4000,8000,controls,4000)==4250
     assert next_boundary(4000,8000,StyleWithoutLn(controls),4000)==5000
+
+
+def test_style_selected_crop_cannot_train_an_unlabelled_piece_with_expert_weight():
+    controls=ControlSchedule((ControlSpan(0,8001,stars=4),ControlSpan(0,4500,ln_fraction=.2),
+        ControlSpan(3000,5000,style={'tech':0.})),('tech',))
+    assert training_intervals(controls,0,8000,8000,4000,require_style=True)==(
+        (3000,4000),(4000,4500),(4500,5000))
+    hidden=StyleWithoutLn(controls)
+    assert training_intervals(hidden,0,8000,8000,4000,require_style=True)==((3000,4000),(4000,5000))
+    assert training_intervals(hidden,0,8000,8000,4000)==((0,3000),(3000,4000),(4000,5000),(5000,8000))
 
 
 @pytest.mark.parametrize('device',['cpu',pytest.param('mps',marks=pytest.mark.skipif(
