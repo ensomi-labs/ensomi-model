@@ -79,8 +79,8 @@ class ControlledAudioModel(PlannedAudioModel):
         super().__init__(config)
         self.style_names = tuple(style_names)
         self.ln_reference, self.recovery = ln_reference, recovery
-        if ln_conditioning not in ('reference_tilt', 'contextual_tilt'):
-            raise ValueError('LN conditioning requires reference_tilt or contextual_tilt')
+        if ln_conditioning not in ('reference_tilt', 'contextual_tilt', 'direct'):
+            raise ValueError('LN conditioning requires reference_tilt, contextual_tilt or direct')
         self.ln_conditioning = ln_conditioning
         if count_history_bound is not None and (not math.isfinite(count_history_bound) or count_history_bound <= 0):
             raise ValueError('Composition history bound must be finite and positive')
@@ -222,17 +222,22 @@ class ControlledAudioModel(PlannedAudioModel):
         layout = layout+self.release_residual(hands, occupancy.any(-1))
         actual = self.composition.logits(audio, base, preview, control)
         known = control[:, 3+len(self.style_names)] > 0
-        if self.ln_conditioning == 'contextual_tilt':
-            # Let type counts learn condition/context interactions directly;
-            # head/release family mass and the final consequence remain owned
-            # by their existing factors. The ratio tilt is still explicit.
+        if self.ln_conditioning in ('contextual_tilt', 'direct'):
+            # Both modes learn type-count interactions with the actual request;
+            # only contextual_tilt adds the analytic amount prior below.
             raw = actual
         else:
             reference = control.clone()
             reference[:, 1] = torch.where(known, 2*self.ln_reference-1, control[:, 1])
             raw = self.composition.logits(audio, base, preview, reference)
-        rho = ((control[:, 1]+1)/2).clamp(.0001, .9999)
-        shift = torch.where(known, torch.logit(rho)-math.log(self.ln_reference/(1-self.ln_reference)), 0.)+ln_shift
+        if self.ln_conditioning == 'direct':
+            # A scoped amount request conditions the learned joint count law;
+            # it does not impose an extra per-head Bernoulli prior. An explicit
+            # caller-supplied shift remains a separate sampling policy.
+            shift = torch.zeros_like(actual[:, 0])+ln_shift
+        else:
+            rho = ((control[:, 1]+1)/2).clamp(.0001, .9999)
+            shift = torch.where(known, torch.logit(rho)-math.log(self.ln_reference/(1-self.ln_reference)), 0.)+ln_shift
         active = (allowed[:, None] & self.composition.members[None]).any(-1)
         prior = None if self.count_prior is None else self.count_prior(audio, exact, preview, control)
         counts = self.composition.count_log_probs(raw, actual, active, shift,

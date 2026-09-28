@@ -57,12 +57,15 @@ def test_actual_LN_condition_can_change_contextual_type_odds_without_moving_coun
     def odds(q):
         return q[(heads==1)&(longs==1)&(releases==0)].logsumexp(0)-q[(heads==1)&(longs==0)&(releases==0)].logsumexp(0)
     effects={}
-    for mode in ('reference_tilt','contextual_tilt'):
+    for mode in ('reference_tilt','contextual_tilt','direct'):
         effects[mode]=torch.stack([odds(run(mode,a,.8))-odds(run(mode,a,.2)) for a in (-1.,1.)])
     torch.testing.assert_close(effects['reference_tilt'],torch.full((2,),2*math.log(4),device=device),atol=3e-5,rtol=1e-5)
     assert abs(float((effects['contextual_tilt'][1]-effects['contextual_tilt'][0]).detach()))>.5
+    torch.testing.assert_close(effects['direct'],effects['contextual_tilt']-2*math.log(4),atol=3e-5,rtol=1e-5)
     gradient=torch.autograd.grad(effects['contextual_tilt'].sum(),net.composition.readout[0].weight)[0]
     assert torch.isfinite(gradient).all() and gradient[:,control_start+1].abs().sum()>0
+    direct_gradient=torch.autograd.grad(effects['direct'].sum(),net.composition.readout[0].weight)[0]
+    assert torch.isfinite(direct_gradient).all() and direct_gradient[:,control_start+1].abs().sum()>0
     for h in range(1,5):
         before=run('reference_tilt',1.,.8)[(heads==h)&(releases==0)].logsumexp(0)
         after=run('contextual_tilt',1.,.8)[(heads==h)&(releases==0)].logsumexp(0)
@@ -77,13 +80,16 @@ def test_unknown_or_reference_requests_and_checkpoint_defaults_preserve_the_old_
     args,support=inputs(net,'cpu');audio=torch.randn(1,net.config.conditioned_audio_width)
     for rho in (None,net.ln_reference):
         values=[]
-        for mode in ('reference_tilt','contextual_tilt'):
+        for mode in ('reference_tilt','contextual_tilt','direct'):
             net.ln_conditioning=mode
             values.append(net.planned_row_log_probs(audio,*args,control=condition(net,rho,'cpu'),response_allowed=support))
-        torch.testing.assert_close(*values,atol=0,rtol=0)
-    for mode in ('reference_tilt','contextual_tilt'):
+        torch.testing.assert_close(values[0],values[1],atol=0,rtol=0)
+        # The encoded reference fraction is float32, so the old analytic
+        # logit shift can retain roundoff where direct uses exact zero.
+        torch.testing.assert_close(values[0],values[2],atol=3e-6,rtol=1e-6)
+    for mode in ('reference_tilt','contextual_tilt','direct'):
         net.ln_conditioning=mode;options=net.probability_options()
-        assert ('ln_conditioning' in options)==(mode=='contextual_tilt')
+        assert ('ln_conditioning' in options)==(mode!='reference_tilt')
         path=tmp_path/(mode+'.pt')
         torch.save(dict(format='controlled-audio/v1',model_config=asdict(net.config),probability_options=options,model=net.state_dict()),path)
         restored=load_model(path)
@@ -95,8 +101,9 @@ def test_unknown_or_reference_requests_and_checkpoint_defaults_preserve_the_old_
 
 @pytest.mark.parametrize('device',DEVICES)
 @pytest.mark.parametrize('feedback',[False,True])
-def test_contextual_native_rows_match_current_weight_replay_across_scopes(device,feedback):
-    torch.manual_seed(783);net=setup('contextual_tilt').to(device)
+@pytest.mark.parametrize('mode',['contextual_tilt','direct'])
+def test_conditioned_native_rows_match_current_weight_replay_across_scopes(device,feedback,mode):
+    torch.manual_seed(783);net=setup(mode).to(device)
     with torch.no_grad():net.composition.readout[-1].weight.normal_(std=.08)
     controls=ControlSchedule((ControlSpan(0,1001,stars=3,ln_fraction=.8),
         ControlSpan(350,650,ln_fraction=.2),ControlSpan(500,800,style={'tech':1.})),net.style_names)
@@ -128,3 +135,25 @@ def test_contextual_native_rows_match_current_weight_replay_across_scopes(device
     loss=-q[torch.arange(len(q)),torch.tensor([ROW_ACTIONS.index(r.actions) for r in session.rows])].sum()
     gradient=torch.autograd.grad(loss,net.composition.readout[0].weight)[0]
     assert torch.isfinite(gradient).all() and gradient.abs().sum()>0
+
+
+@pytest.mark.parametrize('device',DEVICES)
+def test_direct_counts_use_neural_condition_without_an_analytic_amount_prior(device):
+    net=setup('direct').to(device)
+    with torch.no_grad():
+        for p in net.parameters():p.zero_()
+    args,support=inputs(net,device);audio=torch.zeros(1,net.config.conditioned_audio_width,device=device)
+    values=[]
+    for rho in (0.,.2,.8,1.,None):
+        values.append(net.planned_row_log_probs(audio,*args,control=condition(net,rho,device),response_allowed=support))
+    for value in values[1:]:torch.testing.assert_close(values[0],value,atol=0,rtol=0)
+    net.ln_reference=.7
+    changed=net.planned_row_log_probs(audio,*args,control=condition(net,.8,device),response_allowed=support)
+    torch.testing.assert_close(values[0],changed,atol=0,rtol=0)
+    shifted=net.planned_row_log_probs(audio,*args,control=condition(net,.8,device),
+                                    response_allowed=support,ln_shift=1.)
+    actions=torch.tensor(ROW_ACTIONS,device=device)
+    one_head=torch.isin(actions,torch.tensor([1,2],device=device)).sum(-1)==1
+    ln=(actions==2).sum(-1)==1
+    def odds(q):return q[0,one_head&ln].logsumexp(0)-q[0,one_head&~ln].logsumexp(0)
+    torch.testing.assert_close(odds(shifted)-odds(values[0]),torch.tensor(1.,device=device),atol=3e-6,rtol=1e-6)
