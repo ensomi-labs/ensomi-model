@@ -181,3 +181,34 @@ After the learning/resource pilot, measure real native startup/service and
 fixed behavioral guards before selecting any larger run. No second MPS fit
 starts while the old supervisor remains active. Execution is exploratory
 under explicit user authority; Card acceptance remains none.
+
+## Completed learning pilot and native probe
+
+Pilot session92030 completed normally:16updates,32factual draws,91.337938s,
+peak Darwin footprint3,471,429,448bytes. All required shared audio/H/R1/cue/
+flow gradient roots were active and strict checkpoint reload was exact.
+The calibrated flow scale was-8.32499437 from36true R events at23,802valid
+non-forced native clocks in the first8draws; after learning it was-8.32426548.
+Different batches' losses are not a monotone-improvement measure.
+
+Checkpoint pilot-v1/step-16.pt SHA
+1ad052688ab39398614cc8c3b1e1946bacce88520d60ce6f71283832eb575a3b;
+pilot plan7ec1cae92eb0027cc89b836c8cc89fc0dc665ee71ea438b42e32d3f6f6b7a241;
+source slice3376ede1d7e1240626a0c4b5464eb0c9c6bbcf214ae9e4876dd7fa776bb7ded8;
+flow receiptf5c0f28ed01dff50ef691ff7eeda5d008eed68cb489c5894aef40de870ed7d37.
+No native-quality conclusion follows from this resource/learning pilot.
+
+Next frozen native probe uses the same three complete-song D4 witnesses:
+STYX, Blizzard and Stream Zenithfall. Controls/seeds/assets match the prior
+interim plan, with no gold H or LN endpoints. Startup requires30actual rows
+and8s settled coverage, including whole-audio model encoding from cached Mel;
+2s service windows retain the existing2s startup/service limits. Source965d670,
+CPU2threads,360s per case,1200s whole probe,6GiB footprint. Partial failures
+preserve open holds and do not undergo complete-chart fragmentation scoring.
+The same frozen corpus reference and existing difficulty/amount/pressure
+checks remain visible. No suppression or hard duration floor is added.
+Native plan SHA7264cf453a8cbb9f86528d016d7197f94b62dc09aff9f42cca429531a439aa91.
+
+The separate old three-arm baseline reached4096updates and entered final
+validation/native evaluation. Its supervisor29252 remains authoritative;
+do not modify its main executable tree or start a second MPS fit yet.
