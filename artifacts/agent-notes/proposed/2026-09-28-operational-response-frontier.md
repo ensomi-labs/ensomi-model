@@ -274,3 +274,40 @@ distribution's contribution from R1's remaining failures; it is not an audio-onl
 quality result or a unique training-cause percentage. Same three cases, CPU2,
 360s/case, sourceb3f0184, fresh source-h-v1. source_h.py/source-h-plan.json
 pin all inputs. No threshold/model retuning or automatic promotion.
+
+## Source-H outcome and ordinary-arrangement priority
+
+Session47768 completed exit0. With source H only substituted, STYX and Blizzard
+complete with whole stars4.11618/4.63797 and LN fractions.72031/.63291, against
+requests.48528/.83805. Stream exhausts its candidate budget at58000ms with
+two open holds. The H intervention therefore does not repair the R1 distribution.
+It does not identify a causal percentage, and the changed preceding trajectory
+prevents interpreting an earlier stopping clock as a same-state regression.
+Result SHA8181158da8be8dd73088d003252d4329c9e98a3ae3e2bc41ae013341a0ef121a.
+
+All eight fixed source-H Lens pages were read. At Stream[18335,23335),51 of52
+heads are LN; duration median130ms, H-span median1. Actual H is the source's
+regular rhythm, but the model turns almost every head into LN. STYX retains
+frequent one-H holds. Blizzard has longer spans and some TAPs around them,
+without a sustained independent TAP motif. No native model is qualified.
+Source-H analysis plan14c1e90b2fd06d5330345c74c0900cdfd87651ec4bbac56ddbfab201e2aac5db;
+owner source-h-analysis-v1, result SHA
+d81ece503bae12a5cc6ef156e9fbb16f4fd612398d7a693e623572ecef0f175a.
+Its incomplete Stream export stops at the actual last empty-occupancy row57012ms;
+no end is invented. Guided and source-H review.json files preserve all eight-page
+observations separately:3e58a66c0357d870a432318cea716a8fd5f9eec6837aad3a2047857af210e534
+and c651766254d20398f85e36b64ec1b2faf11826b8cc51d9bc862a6f6984d89e8b.
+
+Source-H Stream's published prefix has maximum4swork.051639 and8swork.087604,
+despite the planner's aligned4s acceptance. Checking one proposed horizon does
+not bound every sliding subwindow spanning successive publication boundaries.
+The independent pressure reference is useful, but the current planner is not
+a complete multi-horizon guarantee. A rolling-budget repair must not quietly
+relax its threshold.
+
+The latest product requirement distinguishes short-LN-dominated specialist
+arrangements from an ordinary default. Real corpus support for that style is
+not permission to make it the baseline or to convert a Stream request into it.
+Lower short-LN burden, a plausible whole-star scalar, or a single long hold are
+insufficient; organized TAP motion and conditional style prevalence need their
+own assessment. No hard template/short-LN prohibition follows.

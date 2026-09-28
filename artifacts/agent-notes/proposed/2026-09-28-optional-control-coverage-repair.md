@@ -110,3 +110,17 @@ Also report integrated H survival mass on the unchanged teacher histories;
 it is not expected native head count. CPU2threads/180s, no neural training,
 fresh scope-probe-v1, pinned scope_probe.py/scope-probe-plan.json under the
 same owner. Scope/data/checkpoint choice does not depend on this probe's outputs.
+
+## Completed user-shaped scope probe
+
+Session95034 completes in5.626s. On the same14factual source intervals and15
+effective ranges, both views use D4, only prominent Stream, and missing LN amount.
+Changing the style request from its annotated extent to the whole audio changes
+expected LN fraction by median+.0511percentage points, range[-1.175,+1.494].
+H integrated survival mass changes on the fixed teacher histories; it is not
+expected native head count. This also fails as a sufficient explanation for
+the large native LN collapse. Result SHA
+f0ff47c4ffa4e5a6f72cfa2baaa82b03d97c6661b0a64c5ec1e48bbc43dc3e82;
+plan c55665866283755d85847865cf7bcf97d3c176a255f0c3cf36fdaf988e4280cb.
+No neural fine-tuning on these views was launched. The coverage correction
+remains available, without promoting it to the main causal account.
