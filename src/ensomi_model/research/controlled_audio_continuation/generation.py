@@ -53,6 +53,21 @@ class ControlledSession(ContinuationSession):
     def coverage(self):
         return self.cursor
 
+    def release_clock_logits(self, anchors, native, projection, preview, previous, valid):
+        if self.model.release_policy != 'r1_joint':
+            return super().release_clock_logits(anchors, native, projection, preview, previous, valid)
+        from .joint_release import release_queries, release_logits
+        destinations = np.flatnonzero(valid.reshape(-1))
+        times = native.detach().cpu().numpy().reshape(-1)[destinations]
+        queries = release_queries([self.replay]*len(times), times, [preview]*len(times),
+            self.duration_ms, self.model.recovery, np.full(len(times), -1),
+            lookahead=self.model.config.lookahead, device=self.device)
+        context = self.model.temporal.read(self.row_cache)[None].expand(len(times), -1, -1)
+        logits = release_logits(self.model, queries, context, self.downstream_encoded,
+                                self.controls, preference=self.recovery_preference)
+        return anchors.new_zeros(native.numel(), dtype=self.dtype).index_copy(
+            0, torch.as_tensor(destinations, device=self.device), logits)
+
     def row_options(self, now):
         span = next((s for s in self.ln_scopes if s.start_ms <= now < s.end_ms), None)
         self.allocation = self.allocation.in_scope(span)

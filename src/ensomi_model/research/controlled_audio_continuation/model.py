@@ -62,12 +62,14 @@ class RowComposition(nn.Module):
         tilted = raw+shift[:, None]*self.longs
         return (mass[:, self.group]+tilted-group_sum(tilted)[:, self.group]).masked_fill(~active, -torch.inf)
 
-    def compose(self, layout, count_log_probs, legal):
-        members = legal[:, None] & self.members[None]
+    def compose(self, layout, count_log_probs, legal, candidate_indices=None):
+        membership = self.members if candidate_indices is None else self.members[:, candidate_indices]
+        mark = self.row_mark if candidate_indices is None else self.row_mark[candidate_indices]
+        members = legal[:, None] & membership[None]
         active = members.any(-1)
         scores = layout[:, None].masked_fill(~members, -torch.inf)
         normalizers = torch.where(active[..., None], scores, 0.).logsumexp(-1)
-        return (layout-normalizers[:, self.row_mark]+count_log_probs[:, self.row_mark]).masked_fill(~legal, -torch.inf)
+        return (layout-normalizers[:, mark]+count_log_probs[:, mark]).masked_fill(~legal, -torch.inf)
 
 
 class ControlledAudioModel(PlannedAudioModel):
@@ -75,8 +77,19 @@ class ControlledAudioModel(PlannedAudioModel):
 
     def __init__(self, config, *, style_names=(), ln_reference=.17, recovery=Recovery(60, 50, 50),
                  count_history_bound=None, hold_audio_width=0, layout_modulation=False, player_state=False,
-                 ln_conditioning='reference_tilt', scope_allocation='none', head_audio_modulation=False):
+                 ln_conditioning='reference_tilt', scope_allocation='none', head_audio_modulation=False,
+                 release_policy='independent'):
         super().__init__(config)
+        if release_policy not in ('independent', 'r1_joint'):
+            raise ValueError('Release policy must be independent or r1_joint')
+        if release_policy == 'r1_joint' and (count_history_bound is not None or
+                scope_allocation != 'none' or player_state or config.row_factorization != 'flat'):
+            raise ValueError('Joint R1 release requires the flat row law without count prior, allocation or player adapter')
+        self.release_policy = release_policy
+        if release_policy == 'r1_joint':
+            # Convert nonempty action odds per second to one native-ms query.
+            # This is a learnable flow scale, not a minimum hold duration.
+            self.release_log_scale = nn.Parameter(torch.tensor(math.log(.001)))
         self.style_names = tuple(style_names)
         self.ln_reference, self.recovery = ln_reference, recovery
         if ln_conditioning not in ('reference_tilt', 'contextual_tilt', 'direct'):
@@ -155,6 +168,8 @@ class ControlledAudioModel(PlannedAudioModel):
             options['scope_allocation'] = self.scope_allocation_mode
         if self.head_audio_modulation is not None:
             options['head_audio_modulation'] = True
+        if self.release_policy != 'independent':
+            options['release_policy'] = self.release_policy
         return options
 
     def controlled_head_parts(self, audio, history, clocks, *, control):
@@ -182,13 +197,18 @@ class ControlledAudioModel(PlannedAudioModel):
 
     def planned_row_log_probs(self, audio, history, exact, legal, occupancy, preview, local, timing,
                               *, control, response_allowed=None, ln_shift=0., hold_audio=None, player_features=None,
-                              history_visible=None, allocation_features=None):
+                              history_visible=None, allocation_features=None, candidate_indices=None):
         """Score complete rows, optionally hiding the learned content observation.
 
         ``history_visible`` is a query-aligned boolean training-view mask. False
         uses the learned TRUNCATED boundary for a non-BOS prefix; genuine BOS
         keeps its original boundary. Exact replay facts, audio, controls and
         support remain factual. Omission preserves the ordinary native law.
+
+        candidate_indices selects columns of ROW_ACTIONS for compact scoring;
+        legal/response_allowed then use the same selected order. All legal
+        members of each represented count group must be present to preserve
+        the dense law. Joint release queries use all sixteen wait/release rows.
         """
         if history_visible is not None:
             if (history_visible.dtype != torch.bool or history_visible.shape != (len(history),) or
@@ -216,10 +236,13 @@ class ControlledAudioModel(PlannedAudioModel):
                 + preview_value + control_value)
             scale = 1+self.layout_modulation(condition).tanh()
             layout_hands = hands*scale.unsqueeze(-2)
-        layout = self.joint(layout_hands)
-        layout = layout+torch.where(self.has_head[None], self.route_residual(hands,
-            torch.ones(len(audio), dtype=torch.bool, device=audio.device)), 0.)
-        layout = layout+self.release_residual(hands, occupancy.any(-1))
+        selection = {} if candidate_indices is None else dict(candidate_indices=candidate_indices)
+        has_head = self.has_head if candidate_indices is None else self.has_head[candidate_indices]
+        layout = self.joint(layout_hands, **selection)
+        if candidate_indices is None or bool(has_head.any()):
+            layout = layout+torch.where(has_head[None], self.route_residual(hands,
+                torch.ones(len(audio), dtype=torch.bool, device=audio.device), **selection), 0.)
+        layout = layout+self.release_residual(hands, occupancy.any(-1), **selection)
         actual = self.composition.logits(audio, base, preview, control)
         known = control[:, 3+len(self.style_names)] > 0
         if self.ln_conditioning in ('contextual_tilt', 'direct'):
@@ -238,11 +261,12 @@ class ControlledAudioModel(PlannedAudioModel):
         else:
             rho = ((control[:, 1]+1)/2).clamp(.0001, .9999)
             shift = torch.where(known, torch.logit(rho)-math.log(self.ln_reference/(1-self.ln_reference)), 0.)+ln_shift
-        active = (allowed[:, None] & self.composition.members[None]).any(-1)
+        members = self.composition.members if candidate_indices is None else self.composition.members[:, candidate_indices]
+        active = (allowed[:, None] & members[None]).any(-1)
         prior = None if self.count_prior is None else self.count_prior(audio, exact, preview, control)
         counts = self.composition.count_log_probs(raw, actual, active, shift,
                                                  prior=prior, history_bound=self.count_history_bound)
-        scores = self.composition.compose(layout, counts, allowed)
+        scores = self.composition.compose(layout, counts, allowed, **selection)
         # This comparison must survive count-group normalization. In particular,
         # a costly four-key row cannot escape its frontier cost as a singleton.
         consequence_context = hands
@@ -253,7 +277,7 @@ class ControlledAudioModel(PlannedAudioModel):
                 + self.preview_condition(preview).unsqueeze(-2) + self.row_control(control).unsqueeze(-2))
             if self.player_condition is not None:
                 consequence_context = consequence_context+self.player_condition(player_features)
-        scores = scores+self.row_consequence.score(consequence_context, local, timing)
+        scores = scores+self.row_consequence.score(consequence_context, local, timing, **selection)
         log_probs = scores.masked_fill(~allowed, -torch.inf).log_softmax(-1)
         return (log_probs if self.scope_allocation is None else self.scope_allocation(
             log_probs, audio, base.mean(-2), preview, control, allocation_features))

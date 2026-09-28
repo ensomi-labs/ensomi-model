@@ -21,10 +21,11 @@ class HeadRouting(nn.Module):
         self.register_buffer('mirror', torch.tensor(mirror), persistent=False)
         self.register_buffer('masks', torch.tensor(masks), persistent=False)
 
-    def forward(self, hands, onsets):
+    def forward(self, hands, onsets, candidate_indices=None):
         direct = self.score(torch.cat((hands[:, 0], hands[:, 1]), -1))
         reflected = self.score(torch.cat((hands[:, 1], hands[:, 0]), -1))[:, self.mirror]
-        scores = ((direct + reflected) / 2)[:, self.masks]
+        masks = self.masks if candidate_indices is None else self.masks[candidate_indices]
+        scores = ((direct + reflected) / 2)[:, masks]
         # Exact zero at R, avoiding even a common floating-point logit shift.
         return torch.where(onsets[:, None], scores, torch.zeros_like(scores))
 
@@ -41,10 +42,11 @@ class ReleaseRouting(nn.Module):
         self.register_buffer('mirror', torch.tensor(mirror), persistent=False)
         self.register_buffer('masks', torch.tensor(masks), persistent=False)
 
-    def forward(self, hands, occupied):
+    def forward(self, hands, occupied, candidate_indices=None):
         direct = self.score(torch.cat((hands[:, 0], hands[:, 1]), -1))
         reflected = self.score(torch.cat((hands[:, 1], hands[:, 0]), -1))[:, self.mirror]
-        scores = ((direct + reflected) / 2)[:, self.masks]
+        masks = self.masks if candidate_indices is None else self.masks[candidate_indices]
+        scores = ((direct + reflected) / 2)[:, masks]
         # With no held lane, all legal actions have the same empty release set.
         # Omit even that common shift to retain exact no-hold probabilities.
         return torch.where(occupied[:, None], scores, torch.zeros_like(scores))

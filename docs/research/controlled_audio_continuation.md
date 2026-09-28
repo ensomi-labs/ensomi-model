@@ -8,6 +8,11 @@ the [V3 generation contract](../formulation/notation.md).
 
 ## Information and decisions
 
+The table describes the default `release_policy="independent"` law. The optional
+[joint R1 release law](joint_r1_release_decisions.md) instead lets R1 compare
+waiting with release subsets before R's time is sampled. That mode reads real
+row history in its release decision; H still owns timing only.
+
 | Component | Inputs | Decision |
 | --- | --- | --- |
 | H timing | Complete audio, previous H times, scoped controls | Next head-bearing row time |
@@ -17,7 +22,7 @@ the [V3 generation contract](../formulation/notation.md).
 
 H requires at least one head; it never specifies a chord size. Release-only
 events require a nonempty release row. H rows may also close existing holds.
-Only actual LN projection feeds the release preference network. Changing TAP
+In independent mode, only actual LN projection feeds the release preference network. Changing TAP
 count or layout while preserving H/R times and LN state leaves both skeleton
 network inputs unchanged. R1's execution-feasibility response additionally
 constrains the release sampler, as described below. The effective release law

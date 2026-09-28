@@ -106,12 +106,13 @@ class RowConsequence(nn.Module):
         self.register_buffer('relative', relative, persistent=False)
         self.register_buffer('choices', torch.tensor(ROW_ACTIONS)[:, relative].permute(1, 0, 2), persistent=False)
 
-    def score(self, hands, local, timing):
+    def score(self, hands, local, timing, candidate_indices=None):
         hidden = pointwise(self.context, hands) + self.timing(timing)[:, None]
         hidden = hidden[:, :, None, :]
+        choices = self.choices if candidate_indices is None else self.choices[:, candidate_indices]
         for position, projection in enumerate(self.lanes):
             projected = pointwise(projection, local[:, self.relative[:, position]])
-            indices = self.choices[:, :, position][None, :, :, None].expand(len(hands), -1, -1, WIDTH)
+            indices = choices[:, :, position][None, :, :, None].expand(len(hands), -1, -1, WIDTH)
             hidden = hidden + projected.gather(2, indices)
         return pointwise(self.output, F.gelu(hidden)).squeeze(-1).mean(1)
 

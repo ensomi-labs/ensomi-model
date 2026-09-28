@@ -85,13 +85,15 @@ class JointHead(nn.Module):
         self.register_buffer('left', torch.tensor([a[0] * vocabulary + a[1] for a in choices]), persistent=False)
         self.register_buffer('right', torch.tensor([a[3] * vocabulary + a[2] for a in choices]), persistent=False)
 
-    def forward(self, hands):
+    def forward(self, hands, candidate_indices=None):
         unaries = self.unary(hands)
         matrices = self.matrix(hands).reshape(-1, 2, self.rank, self.rank)
         coupling = (matrices[:, 0] + matrices[:, 1].transpose(-1, -2)) / 2.
         pair = (self.actions.weight @ coupling @ self.actions.weight.T) / math.sqrt(self.rank)
         scores = unaries[:, 0, :, None] + unaries[:, 1, None, :] + pair
-        return scores[:, self.left, self.right]
+        left = self.left if candidate_indices is None else self.left[candidate_indices]
+        right = self.right if candidate_indices is None else self.right[candidate_indices]
+        return scores[:, left, right]
 
 
 @dataclass(frozen=True)

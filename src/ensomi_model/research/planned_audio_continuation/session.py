@@ -173,6 +173,19 @@ class ContinuationSession:
     def release_options(self, times):
         return {}
 
+    def release_clock_logits(self, anchors, native, projection, preview, previous, valid):
+        """Score clocks from one unchanged prefix; subclasses may own the joint mark law."""
+        previews, states = [preview]*len(anchors), [projection]*len(anchors)
+        clocks = release_clocks(states, [previous]*len(anchors), anchors.cpu().numpy(),
+                                previews, self.duration_ms)
+        audio = interpolate_audio(self.downstream_encoded, anchors[None])[0]
+        history = self.model.skeleton_temporal.read(self.skeleton_cache)[None].expand(len(anchors), -1, -1)
+        return self.model.release_logits(audio, history, self.tensor(clocks),
+            **self.control_at(anchors.cpu().numpy()), **self.release_options(anchors),
+            **self.model.hold_audio_options(self.downstream_encoded,
+                self.tensor(ln_start_times([self.replay.open_ln_start_ms]*len(anchors)), torch.long),
+                anchors)).flatten()
+
     def control_at(self, times):
         return ({} if self.controls is None else dict(control=self.tensor(
             self.controls.at(times, encoding=self.model.control_encoding))))
@@ -210,8 +223,10 @@ class ContinuationSession:
             else:
                 conditioned = self.model.config.condition_full_holds and all(self.replay.occupancy) and next_h is not None
                 deadline = next_h-1 if conditioned else None
-            end = (deadline if conditioned else
-                   min(self.cursor + self.chunk_ms, stop_at, self.duration_ms if next_h is None else next_h - 1))
+            normalize_wait = conditioned and getattr(self.model, 'release_policy', 'independent') != 'r1_joint'
+            end = (deadline if normalize_wait else
+                   min(self.cursor + self.chunk_ms, stop_at, self.duration_ms if next_h is None else next_h - 1,
+                       deadline if conditioned else self.duration_ms))
             if end > self.cursor:
                 bins = torch.arange((self.cursor + 1) // 10, end // 10 + 1, device=self.device)
                 anchors = bins * 10 + 9
@@ -219,20 +234,12 @@ class ContinuationSession:
                 projection = LNProjection(self.replay.open_ln_start_ms, self.cursor)
                 preview = self.planner.preview(self.cursor, self.model.config.lookahead)
                 previews, states = [preview] * len(bins), [projection] * len(bins)
-                clocks = release_clocks(states, [previous] * len(bins), anchors.cpu().numpy(), previews, self.duration_ms)
-                audio = interpolate_audio(self.downstream_encoded, anchors[None])[0]
-                history = self.model.skeleton_temporal.read(self.skeleton_cache)[None].expand(len(bins), -1, -1)
-                logits = self.model.release_logits(audio, history, self.tensor(clocks),
-                    **self.control_at(anchors.cpu().numpy()),
-                    **self.release_options(anchors),
-                    **self.model.hold_audio_options(self.downstream_encoded,
-                        self.tensor(ln_start_times([self.replay.open_ln_start_ms]*len(bins)), torch.long),
-                        anchors)).flatten()
                 valid, forced = release_masks(states, native.cpu().numpy(), previews, self.duration_ms,
                     minimum_action_gap_ms=gap, windows=[(earliest, deadline)]*len(bins) if gap else None)
                 valid &= native.cpu().numpy() <= end
                 forced &= valid
-                if conditioned:
+                logits = self.release_clock_logits(anchors, native, projection, preview, previous, valid)
+                if normalize_wait:
                     indices = torch.where(self.tensor(valid, torch.bool).flatten())[0]
                     logits = logits.index_copy(0, indices, conditioned_release_logits(logits[indices]))
                     self.conditioned_waits += 1

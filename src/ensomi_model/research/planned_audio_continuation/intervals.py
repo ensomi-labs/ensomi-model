@@ -1,5 +1,6 @@
 """Joint head/release/row likelihood with the same native clock as generation."""
 from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING
 
 import numpy as np
 import torch
@@ -17,6 +18,10 @@ from .release import conditioned_release_logits
 from .counts import count_state, count_tokens
 from ..player_response.conditioning import features_before_rows
 from .spacing import allowed_rows as spaced_rows, check_head_capacity, release_limits, recovery_values, row_release_window
+from ..typed_audio_continuation.response_preference import RecoveryPreference
+
+if TYPE_CHECKING:
+    from ..controlled_audio_continuation.joint_release import ReleaseQueries
 
 
 @dataclass(frozen=True)
@@ -52,6 +57,8 @@ class PlannedInputs:
     release_hold_starts: torch.Tensor | None = None
     row_hold_starts: torch.Tensor | None = None
     row_player_features: torch.Tensor | None = None
+    joint_release_queries: 'ReleaseQueries | None' = None
+    joint_release_destinations: torch.Tensor | None = None
 
 
 @dataclass(frozen=True)
@@ -70,12 +77,19 @@ class PlannedScores:
     row: torch.Tensor
 
 
-def collate_interval(example, config, device='cpu', *, recovery=None, player_state=False):
+def collate_interval(example, config, device='cpu', *, recovery=None, player_state=False,
+                     release_policy='independent'):
     """Keep teacher head plans distinct from future row/LN materialization.
 
     Enable player_state only for R1 checkpoints that consume those observations;
     legacy models need no additional full-prefix player-state replay.
+    Match release_policy to the checkpoint. Joint R1 queries keep the true
+    prefix at each native clock and use raw survival with forced deadline atoms.
     """
+    if release_policy not in ('independent', 'r1_joint'):
+        raise ContractError('Unknown release query policy')
+    if release_policy == 'r1_joint' and recovery is None:
+        raise ContractError('Joint R1 release queries require the declared recovery profile')
     base = collate_rows(example, config, 'cpu')
     x = base.inputs
     source = example.chart.source
@@ -124,7 +138,7 @@ def collate_interval(example, config, device='cpu', *, recovery=None, player_sta
 
     waits = []
     last_audio_query = int(x.timing_times.max())
-    if config.condition_full_holds or gap:
+    if release_policy != 'r1_joint' and (config.condition_full_holds or gap):
         # Each prefix defines a hypothetical unchanged LN state through its
         # deadline. Actual future tails select targets, never the waiting bound.
         for prefix in np.unique(query_indices[r_valid.any(-1)]):
@@ -200,6 +214,16 @@ def collate_interval(example, config, device='cpu', *, recovery=None, player_sta
         count_clock = tensor(count_state([s.open_ln_start_ms for s in row_states],
             [times[i - 1] if i else None for i in row_indices], row_times))
 
+    joint_queries = joint_destinations = None
+    if release_policy == 'r1_joint':
+        from ..controlled_audio_continuation.joint_release import release_queries
+        destinations = np.flatnonzero(r_valid.reshape(-1))
+        prefix_indices = destinations//10
+        joint_queries = release_queries([replays[i] for i in prefix_indices],
+            native.reshape(-1)[destinations], [previews[i] for i in prefix_indices],
+            example.chart.duration_ms, recovery, x.timing_history.numpy()[prefix_indices],
+            lookahead=config.lookahead, device=device)
+        joint_destinations = tensor(destinations, torch.long)
     x = replace(x, row_legal=torch.from_numpy(support))
     x = IntervalInputs(**{name: value.to(device) for name, value in vars(x).items()})
     inputs = PlannedInputs(x, tensor(_pad_first(head_raw)[None]),
@@ -211,7 +235,7 @@ def collate_interval(example, config, device='cpu', *, recovery=None, player_sta
         tensor(ln_start_times([s.open_ln_start_ms for s in replays]), torch.long),
         tensor(ln_start_times([s.open_ln_start_ms for s in row_states]), torch.long),
         (tensor(features_before_rows((source.row(i) for i in range(stop)), row_indices))
-         if player_state else None))
+         if player_state else None), joint_queries, joint_destinations)
     return PlannedBatch(inputs, tensor(head_event), tensor(release_event), base.targets.row_index.to(device),
                         example.weight_per_second)
 
@@ -224,7 +248,7 @@ def _gather(module, encoded, indices):
 
 
 def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, encoded_full=None,
-                   history_options=None):
+                   history_options=None, recovery_preference=RecoveryPreference(head_pressure=4.)):
     """Score true prefixes, optionally reusing a differentiable full-song encoding.
 
     LN-origin models require encoded_full so an old hold cannot read a clipped
@@ -233,6 +257,8 @@ def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, 
     history_options(kind, times, indices) may add model-specific query inputs.
     Indices identify the last known event in that factor's local raw sequence;
     a hazard-bin timestamp alone must not be used to infer the observed prefix.
+    In joint R1 mode recovery_preference also affects event odds; use the same
+    value as row-score replay and native sampling. It does not alter old R clocks.
     """
     x = inputs.base
     if encoded_full is None:
@@ -267,18 +293,33 @@ def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, 
                           **memories('head', x.timing_times, inputs.head_history))
     if not model.config.profile_head_rate_downstream:
         audio = interpolate_audio(downstream, x.timing_times[None], audio_starts, x.frame_count)[0]
-    r = model.release_logits(audio, _gather(model.skeleton_temporal, skeleton_history, x.timing_history),
-                             inputs.release_clock, **conditions(x.timing_times),
-                             **memories('release', x.timing_times, x.timing_history),
-                             **holds(inputs.release_hold_starts, x.timing_times))
-    for wait in inputs.release_waits:
-        audio = interpolate_audio(downstream, wait.times[None], audio_starts, x.frame_count)[0]
-        raw = model.release_logits(audio, _gather(model.skeleton_temporal, skeleton_history, wait.history),
-                                   wait.clocks, **conditions(wait.times),
-                                   **memories('release', wait.times, wait.history),
-                                   **holds(wait.hold_starts, wait.times))
-        conditional = conditioned_release_logits(raw.flatten()[wait.native_indices])
-        r = r.flatten().index_copy(0, wait.destinations, conditional[wait.offsets]).reshape_as(r)
+    if getattr(model, 'release_policy', 'independent') == 'r1_joint':
+        from ..controlled_audio_continuation.joint_release import release_logits
+        if inputs.joint_release_queries is None or controls is None:
+            raise ContractError('Joint R1 release needs matching collated queries and controls')
+        r = torch.zeros_like(h)
+        def joint_score(queries):
+            context = _gather(model.temporal, row_history, queries.history_indices)
+            return release_logits(model, queries, context, downstream, controls,
+                                  audio_starts=audio_starts, frame_counts=x.frame_count,
+                                  preference=recovery_preference)
+        raw = joint_score(inputs.joint_release_queries)
+        r = r.flatten().index_copy(0, inputs.joint_release_destinations, raw).reshape_as(r)
+        if inputs.release_waits:
+            raise ContractError('Joint R1 release uses raw survival with deadline atoms, not normalized waits')
+    else:
+        r = model.release_logits(audio, _gather(model.skeleton_temporal, skeleton_history, x.timing_history),
+                                 inputs.release_clock, **conditions(x.timing_times),
+                                 **memories('release', x.timing_times, x.timing_history),
+                                 **holds(inputs.release_hold_starts, x.timing_times))
+        for wait in inputs.release_waits:
+            audio = interpolate_audio(downstream, wait.times[None], audio_starts, x.frame_count)[0]
+            raw = model.release_logits(audio, _gather(model.skeleton_temporal, skeleton_history, wait.history),
+                                       wait.clocks, **conditions(wait.times),
+                                       **memories('release', wait.times, wait.history),
+                                       **holds(wait.hold_starts, wait.times))
+            conditional = conditioned_release_logits(raw.flatten()[wait.native_indices])
+            r = r.flatten().index_copy(0, wait.destinations, conditional[wait.offsets]).reshape_as(r)
     if len(x.row_times):
         audio = interpolate_audio(downstream, x.row_times[None], audio_starts, x.frame_count)[0]
         counts = {}
