@@ -67,4 +67,6 @@ def test_action_reference_can_publish_from_bos_without_an_unrequested_sentinel_s
     assert planner.session.coverage == planner.state.time_ms == 2000
     assert planner.decisions[0]['proposals'][0]['fully_scored']
     assert planner.decisions[0]['proposals'][0]['accepted']
+    assert planner.decisions[0]['proposals'][0]['ranges'][0]['reference_horizon_ms'] == 4000
+    assert planner.decisions[0]['proposals'][0]['ranges'][0]['work_limit'] == 1
     assert planner.state.replay == planner.session.replay

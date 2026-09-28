@@ -327,7 +327,7 @@ def action_response(state, continuation, end_ms, envelope, ranges):
         by_kind = {k:float(work_sums[i,:,s].sum(-1).mean()) for k,s in zip(KINDS,SLICES)}
         report.update(added_work=sum(by_kind.values()),work_by_kind=by_kind)
         if envelope.work_windows_ms and report['scored']:
-            limit,width=envelope.work_limit(report['stars'],report['end_ms']-report['start_ms'])
+            limit,width=envelope.work_limit(report['stars'],report['end_ms']-max(0.,report['start_ms']))
             report.update(work_limit=limit,reference_horizon_ms=width,
                           work_accepted=report['added_work'] <= limit+1e-12)
     acceptable = (fully_scored and all(r['work_accepted'] for r in reports) if envelope.work_windows_ms
