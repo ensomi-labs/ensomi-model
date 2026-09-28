@@ -73,7 +73,10 @@ class ResponsePlanner:
             publish_end = min(end_ms, current.duration_ms, max(0, start)+self.config.publication_ms)
             forecast_end = min(current.duration_ms, max(0, start)+self.config.horizon_ms)
             ranges = tuple((s.start_ms, s.end_ms, s.stars)
-                           for s in current.controls.resolved_ranges(start, forecast_end))
+                           for s in current.controls.resolved_ranges(max(0,start), forecast_end))
+            if start < 0:
+                # -1 is the pre-audio BOS sentinel, not an unrequested scope.
+                ranges = ((start,ranges[0][1],ranges[0][2]),*ranges[1:])
             tick = time.perf_counter()
             best, best_cost, proposals = None, float('inf'), []
             for i in range(self.config.maximum_candidates):

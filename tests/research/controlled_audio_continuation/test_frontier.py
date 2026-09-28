@@ -8,6 +8,7 @@ from ensomi_model.research.controlled_audio_continuation.frontier import (
 from ensomi_model.research.controlled_audio_continuation.generation import ControlledSession
 from ensomi_model.research.player_response.envelope import AttackEnvelope
 from ensomi_model.research.player_response.state import CommittedPlayState
+from ensomi_model.research.player_response.action_response import ActionEnvelope,ActionResponseState,KINDS,TAUS_MS
 from ensomi_model.research.typed_audio_continuation.controls import ControlSchedule, ControlSpan
 from controlled_audio_continuation.test_ownership import model
 
@@ -54,3 +55,16 @@ def test_all_failed_candidates_preserve_published_history_and_do_not_commit_the_
     assert planner.state.replay == planner.session.replay
     assert start.rows == [] and start.coverage == -1
     assert decision['forecast_end_ms'] == 4000
+
+
+def test_action_reference_can_publish_from_bos_without_an_unrequested_sentinel_scope():
+    _,start=sessions()
+    envelope=ActionEnvelope((2.,6.),tuple(np.full((2,len(TAUS_MS),len(KINDS)),1000.).tolist()),
+        'loose-actions',(4000.,),((1.,),(1.,)))
+    planner=ResponsePlanner(start,envelope,seed=11)
+    planner.publish_to(2000)
+    assert isinstance(planner.state,ActionResponseState)
+    assert planner.session.coverage == planner.state.time_ms == 2000
+    assert planner.decisions[0]['proposals'][0]['fully_scored']
+    assert planner.decisions[0]['proposals'][0]['accepted']
+    assert planner.state.replay == planner.session.replay
