@@ -8,7 +8,8 @@
 实现增加了 `release_policy="r1_joint"` 研究模式。
 非 H 时刻由完整 R1 对“继续等待／释放各子集”共同评分，R 的 hazard 从这个联合分布计算。
 H 时刻仍由 R1 决定完整行，H 本身仍只给出 head-bearing 时刻。
-旧的独立 R 模式保留为对照；新模式尚未通过真实训练及可玩性验收。
+旧的独立 R 模式保留为对照。新模式已完成小规模真实补训与 native 生成；
+短 LN exposure 下降，但其他质量和服务检查仍失败，尚未通过可玩性验收。
 
 ## 实际短尾由谁决定
 
@@ -135,18 +136,88 @@ scores = score_interval(
 这没有消除 source-prefix 与 native 到达状态之间的差距。
 训练时没有额外的真实 BPM／phase 输入，也没有把未来 LN 尾巴作为当前观测。
 
+## 补训后的生成：短尾减少不等于编排修复
+
+一个有界 learning pilot 从 inherited-2048 初始化，完整保留已有参数，
+增加上述 joint release 和现有的 32-wide LN-origin audio cues。
+cue 输出投影从零开始；新 flow scale 用八个 factual examples 做标量校准。
+随后执行 16 次 batch-two 更新，完整音频、H、R1 共同训练。
+数据是同一预先冻结 ledger 中的后续 32 个真实样本，保留其 controls、权重和历史。
+行损失按当前 head signature $U$ 分解为
+$L_U+2L_{\text{release}\mid U}$，针对先前观测到的 release 条件损失被总量掩盖的问题。
+
+这同时改变了释放概率结构、音频 cue 和损失权重，不能解释为单变量因果试验。
+M5 上 CPU 两线程耗时 91.34 s，峰值 task footprint 3.47 GB；
+共享音频、H、R1、cue 和 flow 参数均有梯度，checkpoint 精确重载。
+这些只验证学习路径确实运行。
+
+同音频、seed 与 controls 的完整 native 结果如下。B80 分母均为全部 heads，
+不是只统计 LN；数值格式和参照与上文红灯保持一致。
+
+| 请求／样本 | B80：parent → 补训 | LN fraction：parent → 补训 | 补训后整曲 stars |
+| --- | ---: | ---: | ---: |
+| D4，STYX，LN .4853 | .0822 → .0298 | .7417 → .4690 | 3.53 |
+| D4，Blizzard，LN .8380 | .0569 → .0241 | .6603 → .2871 | 4.05 |
+| D4，Stream Zenithfall，LN 未指定 | .5525 → .0689 | .9067 → .5115 | 5.79 |
+
+三个 B80 检查均通过，但 Blizzard 的 amount 与 Stream 的难度失败。
+STYX 的整曲 amount 接近请求，却在固定 1.8–7.8 s 阅读段完全变成 TAP；
+同样不能据此确认局部 LN 表达改善。
+下面两图是同一首 Stream 请求的固定 18.335–20.835 s，纵轴均为真实时间：
+
+![parent 在固定 Stream 请求片段中的行](assets/joint-release/stream-parent-18335.png)
+
+![联合释放补训后，同一片段出现较长交叠 LN](assets/joint-release/stream-joint-18335.png)
+
+补训后先有错开 entry、共同结束的多条 LN，后续继续较长的交叠和交接。
+它减少了细碎尾巴，却没有获得所请求的突出 Stream。
+整曲 LN duration 中位数从 73 ms 变成 191 ms；
+1842 条 LN 中有 130 条结束于非末尾的强制 deadline，parent 对应为 0/4382。
+旧时钟采用条件归一化、新时钟具有明确 deadline atom，
+所以不能把这个计数差直接等同于新的坏 pattern 数量。
+它提示需检查延长持有与未来 H 容量的关系，不能只看短尾消失。
+
+CPU 两线程、已加载权重与缓存 Mel 为起点，包含完整音频编码，
+取得至少 30 行并覆盖 8 s 的启动耗时分别 .97/.70/2.81 s；
+最慢 2 s 服务窗口耗时 1.23/1.05/1.74 s。
+Stream 未通过 2 s 启动要求。STYX 也在初次 8 s coverage 后出现一次约 14.6 ms
+的 lookahead deadline 缺口，不能因整曲生成快而抹去。
+当时另有 CPU baseline evaluation，这些是实际观测轨迹，尚非隔离负载的产品基准。
+
+执行代码为 `965d670`，parent checkpoint SHA-256 为
+`8f3eda8c5e206230838f172c9ee8d32015572d1740b4fa7a19860408357195eb`；
+16-update checkpoint 为
+`1ad052688ab39398614cc8c3b1e1946bacce88520d60ce6f71283832eb575a3b`。
+以上是三个已知失败样本的定向检查，不是 held-out 总体质量估计，也没有模型晋级。
+
+保持结构、optimizer 和损失权重，再用后续 128 个冻结 factual draws 训练 64 次，
+得到累计 80-update checkpoint
+`b57934728a77abfef0d4bd1ea6387d7cb6f8582c6e450bdd890bfeb1d380ebd6`。
+这段耗时 321.31 s，峰值 footprint 4.13 GB；同样完成三首 native 与八页固定 Lens 阅读。
+STYX／Blizzard／Stream 的 stars 为 3.69／4.36／5.83，
+LN fraction 为 .6875／.6451／.4245，B80 为 .0386／.0737／.0656。
+Blizzard 的 LN 使用增加，但仍未达到 .8380 请求；STYX 反而超过 .4853 请求。
+Stream 的局部仍有大量长短不一的 LN 交替，并没有因继续补训变成目标 Stream。
+三首的整体检查继续失败，不能据此扩大成一轮默认的大训练。
+
+这也暴露了 B80 的覆盖局限：整曲 prevalence 可以低，同时局部仍有难跟随的 LN 组织。
+需要在不同实际时间尺度保留局部 exposure、entry/release 关系和对应的 corpus 参照；
+不能拿整曲的 99 分位直接充当每个短窗的阈值，更不能在看到输出后放宽原来的 amount 或难度检查。
+
 ## 当前实现范围与下一步
 
 纯释放查询只评分 16 个候选，避免把 256 行的中间激活全部保存。
 它与 dense scoring 的值和梯度一致。已检查 native hazard 与当前权重 replay、
 publication partition、跨 control 边界、deadline atom、checkpoint reload 和 CPU/MPS 梯度。
-这些是概率与执行证据，不是训练后的质量证据。
+这些检查建立概率与执行的一致性；生成质量由前述独立的 native 观察约束。
 
 这次实现尚未重构 H 的节奏层级。后续 H 必须让难度在给定局部音乐速度下影响主 subdivision，
 并允许更细修饰；不要求先得到唯一且无误的 beat/BPM 表。
 内部时间单位或相位候选应从音频及 note-placement 目标共同学习，
-避免修饰事件把主节奏参照一起重置。R1 仍负责 chord、分指、LN 类型与保持／结束。
+避免修饰事件把主节奏参照一起重置。
+[音频节奏层级设计](audio_rhythm_hierarchy_zh.md)给出了候选概率结构与不依赖 redline 的局部证据；
+其层级 H 尚未实现。R1 仍负责 chord、分指、LN 类型与保持／结束。
 
-在系统验收前，还需完成有界补训、固定红灯及完整 native guards、真实谱面对照，
+在系统验收前，还需在更充分的真实样本上学习，并通过完整 native guards、真实谱面对照，
 以及 `codex/stream-generation-benchmark` 的实际首窗／密集服务测试。
 这个研究模式没有自动晋级。
