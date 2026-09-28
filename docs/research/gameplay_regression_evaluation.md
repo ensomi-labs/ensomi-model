@@ -82,6 +82,15 @@ These distinctions catch failures that an average cannot:
 - Fewer heads can coexist with much less actual recovery.
 - A new control range can inherit already accumulated attack pressure.
 
+The [ranked coordination study](coordination_frontier_hypotheses_zh.md)
+adds an exact rating-projection counterexample: fixed four-LN heads can have
+common or staggered releases with identical whole/scoped strain, LN fraction,
+total held time and attack-envelope cost. It also preserves real short-LN and
+independent-release counterexamples. These are calibration probes, not new
+rejection rules. The study defines follow-up comparisons for target collisions,
+history compression and candidate supply versus selection; those comparisons
+are not yet an implemented canonical response evaluator.
+
 ## Consecutive head membership
 
 The scope field head_recurrence records whether a finger keeps participating in
