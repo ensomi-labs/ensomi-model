@@ -56,7 +56,7 @@ exploratory, not a retrospectively accepted intervention.
 
 ## Experiment Card: action-response-calibration-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: explicit current user request and ongoing system goal.
 
@@ -103,3 +103,37 @@ allocation or external messaging. No new subagent is authorized or spawned.
 The H hierarchy investigation remains pending. User steering prioritizes this
 operational response/recipe defect first; it does not abandon H or the final
 regular-chart/expressive-style/realtime requirements.
+
+## Result and revision-two response target
+
+Calibration7530 completed exit0:6924sources,0exclusions,102.713s,154451968bytes
+peakRSS. Fit5556charts, group-held-out1368. Marginal99th-percentile pointwise
+acceptance rejects417fit and113held-out(8.26%) charts. Of nine previously read
+ordinary/specialist positives, Good-bye and enchanted fail. It detects8/10fixed
+generated cases, including joint80RH ratios1.888(STYX)/1.633(Blizzard), but the
+source guard fails; the pointwise rule is not adopted. ReferenceSHA
+afc6f4e2c2f7da1f331cb44e2cb5698675a283eb9f27b54b929afbe76008bad5;
+source chartsSHA5f3e7733b005f6cc1047ccae24779e208672edfd690d415f8a0ebb5aa6154170.
+
+Revision2 keeps the original coordinate reference unchanged and calibrates
+added recovery work over real-time horizons. Psi_D(z) is the analytic future
+excess area under no further actions. Each proposed event adds
+Psi_D(z_after)-Psi_D(z_before). For constant controls, total added work equals
+finite-horizon excess plus terminalPsi minus initialPsi. Thus an inherited
+overload is not charged again to an empty recovery continuation, and a final
+action's consequences do not disappear at the forecast cutoff. No future LN
+tails or new physiological labels are invented.
+
+Implementation4334e67 adds this explicit terminal potential and source/online
+agreement.11focused tests pass1.58s, including the energy identity, old-loaded
+prefix with empty recovery, and an action at a control switch owned by the new
+range. No new actor parameters, sampler penalty or H law is introduced.
+
+Fit equal-song/equal-chart99th percentile source maxima of added work over
+500/2000/4000/8000ms, using only the original fitting groups; held-out groups
+remain evaluation only.4000ms is the primary planner horizon. Preserve all
+original results and report horizons separately. This is a new declared
+response/admission hypothesis, not silent relaxation against generated cases.
+Fixed native outputs and nine source positives remain the same. Failure of
+these guards still prevents demo adoption. CPU1200s/3GiB, fresh work-v1,
+no overwrite or automatic restart; work-plan.json pins code/scripts/inputs.
