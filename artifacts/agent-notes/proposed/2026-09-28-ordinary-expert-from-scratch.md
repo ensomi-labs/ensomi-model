@@ -93,7 +93,7 @@ and proposal log probabilities are not selected-policy probabilities.
 
 ## Experiment Card: ordinary-fresh-bootstrap-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 
 First establish a reproducible positive population from the existing1973ranked
@@ -121,3 +121,14 @@ the prior MPS assertion. Do not inherit cached learned audio or a silent pretrai
 H. A source-H diagnosis can isolate materialization but does not replace native
 end-to-end audio evaluation. Scaling and fusion require real generated evidence;
 no checkpoint is qualified by the bootstrap fit alone.
+
+## Census cache discrepancy and revised scout
+
+scout-v1 terminated with KeyError before producing population output: one of
+1973valid census sources is absent from the6959-entry cached manifest. Preserve
+that failure; do not silently drop the source or call the cache the full corpus.
+Revision2resolves its actual AudioFilename and byte hash from the named source
+.osu, parses its true rows directly, and marks cache availability separately.
+All other inputs, source band, split and metrics remain unchanged. New exclusive
+scout-v2 and scout-plan-v2.json pin this fallback; this is an explicit revised
+run after a diagnosed missing-entry error, not automatic restart.
