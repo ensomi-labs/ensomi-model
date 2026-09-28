@@ -312,3 +312,41 @@ averages -.0597, -.2380, -.3277 and -.4553. Row differences stay small and
 mixed. These are online comparisons on changing examples, not a fixed-data
 learning curve or evidence of native quality. Validation/native review remain
 required; neither terminal is promoted.
+
+## Initial validation and low-difficulty reachability evidence
+
+Terminal validation row NLL is rr1 1.5696064050 / joint 1.5643044454; joint
+H NLL per second is 31.53779420 versus 32.01912594 for frozen H. R means are
+1.30952077 / 1.31357227. Validation receipt SHA
+a6cda7b7003cf4e5d9ea1fecb41447599b787b4eac43a5b6b5a1fb114af7d7e5.
+These improvements do not change native criteria.
+
+The strict parent's added D2 cases return Classic 3.282442/3.289651 and
+Zenithfall 3.664578/3.375850 stars. D6 cases remain ordered and within the
+declared one-star tolerance. This exposes an existing low-control deficit.
+
+A post-hoc diagnostic constructs one cyclic-column TAP per unchanged H,
+with no LN, solely as an existence witness; it is not a proposed sampler.
+Classic admits 2.113209/2.188426 stars, showing unused row-materialization
+space. Zenithfall's witnesses are 3.527865/3.193356; this alone does not prove
+infeasibility. Result SHA
+6e68b33b24e7b1e0c8de66292262103b162f378d606128a50deab894a1a02816.
+
+A stronger read-only bound follows from the implemented 20241007 algorithm:
+each processed head contributes >=1 overall strain and >=2 selected individual
+strain. Keeping one head per H, using these minima and the same decays,
+400-ms section peaks and descending .9 weighting gives a whole-chart SR
+lower bound for any materialization of those H. It ignores column recurrence
+and LN additions, so is conservative and need not be attainable. Classic
+bounds are 1.841016/1.900875; Zenithfall 2.928770/2.674991. Thus exact D2 is
+already unavailable for the latter fixed H. These bounds do not prove violation
+of the looser +/-1 qualification tolerance, nor establish musical/playability
+quality. They must not be compared with unrelated scoped controls.
+
+The exploratory implementation head_floor.py uses current official-variant
+section accounting and checks the inequality on 256 legal randomized mixed
+TAP/LN/chord charts and all eight strict-parent cases. Result SHA
+ead4c8344c0e32b847d8f8e445c3d0250791cb28fe3bb8a9d2b68c43a9d6f831.
+This post-hoc diagnostic was not a prespecified winning criterion. Preserve
+the proof and develop a reusable evaluator after pinned native runs finish;
+do not modify the running experiment's product source or sampling policy.
