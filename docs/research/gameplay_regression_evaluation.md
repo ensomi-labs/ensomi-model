@@ -143,6 +143,12 @@ Probability normalization errors within 2e-5 are recorded and corrected as
 floating-point roundoff; larger errors fail. No threshold on LN duration,
 release gap or any calibration score is a BAD rule.
 
+The [factual LN study](ln_release_calibration.md) applies this observer to
+ranked references and separates R1 head-signature likelihood from conditional
+release likelihood. It records cases where total row NLL improves while the
+release component worsens. The study does not use that diagnostic as a
+playability score or declare the reference the only correct continuation.
+
 ## Consecutive head membership
 
 The scope field head_recurrence records whether a finger keeps participating in
