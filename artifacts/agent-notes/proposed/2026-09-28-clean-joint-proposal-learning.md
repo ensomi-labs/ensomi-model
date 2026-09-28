@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: 0a74a198f73dec42753e0c92fb9c98ee298e4710
+Product revision: ef42095a6e764b0374edbaa36b8ddf87c32364c9
 Scope: Direct conditional joint proposal law, separated default/conditional sampling and matched initialization learning
 Related: 2026-09-28-coordination-frontier-and-ranked-contrasts, 2026-09-28-head-audio-control-interaction
 
@@ -46,7 +46,7 @@ must not be labeled an isolated recipe effect.
 
 ## Experiment Card: clean-joint-proposal-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: the explicit continuing user goal authorizes local model
 changes, bounded experiments, full local resources and suitable commits.
@@ -70,8 +70,9 @@ omitted and initialized tensor. This is not bitwise pairing of the initial laws.
 Existing frontier2 is an actor residual, not an independently calibrated cost.
 
 Use ranked TRAIN and original human annotations with the existing held-out
-song-group split. Exclude all five native-panel audio hashes. Prepare the
-actual source/control ledger before fitting and verify source/rows/audio/Mel.
+song-group split. Exclude all five native-panel audio hashes. Freeze the source
+program, seed and inputs before fitting; publish each immutable 64-draw chunk
+before any arm consumes it. Verify source/rows/audio/Mel.
 No source-label union or generated-prefix/factual-suffix substitution.
 
 Separate training purposes: 50% natural equal-group then chart windows with
@@ -80,12 +81,14 @@ numeric requests known; 25% annotated scopes with at least one genuinely known
 style retained and both numeric requests known. Population indices are uniform
 over full audio, including empty windows. Numeric controls are 50% whole-song
 and otherwise 16/32/64-second scopes with declared full-prefix proxy. Annotation
-scopes are not extended. Record actual branch/mask/exposure and rejection bias.
+scopes are not extended. A source scope without any heads has undefined LN
+fraction, which remains unobserved rather than being labeled zero or discarded.
+Record actual branch/mask/exposure and rejection bias.
 Natural sampling supplies unknown-LN defaults; balanced LN draws do not hide
 their LN request. This specifies a learning measure, not an unbiased global
 corpus likelihood claim.
 
-Prepare 8192 eight-second draws, paired across arms, batch two and 4096 updates
+Prepare 8192 eight-second draws in immutable chunks, paired across arms, batch two and 4096 updates
 if the resource pilot passes. Train all audio/H/R/R1 parameters jointly with
 AdamW, learning rate 1e-4, weight decay 1e-4, clip one; no old optimizer moments.
 Every update re-encodes full-song coarse audio and the complete fine halo with
@@ -133,3 +136,53 @@ scripts, source OID, inputs, model configurations, commands and seeds are
 frozen before launch. User-owned AGENTS.md and the untracked architecture
 walkthrough are excluded from edits. No benchmark worktree changes or remote
 push. Any candidate still requires exact-loader realtime benchmark integration.
+
+## Revision two: deterministic chunk preparation and implementation
+
+Direct LN conditioning and 27 focused CPU/MPS checks are committed at
+ef42095a6e764b0374edbaa36b8ddf87c32364c9. The mode adds no parameter tensors,
+preserves old defaults and leaves explicit ln_shift distinct. The checks cover
+neural request/context gradients, no automatic amount prior, checkpoint loading,
+native/replay scope parity and mirror symmetry. Only the model, focused tests
+and its research guide changed; user-owned files remain untouched.
+
+Preparation v1 measured 256 draws in 67.07 seconds and 768 in 199.67 seconds,
+projecting beyond its 1800-second bound. Its verified Python process 67606
+under tool session 2051 was intentionally interrupted with SIGINT; exit 130
+is confirmed. There had been no optimizer update. The original script/plan
+and an interruption receipt remain. This was an engineering procedure change,
+not an observation timeout or an inferred process failure.
+
+Revision two raises the preparation bound to 3600 seconds and emits immutable
+64-draw chunks atomically before any model consumes them. Source preparation
+can overlap fitting; it reads no weights, losses or quality outcomes and keeps
+the same seed/program choices. All three arms consume each identical chunk in
+order. The complete ledger is also retained on producer completion. Pilot
+quality does not choose later data. This replaces the original all-ledger-before-
+fitting procedure; no claim of unchanged procedure is made.
+
+Original preparation-plan SHA
+b6d1970255978260aae23fc8d6fe07d141b21525f4b64a7f1b7140d2030f722c;
+v2 preparation-plan SHA
+70cd1eda1108a563376d462aaa98d54bc528860c7e9a65ceada8dd4795bc7593.
+The first 64 draws are published in 16.21 seconds, SHA
+fa5eef63c612a26245dd5dcd99d3e53776a97cb23cc31b45300dda29b2c5c3c5.
+Initial validation contains the same 22 held-out windows as before.
+
+Fit plan SHA
+9190bcd465923d7460f8e2dac751b2ca4892a59a04450a2a005110a5b369273e
+pins common.py, worker.py and validate.py. Each worker consumes exactly one
+64-draw chunk for 32 updates, preserves optimizer/RNG checkpoint state and
+records imports and gradients. Source guard compares executable paths with
+the pinned revision, permitting later documentation-only commits.
+Commands use uv run --extra mps --extra render --group dev python followed by
+this owner's prepare-v2.py, validate.py 0 and worker.py 0 for the resource pilot.
+No whole-run supervisor is launched before that pilot is inspected.
+
+Initial H/R/row NLL per second:
+inherited 32.01912594 / 1.31904570 / 11.42042167;
+early 32.01912594 / 1.29347655 / 11.95515949;
+fresh 45.55102973 / 1.70081769 / 33.27794954.
+Macro row NLL is 1.57275295 / 1.64922791 / 4.32740172.
+These verify finite distinct initial laws and factual replay, not a quality
+ordering or evidence against the fresh initialization.
