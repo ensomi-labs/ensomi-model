@@ -174,3 +174,21 @@ the new owner's validate.py initial, run.py, validate.py terminal,
 evaluate.py additive and evaluate.py modulated. Initial validation must
 reproduce profile-only H/row means and exact two-arm probability identity
 before the optimizer run starts. Existing artifacts are only read.
+
+## Initial validation and pilot
+
+Initial validation completes in 16.32s and both arms exactly reproduce the
+profile-only means: H/R/row nats per second 32.01912594/1.31904570/11.41714105,
+macro row NLL 1.57116253. Receipt SHA
+cfb8fb4aa4dbd60c5df47af0898b965050fa472b408f9dcf98eef71613e6dff6.
+
+The first 16-update worker completes in 25.82s, peak process footprint
+2760166616 bytes, with 513108/588372 trainable H parameters. Both H paths and
+the new interaction have nonzero gradients; all frozen tensors pass exact
+comparison. The live serial run continues; no endpoint or native result yet.
+
+Analysis plan SHA
+686ece3d797e6bb8507d89504e1490333b6ec3702a94c110a177d424578f4940
+pins the scoped comparison and fixed Lens rendering scripts before native
+results. Guards and criteria are unchanged; attack excess, interaction and
+variation remain independent descriptive channels, not one quality scalar.
