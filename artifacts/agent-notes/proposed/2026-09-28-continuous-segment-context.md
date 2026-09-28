@@ -185,3 +185,19 @@ an exclusive directory/log; a directory without a success receipt blocks automat
 continuation and requires authoritative process inspection. No NN job was live
 when these scripts or source were written. Initial optimizers are fresh in both
 arms, and every subsequent segment resumes them fully.
+
+## First bounded learning segment
+
+Controller21111 is terminal exit0. First16updates completed52.762s of worker
+time, peak footprint11276347016bytes; MPSactive221MB versus driver4.575GB at
+step16are overlapping ledgers, not an attribution. The16-update process boundary
+is retained. The new projection norm reaches .2035 and gradients/losses stay
+finite. Both arms see1708source rows and227BOS rows. Their actual native quality
+has not yet been re-evaluated; small matched NLL differences do not qualify it.
+
+Step16code-only SHA6ddbed2abe46a038604927fbeca68d5db569b4ee5ed55d037ed10d82245b4263;
+continuousb22af0d2aad7bb145b1fa9e03ae8a07f43452237e537c0934326f2f3e590543a.
+Frozen fingerprints and strict checkpoint reloads passed. Continue the preplanned
+run to64from these completed optimizer/RNG states, then inspect actual source-H
+outputs before the final planned256updates. No model source changes occur while
+these workers are live.
