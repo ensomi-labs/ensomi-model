@@ -172,6 +172,13 @@ anchor. Its fixed-prefix energy removals distinguish current score effects
 from historical training attribution. These diagnostics are not playability
 scores or claims that the reference is the only correct continuation.
 
+The [ordinary four-star corpus study](ordinary_fourstar_rhythm_and_holds_zh.md)
+adds a natural 1,973-chart reference with separate LN-use strata, source-linked
+held-role examples and aligned Mel views. Use its normal organization alongside
+specialist short-LN counterexamples; rare valid shapes do not describe the
+center of the ordinary conditional distribution. Neither its quantiles nor
+its grid descriptors are automatic rejection rules.
+
 ## Consecutive head membership
 
 The scope field head_recurrence records whether a finger keeps participating in
