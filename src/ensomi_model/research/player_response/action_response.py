@@ -65,10 +65,10 @@ class ActionResponseState:
         values = self.values*np.exp(-(end-self.time_ms)/np.asarray(TAUS_MS))[:,None]
         return replace(self, time_ms=end, values=values)
 
-    def observe(self, row):
+    def observe(self, row, *, is_terminal=False):
         if row.time_ms <= self.time_ms:
             raise ValueError('Action response needs a row after committed coverage')
-        replay = commit(self.replay, row)
+        replay = commit(self.replay, row, is_terminal=is_terminal)
         impulse, hands = _impulse(self.replay, self.last_hand, row)
         decayed = self.advance(row.time_ms)
         values = decayed.values+impulse[None]*1000/np.asarray(TAUS_MS)[:,None]
@@ -150,6 +150,44 @@ def recovery_potential(values, limits):
     tau = np.asarray(TAUS_MS)/1000
     tau = tau.reshape((len(TAUS_MS),)+(1,)*(np.ndim(values)-1))
     return np.maximum(0.,tau*(.5*ratio**2-ratio+np.log1p(ratio)))
+
+
+def candidate_work(state, times, actions, limits):
+    """Vectorized recovery work for hypothetical rows, without mutating history.
+
+    Return [clock,candidate]. Actions need not be legal: the row owner retains
+    its exact legality mask. The virtual all-empty release-clock action adds
+    zero work and is never committed as a physical row.
+    """
+    times,actions = np.asarray(times,float),np.asarray(actions)
+    if (times.ndim != 1 or actions.ndim != 2 or actions.shape[1] != 4
+            or np.any(times <= state.time_ms)):
+        raise ValueError('Candidate work requires future clocks and complete four-lane choices')
+    heads,releases = np.isin(actions,(1,2)),actions == 3
+    impulse = np.zeros((len(times),len(actions),28))
+    def speed(previous):
+        previous=np.asarray(previous,float)
+        gap=times[:,None]-previous[None]
+        return np.divide(100.,gap,out=np.zeros_like(gap),where=np.isfinite(gap)&(gap>0))
+    h=np.asarray(state.replay.last_lane_attack_ms,float)
+    r=np.asarray(state.replay.last_lane_release_ms,float)
+    impulse[:,:,:4]=heads
+    impulse[:,:,4:8]=heads[None]*speed(h)[:,None]
+    prior_release=np.isfinite(r)&(~np.isfinite(h)|(r>h))
+    impulse[:,:,8:12]=heads[None]*prior_release[None,None]*speed(r)[:,None]
+    impulse[:,:,12:16]=releases[None]*speed(state.replay.open_ln_start_ms)[:,None]
+    impulse[:,:,16:20]=releases
+    hand_counts=(actions != 0).reshape(len(actions),2,2).sum(-1)
+    impulse[:,:,20:22]=hand_counts>0
+    impulse[:,:,22:24]=hand_counts[None]*speed(state.last_hand)[:,None]
+    partners=np.arange(4)^1
+    impulse[:,:,24:28]=heads[None]*np.asarray(state.replay.occupancy)[partners][None,None]*(actions[:,partners] != 3)[None]
+    taus=np.asarray(TAUS_MS)[:,None,None,None]
+    before=state.values[:,None,None]*np.exp(-(times[None,:,None,None]-state.time_ms)/taus)
+    after=before+impulse[None]*1000/taus
+    reference=np.asarray(limits)[:,None,None]
+    work=np.maximum(0.,recovery_potential(after,reference)-recovery_potential(before,reference))
+    return work.sum(-1).mean(0)
 
 
 def source_work(times, actions, envelope, stars):

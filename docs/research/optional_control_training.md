@@ -70,6 +70,17 @@ style-only requests, explicit LN requests and ordinary held-LN/TAP roles.
 Teacher-forced odds and NLL are diagnostics; native pressure, rhythm, control
 accuracy and runtime remain the qualification criteria.
 
+The first matched probe used the joint-release80 checkpoint on all 14 distinct
+source/intervals represented by the 4★-near prominent Stream subset, reporting
+15 effective control ranges separately. H times, full audio and physical/neural
+histories were factual and identical between the two views.
+Hiding LN amount changed the expected LN-head fraction by a median **+.26
+percentage points**, with maximum **+2.54 points** and minimum **−.44 points**.
+The checkpoint still predicted predominantly TAP content on the TAP source
+states. This does not support missing LN visibility as a sufficient explanation
+for the large native LN collapse. The coverage defect remains real, while the
+next causal question concerns generated histories, timing and proposal support.
+
 This recipe repair does not replace the independent
 [continuation response](action_response_frontier.md), a persistent rhythmic
 plan, or learning coherent held roles. Those mechanisms address other

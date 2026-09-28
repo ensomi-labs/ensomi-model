@@ -64,9 +64,14 @@ class ControlledSession(ContinuationSession):
             lookahead=self.model.config.lookahead, device=self.device)
         context = self.model.temporal.read(self.row_cache)[None].expand(len(times), -1, -1)
         logits = release_logits(self.model, queries, context, self.downstream_encoded,
-                                self.controls, preference=self.recovery_preference)
+                                self.controls, preference=self.recovery_preference,
+                                candidate_cost=self.release_candidate_cost)
         return anchors.new_zeros(native.numel(), dtype=self.dtype).index_copy(
             0, torch.as_tensor(destinations, device=self.device), logits)
+
+    def release_candidate_cost(self, times, actions):
+        """Optional deployment response energy, shared with row materialization."""
+        return None
 
     def row_options(self, now):
         span = next((s for s in self.ln_scopes if s.start_ms <= now < s.end_ms), None)

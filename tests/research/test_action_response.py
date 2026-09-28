@@ -6,6 +6,7 @@ from ensomi_model.research.player_response.action_response import (
     ActionResponseState, ActionEnvelope, KINDS, SLICES, TAUS_MS,
     transition_impulses, source_peaks, action_response,
     source_work, window_work_maxima, recovery_potential,
+    candidate_work,
 )
 from ensomi_model.research.player_response.state import CommittedPlayState
 from ensomi_model.research.player_response.envelope import AttackEnvelope,sustained_response
@@ -113,3 +114,23 @@ def test_boundary_action_is_assessed_under_the_new_control_request():
     _,report=action_response(ActionResponseState(),[tap(500)],1000,env,[(-1,500,2.),(500,1000,6.)])
     assert all(r['added_work'] == 0 for r in report['ranges'])
     assert report['acceptable']
+
+
+def test_hypothetical_row_work_matches_exact_state_transitions_including_wait():
+    from ensomi_model.research.bounded_typed_continuation.contract import ROW_ACTIONS
+    from ensomi_model.research.joint_audio_continuation.state import legal_rows
+    state=ActionResponseState.from_rows([CompleteRow(0,(2,0,0,0)),tap(50,1),
+        CompleteRow(100,(3,0,0,0)),tap(125),CompleteRow(200,(0,0,2,0)),tap(250,3)],250)
+    times=[300,475]
+    env=reference()
+    values=candidate_work(state,times,ROW_ACTIONS,env.limits(4.))
+    assert (values >= 0).all() and np.array_equal(values[:,0],np.zeros(2))
+    legal=legal_rows([state.replay],[False])[0]
+    for i,t in enumerate(times):
+        before=state.advance(t)
+        for j,actions in enumerate(ROW_ACTIONS):
+            if not legal[j]:continue
+            after=state.observe(CompleteRow(t,actions))
+            work=(recovery_potential(after.values,env.limits(4.))-
+                  recovery_potential(before.values,env.limits(4.))).sum(-1).mean()
+            assert values[i,j] == pytest.approx(work,abs=1e-10)

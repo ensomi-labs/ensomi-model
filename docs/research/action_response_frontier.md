@@ -138,6 +138,21 @@ calibrated from ranked continuations separately from the coordinate references.
 Per-kind work remains inspectable. Short request ranges use a declared enclosing
 calibration horizon, not an unverified linear rescaling of an impulse budget.
 
+Since work is already normalized by the difficulty-specific response reference,
+its tolerance is pooled across the fitting source groups. A first attempt to
+force these normalized tolerances upward with difficulty incorrectly transferred
+the 2★ normalization tail to every higher request; that result was retained
+and rejected. The shared 99th-percentile tolerance uses fitting groups only
+and preserves monotone admission as the physical reference becomes more
+permissive with difficulty.
+
+The resulting 4 s work tolerance is .049906. It rejects 21/1368 held-out source
+charts (1.54%); all nine previously inspected source controls pass, including
+the short-LN specialist examples. Joint-release80 STYX/Blizzard/Stream have
+maximum 4 s added work .11388/.12119/1.56594, so all three fail this pressure
+coordinate. This is still partial response calibration, not complete
+playability or a held-out estimate of musical quality.
+
 ## Candidate commitment
 
 [ResponsePlanner](../../src/ensomi_model/research/controlled_audio_continuation/frontier.py)
@@ -158,3 +173,42 @@ The action reference is not yet wired into the demo's default path or declared
 qualified. It also does not teach an ordinary one-LN-plus-TAP role arrangement:
 that requires the proposal to learn persistent role relationships and musical
 timing. Candidate acceptance and proposal learning must both succeed.
+
+## Native search and independent proposal guidance
+
+An actual native run with the joint-release80 weights, original full audio,
+controls and seeds completed STYX after selecting one alternative at72s.
+Blizzard exhausted four candidates at100s; Stream exhausted them at224s.
+The rejected futures were not committed, and Blizzard's two incoming open holds
+were preserved. These failures demonstrate insufficient proposal coverage for
+that bounded search; four rejected samples do not prove that H is infeasible.
+Stream also had a2.77s service window, exceeding the2s target.
+
+[ResponseGuidedSession](../../src/ensomi_model/research/controlled_audio_continuation/response_guidance.py)
+uses the same committed response state to add a candidate energy
+
+$$
+g(P,t,a)=\alpha\,
+\frac{\Psi_D(z^{+}(P,t,a))-\Psi_D(z^{-}(P,t))}
+     {B_D(4000\,\mathrm{ms})}.
+$$
+
+It compares all complete R1 rows while preserving the actor's exact support.
+The empty action adds zero work. For joint R, this energy enters before
+wait/release marginalization and again in the corresponding conditional mark
+law. A single eligible release can therefore be delayed rather than having
+its cost cancel after R has already committed.
+
+The response reference is independently calibrated and frozen; this guidance
+is not an actor parameter optimized by row imitation. Its strength is an
+explicit sampling-policy choice. It does not certify a future, so the same
+four-second continuation acceptance remains in place. H, cardinality ownership,
+audio inputs and the publication protocol do not change. Forks own their
+response state; rejected branches cannot load the committed player's state.
+
+Training from these improved or rejected rollouts needs the correct trajectory
+law. The existing row-only trace likelihood assumes other timing factors can
+be held fixed or cancel. In `r1_joint` mode R's timing also depends on R1
+parameters, so a row-only policy-gradient update would omit part of its credit.
+Any such learning must include R survival/event terms on actual partial futures,
+without fabricating crop-end LN closures.

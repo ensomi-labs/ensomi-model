@@ -77,7 +77,8 @@ def release_queries(replays, times, previews, duration_ms, recovery, history_ind
 
 
 def release_logits(model, queries, contexts, encoded, controls, *, audio_starts=None,
-                   frame_counts=None, preference=RecoveryPreference(head_pressure=4.), chunk_size=256):
+                   frame_counts=None, preference=RecoveryPreference(head_pressure=4.), chunk_size=256,
+                   candidate_cost=None):
     """Return R's native-ms hazard from the same R1 energies as its mark law.
 
     contexts contains current-weight row-history observations, aligned to the
@@ -85,6 +86,9 @@ def release_logits(model, queries, contexts, encoded, controls, *, audio_starts=
     log scale changes event odds only and cancels from conditional release marks.
     Clock likelihood plus the conditional nonempty row likelihood is therefore
     the joint wait/mark likelihood, with explicit forced deadline atoms.
+    Optional candidate_cost receives native clocks and the sixteen complete
+    wait/release actions. A deployment response policy must apply the same
+    energy to actual row materialization; this is not the actor's raw law.
     """
     if model.release_policy != 'r1_joint' or len(contexts) != len(queries.times):
         raise ValueError('Joint release requires its model mode and aligned row contexts')
@@ -112,5 +116,9 @@ def release_logits(model, queries, contexts, encoded, controls, *, audio_starts=
             control=audio.new_tensor(condition_np[s]), candidate_indices=indices, **options)
         if costs is not None:
             q = q-q.new_tensor(costs[s])
+        if candidate_cost is not None:
+            extra = candidate_cost(times_np[s], RELEASE_ACTIONS)
+            if extra is not None:
+                q = q-q.new_tensor(extra)
         output.append(q[:, 1:].logsumexp(-1)-q[:, 0]+model.release_log_scale)
     return torch.cat(output)
