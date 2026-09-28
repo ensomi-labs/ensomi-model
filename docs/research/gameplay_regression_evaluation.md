@@ -132,6 +132,77 @@ threshold response is silent. The
 shows actual cases where lower stars coexist with more recurrence; corpus
 quantiles are descriptive, not automatic rejection thresholds.
 
+## Star feasibility from mandatory H timing
+
+[head_timing_star_lower_bound_20241007](../../src/ensomi_model/research/gameplay_evaluation/head_difficulty.py)
+returns a conservative whole-chart star floor before R1 chooses chord sizes,
+lanes or TAP/LN types. It can identify timing that already exceeds a requested
+whole-chart star value. It does not replace gameplay response, certify a good
+arrangement, or define a sampling mask.
+
+For native H times $t_0<\cdots<t_n$, let $\delta_i=(t_i-t_{i-1})/r$ be the
+played gap in milliseconds at clock rate $r>0$. The implemented 20241007
+algorithm initializes overall strain to one and omits the first raw hit object.
+Every subsequent head contributes at least one to overall strain and at least
+two to its selected column's individual strain. Therefore use
+
+$$
+O_0=1,\qquad O_i=0.30^{\delta_i/1000}O_{i-1}+1,\qquad
+\underline S_i=O_i+2\quad(i\ge1).
+$$
+
+Between processed heads, the section initial value advances the two components
+with the same overall and individual decay bases, .30 and .125. The evaluator
+reuses the scorer's 400-ms section boundaries, first-object handling and peak
+accounting. If $\underline P_{(j)}$ are its positive section peaks sorted in
+descending order, the returned value is
+
+$$
+\underline{\mathrm{SR}}(H)=0.018\sum_{j=0}^{m-1}0.9^j\underline P_{(j)}
+\le \mathrm{SR}_{20241007}(\mathcal B)
+\quad\text{for every materialization }\mathsf H(\mathcal B)=H.
+$$
+
+The inequality follows by induction on overall contributions, the individual
+minimum at every processed head, positive decay through each shared section,
+and monotonicity of sorted order statistics. Additional chord heads or LN
+overlap factors cannot reduce these lower-bound contributions. A first-row
+chord may start the actual scorer earlier and add peaks, which cannot weaken
+the inequality. The floor is zero for fewer than two H; this does not assert
+that a single chord has zero actual stars.
+
+Appending later H cannot lower this floor, so it also bounds a completion of
+an observed H prefix. No unknown LN tail is filled in to compute it. The
+selected individual minimum ignores repeat accumulation, making the result
+potentially loose and not necessarily attainable.
+
+```python
+from ensomi_model.research.gameplay_evaluation.head_difficulty import (
+    head_timing_star_lower_bound_20241007,
+)
+
+head_times = tuple(
+    row.time_ms for row in rows if any(a in (1, 2) for a in row.actions)
+)
+minimum_possible_stars = head_timing_star_lower_bound_20241007(head_times)
+```
+
+The input is one strictly increasing nonnegative integer-millisecond timestamp
+per H, with simultaneous heads grouped. Integral real values are accepted;
+invalid clocks raise ValueError. The value belongs to the named whole-chart
+algorithm at the declared clock rate. It is not a scoped difficulty and must
+not be compared with individual ranges in a changing control program. A floor
+below the request says nothing about whether a matching playable continuation
+exists or receives proposal probability.
+
+In the release-support study, a D2 Zenithfall H plan has floor 2.928770 even
+though R1's chosen map is 3.664578. Changing R1 alone cannot reach exactly 2
+on that plan. A Classic plan instead has floor 1.841016, and an explicitly
+constructed legal one-TAP-per-H continuation reaches 2.113209 versus the
+model's 3.282442. The latter is an existence witness, not a cyclic-routing
+generation rule or a quality endorsement. These diagnostics distinguish
+upstream feasibility from downstream selection without a hard pattern ban.
+
 ## Multi-scale phrasing observations
 
 For each half-window length .5/1/2/4/8/16 seconds, compare adjacent left/right
