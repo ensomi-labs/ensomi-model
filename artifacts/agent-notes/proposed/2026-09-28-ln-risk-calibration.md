@@ -30,7 +30,7 @@ codex/release-calibration for the evaluator.
 
 ## Experiment Card: ln-release-risk-calibration-v1
 
-Revision: 3
+Revision: 4
 Accepted revision: none
 Execution authority: the continuing user goal includes research, useful
 regression evaluations, local code and note commits.
@@ -188,3 +188,46 @@ report hash from scores-v2/cases.json (SHA 013c4512171f2e57e5023dbe05c914f740373
 Use standard-library CPU analysis, no network or checkpoint loads; bounds
 60 seconds, 512 MiB new memory and 64 MiB output. Stop on hash drift,
 nonfinite probabilities, an unsupported actual mask, identity mismatch or STOP.
+
+## Revision-three result and final-law attribution plan
+
+The exact secondary analysis completed in .179959 seconds, maximum RSS
+32063488 bytes; maximum chain-rule error was 4.27e-14 nats. Plan SHA
+958e7c3e8ca61c5533d6924ca540cb68c0d83b1071b3763f9bdb3d06abe95ca4;
+release-factorization.json SHA
+0821580897f76e57b6f771dccb80349f18913dc3c3845cffc96d438072218c30.
+Early Shizuku initial→512 cardinality NLL is 56.938→69.034 while identity
+NLL improves 5.921→5.697. Inherited Non-breath cardinality is 51.922→63.106
+while identity improves 20.928→19.086. The earlier total release regressions
+therefore localize to cardinality in these contexts, not worsening selection
+among a fixed number of fingers. Until the end of time also exposes an
+identity error: at 72260 ms inherited step512 assigns .902659 to releasing
+one finger, but only .269213 of that mass to the short-LN finger rather than
+the held anchor. These remain factual conditional diagnostics.
+
+Revision four keeps the same eight sources and nine model states, but reads
+the exact row composition and RowConsequence energies in a CPU forward pass.
+Compare the deployed law against three fixed-prefix counterfactuals: removing
+only learned row consequence, removing only empirical recovery preference,
+and removing both. All clocks, source histories, controls and finite support
+remain identical. Verify reconstruction of the unmodified neural law to
+2e-5 and reproduce prior whole/conditional NLL to 2e-5 nats per row. This
+is an inference-component attribution study, not a retrained ablation or
+native quality experiment; NLL's nonidentifiable split forbids assigning
+unique historical training blame from these removals.
+
+Record the same exact U/K/identity decomposition and selected Until anchor
+probabilities in all four laws. A material conditional error improvement
+under removal identifies a current-score contribution on the factual path;
+opposite signs across examples reject a universal removal recommendation.
+No metric threshold automatically changes the sampler. Main fit and its
+milestones remain untouched. Counterfactual probabilities must preserve
+actual support and source factuality, including genuine singleton decisions.
+
+Freeze score-components.py and components-plan.json before execution, pin
+the evaluator worktree at 5b0dbeb6a5c5c5240bde0cf8325e54fee365d6c0 and use
+the exact model/checkpoint/source hashes from plan-v2.json. New output is
+components/ under the existing LN-risk owner, refusing overwrite. CPU one
+thread only, 900 seconds, 4 GiB footprint and 1 GiB new output; no fit or
+network. Stop on prior hash/support/resource/STOP conditions. This further
+extension is proposed and exploratory under existing execution authority.
