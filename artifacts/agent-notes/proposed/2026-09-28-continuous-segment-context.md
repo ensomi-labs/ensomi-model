@@ -243,3 +243,40 @@ preplanned multi-seed/native-H evaluation remain necessary before deciding this
 small-exposure context comparison; the step64negative result is retained, not
 rescored into success. Continue from the successful64optimizer/RNG states under
 the unchanged fit plan. Source code remains frozen during worker execution.
+
+## Terminal backend failure and user-directed fresh-expert priority
+
+Controller33018 is terminal exit1: worker112–128died by SIGABRT in
+MPSNDArrayConvolutionA14.mm:4629, "Weights tensor and ndArray input channel
+mismatch". Last logged update121, last durable checkpoint112. The last logged
+footprint was6.838GB, so no memory-limit attribution is established. The cause
+is not yet isolated. The failed worker/log/steps remain; no restart was attempted.
+Step112code-only SHA3b9c084612ca1f66e5af904db07cd3f5acb27419a42d105ac14511402bef5c65;
+continuous9f519446cedfa0a1f43e58da089fbdefa4f714066e17d3b4e1420bf09b6e8dd7.
+All earlier workers completed with verified optimizer/RNG checkpoints.256updates
+were not reached; the comparison remains exploratory/incomplete.
+
+Fixed-prefix control probe3081completed exit0, plan
+21075d14209be8b60441f2948624ada4fb1b0cf07c75245fa269dbe9e2fe9060.
+It starts a new16s LN scope at one actual H in each of STYX/Kimi/Celestial,
+uses requested ratios .05/.15/.5/.8, and scores each fixed prefix without new
+counterfactual action labels. On ranked prefixes, expected LN/head shares remain
+about .0255/.0493/.0255 for code-only and .0206/.0370/.0392 for continuous across
+the request range. Generated prefixes give much higher shares, up to .57;
+those histories also differ physically, so this is not an isolated neural-
+history attribution. It demonstrates weak local control response in these cases,
+not globally absent control sensitivity or complete scoped-output response.
+
+inspection-64-v1 rendered20generated pages. Four Kimi pages were actually read:
+code-only is all TAP in the fixed scope; continuous begins with a held role and
+repeated jump/single organization but then becomes short/medium LN fragments.
+The remaining16pages are unreviewed. Partial role organization does not cancel
+the numeric failures. Inspection plan
+a2abbce501c6dd150ef350540d45e77fb7e2334892a349e73ebb0d8c86c99d3f.
+
+The user now explicitly requests a new recipe and freshly initialized relevant
+modules for an ordinary4star expert, then fusion. That becomes the primary
+research direction under the unchanged ultimate2–6star/style/control/realtime
+goal. Preserve this incomplete pair as a baseline; do not automatically resume
+it or let its slightly better NLL determine the new direction. No model was
+promoted. All model processes are terminal at this handoff.
