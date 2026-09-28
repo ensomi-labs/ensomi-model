@@ -148,3 +148,16 @@ retain their existing importance weights. Record removed unlabelled duration
 and every exclusion in preparation. BOS auxiliaries remain natural-branch
 draws only. This common recipe correction is not attributed to continuous
 context in the matched comparison.
+
+## Frozen preparation
+
+Product4c8463a2028cc451a06aeabc302e20673522ed77 includes the context path
+and supervision-owned partition helper.15segment checks pass3.26s, plus
+16joint-release/guidance/frontier checks3.30s. No model process was live during
+these source edits. Frozen prepare plan SHA
+ae57ef344d0bd17536635cb204c05e3c5af13415f4c1936c13455f90be84f748
+owns artifacts/joint-audio/20260928-continuous-segment-context-v1/prepared-v1.
+Preparation validates actual segment support before fitting, records excluded
+source pieces and supervises true BOS pieces only from natural draws. It also
+pins the imported factual-data helper. CPU2,1200s preparation bound, exclusive
+output, no overwrite or automatic restart. Model training has not started.
