@@ -93,7 +93,7 @@ and proposal log probabilities are not selected-policy probabilities.
 
 ## Experiment Card: ordinary-fresh-bootstrap-v1
 
-Revision: 3
+Revision: 4
 Accepted revision: none
 
 First establish a reproducible positive population from the existing1973ranked
@@ -202,3 +202,28 @@ joint gradients and dense/native scoring with retained history. git diff--check
 passed. No remote publication, promoted model or benchmark-path change occurred.
 Card remains proposed with no accepted revision; local work proceeds under the
 user's explicit training authority, so resulting evidence is exploratory.
+
+## Backend results and revision4 capacity fit
+
+Both16-update profiles completed. CPU took8.9145s with peak1,854,753,168bytes;
+MPS took13.9925s with peak3,877,784,576bytes. Maximum paired per-step H and R1
+NLL/second differences were .000349 and .000774. MPS driver memory settled at
+1,648,427,008bytes on the repeated shape cycle. This is not proof the earlier
+variable-shape assertion is fixed. CPU4threads is selected for the small fit.
+The actual model has4,782,754learned parameters, all trainable.
+
+The capacity run starts fresh again, not from either profile checkpoint. It
+uses32seeded permutations of all16units (512updates), draw seed290030 and the
+same constructor seed, optimizer, full-audio joint loss and conditions. Resource
+bounds are900s/8GiB, output capacity-fit-v1, no automatic retry, one final
+durable checkpoint with optimizer and RNG. Before/after diagnostics score all
+16fit units. The capacity-fit-plan.json SHA is
+fdddc82c3537833d5f789e8e0d3a9a8b2aa1df270f293ab80153a11a145cca51.
+
+A20percent reduction in both mean H and row factual NLL/second is a capacity
+screen, not success. Inspect actual source-H and native-H generated continuations
+and keep short-tail, RH, repetition, role continuity and rhythm observations
+separate. Teacher-prefix/source-H continuations can distinguish source learning
+from policy-induced-prefix drift. No generated-chart quality is established by
+the backend comparison or by fitting these deliberately oversampled units.
+Do not scale or fuse solely because the loss falls.
