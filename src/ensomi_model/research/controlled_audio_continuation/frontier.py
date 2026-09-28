@@ -2,7 +2,8 @@
 
 The selected trajectory has a different law from native row sampling. Native
 row log probabilities remain proposal probabilities, not selected-policy scores.
-This first planner uses sustained attacks only; it does not certify total demand.
+Attack-only and action-transition references are distinct partial response
+models. Neither certifies musical/style quality or complete gameplay demand.
 """
 from dataclasses import dataclass
 import time
@@ -12,6 +13,7 @@ import torch
 
 from ..player_response.envelope import sustained_response
 from ..player_response.state import CommittedPlayState
+from ..player_response.action_response import ActionEnvelope, ActionResponseState, action_response
 from ..scoped_style_modeling.dataset import ContractError
 
 
@@ -28,6 +30,13 @@ class FrontierPlanning:
             raise ContractError('Frontier planning requires positive time/candidate bounds and a covered publication')
 
 
+class NoAcceptableContinuation(RuntimeError):
+    """No private candidate met the declared response reference; nothing commits."""
+    def __init__(self, decision):
+        self.decision = decision
+        super().__init__('Candidate budget exhausted without an acceptable continuation')
+
+
 class ResponsePlanner:
     """Own one publication boundary and choose among bounded private futures.
 
@@ -39,8 +48,9 @@ class ResponsePlanner:
     def __init__(self, session, envelope, *, seed, config=FrontierPlanning()):
         self.session, self.envelope, self.config = session, envelope, config
         self.rng = np.random.default_rng(seed ^ 0x6F17)
-        self.state = (CommittedPlayState.from_rows(session.rows, session.coverage)
-                      if session.coverage >= 0 else CommittedPlayState())
+        self.state_type = ActionResponseState if isinstance(envelope,ActionEnvelope) else CommittedPlayState
+        self.state = (self.state_type.from_rows(session.rows, session.coverage)
+                      if session.coverage >= 0 else self.state_type())
         self.decisions = []
 
     def update_controls(self, span):
@@ -52,8 +62,10 @@ class ResponsePlanner:
 
         The session's original wall-clock/row limits cover all private proposals.
         Exceptions leave the last published session and demand state unchanged.
-        An exhausted candidate budget selects the least excess found; it does
-        not guarantee a zero-cost or playable continuation.
+        NoAcceptableContinuation retains the published session/state and a
+        decision record when all candidates fail. The caller must explicitly
+        recover within its runtime budget; a least-bad failure is never silently
+        published. Zero reference excess still does not establish musical quality.
         """
         while self.session.coverage < min(end_ms, self.session.duration_ms):
             current = self.session
@@ -71,20 +83,26 @@ class ResponsePlanner:
                 prefix = proposal.fork()
                 proposal.publish_to(forecast_end)
                 future = proposal.rows[len(current.rows):]
-                _, report = sustained_response(self.state, future, forecast_end, self.envelope, ranges)
+                response = action_response if isinstance(self.envelope,ActionEnvelope) else sustained_response
+                _, report = response(self.state, future, forecast_end, self.envelope, ranges)
                 cost = report['excess_seconds']
                 if not np.isfinite(cost):
                     raise ContractError('A frontier proposal has nonfinite response cost')
-                proposals.append(dict(index=i, retry_seed=retry_seed, **report))
-                if cost < best_cost:
+                acceptable = report.get('acceptable',cost == 0.)
+                proposals.append(dict(index=i, retry_seed=retry_seed, **report, accepted=acceptable))
+                if acceptable and cost < best_cost:
                     best, best_cost, selected = prefix, cost, i
-                if cost == 0.:
+                if acceptable:
                     break
+            decision = dict(start_ms=start, publication_end_ms=publish_end,
+                forecast_end_ms=forecast_end, selected=None if best is None else selected,
+                proposals=proposals, service_seconds=time.perf_counter()-tick)
+            if best is None:
+                self.decisions.append(decision)
+                raise NoAcceptableContinuation(decision)
             state = self.state
             for row in best.rows[len(current.rows):]:
                 state = state.observe(row)
             self.state, self.session = state.advance(publish_end), best
-            self.decisions.append(dict(start_ms=start, publication_end_ms=publish_end,
-                forecast_end_ms=forecast_end, selected=selected, proposals=proposals,
-                service_seconds=time.perf_counter()-tick))
+            self.decisions.append(decision)
         return self.session.coverage

@@ -1,0 +1,86 @@
+import numpy as np
+import pytest
+
+from ensomi_model.research.oracle_time_continuation.schema import CompleteRow
+from ensomi_model.research.player_response.action_response import (
+    ActionResponseState, ActionEnvelope, KINDS, SLICES, TAUS_MS,
+    transition_impulses, source_peaks, action_response,
+)
+from ensomi_model.research.player_response.state import CommittedPlayState
+from ensomi_model.research.player_response.envelope import AttackEnvelope,sustained_response
+
+
+def tap(t, lane=0):
+    return CompleteRow(t,tuple(int(c == lane) for c in range(4)))
+
+
+def reference(value=1.):
+    return ActionEnvelope((2.,6.),tuple(np.full((2,len(TAUS_MS),len(KINDS)),value).tolist()),'fixture')
+
+
+def test_incremental_state_matches_vector_calibration_and_split_silence():
+    rows=[CompleteRow(0,(2,0,0,0)),tap(100,1),CompleteRow(400,(3,1,0,0)),
+          tap(450),tap(1000),tap(1050),tap(16000,3),tap(20000,2)]
+    state=ActionResponseState();peak=np.zeros_like(state.values);impulses=[]
+    for row in rows:
+        before=state.advance(row.time_ms).values
+        state=state.observe(row)
+        impulses.append((state.values-before)*np.asarray(TAUS_MS)[:,None]/1000)
+        peak=np.maximum(peak,state.values)
+    np.testing.assert_allclose(np.array(impulses)[:,0],transition_impulses(
+        [r.time_ms for r in rows],[r.actions for r in rows]),atol=1e-12)
+    np.testing.assert_allclose(source_peaks([r.time_ms for r in rows],[r.actions for r in rows]),
+        np.stack([peak[:,s].max(-1) for s in SLICES],-1),rtol=1e-12,atol=1e-12)
+    np.testing.assert_allclose(state.advance(30000).values,state.advance(24000).advance(30000).values)
+
+
+def test_old_attack_score_cannot_see_release_recovery_but_action_response_can():
+    # Identical LN press/next attack; only the preceding real release moves.
+    charts=[[CompleteRow(0,(2,0,0,0)),CompleteRow(r,(3,0,0,0)),tap(500)]
+            for r in (200,475)]
+    old=AttackEnvelope((1000.,),(2.,6.),((10.,),(10.,)),'loose')
+    old_reports=[sustained_response(CommittedPlayState(),c,1500,old,[(-1,1500,4.)])[1] for c in charts]
+    assert old_reports[0] == old_reports[1]
+    states=[ActionResponseState.from_rows(c,500) for c in charts]
+    assert states[1].values[0,8] > states[0].values[0,8]*10
+    limit=np.full((2,len(TAUS_MS),len(KINDS)),1000.)
+    limit[:,:,2]=2.
+    env=ActionEnvelope((2.,6.),tuple(limit.tolist()),'RH-fixture')
+    reports=[action_response(ActionResponseState(),c,1500,env,[(-1,1500,4.)])[1] for c in charts]
+    assert reports[0]['acceptable'] and not reports[1]['acceptable']
+    assert reports[1]['ranges'][0]['excess_by_kind']['RH_speed'] > 0
+
+
+def test_one_interruption_does_not_clear_accumulated_finger_load():
+    crowded=[tap(i*125) for i in range(16)]
+    spread=[tap(i*125,i%4) for i in range(16)]
+    a,b=[ActionResponseState.from_rows(rows,1900) for rows in (crowded,spread)]
+    a_next=a.observe(tap(2000,1))
+    assert a_next.values[2,4] > b.values[2,4]*2
+    assert a_next.values[2,4] == pytest.approx(a.values[2,4]*np.exp(-100/4000))
+
+
+def test_open_hold_retains_capacity_and_partner_role_through_silence():
+    held=ActionResponseState.from_rows([CompleteRow(0,(2,0,0,0))],2000)
+    assert held.replay.occupancy == (True,False,False,False)
+    next_state=held.observe(tap(2100,1))
+    assert next_state.values[0,25] == 4
+    assert next_state.replay.open_ln_start_ms[0] == 0
+
+
+def test_mirror_and_horizon_partition_preserve_the_same_response():
+    rows=[tap(100),tap(200),CompleteRow(300,(2,0,0,0)),CompleteRow(400,(3,0,0,0)),tap(425)]
+    env=reference()
+    full,report=action_response(ActionResponseState(),rows,1500,env,[(-1,1500,4.)])
+    prefix,left=action_response(ActionResponseState(),rows[:3],350,env,[(-1,350,4.)])
+    _,right=action_response(prefix,rows[3:],1500,env,[(350,1500,4.)])
+    mirror=[CompleteRow(r.time_ms,r.actions[::-1]) for r in rows]
+    _,reflected=action_response(ActionResponseState(),mirror,1500,env,[(-1,1500,4.)])
+    assert report['excess_seconds'] == pytest.approx(left['excess_seconds']+right['excess_seconds'])
+    assert report['excess_seconds'] == pytest.approx(reflected['excess_seconds'])
+    assert full.replay.occupancy == (False,)*4
+
+
+def test_missing_request_is_unscored_not_a_safe_zero():
+    _,report=action_response(ActionResponseState(),[tap(100)],500,reference(),[(-1,500,None)])
+    assert not report['fully_scored'] and not report['acceptable']

@@ -1,7 +1,10 @@
 import numpy as np
 import torch
+import pytest
 
-from ensomi_model.research.controlled_audio_continuation.frontier import ResponsePlanner, FrontierPlanning
+from ensomi_model.research.controlled_audio_continuation.frontier import (
+    ResponsePlanner, FrontierPlanning, NoAcceptableContinuation,
+)
 from ensomi_model.research.controlled_audio_continuation.generation import ControlledSession
 from ensomi_model.research.player_response.envelope import AttackEnvelope
 from ensomi_model.research.player_response.state import CommittedPlayState
@@ -36,17 +39,18 @@ def test_zero_response_preserves_native_trajectory_despite_private_lookahead():
     assert all(len(d['proposals']) == 1 for d in planner.decisions)
 
 
-def test_selection_is_bounded_and_only_selected_prefix_updates_demand_state():
+def test_all_failed_candidates_preserve_published_history_and_do_not_commit_the_least_bad():
     _, start = sessions()
     reference = AttackEnvelope((1000., 4000.), (2., 6.), ((.5, .5), (.5, .5)), 'strict-fixture')
     planner = ResponsePlanner(start, reference, seed=83, config=FrontierPlanning(maximum_candidates=3))
-    planner.publish_to(2000)
+    before=planner.state
+    with pytest.raises(NoAcceptableContinuation):
+        planner.publish_to(2000)
     decision = planner.decisions[0]
     assert len(decision['proposals']) == 3
-    scores = [p['excess_seconds'] for p in decision['proposals']]
-    assert scores[decision['selected']] == min(scores)
-    assert planner.state == CommittedPlayState.from_rows(planner.session.rows, 2000)
+    assert decision['selected'] is None
+    assert all(p['excess_seconds'] > 0 and not p['accepted'] for p in decision['proposals'])
+    assert planner.state is before and planner.session is start
     assert planner.state.replay == planner.session.replay
-    assert all(r.time_ms <= 2000 for r in planner.state.rows)
     assert start.rows == [] and start.coverage == -1
     assert decision['forecast_end_ms'] == 4000
