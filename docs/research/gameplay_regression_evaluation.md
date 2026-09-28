@@ -179,6 +179,25 @@ specialist short-LN counterexamples; rare valid shapes do not describe the
 center of the ordinary conditional distribution. Neither its quantiles nor
 its grid descriptors are automatic rejection rules.
 
+## Corpus-calibrated short-LN exposure
+
+The [short-LN observer](../../src/ensomi_model/research/gameplay_evaluation/ln_fragmentation.py)
+measures LN heads with a resolved duration at or below a declared coordinate,
+divided by all heads in the same scope. It also reports the LN-only denominator.
+An 80ms coordinate describes prevalence; it is not a ban on any single hold.
+Actual tails are read even when they extend beyond the head scope, and the
+report declares that dependency. Do not use it as a causal player-state value.
+
+Its ranked reference fits an upper prevalence quantile with equal song-group,
+then equal chart weight inside the declared difficulty band. An explicit LN
+request selects a source amount stratum; an unspecified request uses the
+natural mixture. Generated realized amounts must not choose their own reference.
+The calibration sample's exceedance is reported and is not a held-out error
+guarantee. This observer can expose a concentrated short-LN regression while
+amount, long-tail/coverage, style, musical organization and runtime checks remain
+independent. Reducing the number of LNs or lengthening every tail cannot alone
+qualify the complete model.
+
 ## Consecutive head membership
 
 The scope field head_recurrence records whether a finger keeps participating in
