@@ -250,3 +250,43 @@ same three native witnesses, source comparisons and all other quality/runtime
 guards for subsequent evaluation; no milestone is an automatic promotion.
 No MPS fit begins while the old supervisor remains active. The follow-up is
 exploratory and explicitly user-authorized; Accepted revision remains none.
+
+## Revision-three result
+
+Continuation session49229 completed normally:64additional updates, total80,
+321.306296s, peakfootprint4,132,098,296bytes. Strict reload and shared gradient
+roots passed. CheckpointSHA b57934728a77abfef0d4bd1ea6387d7cb6f8582c6e450bdd890bfeb1d380ebd6;
+plan347be2ef030c9538ef6248fc49fecf04087b1d914d5e98ad286602ea32385635;
+source slice b77b818756fdec067f614f59f0bc0f57b8a8a92f9ddc592ff039c417f670af4a.
+No run remains in this segment; do not restart it.
+
+Native80 session92085 completed all3cases,202.49s, all overall failed.
+Plan288c19603adf75674828e8e63dd552f891a0f562d663cc70af598cffaaa7d389.
+STYX/Blizzard/Stream stars3.69055/4.35911/5.82521, rho.6875/.64506/.42449,
+B80.03864/.07374/.06561. All B80pass; both specified LN amounts fail, and
+Stream difficulty fails. First30rows+8s startup2.247/1.838/2.270s; all traces
+have2lookahead deadline misses; max2s service1.270/1.210/1.330s. Keep failures.
+No source/native generation was rerun merely to obtain a lower latency.
+
+All8fixed Lens80pages were read; session59082 is terminal. STYX regains
+short held roles and repeated col1 entries; Blizzard has more sustained LN
+interplay than step16 but some quick returns/unequal endings. Stream remains
+short/medium LN interplay with later longer overlaps, not requested prominent
+TAP Stream. Whole B80can pass while local LN organization remains poor.
+Do not apply whole-chart reference quantiles directly to short windows.
+
+The pilot16 support replay completed after a summary-key renaming defect was
+repaired in a separate preserved v2script. Ownership plan
+1e6f3a4e31bdb4facd746620b6f156b15e97e83d5142f679c709b3144f2cd19f
+is the original; actual v2plan/outputs remain under the same owner.
+Pilot Stream medianLN191ms versus parent73ms;130/1842LN tails land at nonterminal
+forced deadlines versus0/4382before. The old conditional law lacked the same
+explicit atom, so this difference alone is not a count of bad patterns.
+All 21/14/130nonterminal forced tails in STYX/Blizzard/Stream include both short
+and long holds. Counts are per LN object, not number of release rows.
+
+Decision: REFINE. The shared wait/mark law fixes a real decision asymmetry and
+learns, but this recipe is not qualified. Do not scale it automatically or
+promote on B80. H's missing shared rhythmic relationships and birth/release
+control calibration remain live causes. Hierarchical-H reasoning and its
+chart-only diagnostic now have a separate proposed owning Note.
