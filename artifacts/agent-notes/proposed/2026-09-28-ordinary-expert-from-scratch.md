@@ -4,8 +4,8 @@ Note ID: 2026-09-28-ordinary-expert-from-scratch
 Status: proposed
 Kind: research
 Created: 2026-09-28
-Updated: 2026-09-28
-Product revision: 4c8463a2028cc451a06aeabc302e20673522ed77
+Updated: 2026-09-29
+Product revision: d6eba238ff3872613c6bfe84b75c5e867c881634
 Scope: Fresh ordinary-chart recipe, positive corpus, independent failure evaluation and continuation-level fusion
 Related: 2026-09-28-continuous-segment-context; 2026-09-28-response-blindspot
 
@@ -93,7 +93,7 @@ and proposal log probabilities are not selected-policy probabilities.
 
 ## Experiment Card: ordinary-fresh-bootstrap-v1
 
-Revision: 2
+Revision: 3
 Accepted revision: none
 
 First establish a reproducible positive population from the existing1973ranked
@@ -132,3 +132,73 @@ Revision2resolves its actual AudioFilename and byte hash from the named source
 All other inputs, source band, split and metrics remain unchanged. New exclusive
 scout-v2 and scout-plan-v2.json pin this fallback; this is an explicit revised
 run after a diagnosed missing-entry error, not automatic restart.
+
+## Source scout and inspection results
+
+scout-v2 failed because the fallback reused the preceding chart's timing/action
+arrays; this was a script error, not a source disagreement. scout-v3 fixed that
+assignment and completed all1973sources. Its plan SHA is
+697cb524498cb9c57e22fdb4642d81e36a56d9092d4792268611e4d1039ab1fc.
+Connected song/audio components yield1602train charts/1313components,
+361validation/295components and10reserved/6components. One uncached source
+remains in the population with explicit missing cache fields. No label-based
+selection preceded this split.
+
+Training-component weighted maximum same-finger4s attack counts have q75=21,
+q99=23;8s counts q75=37,q99=43. These describe this star band, not universal
+physiological limits. The provisional comfortable pool has1139cached train
+charts with noLN or same-columnRH at most40ms and attack peaks below both q75
+values. This is a teaching selection; it does not reject other ranked styles.
+
+Thirteen Lens pages were inspected, including a replacement TAP source. Selected
+capacity anchors are Dawn4.00255star, Sulyvahn3.99303star, mumei3.98959star and
+Kill The Beat3.76671star. They exhibit moving TAPs, a sustained LN with other
+finger TAPs, role transfer and regular high-coverage LN units. The observations
+cover named source scopes, not every event in these charts; they are not human
+gold labels or audio audition. HEAVENLY MOON4.00130star is retained as a deliberate
+moderate chordjack contrast:16consecutive H on one column at162–163ms. Its4s
+peak19is lower than Dawn's20. Counts alone therefore cannot identify the
+desired flowing default, and a real ranked jack is not automatically BAD.
+
+Frozen capacity-data-v1 has4songs and16four-second units: onset from empty
+history, two consecutive inspected-organization blocks, and a low-activity
+block per song. Whole-song stars and LN-head fraction remain constant conditions;
+style is missing. Equal-song complete-Mel moments supply new normalization.
+No learned tensor or optimizer comes from an old checkpoint.
+Data SHA931740ffde5785f14a2c247609d6a56e5b15e0ef9a68683538dad9434bc29322;
+normalization SHAf37ec1c8d4ce724a5e9e692a55243fddb860da06b84fbb47078d3531093dee5f;
+inspection record SHA38b0b56baa2b91a116638cea01903a3ccdad8fd4d86fc56e8d53c0ede1b22a15.
+
+## Revision3 backend and capacity entry
+
+Clean product d6eba238ff3872613c6bfe84b75c5e867c881634 implements fresh
+audio/H/R1 constructors, joint source H plus complete R/R1 likelihood, optional
+retained local row history across plans, and causal padded long-prefix encoding.
+The fresh default uses128hidden/64local-audio/96global-audio widths,2global
+attention layers,192row hidden,32continuous plan width and one categorical state.
+H is unbounded; R1 owns releases and row geometry. All learned parameters are
+trainable. HH20/RH1/HR1describe syntactic support; RH/HR1are not acceptable-play
+claims. Independent failure evals remain necessary.
+
+The first comparison runs the same16updates in separate fresh CPU4thread and
+MPS2thread processes, constructor seed290029, AdamW3e-4/weight decay1e-4,
+joint negative log probability per elapsed second, gradient clip5. Recompute
+full-audio encodings for every update. Use no count feedback, response energy,
+pretrained H, local difficulty proxy or source endpoint hints. Each process
+has240s and16GiB physical-footprint bounds and a STOP file. Outputs are exclusive
+profile-cpu-v1/profile-mps-v1; no automatic retry or overwrite. Any nonfinite
+loss/gradient, backend assertion or resource guard terminates that arm.
+CPU plan SHAa461d81a19a5338235c999ad295a4558c63deda4afdaa27831f038873a8db29c;
+MPS plan SHA314c443ae71ccdc764c7fbedbabd95573675f78911674a4f958aadb162b527f7.
+Compare matching objective trajectories, update time and physical/active/driver
+memory, not just final NLL. Finite completed updates within bounds only establish
+this backend slice. A further capacity fit requires its own pinned plan and
+actual native/source-H output inspection; neither these16units nor their NLL
+are a held-out quality result.
+
+Selected local checks:38tests passed in6.18s across segment continuation and
+planned distribution tests, including fresh initialization, both H modes,
+joint gradients and dense/native scoring with retained history. git diff--check
+passed. No remote publication, promoted model or benchmark-path change occurred.
+Card remains proposed with no accepted revision; local work proceeds under the
+user's explicit training authority, so resulting evidence is exploratory.
