@@ -201,3 +201,21 @@ Frozen fingerprints and strict checkpoint reloads passed. Continue the preplanne
 run to64from these completed optimizer/RNG states, then inspect actual source-H
 outputs before the final planned256updates. No model source changes occur while
 these workers are live.
+
+## Sixty-four updates completed
+
+Controller86999 is terminal exit0. The next three workers completed54.131,
+55.838and52.665s, peaks11.334/10.349/10.065GB. All optimizer/RNG resumes,
+frozen-weight fingerprints and checkpoint reloads passed. No growing process
+is left running between segments. The continuous projection norm reaches .4933;
+this shows parameter learning, not native quality.
+
+Freeze the already planned first-seed source-H comparison at64: six complete
+cases, actual4star STYX/Kimi/Celestial, same controls/seeds as the failed pilot,
+raw proposals, frozen40/80ms prevalence and independent response references.
+Native evaluation has180s per case and1200s overall; fixed factual/BOS validation
+uses300s. Both use CPU2 and clean product4c8463a2028cc451a06aeabc302e20673522ed77.
+The new scripts, actual checkpoint hashes and fresh native-64-source-H-v1 /
+validation-64-v1 outputs are pinned by native-64-plan.json and
+validation-64-plan.json in the owning artifact directory before execution.
+Metrics remain distinct; successful script completion cannot qualify a model.
