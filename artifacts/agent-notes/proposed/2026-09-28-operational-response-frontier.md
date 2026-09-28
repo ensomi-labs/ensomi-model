@@ -311,3 +311,9 @@ not permission to make it the baseline or to convert a Stream request into it.
 Lower short-LN burden, a plausible whole-star scalar, or a single long hold are
 insufficient; organized TAP motion and conditional style prevalence need their
 own assessment. No hard template/short-LN prohibition follows.
+
+Source-reference qualification: Zenithfall is5.87349stars, so its source-H
+diagnostic is not a proven4star-feasible reference and cannot assign pressure
+failures exclusively to R1. STYX/Blizzard are4.00441/3.92769stars. This distinction
+is incorporated into product33645c91437e39fe13ddfe977655e40828ab7a89, together
+with the partial joint-R/R1 trace scorer and its17passing CPU/MPS checks.

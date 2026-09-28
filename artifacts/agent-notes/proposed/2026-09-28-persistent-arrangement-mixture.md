@@ -92,3 +92,70 @@ fixed Lens witnesses remain separate by H source and control scope.
 Interpretation limits: this is a single development audio/seed; native histories
 change with the sampled condition. No unique causal percentage, population
 claim, autonomous prior competence, or quality adoption is permitted.
+
+## Completed persistent-scalar probe and interpretation
+
+Session6697 completed both runs and exited0. The empirical prior sampled
+LNfraction0 with seed282418; no hard LN exclusion or quantity feedback was used.
+Native-H stopped226000ms after55.601s; source-H stopped58000ms after22.192s.
+Their fixed[18335,23335) scopes contain25/54 and27/49LN heads. The source-H
+primary threshold.25 fails against its baseline51/52. Both remain incomplete.
+All actual common-prefix H timestamps exactly match the respective earlier
+baselines through146000/58000ms, independently checked from persisted rows.
+No NN training occurred and no actor/runtime is promoted.
+
+All four Lens pages were read. Native H has more TAP/chord groups but changing
+short/medium holds remain. Source H is LN-heavy on its first page; its second
+page develops a recognizable moving single-TAP run before returning to mixed
+holds. This is evidence of partial decoder capacity and condition response,
+not evidence that the full range is organized or that the scalar solves control.
+The original incomplete rows remain; inspection exports stop at actual empty-
+occupancy prefixes, without invented tails.
+
+A relevant confound is now explicit: Zenithfall's source is5.87349stars, with
+29LN among68heads in the fixed scope. Source H is not a certified4star-feasible
+skeleton and does not isolate sole R1 responsibility for pressure failure.
+STYX/Blizzard sources are4.00441/3.92769stars. The primary next architecture
+evaluation must use actual ordinary4star sources, including Kimi/Celestial
+held-role and TAP examples, rather than infer that capability solely from this
+higher-difficulty timing substitution.
+
+Plan d52ee75d1fb4be53b48866bbb268749cf109418f1d7e5657e163e4878bca433b.
+Prior73c0ccc4a3662bd29282d0b284de4892d13882828caea34f733e78d03842c556.
+Result4cf52d16d38c1ba9ec8210d5f3af790d1f33f927f3588da65bbd65fcdc4055f7.
+Analysis56b8826d24b6d3b9f35c470c5e23a770006fc7063b63ec812849e1b3e6f0dd38.
+Four-page review0a1a680657dd18958007c071fdf7e2c4bf6b2a68a5b469a8a361bee7ad3069a8.
+Experimental checks d649116a6ed2997f2f9ce9262f34fc8a38babaffaf14e16eca44e1ad3d5a4059.
+All live generation/render handles6697/56766are terminal exit0.
+
+REFINE. A scalar mixture is not enough; R1 needs a stronger joint organization
+choice and reliable transitions under its own reached states. It is not yet
+proved that a latent variable is necessary. The proposed direction is a genuine
+action-segment latent/decoder with explicit active-hold intent, full-audio/H/
+control input and exact physical state across segment boundaries. Avoid merely
+adding an ignorable bias to the old511-row teacher-history path. Source and
+posterior reconstruction, prior generation, and actual response-selected
+publication remain separate qualifications.
+
+Self-contained mathematical design and evidence are in
+docs/research/r1_ordinary_arrangement_redesign_zh.md at product
+33645c91437e39fe13ddfe977655e40828ab7a89. The action-segment model itself is
+not implemented or trained. No new Card for its exact fit has been frozen yet.
+
+That product commit also implements joint_trace.py: conditional actual R/R1
+trajectory likelihood includes every valid observed survival/event clock and
+chosen row, preserves open partial futures, and gives unit mass to forced
+deadline events while scoring their marks. Updating H/shared audio or a plan
+prior would additionally require the corresponding trajectory factors.
+This is preparation for correct outcome learning, not a playability fix.
+
+Final verification:17affected CPU/MPS tests passed3.28s, including source-factor
+and gradient agreement on an open future, exhaustive release-or-survival
+probability/gradient normalization, and additivity across empty intervals and
+control boundaries. The first MPS reference test tried adding GPUfloat32 and
+CPUfloat64 losses and failed; explicit differentiable CPU conversion corrected
+the test. No tolerance was relaxed. Native hazard accumulation uses CPUfloat64
+as in sample_hazards. All three changed documents' local links resolve and
+git diff--check passes. Product and note changes remain local; main's existing
+AGENTS.md and architecture walkthrough changes are preserved. Goal remains
+active and unmet; no NN process remains running.
