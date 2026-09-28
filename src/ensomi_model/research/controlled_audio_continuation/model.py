@@ -75,7 +75,7 @@ class ControlledAudioModel(PlannedAudioModel):
 
     def __init__(self, config, *, style_names=(), ln_reference=.17, recovery=Recovery(60, 50, 50),
                  count_history_bound=None, hold_audio_width=0, layout_modulation=False, player_state=False,
-                 ln_conditioning='reference_tilt', scope_allocation='none'):
+                 ln_conditioning='reference_tilt', scope_allocation='none', head_audio_modulation=False):
         super().__init__(config)
         self.style_names = tuple(style_names)
         self.ln_reference, self.recovery = ln_reference, recovery
@@ -116,6 +116,14 @@ class ControlledAudioModel(PlannedAudioModel):
         self.scope_allocation = (None if scope_allocation == 'none' else ScopedLnAllocation(
             config.conditioned_audio_width, config.hidden, self.preview_condition.in_features,
             width, 3+len(self.style_names), scope_allocation))
+        if type(head_audio_modulation) is not bool:
+            raise ValueError('Head audio modulation must be boolean')
+        if head_audio_modulation and not config.bounded_head:
+            raise ValueError('Head audio modulation requires the bounded audio base')
+        self.head_audio_modulation = (nn.Linear(width, config.conditioned_audio_width, bias=False)
+                                     if head_audio_modulation else None)
+        if self.head_audio_modulation is not None:
+            nn.init.zeros_(self.head_audio_modulation.weight)
 
     @property
     def requires_full_audio_queries(self):
@@ -145,9 +153,26 @@ class ControlledAudioModel(PlannedAudioModel):
             options['ln_conditioning'] = self.ln_conditioning
         if self.scope_allocation is not None:
             options['scope_allocation'] = self.scope_allocation_mode
+        if self.head_audio_modulation is not None:
+            options['head_audio_modulation'] = True
         return options
 
+    def controlled_head_parts(self, audio, history, clocks, *, control):
+        """Separate the actual conditioned audio base from its bounded history.
+
+        Scaling only the base lets a request reweight musical evidence without
+        changing the residual's history bound, decay, or input ownership.
+        """
+        base, residual, gate = super().head_parts(audio+self.head_control(control), history, clocks)
+        if self.head_audio_modulation is not None:
+            interaction = audio*self.head_audio_modulation(control).tanh()
+            base = base+nn.functional.linear(interaction, self.head_base.weight)
+        return base, residual, gate
+
     def head_logits(self, audio, history, clocks, *, control):
+        if self.head_audio_modulation is not None:
+            base, residual, _ = self.controlled_head_parts(audio, history, clocks, control=control)
+            return base+residual
         return super().head_logits(audio+self.head_control(control), history, clocks)
 
     def release_logits(self, audio, history, clocks, *, control, hold_audio=None):
