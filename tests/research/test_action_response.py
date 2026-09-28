@@ -5,6 +5,7 @@ from ensomi_model.research.oracle_time_continuation.schema import CompleteRow
 from ensomi_model.research.player_response.action_response import (
     ActionResponseState, ActionEnvelope, KINDS, SLICES, TAUS_MS,
     transition_impulses, source_peaks, action_response,
+    source_work, window_work_maxima, recovery_potential,
 )
 from ensomi_model.research.player_response.state import CommittedPlayState
 from ensomi_model.research.player_response.envelope import AttackEnvelope,sustained_response
@@ -84,3 +85,31 @@ def test_mirror_and_horizon_partition_preserve_the_same_response():
 def test_missing_request_is_unscored_not_a_safe_zero():
     _,report=action_response(ActionResponseState(),[tap(100)],500,reference(),[(-1,500,None)])
     assert not report['fully_scored'] and not report['acceptable']
+
+
+def test_added_work_matches_online_updates_and_the_recovery_energy_identity():
+    rows=[tap(100),tap(200),tap(300),tap(450)]
+    env=reference()
+    terminal,report=action_response(ActionResponseState(),rows,700,env,[(-1,700,4.)])
+    work=source_work([r.time_ms for r in rows],[r.actions for r in rows],env,4.)
+    assert sum(work) == pytest.approx(report['added_work'])
+    remaining=recovery_potential(terminal.values,env.limits(4.)).sum(-1).mean()
+    assert report['added_work'] == pytest.approx(report['excess_seconds']+remaining)
+    assert window_work_maxima([r.time_ms for r in rows],work,(2000,))[0] == pytest.approx(sum(work))
+
+
+def test_recovery_does_not_charge_the_future_for_already_committed_overload():
+    initial=ActionResponseState.from_rows([tap(i*50) for i in range(20)],1000)
+    env=ActionEnvelope((2.,6.),reference().maximum,'zero-addition', (4000.,), ((0.,),(0.,)))
+    _,report=action_response(initial,(),2000,env,[(1000,2000,4.)])
+    assert report['excess_seconds'] > 0
+    assert report['added_work'] == 0 and report['acceptable']
+
+
+def test_boundary_action_is_assessed_under_the_new_control_request():
+    maxima=np.stack((np.full((len(TAUS_MS),len(KINDS)),.1),
+                     np.full((len(TAUS_MS),len(KINDS)),1000.)))
+    env=ActionEnvelope((2.,6.),tuple(maxima.tolist()),'scopes',(4000.,),((0.,),(0.,)))
+    _,report=action_response(ActionResponseState(),[tap(500)],1000,env,[(-1,500,2.),(500,1000,6.)])
+    assert all(r['added_work'] == 0 for r in report['ranges'])
+    assert report['acceptable']

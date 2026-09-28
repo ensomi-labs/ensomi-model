@@ -144,12 +144,60 @@ def source_peaks(times, actions):
     return np.stack([peaks[:,s].max(-1) for s in SLICES], -1)
 
 
+def recovery_potential(values, limits):
+    """Future excess area if no additional actions occur, coordinate by coordinate."""
+    ratio = np.maximum(values/np.maximum(limits,1e-9)-1.,0.)
+    tau = np.asarray(TAUS_MS)/1000
+    tau = tau.reshape((len(TAUS_MS),)+(1,)*(np.ndim(values)-1))
+    return np.maximum(0.,tau*(.5*ratio**2-ratio+np.log1p(ratio)))
+
+
+def source_work(times, actions, envelope, stars):
+    """Per-row added recovery potential from a verified full source prefix.
+
+    This uses the same pre/post-action states as the online continuation.
+    Positive jumps include the consequence after a finite observation horizon,
+    without inventing any subsequent release or adding future source actions.
+    """
+    times = np.asarray(times,float)
+    impulses = transition_impulses(times,actions)
+    tau = np.asarray(TAUS_MS)[:,None,None]
+    limits = envelope.limits(stars)[:,None]
+    values = np.zeros((len(TAUS_MS),28))
+    work = np.zeros(len(times))
+    previous,first = -1.,0
+    while first < len(times):
+        stop = int(np.searchsorted(times,times[first]+8000,side='right'))
+        relative = times[first:stop]-times[first]
+        entering = values*np.exp(-(times[first]-previous)/tau[:,0])
+        exponent = np.exp(relative[None,:,None]/tau)
+        increments = impulses[None,first:stop]*1000/tau
+        after = (entering[:,None]+np.cumsum(exponent*increments,axis=1))/exponent
+        before = np.maximum(0.,after-increments)
+        work[first:stop] = np.maximum(0.,recovery_potential(after,limits)-
+            recovery_potential(before,limits)).sum(-1).mean(0)
+        values,previous,first = after[:,-1],times[stop-1],stop
+    return work
+
+
+def window_work_maxima(times, work, windows_ms):
+    """Maximum added work on each real-time (t-width,t] window, with inherited state."""
+    times,work = np.asarray(times,float),np.asarray(work,float)
+    if times.shape != work.shape or np.any(work < 0):
+        raise ValueError('Window work requires aligned nonnegative row charges')
+    cumulative = np.r_[0.,np.cumsum(work)]
+    return [float(np.max(cumulative[1:]-cumulative[
+        np.searchsorted(times,times-width,side='right')],initial=0.)) for width in windows_ms]
+
+
 @dataclass(frozen=True)
 class ActionEnvelope:
     """Ranked-chart response references, not an identified physiological C0."""
     stars: tuple
     maximum: tuple
     reference: str
+    work_windows_ms: tuple = ()
+    maximum_work: tuple = ()
 
     def __post_init__(self):
         values = np.asarray(self.maximum)
@@ -157,6 +205,14 @@ class ActionEnvelope:
                 or values.shape != (len(self.stars),len(TAUS_MS),len(KINDS))
                 or not np.isfinite(values).all() or np.any(values < 0)):
             raise ValueError('Action reference requires ordered levels and finite response coordinates')
+        if bool(self.work_windows_ms) != bool(self.maximum_work):
+            raise ValueError('Action work windows and budgets must be supplied together')
+        if self.work_windows_ms:
+            budgets=np.asarray(self.maximum_work)
+            if (budgets.shape != (len(self.stars),len(self.work_windows_ms))
+                    or not np.isfinite(budgets).all() or np.any(budgets < 0)
+                    or np.any(np.diff(self.work_windows_ms) <= 0) or self.work_windows_ms[0] <= 0):
+                raise ValueError('Action work calibration requires ordered positive horizons and finite budgets')
 
     def limits(self, stars):
         table = np.asarray(self.maximum).reshape(len(self.stars),-1)
@@ -166,6 +222,19 @@ class ActionEnvelope:
         for i,s in enumerate(SLICES):
             result[:,s] = kinds[:,i,None]
         return result
+
+    def work_limit(self, stars, horizon_ms):
+        """Use a calibrated enclosing horizon; beyond it use a covering-window bound.
+
+        No linear extrapolation turns a tiny request scope into a zero impulse
+        budget. This conservative duration lookup is explicit in each report.
+        """
+        if not self.work_windows_ms or horizon_ms <= 0:
+            raise ValueError('Added-work selection requires calibrated real-time horizons')
+        index = min(int(np.searchsorted(self.work_windows_ms,horizon_ms)),len(self.work_windows_ms)-1)
+        factor = max(1,int(np.ceil(horizon_ms/self.work_windows_ms[index])))
+        value = np.interp(stars,self.stars,np.asarray(self.maximum_work)[:,index])
+        return float(value*factor),float(self.work_windows_ms[index])
 
 
 def fit_action_envelope(stars, groups, peaks, *, knots, reference, quantile=.99, band_width=1.):
@@ -217,6 +286,7 @@ def action_response(state, continuation, end_ms, envelope, ranges):
             or any(r.time_ms <= state.time_ms or r.time_ms > end_ms for r in future)):
         raise ValueError('Action response needs a complete real-time horizon and ordered private rows')
     current, index, reports = state, 0, []
+    work_sums = np.zeros((len(ranges),len(TAUS_MS),28))
     tau = np.asarray(TAUS_MS)[:,None]/1000
     for begin,end,level in ranges:
         costs = np.zeros_like(current.values)
@@ -233,10 +303,19 @@ def action_response(state, continuation, end_ms, envelope, ranges):
                 costs += np.maximum(0., tau*(.5*ratio**2*(-np.expm1(-2*active/tau))
                     -2*ratio*(-np.expm1(-active/tau)))+active)
             if next_row is not None and stop == next_row.time_ms:
+                before = current.advance(stop).values
                 current = current.observe(next_row)
                 index += 1
-                if limits is not None:
+                if limits is not None and (stop < end or end == end_ms):
                     peak = np.maximum(peak,current.values/limits)
+                # A row on a control boundary belongs to the newly active
+                # half-open range; a final-horizon row uses its terminal range.
+                owner = min(int(np.searchsorted([r[1] for r in ranges],stop,side='right')),len(ranges)-1)
+                request = ranges[owner][2]
+                if request is not None:
+                    reference = envelope.limits(request)
+                    work_sums[owner] += np.maximum(0.,recovery_potential(current.values,reference)-
+                                                  recovery_potential(before,reference))
             else:
                 current = current.advance(stop)
         by_kind = {k:float(costs[:,s].sum(-1).mean()) for k,s in zip(KINDS,SLICES)}
@@ -244,6 +323,17 @@ def action_response(state, continuation, end_ms, envelope, ranges):
             excess_seconds=sum(by_kind.values()),excess_by_kind=by_kind,
             peak_ratio=None if limits is None else float(peak.max()),scored=level is not None))
     fully_scored = all(r['scored'] for r in reports)
+    for i,report in enumerate(reports):
+        by_kind = {k:float(work_sums[i,:,s].sum(-1).mean()) for k,s in zip(KINDS,SLICES)}
+        report.update(added_work=sum(by_kind.values()),work_by_kind=by_kind)
+        if envelope.work_windows_ms and report['scored']:
+            limit,width=envelope.work_limit(report['stars'],report['end_ms']-report['start_ms'])
+            report.update(work_limit=limit,reference_horizon_ms=width,
+                          work_accepted=report['added_work'] <= limit+1e-12)
+    acceptable = (fully_scored and all(r['work_accepted'] for r in reports) if envelope.work_windows_ms
+                  else fully_scored and all(r['peak_ratio'] <= 1 for r in reports))
     return current,dict(excess_seconds=sum(r['excess_seconds'] for r in reports),ranges=reports,
                         fully_scored=fully_scored,
-                        acceptable=fully_scored and all(r['peak_ratio'] <= 1 for r in reports))
+                        added_work=sum(r['added_work'] for r in reports),
+                        selection_cost=sum(r['added_work'] for r in reports),
+                        acceptable=acceptable)

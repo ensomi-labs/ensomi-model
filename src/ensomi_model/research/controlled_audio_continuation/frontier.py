@@ -85,7 +85,7 @@ class ResponsePlanner:
                 future = proposal.rows[len(current.rows):]
                 response = action_response if isinstance(self.envelope,ActionEnvelope) else sustained_response
                 _, report = response(self.state, future, forecast_end, self.envelope, ranges)
-                cost = report['excess_seconds']
+                cost = report.get('selection_cost',report['excess_seconds'])
                 if not np.isfinite(cost):
                     raise ContractError('A frontier proposal has nonfinite response cost')
                 acceptable = report.get('acceptable',cost == 0.)

@@ -97,6 +97,47 @@ Calibration is not an automatic human judgment: source false rejections,
 known generated failures, expressive LN/Tech controls and ordinary held-role
 examples must be checked before this reference can be used for a release.
 
+The first actual calibration used 5,556 charts and held out 1,368 charts by
+song group from a 6,924-chart ranked 2–6★ cohort. Independently requiring every
+coordinate to stay below its marginal 99th percentile rejected 113 held-out
+charts (8.3%), including two of nine previously inspected source controls.
+Although it detected several fixed generated failures, those source errors
+prevent adopting this pointwise acceptance rule.
+
+### Added recovery work
+
+A brief high response and sustained repeated loading should not be treated as
+the same event. Define the recovery potential $\Psi_D(z)$ as the integrated
+reference excess that remains if no further actions occur:
+
+$$
+\Psi_D(z)=\sum_{\tau,c}
+\frac{\tau}{|\mathcal T|}
+\left[\frac{a_{\tau,c}^2}{2}-a_{\tau,c}+\log(1+a_{\tau,c})\right],
+\qquad
+a_{\tau,c}=\max(z_{\tau,c}/r_{\tau,c}(D)-1,0).
+$$
+
+An action contributes
+$w_k=\Psi_{c(t_k)}(z_k^+)-\Psi_{c(t_k)}(z_k^-)$.
+The sum over a future measures newly added recovery work, rather than charging
+the candidate for overload that was already committed. It includes consequences
+after the forecast horizon without inventing later actions or LN endpoints.
+For a constant request it satisfies
+
+$$
+\sum_k w_k =
+\int_{t}^{e}\operatorname{excess}_D(z(s))\,ds
++\Psi_D(z(e))-\Psi_D(z(t)).
+$$
+
+This identity ties immediate decisions, accumulated state and a terminal value
+to one explicit response hypothesis. It remains an empirical model, not a
+physiological measurement. Its admissible work over real-time horizons is
+calibrated from ranked continuations separately from the coordinate references.
+Per-kind work remains inspectable. Short request ranges use a declared enclosing
+calibration horizon, not an unverified linear rescaling of an impulse budget.
+
 ## Candidate commitment
 
 [ResponsePlanner](../../src/ensomi_model/research/controlled_audio_continuation/frontier.py)
