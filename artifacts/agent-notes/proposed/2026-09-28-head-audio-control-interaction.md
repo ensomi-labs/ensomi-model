@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: de5d560ce06ca0185087488b982e15cab394b136
+Product revision: 0a74a198f73dec42753e0c92fb9c98ee298e4710
 Scope: H audio/control interaction, matched H learning and complete native regression
 Related: 2026-09-28-release-support-and-learning, 2026-09-27-head-control-hazard-probe, 2026-09-27-head-base-native-replay
 
@@ -244,3 +244,73 @@ likelihoods keep each chart/prefix/control consistent; a difficulty discriminati
 target belongs to justified complete-outcome labels or a proven infeasibility
 witness, not assumed one-to-one skeleton labels. This is a design constraint,
 not an additional intervention in the running study.
+
+## Completed native result and research decision
+
+All 56 new complete native cases finish, 28 per endpoint; the comparison
+reuses the 28 profile-only cases. Additive/modulated elapsed generation is
+568.94/561.38 seconds. All new cases preserve export/reparse identity and the
+sub-20-ms attack guard. Their case-ledger SHAs are
+32412569f7a85ae22041eb10e1e8175d5bdca6d2c278812751ca67e8f7d9d018
+and 1a7c4e9b59360c303a0cdf45a276e79496c9e44613488125365107b22200db11.
+The comparison SHA is
+0588d5f261ed887bb459f501e477f24bb41e318679d9c64d17e23edcf9260ee2.
+
+Profile/additive/modulated D2 whole-star MAE is
+1.38534246/1.61353541/1.78828426; mean mandatory-H floor excess above two is
+.40094021/.60124812/.53201561. Both primary criteria fail. D4 MAE is
+.56543489/.58943952/.51703959 and six rich-LN fraction MAE is
+.10634985/.08260302/.07479278, but D6 MAE worsens from .40625427 to
+.65667281/.72654674, failing the guard. Additive has four newly failed
+numeric checks, modulated two. No endpoint is promoted.
+
+Additive D2 Zenithfall seeds zero/one have H floors 3.27837775/3.12661473;
+modulated seed zero has 3.16875630. Even the upper edge of a 2±1 star band
+is infeasible for any row realization of those mandatory H plans. Modulated
+seed one's floor is 2.95930615, which does not establish that same band claim.
+The restored D3 range after the temporary D4.5/LN .6 override has scoped
+proxies 4.100745/4.527584. Without a static-D3 comparator, do not attribute
+the discrepancy specifically to lingering override effects.
+
+The main Lens review reads all forty pages, source plus both arms/two seeds
+for Classic, STYX and Blizzard. Receipt SHA
+3e655e5c36c855b0ec1e0b71602781da314efc85018690fa7494242717fba8d6.
+Persistent anchors and mixed TAP/LN still occur, but do not certify surrounding
+coordination. Blizzard often becomes nearly pure LN. Additional witnesses
+include modulated Stream's fourteen-head column-0 recurrence and additive
+Trill's 29 solo TAPs over 3390 ms, median head gap 120.5 ms. The modulated
+Trill run is shorter yet sustained attack excess is much worse; maximum run
+length is not a sufficient quality order.
+
+The original worst-D2/additional-review queue was not completed. Human
+steering prioritized deeper matched-ranked coordination analysis and allows
+restarting the architecture/recipe instead of repairing inherited weights.
+The follow-up Note 2026-09-28-coordination-frontier-and-ranked-contrasts owns
+that work, including these LN and recurrence contexts. This is not a full
+semantic pass or fulfilment of every originally planned review item.
+
+Before comparison execution, its whole-rating bound assertion was found to
+apply to a mixed-control case with no whole-rating field. Version two omits
+that inapplicable assertion; original scripts/plans remain preserved. The
+revised analysis-plan SHA is
+f73b31d965e7cca208e54e4f09b02da62b96dac2770aee8204befad9b794b47f.
+No acceptance criterion, checkpoint or output was changed.
+
+Maximum two-second startup/service is .910074/.393722 seconds additive and
+.909352/.478564 modulated. Rendering overlaps some late modulated cases;
+do not treat elapsed differences as isolated speed gains. The separate
+30-row/eight-second benchmark was not run and its worktree is unchanged.
+
+Recommendation: REFINE, not SUPPORTED. The matched H-only recipe did not
+establish low-difficulty or feasibility benefit despite better validation
+NLL and a learned mixed audio/control effect. Do not scale it unchanged or
+promote the D4 average. Frozen audio and sparse genuine-alternative exposure
+remain limits of this intervention; broader joint conditioning is not
+disproved. Curated result owner: docs/research/head_audio_control_interaction.md.
+No new fit is selected or running at this boundary.
+
+Completed result prose is committed at
+0a74a198f73dec42753e0c92fb9c98ee298e4710; executable intervention and tests
+remain de5d560ce06ca0185087488b982e15cab394b136. The documentation commit
+does not change weights, probability law, selected model or benchmark.
+Local-only publication; this Note remains proposed with no accepted revision.
