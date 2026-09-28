@@ -35,7 +35,7 @@ conditioning related to the earlier MusicVAE/ACT analogues, not a novelty claim.
 
 ## Experiment Card: continuous-segment-context-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 
 Baseline source9c6d53198457d2a66c6158af1c8a431cf24c2896 and K1step32 SHA
@@ -71,11 +71,11 @@ No source suffix is attached to altered generated history. All R survival,
 event and complete-row factors use the same continuous plan context.
 
 Training bound:256updates,4general draws plus1BOS auxiliary per update, seed
-281901. MPS with explicit extra, CPU2,32-update fresh-process segments carrying
+281901. MPS with explicit extra, CPU2,16-update fresh-process segments carrying
 complete optimizer/RNG state; lr3e-4for new decoder/plan paths,3e-5for inherited
 condition/history paths and1e-3for release scale, AdamW wd1e-4,clip1. A first
-32-update segment is the resource/learning profile. At most3600s total,
-32GiB task footprint per worker and8GiB saved output. Stop on nonfinite values,
+16-update segment is the resource/learning profile. At most3600s total,
+16GiB task footprint per worker and8GiB saved output. Stop on nonfinite values,
 source/hash drift, native replay inconsistency, STOP or resource bounds.
 No overwrite/restart after terminal failure. A controller resumes only verified
 successful saved optimizer/RNG boundaries; it does not restart a timed-out
@@ -111,3 +111,19 @@ agree. Native cached sampling and dense joint scoring agree across plan cuts,
 including open holds. Fork/control changes preserve immutable context ownership.
 Partial scoring retains the original plan condition; it must not recompute a
 new context from a shorter observed future.
+
+## Revision-two implementation and resource contract
+
+The actual host has24GiB physical memory and10logical CPUs. Use16updates per
+worker and16GiB footprint, retaining the256update/3600s total bound. Both arms
+start from parent tensors with fresh matched AdamW state; subsequent worker
+boundaries restore the complete optimizer and RNG states. Resetting both initial
+optimizers is shared preparation, not the causal architecture difference.
+
+Implementation adds a per-hand continuous projection to the existing two FiLM
+layers, initialized at zero. Native and dense scoring share its original plan
+extent. Old checkpoints keep the original law.14segment checks passed3.10s,
+including CPU/MPS K1context gradients, fixed-local-input future-context effect,
+reflection, actual native/dense R/R1 agreement and censored plan-prefix scoring.
+The new path uses the already-existing plan trunk, with shared hand weights;
+there is no extra per-row audio pass, invented release endpoint or H action head.
