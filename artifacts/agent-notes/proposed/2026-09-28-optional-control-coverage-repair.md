@@ -82,3 +82,15 @@ source slice with versus without this paired view. Do not simply hide all
 controls on balanced data, force Stream LNratio0 at inference, or promote from
 teacher-state odds/NLL. Native pressure, amount, ordinary role organization,
 rhythm and runtime remain independent required checks.
+
+## Probe result
+
+Session59289completed exit0 in5.458s:14distinct source/intervals,15separate
+effective control ranges. ResultSHA
+70aad40f93e8958f1601de649ff24fc0c61f3e731c4024276145cb0ce88258b6.
+Hidden-minus-known expected LN-head fraction median.0025786, max.0253596,
+min-.0044471. Factual TAP Stream states still predict predominantly TAP.
+This supports a real coverage defect but rejects it as a sufficient account
+of the huge native LN bias. No matched NN fine-tune was launched on a false
+primary-cause claim. Query-view support stays available for the next sound
+recipe; native-prefix/timing/proposal corrections now have higher priority.

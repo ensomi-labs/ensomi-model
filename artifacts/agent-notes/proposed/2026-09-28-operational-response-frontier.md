@@ -56,7 +56,7 @@ exploratory, not a retrospectively accepted intervention.
 
 ## Experiment Card: action-response-calibration-v1
 
-Revision: 4
+Revision: 5
 Accepted revision: none
 Execution authority: explicit current user request and ongoing system goal.
 
@@ -185,3 +185,56 @@ Source tests now12pass, including BOS profile ownership and its true4000ms
 duration. An unexecuted first native plan is preserved; native_gate_v2.py pins
 the corrected source via native-gate-v2-plan.json. Fresh native-gate-v1 output,
 no overwrite/restart. STOP and the session's time/row limits remain active.
+
+## Native gate result and guided-proposal intervention
+
+The first launch constructed parameters inside inference_mode and failed before
+any row because temporal-cache version counters were unavailable. Empty output
+native-gate-v1/failure.json remains. Corrected native_gate_v3.py constructs the
+model normally; existing Session/Planner methods own inference contexts. Its
+planec914cb96ab15ac18dd560152ccd7440c5954655eaea4f40a6a1b608c8a4ba81
+ran session51322, now terminal exit0. Actual outputs native-gate-v2.
+ResultSHA259e2bcf3a16052db57f2a19b640c2c3ff590cb708f78ddc6335f3dc981681ae.
+
+STYX completed101418ms,845rows,24.062s; one alternative selected at72000ms.
+Blizzard stopped at100000ms with two open holds and four added-work costs
+.068732/.577908/.056211/.127090 against4s budget.049906.
+Stream stopped at224000ms, with costs.088521/.162168/.213671/.174558.
+No rejected continuation was published or given fabricated LN tails.
+This shows four R/R1samples on the fixed H were insufficient, not that safe
+materialization is mathematically unreachable. Actual startup1.519/1.217/1.431s;
+max2s service1.025/.641/2.771s. Each trace has an initial fixed8s-lookahead
+deadline miss, requiring~1.931/1.395/1.886s startup for its observed trace.
+These are not qualified realtime results.
+
+Revision5 adds independent response guidance to proposal energies while keeping
+the same outer acceptance rule. b3f0184 implements ResponseGuidedSession with
+vectorized exact per-candidate added work, divided by the4s reference budget,
+strength4. It subtracts that energy before joint-R wait/mark marginalization
+and from actual complete-row probabilities. Wait costs0. No H/cardinality
+ownership transfer, neural parameter update or new duration mask occurs.
+
+Candidate costs match exact state transitions; active forks own response
+memory, preserve H, and zero strength reproduces native output.27affected tests
+pass3.74s, plus the final active-guidance test passes in its3-test owner1.21s.
+A terminal replay-flag mismatch discovered by the first test run was fixed
+by passing actual EOF into response-state observation, not by fabricating a
+crop completion or weakening the equality check.
+
+Repeat the three full-audio/control/seed cases with only this guidance added.
+CPU2threads,360s per case, same4s future/2s commit/4candidates and source-fitted
+reference. Fresh native-guided-v1, no overwrite/restart or promotion. Record
+completion, rejected attempts, pressure, amount, difficulty, Lens roles and
+publication/runtime. A passing pressure coordinate alone remains insufficient.
+native-guided-plan.json pins source, runner, exact checkpoint/reference/cases.
+
+The optional-control investigation found a real style-known/LN-unknown coverage
+gap, but its matched teacher-state probe changes LN fraction by median only
+.258percentage points, maximum2.536. This is not a sufficient causal account
+of large native collapse; do not substitute simple mask fine-tuning for the
+native-state/proposal problem.
+
+Before rollout-based actor learning in joint-R mode, implement actual R survival
+and event likelihood on partial futures. Existing row-only trace scoring does
+not capture all parameter-dependent factors, so its old fixed-environment
+policy-gradient justification cannot be reused unchanged.
