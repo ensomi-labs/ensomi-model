@@ -56,7 +56,7 @@ exploratory, not a retrospectively accepted intervention.
 
 ## Experiment Card: action-response-calibration-v1
 
-Revision: 5
+Revision: 6
 Accepted revision: none
 Execution authority: explicit current user request and ongoing system goal.
 
@@ -238,3 +238,39 @@ Before rollout-based actor learning in joint-R mode, implement actual R survival
 and event likelihood on partial futures. Existing row-only trace scoring does
 not capture all parameter-dependent factors, so its old fixed-environment
 policy-gradient justification cannot be reused unchanged.
+
+## Guided native result and H-owner diagnostic
+
+Guided session23870completed exit0; resultSHA
+4e809b7e8f6d9e70b5df7105dfb0986f10228260465b8fdf567325485664ada1.
+STYX completes with3.90119stars, rho.68927(request.48528),4swork.013692;
+Blizzard now completes with4.50627stars, rho.60032(request.83805),4swork.024845.
+Both miss amount. Stream stops at146000ms with2open holds after four failed
+proposals(.136670/.070248/.071663/.343998), primarily RH/hand turnover.
+Its earlier stopping clock versus gate-only224s is not a controlled comparison
+at the same state: guidance changed the entire preceding trajectory.
+Startup1.679/1.403/1.617s; max2s service.789/1.503/2.506s. Initial lead misses
+remain. No model/runtime promotion; the normal-chart objective remains unmet.
+
+All8fixed guided Lens pages read. Early STYX and Blizzard remain essentially
+the same short/medium LN/TAP arrangements as joint80; Stream remains a varied
+short/medium-LN body instead of the requested prominent Stream. Stream was
+rendered from an actual fully resolved prefix ending144890ms, before its final
+open holds and well after the18.335–23.335s view. The diagnostic .osu uses
+only real closed rows, marks original generation incomplete, and never adds
+an endpoint. See resolved-prefix-diagnostic/provenance.json.
+
+Immediate work guidance has a structural limit: on free fingers, TAP and LN
+birth on the same columns have the same immediate impulse/potential. Their
+different future occupancy is only exposed by later actions and the explicit
+4srollout. Waiting also adds no immediate work, even when releasing sooner
+would improve future head recovery. Do not market this reactive energy as
+the required prospective continuation value or a persistent LN-role plan.
+
+Revision6 substitutes paired source H times while keeping audio, D/style/LN
+requests, R1 weights, BOS, guidance and future admission unchanged. It supplies
+no source columns, LN types/endpoints or seed. This diagnostic separates the H
+distribution's contribution from R1's remaining failures; it is not an audio-only
+quality result or a unique training-cause percentage. Same three cases, CPU2,
+360s/case, sourceb3f0184, fresh source-h-v1. source_h.py/source-h-plan.json
+pin all inputs. No threshold/model retuning or automatic promotion.
