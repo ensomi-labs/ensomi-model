@@ -81,6 +81,20 @@ states. This does not support missing LN visibility as a sufficient explanation
 for the large native LN collapse. The coverage defect remains real, while the
 next causal question concerns generated histories, timing and proposal support.
 
+A second matched probe used D4, only prominent Stream and missing LN in both
+views. Changing the style extent from its annotation bounds to the whole song
+changed expected LN fraction by median +.051 percentage points, with range
+−1.175 to +1.494. The same 14 intervals and 15 ranges were retained; this was
+another factual-history probe, not autonomous generation. Its result likewise
+does not explain the large native change by input missingness/scope alone.
+
+An autonomous follow-up supplied a persistent private LN-composition condition
+to R/R1 while keeping H's public request unchanged. Even the sampled zero-LN
+condition left 27 LN heads among 49 heads in the fixed source-H Stream scope.
+The [ordinary-arrangement analysis](r1_ordinary_arrangement_redesign_zh.md)
+distinguishes a coherent latent plan from a scalar composition request and
+records why the latter is insufficient for this decoder.
+
 This recipe repair does not replace the independent
 [continuation response](action_response_frontier.md), a persistent rhythmic
 plan, or learning coherent held roles. Those mechanisms address other

@@ -212,3 +212,41 @@ be held fixed or cancel. In `r1_joint` mode R's timing also depends on R1
 parameters, so a row-only policy-gradient update would omit part of its credit.
 Any such learning must include R survival/event terms on actual partial futures,
 without fabricating crop-end LN closures.
+
+The [joint trace scorer](../../src/ensomi_model/research/controlled_audio_continuation/joint_trace.py)
+now reconstructs the R survival/event factors and chosen R1 row factors on an
+actual, possibly open continuation, conditional on a fixed complete H proposal.
+Observed empty time still contributes release survival. A forced deadline has
+unit event mass but retains its mark probability. This scores the ordinary
+proposal with explicitly declared preferences; independent guidance, latent
+plans and response-selected trajectories require their corresponding laws.
+
+## Remaining native failures
+
+Adding immediate guidance completed Blizzard, but did not restore requested
+composition. STYX/Blizzard had stars 3.901/4.506 and LN fractions .689/.600,
+against requested fractions .485/.838. Stream exhausted four candidates at146s.
+The fixed Lens scopes retained short/medium-LN bodies and changing held roles.
+No checkpoint was promoted.
+
+Substituting only actual source H timestamps completed STYX/Blizzard at
+4.116/4.638 stars, with LN fractions .720/.633. Stream still stopped at58s;
+in its fixed [18335,23335) ms scope, 51 of52 heads became LN, with median130ms
+duration and one-H span. Correcting timing alone is therefore insufficient.
+No source actions, LN types, endpoints or startup seed entered that diagnostic.
+The Zenithfall source is 5.873 stars; its H is not a proven 4-star-feasible timing
+reference. That case isolates a timing input change, not sole responsibility
+for pressure failure. STYX/Blizzard references are 4.004/3.928 stars.
+
+Immediate work cannot distinguish TAP from LN birth on the same free columns:
+their current attack impulse is identical. Their occupancy and later coordination
+differ. Waiting also adds zero immediate work even when an earlier release could
+improve future recovery. The explicit rollout can observe those differences,
+but four samples need not contain a useful alternative. This reactive energy is
+not a prospective action value or a learned persistent role plan.
+
+The aligned four-second acceptance also does not bound every sliding window.
+Source-H Stream's committed prefix reached maximum 4 s added work .051639 and
+maximum 8 s work .087604, above respective references .049906/.061507. A rolling
+budget across publication boundaries remains necessary; lowering pressure on
+selected horizons alone is not a complete runtime guarantee.
