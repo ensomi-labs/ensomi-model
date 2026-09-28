@@ -5,7 +5,7 @@ Status: proposed
 Kind: investigation
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: 5b0dbeb6a5c5c5240bde0cf8325e54fee365d6c0
+Product revision: dc50ce2b4849688f3cf0a33220c68a73ef55258c
 Scope: Independent factual LN-risk calibration and generated release-decision anatomy
 Related: 2026-09-28-coordination-frontier-and-ranked-contrasts, 2026-09-28-clean-joint-proposal-learning
 
@@ -231,3 +231,56 @@ components/ under the existing LN-risk owner, refusing overwrite. CPU one
 thread only, 900 seconds, 4 GiB footprint and 1 GiB new output; no fit or
 network. Stop on prior hash/support/resource/STOP conditions. This further
 extension is proposed and exploratory under existing execution authority.
+
+## Revision-four result and reusable evaluator
+
+The component run completed all eight contexts × nine model states × four
+laws in 27.856856 seconds, footprint 875923016 bytes and 21650352 output bytes.
+Tool session 58760 is terminal exit zero. Baseline reconstruction and matching
+prior factual losses passed. No main source or training recipe changed.
+Components cases SHA
+9a85f7a14baf5858109ca114177613f485deb8843d8a70eac3793f85e6ff7036;
+result SHA 1522b41d640b99424d4e667a6c720dd471f042e5bb98278fb7e0cee004f18f6c;
+plan SHA b76a6df9a5a36fadfbf54ac3ebee9a1b77871148c3970a61d0280b139b03858b.
+Each case retains exact composition/consequence arrays and all four laws in
+hashed npz files, with query-level U/K/identity losses and release marginals.
+
+At early-512 Shizuku, removing learned row consequence worsens cardinality
+NLL from 69.034 to 75.264 while identity changes 5.697 to 5.612. In inherited
+Non-breath it changes 63.106 to 67.707 and 19.086 to 18.689 respectively.
+Thus the residual is compensating for some current cardinality error; it is
+not a universally harmful inherited module. In inherited Until, whole-scope
+identity NLL worsens 23.822 to 25.252 on removal, but the specific 72260-ms
+correct-finger probability rises .2692 to about .3370. Local and integrated
+effects can disagree, and the latter still does not certify playability.
+
+Removing empirical recovery preference leaves conditional cardinality and
+identity losses unchanged to <1e-13 on the inspected Shizuku, Non-breath and
+Until factual queries. This excludes that preference as the source of those
+conditional errors at those states. Other contexts do change, including a
+Bedroom model/role component by 4.265 nats. Do not generalize the exclusion
+to all source states or generated histories.
+
+The reusable row_likelihood_parts observer, six new focused tests and the
+expanded self-contained analysis are committed at
+dc50ce2b4849688f3cf0a33220c68a73ef55258c on codex/release-calibration.
+All 15 selected tests pass in .18 seconds in the existing MPS/render/dev
+environment. Comparison with the 288 saved laws and 23616 queries matches
+all factors to at most 3.2453e-7 nats, attributable to explicit normalization
+roundoff. The code uses log-space arithmetic, exposes identity support size,
+keeps singleton/empty cases distinct and refuses unsupported target conditions.
+Documentation links resolve and diff whitespace checks pass. The evaluator
+worktree is clean; no remote push or merge into the live main checkout.
+
+The exact derivation now prevents a misleading module attribution: conditioning
+on U and K cancels count-family mass and its layout normalizer, but conditioning
+on U alone does not. The K diagnostic is still influenced by layout and later
+row energies. Neither this factorization nor an inference-time energy removal
+identifies a unique historical training cause.
+
+Decision remains REFINE. Proposed loss allocation is now explicitly
+L_H+L_R+L_U+lambda_K L_K|U+lambda_I L_V|U,K with positive weights. It preserves
+the unrestricted conditional-distribution optimum, but has not been trained.
+Proposal role memory and independently calibrated gameplay response remain
+separate questions. The current three-arm fit continues unchanged. This new
+evaluator must not be merged into its guarded executable tree while live.

@@ -297,3 +297,13 @@ completed and worker 1600–1632 launched as PID 97669. The last segment takes
 toward the declared 2048/4096 stages without any model or objective change.
 Poll before restarting; do not relaunch the completed producer. No endpoint
 is qualified for playability or the separate realtime benchmark.
+
+Further handoff: supervisor session 29252 remains live at completed step 1920,
+worker 1920–1952 PID 2312. The last segment takes 90.58 seconds, footprint
+4457943744 bytes. The primary executable diff against ef42095 remains empty;
+only the user's AGENTS.md and untracked architecture walkthrough remain local
+product-worktree changes. The completed independent calibration study is on
+codex/release-calibration at dc50ce2b4849688f3cf0a33220c68a73ef55258c and has
+not been merged. Its session 58760 is terminal; it must not be restarted.
+Next declared model milestone is 2048 validation/native evaluation. No new
+endpoint has been qualified after the stage-512 failure reports.
