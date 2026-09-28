@@ -63,7 +63,7 @@ class ControlledSession(ContinuationSession):
             self.duration_ms, self.model.recovery, np.full(len(times), -1),
             lookahead=self.model.config.lookahead, device=self.device)
         context = self.model.temporal.read(self.row_cache)[None].expand(len(times), -1, -1)
-        logits = release_logits(self.model, queries, context, self.downstream_encoded,
+        logits = release_logits(self.row_model, queries, context, self.downstream_encoded,
                                 self.controls, preference=self.recovery_preference,
                                 candidate_cost=self.release_candidate_cost)
         return anchors.new_zeros(native.numel(), dtype=self.dtype).index_copy(

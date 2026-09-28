@@ -164,6 +164,11 @@ class ContinuationSession:
     def row_options(self, now):
         return {}
 
+    @property
+    def row_model(self):
+        """The current conditional materializer; H retains the session model."""
+        return self.model
+
     def prefer_rows(self, log_probs, legal, now):
         return log_probs
 
@@ -285,11 +290,12 @@ class ContinuationSession:
                 counts.update(count_history=self.model.row_counts.temporal.read(self.count_cache)[None],
                     count_clock=self.tensor(count_state([self.replay.open_ln_start_ms], [previous], [self.cursor])))
             audio = interpolate_audio(self.downstream_encoded, torch.tensor([self.cursor], device=self.device))
-            log_probs = self.model.planned_row_log_probs(audio, self.model.temporal.read(self.row_cache)[None],
+            materializer = self.row_model
+            log_probs = materializer.planned_row_log_probs(audio, self.model.temporal.read(self.row_cache)[None],
                 self.tensor(exact_features([self.replay], [self.cursor])), self.tensor(legal, torch.bool),
                 self.tensor([self.replay.occupancy], torch.bool), self.tensor(context), self.tensor(local), self.tensor(future),
                 **counts, **self.control_at([self.cursor]), **self.row_options(self.cursor),
-                **self.model.hold_audio_options(self.downstream_encoded,
+                **materializer.hold_audio_options(self.downstream_encoded,
                     self.tensor(ln_start_times([self.replay.open_ln_start_ms]), torch.long),
                     self.tensor([self.cursor], torch.long)))[0]
             proposal_log_probs = self.prefer_rows(log_probs.detach().cpu().double(), legal[0], self.cursor)

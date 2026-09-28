@@ -113,7 +113,7 @@ def score_joint_trace(model, trace, controls, encoded_full, *, frame_count=None,
     past = model.temporal(trace.row.raw, trace.row.history_valid)[0]
     indices = trace.release.history_indices
     contexts = torch.where((indices >= 0)[:, None, None], past[indices.clamp_min(0)],
-                           model.temporal.boundary[0].expand(len(indices), 2, -1))
+                           model.temporal.boundary[trace.row.history_boundary].expand(len(indices), 2, -1))
     frames = torch.tensor([encoded.shape[1] if frame_count is None else frame_count], device=encoded.device)
     logits = release_logits(model, trace.release, contexts, encoded, controls,
         audio_starts=torch.zeros_like(frames), frame_counts=frames, preference=recovery_preference)

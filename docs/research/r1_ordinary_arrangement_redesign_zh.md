@@ -174,7 +174,10 @@ $$
 较小的离散状态数可以枚举，避免先引入离散梯度近似。代码不能只给现有强历史
 decoder 加一个可忽略的偏置：段内内容历史、跨段计划记忆、活跃 hold 意图的
 通路需要明确分工，并分别检查 prior 采样、posterior 重建及不读取计划时的表现。
-当前实现还没有这一段计划模型；零 LN 条件诊断不是它的替代品。
+初始[动作段原型](action_segment_r1.md)选择了更简单的离散枚举：在完整段的联合
+likelihood 上精确边缘化，因此不需要额外 recognition network 或变分近似。
+它已具备模型与采样实现，但还没有获得训练后的质量资格；零 LN 条件诊断也不是
+动作段学习的替代品。
 
 [MusicVAE](https://proceedings.mlr.press/v80/roberts18a.html) 将慢变量用于子序列
 解码；[ACT](https://tonyzhaozh.github.io/aloha/) 通过预测动作序列处理行为克隆的

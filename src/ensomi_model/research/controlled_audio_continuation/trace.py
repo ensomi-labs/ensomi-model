@@ -45,6 +45,7 @@ class RowTrace:
     start_ms: int
     end_ms: int
     duration_ms: int
+    history_boundary: int = 0
 
 
 def collate_row_trace(rows, head_times, start_ms, end_ms, duration_ms, model, *, device='cpu'):
@@ -122,7 +123,7 @@ def score_row_trace(model, trace, controls, encoded_full, *, frame_count=None,
     history = model.temporal(trace.raw, trace.history_valid)[0]
     indices = trace.history_indices
     context = torch.where((indices >= 0)[:, None, None], history[indices.clamp_min(0)],
-                          model.temporal.boundary[0].expand(len(indices), 2, -1))
+                          model.temporal.boundary[trace.history_boundary].expand(len(indices), 2, -1))
     options = {} if model.player_condition is None else dict(player_features=trace.player_features)
     options.update(model.hold_audio_options(encoded, trace.hold_starts, query_times,
         audio_starts=audio_starts, frame_counts=frame_counts))
