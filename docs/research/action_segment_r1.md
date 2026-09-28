@@ -48,6 +48,31 @@ clock is sampled, then the release subset after that clock is selected. The
 virtual empty action means survival and is never appended to physical history.
 Raw source learning does not include the independent response-guidance energy.
 
+### Continuous context alongside the categorical choice
+
+`SegmentConfig.continuous_context` adds a deterministic path from the same
+incoming facts and future audio/H observations. It preserves two relative-hand
+views instead of averaging their histories. A shared plan network produces
+$u_j\in\mathbb R^{2\times d}$; the decoder's two FiLM layers receive
+$e_{z_j}+u_j$ for every R and R1 query in that plan. Reflection swaps the two
+context views. The categorical prior remains invariant and unchanged.
+
+This path addresses a specific bottleneck: with one state, a categorical prior
+cannot transmit any varying input to the decoder. It does not assert that a
+deterministic summary alone learns musical organization or player response.
+`with_continuous_context` copies an existing segment actor and zero-initializes
+only the new projection, preserving the starting law for a matched comparison.
+Old checkpoints default to the original code-only path and load unchanged.
+
+The session computes context once at the private plan boundary. Forks share
+that immutable tensor; a new plan or scoped-control cut replaces it only on
+that branch. Dense source scoring reconstructs it from the true incoming
+prefix. `score_segment(..., plan_end_ms=...)` retains the original private end
+when scoring an observed prefix beginning at that same plan boundary. Shorter
+observation coverage must not silently change its future-audio condition or
+close an open hold. Scoring from an arbitrary interior start is not supplied
+by this helper; it requires retaining the earlier plan and local history.
+
 ## State across plan boundaries
 
 Only the local learned content cache resets, using TRUNCATED when a real prefix

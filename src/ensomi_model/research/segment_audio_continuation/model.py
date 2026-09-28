@@ -22,9 +22,11 @@ class SegmentConfig:
     hidden: int = 256
     code_width: int = 64
     audio_queries: int = 8
+    continuous_context: bool = False
 
     def __post_init__(self):
-        if any(type(v) is not int or v <= 0 for v in vars(self).values()):
+        if (type(self.continuous_context) is not bool or any(type(v) is not int or v <= 0
+                for k,v in vars(self).items() if k!='continuous_context')):
             raise ValueError('Segment dimensions and elapsed-time extent must be positive integers')
 
 
@@ -39,10 +41,15 @@ class SegmentPrior(nn.Module):
         self.output = nn.Linear(segment.hidden, segment.states)
         nn.init.zeros_(self.output.weight);nn.init.zeros_(self.output.bias)
 
-    def forward(self, context, audio, head_features, control, extent):
+    def features(self, context, audio, head_features, control, extent, *, per_hand=False):
         head = (self.heads(head_features).mean(0) if len(head_features) else context.new_zeros(64))
-        value = torch.cat((context.mean(0), audio.flatten(), self.controls(control).flatten(), head, extent))
-        return self.output(self.body(value)).log_softmax(-1)
+        common=torch.cat((audio.flatten(),self.controls(control).flatten(),head,extent))
+        value=(torch.cat((context,common[None].expand(2,-1)),-1) if per_hand else
+               torch.cat((context.mean(0),common)))
+        return self.body(value)
+
+    def forward(self, context, audio, head_features, control, extent):
+        return self.output(self.features(context,audio,head_features,control,extent)).log_softmax(-1)
 
 
 class SegmentDecoder(nn.Module):
@@ -102,10 +109,14 @@ class BirthOrigins:
 
 class BoundSegment:
     """A nonmutating conditional view; forks can share frozen neural weights."""
-    def __init__(self,model,code,births):
+    def __init__(self,model,code,births,context=None):
         if type(code) is not int or not 0<=code<model.segment_config.states:
             raise ValueError('Segment code is outside its categorical support')
         self.model,self.code,self.births = model,code,births
+        if model.segment_config.continuous_context and (context is None or
+                context.shape!=(2,model.segment_config.code_width)):
+            raise ValueError('Continuous segment context requires both relative-hand views')
+        self.context=context
 
     def __getattr__(self,name):return getattr(self.model,name)
 
@@ -115,7 +126,7 @@ class BoundSegment:
         return values
 
     def planned_row_log_probs(self,*args,**kwargs):
-        return self.model.planned_row_log_probs(*args,plan_code=self.code,**kwargs)
+        return self.model.planned_row_log_probs(*args,plan_code=self.code,plan_context=self.context,**kwargs)
 
 
 class SegmentAudioModel(ControlledAudioModel):
@@ -137,12 +148,15 @@ class SegmentAudioModel(ControlledAudioModel):
         self.plan_prior = SegmentPrior(config,segment_config,self.row_control.in_features)
         self.plan_codes = nn.Embedding(segment_config.states,segment_config.code_width)
         nn.init.normal_(self.plan_codes.weight,std=.2)
+        self.context_projection=(nn.Linear(segment_config.hidden,segment_config.code_width,bias=False)
+                                 if segment_config.continuous_context else None)
+        if self.context_projection is not None:nn.init.zeros_(self.context_projection.weight)
 
-    def bind(self,code,births):return BoundSegment(self,code,births)
+    def bind(self,code,births,context=None):return BoundSegment(self,code,births,context)
 
     def planned_row_log_probs(self,audio,history,exact,legal,occupancy,preview,local,timing,
                               *,control,plan_code,birth_actions,hold_audio,response_allowed=None,
-                              candidate_indices=None):
+                              candidate_indices=None,plan_context=None):
         allowed = legal if response_allowed is None else legal & response_allowed
         hands = (self.condition(history,exact,audio)+self.preview_condition(preview)[:,None]
                  +self.row_control(control)[:,None]+self.hold_cues.row_values(audio,hold_audio))
@@ -150,7 +164,11 @@ class SegmentAudioModel(ControlledAudioModel):
         views=torch.stack([birth_rows[:,lanes][:,:,lanes].flatten(-2) for lanes in RELATIVE_LANES],1)
         born=self.birth_encoder(views)*hold_audio[:,self.birth_relative,-1:]
         hands=hands+self.birth_row(born.flatten(-2))
-        scores = self.decoder(hands,self.plan_codes.weight[plan_code],candidate_indices)
+        code=self.plan_codes.weight[plan_code]
+        if self.segment_config.continuous_context:
+            if plan_context is None:raise ValueError('A continuous-context row needs its original plan condition')
+            code=code+plan_context
+        scores = self.decoder(hands,code,candidate_indices)
         return scores.masked_fill(~allowed,-torch.inf).log_softmax(-1)
 
     def checkpoint(self):
@@ -181,10 +199,25 @@ def initialize(parent,*,segment_config=SegmentConfig(),seed=280930):
 def configure_materializer(model):
     trainable={'temporal','exact','fuse','audio_residual','context_condition','preview_condition',
                'row_control','hold_cues','release_log_scale','decoder','birth_encoder','birth_row',
-               'plan_prior','plan_codes'}
+               'plan_prior','plan_codes','context_projection'}
     for name,p in model.named_parameters():p.requires_grad_(name.split('.')[0] in trainable)
     return dict(trainable=sum(p.numel() for p in model.parameters() if p.requires_grad),
                 frozen=sum(p.numel() for p in model.parameters() if not p.requires_grad))
+
+
+def with_continuous_context(parent,*,seed=281901):
+    """Copy a segment actor exactly, adding a zero-initialized information path."""
+    if parent.segment_config.continuous_context:
+        raise ValueError('The segment actor already has continuous context')
+    options=parent.probability_options();options['recovery']=parent.recovery
+    with torch.random.fork_rng(devices=[]):
+        torch.manual_seed(seed)
+        model=SegmentAudioModel(parent.config,
+            segment_config=replace(parent.segment_config,continuous_context=True),**options)
+    receipt=model.load_state_dict(parent.state_dict(),strict=False)
+    if receipt.missing_keys!=['context_projection.weight'] or receipt.unexpected_keys:
+        raise ContractError('Continuous context changed an existing actor tensor')
+    return model
 
 
 def load_model(path,*,device='cpu'):

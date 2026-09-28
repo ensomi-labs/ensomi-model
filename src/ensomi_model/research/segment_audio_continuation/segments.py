@@ -69,8 +69,13 @@ def prefix_observation(model,rows,start_ms):
     return replay,value
 
 
-def plan_prior(model,encoded,replay,history,heads,controls,start_ms,end_ms,duration_ms):
-    """Read future audio/H and incoming facts, never future row materialization."""
+def plan_condition(model,encoded,replay,history,heads,controls,start_ms,end_ms,duration_ms):
+    """Read future audio/H and incoming facts, never future row materialization.
+
+    Return categorical log probabilities and optional relative-hand context.
+    Both are computed once for the declared plan, independent of how much of
+    its future has subsequently been observed or published.
+    """
     cfg=model.segment_config;device=encoded.device
     heads=np.asarray(heads,dtype=np.int64)
     times=(start_ms+(np.arange(cfg.audio_queries)+.5)*(end_ms-start_ms)/cfg.audio_queries).astype(np.int64)
@@ -89,7 +94,11 @@ def plan_prior(model,encoded,replay,history,heads,controls,start_ms,end_ms,durat
     hf=time_features(np.stack((selected-start_ms,selected-previous,end_ms-selected),-1))
     hf=hf.reshape(len(selected),-1) if len(selected) else np.empty((0,3*TIME_DIM),np.float32)
     extent=encoded.new_tensor([np.log1p(len(selected)),(end_ms-start_ms)/1000])
-    return model.plan_prior(incoming,audio,encoded.new_tensor(hf),control,extent)
+    arguments=(incoming,audio,encoded.new_tensor(hf),control,extent)
+    prior=model.plan_prior(*arguments)
+    context=(None if model.context_projection is None else model.context_projection(
+        model.plan_prior.features(*arguments,per_hand=True)))
+    return prior,context
 
 
 def marginal_log_probability(prior,conditionals):
@@ -100,18 +109,24 @@ def marginal_log_probability(prior,conditionals):
     return joint.logsumexp(-1),joint.log_softmax(-1)
 
 
-def score_segment(model,trace,heads,controls,encoded,*,recovery_preference=None):
+def score_segment(model,trace,heads,controls,encoded,*,recovery_preference=None,plan_end_ms=None):
     """Enumerate all private codes while sharing factual physical observations.
 
     Raw actor likelihood is the default. A declared recovery preference must
     match the proposal being scored; response-guided selection is not included.
     Audio/H must stay fixed for an outcome gradient that uses only this factor.
+    trace starts at the original plan boundary. For an observed prefix of that
+    plan, plan_end_ms retains its original private end and future audio/H context;
+    the trace's earlier end only censors observations, without closing holds.
     """
     r=trace.row
     replay,history=prefix_observation(model,r.rows,r.start_ms)
-    prior=plan_prior(model,encoded,replay,history,heads,controls,r.start_ms,r.end_ms,r.duration_ms)
+    end=r.end_ms if plan_end_ms is None else plan_end_ms
+    if not r.end_ms<=end<=r.duration_ms+1:
+        raise ValueError('Observed segment prefix must lie inside its original plan extent')
+    prior,context=plan_condition(model,encoded,replay,history,heads,controls,r.start_ms,end,r.duration_ms)
     births=BirthOrigins.from_rows(r.rows)
-    conditional=torch.stack([score_joint_trace(model.bind(k,births),trace,controls,encoded,
+    conditional=torch.stack([score_joint_trace(model.bind(k,births,context),trace,controls,encoded,
         ln_feedback=None,recovery_preference=recovery_preference).log_probability
         for k in range(model.segment_config.states)])
     probability,posterior=marginal_log_probability(prior,conditional)

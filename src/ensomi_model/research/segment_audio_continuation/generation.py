@@ -6,7 +6,7 @@ from ..controlled_audio_continuation.generation import ControlledSession
 from ..controlled_audio_continuation.response_guidance import ResponseGuidedSession
 from ..planned_audio_continuation.session import _fork_rng
 from .model import BirthOrigins
-from .segments import next_boundary,plan_prior
+from .segments import next_boundary,plan_condition
 
 
 class SegmentSession(ControlledSession):
@@ -16,12 +16,12 @@ class SegmentSession(ControlledSession):
         super().__init__(*args,**kwargs)
         self.prior_cache=self.model.prior_temporal.empty_cache()
         self.plan_rng=torch.Generator(device='cpu').manual_seed(kwargs.get('seed',260926)^0x29C1)
-        self.plan_code=None;self.plan_end=0;self.plan_events=[]
+        self.plan_code=None;self.plan_context=None;self.plan_end=0;self.plan_events=[]
         self.births=BirthOrigins()
 
     @property
     def row_model(self):
-        return self.model.bind(self.plan_code,self.births)
+        return self.model.bind(self.plan_code,self.births,self.plan_context)
 
     @torch.inference_mode()
     def activate_plan(self):
@@ -29,9 +29,10 @@ class SegmentSession(ControlledSession):
         end=next_boundary(start,self.duration_ms,self.controls,self.model.segment_config.span_ms)
         while (not self.planner.finished and (not self.planner.queue or self.planner.queue[-1]<end)):
             self.planner.fill(len(self.planner.queue)+self.model.config.lookahead+1)
-        prior=plan_prior(self.model,self.downstream_encoded,self.replay,
+        prior,self.plan_context=plan_condition(self.model,self.downstream_encoded,self.replay,
             self.model.prior_temporal.read(self.prior_cache),self.planner.generated,self.controls,
-            start,end,self.duration_ms).cpu().double().log_softmax(-1)
+            start,end,self.duration_ms)
+        prior=prior.cpu().double().log_softmax(-1)
         self.plan_code=int(torch.multinomial(prior.exp(),1,generator=self.plan_rng))
         self.plan_end=end
         self.row_cache=self.model.temporal.empty_cache(truncated_start=bool(self.rows))
