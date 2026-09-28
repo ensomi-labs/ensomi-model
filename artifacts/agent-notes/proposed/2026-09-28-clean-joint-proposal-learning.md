@@ -241,3 +241,59 @@ Poll them before any restart. If a handle expires, inspect this owner's
 supervisor logs/results and the exact process before deciding it is terminal.
 Do not launch a duplicate fit or data producer from a missing final receipt.
 No new endpoint has received a native or semantic quality pass.
+
+## Complete exposure and stage-512 results
+
+The deterministic producer completed all 8192 draws in 2330.097648 seconds;
+session 88169 is terminal with exit zero. The source ledger includes 3736
+distinct TRAIN charts plus 22 fixed VAL identities. Six support rejections
+were recorded. Natural/balanced/human draws are 4100/2042/2050; respective
+high-LN source counts are 255/674/150. Only the natural component deliberately
+hides numeric LN control: 820 draws, 59 high-LN. Its 7.20% high-LN hidden
+share contrasts with the previous 30.41%; undefined empty-scope fractions
+remain unknown separately from deliberate dropout.
+
+Complete ledger source-plan.json SHA
+a48c9cc55f60fd6353295513f060ac23fd7f5487cf798907eb3eca8b6d716862.
+All arms have the same data exposure. This compares initialization under a
+new common recipe, not an isolated causal test of every recipe change.
+
+At step 512 all three eight-case native panels complete and each fails seven
+cases. Inherited and early pass only Classic D6; fresh passes only the Stream
+witness. Stream D4 whole stars are 6.04424/5.79151/3.69931. Zenithfall D2
+actual stars are 5.33659/5.67624/3.30223; their H-only lower bounds are
+3.4590/3.4041/1.9596. Thus R1 cannot meet 2±1 under the first two fixed H
+sequences. Fresh's lower bound does not prove the target is attainable.
+
+Blizzard requests LN fraction about .838046 and produces .00749/.03028/.24084.
+Longer surviving LN medians in a nearly all-TAP chart are not a valid repair.
+The training/validation likelihoods likewise do not establish playability:
+step-512 macro row NLL is 1.63457/1.62406/2.40434 and H NLL per second is
+31.18788/31.19870/39.02812 in inherited/early/fresh order.
+
+All 24 fixed Lens pages are read: STYX [1800,7800), Blizzard [40342,46342)
+and Stream Zenithfall [18335,23335), for all three arms. Fresh contains local
+held roles and shared closures, and the old solo long-jack window no longer
+appears in these three samples. Inherited Stream substitutes many short,
+unequal LNs; early Stream moves TAPs but remains too hard overall. The two
+inherited/early Blizzard scopes are all TAP. These are local observations,
+not new human labels, listening judgments, playtests or promotion evidence.
+
+Step-512 checkpoint SHA, inherited/early/fresh:
+08d36f79f9c65496c6e162ad497f855d5ac0644128d733946121303b5377f022 /
+82edf55f9cb778a92d8ce8477f40981076bdd855622112f046328d6dfbe2a013 /
+2cbdc4b91a6ce2b86a1199de2fdd96e7379b3e28a248703307cb578442602f43.
+Compact analysis SHA
+8180941965597b175847365d89a1b5b1dc51ef9f9c8c703bcd76d2a29a4a875e;
+Lens review SHA
+d18ebf79f22fba2fe59871535046af17dae86d3234cfb298d7b2c9639128c54e.
+The self-contained research guide is updated by documentation commits
+6de65d22362c739fd5f6f1ada56daaa730e1d5e9 and
+4a8a47805a8fdbcb4fa27802063c55c649d41020; executable source remains ef42095.
+
+Latest authoritative supervisor poll: session 29252 remains live, step 1600
+completed and worker 1600–1632 launched as PID 97669. The last segment takes
+98.01 seconds with 4217328104-byte sampled footprint. Training continues
+toward the declared 2048/4096 stages without any model or objective change.
+Poll before restarting; do not relaunch the completed producer. No endpoint
+is qualified for playability or the separate realtime benchmark.

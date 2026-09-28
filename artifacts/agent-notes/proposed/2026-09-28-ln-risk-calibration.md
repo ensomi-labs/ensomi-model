@@ -5,7 +5,7 @@ Status: proposed
 Kind: investigation
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: ef42095a6e764b0374edbaa36b8ddf87c32364c9
+Product revision: 5b0dbeb6a5c5c5240bde0cf8325e54fee365d6c0
 Scope: Independent factual LN-risk calibration and generated release-decision anatomy
 Related: 2026-09-28-coordination-frontier-and-ranked-contrasts, 2026-09-28-clean-joint-proposal-learning
 
@@ -30,7 +30,7 @@ codex/release-calibration for the evaluator.
 
 ## Experiment Card: ln-release-risk-calibration-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: the continuing user goal includes research, useful
 regression evaluations, local code and note commits.
@@ -65,7 +65,7 @@ scope additivity, mirror transformation, H/R support interpretation and exact
 scope/probability alignment. These tests establish observation semantics.
 
 After committing the observer, score the three clean-joint initializations
-and step-32 checkpoints on the eight previously read ranked LN contexts:
+and step-32/step-512 checkpoints on the eight previously read ranked LN contexts:
 Shizuku, Non-breath oblige, Hot Chocolate, Esper, The Last Page, Someone In The
 Crowd, Until the end of time and Bedroom community. Freeze source hashes,
 scope bounds, whole-chart numeric controls, model identities and commands
@@ -90,3 +90,64 @@ artifacts/joint-audio/20260928-ln-risk-calibration-v1 in the primary workspace.
 Stop on source/hash drift, inconsistent support/probability alignment,
 nonfinite measurements, resource limits or owner STOP; preserve failures and
 do not overwrite/retry automatically.
+
+## Exploratory execution and revision-two scope
+
+The observer was implemented at ef90a21943ed4b56070f2679c3d3c9a2883be699
+in the managed release-calibration worktree. Nine focused tests passed in
+0.89 seconds: joint-law distinctions, true incoming holds and censoring,
+scope additivity, mirror symmetry, H/R support, exact query alignment and
+float normalization. Main training code remains pinned to ef42095.
+
+Version one scored eight TRAIN contexts against initial and step-32 states
+of all three arms in 19.175429 seconds. Version two included step 512 and
+separated the exact head-signature and conditional release-subset NLL. Its
+plan-v2.json was frozen before execution; this Note records the protected
+scope extension afterwards. Neither revision is accepted. Both executions
+are exploratory under the continuing user authorization, not conforming
+runs of an accepted Card. No generated chart was used as a quality label.
+
+Version two completed in 42.856003 seconds with peak sampled footprint
+777733536 bytes, CPU single-threaded. All factual target rows were supported.
+The diagnostic introduced no fit updates or additional accelerator workload. The source
+head signature is a diagnostic condition, not a new inference input.
+For each row, the numerical chain-rule identity was checked to 1e-10:
+joint row NLL = head signature NLL + release subset NLL given that signature.
+
+On Shizuku, early initialization to step 512 changes the eight-second summed
+head NLL from 101.37 to 85.81 nats and release-given-head NLL from 62.86 to
+74.73, while total row NLL improves from 164.23 to 160.54. On Non-breath
+oblige the inherited arm changes 138.30 to 105.98 for heads and 72.85 to
+82.19 for conditional release, improving total from 211.15 to 188.17.
+This demonstrates a loss-allocation tradeoff at these factual states, not a
+population causal percentage or proof that every alternative is bad.
+
+The error is not uniformly excessive release. Initial inherited Shizuku
+predicts total H-release mass 57.94 for 65 actual releases, yet assigns 17.09
+release mass to 32 factual continuation opportunities and underpredicts
+joint release (9.84 versus 22 observed pairs). Until the end of time further
+distinguishes a held anchor from a short-LN train. Fresh at step 512 assigns
+.788/.748/.722 release probabilities to three continued anchor events when
+conditioned on factual heads; inherited gives .186/.148/.122. Untrained fresh
+appears to retain that anchor on an extremely improbable head branch, so it
+must not be credited with learning the organization.
+
+Full report and derivations are committed in docs/research/ln_release_calibration.md
+at 5b0dbeb6a5c5c5240bde0cf8325e54fee365d6c0. The evaluator remains on
+codex/release-calibration, not merged into the live model worktree. Scripts
+pin the earlier evaluator code commit ef90a219; rerunning under the later
+documentation HEAD needs a new explicit execution plan, never silent bypass.
+
+Evidence in artifacts/joint-audio/20260928-ln-risk-calibration-v1:
+
+- Source/scope SHA ce40ee32c6a98c8a5834640f4b2df7562939ba6d56276911a11c81b78d683ba3.
+- v1 result SHA 29a2e1a97eeca51109a203d012661979b42c877e0fef2d00f2b2d82406fd9ef2.
+- v2 plan SHA f234a12a9439eb2b3d3f9a565df7e36e06a773e75493be27c87fa71749903be0.
+- v2 result SHA 1f80b8e24b1d3ea9c62d26c77210864e99034f4af3373f29d7cea8d7bfd31de1.
+- v2 cases SHA 013c4512171f2e57e5023dbe05c914f7403735092fb68a3101fe8eb74ea11e64.
+
+Decision: REFINE. A positive-weight conditional release loss preserves the
+unrestricted data-distribution optimum while changing finite-model allocation;
+it is a proposed follow-up, not an executed intervention or a repair claim.
+The current live three-arm recipe must remain unchanged. Keep actual native
+control, musical organization and gameplay evidence as separate requirements.
