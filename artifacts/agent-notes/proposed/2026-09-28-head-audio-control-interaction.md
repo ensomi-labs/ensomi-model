@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: 784ac6fc0e03aa6600c2c805c778ab788d6b126d
+Product revision: de5d560ce06ca0185087488b982e15cab394b136
 Scope: H audio/control interaction, matched H learning and complete native regression
 Related: 2026-09-28-release-support-and-learning, 2026-09-27-head-control-hazard-probe, 2026-09-27-head-base-native-replay
 
@@ -155,3 +155,22 @@ actual generated-state response learning. If NLL improves but native quality
 does not, do not scale the unchanged fit or declare audio conditioning solved.
 If gains require harmful LN or pressure changes, the result is a tradeoff.
 No result here resolves missing LN/coordination semantics in continuation.
+
+## Implementation and execution receipt
+
+The optional H interaction, strict checkpoint option and diagnostic factor
+method are committed at de5d560ce06ca0185087488b982e15cab394b136. Sixteen focused
+CPU/MPS checks pass in 6.62 seconds with the new head_audio_modulation tests,
+the existing head-recovery tests and controlled ownership tests. These check
+zero-initialized identity, learnable mixed effects at BOS, unchanged residual
+and R/R1 at fixed conditions, and actual native/dense scoring. No quality claim.
+
+Frozen plan SHA
+5ddf7ca7607ec50027267e7d8b0089af1d5a8d9023a74b01ccc8720efedd5176
+pins all five scripts, source, old factual helper, draw plan, baseline and
+native plan before execution. Script syntax compilation passes. Commands use
+`uv run --extra mps --extra render --group dev python` with, in sequence,
+the new owner's validate.py initial, run.py, validate.py terminal,
+evaluate.py additive and evaluate.py modulated. Initial validation must
+reproduce profile-only H/row means and exact two-arm probability identity
+before the optimizer run starts. Existing artifacts are only read.
