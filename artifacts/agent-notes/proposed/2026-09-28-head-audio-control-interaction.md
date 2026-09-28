@@ -192,3 +192,55 @@ Analysis plan SHA
 pins the scoped comparison and fixed Lens rendering scripts before native
 results. Guards and criteria are unchanged; attack excess, interaction and
 variation remain independent descriptive channels, not one quality scalar.
+
+## Completed fit and diagnostic evidence
+
+Both arms finish 512 updates in 1123.78s, maximum sampled footprint 3396128296
+bytes. Additive checkpoint SHA
+2d2f1d87f59e391f014c2f37aec83f9e70eee6c8f3660715ad5de373bde8f461;
+modulated SHA
+a08005e84755ba7e10e5b375d59c22422d7a7c835cf0d55badbc6cfe8597e13a.
+Supervisor result SHA
+71555b60c44c6b4ca17b14cde68d08d4abbf2c8a4d6c960ffa87093f1b0e4c5d.
+Every segment verifies frozen weights and carries optimizer state.
+
+Terminal H NLL is 31.65408468/31.62287877 nats per second, versus initial
+32.01912594. R and row scores remain exactly the initial values on the same
+factual states. Validation result SHA
+4e64e0938826e783cd08e9724b5448a1957358e0c9084b570a73423c98b0f369.
+No quality/promotion conclusion follows; complete native generation is pending.
+
+A read-only post-hoc base probe on all five panel audios holds query controls
+fixed while centering only the encoded audio. Its mixed D6-minus-D2 contrast
+has RMS .00580–.00802 logits in the modulated model and zero in the additive
+base. This shows a learned but small interaction; it is not an event law,
+musical-quality score or endpoint-selection metric. Pooled base contrast std
+also includes the ten different millisecond phases and must not be described
+as purely temporal/music variation. Interaction plan/result SHA respectively
+23afc26e8ec07ba648745c33d49eeda3e9d31b53b02fb2521b229e5c55868252 and
+1d0057b837e557c2b32ce07bd44589e086a79aa8de6b588ba090d2c75b41e8be.
+
+### Same-audio alternative exposure is sparse in this recipe
+
+The actual draw ledger contains 736 charts on 666 byte-distinct audios: 601
+audios have one observed chart, sixty have two, five have three. Only eight
+draw pairs from different charts on identical audio overlap in time, totalling
+64 seconds. Five pairs have difficulty known throughout their common interval;
+only three use whole-song difficulty on both sides, all in [0,8000). Other
+controls and prior chart histories need not match. Exposure result SHA
+3fb711682d0dfae422b4cb69b99e141d866a8abcc0e1957c89f0b72d94e309d1;
+the owner's audit_draw_pairs.py records input/script identity and exact draw
+indices. The earlier unextended exposure receipt remains preserved.
+
+This supports considering deliberate same-audio alternative sampling. It does
+not prove generalization requires paired examples, that conditional variation
+is unidentifiable in the full corpus, or that this sparsity caused the native
+failures. It describes the frozen draw measure, not all parent training.
+
+Any such follow-up must preserve the many-to-one H projection: a higher-star
+source H can admit lower-star R1 materializations. Do not turn every alternative
+source H into a negative under the other chart's difficulty. Paired factual
+likelihoods keep each chart/prefix/control consistent; a difficulty discrimination
+target belongs to justified complete-outcome labels or a proven infeasibility
+witness, not assumed one-to-one skeleton labels. This is a design constraint,
+not an additional intervention in the running study.
