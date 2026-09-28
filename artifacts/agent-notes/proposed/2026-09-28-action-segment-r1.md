@@ -48,7 +48,7 @@ this is an adaptation with a different information path, not a novelty claim.
 
 ## Experiment Card: action-segment-prototype-v1
 
-Revision: 2
+Revision: 3
 Accepted revision: none
 
 Baseline source33645c91437e39fe13ddfe977655e40828ab7a89 and joint80 checkpoint
@@ -146,3 +146,41 @@ audio encodings are reused only because their entire producing path is frozen.
 This is a compound comparison to the old actor and a matched1-vs4-state test.
 Bounds remain1800s,16GiB footprint and4GiB output; exclusive pilot-v1, no
 automatic restart. Fit plan.json pins code and every dependency.
+
+## Completed pilot and revision-three native diagnostic
+
+Fit plan0b931b6eccbfe7725e0e18c505a183551cb89c08c22b3646d6ae4c462a16dda4
+ran session70868, now terminal exit0. Both arms completed32updates in146.176s:
+158actual segments,3960target rows and160831native R-risk clocks. Frozen
+fingerprints and strict checkpoint reloads passed. One-state checkpoint SHA
+9c60831599bbda301d75c28c161630e1ec2fbdb0a654149608624443a14bb7d9;
+four-state44dd528ced4424969488593c01bb691093296c0e186d94f00a96a482ab2ffc24.
+This is a small fresh-decoder learning exposure, not convergence or playability.
+
+The late four-state batches concentrate responsibility on code1: about.988
+atstep28 and.969 atstep32. These are batch observations, not global code-use
+estimates. Actual prior generation and conditional code scores are needed
+before claiming useful multimodality or declaring permanent collapse. NLL
+values on different random batches are not a matched learning curve.
+
+Physical footprint rises from4.828GB atstep4 to16.668GB atstep32, peak
+16.698GB(<16GiB bound); MPS driver reaches5.983GB. These overlapping counters
+do not identify the owner of the growth. The MPS guide was read. Any larger
+fit should use bounded process segments with complete optimizer/RNG recovery
+until the growth is understood or removed. No unbounded monolithic job was
+launched and no allocator attribution is claimed.
+
+Revision3 adds a first actual raw-proposal probe: K1/K4 step32, the three
+already pinned ordinary4star sources, first seed only, full BOS-to-audio-end
+generation on source H. No quantity feedback, recovery preference, response
+guidance or planner alters this actor diagnosis. Independently report pressure
+after generation. This is not an audio-only result and cannot support a positive
+quality claim without the second seed and actual native-H/accepted publication.
+
+Native plan960514df82b10a9f5f3202cffab41485d29e504d8a3eaa372cb1923e3a81858e
+pins native.py, both checkpoints, cases and the frozen action reference. CPU2,
+180s per case, six runs at most1080s, fresh native-source-H-v1. Preserve incomplete
+rows/open holds and all failures, no restart/overwrite. Measure actual whole
+stars, LN amount, fixed-scope hold/TAP interactions, native-time response work,
+plan usage and publication latency. Render fixed scopes if materialized.
+All other Card conditions and no-promotion boundary remain.
