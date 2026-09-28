@@ -35,7 +35,7 @@ conditioning related to the earlier MusicVAE/ACT analogues, not a novelty claim.
 
 ## Experiment Card: continuous-segment-context-v1
 
-Revision: 2
+Revision: 3
 Accepted revision: none
 
 Baseline source9c6d53198457d2a66c6158af1c8a431cf24c2896 and K1step32 SHA
@@ -127,3 +127,24 @@ including CPU/MPS K1context gradients, fixed-local-input future-context effect,
 reflection, actual native/dense R/R1 agreement and censored plan-prefix scoring.
 The new path uses the already-existing plan trunk, with shared hand weights;
 there is no extra per-row audio pass, invented release endpoint or H action head.
+
+## Revision-three supervision ownership correction
+
+Audit of the frozen earlier pilot data finds36of60human-branch views have no
+active style field after random plan subdivision;24retain an actual field.
+For example source draw5000 selects[71220,72000) after the retained annotation
+ends at71220. This is not missing data: the wrong subinterval inherited the
+style-selected chart distribution. The original full crop having a label does
+not label every resulting piece. Natural and balanced numeric-control branches
+retain their distinct sampling meaning. No causal share of all historical bad
+patterns is assigned from this audit alone.
+
+In both arms, restrict human-branch segment sampling to pieces with at least
+one actually known style coordinate, including observed zero labels. Normalize
+that branch's NLL over its eligible annotated duration, then divide mass across
+visibility views. For uniform eligible-piece selection the weight is
+1000 * eligible_piece_count / eligible_duration_ms / view_count. Other branches
+retain their existing importance weights. Record removed unlabelled duration
+and every exclusion in preparation. BOS auxiliaries remain natural-branch
+draws only. This common recipe correction is not attributed to continuous
+context in the matched comparison.
