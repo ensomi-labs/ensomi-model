@@ -5,7 +5,7 @@ Status: proposed
 Kind: investigation
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: 2c67bb6b70df425d7bca68a455488833a6720372
+Product revision: 965d6702640a9dc3d6331ddd776daee4e7341d4b
 Scope: A currently failing fragmentation regression, joint release decisions and difficulty-conditioned primary rhythmic units
 Related: 2026-09-28-clean-joint-proposal-learning, 2026-09-28-ordinary-fourstar-rhythm-and-holds, 2026-09-28-ln-risk-calibration
 
@@ -55,7 +55,7 @@ policies remain coupled even when the final release is voluntary.
 
 ## Experiment Card: fragmented-ln-regression-v1
 
-Revision: 1
+Revision: 2
 Accepted revision: none
 Execution authority: explicit user instruction to implement the red eval,
 change architecture and fine-tune, plus the continuing system goal.
@@ -98,3 +98,86 @@ The subsequent architecture Card revision must specify the actual joint
 release law, H rhythmic representation, learning data and parameter/update
 budget before training. The user's authorization covers execution; neither
 this Note nor any passing diagnostic is human acceptance or model promotion.
+
+## Red baseline and implemented decision law
+
+The observer was committed at e1fecbda2a5d6b041f32cffd34cbc160fd0787a4;
+five focused checks passed. The frozen baseline run completed in1.872684s,
+session34582 exit2 as intended: inherited and early Stream short-LN burden
+is .55245189/.43932891 against natural-mixture99th percentile .20013755.
+All16real source sanity controls pass, including ordinary held roles and
+specialist short-LN/non-binary examples. Other source amount references are
+.08096591(TAP-majority),.24214418(mixed),.37607450(LN-majority).
+Plan SHA93401047b3aeaea0c8fe799c42f276b48583b990acea296f89d642c0b76a2429.
+Artifacts baseline.json/reference-records.json retain all checks and existing
+native guards. A low fragmentation score alone is explicitly insufficient.
+
+Implementation965d670 adds release_policy=r1_joint. R1 scores a virtual wait
+and all feasible nonempty release subsets at each queried native millisecond;
+R hazard is logsumexp(nonempty scores)-wait score+learned flow log scale.
+After an event, its conditional mark law is the actual R1 row law. No virtual
+wait enters physical or neural event history. The release scale starts at
+log(.001), expressing a native-ms flow coordinate rather than a hold floor.
+The separate R MLP is unused in this mode. H decisions retain their boundary.
+
+Joint mode uses raw survival with an explicit last-clock deadline atom, not
+finite-wait conditional normalization. This preserves the effect of a global
+wait preference and bounds inference queries to publication/chunk time. All
+physical recovery support remains60/25/21ms. The current implementation
+requires flat rows with no count prior, scoped allocation or player adapter;
+these are not enabled by the parent under comparison. Candidate scoring is
+reduced from256to16release/wait rows with matching values and gradients.
+
+Nine joint-policy checks include one-held-finger wait choice, actual event/mark
+factorization, row-history dependence without H-content dependence, shared
+short-hold preference in event odds, native/replay agreement across control
+boundaries and publication partitions, raw deadline atoms, strict checkpoints
+and CPU/MPS loss/gradient parity. The final relevant command passes26tests;
+an earlier broader affected-owner command passes36tests. No quality claim
+follows. The self-contained architecture is docs/research/joint_r1_release_decisions.md.
+
+## Revision-two resource and learning pilot
+
+This revision implements the first release-decision branch, not the required
+hierarchical H subdivision redesign. The latter remains necessary: local
+musical speed/difficulty should control the main time unit, with separate
+finer decoration, learned end-to-end without oracle BPM/phase. Do not describe
+the new release law as having solved H or the majority-H short-tail mechanism.
+
+Initialize from inherited step2048, checkpointSHA
+8f3eda8c5e206230838f172c9ee8d32015572d1740b4fa7a19860408357195eb.
+Load every original tensor exactly, add joint release mode and32-wide existing
+hold-audio cues with zero output projections. New cue tensors and the scalar
+flow scale are the only missing parent parameters. The initial H/row law is
+preserved; R event law changes. Fresh AdamW,lr1e-4,weight decay1e-4,clip1.
+
+Use32already frozen training examples at source-plan indices4096:4128 from
+the clean-joint ledger(SHAa48c9cc55f60fd6353295513f060ac23fd7f5487cf798907eb3eca8b6d716862).
+This parent had consumed0:4096, but the separately continuing baseline may
+subsequently consume them; this is not a new held-out evaluation set.
+Keep all source prefixes, masks, controls and sample weights. Full-song fine
+and coarse audio is recomputed with current weights during every update.
+No beat/redline labels or future LN ends enter model queries.
+
+First calibrate only the new scalar flow coordinate by maximum likelihood on
+raw R logits from the first8ofthese training examples, with all other weights
+fixed and no optimizer state. Report the original/new scalar and event count.
+This is initialization exposure, not validation or gameplay improvement.
+Then execute16batch-twoupdates jointly over audio/H/R1 using H timing NLL,
+joint R timing NLL and row loss L_U+2L_release|U. The extra conditional release
+weight targets the measured loss-allocation conflict; it is a simultaneous
+recipe change, so no isolated architectural causal percentage may be claimed.
+
+The pilot uses CPU2threads while the old MPS fit continues. Bounds:1200s,
+12GiB sampled process footprint,2GiB output, fresh pilot-v1 directory, no
+automatic overwrite/restart. Every step records scalar losses, gradient roots,
+elapsed time and footprint. Require finite updates, active audio/context/H/
+R1/hold-cue/flow gradients across the pilot and exact checkpoint reload.
+Unused legacy R/skeleton parameters are not required gradient roots.
+Stop on source/checkpoint/data drift, nonfinite values, owner STOP or bounds.
+Preserve failures. Pin scripts, source OID, source slice and commands before run.
+
+After the learning/resource pilot, measure real native startup/service and
+fixed behavioral guards before selecting any larger run. No second MPS fit
+starts while the old supervisor remains active. Execution is exploratory
+under explicit user authority; Card acceptance remains none.
