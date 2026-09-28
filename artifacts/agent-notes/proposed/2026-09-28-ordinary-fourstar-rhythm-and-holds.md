@@ -5,7 +5,7 @@ Status: proposed
 Kind: investigation
 Created: 2026-09-28
 Updated: 2026-09-28
-Product revision: 4a8a47805a8fdbcb4fa27802063c55c649d41020
+Product revision: 2c67bb6b70df425d7bca68a455488833a6720372
 Scope: Typical ranked 3.5–4.5-star timing and LN/TAP organization
 Related: 2026-09-28-coordination-frontier-and-ranked-contrasts, 2026-09-28-ln-risk-calibration
 
@@ -35,7 +35,7 @@ Execution authority: continuing research goal and explicit corpus/subagent reque
 Use the previously pinned natural TRAIN pairs (SHA
 13e4d8b7910f7d33ef18c078a27d12406317a2b7ecaf01fa9843752ef00dae9d)
 and complete census of 6924 charts. Recomputed 20241007 stars select 1973
-charts /1614 song groups in [3.5,4.5). Separate TAP-majority, mixed and
+charts /1614 song groups in [3.5,4.5]. Separate TAP-majority, mixed and
 LN-majority descriptive strata; they are not human style labels. Retain
 per-chart statistics and song-group weighting rather than pooling every
 object across long charts. Read normal examples and contrasting specialist
@@ -83,3 +83,66 @@ including nine jump rows across the other three fingers. This is a selected
 contrast with denser free-finger organization, not additional prevalence
 evidence. Prepare separate fresh bundle-kimi and kimi-audio outputs in the
 same owner; all frontend, resource and interpretation conditions stay fixed.
+
+## Completed corpus and music reading
+
+The explicitly delegated subagent completed the 1973-chart study, preserving
+source SHA checks and metadata ranked status. Its actual selection uses a
+closed [3.5,4.5] interval; the prior half-open spelling here is corrected.
+No source has exactly 4.5 stars, so cohort membership is identical.
+The 134/1140/636/63 no-LN/TAP-majority/mixed/LN-majority charts correspond
+to 6.40/57.65/32.89/3.06 percent under equal-song then equal-chart exposure.
+Within strata, opportunity-conditioned song→chart→object weighting gives
+LN-duration medians 196/162/132 ms, and next-same-finger recovery medians
+242/183/167 ms. These are conditional empirical distributions, not physiology.
+
+TAP-majority LN duration <=80/60/40 ms has 5.8107/1.2073/.1362 percent mass.
+Same-finger release→head <=40 ms has .0065 percent mass (five pooled events
+among 164052 opportunities). The primary agent recomputed the three duration
+fractions from raw per-LN observations. Same-entry LN groups have identical
+tails in 73.4/52.1/34.2 percent of opportunity-weighted charts in the three
+strata. 92.3 percent of TAP-majority LN heads lie within 2 ms of whole/half-beat
+positions under source redlines. This does not mean every grid position is
+occupied, and unclassified events are not automatically Tech.
+
+Nine complete selected source charts were cross-checked against Lens canonical
+normalization for every sourceLine/start/end/column/kind. The subagent read
+31 time-proportional pages. The primary additionally read Celestial/Kimi
+source pages and both Mel views. Kimi's sustained harmonic bands accompany
+the 80858–83858-ms column-0 hold; the other fingers sustain 150-ms jump/single
+alternation. Celestial transfers a held role across the fingers while TAP
+motion continues. Arakajime supplies a held-finger plus repeated-double-key
+contrast. Short specialist LN examples remain separate from these ordinary
+examples and from population prevalence claims. No audio listening occurred.
+
+The full report, five source-linked figures and model-ownership implications
+are committed at 2c67bb6b70df425d7bca68a455488833a6720372 on the isolated
+codex/release-calibration branch:
+docs/research/ordinary_fourstar_rhythm_and_holds_zh.md.
+Links and whitespace checks pass. The document distinguishes existing
+HoldAudioCues from a proposed richer held-role representation, and private
+arrangement memory from committed player state. It does not claim a new
+architecture has been validated. No main executable source was changed.
+
+Evidence identities:
+
+- Corpus plan: 89aa6eec5cdc27b37a2f1f5938f68bed9a22daced3d51d258072a6daae54c9b5.
+- Recommended summary-v2: e630cd022cb19d96aabc8eb839dc0cf9fe25c2a90fc0c41db1fb95cede1966fa.
+- Source selections: 24bb92db1f5fe0bd884c9a80a2c2e9e3ca27cd1887858f768701490a798ee91f.
+- 31-page reading record: a152796288f19d88e085bc96eb3218b112ca24380d1f269863b887b3253785c6.
+- Celestial Mel evidence: 1e119809c1168bf56a45c3a24cf8818372efe22aea421f641a4242928037fc8e.
+- Kimi Mel evidence: 1d9637b413c3606e06f8f667a8e95f5295f4240ded91d1674ce583c6dccae5e9.
+- Parent Mel reading record: a6f0e377614ab3c2e83476ef9044338ebb5adbe41adef2cccf60d48bc6e54baf.
+
+Original summary remains intact. Its no-opportunity proportions in the no-LN
+stratum were mistakenly zero; summary-v2 and a separate receipt change these
+to null, without changing the quoted nonempty-stratum numbers. The subagent
+is complete. Audio preparation/extraction handles 28458,18770,96336 are all
+terminal exit zero; do not restart them. Their fresh owners remain available.
+
+Decision: REFINE. Ordinary low-difficulty organization needs a distinct
+conditional distribution and source-linked regression witnesses; preserving
+rare complex support is insufficient. Use the new normal examples alongside
+previous failures and specialist positives when evaluating held-role retention,
+shared closures, recurrence and audio correspondence. No hard duration/grid
+mask, independent human label or playable-model promotion follows from this study.

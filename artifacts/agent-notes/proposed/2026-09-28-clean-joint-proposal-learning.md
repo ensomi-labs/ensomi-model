@@ -307,3 +307,39 @@ codex/release-calibration at dc50ce2b4849688f3cf0a33220c68a73ef55258c and has
 not been merged. Its session 58760 is terminal; it must not be restarted.
 Next declared model milestone is 2048 validation/native evaluation. No new
 endpoint has been qualified after the stage-512 failure reports.
+
+## Stage 2048 complete; fitting continues
+
+All three fixed eight-case native panels complete at step 2048. Inherited,
+early and fresh respectively fail 4/6/7 cases, so every candidate remains
+failed and unpromoted. Inherited reaches 2.94366/2.98223 on Classic/Zenithfall
+D2 and 5.19647/5.48757 on their D6 controls. Early D2 remains 3.30527/3.03486;
+fresh produces 3.61883/3.37801 at D2 and 4.18007/4.03602 at D6. These control
+changes are useful intermediate evidence, not playability certification.
+
+Inherited/early Stream D4 outputs are still 6.27507/6.20277 stars, now with
+LN fractions .907/.797 despite no explicit LN amount request. Fresh is
+3.35739 stars with LN fraction .040. Explicit Blizzard high-LN requests
+produce .660/.240/.112. STYX fractions .742/.695/.131 also fail the requested
+amount. The override scopes remain separately failed; whole-song aggregation
+does not hide their failures. Stage2048 generated Lens review is still pending.
+
+Validation H NLL per second is 31.08442/31.06655/34.41149 and macro row NLL
+1.58219/1.58248/1.95377. Lower validation loss has not selected a playable model.
+Checkpoint SHA inherited/early/fresh:
+8f3eda8c5e206230838f172c9ee8d32015572d1740b4fa7a19860408357195eb /
+5dcc07535446712dc5c82e47bc3cd6edf3eac11c98e8f893b29899b487f9f088 /
+72b7a8338488be8f93d02068139e70acb63f9bf1c09ec217124d0364fbad6bf9.
+Cases SHA:
+870ece732da05f39b3281cc92e93dde079ae45898a8d28aa97ae191b7c8adddb /
+c88a72ed43d53b786ad28340a818dc792ef5999b1f6b9da97960878112947f68 /
+2afdcf03db6e521ba5fbd686679be66d2cc6925da3dbf8bfd5db9aa65757279f.
+Compact analysis-2048/result.json SHA
+62243d8fd53b6dd6df819a04907aec73428731261f6ced7d6289ef1e2d7b485f.
+
+Latest authoritative supervisor check: session 29252 live, completed step2208,
+worker2208–2240 PID8873. Last segment104.02s, footprint5819945928bytes.
+Continue the fixed4096 endpoint; do not alter the live recipe or duplicate
+workers. The independent evaluator/corpus-document branch is now
+2c67bb6b70df425d7bca68a455488833a6720372, clean and not merged into the
+guarded main executable tree. The ordinary-fourstar corpus subagent is complete.
