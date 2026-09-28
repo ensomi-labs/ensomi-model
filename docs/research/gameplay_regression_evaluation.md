@@ -143,11 +143,34 @@ Probability normalization errors within 2e-5 are recorded and corrected as
 floating-point roundoff; larger errors fail. No threshold on LN duration,
 release gap or any calibration score is a BAD rule.
 
-The [factual LN study](ln_release_calibration.md) applies this observer to
-ranked references and separates R1 head-signature likelihood from conditional
-release likelihood. It records cases where total row NLL improves while the
-release component worsens. The study does not use that diagnostic as a
-playability score or declare the reference the only correct continuation.
+The [row likelihood observer](../../src/ensomi_model/research/gameplay_evaluation/row_likelihood.py)
+also exposes three exact diagnostic factors:
+
+```python
+parts = row_likelihood_parts(row_log_probabilities, observed_actions)
+```
+
+Inputs are aligned [query,256] log probabilities and [query,4] action codes.
+Per-query row NLL equals head-signature NLL plus release-count NLL given those
+heads plus release-identity NLL given the heads and release count. The observer
+retains log-space arithmetic for tiny probabilities and reports the number of
+finite identity alternatives. Unsupported targets fail because their conditional
+loss can be undefined; use release_calibration to enumerate support exclusions
+first. Clock, role and physical alignment remain caller-owned here.
+
+These are mathematical factors of the complete law, not separate neural
+modules or additional generation inputs. Composition marks include release
+count, so fixing head identity alone does not remove composition's influence.
+At a fixed count, a forced release subset has zero identity loss and supplies
+no discrimination evidence. Aggregate separately by H/R and declared control
+range; preserve contributing query counts.
+
+The [factual LN study](ln_release_calibration.md) applies both observers to
+ranked references. It records improving total row NLL alongside worsening
+conditional release cardinality, as well as mistaken selection of a held
+anchor. Its fixed-prefix energy removals distinguish current score effects
+from historical training attribution. These diagnostics are not playability
+scores or claims that the reference is the only correct continuation.
 
 ## Consecutive head membership
 

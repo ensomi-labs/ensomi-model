@@ -125,24 +125,129 @@ fresh-512 对列 1 在 72185／72335／72485 ms 结束的概率为
 未训练 fresh 在这些条件下的结束概率很低，但对应 head signature 的概率也仅
 .0103／.0132／.0193；不能把一个罕见条件分支上的偶然结果当作已学会该组织。
 
+## 进一步区分放几个与放谁
+
+令 $K=|V|$ 为释放数量，则同一完整行 law 还可以精确写成
+
+$$
+-\log q(a\mid\xi)
+=-\log q_U(u\mid\xi)
+-\log q_K(k\mid u,\xi)
+-\log q_V(v\mid u,k,\xi).
+$$
+
+这不是在 R1 前增加一个强制释放计划；它是对已经存在的联合 law 做诊断。
+[row_likelihood_parts](../../src/ensomi_model/research/gameplay_evaluation/row_likelihood.py)
+返回每个查询的三个 NLL 项和固定 $(U,K)$ 后仍有多少有限支持的身份选择。
+只有一个可选子集时，identity NLL 必然为零，不能当作已学会协调的证据。
+真实源行不在支持内时，条件分解会明确失败，不把未定义条件伪装成零损失。
+
+同样的八秒真实上下文给出：
+
+| 模型与片段，初始 → 512 | Release count given heads NLL | Release identity given heads/count NLL |
+| --- | ---: | ---: |
+| Early，Shizuku | 56.938 → 69.034 | 5.921 → 5.697 |
+| Inherited，Non-breath oblige | 51.922 → 63.106 | 20.928 → 19.086 |
+| Fresh，Until the end of time | 43.158 → 79.419 | 32.695 → 39.258 |
+
+前两例的条件释放退化来自“放几个”项；给定数量后选择具体手指反而略有改善。
+这比“联合 release 学坏了”更精确。第三例两项都变差。
+数值仍是同一真实编排在当前 law 下的预测误差，不是玩家需求单位。
+
+Until 的 72260 ms 是不同的问题：应释放列 3 的短 LN，继续列 1 的 anchor。
+Inherited-512 给“只放一指” .902659 的概率，但在这个条件下，
+只有 .269213 分配给列 3，其余分配给 anchor。
+而在 72185／72335／72485 ms，真实动作应保留唯一进入中的 LN；
+这里条件 identity 没有选择，过早结束完全体现为 cardinality 错误。
+从玩家视角看，同一个持续角色会在两类决策中被破坏：不该增加一次放键，
+以及确实要放键时却打断了另一指的持有。短 LN train 本身不是错误标签。
+
+### 诊断因子不等于神经模块
+
+当前 [RowComposition](../../src/ensomi_model/research/controlled_audio_continuation/model.py)
+预测的 mark 是
+
+$$
+m(a)=(n_{\rm head}(a),n_{\rm LN\ head}(a),n_{\rm release}(a)).
+$$
+
+因此固定 $U$ 仍未固定 mark：release count 会变化。
+对本文模型，令 $\ell(a)$ 为 layout 分数、$\pi_m$ 为 count 概率、
+$Z_m=\sum_{a':m(a')=m}\exp\ell(a')$ 为合法组内归一化量、
+$g(a)$ 为 learned row consequence、$c(a)$ 为采样恢复偏好，则
+
+$$
+q(a)\ \propto\
+\exp\!\left[\ell(a)-\log Z_{m(a)}+\log\pi_{m(a)}+g(a)-c(a)\right].
+$$
+
+只有同时固定 $(U,K)$，$\log\pi_m-\log Z_m$ 才抵消：
+
+$$
+q_V(v\mid u,k)\ \propto\
+\exp\!\left[\ell(a(u,v))+g(a(u,v))-c(a(u,v))\right],
+\quad |v|=k.
+$$
+
+所以 count 分支不直接改变这个条件下的手指身份 odds；
+但 $q_K(k\mid U)$ 也不等于 count 网络的一个独立输出，
+它还包含具体 head 配置的 layout 质量与后加能量。
+不能把上表的 cardinality 退化直接归罪于 count 网络的某组权重。
+共享音频与历史参数还会跨这些诊断因子产生训练影响。
+
+## 当前行后果模块在补偿与加重什么
+
+在相同真实 prefix、音频、控制、H/R 查询和有限支持下，
+对八个上下文、九个模型状态比较四个 law：
+当前部署 law、只去掉 $g$、只去掉 $c$、两者都去掉。
+捕获 compose 和 consequence 的实际分数后，可重建原 law；
+这里没有重新训练、重新生成历史或改变上游时钟。
+
+| 512 步片段 | 部署 $L_{K\mid U}$ | 去掉 $g$ 后 | 部署 $L_{V\mid U,K}$ | 去掉 $g$ 后 |
+| --- | ---: | ---: | ---: | ---: |
+| Early，Shizuku | 69.034 | 75.264 | 5.697 | 5.612 |
+| Inherited，Non-breath oblige | 63.106 | 67.707 | 19.086 | 18.689 |
+| Inherited，Until the end of time | 21.718 | 21.593 | 23.822 | 25.252 |
+| Fresh，Until the end of time | 79.419 | 75.698 | 39.258 | 40.276 |
+
+行后果能量在前两例补偿了一部分 cardinality 错误。
+在 inherited Until 的整段上，它改善了 identity 项；
+但在单个 72260 ms 时刻，去掉它使正确手指的条件概率从 .2692 升到约 .3370，
+仍偏向错误 anchor。整体帮助与局部加重可以同时成立。
+这些结果不支持把该模块统一删除，也不把它证明成玩家响应模型。
+
+在 Shizuku、Non-breath 和 Until 的这些真实查询中，
+移除 empirical recovery preference 不改变条件 cardinality／identity 损失，
+数值差小于 1e-13；它不能解释这里的释放误差。
+它在其他来源上确实有影响：例如 Bedroom 的部分模型／role 分量变化可达 4.265 nats。
+因此这个排除只适用于所述事实状态，不能推广为偏好对 native 历史无影响。
+
+固定 law 的能量拆解也不是历史训练责任的唯一分解。
+不同网络分支在共同 NLL 下可以相互补偿；删掉一项后的误差，
+不等于“从头不训练该项”所得模型的误差。
+
 ## 对训练与架构的含义
 
-首先，需要分别保留 timing H、timing R、R1 head signature 与 release subset 的学习证据。
+首先，需要分别保留 timing H、timing R、R1 head signature、release count 与 release identity 的学习证据。
 这些分解不替代完整生成，但可以防止一个容易改善的部分掩盖另一个退化的部分。
 
 一个可检验的训练分支是
 
 $$
-L=L_H+L_R+L_U+\lambda_V L_{V\mid U},\qquad\lambda_V>0.
+L=L_H+L_R+L_U+\lambda_K L_{K\mid U}
+  +\lambda_I L_{V\mid U,K},\qquad\lambda_K,\lambda_I>0.
 $$
 
-$\lambda_V=1$ 恢复原来的联合行似然。对无限表达能力的条件分布，
-超额期望风险为
+$\lambda_K=\lambda_I=1$ 恢复原来的联合行似然；两者相等时是对整个条件 release 项加权。
+固定条件 $\xi$，记真实联合行为 $p$、模型为 $q$。对无限表达能力的条件分布，
+仅行项的超额期望风险为
 
 $$
 \mathrm{KL}(p_U\|q_U)
-+\lambda_V\,\mathbb E_{p_U}
-\mathrm{KL}(p_{V\mid U}\|q_{V\mid U}),
++\lambda_K\,\mathbb E_{p_U}
+\mathrm{KL}(p_{K\mid U}\|q_{K\mid U})
++\lambda_I\,\mathbb E_{p_{U,K}}
+\mathrm{KL}(p_{V\mid U,K}\|q_{V\mid U,K}),
 $$
 
 所以正权重不改变理想的数据分布最优点；它改变有限模型中的学习权衡。
@@ -161,17 +266,27 @@ native H 也可能使低星目标在任何 R1 编排下不可达。此类状态�
 
 ## 实现与证据身份
 
-评估器代码提交为 `ef90a21943ed4b56070f2679c3d3c9a2883be699`；
+最初条件释放评估器的代码提交为 `ef90a21943ed4b56070f2679c3d3c9a2883be699`；
 模型源为 `ef42095a6e764b0374edbaa36b8ddf87c32364c9`。
 评估器在独立 worktree 开发，没有改变正在运行的主训练代码。
-九项聚焦测试覆盖同 marginal／异 joint、上下文与删失、范围可加性、
-镜像变换、纯 R 的强制性、原子交接、时钟对齐和浮点归一化。
+条件释放评估器的九项聚焦测试覆盖同 marginal／异 joint、上下文与删失、
+范围可加性、镜像变换、纯 R 的强制性、原子交接、时钟对齐和浮点归一化。
+三因子评估器另有六项测试，覆盖准确条件分解、count 权重不能改变固定数量的身份 odds、
+镜像、极小概率、singleton／空查询与不支持源行的区别。
+两个评估器的 15 项聚焦测试全部通过；三因子实现另与保存的 288 个 law、
+23,616 个查询逐项比较，最大差异为浮点归一化产生的 3.25e-7 nats。
 
 本地 owner 为 `artifacts/joint-audio/20260928-ln-risk-calibration-v1`。
 首轮八上下文 × 六模型状态完成于 19.18 s；扩展到初始／32／512、
 加入条件 head 分解后，八上下文 × 九模型状态完成于 42.86 s，
 最大采样进程 footprint 为 777,733,536 bytes。均为 CPU 单线程，没有额外训练。
 这些选例结果是探索性机制诊断，不是总体校准证明、独立人类标签或 playtest。
+
+保存概率的 cardinality／identity 分解耗时 .180 s、最大 RSS 32,063,488 bytes，
+链式分解的最大误差为 4.27e-14 nats。四个 law 的固定前缀比较耗时 27.86 s，
+最大采样 footprint 875,923,016 bytes，输出约 21.65 MB；
+该执行使用只增加本文初版文档的 evaluator revision
+`5b0dbeb6a5c5c5240bde0cf8325e54fee365d6c0`，模型源未变。
 
 | 证据 | SHA-256 |
 | --- | --- |
@@ -180,3 +295,7 @@ native H 也可能使低星目标在任何 R1 编排下不可达。此类状态�
 | 扩展执行计划 | `f234a12a9439eb2b3d3f9a565df7e36e06a773e75493be27c87fa71749903be0` |
 | 扩展结果 | `1f80b8e24b1d3ea9c62d26c77210864e99034f4af3373f29d7cea8d7bfd31de1` |
 | 扩展逐例与概率分解 | `013c4512171f2e57e5023dbe05c914f7403735092fb68a3101fe8eb74ea11e64` |
+| Cardinality／identity 分解 | `0821580897f76e57b6f771dccb80349f18913dc3c3845cffc96d438072218c30` |
+| 固定前缀能量拆解计划 | `b76a6df9a5a36fadfbf54ac3ebee9a1b77871148c3970a61d0280b139b03858b` |
+| 固定前缀能量拆解结果 | `1522b41d640b99424d4e667a6c720dd471f042e5bb98278fb7e0cee004f18f6c` |
+| 能量拆解逐例 | `9a85f7a14baf5858109ca114177613f485deb8843d8a70eac3793f85e6ff7036` |
