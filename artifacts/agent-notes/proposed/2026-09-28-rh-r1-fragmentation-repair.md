@@ -55,7 +55,7 @@ policies remain coupled even when the final release is voluntary.
 
 ## Experiment Card: fragmented-ln-regression-v1
 
-Revision: 2
+Revision: 3
 Accepted revision: none
 Execution authority: explicit user instruction to implement the red eval,
 change architecture and fine-tune, plus the continuing system goal.
@@ -212,3 +212,41 @@ Native plan SHA7264cf453a8cbb9f86528d016d7197f94b62dc09aff9f42cca429531a439aa91.
 The separate old three-arm baseline reached4096updates and entered final
 validation/native evaluation. Its supervisor29252 remains authoritative;
 do not modify its main executable tree or start a second MPS fit yet.
+
+## Native pilot result and revision-three continuation
+
+All three native charts completed, with immutable exports/reparse and eight
+fixed Lens pages read. The wrapper then failed in postprocessing because it
+indexed an absent ln_fraction on the intentionally unspecified Stream request.
+No generation was repeated: finish_native_probe.py used .get(...), verified
+unchanged outputs and wrote native-probe-result.json. Repair plan SHA
+782a4669ded470cbedb6db30c7c151e3d8560fcbed61ebe8f8727f41c75c43d7.
+The original failed script and plan remain preserved.
+
+Short-LN/all-head burden: STYX24/806=.02978; Blizzard25/1038=.02408;
+Stream248/3601=.06887. All pass this coordinate, but no model qualifies.
+Stream remains5.79123stars and LN fraction.51152; Blizzard LN.28709 fails
+its.83805request. STYX whole.46898 is close to its.48528request, but the fixed
+1.8–7.8s source comparison is entirely TAP. Blizzard40.342–46.342s begins
+with recurrent col0TAPs then has only isolated holds/handoffs. Stream18.335–
+23.335s has broad overlapping holds, initial all-four shared closures and
+later irregular exchanges, rather than the requested prominent Stream.
+This is an explicit counterexample to treating short-tail reduction as a win.
+
+CPU2thread cached-Mel startup with30rows and8s coverage: .970/.697/2.812s;
+maximum2s-window service1.228/1.052/1.745s. Stream misses the2s startup bound.
+STYX also has one14.6ms steady-lookahead deadline miss immediately after8s;
+required startup from the complete trace is.985s. Do not silently change the
+criterion. Concurrent old baseline CPU evaluation makes these measured traces
+exploratory performance evidence, not an isolated machine benchmark.
+
+Revision3 continues exactly the same learning recipe/optimizer from step16
+for64additional batch-two updates, using the next immutable128draws at4128:
+4256. This expands observed factual exposure rather than changing the model
+or retuning the regression to the outputs. Full audio receives gradients.
+The64-update segment is CPU2threads with1800s/12GiB/2GiB limits, fresh
+continuation-v1 output, no overwrite or automatic restart. It preserves the
+same three native witnesses, source comparisons and all other quality/runtime
+guards for subsequent evaluation; no milestone is an automatic promotion.
+No MPS fit begins while the old supervisor remains active. The follow-up is
+exploratory and explicitly user-authorized; Accepted revision remains none.
