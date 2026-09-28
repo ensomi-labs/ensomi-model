@@ -30,7 +30,7 @@ codex/release-calibration for the evaluator.
 
 ## Experiment Card: ln-release-risk-calibration-v1
 
-Revision: 2
+Revision: 3
 Accepted revision: none
 Execution authority: the continuing user goal includes research, useful
 regression evaluations, local code and note commits.
@@ -151,3 +151,40 @@ unrestricted data-distribution optimum while changing finite-model allocation;
 it is a proposed follow-up, not an executed intervention or a repair claim.
 The current live three-arm recipe must remain unchanged. Keep actual native
 control, musical organization and gameplay evidence as separate requirements.
+
+## Revision three: release cardinality versus identity
+
+The row composition mark is (head count, LN-head count, release count), not
+only a head-count pair. Therefore fixing the observed head signature does
+not cancel composition's release-count contribution. Fixing both that
+signature U and release cardinality K does cancel the mark probability and
+within-mark normalizer. The conditional identity law then depends on layout,
+row consequence and deployed row preference. This mathematical distinction
+changes attribution and is the reason for a further probability decomposition.
+
+Use the already frozen scores-v2 reports, with no new model sampling or fit.
+For every exact reference query decompose release-subset NLL as cardinality
+NLL plus identity-given-cardinality NLL, by summing the existing 16-mask
+probabilities over equal popcount. Preserve H/R role and true incoming holds;
+count singleton identity support explicitly. Compare initial/32/512 in every
+arm and context. Keep sums, contributing opportunities and per-event evidence.
+Check the chain rule and agreement with the preceding row loss to 2e-5 nats,
+allowing documented floating-point normalization in the observer. Do not call
+a singleton identity decision learned coordination.
+
+The decision is where a candidate release-focused objective needs supervision:
+release cardinality, selection among held roles, or both. An increasing
+conditional total with decreasing identity loss localizes the measured
+regression to cardinality at those factual queries; it does not identify
+which shared parameters or training examples caused the change. Conversely,
+identity errors at fixed K expose a role-selection issue. No pass threshold
+certifies playability, and unchanged factual probabilities would be a null
+diagnostic result. This is exploratory secondary analysis, not an accepted
+Card or an independent new dataset.
+
+Freeze a script/plan before execution under the existing LN-risk owner, write
+new release-factorization.json only, refuse overwrite, and verify every input
+report hash from scores-v2/cases.json (SHA 013c4512171f2e57e5023dbe05c914f7403735092fb68a3101fe8eb74ea11e64).
+Use standard-library CPU analysis, no network or checkpoint loads; bounds
+60 seconds, 512 MiB new memory and 64 MiB output. Stop on hash drift,
+nonfinite probabilities, an unsupported actual mask, identity mismatch or STOP.
