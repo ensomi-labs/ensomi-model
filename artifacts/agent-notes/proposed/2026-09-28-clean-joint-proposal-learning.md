@@ -218,3 +218,26 @@ failure is preserved, not resampled or auto-promoted. The full supervisor
 has a ten-hour elapsed limit, per-child limits and a 24-GiB owner storage cap.
 Native semantic/Lens review remains agent work and cannot be inferred from
 the runner's complete flag.
+
+## Live execution handoff
+
+Execution plan SHA
+cf377b9063eee5c8888be8af390290cb100aa749f4f1a6dc2471603794f08665
+pins the full supervisor/evaluator, eight-case interim plan, full 28-case plan,
+response-envelope identity and pilot receipts. The supervisor was launched with
+/usr/bin/caffeinate -i uv run --extra mps --extra render --group dev python
+artifacts/joint-audio/20260928-clean-joint-proposal-v1/run.py.
+
+Authoritatively live tool handles at the last check: producer session 88169
+(verified Python PID 69172), supervisor session 29252. The supervisor has
+completed step 64 and launched worker 64–96, PID 72347. The completed resumed
+segment takes 130.76 seconds with peak process footprint 4720382920 bytes,
+verifying optimizer/checkpoint continuation beyond the original pilot. Data
+preparation has published at least 3072 draws across 1922 identities including
+the fixed validation identities, with one recorded support rejection.
+
+These handles, not this note alone, determine whether work is still running.
+Poll them before any restart. If a handle expires, inspect this owner's
+supervisor logs/results and the exact process before deciding it is terminal.
+Do not launch a duplicate fit or data producer from a missing final receipt.
+No new endpoint has received a native or semantic quality pass.
