@@ -5,7 +5,7 @@ Status: proposed
 Kind: research
 Created: 2026-09-28
 Updated: 2026-09-29
-Product revision: d6eba238ff3872613c6bfe84b75c5e867c881634
+Product revision: 96f84fd32218e39ff809c651d73e6edbd39a3500 (executable intervention d6eba238ff3872613c6bfe84b75c5e867c881634)
 Scope: Fresh ordinary-chart recipe, positive corpus, independent failure evaluation and continuation-level fusion
 Related: 2026-09-28-continuous-segment-context; 2026-09-28-response-blindspot
 
@@ -263,4 +263,102 @@ Same-finger4s maximum23has12/361held-out exceedances;8s maximum43has2/361.
 These are empirical tail warnings with known false positives, not physiology
 or universal style bans. Their observation unit is a whole chart; use scoped
 descriptive evidence instead of applying these prevalence cutoffs to short crops.
+
+## Generated result, actual inspection and next causal question
+
+All12outputs completed in98.03s total. All8BOS outputs failed the40ms LN
+burden reference and passed the80ms reference. Source-H versus native-H
+short-LN counts are Dawn1/31, Sulyvahn9/47, mumei10/68, Kill The Beat9/45.
+The4source controls contain zero such LNs. Whole native stars are5.2086,
+4.6092,3.8569,4.5527 respectively. mumei passes whole-star and LN-fraction
+checks while its68extreme short tails still fail. Native Dawn also exceeds
+the4s/8s same-finger limits at28/47. No candidate qualifies or enters fusion.
+
+All30generated Lens pages were actually viewed; source scopes and exact
+output hashes are recorded in capacity-review-512-v1.json. There was no
+audio audition or human playtest. Source-prefix mumei learns the sustained
+column2 role with13other-finger TAP-H groups and a later transfer to column0.
+BOS/source-H has only3consecutive companion groups in that scope. Native
+mumei produces5ms and6ms LNs. Sulyvahn has not reproduced the long held role;
+other patterns partly recover. Alternative TAP arrangements are not automatically
+BAD; failure to reproduce a teaching structure and demonstrated player-pressure
+failures remain distinct. Most whole-song regions were outside these16fit
+units, so this is not a verdict on a fully trained ordinary population.
+
+Post hoc timing inspection found native H pairs at most10ms apart:
+152/80/154/77 versus zero in each real source. In Dawn's trained6s window,
+all69native H fall within10ms of some source H, yet14adjacent pairs are at
+most10ms; the source has61H and zero such pairs. Onset-nearness alone hides
+duplicate events. Across native outputs,155/191short LN tails equal the
+immediately following H; none are audio-terminal closures. Relaxing local
+lattice tolerance from3ms to6–15ms recovers the approximate source periods,
+so the evidence concerns jitter/doublets and coupling, not total absence of
+rhythm. H substitution also changes later states and RNG consumption; do not
+claim per-object causal attribution from this one-seed comparison.
+
+Result SHA a20acd1e0a65906add77632f97962ca2bee2ee198587c293c62b00cb3ce808f8;
+visual review SHA09021a8d46876d2c415a9b7d76646ef99f23c375d0dd0815ada5468a5220e2be;
+timing interpretation SHA0eb17d5854544865f80b7a83b6b1c0450d98453e570d0f544810fbb0f6a41a5e.
+
+## Real-time information and response curves
+
+The user specifically suspects inadequate awareness of next-row elapsed
+real time and asks about exponential/custom response curves grounded in hand
+constraints and real corpus. Source audit confirms existing time inputs:
+H reads elapsed-since-H and absolute bin time; R/R1 read exact attack/release
+clocks, LN ages and future H distances. H shares a bin query across10native
+offset hazards. Time is not entirely absent.
+
+The segment decoder removed RowConsequence and ignores the still-supplied
+local/timing candidate-consequence tensors. A read-only4window ablation on
+checkpoint512 confirms zero distribution change when those tensors are erased.
+Erasing exact clocks changes mean TV by.0017–.0200; erasing future preview
+changes it by.0906–.2679. This is an input-path ablation, not a legal retiming
+or physical correctness metric. Probe SHA
+453f1e0ace8f84e2f8159e6de7a573fa87913479aa71a830a17e80be64793c01.
+
+ActionResponseState already uses exponential tau250/1000/4000/16000ms and
+100/gap transition impulses. These are engineered hypotheses; corpus fitted
+reference limits, not identified physiological recovery. An isolated25ms LN
+has250ms HR increment16below the reference17.44, explaining its zero work.
+Separate acute transition response from accumulated regular workload. Occupancy
+persists exactly but does not supply a tonic input to the decaying impulse bank.
+Coarse hand turnover/partner-held coordinates do not establish ordered
+coordination sufficiency. ResponsePlanner has true4s horizons/2s publications,
+but retries only R/R1 with shared H; a bad private H requires upstream whole-
+candidate regeneration rather than indefinitely resampling row geometry.
+
+An additional exact transition census on1602train ranked3.5–4.5star charts
+found no HH<=40ms among2,766,890same-finger attack intervals. There are25/1490
+charts with HR<=40ms and10/1484with RH<=40ms. Equal eligible component then
+chart weighting gives transition fractions0/.00050651/.0000736915 forHH/HR/RH.
+This is ranked support evidence, not a measured human limit. The corpus audit
+SHA is5d2f88537935f55ad18accb2d1c4724e87db0dfaebf6a480ba274b24099300e1.
+
+Primary hand research checked: Häger-Ross/Schieber2000(PMID11069962), finger
+coupling/frequency; Kelso1984(DOI10.1152/ajpregu.1984.246.6.R1000), frequency-
+dependent bimanual coordination; Bächinger et al.2019(eLife46750), motor slowing
+and recovery. These motivate channels/multiple scales, not transplantable mania
+thresholds. Canonical V3 excludes measured individual physiological fatigue;
+use physiological evidence as a structural prior without changing that scope.
+
+Selected next direction: explicit real-time advance then candidate action;
+separate monotone acute HH/HR/RH curves, multi-scale per-finger/hand memory,
+tonic occupation and ordered coordination; expose candidate consequences to R1
+and preserve vector/time-window distinctions in frontier acceptance. Test clock
+dilation, absolute-translation invariance, equivalent split waits and matched
+lane/time contrasts. Restoring an action-time branch alone is untested and is
+not declared a fix. Larger source training and on-policy correction remain
+necessary candidates; no new physiological model or repaired planner is trained.
+
+Product documentation now records these findings self-containedly in
+docs/research/ordinary_expert_from_scratch_zh.md and
+docs/research/event_time_gameplay_response_zh.md. Documentation links/math
+delimiters and git diff--check passed. Executable tests remain the38selected
+passes on d6eba238ff3872613c6bfe84b75c5e867c881634; subsequent product edits
+are prose only. All profile, fit, generation and inspection processes are
+terminal. No overnight run is live, no model was promoted, no remote push or
+benchmark-path mutation occurred. Recommendation is REFINE, not SUPPORTED;
+the proposed Card remains unaccepted and the overall playable2–6star goal
+remains unmet.
 Do not scale or fuse solely because the loss falls.
