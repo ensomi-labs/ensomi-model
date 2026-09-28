@@ -247,6 +247,24 @@ def _gather(module, encoded, indices):
     return torch.where((indices >= 0)[:, None, None], encoded[indices.clamp_min(0)], boundary)
 
 
+def score_heads(model, inputs, encoded, *, audio_starts, controls=None, history_options=None):
+    """Score H alone from its true prefixes and already conditioned audio.
+
+    This is the same head path used by the joint interval scorer. It needs no
+    row decoder, release marks or future materialization. Full-audio callers
+    pass zero frame offsets; cropped callers retain their actual offsets.
+    """
+    x=inputs.base
+    history=(model.head_temporal(inputs.head_raw,inputs.head_history_valid)[0]
+             if inputs.head_raw.shape[1] else None)
+    audio=interpolate_audio(encoded,x.timing_times[None],audio_starts,x.frame_count)[0]
+    options=({} if controls is None else dict(control=encoded.new_tensor(
+        controls.at(x.timing_times.detach().cpu().numpy(),encoding=model.control_encoding))))
+    memory=({} if history_options is None else history_options('head',x.timing_times,inputs.head_history))
+    return model.head_logits(audio,_gather(model.head_temporal,history,inputs.head_history),
+        inputs.head_clock,**options,**memory)
+
+
 def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, encoded_full=None,
                    history_options=None, recovery_preference=RecoveryPreference(head_pressure=4.)):
     """Score true prefixes, optionally reusing a differentiable full-song encoding.
@@ -285,12 +303,8 @@ def score_interval(model, inputs, coarse, *, profile_index=None, controls=None, 
     row_history = model.temporal(x.raw, x.history_valid)[0] if x.raw.shape[1] else None
     skeleton_history = (model.skeleton_temporal(inputs.skeleton_raw, x.history_valid)[0]
                         if inputs.skeleton_raw.shape[1] else None)
-    head_history = (model.head_temporal(inputs.head_raw, inputs.head_history_valid)[0]
-                    if inputs.head_raw.shape[1] else None)
     audio = interpolate_audio(encoded, x.timing_times[None], audio_starts, x.frame_count)[0]
-    h = model.head_logits(audio, _gather(model.head_temporal, head_history, inputs.head_history),
-                          inputs.head_clock, **conditions(x.timing_times),
-                          **memories('head', x.timing_times, inputs.head_history))
+    h=score_heads(model,inputs,encoded,audio_starts=audio_starts,controls=controls,history_options=history_options)
     if not model.config.profile_head_rate_downstream:
         audio = interpolate_audio(downstream, x.timing_times[None], audio_starts, x.frame_count)[0]
     if getattr(model, 'release_policy', 'independent') == 'r1_joint':

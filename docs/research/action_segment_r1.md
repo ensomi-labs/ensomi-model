@@ -75,9 +75,13 @@ by this helper; it requires retaining the earlier plan and local history.
 
 ## State across plan boundaries
 
-Only the local learned content cache resets, using TRUNCATED when a real prefix
-exists. Exact occupancy, attack/release clocks, pressure state and the longer
-prior history persist. A boundary does not create a row or close a hold.
+With `SegmentConfig.reset_local_history=True`, the local learned content cache
+resets, using TRUNCATED when a real prefix exists. This remains the default for
+existing checkpoints. Setting it to `False` retains the local causal history
+across plan boundaries in both source scoring and generation; the fresh ordinary
+expert uses this mode. Exact occupancy, attack/release clocks, pressure state and
+the longer prior history persist in either mode. A boundary does not create a
+row or close a hold.
 
 Each active LN also retains its actual birth-row geometry and its original
 audio observation. These can distinguish an isolated held role from a collective

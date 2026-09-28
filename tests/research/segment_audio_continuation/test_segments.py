@@ -21,10 +21,11 @@ from controlled_audio_continuation.test_joint_release import model as parent_mod
 from planned_audio_continuation.test_distribution import chart
 
 
-def model(*,continuous=False,states=2):
+def model(*,continuous=False,states=2,reset=True):
     parent=parent_model(hold_audio_width=4)
     net=initialize(parent,segment_config=SegmentConfig(states=states,span_ms=300,
-        local_levels=1,hidden=24,code_width=8,audio_queries=2,continuous_context=continuous))[0].eval()
+        local_levels=1,hidden=24,code_width=8,audio_queries=2,continuous_context=continuous,
+        reset_local_history=reset))[0].eval()
     if continuous:
         with torch.no_grad():net.context_projection.weight.normal_(std=.05)
     return net
@@ -80,9 +81,9 @@ def test_actual_open_segment_trains_prior_and_joint_decoder_without_H_gradients(
         assert all(p.grad is None for n,p in net.named_parameters() if n.split('.')[0]==root)
 
 
-@pytest.mark.parametrize('continuous',[False,True])
-def test_sampling_and_exact_conditional_scoring_agree_across_plan_boundaries(continuous):
-    torch.manual_seed(280931);net=model(continuous=continuous)
+@pytest.mark.parametrize('continuous,reset',[(False,True),(True,True),(True,False)])
+def test_sampling_and_exact_conditional_scoring_agree_across_plan_boundaries(continuous,reset):
+    torch.manual_seed(280931);net=model(continuous=continuous,reset=reset)
     with torch.no_grad():net.temporal.boundary[1].fill_(.3)
     mel=np.random.default_rng(51).normal(size=(101,128)).astype(np.float32)
     controls=ControlSchedule((ControlSpan(0,1001,stars=4,ln_fraction=.4),),net.style_names)

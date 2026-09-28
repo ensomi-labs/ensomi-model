@@ -56,8 +56,10 @@ def training_intervals(controls,start_ms,end_ms,duration_ms,span_ms,*,require_st
 
 
 def collate_segment(rows,heads,start_ms,end_ms,duration_ms,model,*,device='cpu'):
-    """Reset only the local learned observation; retain the actual full prefix."""
+    """Apply the declared local-history policy, retaining the physical prefix."""
     trace=collate_joint_trace(rows,heads,start_ms,end_ms,duration_ms,model,device=device)
+    if not model.segment_config.reset_local_history:
+        return trace
     times=np.array([r.time_ms for r in trace.row.rows])
     first=int(np.searchsorted(times,start_ms))
     history_start=max(0,first-model.temporal.config.receptive_tokens)
@@ -85,7 +87,11 @@ def prefix_observation(model,rows,start_ms):
     first=max(0,len(before)-module.config.receptive_tokens)
     raw=content_features(before[first:],[before[i-1].time_ms if i else None
         for i in range(first,len(before))],[[None]*4 for _ in before[first:]])
-    value=module(module.input.weight.new_tensor(raw[None]))[0,-1]
+    count=len(raw)
+    padded=_pad_first(raw,64)
+    valid=_pad_first(np.ones(count,bool),64)
+    value=module(module.input.weight.new_tensor(padded[None]),
+        torch.as_tensor(valid[None],device=module.input.weight.device))[0,count-1]
     return replay,value
 
 

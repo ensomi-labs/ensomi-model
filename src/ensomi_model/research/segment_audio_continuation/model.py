@@ -23,10 +23,12 @@ class SegmentConfig:
     code_width: int = 64
     audio_queries: int = 8
     continuous_context: bool = False
+    reset_local_history: bool = True
 
     def __post_init__(self):
-        if (type(self.continuous_context) is not bool or any(type(v) is not int or v <= 0
-                for k,v in vars(self).items() if k!='continuous_context')):
+        flags=('continuous_context','reset_local_history')
+        if (any(type(getattr(self,k)) is not bool for k in flags) or any(type(v) is not int or v <= 0
+                for k,v in vars(self).items() if k not in flags)):
             raise ValueError('Segment dimensions and elapsed-time extent must be positive integers')
 
 

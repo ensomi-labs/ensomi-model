@@ -35,7 +35,8 @@ class SegmentSession(ControlledSession):
         prior=prior.cpu().double().log_softmax(-1)
         self.plan_code=int(torch.multinomial(prior.exp(),1,generator=self.plan_rng))
         self.plan_end=end
-        self.row_cache=self.model.temporal.empty_cache(truncated_start=bool(self.rows))
+        if self.model.segment_config.reset_local_history:
+            self.row_cache=self.model.temporal.empty_cache(truncated_start=bool(self.rows))
         self.plan_events.append(dict(kind='selected',start_ms=start,end_ms=end,code=self.plan_code,prior=prior.exp().tolist()))
 
     def step(self,*,stop_at=None):
