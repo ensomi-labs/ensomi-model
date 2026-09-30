@@ -62,7 +62,9 @@ uv run --python 3.10 --extra mps python -m \
 ```
 
 The run writes `generated.osu`, `rows.jsonl`, `decisions.jsonl` and
-`result.json` into a fresh output directory. To continue one of your own charts,
+`result.json` into a fresh output directory. On macOS arm64 this reproduces every
+note of the published Alone chart. Only the `Artist` and `Creator` header lines
+differ, because the published file predates the project's rename. To continue one of your own charts,
 prepare a condition from a native 4K `.osu` file first; the
 [generation guide](docs/research/bounded_typed_continuation.md#portable-condition-and-generation-commands)
 has the command and the condition format.
