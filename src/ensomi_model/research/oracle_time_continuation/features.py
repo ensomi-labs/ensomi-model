@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, Sequence
 import torch
 from torch import Tensor, nn
 
-from ..scoped_style_modeling.replay import HAND_COLUMNS
+from ..chart.replay import HAND_COLUMNS
 from .replay import ExactReplayState
 
 if TYPE_CHECKING:
@@ -123,7 +123,7 @@ class SkeletonTimeEncoder(nn.Module):
         nn.init.zeros_(self.projection[-1].bias)
 
     def forward(self, offsets: Sequence[tuple[float, ...]]) -> Tensor:
-        from ..scoped_style_modeling.dataset import ContractError
+        from ..chart.dataset import ContractError
 
         clocks = []
         for values in offsets:
@@ -155,7 +155,7 @@ class ClockReadout(nn.Module):
         nn.init.zeros_(self.projection[-1].bias)
 
     def forward(self, queries: Sequence[PredictionInput]) -> Tensor:
-        from ..scoped_style_modeling.dataset import ContractError
+        from ..chart.dataset import ContractError
 
         like = self.projection[0].weight
         elapsed, facts, future = [], [], []

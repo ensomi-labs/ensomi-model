@@ -7,7 +7,7 @@ from ensomi_model.research.bounded_typed_continuation.train_hydra import compose
 from ensomi_model.research.bounded_typed_continuation.generate_hydra import compose_config as generate
 from ensomi_model.research.bounded_typed_continuation.model import BoundedModel
 from ensomi_model.research.bounded_typed_continuation import train_run
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 from ensomi_model.research.vacation_training.hydra import compose_config as vacation
 from bounded_typed_continuation.test_train import compare_states, config_fixture
 from bounded_typed_continuation.test_data import mixed_chart

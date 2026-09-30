@@ -14,7 +14,7 @@ from ensomi_model.research.vacation_training.config import VacationConfig, Audio
 from ensomi_model.research.bounded_typed_continuation.generate_config import GenerateConfig
 from ensomi_model.research.vacation_training.control import Control, publish_json, run_lock
 from ensomi_model.research.oracle_time_continuation.storage import file_digest
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 from bounded_typed_continuation.test_train import config_fixture
 
 

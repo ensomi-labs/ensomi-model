@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .condition import GenerationCondition, pinned_bytes
 from .contract import Arm, ROW_ACTIONS, Schedule
 from .data import PreparedBatch, batch_predictions

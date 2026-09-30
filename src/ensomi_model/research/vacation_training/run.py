@@ -16,7 +16,7 @@ from ..bounded_typed_continuation.condition import GenerationCondition
 from ..bounded_typed_continuation.smoke_run import source_revision
 from ..oracle_time_continuation.runtime import ResourceGuard, ResourceLimit
 from ..oracle_time_continuation.storage import file_digest
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .audio import run_audio, validate_manifest
 from .control import Control, publish_json, read_json, run_lock, tree_bytes
 from .stress import run_cases, validate_cases

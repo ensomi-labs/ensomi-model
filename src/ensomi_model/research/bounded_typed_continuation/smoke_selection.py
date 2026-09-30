@@ -13,7 +13,7 @@ import psutil
 from ..oracle_time_continuation.corpus import catalog_entries, read_split
 from ..oracle_time_continuation.data import SourceIdentity
 from ..oracle_time_continuation.storage import file_digest
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .data import SourceChart, SourceInterval
 
 

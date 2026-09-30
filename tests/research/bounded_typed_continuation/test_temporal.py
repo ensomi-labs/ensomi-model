@@ -4,7 +4,7 @@ import pytest
 import torch
 
 from ensomi_model.research.bounded_typed_continuation.temporal import FiniteTemporal, TemporalConfig
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 
 
 def network(device='cpu', levels=3):

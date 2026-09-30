@@ -5,7 +5,7 @@ import platform
 
 import torch
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .engine import ContinuationState
 from .features import PaceState
 from .local import LocalEntry, LocalState

@@ -6,7 +6,7 @@ import pytest
 from ensomi_model.research.oracle_time_continuation.engine import ContinuationState, PredictionInput, prefill
 from ensomi_model.research.oracle_time_continuation.replay import ExactReplayState, commit, legal_rows
 from ensomi_model.research.oracle_time_continuation.schema import CompleteRow, TimeSkeleton
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 
 
 @pytest.mark.parametrize("occupied", list(product((False, True), repeat=4)))

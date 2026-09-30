@@ -11,7 +11,7 @@ from ensomi_model.research.oracle_time_continuation.objective import MARGINAL_NA
 from ensomi_model.research.oracle_time_continuation.training import SequenceTrainer
 from ensomi_model.research.oracle_time_continuation.training_config import TrainingConfig
 from ensomi_model.research.oracle_time_continuation.windows import WindowSampler
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 from .conftest import admit
 from .test_objective import structural_values
 from .test_windows import tap_source

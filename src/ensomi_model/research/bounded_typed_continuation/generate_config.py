@@ -2,7 +2,7 @@
 from dataclasses import dataclass, field
 import math
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .smoke_config import SmokeResources
 from .profiles import validate_profile_resources
 

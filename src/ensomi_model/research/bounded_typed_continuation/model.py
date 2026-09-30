@@ -15,7 +15,7 @@ import torch
 from torch import Tensor, nn
 from torch.utils.checkpoint import checkpoint
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .consequence import RowConsequence
 from .long_memory import LandmarkMemory, MemoryQuery
 from .contract import Arm, HEAD_ACTIONS, ROW_ACTIONS, Schedule

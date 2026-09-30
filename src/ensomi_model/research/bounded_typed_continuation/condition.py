@@ -6,8 +6,8 @@ from pathlib import Path
 
 from ..oracle_time_continuation.data import source_rows
 from ..oracle_time_continuation.schema import CompleteRow
-from ..scoped_style_modeling.dataset import ContractError
-from ..source_action_modeling.actions import parse_source
+from ..chart.dataset import ContractError
+from ..chart.actions import parse_source
 from .contract import Arm, Schedule, Timing
 
 CONDITION_FORMAT = 'bounded-typed/condition-v1'

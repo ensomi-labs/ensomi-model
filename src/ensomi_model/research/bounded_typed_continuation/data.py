@@ -17,7 +17,7 @@ from ..oracle_time_continuation.data import SourceIdentity
 from ..oracle_time_continuation.replay import ExactReplayState
 from ..oracle_time_continuation.schema import CompleteRow
 from ..oracle_time_continuation.storage import ROW_DTYPE, SOURCE_FORMAT, file_digest
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .contract import Arm, Schedule, Timing
 from .features import CONTENT_DIM, QUERY_DIM, TimingView, content_features, query_features
 

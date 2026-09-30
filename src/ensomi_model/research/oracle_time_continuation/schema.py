@@ -4,8 +4,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 import math
 
-from ..scoped_style_modeling.dataset import ContractError
-from ..source_action_modeling.actions import EMPTY, LANE_ACTIONS
+from ..chart.dataset import ContractError
+from ..chart.actions import EMPTY, LANE_ACTIONS
 
 Actions = tuple[int, int, int, int]
 

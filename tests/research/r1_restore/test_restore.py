@@ -15,7 +15,7 @@ from ensomi_model.research.r1_restore.config import RestoreConfig, STAGES, stage
 from ensomi_model.research.r1_restore.harvest import collect_pool, condition_for, preference_markers
 from ensomi_model.research.r1_restore.hydra import compose_config
 from ensomi_model.research.r1_restore.preparation import transition_witness, select_sources
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 from ensomi_model.research.vacation_training.control import Control, publish_json
 from bounded_typed_continuation.test_data import chart
 from bounded_typed_continuation.test_recovery import pool_fixture

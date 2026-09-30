@@ -13,7 +13,7 @@ from ensomi_model.research.bounded_typed_continuation.data import SourceInterval
 from ensomi_model.research.bounded_typed_continuation.evaluation import suffix_likelihood
 from ensomi_model.research.bounded_typed_continuation.model import BoundedModel, ModelConfig
 from ensomi_model.research.bounded_typed_continuation.train_hydra import compose_config
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 from .test_corpus import inputs
 from .test_data import mixed_chart
 

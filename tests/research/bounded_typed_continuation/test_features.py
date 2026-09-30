@@ -10,7 +10,7 @@ from ensomi_model.research.bounded_typed_continuation.features import (
 )
 from ensomi_model.research.oracle_time_continuation.features import TIME_DIM, clock_features
 from ensomi_model.research.oracle_time_continuation.schema import CompleteRow
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 
 
 def test_time_basis_preserves_missing_zero_and_large_clock_differences():

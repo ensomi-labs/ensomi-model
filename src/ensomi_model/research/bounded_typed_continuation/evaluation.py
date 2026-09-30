@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import torch
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .data import SourceInterval
 from .train_run import add_metrics, measure
 

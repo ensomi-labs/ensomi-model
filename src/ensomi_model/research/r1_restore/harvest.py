@@ -13,7 +13,7 @@ from ..bounded_typed_continuation.recovery import RecoveryPool, alternative_mask
 from ..bounded_typed_continuation.response import response_preference
 from ..bounded_typed_continuation.support import row_supports
 from ..oracle_time_continuation.storage import file_digest
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from ..vacation_training.control import publish_json
 from ..vacation_training.stress import run_cases
 

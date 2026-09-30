@@ -8,7 +8,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Iterable, Sequence
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .replay import ExactReplayState, ReplayClocks, commit, legal_rows
 from .schema import Actions, CompleteRow, TimeSkeleton, checked_time
 

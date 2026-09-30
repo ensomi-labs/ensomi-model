@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass, field
 import math
 
 from ..oracle_time_continuation.runtime import ResourceConfig
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .contract import Arm
 from .model import ModelConfig
 

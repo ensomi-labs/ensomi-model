@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 import sqlite3
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .runtime import ResourceConfig, ResourceLimit, sync_directory
 from .publication import staging_directory
 

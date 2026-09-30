@@ -12,7 +12,7 @@ from ensomi_model.research.bounded_typed_continuation.data import SourceInterval
 from ensomi_model.research.bounded_typed_continuation.features import query_features
 from ensomi_model.research.bounded_typed_continuation.generation import Rollout, model_digest
 from ensomi_model.research.bounded_typed_continuation.model import BoundedModel, ModelConfig
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 from .test_data import chart, mixed_chart
 from .test_generation import setup
 

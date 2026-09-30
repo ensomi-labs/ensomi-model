@@ -6,7 +6,7 @@ import torch
 from ensomi_model.research.oracle_time_continuation.engine import ContinuationEngine
 from ensomi_model.research.oracle_time_continuation.model import row_index
 from ensomi_model.research.oracle_time_continuation.widen import widen_temporal
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 from .test_model import make_engine, mixed_rows, skeleton
 
 

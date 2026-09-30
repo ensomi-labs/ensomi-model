@@ -6,7 +6,7 @@ from hydra import compose, initialize_config_module, main
 from hydra.core.config_store import ConfigStore
 from omegaconf import DictConfig, OmegaConf
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .decoding import DecodeSamplingPolicy
 from .generate_run import GenerateConfig
 from .runtime import ResourceConfig

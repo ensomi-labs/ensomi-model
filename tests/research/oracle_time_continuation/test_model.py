@@ -11,7 +11,7 @@ from ensomi_model.research.oracle_time_continuation.engine import ContinuationEn
 from ensomi_model.research.oracle_time_continuation.features import HistoryStatus, clock_features
 from ensomi_model.research.oracle_time_continuation.model import CausalBackbone, PreRowEncoding, row_index
 from ensomi_model.research.oracle_time_continuation.schema import CompleteRow, TimeSkeleton
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 
 
 @pytest.fixture(autouse=True)

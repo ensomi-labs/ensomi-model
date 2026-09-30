@@ -1,7 +1,7 @@
 """Validated model and memory capacities for the oracle-time research backbone."""
 from dataclasses import dataclass
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 
 
 @dataclass(frozen=True)

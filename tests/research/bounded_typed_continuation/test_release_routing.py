@@ -18,7 +18,7 @@ from ensomi_model.research.bounded_typed_continuation.train_hydra import compose
 from ensomi_model.research.bounded_typed_continuation.smoke_config import SmokeResources
 from ensomi_model.research.oracle_time_continuation.schema import CompleteRow
 from ensomi_model.research.oracle_time_continuation.storage import ROW_DTYPE, file_digest
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 from .test_corpus import inputs
 from .test_data import mixed_chart
 from .test_fork import write_extension

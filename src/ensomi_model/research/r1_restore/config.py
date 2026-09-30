@@ -7,7 +7,7 @@ from ..bounded_typed_continuation.generate_config import checked_digest
 from ..bounded_typed_continuation.model import ModelConfig
 from ..bounded_typed_continuation.smoke_config import SmokeResources
 from ..bounded_typed_continuation.train_config import TrainConfig
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 
 STAGES = ('base', 'seed', 'memory', 'routing', 'release', 'response')
 

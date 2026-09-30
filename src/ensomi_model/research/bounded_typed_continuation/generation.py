@@ -19,7 +19,7 @@ import torch
 
 from ..oracle_time_continuation.replay import ExactReplayState
 from ..oracle_time_continuation.schema import CompleteRow, checked_time
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .contract import Arm, HEAD_ACTIONS, ROW_ACTIONS, Schedule, Timing
 from .features import TimingView, content_features, query_features
 from .support import row_supports

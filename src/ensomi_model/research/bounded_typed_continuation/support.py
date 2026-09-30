@@ -8,7 +8,7 @@ from collections.abc import Sequence
 
 import numpy as np
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .contract import Arm, ROW_ACTIONS, Schedule
 
 _ACTIONS = np.array(ROW_ACTIONS, dtype=np.int8)

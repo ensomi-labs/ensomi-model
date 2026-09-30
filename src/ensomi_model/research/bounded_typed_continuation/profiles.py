@@ -1,5 +1,5 @@
 """Explicit execution envelopes for the small baseline and the measured R1 teacher."""
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .contract import Arm
 
 

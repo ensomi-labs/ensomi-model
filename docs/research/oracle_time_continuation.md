@@ -1,7 +1,7 @@
 # Oracle-time continuation: causal data, backbone and sequence training
 
 The `research/oracle_time_continuation` package implements M0–M3 of the
-[continuation plan](Ensomi_oracle_time_causal_continuation_plan.md#9-里程碑与依赖):
+[continuation plan](https://github.com/ensomi-labs/ensomi-model/blob/5c56e28bbf1ab92abaa0436b33c0d33a6c30eead/docs/research/ensomi_oracle_time_causal_continuation_plan.md#9-里程碑与依赖):
 verified source rows, a time skeleton, the 30-note seed, exact pre/post-row state,
 complete-chart terminal legality, and a trainable causal backbone with bounded
 local, relation and temporal memory, window sampling and sequence training.
@@ -400,7 +400,7 @@ explicit source list or a pinned admitted catalog. The manifest is verified befo
 selected identities must already belong to train. No held-out payload is read,
 and this entrypoint neither downloads sources nor assigns groups or splits.
 For two sources from the
-[pinned real-input table](source_action_stage1_verification.md#real-input-provenance-and-bounds),
+[pinned real-input table](https://github.com/ensomi-labs/ensomi-model/blob/5c56e28bbf1ab92abaa0436b33c0d33a6c30eead/docs/research/source_action_stage1_verification.md#real-input-provenance-and-bounds),
 choose a fresh output directory:
 
 ```sh
@@ -443,7 +443,7 @@ has 19,976,776 parameters: temporal width 512, six layers, eight attention heads
 64-wide time bias, local/relation width 128, Q=64 and microbatch 1. It uses four
 CPU threads, effective batch 8, cohorts of four windows, same-update prefix reuse
 and 20 warmup updates. Its LR is3e-5 and weight decay0.01, chosen from the
-paired measurements in the [validation report](oracle_time_m3_validation.md).
+paired measurements in the [validation report](https://github.com/ensomi-labs/ensomi-model/blob/5c56e28bbf1ab92abaa0436b33c0d33a6c30eead/docs/research/oracle_time_m3_validation.md).
 Inspect it with `--config-name oracle_time_train_mac --cfg job`.
 
 `oracle_time_train_mac_large.yaml` increases only temporal width to 1,024,
@@ -600,7 +600,7 @@ The cache and `weights-v2-bounded-time` formats distinguish this representation
 from earlier linear-seconds weights. Earlier weights require their original
 runtime and cannot silently initialize this generation entrypoint.
 
-See the [M3 resource and parameter report](oracle_time_m3_validation.md) for
+See the [M3 resource and parameter report](https://github.com/ensomi-labs/ensomi-model/blob/5c56e28bbf1ab92abaa0436b33c0d33a6c30eead/docs/research/oracle_time_m3_validation.md) for
 measured throughput, storage, stability and remaining output-quality limits.
 
 ## Verification
@@ -655,7 +655,7 @@ uv run --offline --group dev python - <<'PY'
 import json
 from pathlib import Path
 from ensomi_model.research.oracle_time_continuation.verification import verify_source
-from ensomi_model.research.scoped_style_modeling.dataset import canonical_json, digest
+from ensomi_model.research.chart.dataset import canonical_json, digest
 
 root = Path('artifacts/scoped-style-modeling')
 split = json.loads((root / 'prepare-v1/split-manifest.json').read_text())
@@ -674,7 +674,7 @@ Local source files and the split manifest are required; this API performs no
 downloads. The check uses CPU replay and does not require an accelerator extra.
 
 On 2026-09-15, complete source replay was checked for the eight source identities
-in the [pinned real-input table](source_action_stage1_verification.md#real-input-provenance-and-bounds),
+in the [pinned real-input table](https://github.com/ensomi-labs/ensomi-model/blob/5c56e28bbf1ab92abaa0436b33c0d33a6c30eead/docs/research/source_action_stage1_verification.md#real-input-provenance-and-bounds),
 under that split digest. All **16,800 rows** matched in both pre- and post-state,
 covering **23,901 hit objects**, **2,018 LNs** and **417 release-only rows**.
 The eight minimum seeds contained 30–31 notes over 15–30 rows. Every source had
