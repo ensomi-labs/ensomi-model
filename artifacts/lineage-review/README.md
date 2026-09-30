@@ -2,7 +2,7 @@
 
 Shareable; no human wording. Written by the main relay sessions `05329633` and `2a66b88f` (Claude, control plane) on 2026-09-30.
 
-<a id="state"></a>**State, 2026-09-30 13:00Z: second run in progress, nine Astra reviewers on bings-mac, no finding read yet.** The human asked for a skeptical review of the `codex/audio-skeleton` lineage across git: earlier attempts per problem, their results, Codex's interpretations, a judgment of direction, and what was overlooked at system level ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-1)). A first run with nine Claude reviewers was stopped after about ten minutes for usage, before any report ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-2)). The human then directed the rerun with Astra workers only, precise briefs, and synthesis only after all return ([private, local](../private/human-inputs/2a66b88f-f40f-4219-a4c8-3f46bc5511ae.md#prompt-1)).
+<a id="state"></a>**State, 2026-09-30 13:10Z: nine Astra reviewers on bings-mac and six independent Opus reviewers on the control plane in progress, no finding read yet.** The human asked for a skeptical review of the `codex/audio-skeleton` lineage across git: earlier attempts per problem, their results, Codex's interpretations, a judgment of direction, and what was overlooked at system level ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-1)). A first run with nine Claude reviewers was stopped after about ten minutes for usage, before any report ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-2)). The human then directed the rerun with Astra workers only, precise briefs, and synthesis only after all return ([private, local](../private/human-inputs/2a66b88f-f40f-4219-a4c8-3f46bc5511ae.md#prompt-1)).
 
 ## Second run (Astra, 2026-09-30)
 
@@ -19,6 +19,21 @@ Limits of this run, known at launch:
 - The workers are the same model family that wrote the lineage. Slice 08 reviews that model's own reasoning. The brief tells each worker to treat lineage documents as claims; the main thread checks pivotal claims itself before relying on them.
 - The two leads below were given to slices 03 and 05 as hypotheses to test with evidence both ways. A worker handed a hypothesis tends to confirm it.
 - The mac's relay policy is on for Codex in auto-research mode. A worker job is not a relay main thread; the brief says to ignore notes guidance. Compaction is blocked there, so a job whose context overflows is lost with only its partial report file.
+
+## Independent review (Claude Opus 5.5, 2026-09-30)
+
+At about 13:05Z the human reported that Claude usage was reset and asked for Opus 5.5 subagents doing an independent review of the critical problems, with prompts that convey intent, and again that nothing is processed until all workers return ([private, local](../private/human-inputs/2a66b88f-f40f-4219-a4c8-3f46bc5511ae.md#prompt-2)). Six fresh-context reviewers were launched at 13:10Z on the control plane while the Astra jobs kept running. The choice of the six problems is the main thread's.
+
+| Report | Problem | Astra slices it is independent of |
+| --- | --- | --- |
+| [opus/r1-foundation.md](opus/r1-foundation.md) | Is R1 the sound row model the lineage assumed; what R and H already fix; quality evidence for R1 itself; defects already present with real times | 01 |
+| [opus/proposal-recipe.md](opus/proposal-recipe.md) | Key 2: what was trained on what and for how long; architecture versus data, budget and recipe; corpus sampling; the pilot-scale lead | 05 |
+| [opus/player-response.md](opus/player-response.md) | Key 1: what each frontier or response object computes against the formulation's response state; validation; why bad patterns passed | 04 |
+| [opus/evaluation.md](opus/evaluation.md) | Key 3: whether any evaluator can be trusted; run the lineage's evaluators on real ranked charts and on rejected generated charts | 07 |
+| [opus/interpretation.md](opus/interpretation.md) | The reasoning trajectory and the local-optimum hypothesis; what was never questioned | 08 |
+| [opus/system-outside-view.md](opus/system-outside-view.md) | Time representation (the grid lead) and what working generators consist of; what is unusual versus justified by the real-time vision | 03, 09 |
+
+Each prompt gave the situation, the intent of the problem, where the sources are (local exports of the four trees, read-only ssh to the mac), the evidence grades, and the hard rules (no writes but the report, no training, no private material). Each reviewer was told not to read the Astra reports or job outputs. Slices 02 and 06 have no independent reviewer. The model was set to Opus; the reasoning effort could not be set from the main thread. The prompts are not saved verbatim.
 
 ## First run (Claude, stopped)
 
