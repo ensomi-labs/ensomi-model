@@ -77,13 +77,15 @@ First step, done: the human's own feedback during the loop was collected from Co
 2. The proposal distribution is not the ordinary ranked one; learn ordinary 2-6 star charts first, then add expressive range. The human states this is the wanted direction.
 3. Evaluation is extremely important. No evaluation design is chosen yet.
 
-Dropped as keys: ownership of hold versus release for LN, and a hierarchical end-to-end audio skeleton. The evidence for them stays in the index. The 09-30 artifact cleanup and the 27 commits outside the branch range (archive ref) are accepted as they are. The next step is not chosen; it needs the human's direction.
+Dropped as keys: ownership of hold versus release for LN, and a hierarchical end-to-end audio skeleton. The evidence for them stays in the index. The 09-30 artifact cleanup and the 27 commits outside the branch range (archive ref) are accepted as they are.
+
+Second step, started and stopped without findings: the human asked for a skeptical review of the lineage across git (attempts per problem, results, Codex's interpretations, a judgment of direction, what was overlooked at system level) ([private, local](artifacts/private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-1)). Nine reviewers were launched and stopped after about ten minutes because of usage limits; none reported. The plan, the nine slices, how to resume at lower cost, and two unverified leads (the response target is undefined in the formulation; the late architecture conclusions may rest on very small pilots) are in [lineage-review](artifacts/lineage-review/README.md#state). Resuming needs the human's word on when and at what cost.
 
 The baseline documents leave one review open: the quality of the restored R1 across whole charts, difficulty levels and seeds (`docs/research/r1_staged_restoration.md`, "Interpretation and provenance").
 
-Running work: none. `ens ps` showed no live job on bings-mac on 2026-09-30.
+Running work: none. `ens ps` showed no live job on bings-mac on 2026-09-30; the nine reviewers were confirmed stopped at 12:40Z.
 
-_Review: agent draft 2026-09-30, not yet reviewed. The reset and the focus on the audio-skeleton lineage are the human's decisions ([private, local](artifacts/private/human-inputs/0e81052c-94ac-435b-92a1-44c2f5d4be7f.md#prompt-1), [prompt-2](artifacts/private/human-inputs/c7186900-b717-412f-a49e-d277b65ed0c4.md#prompt-2)); the three keys and their wording are the human's answer; the reading of that answer is the agent's._
+_Review: agent draft 2026-09-30, not yet reviewed. The reset and the focus on the audio-skeleton lineage are the human's decisions ([private, local](artifacts/private/human-inputs/0e81052c-94ac-435b-92a1-44c2f5d4be7f.md#prompt-1), [prompt-2](artifacts/private/human-inputs/c7186900-b717-412f-a49e-d277b65ed0c4.md#prompt-2)); the three keys and their wording are the human's answer; the reading of that answer is the agent's. The review step and its stop are the human's instructions ([prompt-1, prompt-2](artifacts/private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-1)); the slices and the two leads are the agent's._
 
 ## Views
 
