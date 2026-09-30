@@ -14,7 +14,7 @@ from ..oracle_time_continuation.publication import staging_directory
 from ..oracle_time_continuation.runtime import ResourceGuard, ResourceLimit, sync_directory
 from ..bounded_typed_continuation.memory import footprint_bytes
 from ..oracle_time_continuation.storage import file_digest
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 
 
 def read_json(path, sha, *, limit=128 * 1024**2):

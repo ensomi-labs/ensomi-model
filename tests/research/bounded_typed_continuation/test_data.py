@@ -12,7 +12,7 @@ from ensomi_model.research.bounded_typed_continuation.features import query_feat
 from ensomi_model.research.bounded_typed_continuation.model import BoundedModel, ModelConfig
 from ensomi_model.research.oracle_time_continuation.data import SourceIdentity
 from ensomi_model.research.oracle_time_continuation.storage import ROW_DTYPE, SOURCE_FORMAT
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 
 
 IDENTITY = SourceIdentity('a' * 64, 'b' * 64, 'synthetic-group', 'train')

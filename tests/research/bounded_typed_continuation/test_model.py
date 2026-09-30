@@ -8,7 +8,7 @@ import torch
 from ensomi_model.research.bounded_typed_continuation.contract import Arm, Schedule, Timing
 from ensomi_model.research.bounded_typed_continuation.features import CONTENT_DIM, EndpointAvailability, TimingView, query_features
 from ensomi_model.research.bounded_typed_continuation.model import BoundedModel, EndpointFactor, EndpointPointer, ModelConfig
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 
 
 def small_model(arm=Arm.O1, device='cpu', availability='none'):

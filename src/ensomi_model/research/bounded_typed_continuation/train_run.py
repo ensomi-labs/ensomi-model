@@ -20,7 +20,7 @@ from ..oracle_time_continuation.runtime import (
     ResourceGuard, ResourceLimit, atomic_checkpoint, log_boundary, verify_boundary, write_record,
 )
 from ..oracle_time_continuation.storage import file_digest
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .corpus import ChartCache, Coverage, next_batch, read_plan
 from .contract import Arm
 from .data import batch_likelihood, prepare_batch

@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-from ..scoped_style_modeling.dataset import ContractError, canonical_json, digest
+from ..chart.dataset import ContractError, canonical_json, digest
 from .storage import file_digest
 
 

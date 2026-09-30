@@ -13,7 +13,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .contract import Arm, ROW_ACTIONS, Schedule
 from .features import RELATIVE_LANES, TIME_DIM, time_features
 from .temporal import pointwise

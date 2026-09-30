@@ -17,7 +17,7 @@ from ensomi_model.research.oracle_time_continuation.export import export_osu
 from ensomi_model.research.oracle_time_continuation.runtime import ResourceConfig
 from ensomi_model.research.oracle_time_continuation.schema import CompleteRow
 from ensomi_model.research.oracle_time_continuation.storage import ROW_DTYPE
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 
 
 def setup(arm, device='cpu', availability='none', consequence='none', seed_context='none', long_memory='none', head_routing='none', release_routing='none'):

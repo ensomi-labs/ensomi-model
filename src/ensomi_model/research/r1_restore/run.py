@@ -17,7 +17,7 @@ from ..bounded_typed_continuation.model import BoundedModel, ModelConfig
 from ..bounded_typed_continuation.smoke_run import source_revision
 from ..oracle_time_continuation.runtime import ResourceGuard, ResourceLimit
 from ..oracle_time_continuation.storage import file_digest
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from ..vacation_training.control import Control, publish_json, read_json, run_lock
 from ..vacation_training.stress import run_cases
 from ..vacation_training.teacher import evaluate, validate_evaluation

@@ -10,7 +10,7 @@ from ensomi_model.research.vacation_training.audio import cache_asset, frame_chu
 from ensomi_model.research.vacation_training.control import publish_json
 from ensomi_model.research.vacation_training.config import AudioConfig
 from ensomi_model.research.oracle_time_continuation.storage import file_digest
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 
 
 def test_streaming_frame_grid_matches_whole_waveform_across_short_reads():

@@ -13,7 +13,7 @@ from ensomi_model.research.bounded_typed_continuation.data import SourceInterval
 from ensomi_model.research.bounded_typed_continuation.features import RELATIVE_LANES, TIME_DIM, time_features
 from ensomi_model.research.bounded_typed_continuation.model import BoundedModel, ModelConfig
 from ensomi_model.research.oracle_time_continuation.schema import CompleteRow
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 from .test_data import chart, mixed_chart
 
 

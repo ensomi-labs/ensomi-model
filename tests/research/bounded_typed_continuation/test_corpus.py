@@ -11,7 +11,7 @@ from ensomi_model.research.bounded_typed_continuation.corpus import (
 )
 from ensomi_model.research.oracle_time_continuation.data import SourceIdentity
 from ensomi_model.research.oracle_time_continuation.storage import ROW_DTYPE, SOURCE_FORMAT, file_digest
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError, canonical_json
+from ensomi_model.research.chart.dataset import ContractError, canonical_json
 
 
 def inputs(tmp_path):

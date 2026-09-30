@@ -18,7 +18,7 @@ from torchaudio.functional import melscale_fbanks
 from ..oracle_time_continuation.publication import staging_directory
 from ..oracle_time_continuation.runtime import sync_directory
 from ..oracle_time_continuation.storage import file_digest
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .control import publish_json, read_json, tree_bytes
 
 SPEC = dict(format='vacation/log-mel-v1', sample_rate=24000, hop_samples=240,

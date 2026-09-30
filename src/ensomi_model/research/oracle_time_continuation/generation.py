@@ -8,7 +8,7 @@ from time import perf_counter
 
 import torch
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .checkpoint import pack_state, restore_state, runtime_identity
 from .decoding import DecodeSamplingPolicy, sample_row
 from .engine import ContinuationEngine

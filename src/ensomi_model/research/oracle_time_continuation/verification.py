@@ -8,8 +8,8 @@ from __future__ import annotations
 from bisect import bisect_left, bisect_right
 from dataclasses import asdict
 
-from ..scoped_style_modeling.dataset import ContractError
-from ..source_action_modeling.actions import parse_source
+from ..chart.dataset import ContractError
+from ..chart.actions import parse_source
 from .data import admit_source
 from .engine import ContinuationState, prefill
 

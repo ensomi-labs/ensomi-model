@@ -14,7 +14,7 @@ from ensomi_model.research.oracle_time_continuation.runtime import ResourceConfi
 from ensomi_model.research.oracle_time_continuation.storage import SourceCacheConfig, SourceStore
 from ensomi_model.research.oracle_time_continuation.train_hydra import compose_config
 from ensomi_model.research.oracle_time_continuation.train_run import run_training
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError, digest
+from ensomi_model.research.chart.dataset import ContractError, digest
 from .conftest import admit, source_bytes
 from .test_train_hydra import write_inputs
 

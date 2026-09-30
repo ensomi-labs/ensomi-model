@@ -9,7 +9,7 @@ import numpy as np
 from ...osu_core.difficulty import compute_mania_star_rating_20241007, parse_osu_file
 from ..bounded_typed_continuation.corpus import SamplingConfig, draw_plan, read_plan
 from ..oracle_time_continuation.storage import ROW_DTYPE, file_digest
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from ..vacation_training.control import publish_json, read_json
 from .config import STAGES
 

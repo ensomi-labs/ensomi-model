@@ -7,7 +7,7 @@ from pathlib import Path
 
 import torch
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .checkpoint import runtime_identity
 from .config import BackboneConfig
 from .corpus import admit_entry, catalog_entries, read_split, source_assignments

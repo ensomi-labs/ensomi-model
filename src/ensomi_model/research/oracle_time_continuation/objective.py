@@ -8,7 +8,7 @@ import math
 import torch
 from torch import Tensor
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 
 MARGINAL_NAMES = ("press_count", "hand_press_configuration", "lane_state_transition")
 

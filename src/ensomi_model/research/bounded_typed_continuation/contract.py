@@ -14,7 +14,7 @@ from typing import Mapping, Sequence
 
 from ..oracle_time_continuation.replay import ExactReplayState, commit
 from ..oracle_time_continuation.schema import CompleteRow, checked_time
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 
 ROW_ACTIONS = tuple(product(range(4), repeat=4))
 HEAD_ACTIONS = tuple(product(range(3), repeat=4))

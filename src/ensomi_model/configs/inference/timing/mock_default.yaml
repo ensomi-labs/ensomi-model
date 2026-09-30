@@ -1,5 +1,0 @@
-# @package timing_mock
-enabled: true
-route: timing_mock
-model_id: timing_mock/default
-timing_checkpoint_path: final0

@@ -1,2 +1,2 @@
-"""Feature extraction for audio, timing, and control signals."""
+"""Audio loading and log-Mel features."""
 

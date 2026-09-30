@@ -7,7 +7,7 @@ cost or an inference constraint, and consumes no source suffix actions.
 """
 import numpy as np
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .contract import Arm, ROW_ACTIONS
 from .support import row_supports
 

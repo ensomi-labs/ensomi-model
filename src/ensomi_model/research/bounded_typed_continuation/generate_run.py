@@ -21,8 +21,8 @@ from ..oracle_time_continuation.runtime import (
 )
 from ..oracle_time_continuation.schema import CompleteRow
 from ..oracle_time_continuation.storage import file_digest
-from ..scoped_style_modeling.dataset import ContractError
-from ..source_action_modeling.actions import parse_source
+from ..chart.dataset import ContractError
+from ..chart.actions import parse_source
 from .condition import GenerationCondition, exact_fields, pinned_bytes
 from .contract import Arm
 from .generate_config import GenerateConfig

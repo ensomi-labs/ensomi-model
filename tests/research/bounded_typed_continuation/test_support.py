@@ -14,7 +14,7 @@ from ensomi_model.research.bounded_typed_continuation.model import BoundedModel,
 from ensomi_model.research.bounded_typed_continuation.support import row_supports
 from ensomi_model.research.oracle_time_continuation.replay import ExactReplayState, commit
 from ensomi_model.research.oracle_time_continuation.schema import CompleteRow
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError
+from ensomi_model.research.chart.dataset import ContractError
 from .test_data import mixed_chart
 from .test_generation import setup
 

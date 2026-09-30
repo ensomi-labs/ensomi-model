@@ -12,7 +12,7 @@ from ..bounded_typed_continuation.generate_config import GenerateConfig
 from ..bounded_typed_continuation.model import BoundedModel
 from ..oracle_time_continuation.storage import file_digest
 from ..oracle_time_continuation.runtime import ResourceGuard
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .control import publish_json, read_json
 from .stress import run_cases, validate_cases
 

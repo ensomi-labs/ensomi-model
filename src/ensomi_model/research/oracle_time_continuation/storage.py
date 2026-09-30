@@ -11,7 +11,7 @@ import os
 
 import numpy as np
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .data import SeedSelection, SourceIdentity
 from .schema import CompleteRow
 
@@ -181,8 +181,8 @@ def stream_admission(path: Path, directory: Path, sha: str, group_id: str, split
     """
     from itertools import groupby
     import sqlite3
-    from ..scoped_style_modeling.dataset import canonical_json
-    from ..scoped_style_modeling.replay import iter_source_objects
+    from ..chart.dataset import canonical_json
+    from ..chart.replay import iter_source_objects
     from .replay import ExactReplayState, commit
     db = sqlite3.connect(directory / 'admission.sqlite')
     try:

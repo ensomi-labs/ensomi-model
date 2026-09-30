@@ -5,7 +5,7 @@ import math
 from ..bounded_typed_continuation.train_config import TrainConfig
 from ..bounded_typed_continuation.generate_config import GenerateConfig, checked_digest
 from ..bounded_typed_continuation.smoke_config import SmokeResources
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 
 
 @dataclass

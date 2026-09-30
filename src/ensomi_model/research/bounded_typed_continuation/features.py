@@ -13,7 +13,7 @@ import numpy as np
 
 from ..oracle_time_continuation.features import TIME_DIM, TIME_SCALES_MS
 from ..oracle_time_continuation.schema import CompleteRow
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .contract import Schedule, Timing
 
 RELATIVE_LANES = ((0, 1, 3, 2), (3, 2, 0, 1))

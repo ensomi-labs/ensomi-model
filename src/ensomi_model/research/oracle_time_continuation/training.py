@@ -14,7 +14,7 @@ from typing import Sequence
 
 import torch
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .engine import ContinuationEngine
 from .model import CausalBackbone, row_index
 from .objective import MARGINAL_NAMES, ObjectiveConfig, sequence_cost

@@ -6,8 +6,8 @@ from dataclasses import dataclass, replace
 import torch
 from torch import Tensor, nn
 
-from ..scoped_style_modeling.replay import HAND_COLUMNS
-from ..source_action_modeling.actions import ATTACK_ACTIONS, LN_CLOSE, LN_START
+from ..chart.replay import HAND_COLUMNS
+from ..chart.actions import ATTACK_ACTIONS, LN_CLOSE, LN_START
 from .attention import MemoryAttention
 from .config import BackboneConfig
 from .features import TIME_DIM, clock_features, relative_lanes

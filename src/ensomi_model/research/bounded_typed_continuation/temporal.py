@@ -12,7 +12,7 @@ import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 
 
 @dataclass(frozen=True)

@@ -12,7 +12,7 @@ import math
 import random
 from typing import Sequence
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .data import ContinuationSource, SeedSelection
 
 CONTEXT_STRATA = ((0, 64), (64, 512), (512, None))

@@ -1,2 +1,0 @@
-"""Mapper model versions."""
-

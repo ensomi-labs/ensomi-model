@@ -13,7 +13,7 @@ from ensomi_model.research.bounded_typed_continuation.smoke_hydra import compose
 from ensomi_model.research.bounded_typed_continuation import smoke_run
 from ensomi_model.research.oracle_time_continuation.data import SourceIdentity
 from ensomi_model.research.oracle_time_continuation.storage import ROW_DTYPE, SOURCE_FORMAT, file_digest
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError, canonical_json
+from ensomi_model.research.chart.dataset import ContractError, canonical_json
 
 
 def test_packaged_composition_arm_selection_and_complete_projection():

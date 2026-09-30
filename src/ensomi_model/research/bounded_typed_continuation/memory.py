@@ -3,7 +3,7 @@ import ctypes
 from functools import lru_cache
 import platform
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 
 
 class TaskVMInfoRev1(ctypes.Structure):

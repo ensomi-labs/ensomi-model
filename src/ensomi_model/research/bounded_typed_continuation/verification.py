@@ -5,7 +5,7 @@ Output parsing/export are separate checks; source suffix actions are not inputs.
 """
 from bisect import bisect_left
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .contract import Arm
 
 

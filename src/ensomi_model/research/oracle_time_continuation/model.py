@@ -8,7 +8,7 @@ import math
 import torch
 from torch import Tensor, nn
 
-from ..scoped_style_modeling.dataset import ContractError
+from ..chart.dataset import ContractError
 from .config import BackboneConfig
 from .engine import PredictionInput
 from .features import ClockReadout, HistoryEncoder, SkeletonTimeEncoder, TIME_FEATURE_SCHEMA

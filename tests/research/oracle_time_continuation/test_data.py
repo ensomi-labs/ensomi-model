@@ -8,7 +8,7 @@ import pytest
 from ensomi_model.research.oracle_time_continuation.data import admit_source
 from ensomi_model.research.oracle_time_continuation.engine import ContinuationState, prefill
 from ensomi_model.research.oracle_time_continuation.schema import CompleteRow, TimeSkeleton
-from ensomi_model.research.scoped_style_modeling.dataset import ContractError, digest
+from ensomi_model.research.chart.dataset import ContractError, digest
 from .conftest import admit, source_bytes
 
 
