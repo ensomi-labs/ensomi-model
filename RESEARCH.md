@@ -69,13 +69,15 @@ _Review: agent draft 2026-09-30, not yet reviewed. The whole map, its edges and 
 
 ## Current movement
 
-(proposed) No focus is chosen. On 2026-09-30 the human reset these notes to the baseline above. The audio-conditioned joint lineage of 2026-09-23 to 2026-09-29 closed without a qualified model and is not a basis for position or for the map. Its code is at tag `audio-joint-2026-09` and its notes at tag `relay-notes-audio-joint-2026-09`; read them only when the human asks.
+On 2026-09-30 the human reset these notes to the baseline above, then named the current focus: distil what is useful from the `codex/audio-skeleton` lineage since `r1-restored-6.75m`, whose experiments mostly failed and probably began from wrong directions ([private, local](artifacts/private/human-inputs/c7186900-b717-412f-a49e-d277b65ed0c4.md#prompt-2)). The lineage is still not a basis for position or for the map. Its code is at tag `audio-joint-2026-09` and its earlier notes at tag `relay-notes-audio-joint-2026-09`.
+
+First step, done: the human's own feedback during the loop was collected from Codex sessions on bings-mac, with pointers to the mac artifacts, in [audio-skeleton-human-feedback-index](artifacts/audio-skeleton-human-feedback-index.md). Quotes are in a private, local file cited from there. Evidence is 84 human messages, 2026-09-23 to 2026-09-28, provenance judged high confidence. (proposed) The index ranks five candidate keys, all agent inference and none reviewed by the human: judge candidates by a player-response state at acceptance rather than scalar star; the proposal distribution is not the ordinary ranked one; ownership of hold versus release for LN; corpus-grounded time-based evals lead; hierarchical end-to-end skeleton from audio. The next step waits for the human to confirm or correct these keys.
 
 The baseline documents leave one review open: the quality of the restored R1 across whole charts, difficulty levels and seeds (`docs/research/r1_staged_restoration.md`, "Interpretation and provenance").
 
 Running work: none. `ens ps` showed no live job on bings-mac on 2026-09-30.
 
-_Review: agent draft 2026-09-30, not yet reviewed. The reset is the human's decision ([private, local](artifacts/private/human-inputs/0e81052c-94ac-435b-92a1-44c2f5d4be7f.md#prompt-1)); the absence of a focus is (proposed)._
+_Review: agent draft 2026-09-30, not yet reviewed. The reset and the focus on the audio-skeleton lineage are the human's decisions ([private, local](artifacts/private/human-inputs/0e81052c-94ac-435b-92a1-44c2f5d4be7f.md#prompt-1), [prompt-2](artifacts/private/human-inputs/c7186900-b717-412f-a49e-d277b65ed0c4.md#prompt-2)); the candidate keys are (proposed)._
 
 ## Views
 
