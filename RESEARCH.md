@@ -71,13 +71,19 @@ _Review: agent draft 2026-09-30, not yet reviewed. The whole map, its edges and 
 
 On 2026-09-30 the human reset these notes to the baseline above, then named the current focus: distil what is useful from the `codex/audio-skeleton` lineage since `r1-restored-6.75m`, whose experiments mostly failed and probably began from wrong directions ([private, local](artifacts/private/human-inputs/c7186900-b717-412f-a49e-d277b65ed0c4.md#prompt-2)). The lineage is still not a basis for position or for the map. Its code is at tag `audio-joint-2026-09` and its earlier notes at tag `relay-notes-audio-joint-2026-09`.
 
-First step, done: the human's own feedback during the loop was collected from Codex sessions on bings-mac, with pointers to the mac artifacts, in [audio-skeleton-human-feedback-index](artifacts/audio-skeleton-human-feedback-index.md). Quotes are in a private, local file cited from there. Evidence is 84 human messages, 2026-09-23 to 2026-09-28, provenance judged high confidence. (proposed) The index ranks five candidate keys, all agent inference and none reviewed by the human: judge candidates by a player-response state at acceptance rather than scalar star; the proposal distribution is not the ordinary ranked one; ownership of hold versus release for LN; corpus-grounded time-based evals lead; hierarchical end-to-end skeleton from audio. The next step waits for the human to confirm or correct these keys.
+First step, done: the human's own feedback during the loop was collected from Codex sessions on bings-mac, with pointers to the mac artifacts, in [audio-skeleton-human-feedback-index](artifacts/audio-skeleton-human-feedback-index.md) (84 human messages, 2026-09-23 to 2026-09-28; quotes in a private, local file cited there). The human reviewed the agent's five candidate keys and kept three ([private, local](artifacts/private/human-inputs/c7186900-b717-412f-a49e-d277b65ed0c4.md#answer-1)):
+
+1. A player response state is the novel core relative to `ref-proj/`: player profile, stimulus-response, style readout and difficulty modelled together, as in the V3 formulation (`docs/formulation/gameplay-state.md`).
+2. The proposal distribution is not the ordinary ranked one; learn ordinary 2-6 star charts first, then add expressive range. The human states this is the wanted direction.
+3. Evaluation is extremely important. No evaluation design is chosen yet.
+
+Dropped as keys: ownership of hold versus release for LN, and a hierarchical end-to-end audio skeleton. The evidence for them stays in the index. The 09-30 artifact cleanup and the 27 commits outside the branch range (archive ref) are accepted as they are. The next step is not chosen; it needs the human's direction.
 
 The baseline documents leave one review open: the quality of the restored R1 across whole charts, difficulty levels and seeds (`docs/research/r1_staged_restoration.md`, "Interpretation and provenance").
 
 Running work: none. `ens ps` showed no live job on bings-mac on 2026-09-30.
 
-_Review: agent draft 2026-09-30, not yet reviewed. The reset and the focus on the audio-skeleton lineage are the human's decisions ([private, local](artifacts/private/human-inputs/0e81052c-94ac-435b-92a1-44c2f5d4be7f.md#prompt-1), [prompt-2](artifacts/private/human-inputs/c7186900-b717-412f-a49e-d277b65ed0c4.md#prompt-2)); the candidate keys are (proposed)._
+_Review: agent draft 2026-09-30, not yet reviewed. The reset and the focus on the audio-skeleton lineage are the human's decisions ([private, local](artifacts/private/human-inputs/0e81052c-94ac-435b-92a1-44c2f5d4be7f.md#prompt-1), [prompt-2](artifacts/private/human-inputs/c7186900-b717-412f-a49e-d277b65ed0c4.md#prompt-2)); the three keys and their wording are the human's answer; the reading of that answer is the agent's._
 
 ## Views
 
