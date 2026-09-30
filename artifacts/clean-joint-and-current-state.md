@@ -103,7 +103,7 @@ BOS+source H and BOS+native H for each song:
   mumei, a persistent held role with thirteen other-finger TAP groups was
   learned; BOS/source-H retained only three, and native H produced 5–6-ms LNs.
   This is useful conditional capacity with failed autonomous behavior.
-- Native H contained many <=10-ms adjacent pairs absent from the four sources.
+- <a id="o-native-h-doublets"></a>**Observation, fresh expert at 512 updates, agent inspection.** Native H contained many <=10-ms adjacent pairs absent from the four sources.
   Of 191 short tails, 155 ended at the immediately following H. Onset-nearness
   could remain high while duplicate H events appeared. Source-H substitution
   changes later state/RNG too; this is not an objectwise causal percentage.
@@ -130,7 +130,7 @@ This was a hypothesis/request, not an established cause. [Private, local
 sources](private/human-inputs/01a0ebe8-d368-7ba3-9d56-48da0524c5b6.md#m1062)
 and [curve question](private/human-inputs/01a0ebe8-d368-7ba3-9d56-48da0524c5b6.md#m1065).
 
-The source audit found existing time inputs in H and R1, and exponential
+<a id="o-unused-consequence-path"></a>**Observation, source read at `96f84fd` and a four-window ablation.** The source audit found existing time inputs in H and R1, and exponential
 response scales 250/1,000/4,000/16,000 ms with reciprocal-gap impulses. The
 segment decoder nevertheless deletes `row_consequence` and accepts `local`/
 `timing` candidate features without using them. Recovery re-read that function

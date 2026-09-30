@@ -90,7 +90,7 @@ work accounting now retains prior committed charges. The focused test checks
 that an eight-second breach rejects without changing published state. This
 fixes accounting, not the inadequacy of the response itself.
 
-An actual planner execution published a 25-ms LN with zero work. Isolated
+<a id="o-25ms-ln-zero-work"></a>**Observation, planner execution on `codex/release-calibration`.** An actual planner execution published a 25-ms LN with zero work. Isolated
 23/25/40/80/150/300-ms releases likewise had zero under the tested reference;
 32 same-finger TAPs 125 ms apart were sensitive relative to rotation but still
 accepted. A quadratic work alternative did not repair discrimination and was
