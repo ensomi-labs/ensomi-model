@@ -1,26 +1,32 @@
-# Lineage review: plan, state at stop, and how to resume
+# Lineage review: plan, runs and state
 
-Shareable; no human wording. Written by the main relay session `05329633` (Claude, control plane) on 2026-09-30.
+Shareable; no human wording. Written by the main relay sessions `05329633` and `2a66b88f` (Claude, control plane) on 2026-09-30.
 
-<a id="state"></a>**State, 2026-09-30 12:40Z: started, stopped after about ten minutes, no findings.** The human asked for a skeptical review of the `codex/audio-skeleton` lineage across git: earlier attempts per problem, their results, Codex's interpretations, a judgment of direction, and what was overlooked at system level ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-1)). Nine fresh-context reviewers were launched in parallel, then stopped on the human's instruction because of usage limits ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-2)). No reviewer wrote a report. The review is unfinished, not cancelled.
+<a id="state"></a>**State, 2026-09-30 13:00Z: second run in progress, nine Astra reviewers on bings-mac, no finding read yet.** The human asked for a skeptical review of the `codex/audio-skeleton` lineage across git: earlier attempts per problem, their results, Codex's interpretations, a judgment of direction, and what was overlooked at system level ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-1)). A first run with nine Claude reviewers was stopped after about ten minutes for usage, before any report ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-2)). The human then directed the rerun with Astra workers only, precise briefs, and synthesis only after all return ([private, local](../private/human-inputs/2a66b88f-f40f-4219-a4c8-3f46bc5511ae.md#prompt-1)).
 
-What exists:
+## Second run (Astra, 2026-09-30)
 
-- [00-brief.md](00-brief.md): the common brief every reviewer reads first (standards, evidence grades, access, hard rules, report format). Reusable as is, except the scratchpad paths in its section 4, which belonged to this session and are gone (re-export below).
-- The nine slices, below.
-- Two preliminary observations by the main thread, below. They are leads, not results.
+- Common brief: [00-brief.md](00-brief.md), rewritten for workers on the mac. Slice texts with numbered questions: [briefs/](briefs/). Each job got the common brief followed by its slice; the exact text sent is also kept per job in `.sync/cp/jobs/<job id>/brief.md` of the workspace.
+- Launch: `ens astra ensomi-model --name lr-<slice> --rw <brief>`, model `gpt-6-astra`, effort `xhigh`, sandbox workspace-write, all nine between 12:58Z and 12:59Z. Job ids: `20260930-125841-lr-01-r1-foundation`, `20260930-125845-lr-02-pre-v3-history`, `20260930-125850-lr-03-audio-timing-skeleton`, `20260930-125855-lr-04-player-response-frontier`, `20260930-125859-lr-05-proposal-training-recipe`, `20260930-125903-lr-06-controls-ln`, `20260930-125909-lr-07-evaluation`, `20260930-125914-lr-08-codex-interpretation`, `20260930-125921-lr-09-reference-projects`.
+- Reports: written by the workers on the mac to `artifacts/reports/lineage-review/<slice>.md` in the code repository (mirrored to the control plane), copied into this directory when the run ends. Final messages: `.sync/mac/jobs/<job id>/last.md`.
+- Read-only sources on the mac: `/tmp/lineage-review/trees/{audio-joint,main,agent-notes,relay-notes-tagged}`, exported from `audio-joint-2026-09`, `main`, `refs/archive/heads/agent-notes` and `relay-notes-audio-joint-2026-09`. The mac has no copy of the last tag; its tree was sent over ssh.
+- Stop boundary given to each worker: sections filled, about 90 minutes, context near 300,000 tokens, or a relay closeout message.
+- Codex weekly quota at launch: 76% used, reset 2026-10-03T16:59Z.
+- A plumbing probe (`20260930-125741-lr-probe`) confirmed before launch: the report path and the scratch path are writable, the trees and the notes entry point are readable, the repository Python imports pandas and the lineage-end `gameplay_evaluation`, a web search tool is present, and no relay hook message reached the job.
 
-## Resuming
+Limits of this run, known at launch:
 
-1. Re-export the read-only trees into the new session's scratchpad and fix the paths in `00-brief.md` section 4:
-   `for p in audio-joint-2026-09:tree-audio-joint main:tree-main refs/archive/heads/agent-notes:tree-agent-notes relay-notes-audio-joint-2026-09:tree-relay-notes-tagged; do mkdir -p $S/${p##*:}; git -C ~/ensomi/ensomi-model archive ${p%:*} | tar -x -C $S/${p##*:}; done` (about 26 MB).
-2. Mac access that worked: `ssh -o BatchMode=yes bings-mac '<cmd>'` (read-only use), and `ens ls|du|find|cat`. `ref-proj/` on the mac holds `Mapperatorinator` and `Mug-Diffusion`.
-3. Cost: nine parallel reviewers on the session model was too much for the human's usage. Suggested (agent suggestion, not a decision): run one or two at a time in the order below, or put the inventory slices (02, 06, 09) on a cheaper model and keep the judgment slices (01, 05, 08) on the strong one. Each slice is independent; the synthesis needs at least 01, 05, 07 and 08.
-4. Leftovers of the stopped reviewers, all disposable: `/tmp/lineage-review-03-audio-timing-skeleton`, `/tmp/lineage-review-05`, `/tmp/lineage-review-06-controls-ln` on bings-mac (small probe scripts, one 140 KB JSON). Nothing was written inside `~/ensomi` on either machine.
+- The workers are the same model family that wrote the lineage. Slice 08 reviews that model's own reasoning. The brief tells each worker to treat lineage documents as claims; the main thread checks pivotal claims itself before relying on them.
+- The two leads below were given to slices 03 and 05 as hypotheses to test with evidence both ways. A worker handed a hypothesis tends to confirm it.
+- The mac's relay policy is on for Codex in auto-research mode. A worker job is not a relay main thread; the brief says to ignore notes guidance. Compaction is blocked there, so a job whose context overflows is lost with only its partial report file.
+
+## First run (Claude, stopped)
+
+Nine fresh-context Claude reviewers were launched in parallel from session `05329633` and stopped on the human's instruction. No reviewer wrote a report. Its leftovers, all disposable: `/tmp/lineage-review-03-audio-timing-skeleton`, `/tmp/lineage-review-05`, `/tmp/lineage-review-06-controls-ln` on bings-mac. The full prompts of that run were not saved; the slice table below carries their questions, and the second run's briefs are saved in [briefs/](briefs/).
 
 ## Slices
 
-Each reviewer writes `artifacts/lineage-review/<id>.md` with the sections of the brief. Suggested order of value: 01, 05, 08, 07, 03, 09, 04, 06, 02.
+One report per slice, with the sections of the brief. Order of value as judged before any result: 01, 05, 08, 07, 03, 09, 04, 06, 02.
 
 | Id | Question | Main sources | Pivotal checks |
 | --- | --- | --- | --- |
@@ -33,8 +39,6 @@ Each reviewer writes `artifacts/lineage-review/<id>.md` with the sections of the
 | `07-evaluation` | Key 3. Every evaluator used to claim a result, and whether it can be trusted. | `gameplay_regression_evaluation.md`, `fresh_audio_system_evaluation.md`, `ranked_2to6_action_reference.md`; package `gameplay_evaluation`; tagged notes `evaluation-and-evidence-boundaries.md`; mac `artifacts/joint-audio/20260927-gameplay-evaluation-v1`, lens directories from the feedback index | Which evaluators were validated against real ranked charts or human judgment. Each metric-gain-then-human-rejection case. Dev-set reuse, seeds, noise floor. Which star calculator. If the mac environment allows within minutes: run the existing evaluators on real ranked 3.5-4.5 star charts and on a rejected generated set. |
 | `08-codex-interpretation` | The reasoning trajectory: diagnosis, options, choice, and how each belief aged. Tests the local-optimum hypothesis instead of assuming it. | All of tagged notes `relay-notes-audio-joint-2026-09`; `refs/archive/heads/agent-notes` with history; `audio_joint_expert_question.md`; the two pasted expert replies under `~/.codex/attachments/` on the mac (paths in the feedback index, section 4); commit timestamps | Diagnosis timeline with each diagnosis marked confirmed, contradicted, dropped or untested. Turning points from evidence versus after human correction. Time and compute per conclusion. Expert recommendations adopted or ignored. What was never questioned: R1 as base, millisecond timing without grid, scale, corpus sampling, small sequential pilots, strict causality, existing generators as baseline. |
 | `09-reference-projects` | The outside view: what working generators consist of and which ingredients this project lacked, rejected or never considered. | mac `ref-proj/Mapperatorinator`, `ref-proj/Mug-Diffusion`; papers and model cards on the web; official osu!mania star rating; every mention of the reference projects in this repo's docs | Side-by-side table (representation, time grid, audio encoder, size, data, compute, conditioning, evaluation). Which design features address each human complaint. Is a player response state really absent elsewhere? Was a reference generator ever run on the same songs as a baseline, and what would it take? |
-
-The full prompts were given to the reviewers in the session and are not saved verbatim; the table carries their questions.
 
 ## Preliminary observations (main thread, before any reviewer result)
 

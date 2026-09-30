@@ -83,7 +83,7 @@ Second step, started and stopped without findings: the human asked for a skeptic
 
 The baseline documents leave one review open: the quality of the restored R1 across whole charts, difficulty levels and seeds (`docs/research/r1_staged_restoration.md`, "Interpretation and provenance").
 
-Running work: none. `ens ps` showed no live job on bings-mac on 2026-09-30; the nine reviewers were confirmed stopped at 12:40Z.
+Running work, 2026-09-30 13:00Z: the review was restarted on the human's instruction with nine Astra workers on bings-mac, one per slice ([private, local](artifacts/private/human-inputs/2a66b88f-f40f-4219-a4c8-3f46bc5511ae.md#prompt-1)). Job ids, briefs, report locations and the limits of this run are in [lineage-review, second run](artifacts/lineage-review/README.md#state). No result has been read; synthesis starts when all nine have ended.
 
 _Review: agent draft 2026-09-30, not yet reviewed. The reset and the focus on the audio-skeleton lineage are the human's decisions ([private, local](artifacts/private/human-inputs/0e81052c-94ac-435b-92a1-44c2f5d4be7f.md#prompt-1), [prompt-2](artifacts/private/human-inputs/c7186900-b717-412f-a49e-d277b65ed0c4.md#prompt-2)); the three keys and their wording are the human's answer; the reading of that answer is the agent's. The review step and its stop are the human's instructions ([prompt-1, prompt-2](artifacts/private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-1)); the slices and the two leads are the agent's._
 
