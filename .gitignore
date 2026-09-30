@@ -10,3 +10,7 @@ __pycache__/
 .DS_Store
 
 ./ref-proj/**
+.codex/hooks.json
+.agents/skills/research-relay
+# research-relay local files
+/artifacts/private/
