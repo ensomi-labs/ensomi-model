@@ -12,3 +12,5 @@ __pycache__/
 ./ref-proj/**
 .codex/hooks.json
 .agents/skills/research-relay
+# research-relay local files
+/artifacts/private/
