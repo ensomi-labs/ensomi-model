@@ -2,7 +2,7 @@
 
 Shareable; no human wording. Written by the main relay sessions `05329633` and `2a66b88f` (Claude, control plane) on 2026-09-30.
 
-<a id="state"></a>**State, 2026-09-30 13:50Z: complete. All fifteen reviewers returned; the reports are in [astra/](astra/) and [opus/](opus/); the main thread's reading is in [synthesis.md](synthesis.md), with the questions only the human can settle in its [section 5](synthesis.md#for-the-human).** The human asked for a skeptical review of the `codex/audio-skeleton` lineage across git: earlier attempts per problem, their results, Codex's interpretations, a judgment of direction, and what was overlooked at system level ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-1)). A first run with nine Claude reviewers was stopped after about ten minutes for usage, before any report ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-2)). The human then directed the rerun with Astra workers, precise briefs, and synthesis only after all return ([private, local](../private/human-inputs/2a66b88f-f40f-4219-a4c8-3f46bc5511ae.md#prompt-1)), and added independent Opus reviewers on the critical problems ([private, local](../private/human-inputs/2a66b88f-f40f-4219-a4c8-3f46bc5511ae.md#prompt-2)).
+<a id="state"></a>**State, 2026-09-30, closed: eighteen reviewers returned. Reports in [astra/](astra/), [opus/](opus/) and [fable/](fable/); the main thread's reading, second version, in [synthesis.md](synthesis.md), with the questions only the human can settle in its [section 5](synthesis.md#for-the-human) and what the audit changed in its [section 9](synthesis.md#revision-2).** The human asked for a skeptical review of the `codex/audio-skeleton` lineage across git: earlier attempts per problem, their results, Codex's interpretations, a judgment of direction, and what was overlooked at system level ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-1)). A first run with nine Claude reviewers was stopped after about ten minutes for usage, before any report ([private, local](../private/human-inputs/05329633-5f3b-4149-b6da-8c599388a7c5.md#prompt-2)). The human then directed the rerun with Astra workers, precise briefs, and synthesis only after all return ([private, local](../private/human-inputs/2a66b88f-f40f-4219-a4c8-3f46bc5511ae.md#prompt-1)), and added independent Opus reviewers on the critical problems ([private, local](../private/human-inputs/2a66b88f-f40f-4219-a4c8-3f46bc5511ae.md#prompt-2)).
 
 Outcome of the run: nine Astra jobs, all exit 0, 12:58Z to 13:29Z (17 to 30 minutes each); six Opus reviewers, 13:06Z to 13:23Z. Codex weekly quota went from 76% to 83%. No tracked file changed on either machine; the workers wrote their reports and scratch files under `/tmp/lineage-review/` on the mac (scripts and JSON results, disposable location). No relay hook message was reported by any worker.
 
@@ -36,6 +36,18 @@ At about 13:05Z the human reported that Claude usage was reset and asked for Opu
 | [opus/system-outside-view.md](opus/system-outside-view.md) | Time representation (the grid lead) and what working generators consist of; what is unusual versus justified by the real-time vision | 03, 09 |
 
 Each prompt gave the situation, the intent of the problem, where the sources are (local exports of the four trees, read-only ssh to the mac), the evidence grades, and the hard rules (no writes but the report, no training, no private material). Each reviewer was told not to read the Astra reports or job outputs. Slices 02 and 06 have no independent reviewer. The model was set to Opus; the reasoning effort could not be set from the main thread. The prompts are not saved verbatim.
+
+## Supplement and audit (2026-09-30)
+
+After the first synthesis the human asked for independent Opus reviews of the two slices only Astra had covered, allowed one Fable reviewer, and asked for the synthesis to be redone ([private, local](../private/human-inputs/2a66b88f-f40f-4219-a4c8-3f46bc5511ae.md#prompt-3)). Three fresh-context reviewers ran on the control plane:
+
+| Report | Task | Reads |
+| --- | --- | --- |
+| [opus/pre-v3-history.md](opus/pre-v3-history.md) | Slice 02, independent of Astra | Not the Astra, Opus or Fable reports, nor the synthesis |
+| [opus/controls-ln.md](opus/controls-ln.md) | Slice 06, independent of Astra | The same |
+| [fable/synthesis-audit.md](fable/synthesis-audit.md) | Audit of the first synthesis and the entry-point changes against the fifteen reports, code and raw artifacts; adjudication of the two open disagreements | Everything except private material |
+
+The object of the Fable review was the main thread's choice; the human did not name it. The audit proposed ten corrections; the main thread accepted all ten and rewrote the synthesis. The audit did not read the two second-round Opus reviews, and nobody audited them. Scratch scripts and outputs are under `/tmp/lineage-review/{opus-pre-v3-history,opus-controls-ln,fable-audit}/` on the mac and in the session scratchpad on the control plane (disposable).
 
 ## First run (Claude, stopped)
 
