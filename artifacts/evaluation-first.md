@@ -44,7 +44,7 @@ Failures it answers, all from the review: the response scorer that was not in th
 
 ## Open, for the human
 
-- Loved charts: are they in the corpus today, and are they accepted individually like ranked ones, or only as part of the target population?
+- Loved charts: are they accepted individually like ranked ones, or only as part of the target population? <a id="o-loved-count"></a>**Observation, 2026-10-02:** the dataset's per-set `metadata.json` (osu! API snapshot fetched 2026-08-05; bings-mac, `~/ensomi/ensomi-model/dataset/*/*/metadata.json`) lists 1,454 loved and 9,643 ranked 4K mania beatmaps at 2 to 6 stars, in 494 loved and 3,713 ranked sets. Counted from metadata only: whether every loved `.osu` is present and matches its checksum was not checked, and the ranked census behind R1's corpus admitted ranked charts only.
 - How many windows per round the human will judge in the spot-check of Part 1, item 6, and whether played or viewed.
 - Part 2: enforced in code (job launcher and Codex hooks on the mac refuse a report without receipts and an unchanged evaluator hash) or as brief and review rules only.
 - "End to end" ([d-eval-first](#d-eval-first)): of the agent's reasoning only, or also of the generation model.
