@@ -196,6 +196,14 @@ Where the agent qualifies the memo:
 - The design is much heavier than the placeholder. The agent would build it in steps: the tiling and duration weights first, because they remove the 6.1% loss; the kernel song null next; same-shape windows and the scan view when partial scopes and LN concentration are exercised.
 - One tension stays on record and is not worked around: [d-fold-per-segment](#d-fold-per-segment) puts a 158 to 162 BPM song in two key segments with different references. E3 tests whether that costs calibration. If it does, the remedy contradicts that decision and goes to the human.
 
+<a id="d-song-null"></a>**Decisions, human, 2026-10-03 (selections among the agent's options, [private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#answer-3)).**
+
+- The song aggregation of [p-null](fable-passage-boundaries.md#p-null) replaces passage-count strata, in stages. First comes the duration-weighted rate view, with a song null kernel-weighted in duration and star. The worst-run view and same-shape windows follow when partial scopes are exercised.
+- Weights are in seconds, and E3 reports canonical-beat weights beside them.
+- The passage cutting of [p-passage](fable-passage-boundaries.md#p-passage) is not adopted: the human chose to discuss it first. Until then the harness keeps its placeholder tiling.
+
+Questions 2 and 3 below are answered; 1 is under discussion; 4 is open.
+
 <a id="q-passage-review"></a>**Open for the human, 2026-10-03.**
 
 1. Adopt the passage definition of item 1, with bars as alignment, as the harness's tiling?
