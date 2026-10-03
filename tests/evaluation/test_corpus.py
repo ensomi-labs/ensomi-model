@@ -4,16 +4,16 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ensomi_model.evaluation.corpus import build_inventory, song_title, split_of
+from ensomi_model.evaluation.corpus import build_corpus, song_title, split_of
 
 LANE_X = (64, 192, 320, 448)
 
 
 def osu_text(*, title, artist='Artist', version='Hard', beatmap_id=0, set_id=0, audio='audio.mp3',
-             timing=('0,500,4,2,0,80,1,0',), objects=()):
+             timing=('0,500,4,2,0,80,1,0',), objects=(), keys=4):
     lines = ['osu file format v14', '', '[General]', f'AudioFilename: {audio}', 'Mode: 3', '',
              '[Metadata]', f'Title:{title}', f'Artist:{artist}', 'Creator:mapper', f'Version:{version}',
-             f'BeatmapID:{beatmap_id}', f'BeatmapSetID:{set_id}', '', '[Difficulty]', 'CircleSize:4',
+             f'BeatmapID:{beatmap_id}', f'BeatmapSetID:{set_id}', '', '[Difficulty]', f'CircleSize:{keys}',
              'OverallDifficulty:8', '', '[TimingPoints]', *timing, '', '[HitObjects]']
     for start, lane, end in objects:
         if end is None:
@@ -63,12 +63,14 @@ class InventoryTests(unittest.TestCase):
                 '666/g.osu': osu_text(title='Gimmick', artist='Nobody', beatmap_id=61, set_id=666,
                                       timing=('0,500,4,2,0,80,1,0', '4000,1e-6,4,2,0,80,1,0',
                                               '4001,500,4,2,0,80,1,8'), objects=ON_GRID),
+                '777/h.osu': osu_text(title='Seven', artist='Nobody', beatmap_id=71, set_id=777, keys=7,
+                                      objects=[(t, 0, None) for t in range(0, 4000, 500)]),
             }
             for rel, text in files.items():
                 (sets / rel).parent.mkdir(parents=True, exist_ok=True)
                 (sets / rel).write_text(text)
             for name, audio in (('111', b'song'), ('222', b'song-tv'), ('333', b'song'), ('444', b'other'),
-                                ('555', b'broken'), ('666', b'gimmick')):
+                                ('555', b'broken'), ('666', b'gimmick'), ('777', b'seven')):
                 (sets / name / 'audio.mp3').write_bytes(audio)
             md5 = {rel: hashlib.md5(text.encode()).hexdigest() for rel, text in files.items()}
             sha = {rel: hashlib.sha256(text.encode()).hexdigest() for rel, text in files.items()}
@@ -83,10 +85,16 @@ class InventoryTests(unittest.TestCase):
             catalog = root / 'catalog.json'
             catalog.write_text(json.dumps([dict(source_sha256=sha['111/b.osu'], split='train', group_id='song:x')]))
 
-            table, summary = build_inventory(root, r1_catalog=catalog, workers=1)
+            table, summary = build_corpus(root, r1_catalog=catalog, workers=1)
             rows = {Path(r['path']).relative_to('dataset/0').as_posix(): r for r in table.to_pylist()}
 
-            self.assertEqual(set(rows), set(files))
+            # Whole files are filtered at build time: not 4K mania, or no usable grid.
+            self.assertEqual(set(rows), set(files) - {'555/f.osu', '777/h.osu'})
+            self.assertEqual((summary['files'], summary['corpus']), (8, 6))
+            self.assertEqual(summary['excluded'], {'not_4k_mania': 1, 'timing': 1})
+            self.assertEqual(summary['excluded_mode_keys'], {'mode3-7k': 1})
+            self.assertEqual(summary['excluded_charts'], [dict(path='dataset/0/555/f.osu',
+                                                               error='timing: No red line with a plausible BPM')])
             self.assertEqual(rows['444/e.osu']['origin'], 'acq-test')
             self.assertEqual(rows['111/a.osu']['origin'], 'base')
             self.assertEqual((rows['111/a.osu']['api_match'], rows['111/a.osu']['api_status']), ('checksum', 'ranked'))
@@ -111,11 +119,6 @@ class InventoryTests(unittest.TestCase):
             self.assertEqual((g['n_red_lines'], g['n_musical'], g['n_redundant'], g['n_expressive']), (3, 1, 1, 1))
             self.assertEqual(g['expressive_reasons'], 'implausible:1')
             self.assertEqual((g['head_on_grid'], g['n_bar_starts'], g['renotation_invariant']), (1.0, 1, True))
-            broken = rows['555/f.osu']
-            self.assertEqual(broken['error'], 'timing: No red line with a plausible BPM')
-            self.assertIsNotNone(broken['star'])
-            self.assertEqual(summary['files'], 7)
-            self.assertEqual(summary['errors'], {'timing': 1})
             self.assertEqual(summary['r1_trained_in_heldout'], 0)
 
 

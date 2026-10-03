@@ -1,10 +1,19 @@
-"""Inventory of every ``.osu`` file under ``dataset/`` for corpus-referenced evaluation.
+"""The corpus of R2: every usable 4K osu!mania chart under ``dataset/``.
 
-One row per file: identity and hashes, the acquisition it came from, header
-fields and osu! API metadata, and for 4K osu!mania charts the computed star
-rating and a summary of the chart on its own beat grid. Files are joined into
-song groups and each group gets an evaluation split. The Parquet output is
-committed so that every machine and every later operator reads the same corpus.
+Charts are filtered in two layers. Whole files are filtered here, once, when
+the corpus is built: a file is left out when it is not 4K osu!mania, or when
+its header, hit objects, star rating or beat grid cannot be read (no hit
+objects, or no red line with a plausible BPM); the summary lists every 4K
+chart left out and why. Within a kept chart, red lines are filtered by
+``redlines``: those that serve the gameplay rather than the music's beat stay
+out of its grid.
+
+One row per kept chart: identity and hashes, the acquisition it came from,
+header fields and osu! API metadata, the computed star rating, and a summary
+of the chart on its musical grid. Files are joined into song groups, over every
+file including those left out, and each group gets an evaluation split. The
+Parquet output is committed so that every machine, model and operator reads the
+same corpus.
 
 Run from the repository root on the machine that holds ``dataset/``::
 
@@ -35,10 +44,10 @@ from ..osu_core.timing import is_plausible_red_beat_length_ms
 from .beats import COMMON_DENOMINATORS, LN_RELEASE, BeatGrid, chart_events, event_times
 from .redlines import EXPRESSIVE, MUSICAL, REDUNDANT, musical_grid, read_red_lines
 
-FORMAT = 'ensomi-eval/corpus-inventory-v2'
+FORMAT = 'ensomi-r2/corpus-v1'
 SPLIT_SALT = 'ensomi-eval-split-v1:'
 HELDOUT_PERCENT, CALIBRATION_PERCENT = 15, 15
-DEFAULT_OUTPUT = 'data/evaluation/corpus-inventory.parquet'
+DEFAULT_OUTPUT = 'data/r2-corpus.parquet'
 ERROR_SEPARATOR = ' | '
 
 _SIZE_MARKERS = ('tv size', 'tv ver', 'tv version', 'short ver', 'short version', 'cut ver', 'cut version',
@@ -260,6 +269,19 @@ def group_rows(rows: list[dict]) -> list[str]:
     return [ids[root(i)] for i in range(len(rows))]
 
 
+def exclusion(row: dict) -> str | None:
+    """Why a file is left out of the corpus, or None when it is kept.
+
+    ``not_4k_mania``, or the first stage that failed on a 4K chart:
+    ``header``, ``objects``, ``star`` or ``timing``.
+    """
+    if row.get('mode') is None:
+        return 'header'
+    if row['mode'] != 3 or row.get('keys') != 4:
+        return 'not_4k_mania'
+    return row['error'].split(':', 1)[0] if row.get('error') else None
+
+
 def split_of(group_id: str, r1_trained: bool) -> str:
     """Evaluation split of a song group, by hash; R1's TRAIN songs are never held out."""
     bucket = int(hashlib.sha256((SPLIT_SALT + group_id).encode()).hexdigest()[:16], 16) % 100
@@ -270,8 +292,7 @@ def split_of(group_id: str, r1_trained: bool) -> str:
 
 SCHEMA = pa.schema([
     ('path', pa.string()), ('set_dir', pa.string()), ('origin', pa.string()), ('size_bytes', pa.int64()),
-    ('sha256', pa.string()), ('md5', pa.string()),
-    ('mode', pa.int8()), ('circle_size', pa.float32()), ('keys', pa.int8()), ('version', pa.string()),
+    ('sha256', pa.string()), ('md5', pa.string()), ('version', pa.string()),
     ('artist', pa.string()), ('title', pa.string()), ('creator', pa.string()), ('beatmap_id', pa.int64()),
     ('beatmap_set_id', pa.int64()), ('audio_filename', pa.string()), ('audio_present', pa.bool_()),
     ('audio_sha256', pa.string()),
@@ -284,12 +305,12 @@ SCHEMA = pa.schema([
     ('n_expressive', pa.int32()), ('expressive_reasons', pa.string()), ('n_bar_starts', pa.int32()),
     ('distinct_canonical_bpms', pa.int32()), ('min_bpm', pa.float64()), ('max_bpm', pa.float64()),
     ('dominant_bpm', pa.float64()), ('dominant_fold', pa.int8()), ('canonical_bpm', pa.float64()), ('head_on_grid', pa.float64()), ('release_on_grid', pa.float64()),
-    ('roundtrip_max_ms', pa.float64()), ('renotation_invariant', pa.bool_()), ('error', pa.string()),
+    ('roundtrip_max_ms', pa.float64()), ('renotation_invariant', pa.bool_()),
     ('group_id', pa.string()), ('r1_split', pa.string()), ('r1_group_id', pa.string()), ('eval_split', pa.string()),
 ])
 
 
-def build_inventory(repo_root: Path, dataset: str = 'dataset', *, r1_catalog: Path | None = None,
+def build_corpus(repo_root: Path, dataset: str = 'dataset', *, r1_catalog: Path | None = None,
                     workers: int = 1) -> tuple[pa.Table, dict]:
     repo_root = repo_root.resolve()
     dataset_root = repo_root / dataset
@@ -321,59 +342,60 @@ def build_inventory(repo_root: Path, dataset: str = 'dataset', *, r1_catalog: Pa
     trained = {g for g, row in zip(groups, rows) if row.get('r1_split') == 'train'}
     for group, row in zip(groups, rows):
         row['group_id'], row['eval_split'] = group, split_of(group, group in trained)
-    table = pa.Table.from_pylist(rows, schema=SCHEMA)
-    return table, summarize(rows, r1_catalog)
+    kept = [row for row in rows if exclusion(row) is None]
+    return pa.Table.from_pylist(kept, schema=SCHEMA), summarize(rows, kept, r1_catalog)
 
 
-def summarize(rows: list[dict], r1_catalog: Path | None) -> dict:
-    mania = [r for r in rows if r.get('mode') == 3 and r.get('keys') == 4]
-    target = [r for r in mania if r.get('api_status') in ('ranked', 'loved')]
-    timed = [r for r in target if r.get('head_on_grid') is not None]
-    matched = [r for r in mania if r.get('api_match') == 'checksum' and r.get('star') is not None
-               and r.get('api_star') is not None]
+def summarize(rows: list[dict], kept: list[dict], r1_catalog: Path | None) -> dict:
+    """Counts over every scanned file (what was left out) and over the kept corpus."""
+    excluded = sorted(((row, reason) for row in rows if (reason := exclusion(row))), key=lambda e: e[0]['path'])
+    target = [r for r in kept if r.get('api_status') in ('ranked', 'loved')]
+    matched = [r for r in kept if r.get('api_match') == 'checksum' and r.get('api_star') is not None]
     star_gap = [abs(r['star'] - r['api_star']) for r in matched]
+    reasons = Counter()
+    for r in target:
+        if r.get('expressive_reasons'):
+            reasons.update({k: int(v) for k, v in (p.split(':') for p in r['expressive_reasons'].split(','))})
     return dict(
-        format=FORMAT, files=len(rows), mania_4k=len(mania),
-        origin=dict(Counter(r['origin'] for r in rows)),
-        mode_keys=dict(Counter(f"mode{r.get('mode')}-{r.get('keys')}k" for r in rows)),
-        mania_4k_status=dict(Counter(str(r.get('api_status')) for r in mania)),
-        mania_4k_api_match=dict(Counter(str(r.get('api_match')) for r in mania)),
+        format=FORMAT, files=len(rows), corpus=len(kept),
+        excluded=dict(Counter(reason for _, reason in excluded)),
+        excluded_mode_keys=dict(Counter(f"mode{r['mode']}" + (f"-{r['keys']}k" if r['mode'] == 3 else '')
+                                        for r, reason in excluded if reason == 'not_4k_mania')),
+        excluded_charts=[dict(path=r['path'], error=r.get('error')) for r, reason in excluded
+                         if reason != 'not_4k_mania'],
+        origin=dict(Counter(r['origin'] for r in kept)),
+        status=dict(Counter(str(r.get('api_status')) for r in kept)),
+        api_match=dict(Counter(str(r.get('api_match')) for r in kept)),
         ranked_loved_star_bands=dict(Counter(
             f'{min(int(r["api_star"]), 8)}' for r in target if r.get('api_star') is not None)),
-        errors=dict(Counter(e.split(':', 1)[0] for r in rows for e in (r.get('error') or '').split(ERROR_SEPARATOR) if e)),
-        error_reasons=dict(Counter(e[:100] for r in rows for e in (r.get('error') or '').split(ERROR_SEPARATOR)
-                                   if e).most_common(12)),
-        groups=len({r['group_id'] for r in rows}),
-        largest_group_files=max(Counter(r['group_id'] for r in rows).values()) if rows else 0,
-        split_ranked_loved_4k=dict(Counter(r['eval_split'] for r in target)),
-        split_groups_ranked_loved_4k={s: len({r['group_id'] for r in target if r['eval_split'] == s})
-                                      for s in ('fit', 'calibration', 'heldout')},
+        groups=len({r['group_id'] for r in kept}),
+        largest_group_charts=max(Counter(r['group_id'] for r in kept).values()) if kept else 0,
+        split=dict(Counter(r['eval_split'] for r in kept)),
+        split_ranked_loved=dict(Counter(r['eval_split'] for r in target)),
+        split_groups_ranked_loved={s: len({r['group_id'] for r in target if r['eval_split'] == s})
+                                   for s in ('fit', 'calibration', 'heldout')},
         r1_catalog=None if r1_catalog is None else dict(
-            sha256=_sha256(r1_catalog), matched=dict(Counter(r['r1_split'] for r in rows if r.get('r1_split')))),
-        r1_trained_in_heldout=sum(r.get('r1_split') == 'train' and r['eval_split'] == 'heldout' for r in rows),
+            sha256=_sha256(r1_catalog), matched=dict(Counter(r['r1_split'] for r in kept if r.get('r1_split')))),
+        r1_trained_in_heldout=sum(r.get('r1_split') == 'train' and r['eval_split'] == 'heldout' for r in kept),
         star_vs_api=dict(charts=len(star_gap), max_abs=max(star_gap) if star_gap else None,
                          over_1e_4=sum(g > 1e-4 for g in star_gap),
                          ranked_loved_max_abs=max((abs(r['star'] - r['api_star']) for r in matched
                                                    if r.get('api_status') in ('ranked', 'loved')), default=None)),
-        grid_ranked_loved_head_on_grid_lt_0_9_multi_bpm=sum(r['head_on_grid'] < .9 and r['n_musical'] > 1
-                                                             for r in timed),
         grid=dict(
-            ranked_loved_with_grid=len(timed),
-            head_on_grid_ge_0_9=sum(r['head_on_grid'] >= .9 for r in timed),
-            head_on_grid_median=float(np.median([r['head_on_grid'] for r in timed])) if timed else None,
-            dominant_fold=dict(Counter(int(r['dominant_fold']) for r in timed)),
-            red_line_roles=dict(musical=sum(r['n_musical'] for r in timed),
-                                redundant=sum(r['n_redundant'] for r in timed),
-                                expressive=sum(r['n_expressive'] for r in timed)),
-            expressive_reasons=dict(sum((Counter({k: int(v) for k, v in (p.split(':') for p in
-                                                  r['expressive_reasons'].split(','))})
-                                         for r in timed if r.get('expressive_reasons')), Counter())),
-            charts_with_expressive=sum(r['n_expressive'] > 0 for r in timed),
-            charts_with_implausible=sum('implausible' in (r.get('expressive_reasons') or '') for r in timed),
-            charts_with_several_musical=sum(r['n_musical'] > 1 for r in timed),
-            renotation_invariant=dict(Counter(str(r.get('renotation_invariant')) for r in mania)),
-            roundtrip_max_ms=max((r['roundtrip_max_ms'] for r in mania if r.get('roundtrip_max_ms') is not None),
-                                 default=None)),
+            renotation_invariant=dict(Counter(str(r.get('renotation_invariant')) for r in kept)),
+            roundtrip_max_ms=max((r['roundtrip_max_ms'] for r in kept), default=None),
+            ranked_loved=len(target),
+            head_on_grid_ge_0_9=sum(r['head_on_grid'] >= .9 for r in target),
+            head_on_grid_median=float(np.median([r['head_on_grid'] for r in target])) if target else None,
+            head_on_grid_lt_0_9_several_musical=sum(r['head_on_grid'] < .9 and r['n_musical'] > 1 for r in target),
+            dominant_fold=dict(Counter(int(r['dominant_fold']) for r in target)),
+            red_line_roles=dict(musical=sum(r['n_musical'] for r in target),
+                                redundant=sum(r['n_redundant'] for r in target),
+                                expressive=sum(r['n_expressive'] for r in target)),
+            expressive_reasons=dict(reasons),
+            charts_with_expressive=sum(r['n_expressive'] > 0 for r in target),
+            charts_with_implausible=sum('implausible' in (r.get('expressive_reasons') or '') for r in target),
+            charts_with_several_musical=sum(r['n_musical'] > 1 for r in target)),
     )
 
 
@@ -385,11 +407,11 @@ def main(argv=None) -> int:
     parser.add_argument('--output', default=DEFAULT_OUTPUT, help='Parquet path relative to the repo root')
     parser.add_argument('--workers', type=int, default=max(1, (os.cpu_count() or 2) - 1))
     args = parser.parse_args(argv)
-    table, summary = build_inventory(args.repo_root, args.dataset, r1_catalog=args.r1_catalog, workers=args.workers)
+    table, summary = build_corpus(args.repo_root, args.dataset, r1_catalog=args.r1_catalog, workers=args.workers)
     output = args.repo_root / args.output
     output.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(table, output, compression='zstd')
-    summary['inventory_sha256'] = _sha256(output)
+    summary['corpus_sha256'] = _sha256(output)
     output.with_suffix('.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
     json.dump(summary, sys.stdout, indent=2, sort_keys=True)
     print()
