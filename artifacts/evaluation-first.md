@@ -64,12 +64,12 @@ The decisions above are the human's; the rest of this section is the agent's `(p
 | M1 canonical beats | Every event of a chart in canonical beats under a grid | Built; [p-canonical-beats](#p-canonical-beats) |
 | Musical red lines | Which of a chart's red lines make its grid | Built; [p-red-lines](#p-red-lines) |
 | Evaluation interface | Chart, composed condition, scope; operator protocol | Built; [p-eval-interface](#p-eval-interface) |
-| Operators | Rhythm, arrangement and load measures on a scope | Reserved ([d-operators-reserved](#d-operators-reserved)); properties in [p-operator-properties](#p-operator-properties) |
+| Operators | Rhythm, arrangement and load measures on a scope | Reserved ([d-operators-reserved](#d-operators-reserved)); properties proposed in [operator-properties](operator-properties.md) |
 | Reference and aggregation | Conditional corpus distributions per operator; a song judged by the rate and length of departures | After operators |
 | Calibration harness | False alarms on held-out corpus; dose response on defects injected into held-out corpus charts; must-not-flag transforms; the lineage's rejected outputs that can be tied to files | After operators; it is also the metric Astra iterates against |
 | Report | Rows for held-out corpus, R1 with real times and the candidate; song-level intervals; evaluator hash | After calibration |
 
-<a id="p-operator-properties"></a>**Properties an operator should have (proposed; to be settled with the human before Astra iterates).**
+<a id="p-operator-properties"></a>**Properties an operator should have (proposed; to be settled with the human before Astra iterates).** **Superseded 2026-10-03** by [operator-properties](operator-properties.md): twenty-four properties, each tied to a Control V3, September-control or lineage-evaluator failure with a mechanical check; the list below is kept as first written.
 
 - Defined on any scope, reading given spans as context.
 - Scores nothing the condition fixed.
@@ -129,7 +129,7 @@ Failures it answers, all from the review, each written up with its evidence, its
 - Loved charts: are they accepted individually like ranked ones, or only as part of the target population? <a id="o-loved-count"></a>**Observation, 2026-10-02:** the dataset's per-set `metadata.json` (osu! API snapshot fetched 2026-08-05; bings-mac, `~/ensomi/ensomi-model/dataset/*/*/metadata.json`) lists 1,454 loved and 9,643 ranked 4K mania beatmaps at 2 to 6 stars, in 494 loved and 3,713 ranked sets. Counted from metadata only: whether every loved `.osu` is present and matches its checksum was not checked, and the ranked census behind R1's corpus admitted ranked charts only.
 - How many windows per round the human will judge in the spot-check of Part 1, item 6, and whether played or viewed.
 - The held-out reading of [d-use-all-data](#d-use-all-data): keep [p-split](#p-split) (no acquisition reserved), or reserve the 10-02 additions as a held-out pool.
-- The operator properties in [p-operator-properties](#p-operator-properties): review before an Astra brief is written.
+- The operator properties, now [operator-properties](operator-properties.md) with its own open items: review before an Astra brief is written.
 - Part 2: enforced in code (job launcher and Codex hooks on the mac refuse a report without receipts and an unchanged evaluator hash) or as brief and review rules only.
 - "End to end" ([d-eval-first](#d-eval-first)): of the agent's reasoning only, or also of the generation model.
 
