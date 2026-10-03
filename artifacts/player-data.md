@@ -123,11 +123,16 @@ Where the agent qualifies the memo:
 - Done 2026-10-03: corpus fail data with provenance and the estimate ([s-failtimes-fetched](#s-failtimes-fetched)).
 <a id="d-skill-moves"></a>**Direction, human, 2026-10-03: a player's skill changes over time, so model the distribution of plays together with the maps played, not one fixed skill per player** ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-4)). Agent reading: A1's skill term (log `rank_score` at the dump date as the prior mean of one latent skill per player, [p-prereg-a1](fable-player-data-views.md#p-prereg-a1)) needs amending before it runs. Skill becomes a state at a date, read from what the player plays and passes around that date. A1's attempts table holds undated lifetime counts. Successive monthly dumps can date attempts by differencing, if the same players recur. ppy's generator draws the random sample with `RAND(1)`, which suggests they do; this is not verified. The human also asked for a script that keeps adding player data. The agent reads that as the dump route only, not API harvesting.
 
-<a id="w-dump-collector"></a>**Running, 2026-10-03:** a fresh Claude worker is building a collector of the data.ppy.sh mania `random_10000` dumps, `scripts/player_data/` in the code checkout:
-- backfill of the dumps listed now (2026-04-01, 05-01, 07-13, 08-01, beside the 09-01 one on disk);
-- tables to Parquet on the mac under `artifacts/player-data-dumps/`;
-- panel measurements (sample overlap across months, attempts added per month, pp change);
-- a daily launchd check on the mac.
+<a id="w-dump-collector"></a>**Done, 2026-10-03:** a fresh Claude worker built the collector, code commit `2960027` (`scripts/player_data/`, `tests/player_data/`, 34 tests passing on the mac, job `20261003-142217-pdd-panel`). It collected every mania `random_10000` dump listed: 2026-04-01, 05-01, 07-13, 08-01 and 09-01. The SHA-256 of each is in `artifacts/player-data-dumps/<date>/manifest.json` on the mac. The licence text is unchanged; no tarball holds a licence file, so the site `LICENCE.txt` is the licence of record. The data takes 3.3 GB on the mac. A launchd agent `com.ensomi.player-dump-collector` runs daily at 13:15 UTC; to uninstall, run `sh scripts/player_data/launchd.sh uninstall` via `ens run`.
+
+<a id="s-not-a-panel"></a>**Observation, 2026-10-03: the monthly random dumps are not a panel.** Consecutive samples share 95 to 110 of 10,000 users. Non-consecutive pairs share 61 to 99, no user appears in all five, and 49,133 distinct users were seen in total. The main thread checked this in `artifacts/player-data-dumps/panel-report.json`, mirrored to the control plane. The fixed `RAND(1)` seed in ppy's script does not keep the same players. For the roughly 100 users per interval who repeat:
+
+- attempt counts never decrease;
+- new best scores are dated inside the interval in 91% to 100% of cases;
+- the median pp change is 0;
+- the summed per-map attempt increases run 2.2 to 5.1 times the change in the user's total playcount. This is unexplained, and it matters if attempts are used as exposure.
+
+Agent reading of what this changes for [d-skill-moves](#d-skill-moves): differencing snapshots cannot date attempts for 99% of players. Monthly dumps add breadth, about 9,900 new players a month, not trajectories. Skill at a date has to come from each player's dated best scores within a dump, with survivorship bias: a best score survives only while it stays the best. A1's attempts stay undated lifetime counts. A top-by-pp dump may carry the same players from month to month; this is not measured. Six mania `top_10000` dumps are listed, about 2 GB each, including the only June 2026 mania dump. Collecting them is the human's decision.
 
 - Done 2026-10-03: Fable review of the views ([a-fable-views](#a-fable-views)).
 - Replays at scale wait for the human's decision to contact ppy; A1 waits for [q-fable-views](#q-fable-views).
