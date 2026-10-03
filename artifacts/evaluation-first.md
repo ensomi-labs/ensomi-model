@@ -161,6 +161,48 @@ Points the agent takes as its own, consistent with decisions already made: descr
 
 Stated limit of the design: on partial scopes the key is the whole chart's star while a passage's own difficulty spreads widely around it ([le-label](operator-properties.md#failures)), so the evaluator is lenient there until scoped difficulty conditions exist.
 
+## Passage boundaries and comparison, Fable review, 2026-10-03
+
+<a id="a-passage-review"></a>**Agent reading (proposed), 2026-10-03, of a fresh Fable subagent's memo ([fable-passage-boundaries](fable-passage-boundaries.md)), requested by the human after [o-passage-boundaries](#o-passage-boundaries) ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-2)). Nothing in it is a decision.** The main thread checked the memo's frequencies against its two jobs on the fit split (`20261003-passage-boundaries-census`, `-census2`; `artifacts/passage-boundaries-20261003/census.json`, `census2.json` in the code checkout). They match:
+
+- the placeholder of four canonical bars inside one musical segment never scores 1,552,507 of 25,485,950 heads (6.1%), drops over 10% of a chart's heads in 2,863 charts and gives 147 charts no passage;
+- segments under four bars occur in 16.4% of charts, mid-bar musical red lines in 19.5%, ritardando chains in 10.4%, and fold jumps from a small tempo change in 4.2%;
+- the proposed tiling at τ = 1.10 leaves 0 heads uncovered and 0 charts without a passage.
+
+It did not re-derive the statistical arguments.
+
+What the agent would adopt:
+
+1. **Bars as alignment, not a fixed count as length** ([p-passage](fable-passage-boundaries.md#p-passage)).
+   - A passage depends only on the condition's grid and the scope, never on the output's events.
+   - Musical segments join into key segments while the canonical BPM ratio between neighbours stays within τ (default 1.10). An exact octave joins; a fold jump or a 3:2 change breaks.
+   - Inside a key segment, passages are nominally 16 canonical beats, cut at the nearest bar start. Nothing is dropped: every event lies in exactly one passage.
+   - Each passage carries its length in beats and seconds and its context availability as covariates.
+   - The song statistic is required to be continuous in where cuts fall, through duration weights in seconds.
+
+   This keeps [d-passage-bars](#d-passage-bars) as alignment and attribution. The agent reads it as compatible with that decision; the human should confirm.
+2. **The reference for a passage** ([p-key](fable-passage-boundaries.md#p-key)) is keyed by the requested star, the passage's own canonical BPM (15% of charts have several), the condition's fixed aspects and the scope shape: scored length, context on each side, scored fraction. It is never keyed by the song's passage count, the notated BPM or fold, the realised star, ranked or loved status, or segment kind.
+3. **Song aggregation without passage-count strata** ([p-null](fable-passage-boundaries.md#p-null)). This answers the human's objection.
+   - Two views: a duration-weighted mean of −log u (rate), and a scan over runs of 1, 2 and 4 passages (worst run).
+   - They are combined through one empirical null.
+   - For whole songs, the null is fit songs kernel-weighted in log duration and star. For partial scopes, it is same-shape windows cut from fit songs at every position, which covers scopes of one or two passages.
+   - A modelled 1/duration variance law applies only above the fit 95th percentile of duration (290 s).
+4. **Seven pre-registered harness experiments**, E2 to E7, with E4 (rank uniformity by length band) and E5 (song-null calibration by duration, star and BPM band) first. Bounded-effect and must-not-flag tests are added for boundaries ([p-tests](fable-passage-boundaries.md#p-tests)).
+
+Where the agent qualifies the memo:
+
+- τ is a segmentation parameter that decides which passages share a key. It is kept as a parameter with a pre-registered sensitivity sweep, not hidden.
+- Duration weights make slivers inside ritardando chains nearly weightless: the 5th percentile of the shortest passage is 0.59 s. A defect written inside a chain is then nearly invisible. E4's under-8-beat band is the check.
+- The design is much heavier than the placeholder. The agent would build it in steps: the tiling and duration weights first, because they remove the 6.1% loss; the kernel song null next; same-shape windows and the scan view when partial scopes and LN concentration are exercised.
+- One tension stays on record and is not worked around: [d-fold-per-segment](#d-fold-per-segment) puts a 158 to 162 BPM song in two key segments with different references. E3 tests whether that costs calibration. If it does, the remedy contradicts that decision and goes to the human.
+
+<a id="q-passage-review"></a>**Open for the human, 2026-10-03.**
+
+1. Adopt the passage definition of item 1, with bars as alignment, as the harness's tiling?
+2. Adopt the song aggregation of item 3 in place of passage-count strata?
+3. Weights in seconds or in canonical beats? This is the memo's reading of "a span of bars, for both clocks"; E3 reports both.
+4. Under an audio condition, is a trailing outro with no notes scored as empty passages?
+
 ## Work order (proposed, updated 2026-10-03)
 
 1. Done 2026-10-03: M0 inventory, M1 canonical beats, musical red lines and the evaluation interface ([s-m0-m1](#s-m0-m1), [p-red-lines](#p-red-lines), [p-eval-interface](#p-eval-interface)). The 2026-10-02 plan also listed the lineage's instruments for reuse; under [d-restart-r1](#d-restart-r1) only the star calculator, already on `main`, is reused.
