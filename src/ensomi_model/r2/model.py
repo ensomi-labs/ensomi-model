@@ -40,6 +40,7 @@ class R2Config:
     conditioner: str = 'film'      # 'film' | 'tokens'
     code_dim: int = 8
     candidate_budget: int = 8192
+    max_parameters: int = MAX_PARAMETERS
 
     def __post_init__(self):
         if self.memory not in ('landmarks', 'none') or self.conditioner not in ('film', 'tokens'):
@@ -129,8 +130,8 @@ class R2Model(nn.Module):
         counts = self.parameter_counts()
         if verbose:
             print({'parameters': counts}, flush=True)
-        if counts['total'] > MAX_PARAMETERS:
-            raise ContractError(f'Model has {counts["total"]} parameters, above {MAX_PARAMETERS}')
+        if counts['total'] > c.max_parameters:
+            raise ContractError(f'Model has {counts["total"]} parameters, above {c.max_parameters}')
 
     def parameter_counts(self):
         out = {name: sum(p.numel() for p in m.parameters()) for name, m in self.named_children()}

@@ -35,7 +35,7 @@ from .data import Corpus, chart_from_cache, load_or_build_manifest, track_from_j
 from .cache import load_chart
 from .export import export_chart, minimal_header
 from .labels import load_star_labels
-from .model import R2Config, R2Model
+from .model import MAX_PARAMETERS, R2Config, R2Model
 from .receipts import code_identity
 from .report import chart_summary
 from .sampling import continue_chart
@@ -54,6 +54,10 @@ class TrainConfig:
     conditioner: str = 'film'
     memory: str = 'landmarks'
     levels: int = 8
+    hidden: int = 128
+    expansion: int = 4
+    rank: int = 16
+    max_parameters: int = MAX_PARAMETERS
     star_conditions: str = 'auto'        # auto: on iff the star label file is complete
     total_exposures: int = 8_000_000     # head decisions; set from the pilot's throughput
     warmup_exposures: int = 50_000
@@ -173,7 +177,9 @@ class Trainer:
         self.star_complete = complete
         self.corpus = Corpus(cfg.cache, 'fit_train', star_conditions=self.star)
         torch.manual_seed(cfg.seed_weights)
-        self.model = R2Model(R2Config(memory=cfg.memory, levels=cfg.levels, conditioner=cfg.conditioner),
+        self.model = R2Model(R2Config(memory=cfg.memory, levels=cfg.levels, conditioner=cfg.conditioner,
+                                     hidden=cfg.hidden, expansion=cfg.expansion, rank=cfg.rank,
+                                     max_parameters=cfg.max_parameters),
                              verbose=write).to(self.device, self.dtype)
         decay = [p for p in self.model.parameters() if p.ndim >= 2]
         other = [p for p in self.model.parameters() if p.ndim < 2]
@@ -520,6 +526,10 @@ def main(argv=None):
     p.add_argument('--threads', type=int, default=None)
     p.add_argument('--memory', default=None)
     p.add_argument('--levels', type=int, default=None)
+    p.add_argument('--hidden', type=int, default=None)
+    p.add_argument('--expansion', type=int, default=None)
+    p.add_argument('--rank', type=int, default=None)
+    p.add_argument('--max-parameters', type=int, default=None)
     p.add_argument('--conditioner', default=None)
     p.add_argument('--run-dir', default=None)
     a = p.parse_args(argv)
@@ -527,6 +537,7 @@ def main(argv=None):
     if frozen and not Path(__file__).resolve().is_relative_to(Path(frozen).resolve()):
         raise SystemExit(f'trainer imported from {__file__}, not from the frozen copy {frozen}')
     cfg = TrainConfig.load(a.config, device=a.device, threads=a.threads, memory=a.memory, levels=a.levels,
+                           hidden=a.hidden, expansion=a.expansion, rank=a.rank, max_parameters=a.max_parameters,
                            conditioner=a.conditioner, run_dir=a.run_dir)
     if a.pilot:
         trainer = Trainer(cfg, write=False)
