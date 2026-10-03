@@ -53,9 +53,15 @@ Fresh Claude worker, 2026-10-03; brief in the session scratchpad (`star-sections
 
 At the human's instruction the mathematics, training recipe and sampling are decided before implementation, by Astra at max effort, fast tier ([private, local](private/human-inputs/cf834490-7d37-42c1-b587-3b7f1ba0dd93.md#prompt-2)). Job `20261003-164527-r2-ml-design` (`ens astra --rw --effort max --tier fast --no-hooks`; `--no-hooks` keeps the mac's relay hooks out of the job without moving them, [answer-3](private/human-inputs/cf834490-7d37-42c1-b587-3b7f1ba0dd93.md#answer-3)); brief at `~/ensomi/.sync/cp/jobs/20261003-164527-r2-ml-design/brief.md`; writes only `artifacts/r2-ml-design-20261003/` of the code checkout, no tracked files. Asked: exact factorised likelihood of a head-row decision and EOS, state and look-ahead, the interval condition interface (encoder and FiLM, natural setting by dropout, interval sampling, guidance), the CE recipe for one M5, the DPO loss from the KL-regularised objective (reference, beta, sum or mean over decisions, mask, CE or KL mixing, label noise, on- or off-policy pairs, segment length, alternatives), synthetic pairs with a known answer to test the trainer, sampling, and the check that fails for each component. The human's decisions and the census facts are stated in the brief as fixed; the agent defaults above are open to change with reasons.
 
+<a id="o-r2-mirror"></a>
+## Mirror equivariance of the whole decision (human remark, 2026-10-03)
+
+The human pointed out that R1 scores a row with a mirror-equivariant head that flips the history and the row together, rather than scoring the row on its own, and asked that this be kept in mind for R2 ([private, local](private/human-inputs/cf834490-7d37-42c1-b587-3b7f1ba0dd93.md#prompt-3)). Agent reading (proposed): the requirement for R2 is p(M d | M s) = p(d | s) for the full head-row decision d (lane actions and gap release positions) and the state s (history, held lanes, look-ahead, conditions), with M the lane mirror. The agent default "release positions lane by lane in a fixed order" breaks this unless the order is itself mirror-invariant or the factorisation is symmetrised; a test that mirrors state and decision and compares log-probabilities to float tolerance fails if it does not hold. Passed to Astra as a follow-up on its thread.
+
+Code: branch `r2/train` created in the main checkout from `eval/corpus-beats` at `17b73b9`, after the evaluation cleanup (`469d72e`, `17b73b9`).
+
 <a id="r2-impl-open"></a>
 ## Open
 
 - x for interval star labels, after the study.
-- When the cleanup is committed and the branch can be made (human).
 - Whether the agent defaults above stand, after Astra's design; the design document, once reviewed by the agent and the human, becomes the implementation brief.
