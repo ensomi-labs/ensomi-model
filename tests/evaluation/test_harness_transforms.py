@@ -1,8 +1,6 @@
 import math
 import unittest
 
-import numpy as np
-
 from ensomi_model.evaluation.harness.cases import covariance, make_case, run_case
 from ensomi_model.evaluation.harness.chain import FieldOperator, continuation_cut
 from ensomi_model.evaluation.harness.transforms import TRANSFORMS
@@ -60,9 +58,9 @@ class TransformTests(unittest.TestCase):
     def test_mirror_changes_lanes(self):
         src = round_trip(busy_chart(4))
         made = TRANSFORMS[0].apply(src, 0)
-        lanes = np.array(sorted((o.start_time_ms, o.lane) for o in made.chart.objects))
-        orig = np.array(sorted((o.start_time_ms, 3 - o.lane) for o in src.objects))
-        np.testing.assert_array_equal(np.sort(lanes, axis=0), np.sort(orig, axis=0))
+        lanes = sorted((o.start_time_ms, o.lane, o.end_time_ms) for o in made.chart.objects)
+        orig = sorted((o.start_time_ms, 3 - o.lane, o.end_time_ms) for o in src.objects)
+        self.assertEqual(lanes, orig)
 
     def test_timing_lesion_leaves_no_red_line_and_another_grid(self):
         src = round_trip(busy_chart(4))
