@@ -9,6 +9,8 @@ at several scales and views, under the condition it was generated with.
 - ``redlines``: a chart's red lines and which of them state the music's beat;
   BPM gimmicks and other expressive lines are kept out of the grid.
 - ``beats``: canonical beat coordinates, each segment folded into 80 to 160 BPM.
+- ``field``: the event field: per-event values in physical time, surprisal
+  ranks, their time field and scope statistics; red lines are not read.
 - ``corpus``: the R2 corpus, one row per usable 4K chart of ``dataset/``, with
   song groups and the evaluation split; whole files are filtered here.
 
