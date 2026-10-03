@@ -79,7 +79,35 @@ Terms:
 
 Replay estimate, for a later decision: about 10 KB per corpus chart; a pilot of 600 replays is 6 MB and an hour at 10 per minute, a core design of 4,500 is 45 MB and 7.5 h, a full one of 30,000 is 300 MB and 50 h. Any of them needs ppy's agreement first ([C15](#c-terms)).
 
+## Fable review of the views, 2026-10-03
+
+<a id="a-fable-views"></a>**Agent reading (proposed), 2026-10-03, of a fresh Fable subagent's memo ([fable-player-data-views](fable-player-data-views.md)), requested by the human ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-1)). Nothing in it is a decision.** The main thread checked against job `20261003-player-data-views` (`artifacts/player-data-views-20261003/dump-views.json` in the code checkout, counts only): the score-table counts (882,842 imported stable and 178,976 lazer rows on corpus maps), the player sample's skill (median 174 pp, 26% at 1,000 pp or more), the rate pairs (29,672 NM with DT, 6,640 NM with HT), the mod counts, and the fail-histogram concentration (median normalised entropy 0.83 at 1 star to 0.73 at 7, against a uniform null of 0.94 to 0.99). It checked the health constants against `ppy/osu` master `ManiaHealthProcessor.cs` (fetched 2026-10-03): no drain, a miss costs (HP+1)×0.0075, a Perfect at HP 8 refills 1/45 of a miss before the multiplier. Stable's rule is closed source and was not checked.
+
+What the agent would adopt:
+
+1. One score view, not two: `scores` contains the stable bests as imports. The sample is weighted toward low skill, so it serves 2 to 6 stars and not a 6-star upper bound. This corrects the table above.
+2. Aggregates identify where plays end and the population prior at chart scale. Every per-action part (the limit per relation, burst against sustained, τ, fatigue, tap against LN head, release, hand coordination) needs replays.
+3. Even replays identify only a response function: miss probability and error spread against slack, relation and skill. A latent cost is defined only up to a monotone link. The response target should be that function, not a cost law ([p-identification-map](fable-player-data-views.md#p-identification-map)). This needs the human.
+4. The health bar has a known kernel ([p-health-kernel](fable-player-data-views.md#p-health-kernel)). A fail sits inside or just after a cluster of misses, so the lag is bounded by the cluster ([C5](#c-health-lag) narrowed). HP and OD enter every fail-position analysis.
+5. Rate mods and lazer's Hold Off, No Release, Mirror and Invert are within-player, within-chart contrasts already in the dump.
+6. A skill-indexed frontier ([p-player-frontier](fable-player-data-views.md#p-player-frontier)) belongs to `response` and `control`. It never enters the evaluator's divergence. It widens [t-formulation-physiology](operator-properties.md#t-formulation-physiology).
+
+Where the agent qualifies the memo:
+
+- The pre-registered A1 ([p-prereg-a1](fable-player-data-views.md#p-prereg-a1)) excludes rate, LN and visibility-reducing mods from a clean pass but not the key-count mods: 7,456 lazer rows carry `4K` and about 200 carry other key counts on corpus maps. Those mods should be excluded, or the chart's key count verified.
+- The skill prior `rank_score` is computed from the same players' best scores, so θ is partly fitted on the outcome. M0 and M1 share θ, so the increment Δ₁ is less exposed than the levels.
+- The 150 ms run threshold inside a descriptor is a question under [d-no-cutoffs](operator-properties.md#d-no-cutoffs) that the memo itself puts to the human.
+- The threshold of 0.003 nats per pair is a declared estimate, not derived.
+
+<a id="q-fable-views"></a>**Open for the human, from the memo, 2026-10-03.**
+
+1. Run A1 as pre-registered, with key-count mods excluded, on the fit split, with one confirmatory run on calibration?
+2. Define the response as P(miss | slack, relation, skill) plus the error distribution, in place of a cost law?
+3. Which lane-to-finger binding is canonical? The memo proposes lanes 1 and 2 as the left middle and index fingers, and lanes 3 and 4 as the right index and middle fingers.
+4. Contact ppy for a replay pilot after A1, as the memo proposes, or now, or not at all.
+
 ## Work
 
 - Done 2026-10-03: corpus fail data with provenance and the estimate ([s-failtimes-fetched](#s-failtimes-fetched)).
-- Replays at scale wait for the human's decision to contact ppy.
+- Done 2026-10-03: Fable review of the views ([a-fable-views](#a-fable-views)).
+- Replays at scale wait for the human's decision to contact ppy; A1 waits for [q-fable-views](#q-fable-views).
