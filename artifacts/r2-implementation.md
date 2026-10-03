@@ -1,0 +1,56 @@
+# R2 implementation: settled design, defaults and open points
+
+Shareable. Started 2026-10-03 by main session `cf834490` (Claude, control plane), at the human's request to start implementing R2 training code from R1 with the fixes already decided ([private, local](private/human-inputs/cf834490-7d37-42c1-b587-3b7f1ba0dd93.md#prompt-1)). Decisions are the human's; everything marked agent default or `(proposed)` is not reviewed. Written as a separate material because main session `4259953e` was editing `RESEARCH.md` at the time; the entry point is to link here once that session ends.
+
+Builds on [d-no-release-input](r1-verdict.md#d-no-release-input), [d-beyond-row-ce](r1-verdict.md#d-beyond-row-ce), [d-r2-row-decision](r2-ln-design.md#d-r2-row-decision), [d-r2-spec](r2-ln-design.md#d-r2-spec), [d-final-conditions](r2-ln-design.md#d-final-conditions); feeds the `proposal`, `rollout` and `control` nodes.
+
+<a id="d-r2-settled"></a>
+## Settled before this session
+
+- Inputs: head times only (no release times), BPM segments (musical red lines and the canonical beat grid of `src/ensomi_model/evaluation/`), song length. No audio.
+- One decision per head row k: the row's taps and LN heads and every release in (row k-1, row k]; an end-of-song step admits no heads and only closes LN.
+- A candidate release is described in ms and canonical beats from this row, the previous row and the LN's start; the decision commits one release time. Releases of several lanes are decided jointly. No minimum hold; 40 ms the candidate.
+- Objective: cross-entropy plus DPO sequence optimisation from a fixed start state ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-9) for the human's statement of R2 as CE plus DPO, conditioned only on head rows).
+
+<a id="d-r2-conditions"></a>
+## Decisions, human, 2026-10-03 (this session)
+
+[private, local](private/human-inputs/cf834490-7d37-42c1-b587-3b7f1ba0dd93.md#answer-1), [answer-2](private/human-inputs/cf834490-7d37-42c1-b587-3b7f1ba0dd93.md#answer-2).
+
+- **Conditions.** LN share and star rating are optional conditions scoped to intervals, which can be injected or changed during generation. A chart-level scalar fed to every row (the agent's option) was rejected. Each condition has a "natural" setting: no condition given, and the model still generates plausible charts. Agent reading: train with each condition independently dropped to a null value.
+- **Injection form.** Not fixed in principle; the first build carries both an encoder (interval tokens the model attends to, which also shows upcoming changes) and FiLM from the active interval, behind one condition interface, compared by ablation on held-out CE and condition following.
+- **Interval star labels.** Use the existing star algorithm (`src/ensomi_model/osu_core/difficulty.py`, the 2024-10-07 osu!mania port the corpus build already uses, equal to the API on ranked and loved charts to 4e-5), only on sections over a length x, after its sensitivity and response on short sections are reviewed. Study running, see [r2-star-sections](#r2-star-sections).
+- **Seed.** Optional: trained with random seed lengths including none, so one model generates from scratch and continues a chart.
+- **Scope of the first pass.** Data pipeline, model, CE training, generation and export, and a DPO trainer tested on synthetic preference pairs.
+- **Where.** A new branch in the main code checkout (not a separate worktree), created only after the evaluation-framework cleanup of session `4259953e` is committed; the human says when.
+
+<a id="p-r2-defaults"></a>
+## Agent defaults stated to the human, not commented on (proposed)
+
+- New package `src/ensomi_model/r2/`. It imports R1's temporal encoder (`temporal.py`), landmark memory (`long_memory.py`) and joint-head pattern, and `oracle_time_continuation`'s exact replay and `.osu` export, unchanged. R1's correction residuals (`routing`, `consequence`, `response`, `recovery`) and the `r1_restore` staging are not carried; DPO takes their role.
+- Head-row decision: per lane, held: keep, release at the row, or release in the gap then none, tap or LN head; free: none, tap or LN head. The four lanes joint under a support mask, then gap release positions lane by lane in a fixed mirror-equivariant order, each conditioned on those already placed (an exact factorisation of the joint). EOS: same structure, no heads.
+- Release candidates: the row, and canonical grid positions inside the gap at 1/16 and 1/12 beat. The 0.1 to 0.9% off-grid releases of the census are snapped to the nearest candidate in training and counted.
+- Data: an R2 row cache built on the mac by parsing `.osu` with the evaluation package's `Chart` and `BeatGrid` (the corpus Parquet holds no hit objects).
+- DPO: reference is the frozen CE checkpoint; a pair is two continuations of N head rows from one committed state, scored by exact sequence log-probability.
+
+<a id="s-r1-code-map"></a>
+## What R1's code offers (explorer reading, 2026-10-03)
+
+A read-only explorer mapped `src/ensomi_model/research/bounded_typed_continuation/` at `eval/corpus-beats` (working tree). Main points, from its report (agent reading of code, nothing run):
+
+- Everything that indexes candidates in R assumes one decision per supplied time with a role: `Timing`/`Schedule` (`contract.py`), the support mask (`support.py`), `TimingView.queries` lookahead (`features.py:135-166`), `SourceChart` and windows (`data.py`), `Rollout.step` (`generation.py:258-293`), and the exporter's time check (`otc/export.py:64`). These are rewritten for R2.
+- Independent of the time set: the dilated causal encoder (`temporal.py`, 511-row field, mirror-shared hand stream), the landmark memory (`long_memory.py`, one landmark per 64 head rows), `JointHead` (`model.py:76-94`), seed pooling. Their input sizes follow from R1's feature constants, so the readout changes.
+- `ExactReplayState`/`commit` (`otc/replay.py`) accept any increasing times; `export_osu` (`otc/export.py:87-143`) exports release-only rows at any time if each is materialised as its own row. R1 forbids a release and a head on the same lane at the same time (`contract.py:131-133`); agent default keeps that.
+- R2 would depend on `oracle_time_continuation` (schema, replay, storage, runtime, export) and `chart.*`; not on `vacation_training`, which enters only through `r1_restore`.
+
+<a id="r2-star-sections"></a>
+## Star on short sections (running)
+
+Fresh Claude worker, 2026-10-03; brief in the session scratchpad (`star-sections-brief.md`, not durable), scripts `~/ensomi/.sync/cp/scratch/r2-star-sections/`, output `artifacts/r2-star-sections-20261003/` of the code checkout. Pre-registered: 240 fit-split ranked and loved charts at 2 to 6 stars, one per song group; section lengths 4 to 90 s; reference = the star of the section tiled to 240 s (what the algorithm says about a chart made of that material); measures: error against the reference, rank agreement, response to thinning and to 1.25x compression relative to the reference's response, within-chart spread. Provisional criterion for x, for the human to revise: in every star band, median |error| ≤ 0.10, 90th percentile ≤ 0.25, Spearman ≥ 0.95, dose ratio within [0.8, 1.25].
+
+<a id="r2-impl-open"></a>
+## Open
+
+- x for interval star labels, after the study.
+- When the cleanup is committed and the branch can be made (human).
+- Whether the agent defaults above stand; they become the implementation brief unless the human changes them.
