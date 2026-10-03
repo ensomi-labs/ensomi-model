@@ -135,6 +135,30 @@ Failures it answers, all from the review, each written up with its evidence, its
 - Part 2: enforced in code (job launcher and Codex hooks on the mac refuse a report without receipts and an unchanged evaluator hash) or as brief and review rules only.
 - "End to end" ([d-eval-first](#d-eval-first)): of the agent's reasoning only, or also of the generation model.
 
+## Fable review of the four blockers, 2026-10-03
+
+<a id="a-fable-review"></a>**Agent reading (proposed), 2026-10-03, of a fresh Fable subagent's review ([fable-evaluator-blockers](fable-evaluator-blockers.md)), consulted at the human's request ([private, local](private/human-inputs/10fd41cc-e5d5-4d85-8def-2bee49dada16.md#prompt-5)) on the four blockers: what "KL-like" means, what the model of normal is built from, the defect families, who implements. Its reasoning was checked by the main thread against the notes; two code claims were checked against the code (provenance line of the review). Nothing in it is a decision.**
+
+What the agent would adopt:
+
+1. Score chain. Per passage, surprisal under the model of normal fitted on the fit split; its rank against fit-split passages scored out of fold by song group; per song, a tail goodness-of-fit of the ranks against an empirical null of normal songs with the same key and passage count; low and high tails reported apart. The high tail (every passage near the mode) is the per-chart face of collapse. Across a generator's outputs, a coverage of corpus mass the outputs never reach, with a corpus-against-corpus floor at the same sample size. Reason, to be written into the spec: a mean surprisal exceeds the corpus's own by $\mathrm{KL}(Q\|P)+H(Q)-H(P)$, so a collapsed generator scores better than the corpus. Astra's near-ceiling floor is read as plug-in bias of one song's sparse histogram against a smooth mixture (not re-run).
+2. Model of normal. Ten to fourteen hand-designed families, each of one to three dimensions with its clock, reads, judges, symmetries and lesion test, plus one smoothed n-gram over mirror-canonical row tokens in canonical beats for sequence defects (lane permutation, row shuffle, 1/4 to 1/3, repetition). Joints added only when the harness shows marginals miss a defect. Key smoothed by kernel over continuous star and log canonical BPM, never borrowing across the 80/160 fold boundary for beat families. A star-shift row first in every report, so a missed difficulty does not show as fifteen pattern defects.
+3. Defect families. D1 dosed by run length as well as rate; D2 with a seconds variant (holds of 40 ms or less, the lineage's separating defect); D3 reported per canonical-BPM band and by hand relation; added: graded repetition, population collapse, never writing LN, context break under partial scope, graded chord size, off-grid releases, near-duplicate heads, and the lineage's real rejected outputs once their conditions and grids are reconstructed. Each (family, dose, key) reports a corpus-plausible dose, so a non-detection inside the corpus range is not counted as a miss. A second family set written after the freeze by someone other than the implementer, sealed seeds, held-out split read once.
+4. Order. Harness first (a Claude worker on the mac), model of normal second under a frozen spec with a forbidden list and a comprehension step (Astra or Claude), review by a third read-only agent. First deliverable: the harness end to end with a trivial one-family evaluator, which must report that it detects density drift and little else.
+
+Points the agent takes as its own, consistent with decisions already made: descriptions use the continuous `residual_ms`, not the snap flag at `SNAP_TOLERANCE_MS = 2.0` (`2044c2b:src/ensomi_model/evaluation/beats.py:29`), which would be a hidden cut-off ([d-no-cutoffs](operator-properties.md#d-no-cutoffs)); a legality checker for injected `.osu` charts is built first (R1's verifier is tied to R1's row interface); every null is empirical and keyed by passage count; with fourteen families the headline is one statistic with an empirical null, not a count of flags; fitted densities are kept as small text files the control plane can review.
+
+<a id="q-fable-review"></a>**Open for the human, from the review, 2026-10-03.**
+
+1. Passage unit: bars for both clocks (the key's BPM fixes duration), or beats for organisation and seconds for load. The review leans to bars.
+2. A diagnostic view of each family at the star the output reached, beside the score at the requested star. It touches [d-star-key](operator-properties.md#d-star-key), so the review asks rather than assumes.
+3. A separate floor row for loved and ranked calibration songs, as a diagnostic. The agent reads [d-loved-population](#d-loved-population) as excluding it and has not adopted it.
+4. Measuring a generator's population (coverage, divergence from the corpus) uses its outputs as the measured side, never as training data for the model of normal. The review reads this as compatible with [d-corpus-referenced](#d-corpus-referenced); one line from the human settles it.
+5. Who writes the held-out defect families after the freeze: the human or a fresh agent.
+6. Implementer of the model of normal: Astra under the frozen spec, or a Claude worker.
+
+Stated limit of the design: on partial scopes the key is the whole chart's star while a passage's own difficulty spreads widely around it ([le-label](operator-properties.md#failures)), so the evaluator is lenient there until scoped difficulty conditions exist.
+
 ## Work order (proposed, updated 2026-10-03)
 
 1. Done 2026-10-03: M0 inventory, M1 canonical beats, musical red lines and the evaluation interface ([s-m0-m1](#s-m0-m1), [p-red-lines](#p-red-lines), [p-eval-interface](#p-eval-interface)). The 2026-10-02 plan also listed the lineage's instruments for reuse; under [d-restart-r1](#d-restart-r1) only the star calculator, already on `main`, is reused.
