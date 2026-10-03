@@ -40,6 +40,8 @@ Source: the human's messages in main session `f843695d` ([private, local](privat
 
 <a id="d-two-filter-layers"></a>**Decision, human, 2026-10-03. Charts are filtered in two layers: red lines inside a chart, and whole maps; the whole-map filter is applied once, when the corpus is built.** Consumers read the corpus as built and do not filter maps again. The corpus Parquet is named for R2, the next model.
 
+<a id="d-loved-population"></a>**Decision, human, 2026-10-03. Loved charts are part of the population and are not told apart from ranked ones** ([private, local](private/human-inputs/10fd41cc-e5d5-4d85-8def-2bee49dada16.md#prompt-5)). Agent reading: no ranked/loved distinction in keys, strata or reports, and a flagged loved chart counts as a false alarm exactly as a ranked one does; the second half is inferred from "not identifiable from ranked", not stated.
+
 <a id="d-use-all-data"></a>**Decision, human, 2026-10-03. Every file in `dataset/` is usable and is used as fully as possible, the 2026-10 additions included; the corpus inventory Parquet is committed to the code repository.** Unresolved: the human's "Yes" answered whether the 10-02 additions become a reserved held-out pool, and the same sentence says to use everything. The split in [p-split](#p-split) reserves no acquisition wholesale; most additions are eligible for held-out without being reserved.
 
 ## How "accept all ranked" and "reject what ranked charts contain" fit
@@ -126,7 +128,7 @@ Failures it answers, all from the review, each written up with its evidence, its
 
 ## Open, for the human
 
-- Loved charts: are they accepted individually like ranked ones, or only as part of the target population? <a id="o-loved-count"></a>**Observation, 2026-10-02:** the dataset's per-set `metadata.json` (osu! API snapshot fetched 2026-08-05; bings-mac, `~/ensomi/ensomi-model/dataset/*/*/metadata.json`) lists 1,454 loved and 9,643 ranked 4K mania beatmaps at 2 to 6 stars, in 494 loved and 3,713 ranked sets. Counted from metadata only: whether every loved `.osu` is present and matches its checksum was not checked, and the ranked census behind R1's corpus admitted ranked charts only.
+- Loved charts: are they accepted individually like ranked ones, or only as part of the target population? Answered 2026-10-03: [d-loved-population](#d-loved-population). <a id="o-loved-count"></a>**Observation, 2026-10-02:** the dataset's per-set `metadata.json` (osu! API snapshot fetched 2026-08-05; bings-mac, `~/ensomi/ensomi-model/dataset/*/*/metadata.json`) lists 1,454 loved and 9,643 ranked 4K mania beatmaps at 2 to 6 stars, in 494 loved and 3,713 ranked sets. Counted from metadata only: whether every loved `.osu` is present and matches its checksum was not checked, and the ranked census behind R1's corpus admitted ranked charts only.
 - How many windows per round the human will judge in the spot-check of Part 1, item 6, and whether played or viewed.
 - The held-out reading of [d-use-all-data](#d-use-all-data): keep [p-split](#p-split) (no acquisition reserved), or reserve the 10-02 additions as a held-out pool.
 - The operator properties, now [operator-properties](operator-properties.md) with its own open items: review before an Astra brief is written.
