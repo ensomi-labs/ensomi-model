@@ -274,6 +274,20 @@ Agent reading, not asked on its own: the lattice period in ms as the organisatio
 3. Does any rejection depend on the mapper's beat label rather than the pulse lattice?
 4. Is the lattice period in ms acceptable as the organisation key in place of canonical BPM?
 
+<a id="s-harness-run1"></a>**Observation, 2026-10-03: harness v0 run-1, under the superseded bar-passage placeholder.** Job `20261003-134711-hv0-run1` on bings-mac wrote `artifacts/eval-harness-v0-20261003/run-1/` in the code checkout (receipt, `report.md`). The code is untracked; the receipt hashes every source file. It covered all fit and calibration charts, and ran 1,625 s.
+
+Pre-registered claims, as the run's report judged them:
+
+| Claim | Result |
+| --- | --- |
+| C1 floor | Fail: low tail 5.57% pooled, 7.55% in star band 3.5 to 4.0 |
+| C2 density drift | Fail: D9 ×2 detected in 99.2%, ×0.5 in 76.3% |
+| C3 specificity | Pass: 223,520 injected cases identical |
+| C4 must-not-flag | Fail: time-stretch changed the output on 75 to 235 charts per cell, expressive red lines on 5 |
+| C5 discards | High at the smallest dose: D6 36%, D7 85%, F1 48% |
+
+The main thread read the report and did not re-derive it. Whether the C4 and C5 numbers are harness bugs was unresolved when the worker was stopped. At the human's instruction the worker was replaced by a fresh-context Opus worker ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-6)). The new worker diagnoses run-1's failures, replaces the placeholder with a trivial event-field family (head rate in a 4 s Gaussian kernel, per-event ranks, a time-averaged field, a song null kernel-weighted in duration and star, same-shape windows for continuations), and runs run-2 under seven claims pre-registered in its brief. Its reports go to `artifacts/eval-harness-v0-20261003/run-2/`.
+
 ## Work order (proposed, updated 2026-10-03)
 
 1. Done 2026-10-03: M0 inventory, M1 canonical beats, musical red lines and the evaluation interface ([s-m0-m1](#s-m0-m1), [p-red-lines](#p-red-lines), [p-eval-interface](#p-eval-interface)). The 2026-10-02 plan also listed the lineage's instruments for reuse; under [d-restart-r1](#d-restart-r1) only the star calculator, already on `main`, is reused.
