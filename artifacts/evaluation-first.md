@@ -304,6 +304,14 @@ Pre-registered claims, as the report judged them:
 
 Under the stop rule a bug fix would have led to run-3. The human paused detailed evaluator design instead ([d-eval-reserve](#d-eval-reserve)), so the band miscalibration and the residual E-C3 cases stay open for when the evaluator is tuned on R2's output.
 
+<a id="d-mirror-section"></a>**Principle, human, 2026-10-03: mirror invariance holds for a whole mirrored section, never per row** ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-11)). Agent reading: a section mirrored as a whole, with all its rows flipped together, must be judged the same. Canonicalising each row by mirror would erase hand alternation and the hand relations between rows. Checked by the main thread against the framework:
+
+- The harness `mirror` transform maps every object of the chart, which is the section-level atom.
+- Under the continuation scope it flips the given and scored spans together.
+- Its test compared lanes and times sorted column by column and would have passed any lane permutation with the same counts. It was fixed in `17b73b9`; 126 tests pass.
+- The only row-level mirror atom was P1's "mirror-canonical row tokens" ([fable-eval-rethink](fable-eval-rethink.md#design-e)), not built. When the evaluator is tuned, any sequence model gets mirror symmetry at the section level instead, for example by fitting on each chart and its whole mirror.
+- Flipping the scored span alone while the given context stays unflipped is not an invariance and must not be tested as one.
+
 <a id="w-eval-cleanup"></a>**Done, 2026-10-03, at the human's request** ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-10)): a fresh Opus worker removed redundant checks, and the main thread committed the result as `469d72e`.
 
 - Six red-line transforms became one timing lesion, and the supplied-grid stretch copies were dropped.
