@@ -10,6 +10,7 @@ class PackageLayoutTest(unittest.TestCase):
             "ensomi_model",
             "ensomi_model.osu_core",
             "ensomi_model.features",
+            "ensomi_model.evaluation",
             "ensomi_model.research",
             "ensomi_model.research.chart",
             "ensomi_model.research.oracle_time_continuation",
