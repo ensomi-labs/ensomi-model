@@ -33,16 +33,16 @@ class RunTests(unittest.TestCase):
             out = tmp / 'out'
             self.assertEqual(run.main(['--corpus', str(corpus(tmp)), '--out', str(out), '--workers', '2']), 0)
             report = json.loads((out / 'report.json').read_text())
-            self.assertTrue((out / 'report.md').read_text().startswith('# Calibration harness v0, run-2'))
+            self.assertTrue((out / 'report.md').read_text().startswith('# Calibration harness v0'))
             c = report['counts']
             self.assertEqual((c['fit_charts'], c['calibration_charts']), (12, 2))
             self.assertEqual((c['fit_errors'], c['fit_null_errors'], c['calibration_errors']), (0, 0, 0))
             self.assertEqual(c['case_errors'], [])
-            self.assertEqual(sorted(report['claims']), ['E-C0', 'E-C1', 'E-C2', 'E-C3', 'E-C4', 'E-C5', 'E-C6'])
-            self.assertEqual(report['claims']['E-C0']['verdict'], 'pass')
-            self.assertEqual(report['claims']['E-C4']['verdict'], 'pass', report['claims']['E-C4'])
-            self.assertTrue(all(f.startswith('D7 ') for f in report['claims']['E-C3']['failures']),
-                            report['claims']['E-C3'])
+            cov = report['coverage']['original whole']
+            self.assertTrue(cov['events'])
+            self.assertEqual((cov['events_scored'], cov['heads_ranked'], cov['not_ok']), (cov['events'], cov['heads'], 0))
+            hashed = [m for m in report['must_not_flag'] if m['judged_by'] == 'full output hash' and m['condition'] == 'timing']
+            self.assertTrue(all(m['compared'] and not m['mismatches'] and not m['errors'] for m in hashed), hashed)
             log = [json.loads(x) for x in (out / 'access_log.jsonl').read_text().splitlines()]
             self.assertEqual([e['split'] for e in log], ['fit', 'calibration'])
             model = json.loads((out / 'model.json').read_text())
@@ -50,7 +50,7 @@ class RunTests(unittest.TestCase):
             receipt = json.loads((out / 'receipt.json').read_text())
             self.assertIn('report.md', receipt['outputs_sha256'])
             self.assertEqual(run.main(['--corpus', str(tmp / 'corpus.parquet'), '--out', str(out), '--report-only']), 0)
-            self.assertEqual(json.loads((out / 'report.json').read_text())['claims'], report['claims'])
+            self.assertEqual(json.loads((out / 'report.json').read_text())['must_not_flag'], report['must_not_flag'])
 
 
 if __name__ == '__main__':

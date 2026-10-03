@@ -19,8 +19,8 @@ events at the key: a fit event's surprisal comes from the density without its
 fold; a fit song is ranked against the events of the other folds.
 
 Helpers kept from v0 for the harness: star and canonical-BPM bands (the BPM
-band is used only to choose splice donors and to stratify reports), folds,
-Wilson and song-group bootstrap intervals.
+band is used only to choose splice donors), folds, Wilson and song-group
+bootstrap intervals.
 """
 from __future__ import annotations
 
@@ -58,10 +58,6 @@ def star_band_label(band: int) -> str:
 def bpm_band(canonical_bpm) -> np.ndarray:
     band = np.floor((np.asarray(canonical_bpm, dtype=np.float64) - CANONICAL_MIN) / BPM_BAND_WIDTH)
     return np.clip(band, 0, BPM_BANDS - 1).astype(np.int64)
-
-
-def bpm_band_label(band: int) -> str:
-    return f'{CANONICAL_MIN + band * BPM_BAND_WIDTH:.0f}-{CANONICAL_MIN + (band + 1) * BPM_BAND_WIDTH:.0f}'
 
 
 def fold_of(group_id: str) -> int:

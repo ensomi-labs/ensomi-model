@@ -2,7 +2,7 @@
 
 Run on the machine that holds ``dataset/``, from the repository root::
 
-    python -m ensomi_model.evaluation.harness.run --out artifacts/eval-harness-v0-20261003/run-2 \\
+    python -m ensomi_model.evaluation.harness.run --out artifacts/eval-harness-v0-20261003/<run> \\
         --provenance ../.sync/cp/jobs/<job id>/provenance.json
 
 Order: fit pass (values, descriptions) on the fit split; the model fitted, its
@@ -73,7 +73,6 @@ def main(argv=None) -> int:
     parser.add_argument('--fit-limit', type=int, help='seeded subsample of fit song groups (smoke runs only)')
     parser.add_argument('--calibration-limit', type=int, help='seeded subsample of calibration song groups')
     parser.add_argument('--report-only', action='store_true', help='re-run analysis and report from state.pkl')
-    parser.add_argument('--previous', help="an earlier run's report.json, summarised beside this run")
     argv = sys.argv[1:] if argv is None else list(argv)
     args = parser.parse_args(argv)
     for name in THREAD_VARIABLES:  # one BLAS thread per worker process: no oversubscription

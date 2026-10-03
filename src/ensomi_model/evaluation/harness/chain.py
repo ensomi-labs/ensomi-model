@@ -36,7 +36,6 @@ NULL_H_LOG_SECONDS = 0.2
 NULL_LOG_SECONDS_ROUND = 0.005
 GIVEN_FRACTION = 0.25
 WINDOWS = ((1.0, 0.0), (0.75, 0.0), (0.75, 0.25), (0.5, 0.0), (0.5, 0.25), (0.5, 0.5))
-TAILS = ('low', 'high')
 STATS = ('mean_low', 'mean_high', 'worst_low', 'worst_high')
 HEAD, RELEASE = 1, 3
 

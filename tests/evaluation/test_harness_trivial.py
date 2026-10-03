@@ -69,7 +69,6 @@ class BinnedKDETests(unittest.TestCase):
     def test_density_is_a_density_and_bandwidth_is_selected(self):
         m = model()
         self.assertAlmostEqual(float(m.full[6].sum() * V_BIN), 1.0, places=9)
-        self.assertIn(str(m.bandwidth), m.loglik)
         self.assertEqual(max(m.loglik, key=m.loglik.get), str(m.bandwidth))
         self.assertAlmostEqual(math.log(m.mode_rate(6)), 1.0, delta=0.1)
         self.assertIsNone(m.mode_rate(7))
@@ -87,7 +86,6 @@ class BinnedKDETests(unittest.TestCase):
         lo, hi = m.ranks(s, [6, 6, 6], -1)
         np.testing.assert_allclose(lo + hi, 1.0)
         self.assertGreater(lo[0], 0.75)         # near the mode: not surprising, very typical
-        self.assertLess(hi[0], 0.25)
         self.assertLess(lo[1], 0.001)           # far tail: surprising
         self.assertLess(lo[2], 0.001)
         n = m.counts[6].sum()

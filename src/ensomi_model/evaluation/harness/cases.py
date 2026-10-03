@@ -46,7 +46,7 @@ from .arrays import Objects
 from .chain import GIVEN_FRACTION, HEAD, RELEASE, FieldOperator, continuation_cut, window_chart, windows
 from .descriptions import density_log_ratio, describe
 from .injections import CONTINUATION, FAMILIES, WHOLE, Source, dose_label
-from .transforms import TRANSFORMS, expressive_ok
+from .transforms import TRANSFORMS
 from .trivial import fold_of
 
 SCOPES = (WHOLE, CONTINUATION)
@@ -96,8 +96,8 @@ def song_span(chart: Chart, grid) -> tuple[float, float]:
 
 
 def make_case(chart: Chart, grid, scope: str, star: float, *, t: float, source: Chart | None = None,
-              grid_from_chart: bool = False, skeleton: bool = False) -> EvalCase:
-    timing = [] if grid_from_chart else [Skeleton.from_chart(source or chart, grid) if skeleton else Timing(grid)]
+              skeleton: bool = False) -> EvalCase:
+    timing = [Skeleton.from_chart(source or chart, grid) if skeleton else Timing(grid)]
     if scope == WHOLE:
         return EvalCase(chart, Condition.of(*timing, star=star), Scope.whole())
     given = Context.from_chart(source or chart, Spans.before(t))
@@ -275,9 +275,6 @@ def _transform(transform, src: Chart, star: float, seed: int, add, op, raw_ident
             every(dict(status='n/a', reason=made))
             return
         rt = round_trip(made.chart, **made.extras)
-        if not expressive_ok(rt, made.check_expressive):
-            every(dict(status='n/a', reason='an inserted line is not expressive'))
-            return
         g = made.grid if made.grid is not None else rt.musical_grid()[0]
         bad = violations(rt.objects, song_span=song_span(rt, g))
         if bad:
@@ -286,13 +283,9 @@ def _transform(transform, src: Chart, star: float, seed: int, add, op, raw_ident
         tt = continuation_cut(rt)
         for scope in SCOPES:
             for condition in CONDITIONS:
-                if made.grid_from_chart and condition == 'skeleton':
-                    add('transform', transform.name, '', scope, condition,
-                        dict(status='n/a', reason='the chart supplies its own grid: no timing component'))
-                    continue
                 keep = transform.stretch is not None and scope == WHOLE and condition == 'timing'
-                rec, raw = run_case(make_case(rt, g, scope, star, t=tt, grid_from_chart=made.grid_from_chart,
-                                              skeleton=condition == 'skeleton'), op, offset=made.time_offset, keep=keep)
+                rec, raw = run_case(make_case(rt, g, scope, star, t=tt, skeleton=condition == 'skeleton'), op,
+                                    offset=made.time_offset, keep=keep)
                 if raw is not None and raw_identity is not None:
                     rec.update(covariance(raw_identity, raw, transform.stretch))
                 add('transform', transform.name, '', scope, condition, rec)

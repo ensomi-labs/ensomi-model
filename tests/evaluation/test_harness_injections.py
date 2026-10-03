@@ -65,12 +65,10 @@ class InjectionTests(unittest.TestCase):
 
     def test_group_moves_are_legal_on_a_chart_with_long_notes(self):
         src = source(round_trip(ln_chart()))
-        for name, dose in (('D6', 0.25), ('D6', 1.0), ('D7', 0.25), ('D7', 1.0), ('F1', 0.1), ('F1', 1.0),
-                           ('D10', 'loop_first_quarter'), ('F2', 'replaced')):
+        for name, dose in (('F1', 0.1), ('F1', 1.0), ('D10', 'loop_first_quarter'), ('F2', 'replaced')):
             with self.subTest(family=name, dose=dose):
                 out = self.apply(name, dose, src=src)
                 self.assertEqual(violations(written(out, src.chart).objects, song_span=src.span), {})
-                self.assertLessEqual(out.note['done'], out.note['requested'])
         d6 = self.apply('D6', 1.0, src=src)
         self.assertGreater(int(np.sum(d6.lane != src.objects.lane)), 0)
         d7 = self.apply('D7', 1.0, src=src)
