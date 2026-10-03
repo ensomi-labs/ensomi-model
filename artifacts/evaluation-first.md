@@ -288,6 +288,15 @@ Pre-registered claims, as the run's report judged them:
 
 The main thread read the report and did not re-derive it. Whether the C4 and C5 numbers are harness bugs was unresolved when the worker was stopped. At the human's instruction the worker was replaced by a fresh-context Opus worker ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-6)). The new worker diagnoses run-1's failures, replaces the placeholder with a trivial event-field family (head rate in a 4 s Gaussian kernel, per-event ranks, a time-averaged field, a song null kernel-weighted in duration and star, same-shape windows for continuations), and runs run-2 under seven claims pre-registered in its brief. Its reports go to `artifacts/eval-harness-v0-20261003/run-2/`.
 
+<a id="d-eval-reserve"></a>**Decision, human, 2026-10-03: stop detailed evaluator design; keep the framework; tune the evaluator after R2 exists, to debug its weaknesses** ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-9)).
+
+- The P1 details are not expected to help the coming R2 model. In particular, scoring a row by predicting it from the two rows before and after is a poor evaluation, and P1 is not built.
+- The harness framework is kept as the place R2's outputs will be measured: legality, dosed injections, must-not-flag transforms, the event field, song nulls and receipts.
+- R2, as the human states it: cross-entropy plus DPO sequence optimisation, and a generation system conditioned only on head rows.
+- Player-data collection keeps running on the mac.
+
+Agent reading: [d-event-field](#d-event-field) stands as the framework's design. [fable-eval-rethink](fable-eval-rethink.md) sections 2 and 6 and the window-similarity proposal stay as unadopted material. The focus moves from `evaluation` to building R2.
+
 ## Work order (proposed, updated 2026-10-03)
 
 1. Done 2026-10-03: M0 inventory, M1 canonical beats, musical red lines and the evaluation interface ([s-m0-m1](#s-m0-m1), [p-red-lines](#p-red-lines), [p-eval-interface](#p-eval-interface)). The 2026-10-02 plan also listed the lineage's instruments for reuse; under [d-restart-r1](#d-restart-r1) only the star calculator, already on `main`, is reused.
