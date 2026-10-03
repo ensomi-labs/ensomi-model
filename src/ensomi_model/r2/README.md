@@ -122,3 +122,42 @@ control plane; checkpoints and `.osu` files are not):
 Exit codes of the trainer: 0 finished (exposure budget or `stop_at_unix`), 3 NaN-event limit
 (three events; each one reloads the last checkpoint, skips the offending window and halves the
 learning-rate multiplier), 4 resource guard.
+
+## DPO on synthetic pairs (`train_dpo.py`)
+
+`dpo_loss(policy, reference, pairs, anchor_windows, beta=0.1, lambda_ce=0.2)` is the soft-label
+sequence DPO of design section 5: for each pair, both branches are replayed on their own states
+and scored with `sequence_log_prob` by the policy and by the frozen reference (no gradient, eval
+mode); Delta is the difference of the branch log-ratio sums, the loss is
+`-q log sigma(beta Delta) - (1 - q) log sigma(-beta Delta)` averaged over pairs, plus `lambda_ce`
+times the CE trainer's window loss on the anchor windows. `backward=True` backpropagates one
+pair or window at a time (same gradient, one graph alive).
+
+Pairs are synthetic only: `build_pair` samples two continuations of `horizon` head decisions
+(default 64, EOS included at the chart end) from one start state with the R2 sampler, and a
+labeller with a known utility sets `q = sigmoid(alpha (u+ - u-))`: `ln_share` (utility
+`-|LN share - target|`) or `near_head` (utility minus the number of releases 1 to 40 ms before
+another lane's head). Pairs with `|q - 0.5| < min_margin` or identical branches are dropped.
+
+Training (CE checkpoint = initial policy and frozen reference; pairs from the reference on
+fit_train start states, held states and CE evaluation windows from fit_dev):
+
+```
+PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.train_dpo --checkpoint <run>/checkpoints/ckpt-<N>.pt \
+  --run-dir artifacts/r2-dpo/<id> --set labeller='"ln_share"' --set target=0.5 [--set key=value ...]
+PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.train_dpo --run-dir artifacts/r2-dpo/<id> --resume
+```
+
+Defaults follow design section 5: AdamW lr 1e-5, betas (0.9, 0.95), weight decay 0.01 on
+matrices, clip 1, 50-step linear warmup, 8 pairs and 8 anchor windows of 256 decisions per
+update, beta 0.1, lambda_CE 0.2. The run directory holds `config.json`, `pairs.pt` and
+`pairs_summary.json`, `train.jsonl` (per update: beta Delta mean/std/min/max, implicit rewards
+beta R+ and beta R-, preference accuracy, preference loss, anchor CE, grad norm, lr),
+`evals.jsonl` (every `eval_every` updates and at the end: the same statistics over the whole pair
+pool, fit_dev CE on `eval_windows` windows, and on fresh policy samples from the held states the
+Monte Carlo KL to the reference per decision with its cluster SE and the labeller statistic),
+`checkpoints/dpo-<step>.pt` with `latest.json`, `events.jsonl` and `receipt-*.json`.
+
+Tests: `tests/r2/test_dpo.py` (T1, T2, T5, mirror invariance of Delta, microbatched gradient,
+exact resume, labeller counts, an integration run on synthetic charts, and a CLI start/resume on
+the cache).
