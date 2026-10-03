@@ -1,3 +1,4 @@
+import math
 import unittest
 
 import numpy as np
@@ -57,6 +58,27 @@ class FoldTests(unittest.TestCase):
                 other = BeatGrid.from_timing_points(renotate(points, factor))
                 assert_same_coords(self, base, other.locate(times))
 
+    def test_renotating_past_the_raw_red_line_limit_keeps_coordinates(self):
+        # A real segment at 39.9 BPM: at half BPM it is 3,008.6 ms a beat, past the raw limit of 3,000.
+        points = [RedTimingPoint(10460.0, 1504.313736, 4)]
+        times = [10460.0, 10836.078434, 11212.156868]
+        base, other = BeatGrid.from_timing_points(points), BeatGrid.from_timing_points(renotate(points, -1))
+        self.assertEqual(other.segments[0].beat_length_ms, 3008.627472)
+        np.testing.assert_array_equal(base.canonical_beat_lengths(), other.canonical_beat_lengths())
+        assert_same_coords(self, base.locate(times), other.locate(times))
+
+    def test_every_notation_that_folds_is_a_valid_segment(self):
+        by_bpm = {80.0: 0, 160.0: -1, 40.0: 1, 320.0: -2, 20.0: 2, 1000.0: -3}
+        folds = {60000.0 / bpm: fold for bpm, fold in by_bpm.items()}
+        folds.update({1504.313736: 2, 3008.627472: 3, 0.01: -16, 1e6: 11})
+        for length, fold in folds.items():
+            with self.subTest(beat_length_ms=length):
+                s = grid((0.0, length, 4)).segments[0]
+                self.assertEqual(s.fold, fold)
+                # The canonical BPM a grid reports is the fold's own quantity, so it cannot round out of range.
+                self.assertEqual(s.canonical_bpm, 60000.0 / length * 2.0 ** fold)
+                self.assertTrue(80.0 <= s.canonical_bpm < 160.0)
+
 
 class LocateTests(unittest.TestCase):
     def test_snap_and_residual(self):
@@ -99,8 +121,11 @@ class LocateTests(unittest.TestCase):
     def test_invalid_grids_are_refused(self):
         with self.assertRaises(ValueError):
             BeatGrid((), (BarStart(0.0, 4),))
-        with self.assertRaises(ValueError):
-            BeatGrid((Segment(0.0, 0.01, 4),), (BarStart(0.0, 4),))  # 6,000,000 BPM
+        bad = [Segment(0.0, length, 4) for length in (0.0, -500.0, math.inf, -math.inf, math.nan)]
+        bad += [Segment(0.0, 500.0, 0), Segment(0.0, 500.0, -4), Segment(math.nan, 500.0, 4)]
+        for segment in bad:
+            with self.subTest(segment=segment), self.assertRaises(ValueError):
+                BeatGrid((segment,), (BarStart(0.0, 4),))
         with self.assertRaises(ValueError):
             BeatGrid((Segment(0.0, 500.0, 4),), ())
 

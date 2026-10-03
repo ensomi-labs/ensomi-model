@@ -20,7 +20,7 @@ from typing import Sequence
 import numpy as np
 
 from ..osu_core.hitobjects import ManiaHitObject, ManiaHitObjectKind
-from ..osu_core.timing import RedTimingPoint, validate_red_timing_point
+from ..osu_core.timing import RedTimingPoint
 
 CANONICAL_BPM_MIN = 80.0
 CANONICAL_BPM_MAX = 160.0
@@ -83,7 +83,14 @@ class BeatGrid:
         if not self.segments:
             raise ValueError('A beat grid needs at least one segment')
         for s in self.segments:
-            validate_red_timing_point(RedTimingPoint(s.offset_ms, s.beat_length_ms, s.meter))
+            # In canonical terms, on the fold's own quantity: a renotation is valid exactly when the original is.
+            if not (math.isfinite(s.offset_ms) and math.isfinite(s.beat_length_ms) and s.beat_length_ms > 0):
+                raise ValueError(f'A segment needs a finite offset and a finite positive beat length: {s}')
+            if s.meter < 1:
+                raise ValueError(f'A segment needs a meter of at least 1: {s}')
+            bpm = 60000.0 / s.beat_length_ms
+            if not CANONICAL_BPM_MIN <= bpm * 2.0 ** fold_for_bpm(bpm) < CANONICAL_BPM_MAX:
+                raise ValueError(f'A segment must fold into [{CANONICAL_BPM_MIN:g}, {CANONICAL_BPM_MAX:g}) BPM: {s}')
         if any(b.offset_ms <= a.offset_ms for a, b in zip(self.segments, self.segments[1:])):
             raise ValueError('Segment offsets must increase')
         if not self.bar_starts or any(b.time_ms <= a.time_ms for a, b in zip(self.bar_starts, self.bar_starts[1:])):
