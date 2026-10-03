@@ -304,11 +304,16 @@ Pre-registered claims, as the report judged them:
 
 Under the stop rule a bug fix would have led to run-3. The human paused detailed evaluator design instead ([d-eval-reserve](#d-eval-reserve)), so the band miscalibration and the residual E-C3 cases stay open for when the evaluator is tuned on R2's output.
 
-<a id="w-eval-cleanup"></a>**Running, 2026-10-03, at the human's request** ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-10)): a fresh Opus worker removes redundant checks, tests and asserts from the framework, in code and docstrings, without changing what the evaluator computes. It targets:
-- checks that hold by construction, such as the red-line transforms, which collapse into one input-lesion test;
-- duplicates;
-- the retired bar-passage code;
-- run-specific claim judging in the report.
+<a id="w-eval-cleanup"></a>**Done, 2026-10-03, at the human's request** ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-10)): a fresh Opus worker removed redundant checks, and the main thread committed the result as `469d72e`.
+
+- Six red-line transforms became one timing lesion, and the supplied-grid stretch copies were dropped.
+- The report no longer judges run-specific claims or carries run-1 comparisons, diagnoses or ledgers.
+- Duplicate tests and asserts were removed. Evaluation source went from 5,023 to 4,680 lines.
+- On a 50/10 song-group smoke, per-event values, statistics, nulls and model are bit-identical to `f6251c4` (job `20261003-cleanup-smoke`, `artifacts/eval-harness-v0-20261003/cleanup-smoke/equivalence.json`).
+- Tests: 126 pass after, against 127 before (job `20261003-164308-cleanup-tests-after`).
+- The `report.json` schema changed, so run-2's exact command needs `f6251c4`.
+- Not done: Claude Code's permission check blocked the worker from deleting the dead `passages.py` and `test_passages.py` as "Security Test Removal". Deleting them is left to the human.
+- Kept as a safety guard: a held-out re-check that can never fire.
 
 `f6251c4` stays as run-2's reproducible record.
 
