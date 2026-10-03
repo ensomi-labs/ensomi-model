@@ -82,6 +82,8 @@ At the human's instruction the mathematics, training recipe and sampling are dec
 - **Changed: schedule horizon.** Not "until 08:00": the run starts in the small hours (mac local time UTC+8) and must still be training in the morning, so the cosine horizon is set from measured throughput for about 20 hours.
 - **Added for an unattended run:** the overnight process runs from a frozen copy of the code in its run directory, so later edits to the synced tree (the DPO trainer is written during the run) cannot affect it; a supervisor loop resumes from the last checkpoint after a crash (bounded retries) and stops on repeated NaN.
 
+<a id="r2-impl-run"></a>**Implementation started, 2026-10-03 about 18:00 UTC.** Fresh Opus worker on the control plane, brief in the session scratchpad (`opus-r2-implement-brief.md`, not durable): the v1 spec with the overrides above, code under `src/ensomi_model/r2/` and `tests/r2/` on `r2/train`, the eight pre-run tests run on the mac, cache and star labels built on the mac, launcher with frozen code, supervisor, pilot mode; DPO trainer left for a later worker; no commits by the worker.
+
 <a id="o-r2-mirror"></a>
 ## Mirror equivariance of the whole decision (human remark, 2026-10-03)
 
