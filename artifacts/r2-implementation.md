@@ -44,9 +44,19 @@ A read-only explorer mapped `src/ensomi_model/research/bounded_typed_continuatio
 - R2 would depend on `oracle_time_continuation` (schema, replay, storage, runtime, export) and `chart.*`; not on `vacation_training`, which enters only through `r1_restore`.
 
 <a id="r2-star-sections"></a>
-## Star on short sections (running)
+## Star on short sections
 
-Fresh Claude worker, 2026-10-03; brief in the session scratchpad (`star-sections-brief.md`, not durable), scripts `~/ensomi/.sync/cp/scratch/r2-star-sections/`, output `artifacts/r2-star-sections-20261003/` of the code checkout. Pre-registered: 240 fit-split ranked and loved charts at 2 to 6 stars, one per song group; section lengths 4 to 90 s; reference = the star of the section tiled to 240 s (what the algorithm says about a chart made of that material); measures: error against the reference, rank agreement, response to thinning and to 1.25x compression relative to the reference's response, within-chart spread. Provisional criterion for x, for the human to revise: in every star band, median |error| ≤ 0.10, 90th percentile ≤ 0.25, Spearman ≥ 0.95, dose ratio within [0.8, 1.25].
+Fresh Claude worker, 2026-10-03; brief in the session scratchpad (`star-sections-brief.md`, not durable), scripts `~/ensomi/.sync/cp/scratch/r2-star-sections/` (`run_sections.py` SHA-256 `c645cf22…`, `analyze.py` `0793d238…`), output `artifacts/r2-star-sections-20261003/` of the code checkout (`preregistration.md`, `sections.csv`, `dose.csv`, `summary.json`, `tables.md`, two figures, each with a receipt). Jobs `20261003-164806-star-sections-run` (exit 0) and `20261003-165546-star-sections-analyze`. `difficulty.py` and the corpus were hash-identical to `f6251c4` at every stage. Pre-registered: 240 fit-split ranked and loved charts at 2 to 6 stars, one per song group, 60 per star band; L in {4, ..., 90} s; reference `s_tile` = star of the section tiled to 240 s; provisional criterion in every band: median |e| ≤ 0.10, p90 ≤ 0.25, Spearman ≥ 0.95, dose ratio in [0.8, 1.25].
+
+<a id="s-star-sections"></a>**Observation, single run (8,010 sections kept of 8,036).** Under the pre-registered criterion, x = none of the tested lengths. The main thread checked the headline numbers against `tables.md`.
+
+- The section star is below its tiled reference in every kept section, roughly in proportion to the star: median relative error -46.8% at 4 s, -19.1% at 10 s, -10.3% at 20 s, -6.0% at 45 s, -3.6% at 90 s. At 90 s median |e| is 0.090, 0.125, 0.153, 0.180 in bands 2 to 5 (limit 0.10), p90 0.171 to 0.359 (limit 0.25).
+- Ranking and response to content hold from short lengths: pooled Spearman ≥ 0.974 from 4 s; thinning dose ratio within limits from 10 s (0.842); compression from 20 s (0.826, marginal), 0.907 at 30 s. Within-band Spearman is lower (band 4: 0.895 at 10 s, 0.950 at 90 s); the pooled test is weak. Dose figures rest on 30 sections per L.
+- Cause, in the code (decomposition post-hoc): the star is the sum of 400 ms strain peaks sorted and weighted by 0.9^i (`difficulty.py:348-355`), not normalised. (1) A section has about L/0.4 peaks, so uniform material reaches 1 - 0.9^N of its long value: dominant up to 8 s, gone by 30 s. (2) The weighted sum spreads weight over the top 20 or so peaks while a long chart repeating the material is carried by its top peaks: -0.14 star median at 90 s, and this is a length dependence of the algorithm for any chart shorter than 240 s, whole-chart corpus stars included. (3) Cold start and missing holds from before the section: small in median from 8 s. (4) The 400 ms grid's phase: small for the tile.
+- Post-hoc options, not adopted: the tiled star as the label (zero error by definition; noise from grid phase, p90 ≤ 0.039); isotonic calibration per L (meets the error conditions only at 90 s); the closed form s/(1 - 0.9^N) (fails, removes only part 1).
+- The worker could not write `report.md` (harness block on report files); its content is above and in `tables.md` and `summary.json`. Its pre-registration cites `difficulty.py` lines 255-257 for the clock-rate division; correct is 256-258.
+
+<a id="a-star-label"></a>**Agent reading (proposed).** The algorithm's response to content is usable from about 20 to 30 s; its level is not a length-free quantity at any length. So "the star of an interval" needs a definition before it can be a label. The tiled star reads as "the star a chart made of this material would have", is free of length by construction, and gives song-level and interval-level conditions one scale if the song-level label is computed the same way (for songs of 240 s or more it equals the ordinary star). Raw section star with length as an extra input keeps osu!'s own number but makes a request's meaning depend on interval length. Question for the human.
 
 <a id="r2-ml-design"></a>
 ## ML design by Astra (running)
@@ -63,5 +73,5 @@ Code: branch `r2/train` created in the main checkout from `eval/corpus-beats` at
 <a id="r2-impl-open"></a>
 ## Open
 
-- x for interval star labels, after the study.
+- The definition of an interval star label and its minimum length, after [s-star-sections](#s-star-sections) (human).
 - Whether the agent defaults above stand, after Astra's design; the design document, once reviewed by the agent and the human, becomes the implementation brief.
