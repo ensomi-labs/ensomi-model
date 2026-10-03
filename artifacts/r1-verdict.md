@@ -1,0 +1,27 @@
+# R1 verdict and the direction beyond row cross-entropy
+
+Shareable. Written 2026-10-03 by main session `41ba879c` (Claude, control plane). Holds the human's judgment of R1 of 2026-10-03, the two reasons the human gave, and the agent's reading of what they touch in the notes. Source: [private, local](private/human-inputs/41ba879c-870c-4368-9fa0-fb9fdf2ccce3.md#prompt-1); agent account, the original wording is not reproduced here. Text marked agent reading or `(proposed)` is not a decision.
+
+<a id="d-r1-fails"></a>**Judgment, human, 2026-10-03. R1 substantially fails.** This is the first human judgment of R1's output quality on record; until now [s-r1-quality](lineage-review/synthesis.md#s-r1-quality) said none existed, and [H7](lineage-review/synthesis.md#h7) asked whether the 09-21 publish request was one. Not recorded: which outputs the human judged and how (played, viewed, or read from numbers); no R1 generation job is in the control-plane job list since 2026-10-02. The human named two causes as the most important, below.
+
+<a id="d-no-release-input"></a>**Decision, human, 2026-10-03. The generator is not given LN release times.** R1's supplied time set R includes the source chart's release-only times, and the source release schedule carries information from other maps into the output.
+
+- Grounds already in the notes: R1 reads R and its roles 16 candidates and 64 s ahead, so the moments where long notes may end come from the source chart ([s-r1-interface](lineage-review/synthesis.md#s-r1-interface)); R1's LN share and length follow the release candidates offered (mean LN share 0.21, 0.46, 0.86 as release-only candidates were added), and release times barely agree between mappers of the same audio, F1 about 0.09 at 20 ms against 0.79 for heads ([s-release-sensitivity](lineage-review/synthesis.md#s-release-sensitivity)).
+- Agent reading of "from other maps", two versions, unresolved: at generation the schedule is another mapper's LN choreography copied into the output; in training it is the target chart's own, which hands the model part of the answer. Either way, R1's LN behaviour under source release times is not the model's own, and an R1 result with given release times measures a mixture.
+- Answers the first question of [H7](lineage-review/synthesis.md#h7): "R1 chooses rows at supplied times" is not acceptable while the times include release moments.
+- Open: whether head times (the set H) stay given. The human named release times only.
+- Tension, open: the evaluation condition `skeleton` is timing plus head and release times ([p-eval-object](evaluation-first.md#p-eval-object), [d-placement-is-timing](evaluation-first.md#d-placement-is-timing)). Agent reading: as an evaluation component it can stay, since evaluation may describe any generator; a generator built to this decision is evaluated under `timing` or a heads-only skeleton, which needs a name. Whether `skeleton` drops releases is the human's call.
+
+<a id="d-beyond-row-ce"></a>**Direction, human, 2026-10-03. Per-row cross-entropy is not enough.** R1 is trained by teacher-forced cross-entropy on the complete row at each supplied time. The human's direction adds, as examples: preference optimisation (DPO) over a fixed generation start state; Astra reading Beatmap Lens; the new evaluation system; preference data the human generates.
+
+- Agent reading: a pair is two continuations sampled from the same committed state (prefix and conditions fixed), so the pair differs only in the model's choices and the preference isolates them. Three label sources: Astra on Lens renderings, the corpus-referenced evaluator ([p-eval-object](evaluation-first.md#p-eval-object)), the human. This targets the gap the review saw between likelihood and free-running quality ([s-likelihood-vs-rollout](lineage-review/synthesis.md#s-likelihood-vs-rollout)), which R1 so far closes only with three rule-trained residuals.
+- Read as direction, not as an instruction to start: when this work begins relative to the evaluation focus is not set. It ends the "no R1 retraining until evidence calls for it" stance of [d-restart-r1](evaluation-first.md#d-restart-r1): the evidence and the direction are now given; the timing is not.
+- Tension with an agent proposal: [p-operator-properties](evaluation-first.md#p-operator-properties) says an operator is never a training signal or selector for a generator. The human's direction uses the evaluation system as a preference source, and the direction prevails. What the proposal guarded against remains (proposed): a generator optimised against an evaluator learns that evaluator's blind spots, so a part of evaluation that never supplies preferences, and the human's own judgments, are needed to see whether gains are real.
+- Tension with a recorded failure: [fm-self-evaluation](agent-failure-modes.md#fm-self-evaluation) is the agent's Lens reading standing in for the evaluator without a measured agreement rate. Astra's Lens preferences as training labels need their agreement with the human's preferences measured on the same pairs (proposed); the human's offer to label supplies that.
+
+<a id="r1-open"></a>
+## Open, for the human
+
+- Which R1 outputs the verdict rests on, so they can be kept as files with their generation condition.
+- Whether head times stay given to the generator, and whether the evaluation condition `skeleton` keeps release times.
+- When the preference work starts: after the evaluator's calibration harness, or alongside it.
