@@ -105,7 +105,11 @@ Where the agent qualifies the memo:
 - A1 runs as pre-registered, with key-count mods excluded, after harness v0 finishes: first on the fit split, then once on calibration as confirmation.
 - ppy is contacted for a replay pilot only after A1, and only if A1 shows a demand signal beyond star.
 
-Still open from the questions below: the canonical lane-to-finger binding, and whether the 150 ms run threshold is acceptable under [d-no-cutoffs](operator-properties.md#d-no-cutoffs). Both bear on A1 and were not asked.
+<a id="d-binding-threshold"></a>Later the same day ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-3)):
+
+- The binding is the formulation's canonical hand roles: lanes 1 and 2 left, 3 and 4 right, outer as the middle finger and inner as the index (`5c56e28:docs/formulation/notation.md`, "Canonical hand-role coordinates").
+- The human is unsure of the 150 ms run threshold and reserves it: it stays a provisional, labelled parameter of A1, with its pre-registered sweep, to be refined later. Agent reading: a continuous run descriptor, such as run length as a function of gap or the peak of a strain state, would remove the threshold. This is not decided.
+- The human set the direction this serves: a demand-response model of the hand-physiological gameplay state, seen from several views.
 
 <a id="q-fable-views"></a>**Open for the human, from the memo, 2026-10-03.**
 
