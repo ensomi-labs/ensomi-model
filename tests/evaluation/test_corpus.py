@@ -60,12 +60,15 @@ class InventoryTests(unittest.TestCase):
                                       timing=('13,250,4,2,0,80,1,0',), objects=ON_GRID),
                 '555/f.osu': osu_text(title='Broken', artist='Nobody', beatmap_id=51, set_id=555,
                                       timing=('0,0,4,2,0,80,1,0',), objects=ON_GRID),
+                '666/g.osu': osu_text(title='Gimmick', artist='Nobody', beatmap_id=61, set_id=666,
+                                      timing=('0,500,4,2,0,80,1,0', '4000,1e-6,4,2,0,80,1,0',
+                                              '4001,500,4,2,0,80,1,8'), objects=ON_GRID),
             }
             for rel, text in files.items():
                 (sets / rel).parent.mkdir(parents=True, exist_ok=True)
                 (sets / rel).write_text(text)
             for name, audio in (('111', b'song'), ('222', b'song-tv'), ('333', b'song'), ('444', b'other'),
-                                ('555', b'broken')):
+                                ('555', b'broken'), ('666', b'gimmick')):
                 (sets / name / 'audio.mp3').write_bytes(audio)
             md5 = {rel: hashlib.md5(text.encode()).hexdigest() for rel, text in files.items()}
             sha = {rel: hashlib.sha256(text.encode()).hexdigest() for rel, text in files.items()}
@@ -91,12 +94,12 @@ class InventoryTests(unittest.TestCase):
             self.assertEqual((rows['111/b.osu']['api_match'], rows['111/b.osu']['api_status']), ('beatmap_id', 'loved'))
             self.assertIsNone(rows['222/c.osu']['api_match'])
             a = rows['111/a.osu']
-            self.assertEqual((a['n_taps'], a['n_lns'], a['fold'], a['canonical_bpm']), (33, 1, 0, 120.0))
+            self.assertEqual((a['n_taps'], a['n_lns'], a['dominant_fold'], a['canonical_bpm']), (33, 1, 0, 120.0))
             self.assertGreater(a['star'], 0)
             self.assertEqual((a['head_on_grid'], a['release_on_grid'], a['renotation_invariant']), (1.0, 1.0, True))
             self.assertLess(a['roundtrip_max_ms'], 1e-6)
             e = rows['444/e.osu']
-            self.assertEqual((e['fold'], e['canonical_bpm']), (-1, 120.0))  # notated 240 folds to 120
+            self.assertEqual((e['dominant_fold'], e['canonical_bpm']), (-1, 120.0))  # notated 240 folds to 120
             self.assertLess(e['head_on_grid'], 1.0)  # its grid starts 13 ms late
             group = {rel: r['group_id'] for rel, r in rows.items()}
             self.assertEqual(len({group['111/a.osu'], group['111/b.osu'], group['222/c.osu'], group['333/d.osu']}), 1)
@@ -104,11 +107,14 @@ class InventoryTests(unittest.TestCase):
             self.assertEqual(group['111/a.osu'], min(sha[k] for k in ('111/a.osu', '111/b.osu', '222/c.osu', '333/d.osu')))
             self.assertEqual(rows['111/b.osu']['r1_split'], 'train')
             self.assertNotEqual(rows['333/d.osu']['eval_split'], 'heldout')
+            g = rows['666/g.osu']  # a 60,000,000 BPM line, then the grid resumes 1 ms later
+            self.assertEqual((g['n_red_lines'], g['n_musical'], g['n_redundant'], g['n_expressive']), (3, 1, 1, 1))
+            self.assertEqual(g['expressive_reasons'], 'implausible:1')
+            self.assertEqual((g['head_on_grid'], g['n_bar_starts'], g['renotation_invariant']), (1.0, 1, True))
             broken = rows['555/f.osu']
-            self.assertTrue(broken['error'].startswith('timing: <file> has invalid red timing'), broken['error'])
-            self.assertNotIn(tmp, broken['error'])
+            self.assertEqual(broken['error'], 'timing: No red line with a plausible BPM')
             self.assertIsNotNone(broken['star'])
-            self.assertEqual(summary['files'], 6)
+            self.assertEqual(summary['files'], 7)
             self.assertEqual(summary['errors'], {'timing': 1})
             self.assertEqual(summary['r1_trained_in_heldout'], 0)
 

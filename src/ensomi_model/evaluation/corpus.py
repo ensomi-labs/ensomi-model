@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter, defaultdict
 from concurrent.futures import ProcessPoolExecutor
+from dataclasses import replace
 import hashlib
 import json
 import os
@@ -30,10 +31,11 @@ import pyarrow.parquet as pq
 from ..osu_core.difficulty import compute_mania_star_rating_20241007, parse_osu_file
 from ..osu_core.hitobjects import parse_mania_hit_objects
 from ..osu_core.metadata import parse_osu_metadata
-from ..osu_core.timing import parse_red_timing_points
-from .beats import COMMON_DENOMINATORS, LN_RELEASE, BeatGrid, chart_events, renotate
+from ..osu_core.timing import is_plausible_red_beat_length_ms
+from .beats import COMMON_DENOMINATORS, LN_RELEASE, BeatGrid, chart_events, event_times
+from .redlines import EXPRESSIVE, MUSICAL, REDUNDANT, musical_grid, read_red_lines
 
-FORMAT = 'ensomi-eval/corpus-inventory-v1'
+FORMAT = 'ensomi-eval/corpus-inventory-v2'
 SPLIT_SALT = 'ensomi-eval-split-v1:'
 HELDOUT_PERCENT, CALIBRATION_PERCENT = 15, 15
 DEFAULT_OUTPUT = 'data/evaluation/corpus-inventory.parquet'
@@ -78,6 +80,29 @@ def _same_coords(a: dict, b: dict) -> bool:
             and np.allclose(a['bar_beat'], b['bar_beat'], rtol=0, atol=1e-9))
 
 
+def _renotation_invariant(lines, times_ms, grid: BeatGrid, coords: dict) -> bool | None:
+    """Coordinates survive renotation at half and double BPM.
+
+    Two checks: the whole chart renotated, through red-line classification;
+    and each musical segment renotated by its own factor. Factors that would
+    move a line across the plausible BPM range are skipped.
+    """
+    checks, times = [], np.asarray(times_ms)
+    plausible = [line.plausible for line in lines]
+    for factor in (1, -1):
+        other = [replace(line, beat_length_ms=line.beat_length_ms / 2.0 ** factor) for line in lines]
+        if [line.plausible for line in other] == plausible:
+            checks.append(_same_coords(coords, musical_grid(other, times)[0].locate(times)))
+    factors = np.random.default_rng(len(grid.segments)).integers(-1, 2, len(grid.segments))
+    segments = []
+    for segment, factor in zip(grid.segments, factors):
+        length = segment.beat_length_ms / 2.0 ** int(factor)
+        segments.append(replace(segment, beat_length_ms=length if is_plausible_red_beat_length_ms(length)
+                                else segment.beat_length_ms))
+    checks.append(_same_coords(coords, BeatGrid(tuple(segments), grid.bar_starts).locate(times)))
+    return all(checks)
+
+
 def _reason(exc: Exception, path: Path) -> str:
     """Exception text without the file's absolute path, which differs per machine."""
     return str(exc).replace(str(path), '<file>')
@@ -100,31 +125,29 @@ def _mania_summary(path: Path) -> dict:
     except Exception as exc:  # noqa: BLE001
         errors.append(f'star: {_reason(exc, path)}')
     try:
-        points = parse_red_timing_points(path)
-        if not points:
-            raise ValueError('no red timing point')
         if not objects:
             raise ValueError('no hit objects')
-        span = (out['first_ms'], out['last_ms'])
-        grid = BeatGrid.from_timing_points(points, span)
+        lines = read_red_lines(path)
+        grid, roles = musical_grid(lines, event_times(objects))
         events = chart_events(objects, grid)
         coords, releases = events.coords, events.kind == LN_RELEASE
-        bpms = 60000.0 / np.array([s.beat_length_ms for s in grid.segments])
+        bpms = np.array([60000.0 / s.beat_length_ms for s in grid.segments])
+        dominant = grid.segments[grid.dominant((out['first_ms'], out['last_ms']))]
         back = grid.time_of(coords['segment'], coords['beat'])
-        out.update(n_red_lines=len(grid.segments), distinct_bpms=len(set(np.round(bpms, 2))),
-                   min_bpm=float(bpms.min()), max_bpm=float(bpms.max()), dominant_bpm=grid.dominant_bpm,
-                   fold=grid.fold, canonical_bpm=grid.canonical_bpm,
+        roles_count = Counter(r.role for r in roles)
+        reasons = Counter(r.reason for r in roles if r.role == EXPRESSIVE)
+        out.update(n_red_lines=len(lines), n_musical=roles_count[MUSICAL], n_redundant=roles_count[REDUNDANT],
+                   n_expressive=roles_count[EXPRESSIVE],
+                   expressive_reasons=','.join(f'{k}:{v}' for k, v in sorted(reasons.items())) or None,
+                   n_bar_starts=len(grid.bar_starts),
+                   distinct_canonical_bpms=len({round(s.canonical_bpm, 2) for s in grid.segments}),
+                   min_bpm=float(bpms.min()), max_bpm=float(bpms.max()),
+                   dominant_bpm=60000.0 / dominant.beat_length_ms, dominant_fold=dominant.fold,
+                   canonical_bpm=dominant.canonical_bpm,
                    head_on_grid=_on_grid(coords['snap'][~releases]),
                    release_on_grid=_on_grid(coords['snap'][releases]),
-                   roundtrip_max_ms=float(np.abs(back - events.time_ms).max()))
-        checks = []
-        for factor in (1, -1):
-            try:
-                other = BeatGrid.from_timing_points(renotate(points, factor), span)
-            except ValueError:
-                continue
-            checks.append(other.fold == grid.fold - factor and _same_coords(coords, other.locate(events.time_ms)))
-        out['renotation_invariant'] = all(checks) if checks else None
+                   roundtrip_max_ms=float(np.abs(back - events.time_ms).max()),
+                   renotation_invariant=_renotation_invariant(lines, events.time_ms, grid, coords))
     except Exception as exc:  # noqa: BLE001
         errors.append(f'timing: {_reason(exc, path)}')
     if errors:
@@ -257,9 +280,10 @@ SCHEMA = pa.schema([
     ('api_total_length_s', pa.int32()), ('api_hit_length_s', pa.int32()), ('api_ranked_date', pa.string()),
     ('api_tag_ids', pa.list_(pa.int32())), ('api_tag_counts', pa.list_(pa.int32())),
     ('n_taps', pa.int32()), ('n_lns', pa.int32()), ('first_ms', pa.float64()), ('last_ms', pa.float64()),
-    ('star', pa.float64()), ('n_red_lines', pa.int32()), ('distinct_bpms', pa.int32()),
-    ('min_bpm', pa.float64()), ('max_bpm', pa.float64()), ('dominant_bpm', pa.float64()), ('fold', pa.int8()),
-    ('canonical_bpm', pa.float64()), ('head_on_grid', pa.float64()), ('release_on_grid', pa.float64()),
+    ('star', pa.float64()), ('n_red_lines', pa.int32()), ('n_musical', pa.int32()), ('n_redundant', pa.int32()),
+    ('n_expressive', pa.int32()), ('expressive_reasons', pa.string()), ('n_bar_starts', pa.int32()),
+    ('distinct_canonical_bpms', pa.int32()), ('min_bpm', pa.float64()), ('max_bpm', pa.float64()),
+    ('dominant_bpm', pa.float64()), ('dominant_fold', pa.int8()), ('canonical_bpm', pa.float64()), ('head_on_grid', pa.float64()), ('release_on_grid', pa.float64()),
     ('roundtrip_max_ms', pa.float64()), ('renotation_invariant', pa.bool_()), ('error', pa.string()),
     ('group_id', pa.string()), ('r1_split', pa.string()), ('r1_group_id', pa.string()), ('eval_split', pa.string()),
 ])
@@ -331,13 +355,22 @@ def summarize(rows: list[dict], r1_catalog: Path | None) -> dict:
                          over_1e_4=sum(g > 1e-4 for g in star_gap),
                          ranked_loved_max_abs=max((abs(r['star'] - r['api_star']) for r in matched
                                                    if r.get('api_status') in ('ranked', 'loved')), default=None)),
-        grid_ranked_loved_head_on_grid_lt_0_9_multi_bpm=sum(r['head_on_grid'] < .9 and r['distinct_bpms'] > 1
+        grid_ranked_loved_head_on_grid_lt_0_9_multi_bpm=sum(r['head_on_grid'] < .9 and r['n_musical'] > 1
                                                              for r in timed),
         grid=dict(
             ranked_loved_with_grid=len(timed),
             head_on_grid_ge_0_9=sum(r['head_on_grid'] >= .9 for r in timed),
             head_on_grid_median=float(np.median([r['head_on_grid'] for r in timed])) if timed else None,
-            fold=dict(Counter(int(r['fold']) for r in timed)),
+            dominant_fold=dict(Counter(int(r['dominant_fold']) for r in timed)),
+            red_line_roles=dict(musical=sum(r['n_musical'] for r in timed),
+                                redundant=sum(r['n_redundant'] for r in timed),
+                                expressive=sum(r['n_expressive'] for r in timed)),
+            expressive_reasons=dict(sum((Counter({k: int(v) for k, v in (p.split(':') for p in
+                                                  r['expressive_reasons'].split(','))})
+                                         for r in timed if r.get('expressive_reasons')), Counter())),
+            charts_with_expressive=sum(r['n_expressive'] > 0 for r in timed),
+            charts_with_implausible=sum('implausible' in (r.get('expressive_reasons') or '') for r in timed),
+            charts_with_several_musical=sum(r['n_musical'] > 1 for r in timed),
             renotation_invariant=dict(Counter(str(r.get('renotation_invariant')) for r in mania)),
             roundtrip_max_ms=max((r['roundtrip_max_ms'] for r in mania if r.get('roundtrip_max_ms') is not None),
                                  default=None)),

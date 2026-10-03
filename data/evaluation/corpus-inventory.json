@@ -1,43 +1,49 @@
 {
   "error_reasons": {
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=109; valid r": 2,
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=1; valid red": 29,
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=246; valid r": 2,
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=2; valid red": 5,
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=300; valid r": 2,
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=37; valid re": 2,
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=3; valid red": 5,
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=6; valid red": 2,
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=830; valid r": 3,
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=8; valid red": 5,
-    "timing: <file> has invalid red timing point(s): nonfinite=0, nonpositive=0, implausible=966; valid r": 3,
+    "timing: No red line with a plausible BPM": 1,
     "timing: no hit objects": 40
   },
   "errors": {
-    "timing": 153
+    "timing": 41
   },
   "files": 26000,
-  "format": "ensomi-eval/corpus-inventory-v1",
+  "format": "ensomi-eval/corpus-inventory-v2",
   "grid": {
-    "fold": {
-      "-2": 117,
-      "-1": 14558,
-      "0": 6761,
-      "1": 233,
-      "2": 1
+    "charts_with_expressive": 1640,
+    "charts_with_implausible": 109,
+    "charts_with_several_musical": 4619,
+    "dominant_fold": {
+      "-3": 1,
+      "-2": 121,
+      "-1": 14581,
+      "0": 6822,
+      "1": 250,
+      "2": 4
     },
-    "head_on_grid_ge_0_9": 21196,
+    "expressive_reasons": {
+      "detour": 1780,
+      "empty": 69389,
+      "implausible": 62617,
+      "short_bar": 16938,
+      "superseded": 273
+    },
+    "head_on_grid_ge_0_9": 21293,
     "head_on_grid_median": 1.0,
-    "ranked_loved_with_grid": 21670,
+    "ranked_loved_with_grid": 21779,
+    "red_line_roles": {
+      "expressive": 150997,
+      "musical": 121851,
+      "redundant": 7641
+    },
     "renotation_invariant": {
-      "None": 155,
-      "True": 21952
+      "None": 41,
+      "True": 22066
     },
     "roundtrip_max_ms": 4.656612873077393e-10
   },
-  "grid_ranked_loved_head_on_grid_lt_0_9_multi_bpm": 132,
+  "grid_ranked_loved_head_on_grid_lt_0_9_multi_bpm": 175,
   "groups": 6223,
-  "inventory_sha256": "f1cda11045abcb14eb764eceb9a42c82d1f21a987554a6462b1c827a0d2bf470",
+  "inventory_sha256": "61a5cbe41aaf339ce5ec0bd6d6fa6cf1f22632d9935414dba59c2659761dab80",
   "largest_group_files": 168,
   "mania_4k": 22107,
   "mania_4k_api_match": {
