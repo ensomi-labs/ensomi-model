@@ -221,6 +221,51 @@ Agent reading: this reopens the red-line grid as the base coordinate ([p-canonic
 
 A fresh Fable subagent is brainstorming at least four whole designs, among them a learned encoder of event sequences in physical time, per-event conditional likelihood with a sliding context, multiscale continuous-time descriptors, and grids inferred from onsets. It also compares them and says what survives of the built work. Memo: [fable-eval-rethink](fable-eval-rethink.md), not yet written. Harness v0 continues; its injections, transforms and receipts do not depend on the chosen design.
 
+<a id="a-eval-rethink"></a>**Agent reading (proposed), 2026-10-03, of the Fable first-principles memo ([fable-eval-rethink](fable-eval-rethink.md)), requested under [d-first-principles](#d-first-principles). Nothing in it is a decision.**
+
+The main thread checked the memo's measurements against its two fit-split jobs, `20261003-135559-eval-rethink-tempo` and `-anchors` (`artifacts/eval-rethink-20261003/*.json` in the code checkout). The figures match:
+
+- An onset-only pulse agrees with the red-line canonical BPM within 1% in 87.9% of 8 s windows and in 83.9% of single-segment charts. The rest is mostly a 3:2 level choice: 10.0% of windows, 15.0% of charts.
+- 93.3% of consecutive row-interval ratios are simple ratios.
+- A 28-of-32 anchor occurs in 2.0% of 4.0 to 4.5 star charts, and in 0.35% of 4 to 5 star charts inside 4.5 s.
+- Holds of 40 ms or less are 0.4% of fit LN.
+
+The agent adds one figure from the same output. The disagreement concentrates in some charts: 8.1% of charts agree in fewer than half their windows, so the loss of the mapper's beat label is chart-specific, not spread evenly.
+
+What the agent would adopt:
+
+1. **A chart is a marked point process.** Score events, not passages. A scope's score is the time-average of a continuous surprisal field, plus a scan over sub-spans. Any span, of any length, is scorable, and attribution is by timestamp. [d-song-null](#d-song-null) carries over with "passage" read as time: weights in seconds, a song null kernel-weighted in duration and star.
+2. **The musical clock comes from the onsets.** Use the pulse lattice, its phase, a coherence and interval ratios, never a named beat or bar unless a condition supplies a grid. The key moves from canonical BPM to the lattice period in ms, which is continuous and has no fold edge.
+3. **Prototype the hybrid first (P1):**
+   - the onset pulse as clock;
+   - a back-off row model for idiom;
+   - five explicit per-finger body families in ms: same-finger gap by run length, release-to-next-head by hand relation, hold length by pulse period, press rate per hand, LN occupancy;
+   - cross-fitted ranks, both tails, a coverage view with a matched-n floor.
+
+   A masked event transformer (P2) replaces the row model only if it detects lane permutation, row shuffle and repetition at lower doses. A VAE is not recommended first: its decoder brings collapse problems a scorer does not need, and its blind spots cannot be listed.
+4. **What survives:**
+   - the R2 corpus and split;
+   - the evaluation interface (the grid becomes optional, with source `inferred`);
+   - the harness (the bar placeholder retired);
+   - the seven properties, with property 2 reworded.
+
+   Canonical beats and the red-line classifier become a diagnostic and an aid for building transforms and injections.
+5. **The pre-registration ([prereg](fable-eval-rethink.md#prereg))** includes a witness claim. Ranked 3.5 to 4.5 star charts that contain a 28-of-32 anchor must pass. The same charts, with the anchor copied to k further places, must show a monotone dose-response. That is the human's rate-not-presence turned into a test.
+
+Where the agent qualifies the memo:
+
+- P1's body families are hand-designed. The human allowed learned encoders; the memo puts one second, and that ordering is the human's call.
+- The decisions argued against by name are [d-passage-bars](#d-passage-bars) and the grid-as-foundation reading of [d-placement-is-timing](#d-placement-is-timing). Both follow the human's direction, but neither is formally withdrawn.
+- If any rejection depends on the beat label (1/3 where 1/4 belongs) rather than the lattice, D8 loses sensitivity in the 3:2 charts. One line from the human settles whether that matters.
+- The harness worker is still building on the bar placeholder. Its injections, transforms and receipts carry over; its passage segmentation and trivial family would be replaced.
+
+<a id="q-eval-rethink"></a>**Open for the human, 2026-10-03.**
+
+1. Adopt the event-field approach with the onset clock, retiring bar passages and the grid as the foundation?
+2. Prototype order: the hybrid P1 first, with the transformer as a measured upgrade, or a learned encoder first?
+3. Does any rejection depend on the mapper's beat label rather than the pulse lattice?
+4. Is the lattice period in ms acceptable as the organisation key in place of canonical BPM?
+
 ## Work order (proposed, updated 2026-10-03)
 
 1. Done 2026-10-03: M0 inventory, M1 canonical beats, musical red lines and the evaluation interface ([s-m0-m1](#s-m0-m1), [p-red-lines](#p-red-lines), [p-eval-interface](#p-eval-interface)). The 2026-10-02 plan also listed the lineage's instruments for reuse; under [d-restart-r1](#d-restart-r1) only the star calculator, already on `main`, is reused.
