@@ -63,7 +63,23 @@ Terms:
 - <a id="l-not-quality"></a>**L5.** Player data says what players manage, not what mappers or the human consider good. It informs response and difficulty, never the normal-chart target.
 - <a id="l-not-causal"></a>**L6.** An association between local demand and fails is not a cause: fails also depend on chart length, HP and OD settings, earlier passages, and how many weak players a map attracts.
 
+## Fetched fail data and the dump's player sample
+
+<a id="s-failtimes-fetched"></a>**Observation, 2026-10-03, from a fresh worker of this session ([player-data-estimate-and-fetch](player-data-estimate-and-fetch.md)); the main thread re-read the manifest, coverage and README on the control plane.** Jobs `20261003-player-data-failtimes` and `20261003-player-data-postprocess` on bings-mac wrote `~/ensomi/ensomi-model/artifacts/player-data-20261003/failtimes/failtimes.parquet` (21,975 rows, SHA-256 `53d788e0…`; the table before a zero fill kept beside it), with `manifest.json` (script hashes, corpus hash `49ab9e1b…`, request log, dump identity) and `README.md`.
+
+- Coverage: every ranked (19,147) and loved (2,632) corpus chart has fail and exit bins, play and pass counts. 104 rows have none: charts without an API match whose file id the API does not know. 91 corpus charts have no beatmap id.
+- Sources: 21,584 rows from the data.ppy.sh dump `2026_09_01_performance_mania_random_10000.tar.bz2` (SHA-256 `2fa58ed1…`, counts as of 2026-09-01), 287 from 11 batch API requests (as of 2026-10-03). 51 rows lacked one array in the dump and got 100 zeros, as osu-web serves it.
+- 1,326 rows have a source checksum different from our chart file: their counts describe another version of the chart.
+- 13,590 of the 19,147 ranked rows (71%) have every non-zero bin divisible by 9 (the sampling of [C3](#c-sampling) covers most of the corpus, not only a few new maps); fails plus exits plus passes fall to a median 0.61 of plays at the newest ids.
+- The dump is kept on the mac (`artifacts/player-data-20261003/dump/`, 448 MB; 328 GiB free).
+
+<a id="s-dump-player-sample"></a>**Observation, same source. The dump holds a random sample of 10,000 mania players with skill, best scores and attempts on corpus maps.** Best scores with judgement counts, mods and pp: 1,236,864 stable scores on 20,963 corpus maps and 1,061,818 in the newer table on 21,293 (the two may overlap); attempts per player and map: 1,439,692 rows on 21,550 corpus maps, 8.1 million attempts; per-player pp, accuracy, play count, fail and quit counts. 372,751 of the newer scores carry a replay, a mean of 17.5 per corpus map: a sampling frame for replays if ppy agrees.
+
+<a id="a-player-sample-use"></a>**Agent reading (proposed), 2026-10-03.** This weakens [C8](#c-selection): with players of known skill, pass and accuracy can be modelled against skill and chart, so [U1](#u-population-prior) becomes "the probability that a player of skill s passes chart m, and how it falls as the chart's demand rises", without any API harvesting. What remains: players still choose which charts to attempt; "random" is the dump's sample of mania players, whose definition is not stated; a best score shows a pass, not how many attempts preceded it; attempts include retries. New caveats: <a id="c-version-mismatch"></a>**C16**, 1,326 rows describe another chart version (the dump's `osu_files` could supply those versions; not opened); <a id="c-two-dates"></a>**C17**, dump rows and API rows describe different dates.
+
+Replay estimate, for a later decision: about 10 KB per corpus chart; a pilot of 600 replays is 6 MB and an hour at 10 per minute, a core design of 4,500 is 45 MB and 7.5 h, a full one of 30,000 is 300 MB and 50 h. Any of them needs ppy's agreement first ([C15](#c-terms)).
+
 ## Work
 
-- Fail data for the corpus is being fetched with provenance by a fresh worker, together with an estimate of how much player data would be useful and its disk footprint (started 2026-10-03; output on bings-mac under `~/ensomi/ensomi-model/artifacts/player-data-20261003/`).
+- Done 2026-10-03: corpus fail data with provenance and the estimate ([s-failtimes-fetched](#s-failtimes-fetched)).
 - Replays at scale wait for the human's decision to contact ppy.
