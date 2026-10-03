@@ -48,9 +48,14 @@ A read-only explorer mapped `src/ensomi_model/research/bounded_typed_continuatio
 
 Fresh Claude worker, 2026-10-03; brief in the session scratchpad (`star-sections-brief.md`, not durable), scripts `~/ensomi/.sync/cp/scratch/r2-star-sections/`, output `artifacts/r2-star-sections-20261003/` of the code checkout. Pre-registered: 240 fit-split ranked and loved charts at 2 to 6 stars, one per song group; section lengths 4 to 90 s; reference = the star of the section tiled to 240 s (what the algorithm says about a chart made of that material); measures: error against the reference, rank agreement, response to thinning and to 1.25x compression relative to the reference's response, within-chart spread. Provisional criterion for x, for the human to revise: in every star band, median |error| ≤ 0.10, 90th percentile ≤ 0.25, Spearman ≥ 0.95, dose ratio within [0.8, 1.25].
 
+<a id="r2-ml-design"></a>
+## ML design by Astra (running)
+
+At the human's instruction the mathematics, training recipe and sampling are decided before implementation, by Astra at max effort, fast tier ([private, local](private/human-inputs/cf834490-7d37-42c1-b587-3b7f1ba0dd93.md#prompt-2)). Job `20261003-164527-r2-ml-design` (`ens astra --rw --effort max --tier fast --no-hooks`; `--no-hooks` keeps the mac's relay hooks out of the job without moving them, [answer-3](private/human-inputs/cf834490-7d37-42c1-b587-3b7f1ba0dd93.md#answer-3)); brief at `~/ensomi/.sync/cp/jobs/20261003-164527-r2-ml-design/brief.md`; writes only `artifacts/r2-ml-design-20261003/` of the code checkout, no tracked files. Asked: exact factorised likelihood of a head-row decision and EOS, state and look-ahead, the interval condition interface (encoder and FiLM, natural setting by dropout, interval sampling, guidance), the CE recipe for one M5, the DPO loss from the KL-regularised objective (reference, beta, sum or mean over decisions, mask, CE or KL mixing, label noise, on- or off-policy pairs, segment length, alternatives), synthetic pairs with a known answer to test the trainer, sampling, and the check that fails for each component. The human's decisions and the census facts are stated in the brief as fixed; the agent defaults above are open to change with reasons.
+
 <a id="r2-impl-open"></a>
 ## Open
 
 - x for interval star labels, after the study.
 - When the cleanup is committed and the branch can be made (human).
-- Whether the agent defaults above stand; they become the implementation brief unless the human changes them.
+- Whether the agent defaults above stand, after Astra's design; the design document, once reviewed by the agent and the human, becomes the implementation brief.
