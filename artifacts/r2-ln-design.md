@@ -79,10 +79,17 @@ Not reproduced: the lineage's 1.0% (ranked) and 6.9% (generated) near-head relea
 5. Terminal window. How far past the last head row the terminal decision may place a release; without audio R2 does not know where the song ends. Default: up to 4 canonical beats after the last head row, on the grid, to be checked against the corpus before it is fixed (not measured by the census).
 6. Minimum hold. Holds of 60 ms or less are 2.7% of ranked LN, per-chart median 0. Default: the support mask removes holds below a threshold set from the census table, not by hand.
 
+<a id="d-r2-spec"></a>**Decisions, human, 2026-10-03, answering the six points above.** [private, local](private/human-inputs/31cad85c-4707-42f3-ac95-deddaab38209.md#answer-1). The agent's defaults above are kept as written; where they differ, these prevail.
+
+1. Window: row k decides every release after row k-1 up to and including row k (the agent's default, accepted).
+2. and 4. Views of a release. A candidate release position is described in several views: time in ms and in canonical beats, each measured from this row, from the previous row and from the LN's own start, so the hold's length is already one of the views and needs no separate held-lane input. The views are features of a candidate; the decision commits one release event. Why both units, in the human's words as summarised by the agent: ms carries the mapper's intent of roughly how long a hold should last; beats are finer and carry texture in the chart's organisation, such as staircase releases across lanes (census family F8).
+3. Chord releases: a joint decision. Agent reading: the requirement is that the distribution over the lanes' releases is joint; whether code enumerates it or factorises it exactly (lane by lane, each conditioned on the earlier ones) is an implementation choice.
+5. Song end: R2 is given the song length. The last step is an end-of-song step (EOS) that admits no heads and may only close LN, between the last head row and the song end. Song length is therefore an R2 input.
+6. Minimum hold: none for now; 40 ms is the candidate threshold.
+
 <a id="r2-open"></a>
 ## Open, for the human
 
 - Which conditions R2 takes ([d-final-conditions](#d-final-conditions) leaves it open), including whether a chart-level LN amount is one of them.
 - Whether R2 stays a continuation from a seed prefix, as R1, which is where its style would come from.
-- The six points of [a-r2-spec-gaps](#a-r2-spec-gaps), where the defaults are the agent's.
 - Whether the mac's Codex relay hooks (`ensomi-model/.codex/hooks.json`, mac only) should stay, since they make every `ens astra` worker act as a research lead ([ln-census](#ln-census)).
