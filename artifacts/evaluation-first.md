@@ -1,6 +1,6 @@
 # Evaluation first
 
-Shareable. Written 2026-10-02 by main session `13236b40` (Claude, control plane). Holds the human's decisions of 2026-10-02 on H11, H1, H2 and H3 of the [lineage review](lineage-review/synthesis.md#for-the-human), and the agent's proposed design for the evaluation work the human put next. Everything under "Proposed design" is `(proposed)` and not a decision.
+Shareable. Written 2026-10-02 by main session `13236b40` and updated 2026-10-03 by main session `f843695d` (Claude, control plane). Holds the human's decisions of 2026-10-02 on H11, H1, H2 and H3 of the [lineage review](lineage-review/synthesis.md#for-the-human), the human's decisions of 2026-10-03 on how chart evaluation is built, and the agent's design for both parts of the evaluation work. Design text is `(proposed)` and not a decision unless it cites a decision.
 
 ## Decisions, 2026-10-02
 
@@ -18,15 +18,74 @@ Source: the human's free-text answer to the agent's digest of section 5 ([privat
 
 <a id="d-eval-scope"></a>**Decision, human, 2026-10-02. The evaluation judges the model's final `.osu` output.** Possibly under several conditions: given context (a seed chart), given event times (the skeleton R1 receives), given audio, and causal rollout on the model's own history. It does not judge whether a model is fully trained or saturated, the training recipe, or real-time generation performance ([private, local](private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#prompt-3)). Part 2 below is separate: it governs agent work, not the output evaluation.
 
+## Decisions, 2026-10-03
+
+Source: the human's messages in main session `f843695d` ([private, local](private/human-inputs/f843695d-470b-4750-bd8d-2a54a9ef581d.md#prompt-4), [prompt-5](private/human-inputs/f843695d-470b-4750-bd8d-2a54a9ef581d.md#prompt-5), [prompt-6](private/human-inputs/f843695d-470b-4750-bd8d-2a54a9ef581d.md#prompt-6), [answer-1](private/human-inputs/f843695d-470b-4750-bd8d-2a54a9ef581d.md#answer-1)). Agent account; the original wording is not reproduced here.
+
+<a id="d-corpus-referenced"></a>**Decision, human, 2026-10-03. Evaluation measures how close generated output is to the corpus, at several scales and views, with metadata as conditions.** The corpus holds the ranked and loved 4K charts at 1 to 8 stars. Metadata such as BPM segments and difficulty enter as conditions; community tags are optional because they are sparse. A model of the corpus at these views is cheaper and easier than a generative chart model, and can target the known failure modes. The evaluator is fitted on the corpus alone; generator outputs do not supply its negatives, at least at first. This replaces the classifier two-sample test of the 2026-10-02 proposal, which trained on generated outputs.
+
+<a id="d-placement-is-timing"></a>**Decision, human, 2026-10-03. Musical placement is a beat-tracking problem, owned by the timing work; the beat grid is an evaluation condition, refined by the skeleton (heads and releases).** The pre-V3 timing module (BeatThis plus GridFitter, timing v3) worked on it. The chart evaluator judges a chart given its grid; whether the grid fits the audio is the timing evaluation's question. The human also recalled that feature extraction in legacy v2 failed; the agent reads this as Control V3, twelve handcrafted window statistics rejected on 2026-08-31 as a player state (`8e5e7ad:README.md`).
+
+<a id="d-conditions-compositional"></a>**Decision, human, 2026-10-03. Conditions are compositional.** Components: timing (beat grid) or skeleton (grid plus head and release times), context (given parts of the chart), full audio Mel. Any combination is a condition, and every result names its combination.
+
+<a id="d-partial-scope"></a>**Decision, human, 2026-10-03. Evaluation works on part of a chart; the given part and the scored part are both free.** For example a continuation (given before t, scored after), a local edit (given outside a span, scored inside), or one passage with nothing given.
+
+<a id="d-operators-reserved"></a>**Decision, human, 2026-10-03. The rhythm, arrangement and load operators are not implemented now.** They are to be designed carefully against the properties wanted, and Astra will iterate on them.
+
+<a id="d-fold-rescales-beats"></a>**Decision, human, 2026-10-03. Folding a notated BPM into the canonical range rescales the beats.** Halving or doubling a BPM changes beat positions, subdivisions and bars, not only the BPM label.
+
+<a id="d-use-all-data"></a>**Decision, human, 2026-10-03. Every file in `dataset/` is usable and is used as fully as possible, the 2026-10 additions included; the corpus inventory Parquet is committed to the code repository.** Unresolved: the human's "Yes" answered whether the 10-02 additions become a reserved held-out pool, and the same sentence says to use everything. The split in [p-split](#p-split) reserves no acquisition wholesale; most additions are eligible for held-out without being reserved.
+
 ## How "accept all ranked" and "reject what ranked charts contain" fit
 
 <a id="h-rate-not-presence"></a>**Hypothesis, agent, open, 2026-10-02.** A ranked chart with a 28-attack anchor is acceptable; a generated chart that does the same is rejected. Both hold if the defect is a matter of rate, length, placement and context: how often such passages occur per song, how long they last, whether they sit where the music or the rest of the chart calls for them, at which difficulty. The lineage's scorers caught extremes and were blind to how often and how long ([s-response-blind](lineage-review/synthesis.md#s-response-blind)); its gates measured whole charts while the human judged passages ([s-eval-sensitivity](lineage-review/synthesis.md#s-eval-sensitivity)). A distribution-level target ([d-target-distribution](#d-target-distribution)) is the natural home for this: the reference supplies the rate of every unusual thing, and generated output is wrong when it departs from those rates, overall or within a passage. What it would not catch: a pattern at the right rate in the wrong musical place. That needs audio-conditioned comparison and is left for later.
 
-## Proposed design (proposed)
+## Part 1 design, converged 2026-10-03
 
-Two parts, matching [d-eval-first](#d-eval-first). Neither is built; each item names the failure it answers.
+The decisions above are the human's; the rest of this section is the agent's `(proposed)` design built on them, with M0 and M1 built.
 
-<a id="p-chart-eval"></a>### Part 1. Chart evaluation against the target distribution
+<a id="p-eval-object"></a>**What is evaluated (proposed).** A triple: the chart (`.osu`), its condition record and its scope.
+
+- The condition record names the components given to the generator ([d-conditions-compositional](#d-conditions-compositional)): `timing` (red timing points) or `skeleton` (timing plus head and release times), `context` (spans of the chart fixed in advance), `audio` (full-song Mel); plus scalar requests such as a target star. The evaluator reads the grid from the record, never from the generated file: the lineage exported a constant 120 BPM.
+- The scope is two span sets on the chart's time ([d-partial-scope](#d-partial-scope)): given spans, which measures may read as context, and scored spans. Nothing a condition fixed is scored; under `skeleton`, event times are not scored.
+- The reference is the same measurement on corpus charts with the same scope shape, conditioned on what the generator does not choose: target star and the canonical BPM of the grid. The evaluator is fitted on the corpus only ([d-corpus-referenced](#d-corpus-referenced)).
+
+<a id="p-eval-layers"></a>**Layers (proposed).**
+
+| Layer | What it is | State |
+| --- | --- | --- |
+| M0 corpus inventory | One row per `.osu` file in `dataset/`: hashes, acquisition, header and osu! API fields, computed star, grid summary, song group, R1 membership, evaluation split | Built; [s-m0-m1](#s-m0-m1) |
+| M1 canonical beats | Every event of a chart in canonical beats under a grid | Built; [p-canonical-beats](#p-canonical-beats) |
+| Operators | Rhythm, arrangement and load measures on a scope | Reserved ([d-operators-reserved](#d-operators-reserved)); properties in [p-operator-properties](#p-operator-properties) |
+| Reference and aggregation | Conditional corpus distributions per operator; a song judged by the rate and length of departures | After operators |
+| Calibration harness | False alarms on held-out corpus; dose response on defects injected into held-out corpus charts; must-not-flag transforms; the lineage's rejected outputs that can be tied to files | After operators; it is also the metric Astra iterates against |
+| Report | Rows for held-out corpus, R1 with real times and the candidate; song-level intervals; evaluator hash | After calibration |
+
+<a id="p-operator-properties"></a>**Properties an operator should have (proposed; to be settled with the human before Astra iterates).**
+
+- Defined on any scope, reading given spans as context.
+- Scores nothing the condition fixed.
+- Unchanged under mirrored lanes, under renotation at half or double BPM, and under a shift of chart and grid together.
+- Compared with the corpus as a conditional distribution (star, canonical BPM), aggregated over a song as rate and length, not presence ([h-rate-not-presence](#h-rate-not-presence)).
+- Calibrated both ways before it accepts anything: false alarms on held-out corpus at the nominal rate, and a dose-response curve for each injected defect family; an operator with no measured sensitivity is dropped.
+- Never a training signal or a selector for a generator.
+- Caution from legacy v2: Control V3's window statistics failed as a generative player state; they omitted transitions, durations, four-finger relations and memory across windows (`8e5e7ad:README.md`). That says nothing direct about such statistics as evaluators; the calibration harness measures that.
+
+<a id="p-canonical-beats"></a>**Canonical beats (M1, built 2026-10-03).** Per grid, one factor 2^k puts the dominant notated BPM into [80, 160); the dominant segment is the one covering the longest part of the chart. All segments share the factor, so tempo relations inside a chart are kept; the legacy converter folded each segment on its own, which splits a 158 to 162 BPM song into 158 and 81. Canonical beat = notated beat × 2^k, so positions, subdivisions and bars rescale ([d-fold-rescales-beats](#d-fold-rescales-beats)): a notated 1/4 at 240 BPM is a canonical 1/8 at 120. A bar is the timing point's meter in canonical beats, and a red line starts a new bar. A chart and its renotation at half or double BPM get identical canonical positions, subdivisions and bars. Each event gets the smallest canonical subdivision in {1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96} within 2 ms, or none, and a signed residual in ms. At 2 ms the denominators above 16 cover much of the time axis by chance, so grid statistics count only denominators up to 16. Code: `src/ensomi_model/evaluation/beats.py` on branch `eval/corpus-beats` of `ensomi-model`.
+
+<a id="p-split"></a>**Song groups and split (M0, built 2026-10-03; the split rule is the agent's reading of [d-use-all-data](#d-use-all-data)).** Files join one song group when they share a set directory, set id, beatmap id, normalised artist and title (trailing size markers such as "(TV Size)" removed), audio bytes, or R1's own group. By hash of the group id: 15% held-out, 15% calibration, 70% fit. A group holding any chart of R1's TRAIN catalog is never held out, so R1 can be measured on songs it never trained on. No acquisition is reserved wholesale. Code: `src/ensomi_model/evaluation/corpus.py`; committed output `data/evaluation/corpus-inventory.parquet` with a summary next to it.
+
+<a id="s-m0-m1"></a>**Observation, 2026-10-03: M0 and M1 on the whole dataset.** Code at `840fb09` on branch `eval/corpus-beats` of `ensomi-model`; output `840fb09:data/evaluation/corpus-inventory.parquet` with its summary `corpus-inventory.json` (inventory SHA-256 `f1cda110…`), built on bings-mac by job `20261003-064637-eval-m0-inventory-2`, R1 catalog `/Users/l/Documents/Pulsefield/research-assets/vacation-20260920-rebuilt-v1/inputs/catalog.json` on bings-mac (SHA-256 `e31b7e8f…`, the catalog R1's restoration pinned).
+
+- Files: 26,000 `.osu`, of which 22,107 are 4K osu!mania: 19,183 ranked, 2,632 loved, 292 other or without API status. By origin: 17,882 base, 6,261 from the 10-02 2 to 6 star acquisition, 1,810 from the 10-02 1 to 8 star follow-up, 47 tech packs and community sets. Every chart in R1's catalog is present (11,564 TRAIN, 1,652 validation).
+- Star: the computed rating matches the osu! API on every checksum-matched ranked or loved chart within 4e-5 (the API rounds); one other chart differs by 0.27.
+- Canonical beats: round trip within 5e-10 ms; a chart renotated at half and double BPM gives identical canonical coordinates on all 21,952 charts with a grid. Folds among ranked and loved charts: 14,558 at -1 (notated 160 to 320 BPM), 6,761 at 0, 233 at +1, 117 at -2, 1 at +2. 97.8% of ranked and loved charts (21,196 of 21,670) have at least 90% of heads on a canonical subdivision up to 1/16 within 2 ms; median 100%. Of the 474 below, 132 have several BPMs; the inspected examples are tech and gimmick charts (polyrhythms, tech compilations).
+- No grid for 153 charts: 113 have red lines outside 20 to 1000 BPM, which the timing parser rejects whole, and 40 have no hit objects.
+- Groups: 6,223. The largest join compilation sets to the single-song sets their songs also appear in (168 files across 16 directories). Ranked and loved 4K charts by split: 17,138 fit (4,819 groups), 3,340 calibration (940), 1,337 held-out (451). Held-out is about 6%, not 15%, because most base songs are in R1's TRAIN catalog and stay out of it.
+
+<a id="p-chart-eval"></a>### Earlier Part 1 proposal, 2026-10-02 (superseded)
+
+**Superseded 2026-10-03** by [Part 1 design, converged](#p-eval-object). The classifier two-sample test trained on generated outputs, which [d-corpus-referenced](#d-corpus-referenced) rules out; the passage unit and the measures move into the reserved operators ([d-operators-reserved](#d-operators-reserved)); items 1, 4, 5 and 6 carry over into the split, the calibration harness and the report. Kept as written:
 
 Scope per [d-eval-scope](#d-eval-scope): the object judged is a finished `.osu` file, and every result names its generation condition (which of context, event times and audio were given, and whether the rollout was causal on the model's own history). R1 today runs with given context and given event times, without audio.
 
@@ -36,6 +95,8 @@ Scope per [d-eval-scope](#d-eval-scope): the object judged is a finished `.osu` 
 4. **Calibrated both ways before use.** False-alarm rate: held-out reference against calibration reference must pass. Sensitivity: constructed negatives ([d-accept-set](#d-accept-set)) made by injecting each known complaint at controlled doses into held-out reference charts (anchors at k times the corpus rate, short LN and releases just before a head, LN on TAP passages, head jitter off the grid), plus the lineage's real rejected outputs where they can be tied to files. Report the smallest dose detected. An evaluator without both numbers is not used to accept anything.
 5. **Reporting rules.** Every table carries rows for held-out reference, R1 with real times, and the candidate. At least the agreed number of songs and seeds, with song-level spread; a difference smaller than seed noise is reported as none ([s-eval-sensitivity](lineage-review/synthesis.md#s-eval-sensitivity): seed noise about 0.2 star against promotion margins of 0.1).
 6. **Human spot-check.** A small blind sample from the discriminator's queue, judged by the human, kept as files. It tests the evaluator, not the generator.
+
+## Part 2 design (proposed, 2026-10-02)
 
 <a id="p-claim-integrity"></a>### Part 2. Claim integrity for agent work
 
@@ -55,13 +116,14 @@ Failures it answers, all from the review, each written up with its evidence, its
 
 - Loved charts: are they accepted individually like ranked ones, or only as part of the target population? <a id="o-loved-count"></a>**Observation, 2026-10-02:** the dataset's per-set `metadata.json` (osu! API snapshot fetched 2026-08-05; bings-mac, `~/ensomi/ensomi-model/dataset/*/*/metadata.json`) lists 1,454 loved and 9,643 ranked 4K mania beatmaps at 2 to 6 stars, in 494 loved and 3,713 ranked sets. Counted from metadata only: whether every loved `.osu` is present and matches its checksum was not checked, and the ranked census behind R1's corpus admitted ranked charts only.
 - How many windows per round the human will judge in the spot-check of Part 1, item 6, and whether played or viewed.
+- The held-out reading of [d-use-all-data](#d-use-all-data): keep [p-split](#p-split) (no acquisition reserved), or reserve the 10-02 additions as a held-out pool.
+- The operator properties in [p-operator-properties](#p-operator-properties): review before an Astra brief is written.
 - Part 2: enforced in code (job launcher and Codex hooks on the mac refuse a report without receipts and an unchanged evaluator hash) or as brief and review rules only.
 - "End to end" ([d-eval-first](#d-eval-first)): of the agent's reasoning only, or also of the generation model.
 
-## Proposed first work, after review (proposed)
+## Work order (proposed, updated 2026-10-03)
 
-All on the mac, which was down on 2026-10-02.
-
-1. Inventory: which 2 to 6 star ranked and loved 4K charts exist on the mac, with song groups; what of the lineage's instruments is reusable as measurement (star calculator, the 6,924-chart scan corpus, `gameplay_evaluation` observers; [opus/evaluation](lineage-review/opus/evaluation.md) section 9); which rejected outputs can be tied to files. Read-only.
-2. Build Part 1 items 1 to 4 and report its false-alarm rate and dose sensitivity, before any generator is evaluated with it.
-3. Only then: the first measurement of R1 with real times and of held-out reference under it.
+1. Done 2026-10-03: M0 inventory and M1 canonical beats ([s-m0-m1](#s-m0-m1)). The 2026-10-02 plan also listed the lineage's instruments for reuse; under [d-restart-r1](#d-restart-r1) only the star calculator, already on `main`, is reused.
+2. Operator design: settle [p-operator-properties](#p-operator-properties) with the human, then a self-contained Astra brief whose metric is the calibration harness.
+3. Calibration harness: the frozen split, defect injection at controlled doses, must-not-flag transforms, the rejected lineage outputs that can be tied to files.
+4. Only then: the first measurement of R1 with real times and of held-out corpus under it.
