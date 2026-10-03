@@ -99,6 +99,14 @@ Where the agent qualifies the memo:
 - The 150 ms run threshold inside a descriptor is a question under [d-no-cutoffs](operator-properties.md#d-no-cutoffs) that the memo itself puts to the human.
 - The threshold of 0.003 nats per pair is a declared estimate, not derived.
 
+<a id="d-response-function"></a>**Decisions, human, 2026-10-03 (selections among the agent's options, [private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#answer-2)).**
+
+- The response target is the response function: miss rate and error spread given slack, relation and skill. It replaces a cost law. The "exponential" prior becomes a claim about the shape of this function and about the share of players who manage a chart.
+- A1 runs as pre-registered, with key-count mods excluded, after harness v0 finishes: first on the fit split, then once on calibration as confirmation.
+- ppy is contacted for a replay pilot only after A1, and only if A1 shows a demand signal beyond star.
+
+Still open from the questions below: the canonical lane-to-finger binding, and whether the 150 ms run threshold is acceptable under [d-no-cutoffs](operator-properties.md#d-no-cutoffs). Both bear on A1 and were not asked.
+
 <a id="q-fable-views"></a>**Open for the human, from the memo, 2026-10-03.**
 
 1. Run A1 as pre-registered, with key-count mods excluded, on the fit split, with one confirmatory run on calibration?

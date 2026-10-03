@@ -179,7 +179,7 @@ Why the corpus cannot fix the cost law: Astra's math note, section 4 (`artifacts
 
 <a id="t-formulation-physiology"></a>**Tension with the formulation, 2026-10-03.** `5c56e28:docs/formulation/gameplay-state.md`, "Canonical gameplay profile", excludes physiological fatigue and leaves target responses to mapper evidence. The human put physiology in, with the corpus as the only direct data ([d-response-priors](evaluation-first.md#d-response-priors), close to option (b) of [H2](lineage-review/synthesis.md#h2)). If this design is accepted, that page needs a revision on `main` (proposed, not started).
 
-<a id="q-demand"></a>**Open for the human, 2026-10-03.**
+<a id="q-demand"></a>**Open for the human, 2026-10-03.** Item 1 is reframed and item 3 is answered by [d-response-function](player-data.md#d-response-function): the per-action target is a response function, not a cost law, and play data is in scope, starting with the dump.
 
 1. "Exponential": the impulse diverging near the limit, strain decaying exponentially, or both? Proposed: both, in one machine.
 2. Fatigue: does sustained strain move the limit (the edge recedes), or only add strain?
