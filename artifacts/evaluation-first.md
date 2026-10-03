@@ -211,6 +211,16 @@ Questions 2 and 3 below are answered; 1 is under discussion; 4 is open.
 3. Weights in seconds or in canonical beats? This is the memo's reading of "a span of bars, for both clocks"; E3 reports both.
 4. Under an audio condition, is a trailing outro with no notes scored as empty passages?
 
+<a id="d-first-principles"></a>**Direction, human, 2026-10-03: rethink the evaluation as a whole, from first principles** ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-5)).
+
+- Build on what never goes wrong in a chart: hit objects and their physical times. Red lines sometimes carry mapper artifacts and should not be the foundation.
+- Sections of varied length must be evaluable, and hard splitting of a chart is disfavoured.
+- Learned representations such as a VAE encoder are acceptable.
+
+Agent reading: this reopens the red-line grid as the base coordinate ([p-canonical-beats](#p-canonical-beats), [p-red-lines](#p-red-lines), and the grid-as-condition half of [d-placement-is-timing](#d-placement-is-timing)), bar passages ([d-passage-bars](#d-passage-bars), [a-passage-review](#a-passage-review)) and hand-designed families ([a-fable-review](#a-fable-review)). The decisions the human did not mention stand: corpus as target, star keying, no cut-offs, one population, compositional conditions, free scopes. [d-song-null](#d-song-null) stays recorded, but depends on the outcome.
+
+A fresh Fable subagent is brainstorming at least four whole designs, among them a learned encoder of event sequences in physical time, per-event conditional likelihood with a sliding context, multiscale continuous-time descriptors, and grids inferred from onsets. It also compares them and says what survives of the built work. Memo: [fable-eval-rethink](fable-eval-rethink.md), not yet written. Harness v0 continues; its injections, transforms and receipts do not depend on the chosen design.
+
 ## Work order (proposed, updated 2026-10-03)
 
 1. Done 2026-10-03: M0 inventory, M1 canonical beats, musical red lines and the evaluation interface ([s-m0-m1](#s-m0-m1), [p-red-lines](#p-red-lines), [p-eval-interface](#p-eval-interface)). The 2026-10-02 plan also listed the lineage's instruments for reuse; under [d-restart-r1](#d-restart-r1) only the star calculator, already on `main`, is reused.
