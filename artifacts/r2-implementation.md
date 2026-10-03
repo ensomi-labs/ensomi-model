@@ -58,6 +58,8 @@ Fresh Claude worker, 2026-10-03; brief in the session scratchpad (`star-sections
 
 <a id="a-star-label"></a>**Agent reading (proposed).** The algorithm's response to content is usable from about 20 to 30 s; its level is not a length-free quantity at any length. So "the star of an interval" needs a definition before it can be a label. The tiled star reads as "the star a chart made of this material would have", is free of length by construction, and gives song-level and interval-level conditions one scale if the song-level label is computed the same way (for songs of 240 s or more it equals the ordinary star). Raw section star with length as an extra input keeps osu!'s own number but makes a request's meaning depend on interval length. Question for the human.
 
+<a id="d-star-tiled"></a>**Decision, human, 2026-10-03. Star labels are the tiled star.** An interval's star label is the star of its material repeated to 240 s; the song-level label is computed the same way so both share one scale (for songs of 240 s or more it equals the ordinary star). Minimum labelled interval between 20 and 30 s; agent default 30 s, since the compression response at 20 s (0.826) is within two standard errors of the 0.8 limit. [private, local](private/human-inputs/cf834490-7d37-42c1-b587-3b7f1ba0dd93.md#answer-4).
+
 <a id="r2-ml-design"></a>
 ## ML design by Astra (running)
 
@@ -73,5 +75,4 @@ Code: branch `r2/train` created in the main checkout from `eval/corpus-beats` at
 <a id="r2-impl-open"></a>
 ## Open
 
-- The definition of an interval star label and its minimum length, after [s-star-sections](#s-star-sections) (human).
 - Whether the agent defaults above stand, after Astra's design; the design document, once reviewed by the agent and the human, becomes the implementation brief.
