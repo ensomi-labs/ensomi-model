@@ -10,8 +10,8 @@ A scope is two span sets on the chart's time: ``given`` (what measures may read
 as context) and ``scored`` (what they judge). Both are free: a continuation, a
 local edit, or one passage with nothing given. Nothing a condition fixed is
 scored: scored spans may not overlap the condition's context, and an operator
-that judges an aspect the condition fixed (the grid, or event times under a
-skeleton) is not run.
+that judges an aspect the condition fixed (the grid, or head and release times
+under a skeleton) is not run.
 
 The grid of a case is the condition's when it has one; otherwise the chart's
 own musical grid, whose fit to the audio is the timing evaluation's question.
@@ -31,7 +31,7 @@ from ..osu_core.hitobjects import ManiaHitObject, ManiaHitObjectKind, parse_mani
 from .beats import BeatGrid, ChartEvents, chart_events, event_times
 from .redlines import LineRole, RedLine, musical_grid, read_red_lines
 
-GRID, EVENT_TIMES = 'grid', 'event_times'
+GRID, HEAD_TIMES, RELEASE_TIMES = 'grid', 'head_times', 'release_times'
 
 
 @dataclass(frozen=True)
@@ -181,18 +181,23 @@ class Timing(_Component):
 
 @dataclass(frozen=True)
 class Skeleton(_Component):
-    """A grid plus every head and release time the generator was given."""
+    """A grid plus every head time, and release times when the generator was given them.
+
+    ``release_ms`` is None when releases were not given, as the human decided
+    for the generator on 2026-10-03; release times are then the generator's.
+    """
     grid: BeatGrid
     head_ms: tuple[float, ...]
-    release_ms: tuple[float, ...]
+    release_ms: tuple[float, ...] | None = None
     slot = 'timing'
     name = 'skeleton'
 
     @classmethod
-    def from_chart(cls, chart: Chart, grid: BeatGrid | None = None) -> 'Skeleton':
+    def from_chart(cls, chart: Chart, grid: BeatGrid | None = None, *, releases: bool = False) -> 'Skeleton':
         heads = tuple(sorted(o.start_time_ms for o in chart.objects))
-        releases = tuple(sorted(o.end_time_ms for o in chart.objects if o.kind is ManiaHitObjectKind.HOLD))
-        return cls(grid if grid is not None else chart.musical_grid()[0], heads, releases)
+        given = (tuple(sorted(o.end_time_ms for o in chart.objects if o.kind is ManiaHitObjectKind.HOLD))
+                 if releases else None)
+        return cls(grid if grid is not None else chart.musical_grid()[0], heads, given)
 
 
 @dataclass(frozen=True)
@@ -259,10 +264,12 @@ class Condition:
 
     @property
     def fixed(self) -> frozenset[str]:
-        """Aspects of the whole chart the condition fixed: ``grid``, ``event_times``."""
-        if isinstance(self.timing, Skeleton):
-            return frozenset((GRID, EVENT_TIMES))
-        return frozenset((GRID,)) if self.timing is not None else frozenset()
+        """Aspects of the whole chart the condition fixed: ``grid``, ``head_times``, ``release_times``."""
+        if self.timing is None:
+            return frozenset()
+        if not isinstance(self.timing, Skeleton):
+            return frozenset((GRID,))
+        return frozenset((GRID, HEAD_TIMES) + ((RELEASE_TIMES,) if self.timing.release_ms is not None else ()))
 
     @property
     def given_spans(self) -> Spans:
@@ -333,7 +340,7 @@ class EvalCase:
 
 
 class Operator(Protocol):
-    """A measure on a case. ``judges`` names the aspects it scores (e.g. ``event_times``)."""
+    """A measure on a case. ``judges`` names the aspects it scores (e.g. ``head_times``)."""
     name: str
     judges: frozenset[str]
 
@@ -354,18 +361,19 @@ def condition_from_chart(source: Chart, components: Sequence[str], *, given: Spa
                          audio: Audio | None = None, star: float | None = None) -> Condition:
     """The condition a generator would receive from ``source``.
 
-    ``components`` names any of ``timing`` or ``skeleton``, ``context`` (the
-    objects of ``source`` whose heads lie in ``given``) and ``audio``.
+    ``components`` names any of ``timing``, ``skeleton`` (head times) or
+    ``skeleton+releases``, ``context`` (the objects of ``source`` whose heads
+    lie in ``given``) and ``audio``.
     """
     names = set(components)
-    unknown = names - {'timing', 'skeleton', 'context', 'audio'}
+    unknown = names - {'timing', 'skeleton', 'skeleton+releases', 'context', 'audio'}
     if unknown:
         raise ValueError(f'Unknown condition components: {sorted(unknown)}')
     parts: list[_Component] = []
-    if 'timing' in names and 'skeleton' in names:
-        raise ValueError('A condition has a timing or a skeleton, not both')
-    if 'skeleton' in names:
-        parts.append(Skeleton.from_chart(source))
+    if len(names & {'timing', 'skeleton', 'skeleton+releases'}) > 1:
+        raise ValueError('A condition has one timing or skeleton component')
+    if names & {'skeleton', 'skeleton+releases'}:
+        parts.append(Skeleton.from_chart(source, releases='skeleton+releases' in names))
     elif 'timing' in names:
         parts.append(Timing(source.musical_grid()[0]))
     if 'context' in names:

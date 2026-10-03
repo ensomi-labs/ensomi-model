@@ -7,7 +7,7 @@ import numpy as np
 
 from ensomi_model.evaluation.beats import LN_RELEASE
 from ensomi_model.evaluation.case import (
-    EVENT_TIMES, Audio, Chart, Condition, Context, EvalCase, Scope, Skeleton, Spans, Timing,
+    HEAD_TIMES, RELEASE_TIMES, Audio, Chart, Condition, Context, EvalCase, Scope, Skeleton, Spans, Timing,
     condition_from_chart, evaluate)
 
 LANE_X = (64, 192, 320, 448)
@@ -83,7 +83,10 @@ class ConditionTests(unittest.TestCase):
         self.assertEqual(len(condition.context.chart.objects), 8)
         self.assertEqual(Condition().name, 'none')
         self.assertEqual((Skeleton.from_chart(self.chart) | context).name, 'skeleton+context')
-        self.assertEqual(Condition.of(Skeleton.from_chart(self.chart)).fixed, frozenset({'grid', EVENT_TIMES}))
+        # Release times are given only on request: by default the generator chooses them.
+        self.assertEqual(Condition.of(Skeleton.from_chart(self.chart)).fixed, frozenset({'grid', HEAD_TIMES}))
+        self.assertEqual(Condition.of(Skeleton.from_chart(self.chart, releases=True)).fixed,
+                         frozenset({'grid', HEAD_TIMES, RELEASE_TIMES}))
         with self.assertRaises(ValueError):
             Timing(self.grid) | Skeleton.from_chart(self.chart)
         self.assertEqual(condition_from_chart(self.chart, ['skeleton', 'context'], given=Spans.before(4000)).name,
@@ -117,18 +120,26 @@ class ConditionTests(unittest.TestCase):
 
     def test_evaluate_skips_operators_on_fixed_aspects(self):
         class Density:
-            name, judges = 'density', frozenset({EVENT_TIMES})
+            name, judges = 'density', frozenset({HEAD_TIMES})
 
             def __call__(self, case):
                 events, _, scored = case.events()
                 return dict(events=int(scored.sum()))
+
+        class Releases:
+            name, judges = 'releases', frozenset({RELEASE_TIMES})
+
+            def __call__(self, case):
+                return dict(ok=True)
 
         timed = EvalCase(self.chart, Condition.of(Timing(self.grid)), Scope.passage(Spans.of((0, 4000))))
         result = evaluate(timed, [Density()])
         self.assertEqual(result['results']['density'], dict(events=8))
         self.assertEqual(result['case']['scored'], '0..4000')
         skeleton = EvalCase(self.chart, Condition.of(Skeleton.from_chart(self.chart)))
-        self.assertIn('skipped', evaluate(skeleton, [Density()])['results']['density'])
+        results = evaluate(skeleton, [Density(), Releases()])['results']
+        self.assertEqual(results['density'], dict(skipped='condition fixes head_times'))
+        self.assertEqual(results['releases'], dict(ok=True))
 
 
 if __name__ == '__main__':
