@@ -69,7 +69,7 @@ The decisions above are the human's; the rest of this section is the agent's `(p
 | Calibration harness | False alarms on held-out corpus; dose response on defects injected into held-out corpus charts; must-not-flag transforms; the lineage's rejected outputs that can be tied to files | After operators; it is also the metric Astra iterates against |
 | Report | Rows for held-out corpus, R1 with real times and the candidate; song-level intervals; evaluator hash | After calibration |
 
-<a id="p-operator-properties"></a>**Properties an operator should have (proposed; to be settled with the human before Astra iterates).** **Superseded 2026-10-03** by [operator-properties](operator-properties.md): twenty-four properties, each tied to a Control V3, September-control or lineage-evaluator failure with a mechanical check; the list below is kept as first written.
+<a id="p-operator-properties"></a>**Properties an operator should have (proposed; to be settled with the human before Astra iterates).** **Superseded 2026-10-03** by [operator-properties](operator-properties.md): seven properties after the human's answer, each tied to Control V3, September-control or lineage-evaluator failures with mechanical checks; the list below is kept as first written.
 
 - Defined on any scope, reading given spans as context.
 - Scores nothing the condition fixed.
