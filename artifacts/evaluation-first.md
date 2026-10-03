@@ -288,6 +288,30 @@ Pre-registered claims, as the run's report judged them:
 
 The main thread read the report and did not re-derive it. Whether the C4 and C5 numbers are harness bugs was unresolved when the worker was stopped. At the human's instruction the worker was replaced by a fresh-context Opus worker ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-6)). The new worker diagnoses run-1's failures, replaces the placeholder with a trivial event-field family (head rate in a 4 s Gaussian kernel, per-event ranks, a time-averaged field, a song null kernel-weighted in duration and star, same-shape windows for continuations), and runs run-2 under seven claims pre-registered in its brief. Its reports go to `artifacts/eval-harness-v0-20261003/run-2/`.
 
+<a id="s-harness-run2"></a>**Observation, 2026-10-03: harness v0 run-2, on the event field.** Job `20261003-hv0b-run2` on bings-mac ran 4,329 s over the fit split (17,106 charts) and the calibration split (3,336 charts). The code is committed as `f6251c4`; the main thread checked that its source hashes match the run's receipt. The report is `artifacts/eval-harness-v0-20261003/run-2/report.md` in the code checkout. The evaluator is the trivial head-rate family: heads per second in a 4 s Gaussian kernel, scored per event, ranked in both tails against cross-fitted fit events in 0.5-star bands, then smoothed over 2 s and time-averaged. The song null is kernel-weighted in duration and star.
+
+Pre-registered claims, as the report judged them:
+
+| Claim | Result |
+| --- | --- |
+| E-C0 coverage | Pass: 5,807,300 of 5,807,300 heads and releases scored |
+| E-C1 floor | Fail: pooled false alarms are near nominal (low 4.68%, high 4.53%), but the low tail is 9.83% at 4.5 to 5.0 stars (n = 234) and 2.55% at 2.0 to 2.5, the shortest duration quintile is low at 2.25%, and the high tail is 1.28% at 4.5 to 5.0 |
+| E-C2 density drift | Pass: D9 at ×2 caught in 99.0%, at ×0.5 in 98.7% |
+| E-C3 specificity | Fail: D7 moves heads by construction, which was the brief's error. Without D7, 1 to 5 of 2,543 cases still differ in release-only families (D2, D2s, D3same, D4, F3), not yet explained |
+| E-C4 must-not-flag | Pass: 66,616 transformed cases identical |
+| E-C5 stretch covariance | Pass: median rate ratio 1.0008 and 0.9993 |
+| E-C6 legality | Pass: no family discards more than 20% at its smallest dose |
+
+Under the stop rule a bug fix would have led to run-3. The human paused detailed evaluator design instead ([d-eval-reserve](#d-eval-reserve)), so the band miscalibration and the residual E-C3 cases stay open for when the evaluator is tuned on R2's output.
+
+<a id="w-eval-cleanup"></a>**Running, 2026-10-03, at the human's request** ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-10)): a fresh Opus worker removes redundant checks, tests and asserts from the framework, in code and docstrings, without changing what the evaluator computes. It targets:
+- checks that hold by construction, such as the red-line transforms, which collapse into one input-lesion test;
+- duplicates;
+- the retired bar-passage code;
+- run-specific claim judging in the report.
+
+`f6251c4` stays as run-2's reproducible record.
+
 <a id="d-eval-reserve"></a>**Decision, human, 2026-10-03: stop detailed evaluator design; keep the framework; tune the evaluator after R2 exists, to debug its weaknesses** ([private, local](private/human-inputs/4259953e-714c-4628-8911-eb1ec9fafdd8.md#prompt-9)).
 
 - The P1 details are not expected to help the coming R2 model. In particular, scoring a row by predicting it from the two rows before and after is a poor evaluation, and P1 is not built.
