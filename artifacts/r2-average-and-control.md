@@ -1,0 +1,35 @@
+# R2 v1: averageness, condition following and style as a target
+
+Shareable. Started 2026-10-04 by main session `9a69a80d` (Claude, control plane), at the human's request to analyse R2 v1's strengths and weaknesses through Astra (max effort, `--no-hooks`) and to have a fresh Fable subagent judge the findings for overclaim, over-defensiveness and local optima inside a wrong direction ([private, local](private/human-inputs/9a69a80d-ed11-4442-9727-a483f42b589a.md#prompt-1)). Builds on [o-r2-first-look](r2-implementation.md#o-r2-first-look), [d-r2-conditions](r2-implementation.md#d-r2-conditions), [d-star-tiled](r2-implementation.md#d-star-tiled), [s-r2-dpo](r2-implementation.md#s-r2-dpo), [d-final-conditions](r2-ln-design.md#d-final-conditions); feeds the `control`, `proposal` and `rollout` nodes.
+
+<a id="o-human-average"></a>
+## Human observations, 2026-10-04
+
+From the human's own viewing of the renders at checkpoint `ckpt-0030716993` (`artifacts/r2-preview/r2-ce-overnight-20261004-0030716993/render/` in the code checkout; natural mode, 4 fit_dev charts × 3 seeds): the model tends to generate "average" patterns at all times; LN share cannot be controlled; whether the star condition takes effect is in doubt. The human framed the rest as intuition and analogy, not method: whether the memory could hold distinct clusters of chart shapes (now, or with more parameters or a staged recipe) that a control embedding pushes generation toward, as a route to style control; how proximity is defined and measured and how that overlaps with the planned DPO; how inference can move away from the global average. The agent has not viewed the renders.
+
+<a id="q-r2-style"></a>
+## The question as reframed by the agent (proposed)
+
+> Where, in R2's chain of model state, training signal, condition interface and sampling, is chart-level variation of the corpus lost, and what representation of "style" (a space with a proximity, at a stated time scale) would let a control input select a region of the corpus distribution, as a duty distinct from and compatible with preference optimisation that judges acceptability?
+
+- **Q1 Control efficacy.** Does the conditioned policy follow LN-share and star requests within the headroom the given head rows allow; if not, why? Never measured before this session: the trainer's free-run report is natural mode only.
+- **Q2 What "average" is.** Between-chart dispersion collapse, within-chart style drift (style resampled as generation proceeds), or a per-row preference for frequent local patterns. Each has its own measurement and its own fix.
+- **Q3 State capacity.** Does a seed from a distinctive chart keep the continuation near it, and for how long; what do the hidden states encode beyond the given head rows.
+- **Q4 Proximity and control vector.** Which space, at which time scale, under which criteria (structure in the corpus, stable within a chart, separating charts, mirror and tempo invariant, not star again); how a style input enters training so the model must use it, with a natural setting.
+- **Q5 Overlap with DPO.** Acceptability versus where inside the acceptable set; whether sequence DPO narrows variety; when a style preference collapses into conditioning.
+- **Q6 Inference.** Guidance between conditioned and natural predictions, contrastive decoding, committing to a style first, selection, temperature; their risks.
+
+<a id="h-r2-shortcut"></a>**Agent hypotheses stated in the briefs as things to test, not assume (proposed).** (1) The star label is close to a function of the given head rows (density), so CE training gives the model little reason to read it, and with heads fixed the reachable star range may be narrow: "difficulty has no effect" may be partly a property of the interface. (2) Training labels are always the source chart's own values, so the model never sees two labels on one skeleton. (3) A CE policy with no chart-level latent must recover style from history; if the state does not hold it beyond the 256-row training windows, style is resampled as generation proceeds, consistent with the LN-share drift within songs.
+
+<a id="r2-analysis-jobs"></a>
+## Astra jobs, launched 2026-10-04 01:01 UTC
+
+Three parallel jobs on the mac, `ens astra --rw --effort max --no-hooks`, default tier, each limited to 2 CPU threads beside the overnight CE run (4 threads; 10 cores). Briefs kept with the jobs (`~/ensomi/.sync/cp/jobs/<id>/brief.md`); each carries the shared question, the checked facts, the standing rules for briefs and a 3-hour budget; no tracked-file edits, no R2 training. Outputs under `artifacts/r2-analysis-20261004/` of the code checkout.
+
+| Job | Owns | Output |
+| --- | --- | --- |
+| `20261004-010145-r2-analysis-A-control` | Q1 (headroom on fixed heads, label redundancy, policy sensitivity, conditioned dose response with an interval switch, ranked causes, guidance probe allowed) | `control/` |
+| `20261004-010151-r2-analysis-B-average` | Q2, Q3 (definition of average, dispersion, drift, local mode preference, seed persistence, linear probes, landmark and seed lesions, trend over checkpoints) | `average/` |
+| `20261004-010156-r2-analysis-C-direction` | Q4 to Q6, thinking first (restate the question, proximity candidates, control vector, DPO duty, inference ranking, research programme) | `direction/` |
+
+Then: a fresh Fable subagent judges each report, read-only, for overclaim, over-defensiveness and local optima under a wrong direction; the agent records both here.
