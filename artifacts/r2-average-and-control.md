@@ -44,3 +44,45 @@ All three exited 0 and report no tracked-file edits and no processes left runnin
 - **C, direction** (`direction/report.md`, 56 min; it read A's and B's directories while they were running, so its integration rests on partial results). Restated question: given fixed head times and requests, what persistent choice selects a coherent region of acceptable arrangements, and why does generation fail to retain it. Proposes reference-relative section targeting (a continuum suffices, clusters optional); proximity candidates: passage descriptor distributions with difficulty-aware distance, learned reference embeddings, prototypes or codes only if stable. Control: a descriptor or reference vector held through an interval, fed to action and release predictions, explicit absent mode, tested by reference swaps on a fixed prefix. DPO for acceptability inside the requested region, with pair construction that preserves equally acceptable alternatives and coverage measured apart from preference gain. Inference ranking: persistent target commitment, proximity-based selection with acceptability checks, modest guidance after condition efficacy, temperature or typical sampling, untargeted contrast last. Its real-chart probe found repeatable chart information but missed its own pre-declared threshold in one cohort. First experiment: same-skeleton candidate support (does a small sample pool already contain coherent acceptable continuations near the source).
 
 Fable judgment started 2026-10-04 04:05 UTC (fresh subagent, read-only except its own file `r2-analysis-fable-judgment.md`).
+
+<a id="a-r2-fable-judgment"></a>
+## Fable judgment, 2026-10-04 (fresh subagent, read-only; full text [r2-analysis-fable-judgment](r2-analysis-fable-judgment.md))
+
+It re-read the load-bearing numbers of all three reports from their data files and found them matching, with no plan threshold changed after the fact. Verdicts:
+
+- **A (control).** Sound and the most useful of the three. Its "broad headroom" rests on four-note chords on every row; on skeleton `0f6ab03b` its own sane constructions span about 1.9 to 3.5 star around a 2.66 source. That is one skeleton, so ±0.8 star is an illustration, not a general bound. A is over-defensive in two places. It calls the 1 to 3% of holds under 60 ms produced under guidance and count feedback (real charts: 0%) a "distribution shift"; they are a quality signal. And it never says that star control as posed is ill-posed.
+- **B (average).** Thorough, but with the wrong headline. The human rendered 30.72M, and B's 30.72M table is the complaint:
+  - chord density and jack rate vary across charts at 0.22× and 0.17× the real variance;
+  - every chart uses lane patterns near maximal entropy;
+  - LN share is 0.41 against 0.19 in the source charts, and it wanders.
+
+  The one signal present in all four panels is that chord density drifts within a chart about twice as much as in real charts; B does not headline it. Teacher-forced LN forecasts are calibrated (0.191 against 0.190) while forecasts on the model's own histories sit at 0.409: exposure bias with positive feedback. Natural LN share oscillates by a factor of about 2.5 between checkpoints 4 to 9M exposures apart.
+
+  B overclaims that "the state holds chart-wide information": its probe has no prefix-descriptor baseline, and lane state alone gives R² 0.61. B also understates the landmark lesion: removing the landmark readout improves action NLL, so the long memory is not used at 39.49M.
+- **C (direction).** The best thinking, with the thinnest evidence by design. Its DPO/style division, its pair-construction rules and the adapter trap are worth keeping. Its main bet, a persistent reference vector z, is premature: the LN track is already a one-dimensional persistent condition, and CE alone does not yet hold it over a song.
+- **Frame.** Variation is not lost but uncommitted. At 39.49M the variance of generated charts across random seeds on one skeleton (7.14) is twice the variance across skeletons (3.51). On this reading it is a problem of dynamics (an optimiser still hot at a third of the schedule, plus exposure bias) and of training signal before it is a problem of representation.
+
+<a id="s-r2-main-checks"></a>**Main thread's checks of two code claims, 2026-10-04.**
+
+- `data.py:70-83` draws the scored 256-row window independently of the condition track. The track's 1 to 4 LN intervals of 8 to 64 beats are placed over the whole song, so they often miss the window. A's exposure audit puts active requests on 14.4% (LN) and 24.7% (star) of scored rows.
+- `train_dpo.py` `LNShareLabeller` prefers branches nearer a fixed `target` of 0.5. Its start state carries the source's drawn track (`corpus_state`). DPO with this labeller would therefore reward ignoring the condition.
+
+<a id="a-r2-reading"></a>**Agent reading (proposed).** The main thread accepts the judgment's frame over its own reframing ([q-r2-style](#q-r2-style)). What the human saw at 30.72M was measured: narrowed chord and jack variety, maximal pattern entropy, LN runaway. It is not a stable property of the model, because later checkpoints differ. Evidence strength:
+
+- **Strong:** star has no effect (KL 2e-6 nats per row, three checkpoints) and is mostly determined by the given head rows (R² 0.75). LN responds and is improving (slope 0.21, 0.45, 0.50).
+- **Moderate:** the landmark memory is unused (one checkpoint), and seed persistence fades by 256 to 512 rows.
+- **Weak:** that guidance or count feedback give acceptable charts. No acceptability check was run, and holds under 60 ms appear.
+- **None:** clusters of chart shapes exist. No cluster test was run. C's probe finds chart identity at about 3× chance after removing star and density, short of its own feasibility gate.
+
+The memory question has this answer: the path exists, but CE on real histories gives no pressure to use it. More parameters would not add that pressure; an informative persistent condition or an objective on free-run continuations would.
+
+<a id="q-r2-after-judgment"></a>**For the human (proposed, awaiting decision).**
+
+1. Star as an R2 v1 control: drop it, or redefine it as residual star or as quantities R2 decides (chord density, jack and overlap rate, LN share). The judgment and A both point here.
+2. Window-aligned condition draws (intervals overlapping the scored window with high probability) in the next CE run, compared at matched exposure. This needs a training run, so it waits until the overnight run ends.
+3. End-of-run re-probe: the one-argument scripts `control/scripts/probe.py` and `average/scripts/rerun.py` on the final checkpoint and two intermediate ones (about 1.5 h on the mac). Decision rule from the judgment:
+   - natural LN still oscillating by more than 0.1 between adjacent checkpoints: the CE recipe is the problem, and DPO waits;
+   - natural LN settled near 0.19 with dose slope ≥ 0.7: go to DPO;
+   - slope still about 0.5: do item 2.
+4. Before any DPO: fix the labeller to use the start state's own track, and make the first pairs calibration pairs (same skeleton and prefix, winner nearer the source chart's own descriptor trajectory), with the typicality evaluator only as a defect filter.
+5. A style vector z only after a one-dimensional condition is held over a song by CE alone.
