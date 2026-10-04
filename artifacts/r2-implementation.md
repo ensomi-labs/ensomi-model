@@ -111,6 +111,17 @@ The human pointed out that R1 scores a row with a mirror-equivariant head that f
 
 Code: branch `r2/train` created in the main checkout from `eval/corpus-beats` at `17b73b9`, after the evaluation cleanup (`469d72e`, `17b73b9`).
 
+<a id="r2-handoff"></a>
+## Handoff, 2026-10-04 00:33 UTC (session `cf834490` closed at the human's request)
+
+[private, local](private/human-inputs/cf834490-7d37-42c1-b587-3b7f1ba0dd93.md#prompt-7).
+
+- **Running, unattended:** overnight CE run `r2-ce-overnight-20261004`, `ens run` job `20261003-195809-r2-ce-overnight-20261004` (tmux session of the same name on the mac; supervisor pid 19738, trainer pid 19751). Run directory `artifacts/r2-runs/r2-ce-overnight-20261004/` (code checkout on the mac): `config.json`, `train.jsonl` (every 2k exposures), `evals.jsonl` (per checkpoint: fit_dev CE and free-run report), `events.jsonl` (supervisor restarts, NaN events), `checkpoints/ckpt-<exposures>.pt` (all kept, about every 4.39M exposures), `freerun/<exposures>/*.osu`, frozen code in `code/`. At handoff: 35.5M of 157.97M exposures, lr 8.8e-4, about 2,200 decisions/s, latest checkpoint `ckpt-0035104472` with fit_dev action NLL 2.003 and gap-release NLL 0.085 per decision (still falling), no restart or NaN event. Expected end about 16:00 to 18:00 UTC 2026-10-04. Health check: `ens tail 20261003-195809-r2-ce-overnight-20261004`, or the tail of `train.jsonl` and `events.jsonl`; `ens ps` lists the tmux session while it runs.
+- **Code:** `r2/train` at `78aa22c`, pushed (`ac02049` v1, `8dbd0aa` capacity config, `78aa22c` DPO trainer). No uncommitted R2 code. Start a DPO run with `python -m ensomi_model.r2.train_dpo --checkpoint <ce.pt> --run-dir ...` (README); it has synthetic labellers only.
+- **Preview:** checkpoint `ckpt-0030716993`, `artifacts/r2-preview/r2-ce-overnight-20261004-0030716993/` (`.osz` with audio per song, `render/index.html` from Beatmap Lens); to repeat for a later checkpoint: `pack.py <run> <ckpt>` then `render.mjs <preview-dir>` in `~/ensomi/.sync/cp/scratch/r2-preview/`. The renders were not viewed by the agent.
+- **Known problem:** LN share in natural mode is uncontrolled (0.12 to 0.96 per seed, drifting within songs) at 22% of the schedule ([o-r2-first-look](#o-r2-first-look)).
+- **Next, proposed:** (1) when the run ends, select the earliest checkpoint within two SE of the best fit_dev CE; (2) measure whether conditioned generation follows a requested LN share and star (no generation script for that yet); (3) the token-versus-FiLM comparison at matched exposure; (4) whether wider models help, with runs longer than the 8-minute tuning trials; (5) the human's verdict on the agent's overnight decisions ([d-r2-v1-spec](#d-r2-v1-spec)) and on the loosened DPO integration test ([s-r2-dpo](#s-r2-dpo)).
+
 <a id="r2-impl-open"></a>
 ## Open
 
