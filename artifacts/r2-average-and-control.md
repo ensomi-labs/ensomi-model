@@ -110,3 +110,13 @@ The human judged that the R2 v1 results expose problems in the problem definitio
 - **Interval count ignores song length**: LN-active share 21% for K < 600, 8% for K ≥ 1500.
 - **Loss range**: the window mean weights decisions by 1/L, so EOS gets 4.2× and the last 64 rows 1.8× their share.
 - **Memory range: not misplaced (hypothesis refuted).** Training encodes the full prefix from row 0 and reads landmarks with the same cadence as free-run; median 8 landmarks visible per scored row. The 511-token TCN field already covers the whole prefix on 54% of scored rows, which is the likelier reason the landmarks are unused (untested).
+
+<a id="d-condition-scoped-loss"></a>**Decisions (human, 2026-10-05), after the range audit** ([private, local](private/human-inputs/0f5110e0-66a5-4e0c-97c0-cf4c78fcca9d.md#prompt-4)):
+
+- A condition-specific loss term acts only where that condition is present. The design has to hold for several conditions activated on parts of a song (LN share, difficulty, the Beatmap Lens style concepts, more), with no term measuring what is not conditioned on it.
+- Difficulty stays a condition: a baseline is computed from the given skeleton and the model is trained on the response towards the loss. This answers item 1 of [q-r2-after-judgment](#q-r2-after-judgment): star is neither dropped nor replaced by R2-decided quantities alone.
+- The fixes offered after the audit are not to be implemented piecemeal; an Opus or Fable subagent plans the whole repair first, covering every wrong piece already present.
+
+<a id="d-natural-gap-deferred"></a>**Deferred by the human (2026-10-05):** natural behaviour (a condition kind not specified) and the part between two conditioned parts are settled later ([private, local](private/human-inputs/0f5110e0-66a5-4e0c-97c0-cf4c78fcca9d.md#prompt-5)). The plan must not choose a default for either.
+
+<a id="r2-condition-plan"></a>**Planning, started 2026-10-05.** A fresh Fable subagent writes the plan (read-only; small read-only measurements on the mac allowed): a ledger of every wrong piece with evidence and disposition, the general form of a condition-scoped loss with span-invariance tests, difficulty relative to a skeleton baseline, span-aligned sampling, loss normalisation, diagnostics and selection, exposure bias, the swap-growth stop, staged implementation with pre-stated claims, and open questions. A fresh adversarial reviewer then looks for wrong pieces the plan misses, before anything is implemented.
