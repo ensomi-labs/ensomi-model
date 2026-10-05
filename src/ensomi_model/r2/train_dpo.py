@@ -1,4 +1,4 @@
-"""R2 sequence DPO on synthetic pairs: loss, pair builder, synthetic labellers, trainer and CLI.
+"""R2 sequence DPO: pair structure, loss, pair-file source, trainer and CLI.
 
 A pair is two continuations y+ and y- of the same committed start state x (prefix decisions,
 head skeleton, grid, song length, condition track) over the same scored head horizon, with a
@@ -11,14 +11,17 @@ in eval mode):
            + lambda_CE * CE(anchor windows)
 
 CE(anchor) is the CE trainer's loss, the window mean of decision NLL averaged over windows.
-R sums over decisions; no per-decision or per-release normalisation (design section 5). Pairs
-here are synthetic: two samples from one start state drawn with the R2 sampler, labelled by a
-known utility through a fixed logistic, q = sigma(alpha (u+ - u-)), oriented so q >= 0.5.
+R sums over decisions; no per-decision or per-release normalisation (design section 5).
+
+Pairs come only from a file of real preference pairs (``load_pairs``). Synthetic labellers live
+in ``tests/r2/dpo_synthetic.py``: they exist to test the DPO mechanism with a known preferred
+direction and are not a preference source. ``LNShareLabeller``'s fixed target ignores the
+state's condition track and would reward ignoring the condition.
 
 CLI (mac, repository root; a CE checkpoint is the initial policy and the frozen reference):
 
     python -m ensomi_model.r2.train_dpo --checkpoint <ce.pt> --run-dir artifacts/r2-dpo/<id> \
-        [--set key=value ...] [--resume]
+        --set pairs_file='"<pairs.pt>"' [--set key=value ...] [--resume]
 """
 from __future__ import annotations
 
@@ -242,72 +245,7 @@ def dpo_loss(policy, reference, pairs, anchor_windows=(), beta=0.1, lambda_ce=0.
                      np.array(lengths), float(beta))
 
 
-# ---- synthetic labellers ------------------------------------------------------------------------
-
-def branch_events(state: StartState, branch, lo_ms=1.0, hi_ms=40.0) -> dict:
-    """Counts over the branch's decisions: heads, LN heads, releases, gap releases and releases
-    that come lo..hi ms before a head in another lane (heads after the branch are unknown)."""
-    actions, gap = branch
-    chart = state.chart(actions, gap)
-    d = chart.derived()
-    a, b = state.start, state.start + len(actions)
-    rel = d.release[a:b]
-    rows = chart.times(np.arange(b))
-    attack = d.attack[:b]
-    near = 0
-    for i, lane in zip(*np.nonzero(~np.isnan(rel))):
-        others = rows[np.delete(attack, lane, axis=1).any(1)]
-        dt = others - rel[i, lane]
-        near += int(((dt >= lo_ms) & (dt <= hi_ms)).any())
-    return dict(heads=int(d.attack[a:b].sum()), ln_heads=int(d.ln_head[a:b].sum()),
-                releases=int((~np.isnan(rel)).sum()), gap_releases=int((~np.isnan(rel) & ~d.row_release[a:b]).sum()),
-                near_head_releases=near, decisions=b - a, eos=b == state.K + 1)
-
-
-@dataclass(frozen=True)
-class LNShareLabeller:
-    """Utility -|LN share - target| over the branch's heads; statistic is the LN share."""
-    target: float = 0.5
-    alpha: float = 20.0
-    name: str = 'ln_share'
-
-    def statistic(self, state, branch) -> float:
-        e = branch_events(state, branch)
-        return e['ln_heads'] / e['heads'] if e['heads'] else math.nan
-
-    def utility(self, state, branch) -> float:
-        return -abs(self.statistic(state, branch) - self.target)
-
-    def label(self, u_a, u_b) -> float:
-        return 0.5 if math.isnan(u_a) or math.isnan(u_b) else 1.0 / (1.0 + math.exp(-self.alpha * (u_a - u_b)))
-
-
-@dataclass(frozen=True)
-class NearHeadLabeller:
-    """Utility -(number of releases 1..40 ms before another lane's head); statistic is that count
-    per release."""
-    lo_ms: float = 1.0
-    hi_ms: float = 40.0
-    alpha: float = 1.0
-    name: str = 'near_head'
-
-    def statistic(self, state, branch) -> float:
-        e = branch_events(state, branch, self.lo_ms, self.hi_ms)
-        return e['near_head_releases'] / e['releases'] if e['releases'] else math.nan
-
-    def utility(self, state, branch) -> float:
-        return -float(branch_events(state, branch, self.lo_ms, self.hi_ms)['near_head_releases'])
-
-    label = LNShareLabeller.label
-
-
-def make_labeller(name: str, **kw):
-    cls = {'ln_share': LNShareLabeller, 'near_head': NearHeadLabeller}[name]
-    names = {f.name for f in fields(cls)} - {'name'}
-    return cls(**{k: v for k, v in kw.items() if k in names and v is not None})
-
-
-# ---- pair builder -------------------------------------------------------------------------------
+# ---- policy samples -----------------------------------------------------------------------------
 
 def sample_branch(model, state: StartState, horizon: int, seed: int):
     """One continuation of ``horizon`` head decisions (fewer at the chart end, EOS included)."""
@@ -315,45 +253,6 @@ def sample_branch(model, state: StartState, horizon: int, seed: int):
     actions, gap = continue_chart(model, state.head_ms, state.song_ms, state.grid, state.prefix_actions,
                                   state.prefix_gap, track=state.track, seed=int(seed), stop=stop)
     return actions[state.start:stop].copy(), gap[state.start:stop].copy()
-
-
-def same_branch(a, b) -> bool:
-    return np.array_equal(a[0], b[0]) and np.array_equal(a[1], b[1], equal_nan=True)
-
-
-def build_pair(model, state: StartState, labeller, horizon=64, seeds=(0, 1), min_margin=0.05):
-    """Two samples from ``state`` labelled by ``labeller``; None when identical or |q - 0.5| < min_margin."""
-    a = sample_branch(model, state, horizon, seeds[0])
-    b = sample_branch(model, state, horizon, seeds[1])
-    if same_branch(a, b):
-        return None
-    u_a, u_b = labeller.utility(state, a), labeller.utility(state, b)
-    q = labeller.label(u_a, u_b)
-    if abs(q - 0.5) < min_margin:
-        return None
-    if q < 0.5:
-        a, b, u_a, u_b, q, seeds = b, a, u_b, u_a, 1.0 - q, tuple(reversed(seeds))
-    pair = Pair(state, a, b, q, dict(source='synthetic', labeller=labeller.name, labeller_config=asdict(labeller),
-                                     utility_plus=u_a, utility_minus=u_b, seeds=[int(s) for s in seeds],
-                                     horizon=int(horizon)))
-    return validate_pair(pair)
-
-
-def build_pairs(model, states, labeller, horizon=64, per_state=1, seed=0, min_margin=0.05, tries=4):
-    """Up to ``per_state`` pairs per state, at most ``tries * per_state`` sibling draws each."""
-    rng = np.random.default_rng(seed)
-    out = []
-    for state in states:
-        made = 0
-        for _ in range(tries * per_state):
-            if made == per_state:
-                break
-            seeds = tuple(int(s) for s in rng.integers(0, 2 ** 31 - 1, size=2))
-            pair = build_pair(model, state, labeller, horizon, seeds, min_margin)
-            if pair is not None:
-                out.append(pair)
-                made += 1
-    return out
 
 
 # ---- monitors -----------------------------------------------------------------------------------
@@ -374,7 +273,8 @@ def cluster_mean_se(values, groups):
 @torch.no_grad()
 def evaluate_samples(policy, reference, states, labeller, horizon, seeds) -> dict:
     """Fresh samples from the current policy at each state: Monte Carlo KL to the reference per
-    decision, (log pi_theta - log pi_0) / decisions averaged, and the labeller statistic."""
+    decision, (log pi_theta - log pi_0) / decisions averaged, and ``labeller.statistic`` (an
+    optional monitor with ``name`` and ``statistic(state, branch)``; NaN when None)."""
     reference.train(False)
     kl, stat, groups, per_state = [], [], [], []
     for i, state in enumerate(states):
@@ -418,15 +318,10 @@ class DPOConfig:
     pairs_per_step: int = 8
     anchor_windows: int = 8
     anchor_window: int = 256
-    horizon: int = 64
-    train_states: int = 128
-    pairs_per_state: int = 1
+    horizon: int = 64                    # held-state sample length
+    pairs_file: str = ''                 # real preference pairs, schema in load_pairs; required
     held_states: int = 32
     eval_windows: int = 16
-    labeller: str = 'ln_share'
-    target: float = 0.5
-    alpha: float | None = None           # labeller default when None
-    min_margin: float = 0.05
     eval_every: int = 128
     eval_seeds: list = field(default_factory=lambda: [954, 955])
     seed_states: int = 2468
@@ -612,30 +507,30 @@ class DPOTrainer:
         star = bool(data.get('star_conditions', False))
         fit = Corpus(cfg.cache, 'fit_train', star_conditions=star)
         dev = Corpus(cfg.cache, 'fit_dev', star_conditions=False)
-        labeller = make_labeller(cfg.labeller, target=cfg.target, alpha=cfg.alpha)
         held_draws = draws(dev, cfg.held_states, cfg.horizon, cfg.seed_states + 1)
         held = [corpus_state(dev, d) for d in held_draws]
         eval_windows = [AnchorWindow(dev.chart(d.sha), d.start, d.stop, d.track)
                         for d in draws(dev, cfg.eval_windows, cfg.anchor_window, cfg.seed_states + 2)]
-        pairs_file = run / 'pairs.pt'
-        if resume and pairs_file.exists():
-            pairs = load_pairs(pairs_file, fit)
+        stored = run / 'pairs.pt'
+        if resume and stored.exists():
+            pairs = load_pairs(stored, fit)
         else:
             if (run / 'checkpoints' / 'latest.json').exists():
                 raise ContractError('Run directory already has checkpoints; pass --resume')
-            states = [corpus_state(fit, d) for d in draws(fit, cfg.train_states, cfg.horizon, cfg.seed_states)]
-            pairs = build_pairs(reference, states, labeller, cfg.horizon, cfg.pairs_per_state, cfg.seed_pairs,
-                                cfg.min_margin)
+            if not cfg.pairs_file:
+                raise ContractError(NO_PAIRS)
+            pairs = load_pairs(cfg.pairs_file, fit)
             run.mkdir(parents=True, exist_ok=True)
-            save_pairs(pairs_file, pairs, reference_sha256=sha)
+            save_pairs(stored, pairs, reference_sha256=sha, source_file=str(cfg.pairs_file),
+                       source_sha256=file_sha256(cfg.pairs_file))
             (run / 'config.json').write_text(json.dumps(asdict(cfg), indent=1))
-            (run / 'pairs_summary.json').write_text(json.dumps(pairs_summary(pairs, len(states)), indent=1))
+            (run / 'pairs_summary.json').write_text(json.dumps(pairs_summary(pairs), indent=1))
 
         def anchor_draw(rng):
             d = fit.draw(rng, cfg.anchor_window)
             return AnchorWindow(fit.chart(d.sha), d.start, d.stop, d.track)
 
-        trainer = cls(policy, reference, cfg, pairs, anchor_draw, held, labeller, eval_windows, run, sha)
+        trainer = cls(policy, reference, cfg, pairs, anchor_draw, held, None, eval_windows, run, sha)
         latest = trainer.latest() if resume else None
         if latest is not None:
             trainer.load(latest)
@@ -648,6 +543,10 @@ class DPOTrainer:
                       model_config=data['model_config'], pairs=len(pairs), resumed_from=latest and latest.name,
                       torch=torch.__version__, ens_job=os.environ.get('ENS_JOB_ID'))
         return trainer
+
+
+NO_PAIRS = ('No preference pairs: set pairs_file to a file of real preference pairs (schema in '
+            'train_dpo.load_pairs). Synthetic labellers are test fixtures only, not a preference source.')
 
 
 def file_sha256(path) -> str:
@@ -679,10 +578,21 @@ def save_pairs(path, pairs, **extra):
 
 
 def load_pairs(path, corpus):
+    """Pairs from a ``save_pairs`` file, each replay-checked on its ``corpus`` chart.
+
+    Schema: ``torch.save(dict(records=[...], **extra))``; a record has ``sha`` (cache sha256 of a
+    ``corpus`` chart), ``start`` (decisions [0, start) are the cache chart's), ``track``
+    (``data.track_to_json``), ``group`` (song group for standard errors), ``plus`` and ``minus``
+    (preferred and other branch, each (actions int [h, 4], gap release ms float [h, 4], NaN where
+    none), same h >= 1, at most to EOS), ``q`` (P(plus preferred) in [0, 1]) and ``meta`` (dict,
+    ``source`` names the preference source). Records with source 'synthetic' are refused.
+    """
     from .data import track_from_json
     data = torch.load(path, map_location='cpu', weights_only=False)
     out = []
     for r in data['records']:
+        if r['meta'].get('source') == 'synthetic':
+            raise ContractError(f'{path}: synthetic pairs are test fixtures only, not a preference source')
         chart = corpus.chart(r['sha'])
         s = r['start']
         state = StartState(chart.head_ms, chart.song_ms, chart.grid, chart.actions[:s], chart.gap[:s],
@@ -691,10 +601,11 @@ def load_pairs(path, corpus):
     return out
 
 
-def pairs_summary(pairs, states):
+def pairs_summary(pairs):
     q = np.array([p.q for p in pairs]) if pairs else np.zeros(0)
-    return dict(pairs=len(pairs), states=states, q_mean=float(q.mean()) if len(q) else None,
-                q_min=float(q.min()) if len(q) else None, eos_pairs=sum(p.stop == p.state.K + 1 for p in pairs),
+    return dict(pairs=len(pairs), states=len({(p.state.sha, p.state.start) for p in pairs}),
+                q_mean=float(q.mean()) if len(q) else None, q_min=float(q.min()) if len(q) else None,
+                eos_pairs=sum(p.stop == p.state.K + 1 for p in pairs),
                 decisions_per_branch=float(np.mean([len(p.plus[0]) for p in pairs])) if pairs else None)
 
 
@@ -706,7 +617,7 @@ def _value(text):
 
 
 def main(argv=None):
-    p = argparse.ArgumentParser(description='R2 sequence DPO on synthetic pairs')
+    p = argparse.ArgumentParser(description='R2 sequence DPO on a file of real preference pairs')
     p.add_argument('--checkpoint', default=None, help='CE checkpoint: initial policy and frozen reference')
     p.add_argument('--config', default=None, help='JSON DPOConfig (the run directory config on --resume)')
     p.add_argument('--run-dir', default=None)
@@ -720,6 +631,8 @@ def main(argv=None):
     cfg = DPOConfig.load(config, checkpoint=a.checkpoint, run_dir=a.run_dir, **overrides)
     if not cfg.checkpoint:
         raise SystemExit('--checkpoint is required')
+    if not cfg.pairs_file and not (a.resume and (Path(cfg.run_dir) / 'pairs.pt').exists()):
+        raise SystemExit(NO_PAIRS)
     trainer = DPOTrainer.from_checkpoint(cfg, resume=a.resume)
     last = trainer.train()
     print(json.dumps(dict(step=trainer.state['step'], last=last), allow_nan=True), flush=True)

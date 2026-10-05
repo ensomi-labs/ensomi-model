@@ -15,14 +15,15 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from ensomi_model.r2.common import ACTIONS
+from ensomi_model.r2.common import ACTIONS, ContractError
 from ensomi_model.r2.features import Chart
 from ensomi_model.r2.model import R2Config, R2Model
 from ensomi_model.r2.state import action_support_mask
-from ensomi_model.r2.train_dpo import (AnchorWindow, DPOConfig, DPOTrainer, LNShareLabeller, NearHeadLabeller, Pair,
-                                       StartState, branch_events, branch_log_prob, build_pair, build_pairs, dpo_loss,
-                                       evaluate_samples, freeze, main, window_ce)
+from ensomi_model.r2.train_dpo import (AnchorWindow, DPOConfig, DPOTrainer, Pair, StartState, branch_log_prob,
+                                       corpus_state, dpo_loss, draws, evaluate_samples, freeze, main, save_pairs,
+                                       window_ce)
 
+from .dpo_synthetic import LNShareLabeller, NearHeadLabeller, branch_events, build_pair, build_pairs
 from .helpers import chart_from_objects, random_decisions, random_skeleton, sample_track, tiny_model, two_segment_grid
 from .test_leakage_causality import source_objects
 
@@ -188,7 +189,7 @@ def test_t2_probability_one_factors_change_nothing(singletons):
 
 def r2_pairs(model, qs=(0.9, 0.2, 0.75)):
     """Three sampled pairs: mid-chart with held lanes, one ending in EOS (with a track), one from BOS."""
-    labeller = LNShareLabeller()
+    labeller = LNShareLabeller(target=0.5)
     mid = synthetic_state(11, K=90)
     end = synthetic_state(12, K=60, k=60 + 1 - 40, track=True)
     bos = synthetic_state(13, K=50, k=0)
@@ -488,21 +489,39 @@ def test_integration_ln_share_preference_moves_samples_and_anchor_ce_stays_bound
     assert ce_after <= 1.10 * ce_before, report
 
 
-# ---- CLI on the real cache (tiny CE-format checkpoint) ------------------------------------------
+# ---- CLI: real pairs only; start and resume on the cache (tiny CE-format checkpoint) --------------
+
+def test_cli_refuses_without_a_pairs_file(tmp_path):
+    with pytest.raises(SystemExit, match='Synthetic labellers are test fixtures only'):
+        main(['--checkpoint', str(tmp_path / 'ce.pt'), '--run-dir', str(tmp_path / 'run')])
+
 
 @pytest.mark.skipif(not (CACHE / 'index.parquet').exists(), reason='cache not built here')
 def test_cli_start_and_resume_on_the_cache(tmp_path):
     from dataclasses import asdict
+
+    from ensomi_model.r2.data import Corpus
     torch.manual_seed(0)
     config = R2Config(**SMALL)
+    model = R2Model(config)
     ckpt = tmp_path / 'ce.pt'
-    torch.save(dict(model=R2Model(config).state_dict(), model_config=asdict(config), star_conditions=False), ckpt)
+    torch.save(dict(model=model.state_dict(), model_config=asdict(config), star_conditions=False), ckpt)
+    fit = Corpus(CACHE, 'fit_train', star_conditions=False)
+    states = [corpus_state(fit, d) for d in draws(fit, 4, 8, 2468)]
+    pairs = build_pairs(model, states, LNShareLabeller(target=0.5), horizon=8, seed=1357, min_margin=0.01)
+    assert pairs
+    synthetic, fixture = tmp_path / 'synthetic.pt', tmp_path / 'fixture.pt'
+    save_pairs(synthetic, pairs)
+    save_pairs(fixture, [Pair(p.state, p.plus, p.minus, p.q, dict(source='test-fixture')) for p in pairs])
     run = tmp_path / 'run'
     common = ['--set', 'threads=2', '--set', f'cache="{CACHE}"']
     tiny = ['--set', 'steps=2', '--set', 'pairs_per_step=1', '--set', 'anchor_windows=1', '--set', 'anchor_window=16',
-            '--set', 'horizon=8', '--set', 'train_states=4', '--set', 'held_states=1', '--set', 'eval_windows=1',
-            '--set', 'eval_every=2', '--set', 'eval_seeds=[954]', '--set', 'min_margin=0.01', '--set', 'lr=1e-4']
-    assert main(['--checkpoint', str(ckpt), '--run-dir', str(run)] + common + tiny) == 0
+            '--set', 'horizon=8', '--set', 'held_states=1', '--set', 'eval_windows=1', '--set', 'eval_every=2',
+            '--set', 'eval_seeds=[954]', '--set', 'lr=1e-4']
+    start = ['--checkpoint', str(ckpt), '--run-dir', str(run)] + common + tiny
+    with pytest.raises(ContractError, match='test fixtures only'):
+        main(start + ['--set', f'pairs_file="{synthetic}"'])
+    assert main(start + ['--set', f'pairs_file="{fixture}"']) == 0
     assert main(['--run-dir', str(run), '--resume', '--set', 'steps=3']) == 0
     train = [json.loads(line) for line in (run / 'train.jsonl').read_text().splitlines()]
     evals = [json.loads(line) for line in (run / 'evals.jsonl').read_text().splitlines()]
