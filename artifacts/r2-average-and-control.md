@@ -86,3 +86,16 @@ The memory question has this answer: the path exists, but CE on real histories g
    - slope still about 0.5: do item 2.
 4. Before any DPO: fix the labeller to use the start state's own track, and make the first pairs calibration pairs (same skeleton and prefix, winner nearer the source chart's own descriptor trajectory), with the typicality evaluator only as a defect filter.
 5. A style vector z only after a one-dimensional condition is held over a song by CE alone.
+
+<a id="r2-recipe-fixes"></a>
+## Recipe fixes after R2 v1, 2026-10-05
+
+The human judged that the R2 v1 results expose problems in the problem definition and the training recipe, and asked for the most obvious ones first ([private, local](private/human-inputs/0f5110e0-66a5-4e0c-97c0-cf4c78fcca9d.md#prompt-1)).
+
+<a id="d-dpo-synthetic-off"></a>**Decision (human, 2026-10-05).** The DPO trainer's synthetic labellers, including the LN-share rule with a fixed target of 0.5, are an example of the mechanism and do not enter real training. They are removed from the real path and the code says why. DPO waits for real preference examples. This settles item 4 of [q-r2-after-judgment](#q-r2-after-judgment) one step further: not a fixed labeller but no synthetic labeller at all.
+
+<a id="q-r2-ranges"></a>**Question (human, 2026-10-05): are the condition range, the memory range and the loss range misplaced relative to each other?** Check first. Known before the check: condition intervals are drawn over the whole song independently of the 256-row scored window ([s-r2-main-checks](#s-r2-main-checks)), and the landmark memory is unused at 39.49M ([a-r2-fable-judgment](#a-r2-fable-judgment)). Agent hypothesis, to test: the long memory may see little or no prefix in training windows, which alone would explain "unused". A fresh worker removes the synthetic labellers and audits the three ranges in training, fit_dev evaluation and generation, without changing the range code.
+
+<a id="s-r2-run-stopped"></a>**The CE run stopped early (checked 2026-10-05 in `events.jsonl`).** `r2-ce-overnight-20261004` ended at 121,732,521 of 157,966,617 exposures (77% of the cosine schedule) on 2026-10-04 11:35 UTC: repeated `resource_limit` events (swap growth over 1 GiB) and then the supervisor's restart limit. The last checkpoints are `-safe` resumes; lr was not at its floor. The human treats training as finished.
+
+<a id="r2-final-probe"></a>**Final-checkpoint probes, launched 2026-10-05 04:33 UTC** at the human's request ([private, local](private/human-inputs/0f5110e0-66a5-4e0c-97c0-cf4c78fcca9d.md#prompt-2)). Astra job `20261005-043328-r2-final-probe` (`--rw --no-hooks`, effort xhigh, default tier; brief kept with the job). It picks the checkpoint by the recorded rule (earliest within two SE of the best fit_dev CE), adds the last and two late intermediates, re-runs A's and B's frozen probes from the run's frozen code copy, checks reproduction on one earlier checkpoint first, and applies the decision rule of [q-r2-after-judgment](#q-r2-after-judgment) item 3 unchanged. No tracked-file edits (the range-audit worker is editing R2 code on the control plane). Output `artifacts/r2-analysis-20261005-final/` of the code checkout.
