@@ -93,4 +93,16 @@ Recorded from a selection among the agent's options ([private, local](private/hu
 3. **Song time is enough.** Scopes are positions in the song, independent of inference chunks. Seconds-based difficulty cells stay. C7 is not a conflict.
 4. **Ranges: not answered.** The question was unclear. Provisional plan default: the frame reserves (lo, hi), stage 1 trains point targets, and the question stays open in v3.
 
+<a id="s-plan-v3"></a>
+## Plan v3, 2026-10-05
+
+A fresh Fable subagent wrote [r2-condition-plan-v3](r2-condition-plan-v3.md) (proposed; it supersedes v2 as the working plan). It adopts C1-C3, C8, G3 and G4 and amends C6 and G2:
+
+- **C6 (overlap):** overlap is defined within one kind only; an LN scope and a difficulty scope on the same rows both apply.
+- **G2 (η):** "hold" is not an η policy, because holding a value longer is just a longer scope.
+
+It adds ten rows of its own. The main one, N1: the token conditioner (`features.py:308-330`) shows intervals that have not started yet, so it is an announce form and is not admissible as the default. It also separates random, training and chart seeds, and adds an explicit-zero against unspecified lesion test. In §12 the questions are rewritten in plain language with chart examples; Q-B, Q-E, Q-F, Q-R (ranges) and Q-G block stages.
+
+The main thread reviewed the ruling table, §3, §7.7, stage R and §12. It spot-checked the token-conditioner claim and the separate LN-share definition in `report.py:46-48`, and found no verbatim copy of the private formulation. One point to revisit before stage R: its return-to-natural test compares with the organisation statistics before the override. The formulation does not tie the return to the seed's local statistics. The comparison should be distributional, against ρ-conditioned natural continuations from the same post-override history.
+
 Side observation: `docs/formulation/notation.md` ("Generation and optional controls") and `gameplay-state.md` ("Controls") predate the formulation. Their generation formula has no ρ and no request set, and they say an absent style request permits "the learned natural style distribution". Whether the formulation enters `docs/formulation/` is the human's call.
