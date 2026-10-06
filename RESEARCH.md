@@ -126,6 +126,10 @@ R2 v2 direction, 2026-10-06:
   - the phase-N config is accepted and the long-range memory is off;
   - the style pool is about 4,000-5,000 sections, so the Lens job misread the batches ([c-style-pool](artifacts/r2-phasen-and-lens-20261006.md#c-style-pool));
   - the style module must work with the generator, not only classify; an Astra job designs where it plugs in and in what form ([q-style-module](artifacts/r2-phasen-and-lens-20261006.md#q-style-module)).
+- Closeout, 2026-10-06 15:49 UTC: the handoff is [handoff-20261006-r2v2](artifacts/handoff-20261006-r2v2.md).
+  - Phase N is training on the mac from commit `3954031`: run `r2-phaseN-20261006`, healthy at 1.34M exposures.
+  - The style-module Astra job is still running.
+  - Next: review its report, finalise the local page for Lele Liu (memory now off), select the phase-N checkpoint. Phase C waits on the human's decisions.
 - Private sources: [prompt-4, local](artifacts/private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-4), [prompt-5, local](artifacts/private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-5).
 
 _Review: the focus, its two parts, the four decisions, the restart from R1 and the evaluation scope are the human's (2026-10-02, [private, local](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#answer-1), [restart](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#prompt-2), [scope](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#prompt-3)); the questions, the hypothesis, the design and the failure-mode reading are the agent's, not yet reviewed. The R1 verdict, the release-time decision and the preference direction are the human's (2026-10-03, [private, local](artifacts/private/human-inputs/41ba879c-870c-4368-9fa0-fb9fdf2ccce3.md#prompt-1)); their readings and the tensions named are the agent's._
