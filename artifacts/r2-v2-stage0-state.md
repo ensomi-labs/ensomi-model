@@ -30,6 +30,6 @@ Full evidence: [r2-v2-readiness-20261006](r2-v2-readiness-20261006.md) (stage-0 
   - in-run records hash the operating point without the recipe (O6);
   - the cost of whole-song proxy scopes is unmeasured (O7).
 
-**Explainer for the human** (private claude.ai page, built from the two reports): https://claude.ai/artifact/1C8NZMYVi1qkGoYn6nzPoE.
+**Explainer for the human:** [r2-architecture-20261006.html](r2-architecture-20261006.html), a self-contained local HTML page built from the two reports, with flow charts and a worked example you can step through. At the human's request it is not published anywhere ([private, local](private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-2)).
 
 **Status.** Nothing fixed, committed or run beyond the read-only checks above. The next step is the human's call.
