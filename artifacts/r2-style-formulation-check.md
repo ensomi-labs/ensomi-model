@@ -105,4 +105,16 @@ It adds ten rows of its own. The main one, N1: the token conditioner (`features.
 
 The main thread reviewed the ruling table, §3, §7.7, stage R and §12. It spot-checked the token-conditioner claim and the separate LN-share definition in `report.py:46-48`, and found no verbatim copy of the private formulation. One point to revisit before stage R: its return-to-natural test compares with the organisation statistics before the override. The formulation does not tie the return to the seed's local statistics. The comparison should be distributional, against ρ-conditioned natural continuations from the same post-override history.
 
+<a id="d-target-strength"></a>
+## Decision: targets only, with an optional strength (human, 2026-10-06)
+
+Source: [private, local](private/human-inputs/aa6818ba-9ce4-4d72-b1de-e7d78a7ffbee.md#prompt-2). This settles plan v3's Q-R and amends the formulation's "targets or ranges".
+
+- A property directive is a target. It is never a range.
+- The interface is to offer an optional strength for a target, for example LN share 0.2 at the default strength or a higher one. The human compares it to Lens prominence.
+- The first implementation trains and serves exact targets only. Strength is defined in the formulation and not built yet.
+- What strength means operationally is open; the formulation work is to propose it. It must stay distinct from priority (overlap resolution), from the target value and from sampling temperature.
+
+Next, per the human: an Opus subagent writes the style formulation into `docs/formulation/` and resolves its conflicts with the existing documents (worktree `~/wt/ensomi-model-formulation`, branch `docs/style-formulation` from `main` `178ea3c`). A separate Opus subagent then revises the implementation plan from that result.
+
 Side observation: `docs/formulation/notation.md` ("Generation and optional controls") and `gameplay-state.md` ("Controls") predate the formulation. Their generation formula has no ρ and no request set, and they say an absent style request permits "the learned natural style distribution". Whether the formulation enters `docs/formulation/` is the human's call.
