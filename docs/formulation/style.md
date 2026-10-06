@@ -143,16 +143,16 @@ Either directive may be omitted, but a request carries at least one.
   a window or span several.
 - $q^{\mathrm{style}}$ expresses organizational preferences, reference
   characteristics, or relative edits: requested assessments of named concepts,
-  characteristics taken from a style reference, or a change relative to the
-  style that would otherwise govern $S$. That style is the baseline, or a
-  lower-priority style directive whose scope overlaps. A directive declares the
-  attributes or characteristics it specifies; the others stay with the
+  characteristics taken from a style reference, or a change relative to what
+  generation would produce in $S$ without that directive. A directive declares
+  the attributes or characteristics it specifies; the others stay with the
   baseline. A directive whose specified characteristics cannot be separated,
   such as a reference that characterizes the whole organization, specifies
   every style attribute.
-- $q^{\mathrm{property}}$ is a set of property targets. Each target names a
-  property under a declared $\nu$, a target value $v$, and an optional
-  [strength](#target-strength). A target is one value, not a range.
+- $q^{\mathrm{property}}$ is a set of property targets, at most one for each
+  property. Each target names a property under a declared $\nu$, a target value
+  $v$, and an optional [strength](#target-strength). A target is one value, not
+  a range.
 - $\eta$ is the request's policy for transitions and composition: its
   [priority](#overlap-and-priority) and any
   [transition intervals](#activation-expiry-and-locality). The default $\eta$
@@ -165,25 +165,32 @@ whole, not necessarily every smaller window within it.
 
 ### Activation, expiry and locality
 
-Activation applies a request to future decisions. A request that enters
-$\mathscr U$ at a committed boundary $g_u$ governs only decisions after $g_u$,
-so its effective scope is
+Activation applies a request to future decisions only. A request is valid only
+if the committed boundary $g$ at which it enters $\mathscr U$ precedes its
+start:
 
 $$
-S_{\mathrm{eff}}=S\cap(g_u,T].
+g<a.
 $$
 
-A request present before its scope begins has $S_{\mathrm{eff}}=S$. Its targets
-concern $S_{\mathrm{eff}}$, including rows committed under the same request in
-earlier windows. Steering later rows of an active scope toward its section
-target is therefore not compensation.
+If $\eta$ declares a transition interval before $a$, $g$ must also precede
+that interval. At the start of generation $g=0^-$, so a scope may start at $0$;
+after a chart seed, a scope starts after $g_0$. Adding a request whose start
+is at or before $g$ is rejected. The whole scope of a valid request therefore lies after the committed prefix, and its targets
+concern $S$, including rows committed under the same request in earlier
+windows. Steering later rows of an active scope toward its section target is
+not compensation.
 
 A request expires when the committed boundary reaches the end of its scope.
-Cancellation removes it at a committed boundary before then, and its governed
-part ends at that boundary. Changing a directive is a cancellation followed by
-a new request at the same boundary. Expiry and cancellation remove the
-directive and leave committed history, ongoing holds, and the baseline
-unchanged.
+Cancellation removes it at a committed boundary $g'$ before then. A request
+cancelled before its start governs nothing. A request cancelled inside its
+scope governs only the decisions through $g'$; its targets cease to be
+objectives, and the record keeps the readout of its committed part, marked as
+cancelled rather than as a measure of adherence. A changed directive is a new
+request and must satisfy the validity rule: a replacement for a request
+cancelled at $g'$ starts after $g'$, and the time between $g'$ and that start
+is governed by neither. Expiry and cancellation remove the directive and leave
+committed history, ongoing holds, and the baseline unchanged.
 
 Outside its scope, generation sees nothing of a request unless its $\eta$
 declares a transition. For $u\in\mathscr U$ with scope $[a,b)$ and the default
@@ -206,27 +213,32 @@ $\eta$ may declare transition intervals next to $S$, such as a lead-in before
 $a$ or a release interval after $b$, together with how the request influences
 generation there. Transitions occur only in intervals that $\eta$ declares. A
 transition interval does not change $S$; targets and readouts still concern
-$S_{\mathrm{eff}}$.
+$S$.
 
 ### Overlap and priority
 
-Requests overlap when their effective scopes intersect. Overlapping directives
-on different quantities all apply: an LN-share target and a difficulty target,
-or style directives on different named concepts. Overlapping directives on the
-same quantity, such as two LN-share targets or two style directives that
-specify the same attribute, also remain objectives, each over its own section.
-Section targets on overlapping scopes can often be met jointly.
+Requests overlap when their scopes intersect. Adjacent scopes such as
+$[0,60)$ and $[60,90)$ do not overlap.
 
-The priority in $\eta$ orders overlapping requests whose directives cannot all
-be met. A higher-priority directive is followed first, and adherence to a
-lower-priority directive is never obtained at its expense. Overlapping
-directives on the same quantity require explicit, distinct priorities. A
-request set that lacks them is rejected rather than resolved by an implicit
-rule. Overlapping directives on different quantities may omit priorities; when
-they cannot all be met, no precedence applies. In every case the shortfall is
-declared in the [generation record](#generation-record), not silently applied.
-A caller who wants one directive alone to govern an overlap states the other
-request's scope without it.
+Overlapping directives on the same quantity are invalid: two targets for the
+same property, under any $\nu$, or two style directives that specify the same
+attribute. A request set that contains such a pair is rejected. There is no
+composition and no priority between them. A directive that specifies every
+style attribute therefore cannot overlap any other style directive. A caller who
+wants different values for one property in different parts of the song states
+scopes that do not overlap.
+
+Overlapping directives on different quantities all apply: an LN-share target
+and a difficulty target, a style directive and a property target, or style
+directives on different attributes. They can be correlated and may be jointly
+unattainable. Priority exists only for that case. The priority in $\eta$ orders
+overlapping requests whose directives on different quantities cannot all be
+met: the higher-priority request's directives are followed first, and adherence
+to a lower-priority request's directives is never obtained at their expense.
+Priority is optional. Directives within one request have no order among them,
+and when overlapping directives without an order cannot all be met, no
+precedence applies. In every case the shortfall is declared in the
+[generation record](#generation-record), not silently applied.
 
 Within its scope, a style directive takes precedence over the baseline for the
 attributes it specifies. This is not a priority relation: the baseline is not a
@@ -244,8 +256,8 @@ request.
 | Demand request | None | A request under the response specification |
 | Chart seed | The empty prefix at $0^-$ | A supplied committed pair $(H_0,g_0)$ |
 
-An explicit zero is a target. LN share $0$ asks that every head in
-$S_{\mathrm{eff}}$ be a tap; since an undefined readout is not zero, a scope
+An explicit zero is a target. LN share $0$ asks that every head in $S$ be a
+tap; since an undefined readout is not zero, a scope
 with no head does not meet it. Explicit absence of a named concept asks that
 the realized section be assessed absent for that concept; a baseline in which
 the concept is rare does not make that request. Neither is a release.
@@ -254,26 +266,26 @@ Releasing a directive makes its attribute unspecified.
 ## Target strength
 
 A target's strength is an ordered request level for how strongly the target
-governs generation in its scope: how far generation may depart from what it
-would otherwise produce in order to bring the readout closer to the target
-value. Strength does not change the target value, $\nu$, the scope, $\eta$, or
-the priority.
+governs generation in its scope, weighed against everything else generation
+balances. Strength does not change the target value, $\nu$, the scope, $\eta$,
+or the priority.
 
-For a target $\tau$, let the reference law $q_\tau$ be generation under the
-same inputs with $\tau$ removed from its request.
-
-- **Default.** An unspecified strength is the default level. At the default,
-  the target is a plain statement about the desired result: generation should
-  produce what $q_\tau$ produces among results whose readout under $\nu$
-  matches the target value to the resolution that $\nu$ declares. The
-  deviation that a generator leaves at the default is reported, not hidden.
-- **Higher levels.** A higher level asks for a smaller deviation than the
-  default leaves and permits departing further from $q_\tau$ to obtain it, at
-  the cost of fidelity to the baseline, musical correspondence, the
-  organization of unspecified attributes, and variation across random seeds. With every other input
-  fixed, raising the strength must not increase the expected deviation. Where
-  the default already reaches the resolution of $\nu$, a higher level has
-  nothing left to reduce.
+- **Default.** An unspecified strength is the default level. The default is the
+  generator's primary operating point: the one it is trained and validated
+  for, which balances overall playability, style, and control over every
+  active directive. It is neither the target met exactly nor maximal
+  adherence: at the default, a readout may deviate from the target where
+  meeting it would cost more of that balance. Default adherence is therefore a
+  measured property of a generator, reported for each property; this
+  formulation does not fix its value.
+- **Higher levels.** A higher level weights the target more against that
+  balance. It asks for a smaller deviation than the default leaves and accepts
+  a greater cost in playability, fidelity to the baseline, musical
+  correspondence, the organization of unspecified attributes, and variation
+  across random seeds. It never trades legality or committed obligations. With
+  every other input fixed, raising the strength must not increase the expected
+  deviation. Where the default already reaches the
+  resolution of $\nu$, a higher level has nothing left to reduce.
 - **Order, not scale.** Levels are ordered. They are not equally spaced,
   probabilities, or numerical weights. A numerical strength scale needs its
   own declared calibration for each property. No level below the default is
@@ -286,13 +298,13 @@ Strength is distinct from the other request parameters:
 - **Target value.** The value states the desired readout and the strength how
   strongly it is pursued. LN share $0.2$ at a higher strength requests no more
   long notes than LN share $0.2$ at the default.
-- **Priority.** Priority orders overlapping requests that cannot all be met.
-  Strength trades one target against its reference law $q_\tau$, not against
-  other directives: a higher-strength target of lower priority still yields to
-  a higher-priority directive.
+- **Priority.** Priority orders overlapping requests on different quantities
+  that cannot all be met. Strength trades one target against the default
+  balance, not against other directives: a higher-strength target of lower
+  priority still yields to a higher-priority directive.
 - **Transition policy.** $\eta$ decides where and when the request applies.
-  The stated strength applies throughout $S_{\mathrm{eff}}$; behavior in a
-  transition interval is whatever $\eta$ declares there.
+  The stated strength applies throughout $S$; behavior in a transition
+  interval is whatever $\eta$ declares there.
 - **Sampling temperature.** Temperature changes the randomness of every
   decision; strength concerns the adherence of one target. A strength
   comparison holds temperature fixed.
@@ -303,18 +315,18 @@ Strength is distinct from the other request parameters:
   prominent characteristic of the section, a prominent realized concept does
   not reveal a strength, and the ordinal assessment scale does not define a
   strength scale.
-- **Section scope.** Strength concerns the target over $S_{\mathrm{eff}}$. It
-  does not make the target apply to every smaller window.
+- **Section scope.** Strength concerns the target over $S$. It does not make
+  the target apply to every smaller window.
 
-A single readout cannot show strength. An effect is measured by generations
-that differ only in one target's strength, under the same random seeds. The
-effect is the reduction of the deviation distribution beyond the variation
-between seeds. The cost is the change in what strength may trade: style
-readouts against the baseline, musical correspondence, other targets'
-deviations, and variation within the identity. A reduction obtained by
-collapsing variation across seeds shows in the last of these. When the default
-deviation is already at the resolution of $\nu$, no effect is expected, and its
-absence is not a failure.
+A single readout cannot show strength. An effect is measured against the
+default: generations that differ only in one target's strength, under the
+same random seeds. The effect is the reduction of the deviation distribution
+beyond the variation between seeds. The cost is the change in what strength
+may trade: playability judgments, style readouts against the baseline, musical
+correspondence, other targets' deviations, and variation within the identity.
+A reduction obtained by collapsing variation across seeds shows in the last of
+these. When the default deviation is already at the resolution of $\nu$, no
+effect is expected, and its absence is not a failure.
 
 [Controls](gameplay-state.md#controls) separates style adherence from requested
 style tendency. Adherence of a style directive is a quantity of the same kind
@@ -401,8 +413,10 @@ produce recognizably different charts, and each identity supports multiple
 coherent realizations. Changing a property target preserves identity where
 compatible; changing style preserves active property targets where compatible.
 Local control and its withdrawal preserve continuity, playability, and
-committed obligations. Playability is a quality judgment; it does not change
-the legal continuation set.
+committed obligations. A higher target strength may lower playability as
+[Target strength](#target-strength) describes; continuity and committed
+obligations hold at every level. Playability is a quality judgment; it does
+not change the legal continuation set.
 
 The target is **diversity between identities, variation within identities,
 composable control over organization and properties, and interpretable
@@ -417,10 +431,10 @@ generation records:
   established from a chart seed, or sampled), and any baseline update with its
   boundary;
 - the chart seed and the random seed;
-- every request with its scope, effective scope, directives, $\nu$, target
-  values, strengths, and $\eta$;
-- for each target, its readout under $\nu$ over $S_{\mathrm{eff}}$ and the
-  deviation, with undefined readouts recorded as undefined;
+- every request with its scope, directives, $\nu$, target values, strengths,
+  and $\eta$, and the boundary of any cancellation;
+- for each target, its readout under $\nu$ over $S$ and the deviation, with
+  undefined readouts recorded as undefined and cancelled targets marked;
 - overlaps that could not all be met, and the shortfall of each directive;
 - objects that cross the end of a scope, such as a hold started inside it and
   closed after it, so that a readout can separate persistence from
@@ -430,7 +444,7 @@ generation records:
 
 | Question | Required comparison |
 | --- | --- |
-| Does a target hold? | Readouts under $\nu$ over $S_{\mathrm{eff}}$ against the target across random seeds, with the deviation distribution and undefined readouts kept separate |
+| Does a target hold? | Readouts under $\nu$ over $S$ against the target across random seeds, with the deviation distribution and undefined readouts kept separate; at the default level this distribution is the generator's reported adherence, not a pass threshold |
 | Does a higher strength have an effect? | The same inputs at two strengths under the same random seeds: the deviation and every cost readout of [Target strength](#target-strength) |
 | Is a request invisible outside its scope? | Generation with and without the request: the same law before $a$, and the same conditional law after $b$ given the same history |
 | Is a released property free? | Readouts after the scope against natural continuations from the same post-scope history: no hold of the released value and no shift opposite to it |

@@ -383,11 +383,13 @@ amount or for a strength.
 
 Style directives, property targets, and demand requests can be correlated or
 incompatible. Separate interfaces do not guarantee independently achievable
-effects. Generation must preserve legality and committed decisions. Overlapping
-requests in $\mathscr U$ compose under the priorities of
-[style.md](style.md#overlap-and-priority), with a declared shortfall when they
-cannot all be met. A demand request has no precedence relative to them until
-its interface is defined; a joint shortfall is declared.
+effects. Generation must preserve legality and committed decisions. In
+$\mathscr U$, overlapping directives on the same quantity are invalid, and
+overlapping directives on different quantities compose under the optional
+priorities of [style.md](style.md#overlap-and-priority), with a declared
+shortfall when they cannot all be met. A demand request has no precedence
+relative to them until its interface is defined; a joint shortfall is
+declared.
 
 Neither control requires a separate planner or an explicit demand trajectory
 before row generation. When a representation is available, its state and

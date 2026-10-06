@@ -40,25 +40,25 @@ supervision; they do not directly label numerical demand.
 
 Style dimensions are open-ended. Named concepts anchor part of the style
 space, and references and learned organization supply the rest. The
-[style formulation](style.md) states what identity, control, and readouts must satisfy without
-fixing a representation of the baseline style or a calibrated strength scale.
+[style formulation](style.md) states what identity, control, and readouts must
+satisfy without fixing a representation of the baseline style or a calibrated
+strength scale.
 
 ## Authority
 
 The chart language and commit rules are formal constraints. The canonical
 gameplay profile and annotation meanings are declared conventions. Request
-semantics are interface requirements: scope membership, locality outside a
-scope, priority, release, and the shared definition of targets and readouts
-under declared measurement semantics. Response definitions, representation
-adequacy, style representations, the calibration of strength levels, and
-realized control behavior have the research status stated in their owning
-sections.
+semantics are interface requirements: scope membership, request validity,
+locality outside a scope, priority, release, and the shared definition of
+targets and readouts under declared measurement semantics. Response
+definitions, representation adequacy, style representations, a generator's
+default operating point, the calibration of strength levels, and realized
+control behavior have the research status stated in their owning sections.
 
 Concrete candidate generators, state encoders, style encoders, dynamics,
 training objectives, pooling models, decoding methods, and experimental
-results belong in
-[research documentation](../research/). A particular implementation's reachable
-charts do not redefine the legal chart space.
+results belong in [research documentation](../research/). A particular
+implementation's reachable charts do not redefine the legal chart space.
 
 The [repository README](../../README.md) defines the V3 status and the boundary
 around retained pre-V3 systems. Legacy code and local generated assets are not

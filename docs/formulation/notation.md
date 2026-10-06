@@ -223,7 +223,8 @@ optional argument. The inputs after $W$ have different meanings:
 - $\mathscr U$ is the finite, possibly empty, set of scoped requests. A request
   has a scope in song time, independent of $W$, and carries a style directive,
   a set of chart-property targets, or both, with a policy for transitions and
-  priority.
+  priority. A request is valid only if it is added while the committed
+  boundary precedes the start of its scope.
 - $c_W^{\mathrm{demand}}$ expresses requested gameplay-demand responses under a
   declared response specification.
 
@@ -237,9 +238,10 @@ Neither the baseline nor any request fixes a row or overrides committed
 decisions and long-note obligations. Requests may conflict with each other or
 be unattainable under the current boundary and implementation support.
 Generation may seek a legal compromise or report that a request cannot be met;
-[Overlap and priority](style.md#overlap-and-priority) defines how overlapping
-requests compose and how a shortfall is declared. This notation does not assume
-numerical demand coordinates, a style score scale, or a style representation.
+[Overlap and priority](style.md#overlap-and-priority) defines which overlapping
+requests are invalid, how the others compose, and how a shortfall is
+declared. This notation does not assume numerical demand coordinates, a style
+score scale, or a style representation.
 
 A property query reads a chart $\bar H$ over a scope $S$:
 
