@@ -153,6 +153,7 @@ svg.dg.narrow{min-width:560px}
 .dg .dec.mask{fill:url(#hatch);stroke:var(--warn)}
 .dg .dec.exit{fill:var(--surface);stroke:var(--cond);stroke-dasharray:3 2}
 .dg .hatchline{stroke:var(--warn);stroke-width:1.4}
+.dg .frz{stroke:var(--muted);stroke-width:1.2}
 .dg text.k{font-family:var(--f-mono);font-size:10.5px;text-anchor:middle}
 .dg text.k.inv{fill:#fff}
 .dg .cand{stroke:var(--hold);stroke-width:1.2}
@@ -178,24 +179,20 @@ a{color:var(--accent)}
   <a href="#network">5 The network</a>
   <a href="#requests">6 Requests and rule L</a>
   <a href="#generation">7 Generation loop</a>
-  <a href="#training">8 Training</a>
+  <a href="#training">8 Training: two phases</a>
   <a href="#evaluation">9 Evaluation and selection</a>
-  <a href="#delta">10 What v2 changed</a>
-  <a href="#status">11 Where v2 stands</a>
-  <a href="#open">12 Open ML questions</a>
 </nav></aside>
 
 <main>
 <header>
-  <div class="eyebrow">ensomi-model · branch r2/train · 7d9640a + uncommitted v2 stage-0 tree · read 2026-10-06</div>
+  <div class="eyebrow">ensomi · R2 chart generator · architecture snapshot, 2026-10-06</div>
   <h1>R2 generator architecture</h1>
   <p class="lede">R2 writes a 4K osu!mania chart one head row at a time. It is told <em>when</em> the rows are (the head skeleton), the BPM grid and the song length. It gets no audio and no release times. At each head row it picks what all four lanes do and, for lanes holding a long note, where in the gap before that row the note ends. Requests for LN share or difficulty apply over song-time scopes, and a locality rule decides which decisions may read them.</p>
   <div class="chips">
     <span class="chip"><b>2,404,724</b> parameters</span>
     <span class="chip"><b>625</b> joint row actions + a release pointer</span>
     <span class="chip"><b>256</b>-decision training windows</span>
-    <span class="chip warn">v2 not trained yet</span>
-    <span class="chip bad">tests: 19 failed · 215 passed</span>
+    <span class="chip"><b>2</b> training phases: natural, then conditions</span>
   </div>
 </header>
 
@@ -252,7 +249,7 @@ a{color:var(--accent)}
       <rect class="box out" x="790" y="316" width="234" height="60" rx="4"/><text class="t" x="802" y="336">Generation record</text><text class="s" x="802" y="352">requests, track, intended vs realised,</text><text class="s" x="802" y="367">operating point, seeds</text>
     </svg>
     </div>
-    <figcaption>One chart from inputs to file. The skeleton fixes where the rows are; the loop decides what goes on them. Requests (orange) reach the network only through rule L, one decision at a time. Source: <span class="ref">generate.py:114-136, sampling.py:46-121, request_set.py:212-259</span>.</figcaption>
+    <figcaption>One chart from inputs to file. The skeleton fixes where the rows are; the loop decides what goes on them. Requests (orange) reach the network only through rule L, one decision at a time. Source: <span class="ref">generate.py, sampling.py, request_set.py</span>.</figcaption>
   </figure>
 
   <ul class="facts">
@@ -261,7 +258,7 @@ a{color:var(--accent)}
     <li><b>Releases come from a pointer</b><span>Release times are picked from a finite set of grid-snapped candidates in the gap, lane by lane, averaged over both mirror orientations.</span></li>
     <li><b>Memory is a causal TCN</b><span>Dilated convolutions over committed rows see the last 511 rows. A landmark read attends to every 64th row. The TCN holds 83% of the weights.</span></li>
     <li><b>Conditions are scoped</b><span>LN share and difficulty (tiled star) targets apply over [a, b) in song time. They enter by FiLM, only for decisions that rule L lets read them.</span></li>
-    <li><b>Training is teacher-forced CE</b><span>256-decision windows from ranked and loved 2–6★ charts, with condition tracks drawn from each chart's own measured values. Condition terms score only decisions that can see them.</span></li>
+    <li><b>Training has two phases</b><span>Phase N learns natural structure by teacher-forced CE on 256-decision windows of ranked and loved 2–6★ charts. Phase C then trains condition-following on top, with the natural part frozen or held near phase N by a KL term.</span></li>
   </ul>
 </section>
 
@@ -271,22 +268,21 @@ a{color:var(--accent)}
   <div class="tablewrap"><table>
     <thead><tr><th>Given to the generator</th><th>Form</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>Head skeleton H</td><td><code>head_ms</code> [K], ms, strictly increasing</td><td>Any skeleton works in <code>generate()</code>; the CLI and training take a real chart's distinct head times, rows under 2 ms apart merged into the earlier one. <span class="ref">cache.py:83-91, generate.py:160-161</span></td></tr>
-      <tr><td>BPM segments</td><td><code>GridArrays</code>: offsets, beat length, beat origins, meters</td><td>Built from red lines and head times only. "Beats" are canonical: each segment's BPM is folded by powers of 2 into [80, 160). <span class="ref">common.py:69-111</span></td></tr>
+      <tr><td>Head skeleton H</td><td><code>head_ms</code> [K], ms, strictly increasing</td><td>Any skeleton works in <code>generate()</code>; the CLI and training take a real chart's distinct head times, rows under 2 ms apart merged into the earlier one. <span class="ref">cache.py, generate.py</span></td></tr>
+      <tr><td>BPM segments</td><td><code>GridArrays</code>: offsets, beat length, beat origins, meters</td><td>Built from red lines and head times only. "Beats" are canonical: each segment's BPM is folded by powers of 2 into [80, 160). <span class="ref">common.py</span></td></tr>
       <tr><td>Song length T</td><td>ms</td><td>Lets EOS close holds after the last row.</td></tr>
-      <tr><td>Chart seed (optional)</td><td>first s decisions: codes [s,4], gap ms [s,4]</td><td>Replay-checked; its last row is the committed frontier g₀. <span class="ref">sampling.py:64-66</span></td></tr>
+      <tr><td>Chart seed (optional)</td><td>first s decisions: codes [s,4], gap ms [s,4]</td><td>Replay-checked; its last row is the committed frontier g₀. <span class="ref">sampling.py</span></td></tr>
       <tr><td>Requests</td><td>scope [a, b), with an LN-share target, a difficulty target, or both</td><td>Validated, then turned into the effective track (§6).</td></tr>
       <tr><td>Random seed</td><td>int, default 954</td><td>One <code>torch.Generator</code> per continuation.</td></tr>
-      <tr><td>Baseline style ρ</td><td>must be <code>None</code></td><td>Reserved slot; raises if set. <span class="ref">sampling.py:32-37</span></td></tr>
     </tbody>
   </table></div>
   <div class="tablewrap"><table>
     <thead><tr><th>Produced</th><th>Form</th><th>Where</th></tr></thead>
     <tbody>
-      <tr><td>Decisions</td><td>codes 0–4 [n,4]; gap release ms [n,4], NaN when absent; n = K + 1 for a full chart</td><td><span class="ref">sampling.py:121</span></td></tr>
-      <tr><td>Hit objects</td><td>decisions replayed into rows (gap closes sorted, equal times coalesced), then taps and holds</td><td><span class="ref">state.py:66-119, 157-172</span></td></tr>
-      <tr><td><code>.osu</code></td><td>minimal v14 file: timing points from the grid, hit objects at x = 64 + 128·lane; written only when the legality check passes</td><td><span class="ref">export.py:25-54</span></td></tr>
-      <tr><td>Generation record</td><td>JSON: code, checkpoint, ν, operating point, decoding, rule L version, seeds, requests, effective track, per-target readouts and deviations, co-active pairs, defects</td><td><span class="ref">generate.py:94-111</span></td></tr>
+      <tr><td>Decisions</td><td>codes 0–4 [n,4]; gap release ms [n,4], NaN when absent; n = K + 1 for a full chart</td><td><span class="ref">sampling.py</span></td></tr>
+      <tr><td>Hit objects</td><td>decisions replayed into rows (gap closes sorted, equal times coalesced), then taps and holds</td><td><span class="ref">state.py</span></td></tr>
+      <tr><td><code>.osu</code></td><td>minimal v14 file: timing points from the grid, hit objects at x = 64 + 128·lane; written only when the legality check passes</td><td><span class="ref">export.py</span></td></tr>
+      <tr><td>Generation record</td><td>JSON: code, checkpoint, ν, operating point, decoding, rule L version, seeds, requests, effective track, per-target readouts and deviations, co-active pairs, defects</td><td><span class="ref">generate.py</span></td></tr>
     </tbody>
   </table></div>
 </section>
@@ -294,7 +290,7 @@ a{color:var(--accent)}
 <!-- 3 -->
 <section id="decision">
   <h2><span class="n">3</span>The decision unit</h2>
-  <p>Decision k belongs to head row k. It decides every LN release in (t<sub>k−1</sub>, t<sub>k</sub>], on the row or inside the gap, together with the new taps and LN heads at t<sub>k</sub>. Inside the model this happens in two steps. One joint choice over the four lane codes (625 actions) fixes, for each held lane, whether it keeps holding, releases on the row or releases in the gap, and for each lane whether a tap or LN head starts at t<sub>k</sub>. Then the release time of each lane that releases in the gap is picked from the candidates, lane by lane (§4). Decision 0 has no gap. The EOS decision sits at the song length T, which is given: its row action is forced, and only the release times of lanes still held are chosen. With nothing held it outputs nothing. Every row must place at least one head. <span class="ref">common.py:7-18, state.py:49-101, sampling.py:84-105</span></p>
+  <p>Decision k belongs to head row k. It decides every LN release in (t<sub>k−1</sub>, t<sub>k</sub>], on the row or inside the gap, together with the new taps and LN heads at t<sub>k</sub>. Inside the model this happens in two steps. One joint choice over the four lane codes (625 actions) fixes, for each held lane, whether it keeps holding, releases on the row or releases in the gap, and for each lane whether a tap or LN head starts at t<sub>k</sub>. Then the release time of each lane that releases in the gap is picked from the candidates, lane by lane (§4). Decision 0 has no gap. The EOS decision sits at the song length T, which is given: its row action is forced, and only the release times of lanes still held are chosen. With nothing held it outputs nothing. Every row must place at least one head. <span class="ref">common.py, state.py, sampling.py</span></p>
 
   <div class="twocol">
     <div>
@@ -323,7 +319,7 @@ a{color:var(--accent)}
           <tr><td>EOS</td><td class="num">1</td></tr>
         </tbody>
       </table></div>
-      <p class="ref">Counted on the mac with <code>action_support_mask</code>. Masked actions get −∞ before the log-softmax. <span>model.py:254-257</span></p>
+      <p class="ref">Counted with <code>action_support_mask</code>. Masked actions get −∞ before the log-softmax. model.py</p>
     </div>
   </div>
 
@@ -373,7 +369,7 @@ a{color:var(--accent)}
       <text class="s" x="70" y="228">Each span is the gap the decision may close in, ending at the row it fills (dot).</text>
     </svg>
     </div>
-    <figcaption>Blue: taps. Green: long notes, head placed by one decision and tail by a later one. The tail at 1250 ms belongs to decision 1, though it lies before row 1500. Source: mac job <span class="ref">20261006-105304-r2-example</span>.</figcaption>
+    <figcaption>Blue: taps. Green: long notes, head placed by one decision and tail by a later one. The tail at 1250 ms belongs to decision 1, though it lies before row 1500. Computed with the generator code.</figcaption>
   </figure>
   <div class="tablewrap"><table id="steptable">
     <thead><tr><th>k</th><th>Row / gap</th><th>Held entering</th><th>Codes (lane 0–3)</th><th>Gap release</th><th class="num">Legal</th><th class="num">Candidates</th></tr></thead>
@@ -389,7 +385,7 @@ a{color:var(--accent)}
 <!-- 4 -->
 <section id="release">
   <h2><span class="n">4</span>Release times</h2>
-  <p>A release is never a free real number. For a gap (a, b) of at least 2 ms, the candidates are the 1/32-beat and 1/24-beat grid positions strictly inside it, the midpoint, and the points 1/8 and 1/4 beat before the next row, each rounded to the millisecond. The midpoint guarantees the set is never empty. In training, source releases snap to the nearest candidate, and a release exactly on the next row becomes code 1. <span class="ref">candidates.py:58-118, cache.py:121-133</span></p>
+  <p>A release is never a free real number. For a gap (a, b) of at least 2 ms, the candidates are the 1/32-beat and 1/24-beat grid positions strictly inside it, the midpoint, and the points 1/8 and 1/4 beat before the next row, each rounded to the millisecond. The midpoint guarantees the set is never empty. In training, source releases snap to the nearest candidate, and a release exactly on the next row becomes code 1. <span class="ref">candidates.py, cache.py</span></p>
   <figure>
     <div class="scroll">
     <svg class="dg narrow" viewBox="0 0 760 140" role="img" aria-label="The 47 release candidates in the gap from 1000 to 1500 ms at 120 BPM: 1/32-beat and 1/24-beat grid points, with the midpoint, quarter-before and eighth-before points marked.">
@@ -411,13 +407,13 @@ a{color:var(--accent)}
   <h3>Several lanes closing in one gap</h3>
   <p>A chord can release together or apart. The lanes that close in a gap are scored one after another as directed factors. Each factor sees where earlier releases of the same decision landed, and which lanes release on the row, through 28 relation features per candidate (4 lane slots × 7). The order is lane 0 → 3 in one orientation and 3 → 0 in the mirrored one, and the release likelihood is the average of the two orientations:</p>
   <div class="formula">log Q = logsumexp( Σ log q_fwd , Σ log q_mirrored ) − log 2        (0 when nothing closes in the gap)</div>
-  <p>That makes a decision's probability exactly mirror-equivariant. Sampling flips a fair coin for the orientation, then samples lane by lane in its order. <span class="ref">model.py:289-309, sampling.py:93-105, tests/r2/test_mirror.py</span></p>
+  <p>That makes a decision's probability exactly mirror-equivariant. Sampling flips a fair coin for the orientation, then samples lane by lane in its order. <span class="ref">model.py, sampling.py, tests/r2/test_mirror.py</span></p>
 </section>
 
 <!-- 5 -->
 <section id="network">
   <h2><span class="n">5</span>The network</h2>
-  <p>One forward pass scores a window of decisions in teacher forcing; generation runs the same modules one decision at a time with a cached TCN. The two hands are processed in parallel with shared weights: hand 0 lists lanes 0, 1, 2, 3 and hand 1 lists 3, 2, 1, 0, so mirroring a chart swaps the hands. <span class="ref">model.py:226-287, common.py:3-5</span></p>
+  <p>One forward pass scores a window of decisions in teacher forcing; generation runs the same modules one decision at a time with a cached TCN. The two hands are processed in parallel with shared weights: hand 0 lists lanes 0, 1, 2, 3 and hand 1 lists 3, 2, 1, 0, so mirroring a chart swaps the hands. <span class="ref">model.py, common.py</span></p>
   <figure>
     <div class="scroll">
     <svg class="dg" viewBox="0 0 1000 640" role="img" aria-label="Forward pass: history tokens go through a causal TCN; its previous output and an exact-state MLP over query features are fused, read landmarks, and are modulated by FiLM from condition frames; the result feeds a 625-way joint row head and a release pointer that also reads candidate features, placement relations and frames at the candidate time; the two log-probabilities add.">
@@ -438,7 +434,7 @@ a{color:var(--accent)}
       <path class="edge" d="M430,240 V268" marker-end="url(#ah2)"/>
       <path class="edge" d="M170,140 H140 V292 H168" marker-end="url(#ah2)"/><text class="m" x="134" y="222" text-anchor="end">every</text><text class="m" x="134" y="236" text-anchor="end">64th</text>
       <rect class="box cond" x="16" y="340" width="126" height="64" rx="4"/><text class="t c" x="26" y="360">Condition</text><text class="t c" x="26" y="376">frames at t_k</text><text class="m" x="26" y="394">V_k only · 68</text>
-      <rect class="box" x="170" y="344" width="520" height="44" rx="4"/><text class="t" x="182" y="363">FiLM</text><text class="s" x="182" y="380">z = h + γ ⊙ LayerNorm(h) + δ, same (γ, δ) for both hands</text>
+      <rect class="box" x="170" y="344" width="520" height="44" rx="4"/><text class="t" x="182" y="363">FiLM</text><text class="s" x="182" y="380">z = h + γ ⊙ LayerNorm(h) + δ; identity when no request is read</text>
       <path class="edge" d="M430,314 V342" marker-end="url(#ah2)"/>
       <path class="edge cond" d="M142,366 H168" marker-end="url(#ah2c)"/>
       <rect class="box acc" x="170" y="420" width="250" height="56" rx="4"/><text class="t a" x="182" y="441">Joint row head</text><text class="s" x="182" y="459">25 × 25 hand vocab, rank-16 coupling</text>
@@ -460,18 +456,18 @@ a{color:var(--accent)}
       <path class="edge" d="M575,550 V582" marker-end="url(#ah2)"/>
     </svg>
     </div>
-    <figcaption>Blue boxes hold most of the learned weight; orange marks where conditions enter. Conditions never enter the history tokens, so a request reaches later decisions only through what was already committed. Source: <span class="ref">model.py:183-370</span>.</figcaption>
+    <figcaption>Blue boxes hold most of the learned weight; orange marks where conditions enter. Conditions never enter the history tokens, so a request reaches later decisions only through what was already committed. Source: <span class="ref">model.py</span>.</figcaption>
   </figure>
 
   <h3>What each input carries</h3>
-  <p>Every time difference enters through the same transform ψ: a clipped linear term and a signed log term, once in ms and once in canonical beats. <span class="ref">common.py:54-62</span></p>
+  <p>Every time difference enters through the same transform ψ: a clipped linear term and a signed log term, once in ms and once in canonical beats. <span class="ref">common.py</span></p>
   <div class="tablewrap"><table>
     <thead><tr><th>Input</th><th class="num">Width</th><th>Contents</th><th>Source</th></tr></thead>
     <tbody>
-      <tr><td>History token (per committed row, per hand)</td><td class="num">100</td><td>Per lane (19 × 4): code one-hot, held, released, release time relative to this row, the previous row and the hold's start. Shared (24): gap to previous row, time since first row, beat phase at 1/4/16 beats, counts of heads and LN heads placed. No condition input.</td><td><span class="ref">features.py:170-210</span></td></tr>
-      <tr><td>Query (per decision, per hand)</td><td class="num">150</td><td>Lane clocks (15 × 4): held, LN age, time since last attack and last release. Shared (20): gap, time left to T, progress, first and EOS bits, phase, BPM, meter. Density (6): head rows in the next 1–32 beats. Lookahead (64): the next 16 inter-row gaps.</td><td><span class="ref">features.py:213-262</span></td></tr>
-      <tr><td>Release candidate</td><td class="num">34 + 28</td><td>Candidate features (§4) plus relations to the releases already placed in the same decision.</td><td><span class="ref">candidates.py:22-108, features.py:447-460</span></td></tr>
-      <tr><td>Condition frame (per kind)</td><td class="num">17</td><td>Target value; distance to scope start and end; progress through the scope; four committed statistics (LN: head and LN-head counts and ratio; difficulty: chord size, same-lane repeat rate, held-lane occupancy, LN share); remaining head rows; active flag; a reserved lead-in channel, zero by default.</td><td><span class="ref">features.py:328-369</span></td></tr>
+      <tr><td>History token (per committed row, per hand)</td><td class="num">100</td><td>Per lane (19 × 4): code one-hot, held, released, release time relative to this row, the previous row and the hold's start. Shared (24): gap to previous row, time since first row, beat phase at 1/4/16 beats, counts of heads and LN heads placed. No condition input.</td><td><span class="ref">features.py</span></td></tr>
+      <tr><td>Query (per decision, per hand)</td><td class="num">150</td><td>Lane clocks (15 × 4): held, LN age, time since last attack and last release. Shared (20): gap, time left to T, progress, first and EOS bits, phase, BPM, meter. Density (6): head rows in the next 1–32 beats. Lookahead (64): the next 16 inter-row gaps.</td><td><span class="ref">features.py</span></td></tr>
+      <tr><td>Release candidate</td><td class="num">34 + 28</td><td>Candidate features (§4) plus relations to the releases already placed in the same decision.</td><td><span class="ref">candidates.py, features.py</span></td></tr>
+      <tr><td>Condition frame (per kind)</td><td class="num">17</td><td>Target value; distance to scope start and end; progress through the scope; four committed statistics (LN: head and LN-head counts and ratio; difficulty: chord size, same-lane repeat rate, held-lane occupancy, LN share); remaining head rows; active flag; a reserved lead-in channel, zero by default.</td><td><span class="ref">features.py</span></td></tr>
     </tbody>
   </table></div>
   <p>A kind with no visible interval is all zeros, so "no request" differs from an explicit target of 0 (value −1, active 1). Two kinds × two roles (row time, candidate time) × 17 give the FiLM input of 68.</p>
@@ -479,15 +475,15 @@ a{color:var(--accent)}
   <h3>Where the parameters are</h3>
   <div class="bars" id="bars" aria-label="Parameters per module">
     <div class="bar" tabindex="0"><span class="lab">Causal TCN</span><span class="track"><span class="fill" style="width:100%;display:block"></span></span><span class="val">1,991,552 · 82.8%</span><span class="tip">8 blocks: gated causal conv 128→256 (k = 3), then 128→512→128 MLP</span></div>
-    <div class="bar unused" tabindex="0"><span class="lab">Token conditioner</span><span class="track"><span class="fill" style="width:5.13%;display:block"></span></span><span class="val">102,144 · 4.2%</span><span class="tip">Built always, unused on the default FiLM path; its code path is broken (§11)</span></div>
+    <div class="bar unused" tabindex="0"><span class="lab">Token conditioner</span><span class="track"><span class="fill" style="width:5.13%;display:block"></span></span><span class="val">102,144 · 4.2%</span><span class="tip">An alternative cross-attention conditioner; built, but unused on the default FiLM path</span></div>
     <div class="bar" tabindex="0"><span class="lab">Release pointer</span><span class="track"><span class="fill" style="width:4.05%;display:block"></span></span><span class="val">80,587 · 3.4%</span><span class="tip">pointer_in 307→128, relations 28→128, out 128→128, candidate MLP 34→128, code embedding</span></div>
     <div class="bar" tabindex="0"><span class="lab">Landmark read</span><span class="track"><span class="fill" style="width:3.31%;display:block"></span></span><span class="val">65,920 · 2.7%</span><span class="tip">query, key, value 128→128; zero-initialised output</span></div>
     <div class="bar" tabindex="0"><span class="lab">Fuse</span><span class="track"><span class="fill" style="width:2.51%;display:block"></span></span><span class="val">49,920 · 2.1%</span><span class="tip">LayerNorm(256) → 128 → 128</span></div>
-    <div class="bar" tabindex="0"><span class="lab">FiLM</span><span class="track"><span class="fill" style="width:2.11%;display:block"></span></span><span class="val">42,112 · 1.8%</span><span class="tip">68 → 128 → 256 (γ, δ), last layer zero-initialised</span></div>
+    <div class="bar" tabindex="0"><span class="lab">FiLM</span><span class="track"><span class="fill" style="width:2.11%;display:block"></span></span><span class="val">42,112 · 1.8%</span><span class="tip">68 → 128 → 256 (γ, δ), last layer zero-initialised; width and depth configurable</span></div>
     <div class="bar" tabindex="0"><span class="lab">Joint row head</span><span class="track"><span class="fill" style="width:1.84%;display:block"></span></span><span class="val">36,649 · 1.5%</span><span class="tip">unaries 128→25 per hand, coupling 128→16×16 per hand</span></div>
     <div class="bar" tabindex="0"><span class="lab">Exact-state MLP</span><span class="track"><span class="fill" style="width:1.80%;display:block"></span></span><span class="val">35,840 · 1.5%</span><span class="tip">150 → 128 → 128</span></div>
   </div>
-  <p class="ref">Total 2,404,724, counted on the mac (job 20261006-105046-r2-paramcount). Default config: hidden 128, 8 TCN levels, expansion 4, rank 16, landmark stride 64. The constructor refuses more than 4,500,000. v1 had 2,408,308 by the same arithmetic. <span>model.py:33-64, 159-163</span></p>
+  <p class="ref">Total 2,404,724 with the default config: hidden 128, 8 TCN levels, expansion 4, rank 16, landmark stride 64. Phase N trains the 2,260,468 natural parameters; the conditioning path is 42,112 at its default size. model.py</p>
 
   <h3>How conditions reach the output</h3>
   <div class="tablewrap"><table>
@@ -498,7 +494,7 @@ a{color:var(--accent)}
       <tr><td>Which intervals</td><td>Rule L chooses V_k (§6). Within V_k, a kind is active at time t only if a ≤ t &lt; b.</td></tr>
       <tr><td>History</td><td>None. Tokens hold decisions only.</td></tr>
       <tr><td>Loss</td><td>Condition terms score only decisions with that kind in V_k (§8).</td></tr>
-      <tr><td>Off by default</td><td><code>presence='anywhere'</code>, <code>birth_role=True</code>, <code>rule_l=False</code> and <code>conditioner='tokens'</code> reproduce v1 or power checks only. <span class="ref">model.py:45-49</span></td></tr>
+      <tr><td>Identity gate</td><td>A decision or candidate pair whose frames are all zero, because it reads no request, passes through FiLM unchanged. Natural decisions never depend on the conditioning weights.</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -515,7 +511,7 @@ a{color:var(--accent)}
         <li>Strength fixed at the default. Ranges are refused.</li>
         <li>Style, demand, priority and transitions must be empty; they are reserved and raise when set.</li>
       </ul>
-      <p class="ref">request_set.py:34-121</p>
+      <p class="ref">request_set.py</p>
     </div>
     <div>
       <h3>The request set refuses</h3>
@@ -525,15 +521,15 @@ a{color:var(--accent)}
         <li>withdrawing or replacing a request once its scope has started.</li>
       </ul>
       <p>Requests for different properties may also have different scopes that partly overlap; the record lists them as co-active. Flags mark a scope with no head row, an undefined readout, or a length outside what training covered (LN 8–512 beats or whole song; difficulty 30/60/120 s or whole song).</p>
-      <p class="ref">request_set.py:128-259</p>
+      <p class="ref">request_set.py</p>
     </div>
   </div>
 
   <h3>Properties are measured one way everywhere</h3>
-  <p>One module, ν = <code>r2-nu-v1</code>, defines both properties for labels, condition frames, validation and readouts. An object belongs to the scope of its head. <b>LN share</b> is LN heads over heads in the scope. <b>Difficulty</b> is tiled star: the scope's own objects are repeated until they fill 240 s, then scored with the 2024-10-07 mania star rating, because that rating depends on length. It is undefined under 30 s. <span class="ref">properties.py:36-188</span></p>
+  <p>One module, ν = <code>r2-nu-v1</code>, defines both properties for labels, condition frames, validation and readouts. An object belongs to the scope of its head. <b>LN share</b> is LN heads over heads in the scope. <b>Difficulty</b> is tiled star: the scope's own objects are repeated until they fill 240 s, then scored with the 2024-10-07 mania star rating, because that rating depends on length. It is undefined under 30 s. <span class="ref">properties.py</span></p>
 
   <h3>Rule L: a decision reads a scope only if all it can produce lies inside it</h3>
-  <p>Decision k produces its gap closes and its row together. If k could close a hold before a, or produce anything at or after b, a request on [a, b) would leak outside its scope. Masking single candidates cannot fix that, because the pointer normalises over all of them. So decision k reads interval [a, b) only when its row time is inside and, if a lane is held entering k, its earliest release candidate is at or after a. EOS reads only when every candidate it has is inside. <span class="ref">locality.py:1-47</span></p>
+  <p>Decision k produces its gap closes and its row together. If k could close a hold before a, or produce anything at or after b, a request on [a, b) would leak outside its scope. Masking single candidates cannot fix that, because the pointer normalises over all of them. So decision k reads interval [a, b) only when its row time is inside and, if a lane is held entering k, its earliest release candidate is at or after a. EOS reads only when every candidate it has is inside. <span class="ref">locality.py</span></p>
   <figure>
     <div class="scroll">
     <svg class="dg narrow" viewBox="0 0 760 214" role="img" aria-label="Rule L on ten head rows: decisions before the scope do not read it; the onset decision is masked because a hold is open and its earliest candidate lies before a; decisions inside read; the exit decision and those after do not.">
@@ -583,194 +579,120 @@ a{color:var(--accent)}
     <li>After EOS: replay to hit objects, measure every target with ν, record masking and defects (holds ≤ 60 ms, releases 1–40 ms before another lane's head), and write the record.</li>
     <li>Export <code>.osu</code> only if the chart is complete and the legality check passes.</li>
   </ol>
-  <p class="ref">sampling.py:46-121, generate.py:59-136</p>
+  <p class="ref">sampling.py, generate.py</p>
   <div class="callout">
-    <b>Default operating point.</b> "Default strength" in the formulation means the generator the frozen selection rule picks. Its hash covers the training recipe, the selection rule and its source, the decoding, and the conditioning settings. Every generation record names it. <span class="ref">operating_point.py:20-65</span>
+    <b>Operating point.</b> The default generator is the checkpoint a frozen selection rule picks (§9). A hash pins it: training recipe, selection rule, decoding and conditioning settings. Every generation record names that hash, so any output can be traced to the exact generator. <span class="ref">operating_point.py</span>
   </div>
-  <p>The selection rule (post-run, <span class="ref">select.py:42-136</span>): among regular checkpoints after warm-up with full panels, keep those that pass the guards: legal output, natural LN share within ±0.05 of the source, LN onset slope ≥ 0.7 with MAE ≤ 0.15, own-history calibration gap ≤ 0.05, short holds ≤ 0.5%, short releases no more than the source, identical output after a scope's exit. Then pick the earliest within 2 SE of the lowest natural NLL (averaged over three checkpoints, song-group bootstrap). If none passes, nothing is selected.</p>
 </section>
 
 <!-- 8 -->
 <section id="training">
-  <h2><span class="n">8</span>Training</h2>
-  <p>Data: ranked and loved 2–6★ charts of the fit split, cached one <code>.npz</code> per chart (head times, codes, snapped gap releases, grid, song length), round-trip checked. Song groups split into fit_train and fit_dev by a hash. <span class="ref">splits.py:1-60, cache.py:73-246</span></p>
+  <h2><span class="n">8</span>Training: two phases</h2>
+  <p>Data: ranked and loved 2–6★ charts, cached one <code>.npz</code> per chart (head times, lane codes, snapped gap releases, grid, song length) and round-trip checked. Song groups are split into fit_train and fit_dev by a hash. <span class="ref">splits.py, cache.py</span></p>
+  <p>Training is split so that chart structure and condition-following are learned separately. <b>Phase N</b> learns natural structure with no requests at all. <b>Phase C</b> starts from the phase-N model and trains condition-following. It has two modes: the natural part stays frozen, or it may move but is held near phase N by a KL term. <span class="ref">train_ce.py, loss.py</span></p>
   <figure>
     <div class="scroll">
-    <svg class="dg" viewBox="0 0 1000 268" role="img" aria-label="Training step: pick a chart, build condition candidates, apply dropout, find onsets under rule L, choose the window start, select intervals and an importance weight, run the teacher-forced window, compute the loss with fixed divisors, and step the optimiser after four windows. The window start, the interval selection and the condition-term weight are where arms A0 and A1 differ.">
-      <defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker></defs>
-      <rect class="box" x="16" y="24" width="176" height="64" rx="4"/><text class="t" x="28" y="45">Pick a chart</text><text class="s" x="28" y="62">song group uniform,</text><text class="s" x="28" y="77">then chart uniform</text>
-      <rect class="box cond" x="216" y="24" width="176" height="64" rx="4"/><text class="t c" x="228" y="45">Condition candidates</text><text class="s" x="228" y="62">LN pieces, runs, whole</text><text class="s" x="228" y="77">star cells 30/60/120 s</text>
-      <rect class="box" x="416" y="24" width="176" height="64" rx="4"/><text class="t" x="428" y="45">Dropout</text><text class="s" x="428" y="62">all .20 · per kind .25</text><text class="s" x="428" y="77">per candidate .20</text>
-      <rect class="box" x="616" y="24" width="176" height="64" rx="4"/><text class="t" x="628" y="45">Onsets</text><text class="s" x="628" y="62">first decision that reads</text><text class="s" x="628" y="77">each candidate (rule L)</text>
-      <rect class="box acc" x="816" y="24" width="168" height="64" rx="4"/><text class="t a" x="828" y="45">Window start j</text><text class="s" x="828" y="62">A0: v1 start rule</text><text class="s" x="828" y="77">A1: near an onset, p .6</text>
-      <path class="edge" d="M192,56 H214" marker-end="url(#ah3)"/><path class="edge" d="M392,56 H414" marker-end="url(#ah3)"/><path class="edge" d="M592,56 H614" marker-end="url(#ah3)"/><path class="edge" d="M792,56 H814" marker-end="url(#ah3)"/>
-      <path class="edge" d="M900,88 V118 H104 V146" marker-end="url(#ah3)"/>
-      <rect class="box acc" x="16" y="148" width="176" height="76" rx="4"/><text class="t a" x="28" y="169">Intervals + weight u</text><text class="s" x="28" y="186">A0: chosen per song</text><text class="s" x="28" y="201">A1: in the window,</text><text class="s" x="28" y="216">IPW on natural rows</text>
-      <rect class="box" x="216" y="148" width="176" height="76" rx="4"/><text class="t" x="228" y="169">Teacher-forced window</text><text class="s" x="228" y="186">decisions [j, j + 256)</text><text class="s" x="228" y="201">EOS when reached</text>
-      <rect class="box acc" x="416" y="148" width="176" height="76" rx="4"/><text class="t a" x="428" y="169">Loss terms</text><text class="s" x="428" y="186">L_base + λ L_ln + λ L_star</text><text class="s" x="428" y="201">A0: λ = 0 · A1: λ = 1</text><text class="s" x="428" y="216">fixed divisors N̄</text>
-      <rect class="box" x="616" y="148" width="176" height="76" rx="4"/><text class="t" x="628" y="169">Backward</text><text class="s" x="628" y="186">window by window,</text><text class="s" x="628" y="201">4 windows per step</text>
-      <rect class="box" x="816" y="148" width="168" height="76" rx="4"/><text class="t" x="828" y="169">Optimiser step</text><text class="s" x="828" y="186">clip 1.0, AdamW</text><text class="s" x="828" y="201">LR from exposures</text>
-      <path class="edge" d="M192,186 H214" marker-end="url(#ah3)"/><path class="edge" d="M392,186 H414" marker-end="url(#ah3)"/><path class="edge" d="M592,186 H614" marker-end="url(#ah3)"/><path class="edge" d="M792,186 H814" marker-end="url(#ah3)"/>
-      <text class="s" x="16" y="256">Blue outline: the three places where the stage-1 arms A0 and A1 differ. Every other key is identical (checked by a test).</text>
+    <svg class="dg" viewBox="0 0 1000 372" role="img" aria-label="Which parameters train in each phase: phase N trains the natural parameters with plain cross-entropy while the conditioning path is unused; phase C frozen trains only the conditioning path; phase C KL-held trains both and adds a KL term to a frozen copy of the phase-N model.">
+      <defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        <pattern id="hatch2" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="frz" x1="0" y1="0" x2="0" y2="6"/></pattern></defs>
+      <text class="m" x="652" y="18">NATURAL PARAMETERS · 2.26 M</text>
+      <text class="m" x="852" y="18">CONDITIONING PATH</text>
+      <!-- lane N -->
+      <text class="t" x="16" y="58">Phase N</text><text class="s" x="16" y="75">natural structure</text>
+      <rect class="box" x="160" y="34" width="200" height="60" rx="4"/><text class="t" x="172" y="56">Real-chart windows</text><text class="s" x="172" y="73">256 decisions</text><text class="s" x="172" y="87">no requests</text>
+      <rect class="box" x="390" y="34" width="220" height="60" rx="4"/><text class="t" x="402" y="56">Teacher-forced CE</text><text class="s" x="402" y="73">every scored decision</text><text class="s" x="402" y="87">fixed divisor N̄</text>
+      <rect class="box acc" x="650" y="34" width="190" height="60" rx="4"/><text class="t a" x="662" y="58">trains</text><text class="s" x="662" y="76">TCN, landmarks, MLPs,</text><text class="s" x="662" y="89">row head, pointer</text>
+      <rect class="box frame" x="850" y="34" width="134" height="60" rx="4"/><text class="s" x="862" y="60">unused</text><text class="s" x="862" y="76">(no requests)</text>
+      <path class="edge" d="M360,64 H388" marker-end="url(#ah4)"/><path class="edge" d="M610,64 H648" marker-end="url(#ah4)"/>
+      <!-- init edge -->
+      <path class="edge" d="M745,94 V146" marker-end="url(#ah4)"/><text class="m" x="752" y="124">init from a phase-N checkpoint</text>
+      <!-- lane C frozen -->
+      <text class="t" x="16" y="178">Phase C</text><text class="s" x="16" y="195">frozen base</text>
+      <rect class="box" x="160" y="150" width="200" height="72" rx="4"/><text class="t" x="172" y="172">Windows near request</text><text class="t" x="172" y="187">onsets</text><text class="s" x="172" y="204">targets = each chart's</text><text class="s" x="172" y="217">own measured values</text>
+      <rect class="box cond" x="390" y="150" width="220" height="72" rx="4"/><text class="t c" x="402" y="172">Condition loss</text><text class="s" x="402" y="189">CE where a request is read</text><text class="s" x="402" y="203">+ LN split + star terms</text><text class="s" x="402" y="217">+ star proxy on own samples</text>
+      <rect class="box" x="650" y="150" width="190" height="72" rx="4" style="fill:url(#hatch2)"/><rect x="662" y="164" width="60" height="20" rx="3" style="fill:var(--surface)"/><text class="t" x="668" y="179">frozen</text><text class="s" x="662" y="208">bit-identical to phase N</text>
+      <rect class="box cond" x="850" y="150" width="134" height="72" rx="4"/><text class="t c" x="862" y="174">trains</text><text class="s" x="862" y="192">FiLM, 42 k</text><text class="s" x="862" y="206">(size configurable)</text>
+      <path class="edge" d="M360,186 H388" marker-end="url(#ah4)"/><path class="edge cond" d="M610,186 H630 V140 H917 V148" marker-end="url(#ah4c)"/>
+      <!-- lane C KL -->
+      <text class="t" x="16" y="282">Phase C</text><text class="s" x="16" y="299">KL-held base</text>
+      <rect class="box" x="160" y="256" width="200" height="72" rx="4"/><text class="t" x="172" y="278">Same windows</text><text class="s" x="172" y="295">and targets</text>
+      <rect class="box cond" x="390" y="256" width="220" height="72" rx="4"/><text class="t c" x="402" y="278">Condition loss + β · KL</text><text class="s" x="402" y="295">KL to a frozen copy</text><text class="s" x="402" y="309">of the phase-N model</text>
+      <rect class="box acc" x="650" y="256" width="190" height="72" rx="4"/><text class="t a" x="662" y="280">trains</text><text class="s" x="662" y="298">held near phase N</text><text class="s" x="662" y="312">by the KL term</text>
+      <rect class="box cond" x="850" y="256" width="134" height="72" rx="4"/><text class="t c" x="862" y="280">trains</text><text class="s" x="862" y="298">FiLM</text>
+      <path class="edge" d="M360,292 H388" marker-end="url(#ah4)"/><path class="edge" d="M610,292 H648" marker-end="url(#ah4)"/>
+      <text class="s" x="16" y="360">In both phase-C modes the conditioning path starts with a zero output layer, so step 0 reproduces the phase-N model exactly.</text>
+      <defs><marker id="ah4c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah cond" d="M0,0 L10,5 L0,10 z"/></marker></defs>
     </svg>
     </div>
-    <figcaption>One optimiser step. A track drawn this way equals the effective track of requests all added before the song starts, so training and generation read conditions the same way. Source: <span class="ref">conditions.py:132-322, data.py:102-112, train_ce.py:395-445</span>.</figcaption>
+    <figcaption>Which parameters each phase trains. The token conditioner (102,144 parameters) is built but used in neither phase. Because of the identity gate (§5), a decision that reads no request never passes through the conditioning path. In frozen mode, natural decisions therefore stay exactly as phase N left them. <span class="ref">model.py (parameter_split), train_ce.py (trainable_parameters, reference_model)</span></figcaption>
   </figure>
 
-  <h3>Loss</h3>
-  <div class="formula">ℓ_j     = −( log P(A_j) + log Q(U_j) )                       per scored decision j
-L_base  = (1 / N̄)     Σ_j  w_j ℓ_j          w_j = u if V_j is empty, else 1
-L_ln    = (1 / N̄_ln)  Σ over decisions reading an LN interval of −log P(tap-vs-LN split | heads, release types)
-L_star  = (1 / N̄_star) Σ over decisions reading a difficulty interval of ℓ_j
-L       = L_base + λ_ln L_ln + λ_star L_star</div>
-  <p>The divisors are fixed expected counts per batch, measured by <code>draw_sim</code>, so each window can be backpropagated alone and the batch gradient is still exact. The LN term scores only the tap-versus-LN part of the row: the probability of the chosen action among legal actions with the same head mask and release types. The trainer refuses to start until N̄ values matching the draw are in the config; both v2 configs have them null. <span class="ref">loss.py:1-68, model.py:384-411, train_ce.py:313-319</span></p>
+  <h3>Losses</h3>
+  <div class="formula">ℓ_j       = −( log P(A_j) + log Q(U_j) )                          one scored decision j
 
-  <div class="twocol">
-    <div>
-      <h3>Draw parameters (A1 defaults)</h3>
-      <ul class="tight">
-        <li>LN candidates: a fresh partition into 8/16/32/64-beat pieces; whole song with p 0.10; otherwise runs of 2–8 pieces with p 0.25. Value = the source's own LN share there.</li>
-        <li>Difficulty candidates: one cell length (30/60/120 s) and phase (0/10/20 s), or whole song with p 0.10. Values from the label file.</li>
-        <li>Aligned start with p 0.6: lead 0–32 decisions before an onset; LN candidates whose value differs from the previous 64 rows by z ≥ 2 get weight 3.</li>
-        <li>1–3 intervals per kind in the window, consecutive with p 0.5.</li>
-      </ul>
-      <p class="ref">conditions.py:48-97, 132-322</p>
-    </div>
-    <div>
-      <h3>Optimiser and budget</h3>
-      <div class="tablewrap"><table>
-        <tbody>
-          <tr><td>Optimiser</td><td>AdamW, β (0.9, 0.95), weight decay 0.01 on matrices</td></tr>
-          <tr><td>Batch</td><td>4 windows × up to 256 decisions</td></tr>
-          <tr><td>LR</td><td>warm-up to 3e-4 over 50k exposures, cosine to 3e-5 <span class="pill warn">undecided</span></td></tr>
-          <tr><td>Budget</td><td>50M scored head decisions; checkpoint every 4.388M</td></tr>
-          <tr><td>Seeds</td><td>weights 171, draws 471, eval 954–956</td></tr>
-          <tr><td>Guards</td><td>non-finite loss: reload, skip, halve LR; RSS and MPS limits</td></tr>
-        </tbody>
-      </table></div>
-      <p class="ref">train_ce.py:162-188, 324-328, 588-620; configs/ce_v2_a*.json</p>
-    </div>
-  </div>
+Phase N   L = (1 / N̄) Σ_j ℓ_j                                     every scored decision
 
-  <h3>Built but off</h3>
+Phase C   L = L_base + λ_ln L_ln + λ_star L_star + λ_star μ_star L_proxy  [ + β L_KL ]
+          L_base  = (1 / N̄) Σ w_j ℓ_j          decisions that read a request (optionally all)
+          L_ln    = (1 / N̄_ln) Σ −log P(tap-vs-LN split | heads, release types)   decisions reading an LN request
+          L_star  = (1 / N̄_star) Σ ℓ_j          decisions reading a difficulty request
+          L_proxy = relaxed star of a sampled section vs its target   (one window in four)
+          L_KL    = (1 / N̄) Σ KL_j to the frozen phase-N model       (KL mode only)</div>
   <ul class="tight">
-    <li><b>Skeleton baseline b(S)</b>, for difficulty as a residual: a quadratic ridge on 23 head-time features of the scope (300 columns), fitted on fit_train cells. It never feeds the model. With <code>star_value='residual'</code> the frame value becomes target − b(S). Both configs use absolute star. <span class="ref">baseline.py:1-163</span></li>
-    <li><b>Relaxed-proxy term (stage 2)</b>, option (B) as decided on 2026-10-06: on one window in four, sample a difficulty scope with the current model, re-score it, and push a linear map of expected chord, repeat and LN statistics toward the residual target. A true-star measurement runs every 16 steps without gradient. It needs <code>mu_star</code> &gt; 0 and has no value or config yet. <span class="ref">proxy.py, train_ce.py:420-512</span></li>
-    <li><b>Sequence DPO</b>: soft-label DPO with a CE anchor. It refuses synthetic pairs and has no real pair source, so it has never trained. Its anchor still uses v1's window-mean CE. <span class="ref">train_dpo.py:1-25, 190-191, 580-601</span></li>
+    <li><b>Fixed divisors.</b> N̄, N̄_ln and N̄_star are expected counts per batch, measured once from the window draw. Each window can therefore be backpropagated alone and the batch gradient is still exact. <span class="ref">loss.py, draw_sim.py</span></li>
+    <li><b>LN term.</b> It scores only the tap-versus-LN part of the row: the chosen action against the legal actions with the same head mask and release types. <span class="ref">model.py (governed_split)</span></li>
+    <li><b>KL term.</b> The KL is exact over the 625 row actions. For releases, it is taken per pointer factor on the teacher-forced context and averaged over the two orientations. It has three settings: its direction (forward or reverse), which decisions it covers (natural only or all), and whether natural decisions keep their CE. <span class="ref">loss.py (decision_kl)</span></li>
+    <li><b>Importance weights.</b> w_j reweights decisions that read no request back to the natural window distribution. They matter only where natural decisions are scored. <span class="ref">conditions.py</span></li>
   </ul>
+
+  <h3>Phase-C windows and targets</h3>
+  <ul class="tight">
+    <li><b>Targets come from the chart itself.</b> For each training chart, the request values are that chart's own measured LN share and difficulty over the drawn scope, so every target is realisable.</li>
+    <li><b>LN scopes.</b> A fresh partition of the song into 8/16/32/64-beat pieces; runs of 2–8 pieces (p 0.25); or the whole song (p 0.10).</li>
+    <li><b>Difficulty scopes.</b> 30/60/120 s cells at three phases, or the whole song (p 0.10).</li>
+    <li><b>Dropout, before selection.</b> All requests p 0.20, a kind p 0.25, each candidate p 0.20.</li>
+    <li><b>Aligned windows.</b> With p 0.6 the 256-decision window starts 0–32 decisions before a request's onset. LN candidates whose value differs clearly from the preceding 64 rows get weight 3.</li>
+    <li><b>Per window.</b> 1–3 requests of each kind, consecutive with p 0.5.</li>
+  </ul>
+  <p class="ref">conditions.py (DrawConfig, draw_window)</p>
+
+  <h3>Difficulty as a residual</h3>
+  <p>The difficulty request is given in absolute star, but the model reads it as a residual: target − b(S), where b(S) is a frozen skeleton baseline. b(S) is a quadratic ridge on 23 head-time features of the scope (300 columns), fitted on fit_train sections. It never feeds the model. The point is that the given head rows already explain most of a section's star, so the condition carries only what the arrangement can still change. The relaxed-proxy term samples the requested section with the current model, re-scores it teacher-forced, and pushes a linear map of expected chord size, same-lane repeat rate and LN share toward the residual target. A true star rating of samples is logged every 16 steps without gradient. <span class="ref">baseline.py, proxy.py, train_ce.py</span></p>
+
+  <h3>Optimisation</h3>
+  <div class="tablewrap"><table>
+    <tbody>
+      <tr><td>Optimiser</td><td>AdamW, β (0.9, 0.95), weight decay 0.01 on matrices, gradient clip 1.0</td></tr>
+      <tr><td>Batch</td><td>4 windows of up to 256 decisions; exposures count scored head decisions</td></tr>
+      <tr><td>Schedule</td><td>warm-up then cosine, or a staged list of constant, linear and cosine phases; set per phase and run</td></tr>
+      <tr><td>Robustness</td><td>a non-finite loss reloads the last checkpoint, skips the windows and halves the LR; memory guards stop safely after a checkpoint</td></tr>
+    </tbody>
+  </table></div>
+  <p>Learning rates, budgets, the loss weights λ, μ and β, and the phase-C mode are set per run. The configs leave them empty, and the trainer refuses to start until they are given. <span class="ref">configs/ce_v2_n.json, ce_v2_c_frozen.json, ce_v2_c_kl.json</span></p>
 </section>
 
 <!-- 9 -->
 <section id="evaluation">
   <h2><span class="n">9</span>In-run evaluation and selection</h2>
-  <p>Teacher-forced at every checkpoint: natural NLL on 64 fit_dev windows with empty tracks (the selection primary); NLL by condition and stratum on a stratified condition manifest; a counterfactual that swaps the interval value on the same state; and a ridge probe from hand vectors to the frame value. Free-run panels at every second checkpoint: <span class="ref">evaluate.py:206-551</span></p>
+  <p>Teacher-forced at every checkpoint: natural NLL on 64 fit_dev windows without requests. Phase C adds NLL by condition and position in the scope, a counterfactual that swaps the target value on the same state, and a ridge probe from hand vectors to the target. Free-run panels run at every second checkpoint; phase N runs only the ones that need no request. <span class="ref">evaluate.py</span></p>
   <div class="tablewrap"><table>
     <thead><tr><th>Panel</th><th>What it measures</th><th>Guard</th></tr></thead>
     <tbody>
       <tr><td><code>natural_bos</code></td><td>From the start, no requests: LN share against source, drift within the chart, chord-size divergence</td><td></td></tr>
       <tr><td><code>prefix_natural</code></td><td>Continue a real chart from one third in: generated minus real LN share</td><td>|mean| ≤ 0.05</td></tr>
-      <tr><td><code>onset</code></td><td>LN scopes of 16/32 beats at targets 0.05/0.3/0.6/0.9: slope and MAE of readout on target</td><td>slope ≥ 0.7, MAE ≤ 0.15</td></tr>
-      <tr><td><code>whole</code>, <code>switch</code></td><td>Whole-song LN targets; a 0.1 ↔ 0.6 switch at half song</td><td></td></tr>
-      <tr><td><code>residual_star</code></td><td>Residual mode only: star targets b(S) ± 0.5</td><td></td></tr>
       <tr><td><code>calibration</code></td><td>Expected LN over 64 decisions on real against own-sampled history</td><td>|gap| ≤ 0.05</td></tr>
-      <tr><td><code>g3</code></td><td>Identity after a scope's exit; persistence; explicit 0 against no request; organisation kept under an LN request</td><td>identity</td></tr>
-      <tr><td><code>legality</code>, <code>defects</code></td><td>Illegal runs, missing heads, holds ≤ 60 ms, releases 1–40 ms before another head</td><td>legal; ≤ 0.5%</td></tr>
+      <tr><td><code>legality</code>, <code>defects</code></td><td>Illegal runs, missing heads, holds ≤ 60 ms, releases 1–40 ms before another head</td><td>legal; ≤ 0.5%; ≤ source rate</td></tr>
+      <tr><td><code>onset</code> (C)</td><td>LN scopes of 16/32 beats at targets 0.05/0.3/0.6/0.9: slope and MAE of readout on target</td><td>slope ≥ 0.7, MAE ≤ 0.15</td></tr>
+      <tr><td><code>whole</code>, <code>switch</code> (C)</td><td>Whole-song LN targets; a 0.1 ↔ 0.6 switch at half song</td><td></td></tr>
+      <tr><td><code>residual_star</code> (C)</td><td>Star targets b(S) ± 0.5 on 30/60 s sections</td><td></td></tr>
+      <tr><td><code>g3</code> (C)</td><td>Identity after a scope's exit; persistence; explicit 0 against no request; organisation kept under an LN request</td><td>identity</td></tr>
     </tbody>
   </table></div>
-</section>
-
-<!-- 10 -->
-<section id="delta">
-  <h2><span class="n">10</span>What v2 changed from v1</h2>
-  <p>Unchanged: the contract and state (<code>common.py</code>, <code>state.py</code>), release candidates, the cache, export, the TCN and joint head, and the DPO trainer. The changes are about how conditions are drawn, seen and scored.</p>
-  <div class="tablewrap"><table>
-    <thead><tr><th>Area</th><th>v1 (7d9640a)</th><th>v2 working tree</th></tr></thead>
-    <tbody>
-      <tr><td>Who sees a condition</td><td>Whole track visible; a presence bit set whenever the song has the kind; held LNs re-read the value at their birth row</td><td>Rule L per decision; presence bit and birth role removed (kept as off switches)</td></tr>
-      <tr><td>Requests</td><td>A raw track; an unused edit helper that clipped and merged intervals</td><td>Request objects, validation, effective track, flags, record</td></tr>
-      <tr><td>Measurement</td><td>LN share and tiled star inside <code>labels.py</code>; empty cell = 0.0</td><td>One <code>properties.py</code> (ν) used everywhere; undefined stays undefined</td></tr>
-      <tr><td>Track draw</td><td>Intervals placed over the whole song, independent of the window; active on 14.4% (LN) and 24.7% (star) of scored rows in the v1 run</td><td>A1 starts windows near onsets, with importance weights back to the natural distribution; longer LN runs and whole-song scopes</td></tr>
-      <tr><td>Star labels</td><td>≤ 4 cells of 30 s and 60 s, whole song</td><td>All 30/60/120 s cells at 3 phases, whole song, through ν</td></tr>
-      <tr><td>Loss</td><td>Window-mean NLL</td><td>Fixed-divisor CE, IPW, condition terms owned by visibility</td></tr>
-      <tr><td>Generation and selection</td><td>Free runs inside the trainer only</td><td>Request CLI, records, operating-point hash, frozen selection rule, plan §9 evaluator</td></tr>
-      <tr><td>FiLM input</td><td>6 × 16 = 96 (row, candidate, birth roles)</td><td>4 × 17 = 68</td></tr>
-    </tbody>
-  </table></div>
-  <p class="ref">git diff 7d9640a -- src/ensomi_model/r2; v1 exposure figures from the 2026-10-04 audit in the research notes.</p>
-</section>
-
-<!-- 11 -->
-<section id="status">
-  <h2><span class="n">11</span>Where v2 stands</h2>
-  <div class="callout bad">
-    <b>Not ready for a training run.</b> On the current tree, <code>pytest tests/r2 tests/evaluation</code> on the mac gives 19 failed, 215 passed, 4 skipped (job <span class="mono">20261006-104814</span>). Nothing is committed.
-  </div>
-  <div class="tablewrap"><table>
-    <thead><tr><th>Cause</th><th class="num">Tests</th><th>Effect</th></tr></thead>
-    <tbody>
-      <tr><td><code>generate.py:108</code> passes <code>kind</code> twice to <code>dict()</code>; the provenance already holds it</td><td class="num">12</td><td>Every generation that carries a request fails, so the validity, no-cancellation, locality-law and record tests never reach an assertion. In-run onset panels would fail too, leaving selection without candidates.</td></tr>
-      <tr><td><code>features.py:392</code> calls <code>_norm_value</code>, which v2 removed</td><td class="num">6</td><td>The token-conditioner path raises. The default FiLM path is unaffected.</td></tr>
-      <tr><td>DPO calls the new default aligned draw with an 8-row window</td><td class="num">1</td><td><code>StopIteration</code> at <code>conditions.py:307</code>.</td></tr>
-    </tbody>
-  </table></div>
-  <h3>Still missing from stage 0</h3>
-  <ul class="tight">
-    <li>DPO anchor on L_base; style-attribute naming in the frames; the hold-tail share script; tests that b(S) is skeleton-only, mirror-invariant and local to its scope; the stage-1 exposure-accounting test; baseline rows for the v1 checkpoint.</li>
-    <li>No test exercises <code>evaluate.py</code>, <code>select.py</code>, <code>baseline.py</code>, <code>proxy.py</code> or the relaxed-proxy code.</li>
-    <li>None of the mac measurements has run: relabel, baseline fit, <code>draw_sim</code> for A0 and A1 (the N̄ values), the 200-window pilot.</li>
-    <li><code>README.md</code> and <code>DEVIATIONS.md</code> still describe v1.</li>
-  </ul>
-  <h3>Between this tree and a stage-1 run, in order</h3>
-  <ol class="tight">
-    <li>Fix the three failure causes; get a green suite on the mac.</li>
-    <li>Write the missing stage-0 items.</li>
-    <li>Run the relabel and the baseline fit.</li>
-    <li>Run <code>draw_sim</code> for A0 and A1 and fill in N̄. If more than 5% of in-scope decisions fall outside V on 16-beat LN pieces, a split boundary decision must be designed first.</li>
-    <li>Run the pilot and the baseline rows.</li>
-    <li>Settle the learning-rate schedule (Astra's task).</li>
-    <li>Restate the stage-1 claim and thresholds for the amended arms.</li>
-    <li>The project owner's code check before any run.</li>
-  </ol>
-</section>
-
-<!-- 12 -->
-<section id="open">
-  <h2><span class="n">12</span>Open ML questions</h2>
-  <p>Collected from the research notes and the code. None is decided. The first group blocks stage 1.</p>
-  <div class="tablewrap"><table>
-    <thead><tr><th>Question</th><th>Why it matters</th><th>Blocks</th></tr></thead>
-    <tbody>
-      <tr><td>Learning-rate schedule, possibly staged, informed by R1's six-stage recipe</td><td>Both arms carry v1's default 3e-4 with no schedule; the v1 overnight run used 1e-3. It must be fixed before the arms are compared, identical in both.</td><td><span class="pill bad">stage 1</span></td></tr>
-      <tr><td>The stage-1 claim and thresholds now that A1 also turns on the condition terms</td><td>The plan's claim and its +0.15 slope threshold were written for arms that differ only in the draw. Which change helped can no longer be separated.</td><td><span class="pill bad">stage 1</span></td></tr>
-      <tr><td>One condition manifest shared by both arms</td><td>The paired onset-NLL comparison needs common windows; the code builds one per arm.</td><td><span class="pill bad">stage 1</span></td></tr>
-      <tr><td>Weight μ for the relaxed-proxy star term, and whether it is its own arm</td><td>Sets how hard training pushes generated sections toward the requested star.</td><td><span class="pill warn">stage 2</span></td></tr>
-      <tr><td>A trimmed difficulty ν, if hold tails after a scope carry too much of its star</td><td>Would change labels and readouts. The measurement script is missing.</td><td><span class="pill warn">stage 2</span></td></tr>
-      <tr><td>May an own-sample LN term run before real preference pairs exist?</td><td>The direct lever on exposure bias for LN.</td><td><span class="pill warn">stage 3</span></td></tr>
-      <tr><td>What the baseline style ρ is (vector, tokens, reference prefix, latent) and how it is trained</td><td>Identity across a song and return to natural after a scope.</td><td><span class="pill muted">later</span></td></tr>
-      <tr><td>Capacity, landmark ablation, token form against FiLM</td><td>Deferred until after stage 1 or 2.</td><td><span class="pill muted">later</span></td></tr>
-    </tbody>
-  </table></div>
-
-  <h3>What v1 showed that v2 does not yet address in training</h3>
-  <ul class="tight">
-    <li><b>Exposure bias.</b> Teacher-forced LN forecasts are calibrated, but on the model's own histories they sit 0.129 ± 0.044 higher (v1 at 61.4M exposures); natural LN share from the start runs 0.10–0.13 above the source. v2 measures this gap; it does not train against it.</li>
-    <li><b>Star has no effect.</b> The requested star changed nothing (KL 2e-6 nats per row over three checkpoints), and the given head rows already explain most of it (R² 0.75). v2's answer is the residual against b(S) plus the stage-2 own-sample term.</li>
-    <li><b>The landmark memory is unused.</b> Removing its read improved action NLL at 39.49M. The research notes' reading is that CE on real histories gives no pressure to use it.</li>
-    <li><b>Variation is uncommitted.</b> Variance across random seeds on one skeleton was twice the variance across skeletons, and LN share oscillated between checkpoints.</li>
-  </ul>
-
-  <h3>Code-level observations to check</h3>
-  <ul class="tight">
-    <li>The relaxed-proxy and true-star samples draw their seeds from the training draw generator, so turning the term on changes the window sequence. <span class="ref">train_ce.py:473, 496</span></li>
-    <li>With <code>star_conditions: auto</code>, star conditions switch off silently when the v2 label file is missing, and A1's λ_star then does nothing. <span class="ref">train_ce.py:215-218</span></li>
-    <li>A0 applies dropout before choosing intervals per song; v1 dropped from the chosen track. The plan does not say which. <span class="ref">conditions.py:258-278</span></li>
-    <li>In-run records hash the operating point without the recipe, so their hash differs from the one selection writes. <span class="ref">evaluate.py:371</span></li>
-    <li>The proxy samples a whole difficulty scope inside one training step; for whole-song scopes (p 0.10) that cost is unmeasured.</li>
-  </ul>
+  <p>Checkpoint selection: among checkpoints that pass every guard of their phase, pick the earliest within 2 SE of the lowest natural NLL. The NLL is averaged over three checkpoints, with a song-group bootstrap. <span class="ref">select.py</span></p>
 </section>
 
 <footer>
-  <p>Read from the working tree of <code>src/ensomi_model/r2/</code> on branch <code>r2/train</code> (HEAD 7d9640a plus uncommitted v2 stage-0 code), 2026-10-06. Line references are working-tree lines and will move when the code is committed. Mac jobs: 20261006-105046-r2-paramcount, 20261006-105304-r2-example, 20261006-104814 (test suite). Plan: R2 v2 implementation plan (condition plan v4 with its amendments) in the research notes; formulation <code>docs/formulation/style-conditions-and-control.md</code>.</p>
+  <p>A snapshot of the R2 code (package <code>src/ensomi_model/r2/</code>), 2026-10-06. File names in grey point to the module that implements each part. The parameter counts and the worked example were computed with this code. Both training phases are implemented; neither has been trained yet in this form.</p>
 </footer>
 </main>
 </div>
