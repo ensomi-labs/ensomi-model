@@ -140,6 +140,10 @@ Source: [private, local](private/human-inputs/aa6818ba-9ce4-4d72-b1de-e7d78a7ffb
 - **Q-E: not answered.** The human asked what the LN-emphasis arm is and why it is needed.
 - **Q-G: not understood as asked.** The human expects difficulty control to be weak with fixed head times, but says the response must still be tuned. Agent reading, to confirm: a training signal on the realised difficulty of generated sections (option B).
 
-The human also asked whether the plan is clear enough for an agent to implement, with extra attention on its ML-specific parts. Plan v4 carries these answers as amendments ([v4-amendments](r2-condition-plan-v4.md#v4-amendments)).
+The human also asked whether the plan is clear enough for an agent to implement, with extra attention on its ML-specific parts. Answered afterwards ([private, local](private/human-inputs/aa6818ba-9ce4-4d72-b1de-e7d78a7ffbee.md#answer-4)):
+
+- **Q-E:** the condition terms are on in the new recipe, with no separate arm.
+- **Q-G: option (B).** A term on the realised star of generated sections, which is the OK for own-sample training for difficulty.
+- **Process:** start implementing now. No build-time estimates and no AI-reviews-AI gates. Invent no training detail that was not discussed. The human checks before any actual run. Plan v4 carries these answers as amendments ([v4-amendments](r2-condition-plan-v4.md#v4-amendments)).
 
 Side observation: `docs/formulation/notation.md` ("Generation and optional controls") and `gameplay-state.md` ("Controls") predate the formulation. Their generation formula has no ρ and no request set, and they say an absent style request permits "the learned natural style distribution". Whether the formulation enters `docs/formulation/` is the human's call.
