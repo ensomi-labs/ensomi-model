@@ -117,4 +117,16 @@ Source: [private, local](private/human-inputs/aa6818ba-9ce4-4d72-b1de-e7d78a7ffb
 
 Next, per the human: an Opus subagent writes the style formulation into `docs/formulation/` and resolves its conflicts with the existing documents (worktree `~/wt/ensomi-model-formulation`, branch `docs/style-formulation` from `main` `178ea3c`). A separate Opus subagent then revises the implementation plan from that result.
 
+<a id="d-formulation-answers-2"></a>
+## Human answers on the formulation draft, 2026-10-06
+
+Recorded from a mix of option selections and free text ([private, local](private/human-inputs/aa6818ba-9ce4-4d72-b1de-e7d78a7ffbee.md#answer-2)); the questions are q1, q4, q5 and q6 of [style-formulation-rethink](style-formulation-rethink.md#q4).
+
+- **Hold closes after the scope are natural.** When a hold starts inside a scope and is closed after it, the close does not see the request. ν may still count the hold in the scope, and the record lists it. For R2, this removes the release pointer's birth-role reading of an expired scope (plan v3 N5, T-O).
+- **Same-property overlap is invalid input.** Two targets for one property on overlapping scopes are rejected; there is no composition and no priority between them. Agent reading, to confirm: the same holds for style directives on the same attribute.
+- **Requests must precede their scope.** A request is valid only while the committed frontier is before its declared start. There is no mid-scope activation. Cancelling an active request was not addressed.
+- **Default strength is the trained operating point.** It is the operating point the generator is trained and tuned for, balancing playability, style and control. It is not exact attainment and not maximal adherence; higher levels weight the target more.
+
+The same Opus subagent is applying these to the draft. The plan revision follows.
+
 Side observation: `docs/formulation/notation.md` ("Generation and optional controls") and `gameplay-state.md` ("Controls") predate the formulation. Their generation formula has no ρ and no request set, and they say an absent style request permits "the learned natural style distribution". Whether the formulation enters `docs/formulation/` is the human's call.
