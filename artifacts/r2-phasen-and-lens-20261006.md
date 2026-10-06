@@ -73,3 +73,15 @@ This refines [h-decoding-style](decoding-stage.md#h-decoding-style). Decoding-ti
 It recommends one design with an exact interface. Output: `artifacts/r2-style-module-20261006/` in the code checkout.
 
 Whether to start the phase-N run now was raised as a "maybe"; the main thread asks the human to confirm.
+
+<a id="r-phasen-run"></a>**Phase-N run launched (2026-10-06 15:36 UTC, human's choice "Commit, then start", [private, local](private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#answer-1)).**
+- **Code:** R2 v2 committed on `r2/train` as `3954031`; not pushed.
+  - Two tests in `tests/r2/test_phases.py` were updated for the accepted config. The suite gives 256 passed, 4 skipped (job `20261006-153104-r2-phase-tests-3`).
+  - A 16-window pilot with memory off ran at about 3,400 decisions/s.
+- **Run:**
+  - id `r2-phaseN-20261006`, job `20261006-153613-r2-ce-r2-phaseN-20261006`;
+  - directory `artifacts/r2-runs/r2-phaseN-20261006/`;
+  - frozen code sha256 `06cb051d…`, git head `3954031`;
+  - config `ce_v2_n.json`: memory none, lr 3e-4, 64M exposures, CPU with 4 threads.
+- **Health at 200 s:** 594k exposures, about 3,300 decisions/s, RSS about 1.0 GiB, gradient norm about 12, all finite.
+- **Outputs to expect:** a checkpoint every 4M exposures; selection by `select.py` after the run.
