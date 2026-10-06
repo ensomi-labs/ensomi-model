@@ -110,6 +110,14 @@ R2 v2 direction, 2026-10-06:
 - Training becomes two-phase. Phase N learns natural structure by teacher-forced CE with no conditions. Phase C then tunes the conditions with that model frozen or held close by KL; the human has not chosen between the two. This supersedes Q-E and the A0/A1 arms ([d-two-phase-recipe](artifacts/r2-v2-stage0-state.md#d-two-phase-recipe)). Plan v5 and the code change are with a fresh Opus worker.
 - R2 v2 excludes audio, head-row timing and memory.
 - It adds the five Beatmap Lens foundation concepts as condition inputs, and its conditioning path needs more parameters ([d-r2v2-scope](artifacts/r2-v2-stage0-state.md#d-r2v2-scope)).
+- Plan v5 (fresh Opus worker, proposed; supersedes v4): [r2-condition-plan-v5](artifacts/r2-condition-plan-v5.md).
+  - Phase N trains every parameter outside the conditioning path. Phase C starts exactly at the phase-N model.
+  - An identity gate passes decisions that read no interval through unchanged.
+  - Frozen mode trains only the conditioning path; KL mode trains everything against a frozen phase-N copy.
+  - Conditioning width and depth are configurable; per-kind adapters for seven kinds are proposed, not built.
+  - Thirteen decisions await the human (§10).
+- The code is on the `r2/train` working tree, uncommitted. The three bugs are fixed, and the mac suite gives 254 passed, 5 skipped, 0 failed (job `20261006-124635-r2-v5-tests-3`; the earlier run had 19 failed).
+- No training has run, and no stage-0 measurement either. Every undecided value is null and refused.
 - Private sources: [prompt-4, local](artifacts/private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-4), [prompt-5, local](artifacts/private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-5).
 
 _Review: the focus, its two parts, the four decisions, the restart from R1 and the evaluation scope are the human's (2026-10-02, [private, local](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#answer-1), [restart](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#prompt-2), [scope](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#prompt-3)); the questions, the hypothesis, the design and the failure-mode reading are the agent's, not yet reviewed. The R1 verdict, the release-time decision and the preference direction are the human's (2026-10-03, [private, local](artifacts/private/human-inputs/41ba879c-870c-4368-9fa0-fb9fdf2ccce3.md#prompt-1)); their readings and the tensions named are the agent's._

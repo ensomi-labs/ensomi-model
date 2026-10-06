@@ -78,3 +78,23 @@ Open:
 - the data source for Lens concept labels on the corpus.
 
 The worker was told to put these in plan v5. It may make conditioning capacity configurable, but must not build Lens inputs.
+
+<a id="s-v5-code"></a>**Result (2026-10-06, worker for [d-two-phase-recipe](#d-two-phase-recipe); main thread re-checked the final suite log and the gate code).**
+- Plan v5 is written: [r2-condition-plan-v5](r2-condition-plan-v5.md).
+- On the working tree (uncommitted), the three bugs are fixed. `generate.py:108` also duplicated `a` and `b`, and the draw crash had a second trigger, an EOS-only window.
+- The code adds:
+  - phase N and phase C (`init_from`, `base_mode` frozen or kl);
+  - an identity gate in FiLM (`model.py:104-111`);
+  - `film_width` and `film_layers`;
+  - configs `ce_v2_n.json`, `ce_v2_c_frozen.json` and `ce_v2_c_kl.json`, with undecided keys null and refused;
+  - 19 tests in `tests/r2/test_phases.py`.
+- The A0/A1 configs are deleted.
+- Mac suite: 254 passed, 5 skipped, 0 failed (`20261006-124635-r2-v5-tests-3`).
+- Measured (read-only jobs `20261006-122217-r2-window-scopes`, `20261006-123753-r2-v-share`):
+  - scopes longer than a 256-decision window: 35% of 64-beat LN pieces, 70% of LN runs, 98% of whole songs, and 29%, 89% and 99% of difficulty cells at 30, 60 and 120 s;
+  - under the phase-C draw, 46% of windows have no visible decision.
+- Side effects:
+  - TrainConfig defaults for undecided keys became null, so `ce_v1.json` and `scripts/r2/smoke.sh` are now refused;
+  - the operating-point hash does not include the phase-N init checkpoint;
+  - `DEVIATIONS.md` is stale;
+  - O3, O6 and the DPO anchor are untouched.
