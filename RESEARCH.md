@@ -130,6 +130,13 @@ R2 v2 direction, 2026-10-06:
   - Phase N is training on the mac from commit `3954031`: run `r2-phaseN-20261006`, healthy at 1.34M exposures.
   - The style-module Astra job is still running.
   - Next: review its report, finalise the local page for Lele Liu (memory now off), select the phase-N checkpoint. Phase C waits on the human's decisions.
+- Style-module job, done 2026-10-06 ([s-style-module](artifacts/r2-phasen-and-lens-20261006.md#s-style-module)):
+  - The pool is 4,714 labelled sections, 2,995 fit_train and 273 fit_dev joined to R2. This matches the human's 4-5k.
+  - Proposed: per-concept FiLM adapters on a frozen phase-N base, plus a separate prefix critic; critic guidance stays off until validated.
+  - A weak probe found no gain from pilot states over features.
+  - Agent reading and the open choices: [a-style-module](artifacts/r2-phasen-and-lens-20261006.md#a-style-module).
+- The architecture page for Lele Liu is finalised as local HTML ([w-architecture-page](artifacts/r2-phasen-and-lens-20261006.md#w-architecture-page)).
+- Phase N restarted once on the RSS-growth guard at 1.34M exposures and resumed ([o-phasen-restart](artifacts/r2-phasen-and-lens-20261006.md#o-phasen-restart)).
 - Private sources: [prompt-4, local](artifacts/private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-4), [prompt-5, local](artifacts/private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-5).
 
 _Review: the focus, its two parts, the four decisions, the restart from R1 and the evaluation scope are the human's (2026-10-02, [private, local](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#answer-1), [restart](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#prompt-2), [scope](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#prompt-3)); the questions, the hypothesis, the design and the failure-mode reading are the agent's, not yet reviewed. The R1 verdict, the release-time decision and the preference direction are the human's (2026-10-03, [private, local](artifacts/private/human-inputs/41ba879c-870c-4368-9fa0-fb9fdf2ccce3.md#prompt-1)); their readings and the tensions named are the agent's._

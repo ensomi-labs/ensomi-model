@@ -85,3 +85,35 @@ Whether to start the phase-N run now was raised as a "maybe"; the main thread as
   - config `ce_v2_n.json`: memory none, lr 3e-4, 64M exposures, CPU with 4 threads.
 - **Health at 200 s:** 594k exposures, about 3,300 decisions/s, RSS about 1.0 GiB, gradient norm about 12, all finite.
 - **Outputs to expect:** a checkpoint every 4M exposures; selection by `select.py` after the run.
+
+<a id="s-style-module"></a>**Result: style-module job (Astra `20261006-152705-r2-style-module`, default tier, effort xhigh, 15:27 to 16:38 UTC, exit 0).** The report is in the code checkout, git-ignored and mirrored here: `artifacts/r2-style-module-20261006/report.md`, with `inventory.md`, `synthesis.md` and `feasibility.md`. No tracked file changed.
+- **Pool ([c-style-pool](#c-style-pool)):** 4,717 sections on 1,807 chart versions carry at least one explicit level. After admission (current Foundation, human precedence, three conflicting cells masked) there are 4,714 sections with 15,948 concept cells, of which 2,523 sections have all five. The exact-byte R2 join covers 2,995 fit_train and 273 fit_dev sections. Human labels cover 230 sections. The median section lasts 5.5 s. This matches the human's 4,000-5,000. The job reads "three provenances" as three method fingerprints (v2.1 initial, v2.1 repair, v3) or as three views (v2.1, v3, today's campaign) and confirms neither.
+- **Recommendation (proposed, untested):**
+  - Five per-concept FiLM adapters (28 → 128 → 128 → 256, zero-initialised output, one shared LayerNorm; 266,496 parameters). They are added to the kept property FiLM at the existing hand and release-query sites, gated by the rule-L read bit. They train in a frozen-base phase C by source-decision CE.
+  - A separate prefix critic on frozen phase-N features (input 1,366, 179,643 parameters; 2,850,863 in total with the adapters). The job's own review found that the first version (1,114 inputs) could not see EOS gap releases, because EOS never enters the TCN; a 252-channel final-decision block repairs that. It forecasts each concept's finished-section level per tentative row action or release candidate, and is trained by masked label CE on real prefixes.
+  - FUDGE-form guidance from the critic stays off until it is calibrated on generated histories and checked against independent judgments. GeDi, section energy with SMC, and HMM transitions are deferred.
+- **Probe (preregistered, exploratory):** on the 458k-exposure memory-on pilot checkpoint, 389 train and 90 dev machine-labelled sections, state + features scored a macro F1 of 0.577 against 0.587 for features alone. The gap is −0.010, 95% interval −0.060 to +0.057, against the registered +0.03, so not met. State alone scored 0.580 (majority 0.254).
+
+<a id="a-style-module"></a>**Agent reading (main thread, checked against the report and code, not re-run).**
+- **Rule L.** The read bit is computed once per decision and concept, before the action, and shared by all actions, both orientations and every candidate. A concept that cannot be read contributes no frame, loss or critic potential. This matches `locality.reads`.
+- **Identity gate.** An empty request returns z unchanged before any adapter MLP runs. Mixed batches use `where(read, …)`.
+- **Frozen phase C.** Only `film.*` trains. The critic is fitted separately and sends no gradient into the generator.
+- **No self-evaluation.** The critic is a guide and a diagnostic, never the sole judge. Adherence goes to fresh blinded human judgments or a scorer that shares no parameters.
+- **Parameter arithmetic** recomputed: 5 × 53,248 + 256 = 266,496; 2·1,366 + 1,367·128 + 129·15 = 179,643.
+- **What it does not show.** Whether frozen phase-N features carry the distinctions, whether source CE changes generated organisation, and whether the critic transfers to sampled alternatives are all untested. The probe is weak evidence on a superseded checkpoint.
+- **Before any style training (for the human):** the admission scenario; which concepts and levels come first; a fresh human evaluation set; phase-C and critic budgets, label balancing and selection; whether the first use is live or offline. The style module is not decided.
+
+<a id="w-architecture-page"></a>**Architecture page finalised for Lele Liu (2026-10-06, local HTML only, [r2-architecture-20261006.html](r2-architecture-20261006.html)).**
+- Added a goal-and-status block (confirmed, under test, open).
+- Drew the landmark read as switched off: 65,920 parameters built but unused; total still 2,404,724; 2,194,548 trained in phase N.
+- Recorded the phase-N settings and marked phase C as open.
+- Added §5 conditioning capacity for seven kinds, §10 the style module (proposed), and the decision-unit rethink as open in §6.
+- Kept internal process out of the page.
+
+<a id="o-phasen-restart"></a>**Observation: the phase-N run restarted once (main thread, from `events.jsonl` and the resources log).**
+- At 15:45:58 UTC, 1,338,023 exposures, RSS rose from 1.08 GB to 3.78 GB between two 10 s samples. The guard ("RSS grew above 2.0 GiB since the last checkpoint") wrote `ckpt-0001338023-safe.pt` and the trainer exited with code 4.
+- The launcher resumed at 15:46 (restart 1 of at most 5 in 6 h) and ran a full evaluation (`evals.jsonl`, 1,430 s).
+- Training continued from 16:10 at about 1.0 GB RSS. It was a single jump, not gradual growth. The cause is not identified.
+- Each further restart costs one evaluation.
+- The handoff's "healthy at 1.34M" was written just after this event.
+- Separately, the sync session `meta-ensomi-model` had been re-sending two 45 MB and 15 MB logs of the v1 run every cycle. It is fixed in workspace commit `d773084`. Per-step `logs/train-*.jsonl` of R2 runs no longer mirror; read them on the mac.

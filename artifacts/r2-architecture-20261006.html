@@ -95,6 +95,21 @@ ul.tight li,ol.tight li{margin:3px 0}
 @media (max-width:760px){.twocol{grid-template-columns:minmax(0,1fr)}}
 .twocol>div{min-width:0}
 
+/* stage status */
+.goal{border-left:3px solid var(--accent);background:var(--surface);padding:12px 16px;margin:4px 0 18px;max-width:80ch;border-radius:0 6px 6px 0}
+.goal b{font-family:var(--f-display);font-weight:600}
+.status{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:6px 0 22px}
+@media (max-width:860px){.status{grid-template-columns:minmax(0,1fr)}}
+.status>div{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--muted);border-radius:6px;padding:10px 14px 4px;min-width:0}
+.status>div.good{border-top-color:var(--good)}
+.status>div.warn{border-top-color:var(--warn)}
+.status>div.open{border-top-color:var(--cond)}
+.status h3{margin:0 0 6px;font-size:15px}
+.status ul{margin:0 0 8px;padding-left:18px;font-size:14px}
+.status li{margin:4px 0}
+.status a{color:var(--ink-2)}
+h2 .pill{font-family:var(--f-mono);font-weight:500;align-self:center}
+
 /* stepper */
 .stepper{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
 .stepper button{font:500 13px var(--f-mono);padding:5px 12px;border-radius:4px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);cursor:pointer}
@@ -128,6 +143,8 @@ svg.dg.narrow{min-width:560px}
 .dg .box.cond{fill:var(--cond-soft);stroke:var(--cond)}
 .dg .box.acc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
 .dg .box.out{fill:var(--bg)}
+.dg .box.off{fill:none;stroke:var(--muted);stroke-dasharray:4 3}
+.dg text.off{fill:var(--muted)}
 .dg .edge{stroke:var(--ink-2);stroke-width:1.3;fill:none}
 .dg .edge.cond{stroke:var(--cond)}
 .dg .ah{fill:var(--ink-2)}
@@ -172,6 +189,7 @@ a{color:var(--accent)}
 <div class="wrap">
 <aside class="rail"><nav aria-label="Contents">
   <div class="lab">Contents</div>
+  <a href="#stage">Goal and status</a>
   <a href="#glance">1 At a glance</a>
   <a href="#io">2 Inputs and outputs</a>
   <a href="#decision">3 The decision unit</a>
@@ -181,6 +199,7 @@ a{color:var(--accent)}
   <a href="#generation">7 Generation loop</a>
   <a href="#training">8 Training: two phases</a>
   <a href="#evaluation">9 Evaluation and selection</a>
+  <a href="#style">10 Style module (proposed)</a>
 </nav></aside>
 
 <main>
@@ -195,6 +214,47 @@ a{color:var(--accent)}
     <span class="chip"><b>2</b> training phases: natural, then conditions</span>
   </div>
 </header>
+
+<!-- stage -->
+<section id="stage">
+  <h2>This stage: goal and status</h2>
+  <div class="goal">
+    <p><b>Goal.</b> A generator that writes natural charts when nothing is asked, and follows scoped requests when they are given, without changing what it does outside their scopes. Phase N trains the natural generator with no requests. Phase C then teaches it to follow requests for LN share and difficulty inside their scopes. Style comes next as a condition: the five Beatmap Lens pattern concepts of our section annotations (jack, stream, trill, tech, LN coordination).</p>
+    <p style="margin-bottom:0">Out of scope for this stage: audio, generating the head rows (their times are given), and long-range memory.</p>
+  </div>
+  <div class="status">
+    <div class="good">
+      <h3>Confirmed</h3>
+      <ul>
+        <li>The decision unit: one decision per head row, a joint choice of lane codes, then release times from a candidate pointer (<a href="#decision">§3</a>, <a href="#release">§4</a>).</li>
+        <li>Scoped requests, the request validator and rule L (<a href="#requests">§6</a>).</li>
+        <li>Two training phases, natural then conditions, with an identity gate that keeps natural decisions out of the conditioning path (<a href="#network">§5</a>, <a href="#training">§8</a>).</li>
+        <li>Long-range memory is off: the landmark read is built but unused (<a href="#network">§5</a>).</li>
+        <li>Phase-N settings: peak learning rate 3e-4, 20k warm-up, cosine to 3e-5, 64M exposures, a checkpoint every 4M (<a href="#training">§8</a>).</li>
+        <li>Condition kinds for this stage: LN share, difficulty, and the five pattern concepts.</li>
+      </ul>
+    </div>
+    <div class="warn">
+      <h3>Under test</h3>
+      <ul>
+        <li>The phase-N run, training since 2026-10-06. Its checkpoints are evaluated as they come, and the selection rule of <a href="#evaluation">§9</a> picks the one phase C starts from.</li>
+        <li>The peak learning rate at full budget. In short pilots 3e-4, 1e-3 and 3e-3 tied; the run uses the lowest.</li>
+        <li>Whether phase-N states carry the pattern concepts. A first probe on an early checkpoint recognised them about as well as hand-made features but added nothing to them; it needs repeating on the selected checkpoint (<a href="#style">§10</a>).</li>
+      </ul>
+    </div>
+    <div class="open">
+      <h3>Open</h3>
+      <ul>
+        <li>Phase C: frozen or KL-held base (frozen first is proposed), the loss weights λ_ln, λ_star and μ_star, its budget and learning rate, and the primary measure for checkpoint selection.</li>
+        <li>Difficulty read as a residual to the skeleton baseline (the current default) or as absolute star.</li>
+        <li>Size and form of the conditioning path for seven kinds (<a href="#capacity">§5</a>).</li>
+        <li>Pattern-concept data: which labelled sections train it, and how many levels each concept has.</li>
+        <li>The style module (<a href="#style">§10</a>, proposed).</li>
+        <li>Whether to redefine the decision unit so that no decision straddles a scope boundary (<a href="#requests">§6</a>).</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
 <!-- 1 -->
 <section id="glance">
@@ -256,7 +316,7 @@ a{color:var(--accent)}
     <li><b>The unit is a head row</b><span>K head rows give K + 1 decisions. Decision k decides the LN releases in (t<sub>k−1</sub>, t<sub>k</sub>] and the new taps and LN heads at t<sub>k</sub>. A final EOS decision, fixed at T, only closes what is still held.</span></li>
     <li><b>Rows are chosen jointly</b><span>Each lane takes one of 5 codes, so a row is one of 5⁴ = 625 actions, scored together by a low-rank joint head and masked to legal ones.</span></li>
     <li><b>Releases come from a pointer</b><span>Release times are picked from a finite set of grid-snapped candidates in the gap, lane by lane, averaged over both mirror orientations.</span></li>
-    <li><b>Memory is a causal TCN</b><span>Dilated convolutions over committed rows see the last 511 rows. A landmark read attends to every 64th row. The TCN holds 83% of the weights.</span></li>
+    <li><b>Memory is a causal TCN</b><span>Dilated convolutions over committed rows see the last 511 rows. The TCN holds 83% of the weights. A long-range landmark read over every 64th row exists in the code but is switched off in this stage.</span></li>
     <li><b>Conditions are scoped</b><span>LN share and difficulty (tiled star) targets apply over [a, b) in song time. They enter by FiLM, only for decisions that rule L lets read them.</span></li>
     <li><b>Training has two phases</b><span>Phase N learns natural structure by teacher-forced CE on 256-decision windows of ranked and loved 2–6★ charts. Phase C then trains condition-following on top, with the natural part frozen or held near phase N by a KL term.</span></li>
   </ul>
@@ -416,7 +476,7 @@ a{color:var(--accent)}
   <p>One forward pass scores a window of decisions in teacher forcing; generation runs the same modules one decision at a time with a cached TCN. The two hands are processed in parallel with shared weights: hand 0 lists lanes 0, 1, 2, 3 and hand 1 lists 3, 2, 1, 0, so mirroring a chart swaps the hands. <span class="ref">model.py, common.py</span></p>
   <figure>
     <div class="scroll">
-    <svg class="dg" viewBox="0 0 1000 640" role="img" aria-label="Forward pass: history tokens go through a causal TCN; its previous output and an exact-state MLP over query features are fused, read landmarks, and are modulated by FiLM from condition frames; the result feeds a 625-way joint row head and a release pointer that also reads candidate features, placement relations and frames at the candidate time; the two log-probabilities add.">
+    <svg class="dg" viewBox="0 0 1000 640" role="img" aria-label="Forward pass: history tokens go through a causal TCN; its previous output and an exact-state MLP over query features are fused and modulated by FiLM from condition frames (a landmark read is built but switched off); the result feeds a 625-way joint row head and a release pointer that also reads candidate features, placement relations and frames at the candidate time; the two log-probabilities add.">
       <defs>
         <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
         <marker id="ah2c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah cond" d="M0,0 L10,5 L0,10 z"/></marker>
@@ -430,9 +490,8 @@ a{color:var(--accent)}
       <rect class="box" x="170" y="196" width="520" height="44" rx="4"/><text class="t" x="182" y="215">Fuse</text><text class="s" x="182" y="232">[enc(k−1) ‖ exact] 256 → 128 → h, per hand</text>
       <path class="edge" d="M295,162 V194" marker-end="url(#ah2)"/><text class="m" x="301" y="183">enc(k−1)</text>
       <path class="edge" d="M575,162 V194" marker-end="url(#ah2)"/>
-      <rect class="box" x="170" y="270" width="520" height="44" rx="4"/><text class="t" x="182" y="289">Landmark read</text><text class="s" x="182" y="306">attend to enc at rows 0, 64, 128, … before k; added to h</text>
-      <path class="edge" d="M430,240 V268" marker-end="url(#ah2)"/>
-      <path class="edge" d="M170,140 H140 V292 H168" marker-end="url(#ah2)"/><text class="m" x="134" y="222" text-anchor="end">every</text><text class="m" x="134" y="236" text-anchor="end">64th</text>
+      <rect class="box off" x="460" y="266" width="230" height="52" rx="4"/><text class="t off" x="472" y="286">Landmark read · off</text><text class="s off" x="472" y="303">rows 0, 64, 128, …; built, unused</text>
+      <path class="edge" d="M430,240 V342" marker-end="url(#ah2)"/><text class="m" x="438" y="296">h</text>
       <rect class="box cond" x="16" y="340" width="126" height="64" rx="4"/><text class="t c" x="26" y="360">Condition</text><text class="t c" x="26" y="376">frames at t_k</text><text class="m" x="26" y="394">V_k only · 68</text>
       <rect class="box" x="170" y="344" width="520" height="44" rx="4"/><text class="t" x="182" y="363">FiLM</text><text class="s" x="182" y="380">z = h + γ ⊙ LayerNorm(h) + δ; identity when no request is read</text>
       <path class="edge" d="M430,314 V342" marker-end="url(#ah2)"/>
@@ -456,7 +515,7 @@ a{color:var(--accent)}
       <path class="edge" d="M575,550 V582" marker-end="url(#ah2)"/>
     </svg>
     </div>
-    <figcaption>Blue boxes hold most of the learned weight; orange marks where conditions enter. Conditions never enter the history tokens, so a request reaches later decisions only through what was already committed. Source: <span class="ref">model.py</span>.</figcaption>
+    <figcaption>Blue boxes hold most of the learned weight; orange marks where conditions enter. Conditions never enter the history tokens, so a request reaches later decisions only through what was already committed. The dashed landmark read would add an attention over every 64th TCN output; it is off in this stage, so rows more than 511 back reach the model only through the running counts and clocks in the tokens and query features. Source: <span class="ref">model.py</span>.</figcaption>
   </figure>
 
   <h3>What each input carries</h3>
@@ -477,19 +536,19 @@ a{color:var(--accent)}
     <div class="bar" tabindex="0"><span class="lab">Causal TCN</span><span class="track"><span class="fill" style="width:100%;display:block"></span></span><span class="val">1,991,552 · 82.8%</span><span class="tip">8 blocks: gated causal conv 128→256 (k = 3), then 128→512→128 MLP</span></div>
     <div class="bar unused" tabindex="0"><span class="lab">Token conditioner</span><span class="track"><span class="fill" style="width:5.13%;display:block"></span></span><span class="val">102,144 · 4.2%</span><span class="tip">An alternative cross-attention conditioner; built, but unused on the default FiLM path</span></div>
     <div class="bar" tabindex="0"><span class="lab">Release pointer</span><span class="track"><span class="fill" style="width:4.05%;display:block"></span></span><span class="val">80,587 · 3.4%</span><span class="tip">pointer_in 307→128, relations 28→128, out 128→128, candidate MLP 34→128, code embedding</span></div>
-    <div class="bar" tabindex="0"><span class="lab">Landmark read</span><span class="track"><span class="fill" style="width:3.31%;display:block"></span></span><span class="val">65,920 · 2.7%</span><span class="tip">query, key, value 128→128; zero-initialised output</span></div>
+    <div class="bar unused" tabindex="0"><span class="lab">Landmark read</span><span class="track"><span class="fill" style="width:3.31%;display:block"></span></span><span class="val">65,920 · 2.7%</span><span class="tip">query, key, value 128→128, zero-initialised output; built, but switched off in this stage</span></div>
     <div class="bar" tabindex="0"><span class="lab">Fuse</span><span class="track"><span class="fill" style="width:2.51%;display:block"></span></span><span class="val">49,920 · 2.1%</span><span class="tip">LayerNorm(256) → 128 → 128</span></div>
     <div class="bar" tabindex="0"><span class="lab">FiLM</span><span class="track"><span class="fill" style="width:2.11%;display:block"></span></span><span class="val">42,112 · 1.8%</span><span class="tip">68 → 128 → 256 (γ, δ), last layer zero-initialised; width and depth configurable</span></div>
     <div class="bar" tabindex="0"><span class="lab">Joint row head</span><span class="track"><span class="fill" style="width:1.84%;display:block"></span></span><span class="val">36,649 · 1.5%</span><span class="tip">unaries 128→25 per hand, coupling 128→16×16 per hand</span></div>
     <div class="bar" tabindex="0"><span class="lab">Exact-state MLP</span><span class="track"><span class="fill" style="width:1.80%;display:block"></span></span><span class="val">35,840 · 1.5%</span><span class="tip">150 → 128 → 128</span></div>
   </div>
-  <p class="ref">Total 2,404,724 with the default config: hidden 128, 8 TCN levels, expansion 4, rank 16, landmark stride 64. Phase N trains the 2,260,468 natural parameters; the conditioning path is 42,112 at its default size. model.py</p>
+  <p class="ref">Total 2,404,724 with the default config: hidden 128, 8 TCN levels, expansion 4, rank 16, landmark stride 64. Hatched bars are built but unused. With memory off, phase N trains 2,194,548 natural parameters; the landmark read's 65,920 stay at their initial values. The conditioning path is 42,112 at its default size. model.py</p>
 
   <h3>How conditions reach the output</h3>
   <div class="tablewrap"><table>
     <thead><tr><th>Path</th><th>Mechanism</th></tr></thead>
     <tbody>
-      <tr><td>Row decision</td><td>FiLM on both hand vectors, after fuse and landmarks. Frames are evaluated at t_k for the intervals in V_k.</td></tr>
+      <tr><td>Row decision</td><td>FiLM on both hand vectors, after fuse. Frames are evaluated at t_k for the intervals in V_k.</td></tr>
       <tr><td>Release pointer</td><td>The same FiLM on each pointer query, from the row frame at t_k and a frame at the candidate time u. The conditioned hand vectors also feed the pointer.</td></tr>
       <tr><td>Which intervals</td><td>Rule L chooses V_k (§6). Within V_k, a kind is active at time t only if a ≤ t &lt; b.</td></tr>
       <tr><td>History</td><td>None. Tokens hold decisions only.</td></tr>
@@ -497,6 +556,14 @@ a{color:var(--accent)}
       <tr><td>Identity gate</td><td>A decision or candidate pair whose frames are all zero, because it reads no request, passes through FiLM unchanged. Natural decisions never depend on the conditioning weights.</td></tr>
     </tbody>
   </table></div>
+
+  <h3 id="capacity">Conditioning capacity for seven kinds <span class="pill cond">open</span></h3>
+  <p>Today one shared FiLM serves both kinds: 68 → 128 → 256, 42,112 parameters. Its width and depth are configurable; 512 wide with 2 layers gives 429,568. Seven kinds (LN share, difficulty, five pattern concepts) need more than today's size. Two forms are on the table:</p>
+  <ul class="tight">
+    <li><b>Per-kind adapters.</b> Each kind has its own MLP from its own frame to (γ, δ), with a zero-initialised output, gated by its own rule-L read bit, and the modulations are summed. A kind added later trains alone, and decisions without it stay bit-identical. Kinds that are active together interact only through the nonlinear row head and pointer downstream.</li>
+    <li><b>A wider shared FiLM</b> over all seven frames. It can learn interactions between kinds, but it loses that plug-in isolation.</li>
+  </ul>
+  <p>The style proposal in §10 uses the per-kind form for the five concepts and keeps today's FiLM for LN share and difficulty.</p>
 </section>
 
 <!-- 6 -->
@@ -509,7 +576,7 @@ a{color:var(--accent)}
         <li>A scope [a, b) in song ms, 0 ≤ a &lt; b ≤ T.</li>
         <li>At most one target per property: LN share in [0, 1], difficulty as tiled star over a scope of at least 30 s, or both on the same scope.</li>
         <li>Strength fixed at the default. Ranges are refused.</li>
-        <li>Style, demand, priority and transitions must be empty; they are reserved and raise when set.</li>
+        <li>Style, demand, priority and transitions must be empty; they are reserved and raise when set (the proposed style request is in §10).</li>
       </ul>
       <p class="ref">request_set.py</p>
     </div>
@@ -563,6 +630,7 @@ a{color:var(--accent)}
     </div>
     <figcaption>Decision 3 is the onset: its row is inside the scope, but it may close the open hold before a, so it is masked. With no hold open it would read. Decision 8, the first row at or after b, never reads. V_k depends only on the skeleton, the scopes and the lanes held entering k, so it is the same in teacher forcing and in sampling. In the worked example of §3, an LN request from 1250 ms masks decision 1 for the same reason.</figcaption>
   </figure>
+  <p><span class="pill cond">open</span> Rule L follows from the decision unit: a decision emits times on both sides of its row. If the unit were redefined so that no decision straddles a scope boundary, rule L would reduce to "the row time is in [a, b)". Whether to do that is open.</p>
 </section>
 
 <!-- 7 -->
@@ -571,8 +639,8 @@ a{color:var(--accent)}
   <ol class="tight">
     <li>Refuse a baseline style; check the chart seed by replay; check that every request starts after the committed frontier.</li>
     <li>Build the effective track: one interval per target, with provenance and flags.</li>
-    <li>Run the TCN over the seed's history tokens and keep its cache, saving a landmark every 64 rows.</li>
-    <li>For each decision k: derive held lanes and clocks, read the cache and landmarks, compute query features, find V_k by rule L, build the frames, and get the hand vectors z.</li>
+    <li>Run the TCN over the seed's history tokens and keep its cache.</li>
+    <li>For each decision k: derive held lanes and clocks, read the cache, compute query features, find V_k by rule L, build the frames, and get the hand vectors z.</li>
     <li>Score the 625 row actions, mask illegal ones, and sample with the Gumbel-max trick at temperature 1 (CPU float64, no truncation).</li>
     <li>Flip a fair coin for the orientation. For each lane that closes in the gap, in that order, score every candidate with the current placements and sample one.</li>
     <li>Commit; append history token k to the TCN cache (EOS never becomes a token).</li>
@@ -587,7 +655,7 @@ a{color:var(--accent)}
 
 <!-- 8 -->
 <section id="training">
-  <h2><span class="n">8</span>Training: two phases</h2>
+  <h2><span class="n">8</span>Training: two phases <span class="pill warn">phase N training</span> <span class="pill cond">phase C open</span></h2>
   <p>Data: ranked and loved 2–6★ charts, cached one <code>.npz</code> per chart (head times, lane codes, snapped gap releases, grid, song length) and round-trip checked. Song groups are split into fit_train and fit_dev by a hash. <span class="ref">splits.py, cache.py</span></p>
   <p>Training is split so that chart structure and condition-following are learned separately. <b>Phase N</b> learns natural structure with no requests at all. <b>Phase C</b> starts from the phase-N model and trains condition-following. It has two modes: the natural part stays frozen, or it may move but is held near phase N by a KL term. <span class="ref">train_ce.py, loss.py</span></p>
   <figure>
@@ -601,7 +669,7 @@ a{color:var(--accent)}
       <text class="t" x="16" y="58">Phase N</text><text class="s" x="16" y="75">natural structure</text>
       <rect class="box" x="160" y="34" width="200" height="60" rx="4"/><text class="t" x="172" y="56">Real-chart windows</text><text class="s" x="172" y="73">256 decisions</text><text class="s" x="172" y="87">no requests</text>
       <rect class="box" x="390" y="34" width="220" height="60" rx="4"/><text class="t" x="402" y="56">Teacher-forced CE</text><text class="s" x="402" y="73">every scored decision</text><text class="s" x="402" y="87">fixed divisor N̄</text>
-      <rect class="box acc" x="650" y="34" width="190" height="60" rx="4"/><text class="t a" x="662" y="58">trains</text><text class="s" x="662" y="76">TCN, landmarks, MLPs,</text><text class="s" x="662" y="89">row head, pointer</text>
+      <rect class="box acc" x="650" y="34" width="190" height="60" rx="4"/><text class="t a" x="662" y="58">trains</text><text class="s" x="662" y="76">TCN, MLPs,</text><text class="s" x="662" y="89">row head, pointer</text>
       <rect class="box frame" x="850" y="34" width="134" height="60" rx="4"/><text class="s" x="862" y="60">unused</text><text class="s" x="862" y="76">(no requests)</text>
       <path class="edge" d="M360,64 H388" marker-end="url(#ah4)"/><path class="edge" d="M610,64 H648" marker-end="url(#ah4)"/>
       <!-- init edge -->
@@ -665,10 +733,12 @@ Phase C   L = L_base + λ_ln L_ln + λ_star L_star + λ_star μ_star L_proxy  [ 
       <tr><td>Optimiser</td><td>AdamW, β (0.9, 0.95), weight decay 0.01 on matrices, gradient clip 1.0</td></tr>
       <tr><td>Batch</td><td>4 windows of up to 256 decisions; exposures count scored head decisions</td></tr>
       <tr><td>Schedule</td><td>warm-up then cosine, or a staged list of constant, linear and cosine phases; set per phase and run</td></tr>
-      <tr><td>Robustness</td><td>a non-finite loss reloads the last checkpoint, skips the windows and halves the LR; memory guards stop safely after a checkpoint</td></tr>
+      <tr><td>Robustness</td><td>a non-finite loss reloads the last checkpoint, skips the windows and halves the LR; memory guards stop safely after a checkpoint, and the launcher resumes from it</td></tr>
+      <tr><td style="white-space:nowrap">Phase N <span class="pill good">set</span></td><td>peak LR 3e-4 after a 20k-exposure warm-up, cosine to 3e-5; 64M exposures; a checkpoint every 4M; memory off; CPU, 4 threads; weight seed 171, draw seed 471</td></tr>
+      <tr><td style="white-space:nowrap">Phase C <span class="pill cond">open</span></td><td>mode (frozen or KL-held), learning rate, budget, λ_ln, λ_star, μ_star and, for KL, β with its direction and coverage</td></tr>
     </tbody>
   </table></div>
-  <p>Learning rates, budgets, the loss weights λ, μ and β, and the phase-C mode are set per run. The configs leave them empty, and the trainer refuses to start until they are given. <span class="ref">configs/ce_v2_n.json, ce_v2_c_frozen.json, ce_v2_c_kl.json</span></p>
+  <p>Every value a run needs must be set in its config: the trainer refuses to start while any is empty. <span class="ref">configs/ce_v2_n.json, ce_v2_c_frozen.json, ce_v2_c_kl.json</span></p>
 </section>
 
 <!-- 9 -->
@@ -688,11 +758,100 @@ Phase C   L = L_base + λ_ln L_ln + λ_star L_star + λ_star μ_star L_proxy  [ 
       <tr><td><code>g3</code> (C)</td><td>Identity after a scope's exit; persistence; explicit 0 against no request; organisation kept under an LN request</td><td>identity</td></tr>
     </tbody>
   </table></div>
-  <p>Checkpoint selection: among checkpoints that pass every guard of their phase, pick the earliest within 2 SE of the lowest natural NLL. The NLL is averaged over three checkpoints, with a song-group bootstrap. <span class="ref">select.py</span></p>
+  <p>Checkpoint selection: among checkpoints that pass every guard of their phase, pick the earliest within 2 SE of the lowest natural NLL. The NLL is averaged over three checkpoints, with a song-group bootstrap. Phase N is selected this way, and the checkpoint it picks starts phase C. <span class="ref">select.py</span></p>
+  <p>For phase C the primary measure is open. Under a frozen base the natural NLL cannot move, so the rule becomes "earliest passing all guards". The alternatives are NLL on the decisions that read a request, or free-run adherence on a selection panel kept apart from the reported panels.</p>
+</section>
+
+<!-- 10 -->
+<section id="style">
+  <h2><span class="n">10</span>Style module <span class="pill cond">proposed · not built</span></h2>
+  <p>Style here means the five pattern concepts: jack, stream, trill, tech and LN coordination. The annotations label each one per section as absent, present-supporting or present-prominent. A style request names a concept, a scope [a, b) and a level. The module has to act while the chart is generated, not only classify finished sections. It must also keep what holds above: rule L, the identity gate, a frozen phase-N base, and evaluation by something other than the module itself. The proposal has two parts, both built on the frozen phase-N model.</p>
+  <figure>
+    <div class="scroll">
+    <svg class="dg" viewBox="0 0 1000 380" role="img" aria-label="Proposed style module: style requests pass rule L into read bits and frames; the frozen phase-N trunk gives hand vectors that a gated sum of today's property FiLM and five per-concept style adapters modulates; the frozen row head and pointer produce the decision. A separately trained prefix critic reads the unmodulated hand vectors, the scope's committed rows and a tentative row or release, and forecasts each concept's level; its forecast is logged, and guidance into the row head and pointer stays off until validated.">
+      <defs>
+        <marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="ah5c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah cond" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+      <!-- requests and rule L -->
+      <rect class="box cond" x="16" y="20" width="200" height="56" rx="4"/><text class="t c" x="28" y="42">Style requests</text><text class="s" x="28" y="60">concept, [a, b), level</text>
+      <path class="edge cond" d="M216,48 H248" marker-end="url(#ah5c)"/>
+      <rect class="box cond" x="250" y="20" width="260" height="56" rx="4"/><text class="t c" x="262" y="42">Rule L → read bit per concept</text><text class="s" x="262" y="60">frames: 14 channels × 2 roles</text>
+      <path class="edge cond" d="M380,76 V118" marker-end="url(#ah5c)"/>
+      <!-- main path -->
+      <rect class="box" x="16" y="120" width="200" height="84" rx="4" style="fill:url(#hatch2)"/><rect x="24" y="128" width="184" height="66" rx="3" style="fill:var(--surface)"/><text class="t" x="32" y="148">Phase-N trunk · frozen</text><text class="s" x="32" y="166">TCN, exact-state MLP, fuse</text><text class="m" x="32" y="184">→ hand vectors h</text>
+      <path class="edge" d="M216,162 H248" marker-end="url(#ah5)"/>
+      <rect class="box cond" x="250" y="120" width="260" height="84" rx="4"/><text class="t c" x="262" y="142">Gated FiLM sum</text><text class="s" x="262" y="160">today's FiLM: LN share, difficulty</text><text class="s" x="262" y="176">+ 5 style adapters, one per concept</text><text class="m" x="262" y="194">identity when nothing is read</text>
+      <path class="edge" d="M510,162 H538" marker-end="url(#ah5)"/><text class="m" x="516" y="154">z′</text>
+      <rect class="box" x="540" y="120" width="210" height="84" rx="4" style="fill:url(#hatch2)"/><rect x="548" y="128" width="194" height="66" rx="3" style="fill:var(--surface)"/><text class="t" x="556" y="148">Row head + pointer · frozen</text><text class="s" x="556" y="166">same masks and normalisers</text><text class="s" x="556" y="182">as phase N</text>
+      <path class="edge" d="M750,162 H778" marker-end="url(#ah5)"/>
+      <rect class="box out" x="780" y="120" width="204" height="84" rx="4"/><text class="t" x="792" y="148">Decision k</text><text class="s" x="792" y="166">row codes + release times,</text><text class="s" x="792" y="182">committed to history</text>
+      <!-- critic -->
+      <path class="edge" d="M116,204 V310 H248" marker-end="url(#ah5)"/><text class="m" x="124" y="300">h, unmodulated</text>
+      <rect class="box" x="250" y="262" width="260" height="96" rx="4"/><text class="t" x="262" y="284">Prefix critic · trained separately</text><text class="s" x="262" y="302">reads h, a summary of the scope's</text><text class="s" x="262" y="318">committed rows, and a tentative</text><text class="s" x="262" y="334">row or release candidate</text><text class="m" x="262" y="350">never sees the requested level</text>
+      <path class="edge" d="M510,310 H538" marker-end="url(#ah5)"/>
+      <rect class="box" x="540" y="262" width="210" height="96" rx="4"/><text class="t" x="552" y="284">Forecast per concept</text><text class="s" x="552" y="302">absent / supporting /</text><text class="s" x="552" y="318">prominent, for the</text><text class="s" x="552" y="334">finished section</text>
+      <path class="edge cond" d="M645,262 V206" marker-end="url(#ah5c)" style="stroke-dasharray:5 4"/><text class="m" x="653" y="232">guidance β · log Q</text><text class="m" x="653" y="246">off until validated</text>
+      <path class="edge" d="M750,310 H778" marker-end="url(#ah5)"/>
+      <rect class="box out" x="780" y="286" width="204" height="48" rx="4"/><text class="t" x="792" y="306">Diagnostics first</text><text class="s" x="792" y="323">never judges its own output</text>
+    </svg>
+    </div>
+    <figcaption>Hatched boxes are frozen at the phase-N checkpoint. Orange is the request path. Only the adapters train in phase C; the critic trains on its own and sends no gradient into the generator.</figcaption>
+  </figure>
+
+  <h3>Control path: one adapter per concept</h3>
+  <ul class="tight">
+    <li><b>Frame.</b> A readable style request gives 14 channels per role (row time t_k, candidate time u): the level as a one-hot (3), ψ distances to a and to b in ms and beats (4 + 4), progress through the scope, log of the remaining head rows, and an active bit. An explicit "absent" is a non-zero frame, so it differs from no request.</li>
+    <li><b>Form.</b> Each concept j has its own MLP, 28 → 128 → 128 → 256 = (γ<sub>j</sub>, δ<sub>j</sub>), GELU, with a zero-initialised output. One LayerNorm is shared by the five. Today's FiLM is kept for LN share and difficulty, and the terms add:</li>
+  </ul>
+  <div class="formula">z′ = FiLM_props(z, c_props) + Σ_j g_j · ( γ_j(c_j) ⊙ LN_style(z) + δ_j(c_j) )
+
+g_j = rule-L read bit of concept j; every term uses the same unmodulated z</div>
+  <ul class="tight">
+    <li><b>Sites.</b> The same two as today: both hand vectors, and every release query. The row head, pointer, legality masks and normalisers are untouched, so each decision is still an exact distribution over its legal actions and candidates, and the sampler's order is unchanged. With nothing readable, z′ = z exactly.</li>
+    <li><b>Training.</b> Phase C with the frozen base: CE on source decisions that read a labelled scope; only the adapters move. A labelled scope that no decision may read under rule L contributes nothing to the loss.</li>
+    <li><b>Size.</b> 53,248 per concept, 266,496 for five with the LayerNorm. The generator grows from 2,404,724 to 2,671,220 parameters.</li>
+  </ul>
+
+  <h3>Forecast path: a prefix critic</h3>
+  <ul class="tight">
+    <li><b>What it predicts.</b> For each concept, the level the finished section will have, given the prefix so far plus a tentative row action or release candidate. It is a forecast about the section, not the label of one row.</li>
+    <li><b>Inputs, 1,366 wide.</b> The phase-N hand vectors before any adapter; a scope summary (mean and max of mirror-invariant TCN outputs over the scope's committed rows, and their log count) that resets with each scope; the tentative row's code embeddings; for a release, the natural pointer query, candidate embedding, placement relations and lane slot; the scope's geometry without its target. For the forecast at the end of a section, a block holding the final decision's chosen releases per lane, because EOS never enters the TCN and its releases would otherwise be invisible. It never sees the requested level.</li>
+    <li><b>Network.</b> LayerNorm → 128 → GELU → 15, read as 5 concepts × 3 levels; 179,643 parameters, so the generator with adapters and critic has 2,850,863. Trained by masked label CE on prefixes of real charts.</li>
+    <li><b>Use.</b> Forecasts are logged first. Optional guidance, in the form of FUDGE, multiplies the probability of each legal row action and each release candidate by exp(β · log Q(requested level)) and renormalises, on decisions that read the request. It stays off until the critic is calibrated on generated histories and its forecasts predict independent judgments of the output.</li>
+    <li><b>Why per candidate.</b> A score that depends only on the state before the decision adds the same amount to every action and cancels in the softmax. Guidance has to score each alternative.</li>
+  </ul>
+
+  <h3>Designs compared</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Design</th><th>Role in the proposal</th></tr></thead>
+    <tbody>
+      <tr><td>Prefix discriminator on generator states (FUDGE-like)</td><td>Kept as the forecast path; guidance only after validation.</td></tr>
+      <tr><td>Per-concept phase-C adapters</td><td>Kept as the control path.</td></tr>
+      <tr><td>Class-conditional generative discriminator (GeDi-like)</td><td>Deferred: it duplicates the conditional modelling the adapters already do.</td></tr>
+      <tr><td>Section energy or reward on the frozen trunk (reranking, SMC, reward training)</td><td>Deferred: more compute and harder to keep local to the scope; revisited if the simpler arms fall short.</td></tr>
+      <tr><td>Style-state transition model (HMM) at decoding</td><td>Not supported by the labels: they are separate sections, about 2.6 per chart, not continuous sequences, so they do not identify transition or duration probabilities. Decoding-time preference enters through the critic's guidance instead.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Data</h3>
+  <ul class="tight">
+    <li>4,714 labelled sections with 15,948 concept labels, almost all from machine annotation (about 230 sections carry human labels); 2,995 fit_train and 273 fit_dev sections match charts in the R2 training cache. How many of them a decision may read under rule L is not counted yet.</li>
+    <li>Sections are short: median 5.5 s, most below the 30 s minimum of the difficulty measure.</li>
+  </ul>
+
+  <h3>How it would be tested</h3>
+  <ul class="tight">
+    <li><b>Exact invariants.</b> With no style request, the decision law and, for a fixed seed, the chart equal phase N's. Changing a request that no decision may read changes nothing. Explicit absent differs from unspecified. Mirror equivariance holds. Frozen weights stay bit-identical through training.</li>
+    <li><b>Independent judgment.</b> Adherence is judged by fresh blinded human ratings, or by a scorer that shares no parameters with the generator or the critic. The critic never judges output it guided.</li>
+    <li><b>Arms at matched prefixes.</b> Phase N alone, adapters only, guidance only, and both. Each reports adherence together with playability, and short holds and releases just before another head against source charts at matched star.</li>
+    <li><b>Representation.</b> A first probe used an early pilot checkpoint (458k exposures, memory on). For recognising finished labelled sections, its states alone did about as well as rich hand-made features (macro F1 0.58 against 0.59; 0.25 for the majority class), but adding them to the features gained nothing: −0.01, 95% interval −0.06 to +0.06, short of the +0.03 registered in advance. An early checkpoint cannot settle the question; the probe has to be repeated on the selected phase-N checkpoint.</li>
+  </ul>
+  <p><span class="pill cond">open</span> Which annotation layers to admit; which concepts and levels come first; phase-C and critic budgets, label balancing and the selection criterion; and whether guidance is needed at all once the adapters are trained.</p>
 </section>
 
 <footer>
-  <p>A snapshot of the R2 code (package <code>src/ensomi_model/r2/</code>), 2026-10-06. File names in grey point to the module that implements each part. The parameter counts and the worked example were computed with this code. Both training phases are implemented; neither has been trained yet in this form.</p>
+  <p>A snapshot of the R2 code (package <code>src/ensomi_model/r2/</code>), 2026-10-06. File names in grey point to the module that implements each part. The parameter counts and the worked example were computed with this code. Phase N is training with memory off; phase C has not started. The style module of §10 is a proposal and is not built.</p>
 </footer>
 </main>
 </div>
