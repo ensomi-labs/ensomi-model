@@ -118,6 +118,10 @@ R2 v2 direction, 2026-10-06:
   - Thirteen decisions await the human (§10).
 - The code is on the `r2/train` working tree, uncommitted. The three bugs are fixed, and the mac suite gives 254 passed, 5 skipped, 0 failed (job `20261006-124635-r2-v5-tests-3`; the earlier run had 19 failed).
 - No training has run, and no stage-0 measurement either. Every undecided value is null and refused.
+- Two Astra jobs, 2026-10-06 ([r2-phasen-and-lens-20261006](artifacts/r2-phasen-and-lens-20261006.md)):
+  - Phase-N pilots: divisors measured, CPU at about 2,029 decisions/s. Peak lr 3e-4, 1e-3 and 3e-3 are tied at 0.46M heads. Proposal: 3e-4, 64M exposures, about 13.6 h.
+  - Lens data: sparse 5-10 s sections, 1-3 per chart, so no trajectories, and the current agent labels are not validated against gold.
+  - Phase C (proposed): frozen first for properties; for styles, first a section scorer and a candidate-support test, then reranking. HMM, CRF and DPO are deferred.
 - Private sources: [prompt-4, local](artifacts/private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-4), [prompt-5, local](artifacts/private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-5).
 
 _Review: the focus, its two parts, the four decisions, the restart from R1 and the evaluation scope are the human's (2026-10-02, [private, local](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#answer-1), [restart](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#prompt-2), [scope](artifacts/private/human-inputs/13236b40-ac9c-4abe-a791-60fb6e93c03f.md#prompt-3)); the questions, the hypothesis, the design and the failure-mode reading are the agent's, not yet reviewed. The R1 verdict, the release-time decision and the preference direction are the human's (2026-10-03, [private, local](artifacts/private/human-inputs/41ba879c-870c-4368-9fa0-fb9fdf2ccce3.md#prompt-1)); their readings and the tensions named are the agent's._
