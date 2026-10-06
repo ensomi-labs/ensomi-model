@@ -107,7 +107,7 @@ Whether to start the phase-N run now was raised as a "maybe"; the main thread as
 - Added a goal-and-status block (confirmed, under test, open).
 - Drew the landmark read as switched off: 65,920 parameters built but unused; total still 2,404,724; 2,194,548 trained in phase N.
 - Recorded the phase-N settings and marked phase C as open.
-- Added §5 conditioning capacity for seven kinds, §10 the style module (proposed), and the decision-unit rethink as open in §6.
+- Added §5 conditioning capacity for seven kinds and §10 the style module (proposed).
 - Kept internal process out of the page.
 
 <a id="o-phasen-restart"></a>**Observation: the phase-N run restarted once (main thread, from `events.jsonl` and the resources log).**
@@ -117,3 +117,9 @@ Whether to start the phase-N run now was raised as a "maybe"; the main thread as
 - Each further restart costs one evaluation.
 - The handoff's "healthy at 1.34M" was written just after this event.
 - Separately, the sync session `meta-ensomi-model` had been re-sending two 45 MB and 15 MB logs of the v1 run every cycle. It is fixed in workspace commit `d773084`. Per-step `logs/train-*.jsonl` of R2 runs no longer mirror; read them on the mac.
+
+<a id="d-decision-unit-kept"></a>**Decision (human, 2026-10-06, [private, local](private/human-inputs/da66cd9e-81c2-4ad1-a989-4fe6ef7c81fe.md#prompt-4)): the decision unit stays.**
+- [q-decision-unit-rethink](r2-v2-stage0-state.md#q-decision-unit-rethink) is closed.
+- A decision that straddles a scope boundary is a boundary effect. It touches at most one head row per boundary, which the human judges negligible.
+- The decision unit is not redefined, and rule L stays as built.
+- The open item was removed from the architecture page (§6 and the status block).

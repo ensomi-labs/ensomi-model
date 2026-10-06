@@ -250,7 +250,6 @@ a{color:var(--accent)}
         <li>Size and form of the conditioning path for seven kinds (<a href="#capacity">§5</a>).</li>
         <li>Pattern-concept data: which labelled sections train it, and how many levels each concept has.</li>
         <li>The style module (<a href="#style">§10</a>, proposed).</li>
-        <li>Whether to redefine the decision unit so that no decision straddles a scope boundary (<a href="#requests">§6</a>).</li>
       </ul>
     </div>
   </div>
@@ -630,7 +629,6 @@ a{color:var(--accent)}
     </div>
     <figcaption>Decision 3 is the onset: its row is inside the scope, but it may close the open hold before a, so it is masked. With no hold open it would read. Decision 8, the first row at or after b, never reads. V_k depends only on the skeleton, the scopes and the lanes held entering k, so it is the same in teacher forcing and in sampling. In the worked example of §3, an LN request from 1250 ms masks decision 1 for the same reason.</figcaption>
   </figure>
-  <p><span class="pill cond">open</span> Rule L follows from the decision unit: a decision emits times on both sides of its row. If the unit were redefined so that no decision straddles a scope boundary, rule L would reduce to "the row time is in [a, b)". Whether to do that is open.</p>
 </section>
 
 <!-- 7 -->

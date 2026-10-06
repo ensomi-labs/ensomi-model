@@ -52,7 +52,7 @@ The human says the decision space, its order and its learnability may be rethoug
 - Rule L is not an extra policy. It is what "current section" means for a decision that outputs times on both sides of a boundary: decision k emits gap releases that can fall before a.
 - If the decision unit is redesigned so that no decision straddles a section boundary, rule L reduces to t ∈ [a, b). That would also replace the "split boundary decision" the plan keeps in reserve for D8 > 5%.
 
-No redesign is decided. The architecture page's §3 and §6 were corrected for the two wordings that suggested a mismatch (notes `1fbb6cc`).
+No redesign is decided. The architecture page's §3 and §6 were corrected for the two wordings that suggested a mismatch (notes `1fbb6cc`). **Closed** later the same day: the unit stays ([d-decision-unit-kept](r2-phasen-and-lens-20261006.md#d-decision-unit-kept)).
 
 <a id="d-two-phase-recipe"></a>**Decision (human, 2026-10-06, [private, local](private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-4)): two-phase training.**
 - **Phase N:** learn natural chart structure first, by teacher-forced CE with no conditions.

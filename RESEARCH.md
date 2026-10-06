@@ -136,6 +136,7 @@ R2 v2 direction, 2026-10-06:
   - A weak probe found no gain from pilot states over features.
   - Agent reading and the open choices: [a-style-module](artifacts/r2-phasen-and-lens-20261006.md#a-style-module).
 - The architecture page for Lele Liu is finalised as local HTML ([w-architecture-page](artifacts/r2-phasen-and-lens-20261006.md#w-architecture-page)).
+- Human: the decision unit stays. Straddling a scope boundary affects at most one head row and is negligible, so the rethink is closed ([d-decision-unit-kept](artifacts/r2-phasen-and-lens-20261006.md#d-decision-unit-kept)).
 - Phase N restarted once on the RSS-growth guard at 1.34M exposures and resumed ([o-phasen-restart](artifacts/r2-phasen-and-lens-20261006.md#o-phasen-restart)).
 - Private sources: [prompt-4, local](artifacts/private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-4), [prompt-5, local](artifacts/private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-5).
 
