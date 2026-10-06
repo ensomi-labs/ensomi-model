@@ -10,7 +10,9 @@ Resume an existing run (reuses its frozen code)::
 
 The supervisor runs the trainer with PYTHONPATH pointing at the frozen copy,
 appends every exit to ``events.jsonl``, and on a non-zero exit other than the
-NaN-limit stop (3) resumes from the latest checkpoint, at most five restarts.
+NaN-limit stop (3) resumes from the latest checkpoint. The restart budget is a
+rate: at most five restarts in any six hours, and a resume that reaches a new
+checkpoint clears the count.
 """
 from __future__ import annotations
 
@@ -25,6 +27,7 @@ import sys
 import time
 
 MAX_RESTARTS = 5
+RESTART_WINDOW_S = 6 * 3600
 EXIT_NAN = 3
 
 
@@ -84,9 +87,23 @@ def prepare(args):
     return run, code
 
 
+def latest_checkpoint(run: Path, previous=None):
+    """The newest regular checkpoint name; a safe checkpoint written at a resource stop does not count."""
+    marker = run / 'checkpoints' / 'latest.json'
+    name = json.loads(marker.read_text()).get('path') if marker.exists() else None
+    return previous if name is None or name.endswith('-safe.pt') else name
+
+
+def restart_allowed(times, now, window=RESTART_WINDOW_S, limit=MAX_RESTARTS):
+    """Restart times within the last ``window`` seconds; a restart is allowed while fewer than ``limit``."""
+    recent = [t for t in times if now - t < window]
+    return len(recent) < limit, recent
+
+
 def supervise(run: Path, code: Path, resume: bool):
     env = dict(os.environ, PYTHONPATH=str(code), R2_FROZEN_CODE=str(code))
-    restarts = 0
+    restarts, times = 0, []
+    mark = latest_checkpoint(run)
     event(run, event='supervisor_start', resume=resume, pid=os.getpid())
     while True:
         cmd = [sys.executable, '-m', 'ensomi_model.r2.train_ce', '--config', str(run / 'config.json')]
@@ -103,12 +120,17 @@ def supervise(run: Path, code: Path, resume: bool):
         if rc == EXIT_NAN:
             event(run, event='supervisor_stop', reason='nan_limit')
             return rc
-        if restarts >= MAX_RESTARTS:
-            event(run, event='supervisor_stop', reason='restart_limit')
+        now_mark = latest_checkpoint(run, mark)
+        if now_mark != mark:
+            times, mark = [], now_mark   # the last resume reached a new checkpoint
+        allowed, times = restart_allowed(times, time.time())
+        if not allowed:
+            event(run, event='supervisor_stop', reason='restart_limit', window_s=RESTART_WINDOW_S)
             return rc
         restarts += 1
+        times.append(time.time())
         resume = True
-        event(run, event='restart', restarts=restarts)
+        event(run, event='restart', restarts=restarts, in_window=len(times))
         time.sleep(30)
 
 

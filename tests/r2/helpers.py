@@ -85,7 +85,11 @@ def sample_track(rng, chart):
 
 
 def tiny_model(dtype=torch.float64, conditioner='film', seed=0, **kw):
+    """A model whose zero-initialised output layers get small random weights, so every path matters.
+    The token conditioner is a lead-in form: it is built with ``token_lead_in`` for its own tests."""
     torch.manual_seed(seed)
+    if conditioner == 'tokens':
+        kw.setdefault('token_lead_in', True)
     model = R2Model(R2Config(conditioner=conditioner, **kw))
     with torch.no_grad():  # give zero-initialised outputs some weight so every path matters
         for name, p in model.named_parameters():

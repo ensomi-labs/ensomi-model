@@ -5,8 +5,8 @@ decisions known so far. ``derive`` replays the codes into per-decision state
 arrays; every array indexed by decision k describes the state *before* k, so a
 query at k reads only decisions < k. History tokens [N,2,100], queries
 [m,2,150], candidate features [C,34], placement relations [C,28] and condition
-frames [*,16] follow spec sections 2 and 3. The left hand frame lists lanes
-(0,1,2,3), the right hand frame (3,2,1,0).
+frames [*,17] follow spec sections 2 and 3 and plan v4 section 6.8. The left hand
+frame lists lanes (0,1,2,3), the right hand frame (3,2,1,0).
 """
 from __future__ import annotations
 
@@ -23,9 +23,12 @@ QUERY_DIM = 150
 RELATION_DIM = 28
 DENSITY_BEATS = (1, 2, 4, 8, 16, 32)
 LOOKAHEAD = 16
-FRAME_DIM = 16
+FRAME_DIM = 17
 TOKEN_DIM = 18
-KINDS = ('ln', 'star')
+KINDS = ('ln_share', 'difficulty')   # frame kind index 0, 1; stage-4 style attributes are not framed
+PRESENCE = ('none', 'anywhere')      # 'lead-in' is reserved and raises
+STAR_VALUES = ('absolute', 'residual')
+LEAD_IN_CHANNEL = FRAME_DIM - 1
 
 
 @dataclass
@@ -98,6 +101,8 @@ class Derived:
     last_release: np.ndarray  # [n+1,4]
     cum_heads: np.ndarray   # [n+1] committed head objects before k
     cum_ln: np.ndarray      # [n+1]
+    cum_repeat: np.ndarray  # [n+1] heads at rows j < k whose lane also has a head at row j - 1
+    cum_held: np.ndarray    # [n+1] lanes held entering rows j < k
 
 
 def derive(chart: Chart) -> Derived:
@@ -153,7 +158,13 @@ def derive(chart: Chart) -> Derived:
     last_release[np.isinf(last_release)] = np.nan
     cum_heads = np.concatenate(([0], np.cumsum(attack.sum(1))))
     cum_ln = np.concatenate(([0], np.cumsum(ln_head.sum(1))))
-    return Derived(held, start, birth, release, row_rel, attack, ln_head, last_attack, last_release, cum_heads, cum_ln)
+    repeat = np.zeros(n, dtype=np.int64)
+    if n > 1:
+        repeat[1:] = (attack[1:] & attack[:-1]).sum(1)
+    cum_repeat = np.concatenate(([0], np.cumsum(repeat)))
+    cum_held = np.concatenate(([0], np.cumsum(held[:n].sum(1))))
+    return Derived(held, start, birth, release, row_rel, attack, ln_head, last_attack, last_release, cum_heads, cum_ln,
+                   cum_repeat, cum_held)
 
 
 def _views(chart: Chart, u, k_rows, start):
@@ -255,16 +266,33 @@ def query_features(chart: Chart, ks) -> np.ndarray:
 
 @dataclass(frozen=True)
 class Interval:
-    kind: int        # 0 = ln_share, 1 = star
+    """One effective-track interval: kind 0 LN share, kind 1 difficulty; [a, b), or [a, T] when b = T.
+
+    ``value`` is what the frame encodes: the LN-share target, or for difficulty the absolute
+    tiled star (``star_value='absolute'``) or the residual target - b(S) (``'residual'``).
+    """
+    kind: int
     a: float
     b: float
     value: float
 
 
-def _interval_counts(chart: Chart, iv: Interval, k: int):
-    d = chart.derived()
+def contains(iv: Interval, times, song_ms: float):
+    """Activity test: a <= t < b, closed at T when b = T (a whole-song scope contains T)."""
+    times = np.asarray(times, dtype=np.float64)
+    return (times >= iv.a) & ((times < iv.b) | ((iv.b >= song_ms) & (times <= song_ms)))
+
+
+def _row_bounds(chart: Chart, iv: Interval):
     ia = int(np.searchsorted(chart.head_ms, iv.a, side='left'))
-    ib = int(np.searchsorted(chart.head_ms, iv.b, side='left'))
+    ib = chart.K if iv.b >= chart.song_ms else int(np.searchsorted(chart.head_ms, iv.b, side='left'))
+    return ia, max(ia, ib)
+
+
+def _interval_counts(chart: Chart, iv: Interval, k: int):
+    """Committed head objects and LN heads of decisions < k with head time in the scope; remaining rows."""
+    d = chart.derived()
+    ia, ib = _row_bounds(chart, iv)
     hi = min(ib, k)
     heads = int(d.cum_heads[hi] - d.cum_heads[ia]) if hi > ia else 0
     lns = int(d.cum_ln[hi] - d.cum_ln[ia]) if hi > ia else 0
@@ -272,41 +300,82 @@ def _interval_counts(chart: Chart, iv: Interval, k: int):
     return heads, lns, remaining
 
 
-def _norm_value(iv: Interval):
-    return 2.0 * iv.value - 1.0 if iv.kind == 0 else iv.value / 4.0
+def star_proxies(chart: Chart, iv: Interval, k: int):
+    """Committed difficulty statistics of the scope before decision k (mirror-invariant):
+    mean chord size / 4, same-lane repeat rate, held-lane occupancy, LN share."""
+    d = chart.derived()
+    ia, ib = _row_bounds(chart, iv)
+    hi = min(ib, k)
+    rows = hi - ia
+    if rows <= 0:
+        return 0.0, 0.0, 0.0, 0.0
+    heads = int(d.cum_heads[hi] - d.cum_heads[ia])
+    lns = int(d.cum_ln[hi] - d.cum_ln[ia])
+    held = int(d.cum_held[hi] - d.cum_held[ia])
+    rep = int(d.cum_repeat[hi] - d.cum_repeat[ia + 1]) if rows > 1 else 0
+    base = int(d.cum_heads[hi] - d.cum_heads[ia + 1]) if rows > 1 else 0
+    return (heads / rows / 4.0, rep / base if base else 0.0, held / (4.0 * rows), lns / heads if heads else 0.0)
 
 
-def frames(chart: Chart, track, times, k: int) -> np.ndarray:
-    """[Q,2,16] FiLM frames (ln, star) at query times for decision k; absent kinds are zero."""
+def encode_value(iv: Interval, star_value: str = 'absolute') -> float:
+    if iv.kind == 0:
+        return 2.0 * iv.value - 1.0
+    if star_value == 'residual':
+        return float(np.clip(iv.value / 0.5, -3.0, 3.0))
+    return iv.value / 4.0
+
+
+def frames(chart: Chart, track, times, k: int, *, presence: str = 'none', full_track=None,
+           star_value: str = 'absolute') -> np.ndarray:
+    """[Q,2,17] FiLM frames (LN share, difficulty) at query times for decision k.
+
+    ``track`` holds the intervals decision k may read (rule L applied by the caller); a kind
+    with no such interval active at a time is all zero there. Channels: value 1, offsets to
+    the bounds 8, progress 1, committed statistics 4 (LN: log1p heads, log1p LNs, ratio, 0;
+    difficulty: ``star_proxies``), log1p remaining head rows 1, active 1, and the reserved
+    lead-in channel 1, which is zero under ``presence='none'``. ``presence='anywhere'``
+    (v1 reproduction and power checks only) sets that channel for a kind on every query
+    whenever ``full_track`` has an interval of the kind.
+    """
     times = np.asarray(times, dtype=np.float64)
     out = np.zeros(times.shape + (2, FRAME_DIM))
+    if presence not in PRESENCE:
+        raise ContractError(f'presence must be one of {PRESENCE}; lead-in is reserved')
+    if presence == 'anywhere':
+        for kind in (0, 1):
+            if any(iv.kind == kind for iv in (full_track if full_track is not None else track)):
+                out[..., kind, LEAD_IN_CHANNEL] = 1.0
     if not track:
         return out
     g = chart.grid
     bv = g.beat(times)
-    for kind in (0, 1):
-        ivs = [iv for iv in track if iv.kind == kind]
-        if not ivs:
+    T = chart.song_ms
+    for iv in track:
+        active = contains(iv, times, T)
+        if not active.any():
             continue
-        out[..., kind, 15] = 1.0  # presence
-        for iv in ivs:
-            active = (times >= iv.a) & (times < iv.b)
-            if not active.any():
-                continue
+        if iv.kind == 0:
             heads, lns, remaining = _interval_counts(chart, iv, k)
-            ba, bb = float(g.beat(iv.a)), float(g.beat(iv.b))
-            f = np.concatenate((np.full(times.shape + (1,), _norm_value(iv)),
-                                psi_pair(iv.a - times, ba - bv), psi_pair(iv.b - times, bb - bv),
-                                ((times - iv.a) / (iv.b - iv.a))[..., None],
-                                np.broadcast_to([np.log1p(heads), np.log1p(lns), lns / heads if heads else 0.0,
-                                                 np.log1p(remaining), 1.0], times.shape + (5,))), -1)
-            # channels: value 1, offsets 8, progress 1, counts 2, ratio 1, remaining 1, active 1 -> 15; presence 1
-            out[..., kind, :15] = np.where(active[..., None], f, out[..., kind, :15])
+            stats = [np.log1p(heads), np.log1p(lns), lns / heads if heads else 0.0, 0.0]
+        else:
+            _, _, remaining = _interval_counts(chart, iv, k)
+            stats = list(star_proxies(chart, iv, k))
+        ba, bb = float(g.beat(iv.a)), float(g.beat(iv.b))
+        f = np.concatenate((np.full(times.shape + (1,), encode_value(iv, star_value)),
+                            psi_pair(iv.a - times, ba - bv), psi_pair(iv.b - times, bb - bv),
+                            ((times - iv.a) / (iv.b - iv.a))[..., None],
+                            np.broadcast_to(stats + [np.log1p(remaining), 1.0], times.shape + (6,))), -1)
+        out[..., iv.kind, :LEAD_IN_CHANNEL] = np.where(active[..., None], f, out[..., iv.kind, :LEAD_IN_CHANNEL])
     return out
 
 
-def tokens(chart: Chart, track, times, k: int):
-    """[Q,NI,18] whole-track interval tokens relative to each query time (token conditioner)."""
+def tokens(chart: Chart, track, times, k: int, *, star_value: str = 'absolute'):
+    """[Q,NI,18] whole-track interval tokens relative to each query time (token conditioner).
+
+    Each query sees every interval before it starts and after it ends, so this is a lead-in
+    form: ``R2Config`` refuses the token conditioner unless ``token_lead_in`` is set. The value
+    channel is ``encode_value``, as in the FiLM frames.
+    """
     times = np.asarray(times, dtype=np.float64)
     if not track:
         return np.zeros(times.shape + (0, TOKEN_DIM), dtype=np.float32)
@@ -321,7 +390,7 @@ def tokens(chart: Chart, track, times, k: int):
         progress = np.clip((times - iv.a) / (iv.b - iv.a), 0.0, 1.0)
         kind = np.zeros(times.shape + (2,))
         kind[..., iv.kind] = 1.0
-        out.append(np.concatenate((kind, np.full(times.shape + (1,), _norm_value(iv)),
+        out.append(np.concatenate((kind, np.full(times.shape + (1,), encode_value(iv, star_value)),
                                    psi_pair(iv.a - times, ba - bv), psi_pair(iv.b - times, bb - bv),
                                    active[..., None], progress[..., None],
                                    np.broadcast_to([np.log1p(heads), np.log1p(lns), lns / heads if heads else 0.0,

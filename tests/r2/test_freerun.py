@@ -50,13 +50,13 @@ def test_freerun_whole_chart(trained, seed_rows):
 @pytest.mark.parametrize('mode', ['film', 'tokens'])
 def test_conditioner_hand_swap_identity(mode):
     torch.manual_seed(0)
-    model = R2Model(R2Config(conditioner=mode)).double()
+    model = R2Model(R2Config(conditioner=mode, token_lead_in=mode == 'tokens')).double()
     with torch.no_grad():
         for p in list(model.film.parameters()) + list(model.tokens.parameters()):
             p.normal_(0, 0.1)
     z = torch.randn(7, 2, 128, dtype=torch.float64)
     if mode == 'film':
-        cond = torch.randn(7, 96, dtype=torch.float64)
+        cond = torch.randn(7, model.film.inputs, dtype=torch.float64)   # 2 roles x 2 kinds x 17 channels
     else:
         cond = torch.randn(7, 3, 18, dtype=torch.float64)
     out = model.condition(z, cond)

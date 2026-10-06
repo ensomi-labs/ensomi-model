@@ -1,15 +1,13 @@
-"""Interval labels: LN share (online, prefix sums) and tiled star (precomputed on the mac).
+"""Difficulty labels: the cache relabel at the plan v4 cell lengths, through ``properties``.
 
-Tiled star of I = [a, a + L), L >= 30 s: the objects whose heads lie in I,
-translated by -a, repeated with period L for n = ceil(240 s / L) copies (copy
-order kept, source order within a copy); an LN of a non-final copy still held
-at the next copy's first head in its lane ends 1 ms before that head; scored
-with ``compute_mania_star_rating_20241007(objects, 4, clock_rate=1.0)``. A cut
-that leaves a nonpositive hold makes the label invalid (recorded, not used).
+Cells (version ``cells-v2``): for each length L in 30, 60, 120 s and each phase p in 0, 10,
+20 s, the cells [p + i L, p + (i + 1) L) that end at or before T; plus the whole song [0, T]
+when T >= 30 s. Each value is Difficulty_nu of the cache representation (the objects the
+cached decisions expand to), so a label equals the readout of the same chart. An undefined
+readout (no object in the cell, a nonpositive seam cut) is stored as ``null`` and never used.
 
-Per chart at most nine intervals: up to four consecutive 30 s cells, up to four
-consecutive 60 s cells (start chosen by a hash of the heads-only inputs), and
-the whole song [0, T) when T >= 30 s. Build on the mac after the cache::
+Build on the mac after the cache (writes ``labels/star-v2.json.gz``, ``labels/star-v2_summary.json``
+and ``labels/receipt-star-v2.json``; the v1 file ``labels/star.json.gz`` is kept and never written)::
 
     .venv/bin/python -m ensomi_model.r2.labels --cache artifacts/r2-cache/v1 --workers 4
 """
@@ -19,7 +17,6 @@ import argparse
 import gzip
 import hashlib
 import json
-import math
 from multiprocessing import Pool
 import os
 from pathlib import Path
@@ -28,144 +25,124 @@ import time
 
 import numpy as np
 
-from ..osu_core.difficulty import RawHitObject, compute_mania_star_rating_20241007, parse_osu_file
-from .common import ContractError
-from .splits import assert_fit
+from .properties import CALCULATOR, MIN_STAR_MS, NU, NU_HASH, PROPERTIES_SOURCE_SHA256, TILING_VERSION, difficulty
 
-MIN_STAR_MS = 30_000.0
-HORIZON_MS = 240_000.0
-CELL_LENGTHS = (30_000.0, 60_000.0)
-INTERVAL_SALT = 'r2-star-intervals-v1:'
-TILING_VERSION = 'tiled-star-v1 (240s horizon, 1ms seam, 30s min, head ownership, untrimmed tails)'
+CELL_LENGTHS_S = (30, 60, 120)
+CELL_PHASES_S = (0, 10, 20)
+CELLS_VERSION = 'cells-v2 (30/60/120 s at phases 0/10/20 s, ending by T; whole song [0, T] when T >= 30 s)'
+LABEL_FILE = 'star-v2.json.gz'
 
 
-def ln_share(head_counts: np.ndarray, ln_counts: np.ndarray, lo: int, hi: int):
-    """LN share of the objects owned by rows [lo, hi) from per-row counts; None when empty."""
-    n = int(head_counts[lo:hi].sum())
-    return None if n == 0 else float(ln_counts[lo:hi].sum()) / n
-
-
-def input_hash(head_ms, grid_segments, song_ms) -> str:
-    h = hashlib.sha256()
-    h.update(np.ascontiguousarray(head_ms, dtype=np.float64).tobytes())
-    h.update(np.ascontiguousarray(grid_segments, dtype=np.float64).tobytes())
-    h.update(np.float64(song_ms).tobytes())
-    return h.hexdigest()
-
-
-def star_intervals(head_ms, grid_segments, song_ms) -> list[tuple[float, float, float]]:
-    """(a, b, L) for at most nine intervals; depends only on heads, grid and T."""
-    key = input_hash(head_ms, grid_segments, song_ms)
+def cells_of(song_ms: float):
+    """[(a, b, L_s or 'whole', phase_s or None)] in a fixed order."""
     out = []
-    for L in CELL_LENGTHS:
-        m = int(song_ms // L)
-        r = min(4, m)
-        if r <= 0:
-            continue
-        digest = hashlib.sha256(f'{INTERVAL_SALT}{key}:{int(L)}'.encode()).digest()
-        j0 = int.from_bytes(digest[:8], 'big') % (m - r + 1)
-        out += [(j * L, (j + 1) * L, L) for j in range(j0, j0 + r)]
+    for L in CELL_LENGTHS_S:
+        for p in CELL_PHASES_S:
+            a = 1000.0 * p
+            while a + 1000.0 * L <= song_ms:
+                out.append((a, a + 1000.0 * L, L, p))
+                a += 1000.0 * L
     if song_ms >= MIN_STAR_MS:
-        out.append((0.0, float(song_ms), float(song_ms)))
-    seen, unique = set(), []
-    for a, b, L in out:
-        if (a, b) not in seen:
-            seen.add((a, b))
-            unique.append((a, b, L))
-    return unique
+        out.append((0.0, float(song_ms), 'whole', None))
+    return out
 
 
-def tile(objects: list[RawHitObject], a: float, length: float):
-    """Tiled object list for [a, a + length) and the seam statistics; None if a cut is nonpositive."""
-    owned = [o for o in objects if a <= o.start_time < a + length]
-    n = math.ceil(HORIZON_MS / length)
-    first = {}
-    for o in owned:
-        h = o.start_time - a
-        first[o.column] = min(first.get(o.column, math.inf), h)
-    tiled, cuts = [], 0
-    for r in range(n):
-        for o in owned:
-            h, e = o.start_time - a + r * length, o.end_time - a + r * length
-            if o.end_time > o.start_time and r < n - 1:
-                v = (r + 1) * length + first[o.column]
-                if e >= v:
-                    e = v - 1.0
-                    cuts += 1
-                    if e <= h:
-                        return None, dict(owned=len(owned), copies=n, cuts=cuts, invalid='nonpositive_cut')
-            tiled.append(RawHitObject(start_time=h, end_time=e, column=o.column))
-    return tiled, dict(owned=len(owned), copies=n, cuts=cuts)
-
-
-def tiled_star(objects: list[RawHitObject], a: float, b: float):
-    length = b - a
-    if length < MIN_STAR_MS:
-        raise ContractError('Tiled star needs an interval of at least 30 s')
-    tiled, info = tile(objects, a, length)
-    if tiled is None:
-        return None, info
-    if not tiled:
-        return 0.0, info
-    return float(compute_mania_star_rating_20241007(tiled, 4, clock_rate=1.0)), info
+def chart_objects(z):
+    from .cache import objects_from_decisions
+    return objects_from_decisions(z['head_ms'], z['actions'].astype(np.int64), z['gap_release_ms'], float(z['song_ms']))
 
 
 def _chart_labels(task):
-    row, root, cache_root = task
-    assert_fit(row)
+    row, cache_root = task
     with np.load(Path(cache_root) / 'charts' / row['file']) as z:
-        head_ms, seg, song_ms = z['head_ms'], z['grid_segments'], float(z['song_ms'])
-    objects = parse_osu_file(Path(root) / row['path']).hit_objects
+        song_ms = float(z['song_ms'])
+        objects = chart_objects(z)
     labels = []
-    for a, b, L in star_intervals(head_ms, seg, song_ms):
-        value, info = tiled_star(objects, a, b)
-        labels.append(dict(a=a, b=b, L=L, value=value, **info))
-    return row['sha256'], dict(input_hash=input_hash(head_ms, seg, song_ms), labels=labels)
+    for a, b, L, p in cells_of(song_ms):
+        value, info = difficulty(objects, a, b, song_ms)
+        labels.append(dict(a=a, b=b, L=L, phase=p, value=value, owned=info.get('owned'), cuts=info.get('cuts'),
+                           invalid=info.get('invalid')))
+    return row['sha256'], labels
 
 
-def build(cache_root: Path, root: Path, workers: int, limit=None):
+def relabel(cache_root: Path, workers: int, limit=None):
     import pyarrow.parquet as pq
     t0 = time.time()
     index = pq.read_table(cache_root / 'index.parquet').to_pandas()
-    index['eval_split'] = 'fit'  # the cache admits fit rows only (asserted when it was built)
-    rows = index[['sha256', 'path', 'file', 'eval_split']].to_dict('records')
+    rows = index[['sha256', 'file']].to_dict('records')
     if limit:
         rows = rows[:limit]
-    out, done = {}, 0
     out_dir = cache_root / 'labels'
     out_dir.mkdir(exist_ok=True)
-    partial = out_dir / 'star.partial.json.gz'
+    target = out_dir / LABEL_FILE
+    if target.exists() and not limit:
+        raise SystemExit(f'{target} exists; move it aside to relabel')
+    out, done = {}, 0
     with Pool(workers) as pool:
-        for sha, value in pool.imap_unordered(_chart_labels, [(r, str(root), str(cache_root)) for r in rows],
-                                              chunksize=4):
-            out[sha] = value
+        for sha, labels in pool.imap_unordered(_chart_labels, [(r, str(cache_root)) for r in rows], chunksize=4):
+            out[sha] = labels
             done += 1
-            if done % 500 == 0:
+            if done % 1000 == 0:
                 print(f'[{time.time() - t0:7.1f}s] {done}/{len(rows)}', flush=True)
-                with gzip.open(partial, 'wt') as f:
-                    json.dump(dict(complete=False, charts=out), f)
-    payload = dict(complete=len(out) == len(index), version=TILING_VERSION,
-                   calculator='compute_mania_star_rating_20241007', cache_index_sha256=
-                   hashlib.sha256((cache_root / 'index.parquet').read_bytes()).hexdigest(), charts=out)
-    target = out_dir / 'star.json.gz'
+    payload = dict(complete=len(out) == len(index), cells=CELLS_VERSION, nu=NU, nu_hash=NU_HASH,
+                   properties_sha256=PROPERTIES_SOURCE_SHA256, tiling=TILING_VERSION, calculator=CALCULATOR,
+                   source='cache representation (objects_from_decisions of the cached decisions)',
+                   cache_index_sha256=hashlib.sha256((cache_root / 'index.parquet').read_bytes()).hexdigest(),
+                   charts=out)
+    if limit:
+        target = out_dir / f'star-v2-limit{limit}.json.gz'
     with gzip.open(target, 'wt') as f:
         json.dump(payload, f)
-    partial.unlink(missing_ok=True)
-    n_labels = sum(len(v['labels']) for v in out.values())
-    n_invalid = sum(l['value'] is None for v in out.values() for l in v['labels'])
-    summary = dict(charts=len(out), complete=payload['complete'], labels=n_labels, invalid=n_invalid,
-                   sha256=hashlib.sha256(target.read_bytes()).hexdigest(), wall_s=time.time() - t0)
-    (out_dir / 'star_summary.json').write_text(json.dumps(summary, indent=1))
+    labels = [l for v in out.values() for l in v]
+    by_len = {}
+    for l in labels:
+        key = str(l['L'])
+        s = by_len.setdefault(key, dict(labels=0, undefined=0))
+        s['labels'] += 1
+        s['undefined'] += l['value'] is None
+    summary = dict(charts=len(out), complete=payload['complete'], labels=len(labels),
+                   undefined=sum(l['value'] is None for l in labels), by_length=by_len, nu_hash=NU_HASH,
+                   file=target.name, sha256=hashlib.sha256(target.read_bytes()).hexdigest(), wall_s=time.time() - t0,
+                   workers=workers)
+    (out_dir / target.name.replace('.json.gz', '_summary.json')).write_text(json.dumps(summary, indent=1))
     from .receipts import write_receipt
-    write_receipt(out_dir / 'receipt.json', config=dict(cache=str(cache_root), workers=workers, limit=limit),
+    write_receipt(out_dir / f'receipt-{target.name.replace(".json.gz", "")}.json',
+                  config=dict(cache=str(cache_root), workers=workers, limit=limit),
                   inputs=dict(cache_index_sha256=payload['cache_index_sha256']), outputs=summary, seed=None,
                   device='cpu', ens_job=os.environ.get('ENS_JOB_ID'))
     print(json.dumps(summary), flush=True)
     return summary
 
 
-def load_star_labels(cache_root: Path):
-    """{sha256: [(a, b, value)]} for valid labels, and whether the file is complete."""
+def label_path(cache_root) -> Path:
+    return Path(cache_root) / 'labels' / LABEL_FILE
+
+
+def load_cells(cache_root, path=None):
+    """({sha: {(L_s, phase_s): [(a, b, value)], 'whole': [(0, T, value)]}}, complete, file sha256).
+
+    Undefined labels are left out. Missing file: ({}, False, None)."""
+    path = Path(path) if path else label_path(cache_root)
+    if not path.exists():
+        return {}, False, None
+    raw = path.read_bytes()
+    data = json.loads(gzip.decompress(raw))
+    if data.get('nu_hash') != NU_HASH:
+        raise SystemExit(f'{path} was built under nu {data.get("nu_hash")}, not {NU_HASH}')
+    out = {}
+    for sha, labels in data['charts'].items():
+        cells = {}
+        for l in labels:
+            if l['value'] is None:
+                continue
+            key = 'whole' if l['L'] == 'whole' else (int(l['L']), int(l['phase']))
+            cells.setdefault(key, []).append((float(l['a']), float(l['b']), float(l['value'])))
+        out[sha] = cells
+    return out, bool(data['complete']), hashlib.sha256(raw).hexdigest()
+
+
+def load_star_labels_v1(cache_root):
+    """The v1 labels (from the original ``.osu``; 0.0 for an empty cell): {sha: [(a, b, value)]}."""
     path = Path(cache_root) / 'labels' / 'star.json.gz'
     if not path.exists():
         return {}, False
@@ -179,11 +156,10 @@ def load_star_labels(cache_root: Path):
 def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument('--cache', default='artifacts/r2-cache/v1')
-    p.add_argument('--root', default='.')
     p.add_argument('--workers', type=int, default=4)
     p.add_argument('--limit', type=int, default=None)
     a = p.parse_args(argv)
-    build(Path(a.cache), Path(a.root), a.workers, a.limit)
+    relabel(Path(a.cache), a.workers, a.limit)
 
 
 if __name__ == '__main__':

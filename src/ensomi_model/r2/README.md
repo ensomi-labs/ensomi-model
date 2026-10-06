@@ -46,6 +46,40 @@ PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.labels --cache artifacts/r2-c
 Writes `labels/star.json.gz` and `labels/star_summary.json`. With `star_conditions: "auto"` the
 trainer uses star conditions only when this file is complete.
 
+## Training recipe: two phases (plan v5)
+
+R2 v2 trains in two phases, each a run of `train_ce.py` with its own config, budget and
+learning-rate schedule:
+
+| Phase | Config | What trains | Data and loss |
+| --- | --- | --- | --- |
+| N (natural) | `configs/ce_v2_n.json` (`phase: natural`) | every parameter outside the conditioner modules (`R2Model.parameter_split`) | `draw.selection: natural`: the v1 start rule, empty tracks; uniform per-decision CE on the fixed divisor N_bar |
+| C (conditions), frozen base | `configs/ce_v2_c_frozen.json` (`base_mode: frozen`) | the conditioning path only (`film`; its width and depth are `film_width`, `film_layers`) | the aligned condition draw with residual difficulty; CE on decisions that read an interval (V_k non-empty) plus the LN and difficulty terms and, if `mu_star > 0`, the relaxed-proxy term |
+| C, KL-held base | `configs/ce_v2_c_kl.json` (`base_mode: kl`) | every parameter | as above, plus `kl_weight` times the KL to the frozen phase-N model on `kl_decisions` (`natural` or `all`) in `kl_direction` (`forward` KL(reference ‖ model) or `reverse`); `natural_ce` keeps CE on natural decisions |
+
+Phase C starts from `init_from`, a phase-N checkpoint: its natural parameters are loaded and the
+conditioning path keeps its own initialisation, whose output layer is zero. A decision that reads
+no interval passes through FiLM unchanged, so phase C starts as the phase-N model exactly, and
+under a frozen base every natural decision stays exactly the phase-N decision.
+
+Undecided values are `null` in the configs: the budget (`total_exposures`, `checkpoint_every`,
+`g3c_exposures`), the learning rate (`lr_schedule`, or `lr`, `lr_min`, `warmup_exposures`),
+`n_bar*` from `draw_sim`, and in phase C `init_from`, `lambda_ln`, `lambda_star`, `mu_star` and the
+KL keys. The trainer refuses to start until each is set (`train_ce.check_config`), including for a
+pilot, so pass them with `--set` there. `star_conditions: on` refuses to start without the complete
+v2 label file. The open decisions are listed in plan v5 (`r2-condition-plan-v5` in the relay notes).
+
+Measure the divisors per phase (the two phase-C configs share one draw):
+
+```
+PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.draw_sim --config src/ensomi_model/r2/configs/ce_v2_n.json \
+  --draws 2000 --out artifacts/r2-stage0/draw-sim/n.json
+PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.draw_sim --config src/ensomi_model/r2/configs/ce_v2_c_frozen.json \
+  --draws 2000 --out artifacts/r2-stage0/draw-sim/c.json
+```
+
+and copy `config_values` from each output into the configs.
+
 ## Tests
 
 ```
@@ -64,30 +98,34 @@ Same draws on each device; prints JSON with decisions/s, seconds per step, peak 
 MPS driver-memory series:
 
 ```
-PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.train_ce --config src/ensomi_model/r2/configs/ce_v1.json \
+PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.train_ce --config src/ensomi_model/r2/configs/ce_v2_n.json \
   --pilot 200 --device cpu --threads 4 --pilot-out artifacts/r2-runs/pilot/cpu.json \
-  --pilot-checkpoint artifacts/r2-runs/pilot/cpu.pt
-PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.train_ce --config src/ensomi_model/r2/configs/ce_v1.json \
-  --pilot 200 --device mps --pilot-out artifacts/r2-runs/pilot/mps.json
+  --pilot-checkpoint artifacts/r2-runs/pilot/cpu.pt --set lr=<pilot lr> --set lr_min=<x> \
+  --set warmup_exposures=<x> --set total_exposures=<x> --set checkpoint_every=<x> --set g3c_exposures=[]
 ```
+
+The pilot's values are pilot-only; the same command with `ce_v2_c_frozen.json` or `ce_v2_c_kl.json`
+(plus their phase-C keys) measures phase C.
 
 Overrides for spec section 6 step 3: `--memory none`, `--levels 6`. Free-run sanity from the
 pilot checkpoint (four fixed fit_dev charts, seeds 954 to 956):
 
 ```
-PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.train_ce --config src/ensomi_model/r2/configs/ce_v1.json \
-  --run-dir artifacts/r2-runs/pilot --freerun-only artifacts/r2-runs/pilot/cpu.pt
+PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.train_ce --config src/ensomi_model/r2/configs/ce_v2_n.json \
+  --run-dir artifacts/r2-runs/pilot --freerun-only artifacts/r2-runs/pilot/cpu.pt <the pilot's --set values>
 ```
 
-Then set `total_exposures = 0.9 x decisions/s x 3600 x hours` and choose `checkpoint_every`
-(see DEVIATIONS.md item 9).
+Each phase's budget is an open decision of plan v5; the pilot's decisions/s converts it to hours
+(`total_exposures = 0.9 x decisions/s x 3600 x hours`, DEVIATIONS.md item 9).
 
-## Overnight launch
+## Launch
+
+One run per phase; phase C names the selected phase-N checkpoint in `init_from` (a decided value
+in the config, or `--set init_from='"<path>"'`):
 
 ```
 ens run ensomi-model --name r2-ce-<run-id> -- bash -c 'PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.launch \
-  --run-id <run-id> --config src/ensomi_model/r2/configs/ce_v1.json \
-  --set device=cpu --set threads=4 --set total_exposures=<N> --set checkpoint_every=<M>'
+  --run-id <run-id> --config src/ensomi_model/r2/configs/ce_v2_n.json --set device=cpu --set threads=4'
 ```
 
 The launcher copies `src/ensomi_model` to `artifacts/r2-runs/<run-id>/code/`, writes

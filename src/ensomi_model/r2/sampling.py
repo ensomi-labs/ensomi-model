@@ -6,6 +6,11 @@ that orientation's order from the directed pointer, and commit. The EOS
 decision closes every hold inside (t_last, T). One ``torch.Generator`` per
 continuation, seeded from an integer that is logged by the caller. The learned
 history is extended with the TCN's online cache (fixed weights only).
+
+``track`` is the effective track (``request_set.effective_track``); the model applies
+rule L per decision. Requests, their validation and the generation record live in
+``generate.py``. The ``baseline`` slot (the formulation's baseline style rho) admits
+only ``None``: R2 carries identity through committed history alone.
 """
 from __future__ import annotations
 
@@ -24,10 +29,29 @@ def _gumbel_argmax(logits: torch.Tensor, generator) -> int:
     return int((logits - (-u.log()).log()).argmax())
 
 
+BASELINE_NONE = 'none (not implemented; identity carried by committed history only)'
+
+
+def require_no_baseline(baseline):
+    if baseline is not None:
+        raise ContractError('The baseline style rho is not implemented in R2; the baseline slot admits only None')
+
+
+def _scope_closed(chart: Chart, k: int, a: float, b: float) -> bool:
+    """After decision k: no lane still holds an LN headed in [a, b)."""
+    starts = chart.derived().start[k + 1]
+    return not any(np.isfinite(x) and a <= x < b for x in starts)
+
+
 @torch.no_grad()
 def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_actions=None, prefix_gap=None,
-                   track=(), seed: int = 954, stop: int | None = None):
-    """Return (actions [n,4], gap [n,4]) for decisions 0..stop-1 (default through EOS)."""
+                   track=(), seed: int = 954, stop: int | None = None, *, baseline=None, close_scope=None):
+    """Return (actions [n,4], gap [n,4]) for decisions 0..n-1, n = stop (default through EOS).
+
+    ``close_scope=(a, b)`` ends generation early, at the first decision at or after the exit
+    decision of [a, b) after which no LN headed in [a, b) is still held (realised-response runs).
+    """
+    require_no_baseline(baseline)
     was_training = model.training
     model.eval()
     K = len(head_ms)
@@ -53,6 +77,8 @@ def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_acti
             if i % stride == 0:
                 marks.append(temporal.read(cache))
     base = Chart(head_ms, song_ms, grid, actions[:0], gap[:0])
+    exit_k = None if close_scope is None else int(np.searchsorted(head_ms, close_scope[1], side='left'))
+    n = stop
     for k in range(s, stop):
         chart = base.with_decisions(actions[:k], gap[:k])
         held = chart.derived().held[k]
@@ -79,6 +105,11 @@ def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_acti
                 rel[lane] = u
         actions[k], gap[k] = codes, rel
         base = chart
+        if exit_k is not None and k >= exit_k:
+            done = base.with_decisions(actions[:k + 1], gap[:k + 1])
+            if _scope_closed(done, k, *close_scope):
+                n = k + 1
+                break
         if k < K:
             nxt = base.with_decisions(actions[:k + 1], gap[:k + 1])
             tok = model._t(history_tokens(nxt, k + 1)[k])
@@ -87,4 +118,4 @@ def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_acti
                 marks.append(temporal.read(cache))
     if was_training:
         model.train()
-    return actions[:stop], gap[:stop]
+    return actions[:n], gap[:n]

@@ -22,11 +22,13 @@ from ..research.bounded_typed_continuation.model import JointHead
 from ..research.bounded_typed_continuation.temporal import FiniteTemporal, TemporalConfig, pointwise
 from .candidates import CANDIDATE_DIM
 from .common import ACTIONS, ContractError, action_index
-from .features import (FRAME_DIM, HISTORY_DIM, LANE_QUERY_DIM, QUERY_DIM, RELATION_DIM, TOKEN_DIM, Chart,
-                       decision_factors, frames, history_tokens, lane_query, query_features, tokens)
+from .features import (FRAME_DIM, HISTORY_DIM, LANE_QUERY_DIM, PRESENCE, QUERY_DIM, RELATION_DIM, STAR_VALUES,
+                       TOKEN_DIM, Chart, decision_factors, frames, history_tokens, lane_query, query_features, tokens)
+from .locality import visible
 from .state import action_support_mask
 
 MAX_PARAMETERS = 4_500_000
+CONDITIONERS = ('film', 'tokens')   # conditioner modules; every other parameter is the natural model
 
 
 @dataclass(frozen=True)
@@ -37,14 +39,35 @@ class R2Config:
     rank: int = 16
     memory: str = 'landmarks'      # 'landmarks' | 'none'
     stride: int = 64
-    conditioner: str = 'film'      # 'film' | 'tokens'
+    conditioner: str = 'film'      # 'film' | 'tokens' (a lead-in form; needs token_lead_in)
     code_dim: int = 8
     candidate_budget: int = 8192
     max_parameters: int = MAX_PARAMETERS
+    rule_l: bool = True            # False: test power checks and v1 reproduction only
+    birth_role: bool = False       # True: v1's birth-role frame; test power checks and v1 reproduction only
+    presence: str = 'none'         # 'anywhere': v1's presence bit; test power checks and v1 reproduction only
+    star_value: str = 'absolute'   # 'absolute' tiled star or 'residual' target - b(S) in the difficulty frame
+    token_lead_in: bool = False    # the token conditioner shows intervals before and after them
+    film_width: int = 128          # FiLM MLP hidden width (conditioning capacity)
+    film_layers: int = 1           # FiLM MLP hidden layers
+    identity_gate: bool = True     # False: FiLM(z, 0) acts on natural decisions; test power checks only
 
     def __post_init__(self):
         if self.memory not in ('landmarks', 'none') or self.conditioner not in ('film', 'tokens'):
             raise ContractError('memory must be landmarks|none and conditioner film|tokens')
+        if self.film_width < 1 or self.film_layers < 1:
+            raise ContractError('film_width and film_layers are positive')
+        if self.conditioner == 'tokens' and not self.token_lead_in:
+            raise ContractError('The token conditioner shows every interval before its start and after its end; '
+                                'it is a lead-in form and raises under the default eta')
+        if self.presence not in PRESENCE:
+            raise ContractError(f'presence must be one of {PRESENCE}; lead-in presence is reserved')
+        if self.star_value not in STAR_VALUES:
+            raise ContractError(f'star_value must be one of {STAR_VALUES}')
+
+    @property
+    def roles(self):
+        return 3 if self.birth_role else 2
 
 
 class JointHead5(JointHead):
@@ -57,16 +80,35 @@ class JointHead5(JointHead):
 
 
 class FiLM(nn.Module):
-    def __init__(self, hidden):
+    """Frames of (row, candidate[, birth]) roles x 2 kinds -> (gamma, delta) on a hidden vector.
+
+    The MLP has ``layers`` hidden layers of ``width`` (default one of 128, 42,112 parameters with
+    the norm); its output layer is zero-initialised. With ``gate`` (the default), a row whose frame
+    is all zero, i.e. a decision or candidate pair that reads no interval (rule L), passes through
+    unchanged: FiLM(z, 0) = z exactly, so training this module never moves a natural decision.
+    """
+
+    def __init__(self, hidden, roles=2, width=128, layers=1, gate=True):
         super().__init__()
-        self.mlp = nn.Sequential(nn.Linear(6 * FRAME_DIM, 128), nn.GELU(), nn.Linear(128, 2 * hidden))
+        self.inputs = roles * 2 * FRAME_DIM
+        self.gate = gate
+        dims = [self.inputs] + [width] * layers
+        mods = []
+        for a, b in zip(dims, dims[1:]):
+            mods += [nn.Linear(a, b), nn.GELU()]
+        self.mlp = nn.Sequential(*mods, nn.Linear(dims[-1], 2 * hidden))
         nn.init.zeros_(self.mlp[-1].weight)
         nn.init.zeros_(self.mlp[-1].bias)
         self.norm = nn.LayerNorm(hidden)
 
     def forward(self, z, cond):
+        if self.gate:
+            reads = (cond != 0).any(-1, keepdim=True)
+            if not bool(reads.any()):
+                return z
         gamma, delta = self.mlp(cond).chunk(2, -1)
-        return z + gamma * self.norm(z) + delta
+        out = z + gamma * self.norm(z) + delta
+        return torch.where(reads, out, z) if self.gate else out
 
 
 class TokenConditioner(nn.Module):
@@ -101,10 +143,21 @@ class WindowOut:
     ks: np.ndarray
     eos: np.ndarray          # [m] bool
     gap_lns: np.ndarray      # [m] number of gap releases
+    governed_ln: torch.Tensor = None   # [m] log P(tap-vs-LN split | head mask, release types); 0 at EOS
+    visible: np.ndarray = None         # [m,2] bool: decision reads an LN / difficulty interval (V_k)
+    logp: torch.Tensor = None          # [m,625] masked action log-softmax
+    candidate_pairs: int = 0           # release-candidate scores computed (both orientations)
+    pair_logp: torch.Tensor = None     # [P] log-probability of every candidate within its release factor
+    pair_rows: np.ndarray = None       # [P] decision row of each candidate pair
 
     @property
     def total(self):
         return self.action + self.release
+
+    @property
+    def factors(self):
+        """Scored factors per decision: the action factor (head rows) plus one per gap release."""
+        return (~self.eos).astype(np.int64) + self.gap_lns
 
 
 class R2Model(nn.Module):
@@ -118,7 +171,7 @@ class R2Model(nn.Module):
         self.lm_query, self.lm_key, self.lm_value = nn.Linear(H, H), nn.Linear(H, H), nn.Linear(H, H)
         self.lm_out = nn.Linear(H, H, bias=False)
         nn.init.zeros_(self.lm_out.weight)
-        self.film = FiLM(H)
+        self.film = FiLM(H, c.roles, c.film_width, c.film_layers, c.identity_gate)
         self.tokens = TokenConditioner(H)
         self.joint = JointHead5(H, c.rank)
         self.code_embedding = nn.Embedding(5, c.code_dim)
@@ -137,6 +190,19 @@ class R2Model(nn.Module):
         out = {name: sum(p.numel() for p in m.parameters()) for name, m in self.named_children()}
         out['total'] = sum(p.numel() for p in self.parameters())
         return out
+
+    def parameter_split(self):
+        """(conditioning, natural): lists of (name, parameter). Conditioning is the configured
+        conditioner module, the path a frozen-base phase C trains; natural is every parameter outside
+        both conditioner modules, the model phase N trains. The unused conditioner is in neither."""
+        conditioning, natural = [], []
+        for name, p in self.named_parameters():
+            module = name.split('.', 1)[0]
+            if module == self.config.conditioner:
+                conditioning.append((name, p))
+            elif module not in CONDITIONERS:
+                natural.append((name, p))
+        return conditioning, natural
 
     @property
     def device(self):
@@ -174,15 +240,25 @@ class R2Model(nn.Module):
             h = h + self.read_landmarks(h, marks, visible)
         return self.condition(h, cond)
 
-    def row_condition(self, chart: Chart, track, ks):
+    def visible_sets(self, chart: Chart, track, ks):
+        """{k: V_k} under the model's rule-L switch."""
+        return {int(k): visible(chart, track, int(k), self.config.rule_l) for k in np.asarray(ks)}
+
+    def _frames(self, chart, vis, track, times, k):
+        c = self.config
+        return frames(chart, vis, times, k, presence=c.presence, full_track=track, star_value=c.star_value)
+
+    def row_condition(self, chart: Chart, track, ks, vis=None):
         ks = np.asarray(ks)
         if self.config.conditioner == 'film':
-            out = np.zeros((len(ks), 3, 2, FRAME_DIM))
+            out = np.zeros((len(ks), self.config.roles, 2, FRAME_DIM))
             if track:
+                vis = vis if vis is not None else self.visible_sets(chart, track, ks)
                 for i, k in enumerate(ks):
-                    out[i, 0] = frames(chart, track, [chart.time(k)], int(k))[0]
+                    out[i, 0] = self._frames(chart, vis[int(k)], track, [chart.time(k)], int(k))[0]
             return self._t(out.reshape(len(ks), -1))
-        return self._t(np.concatenate([tokens(chart, track, [chart.time(k)], int(k)) for k in ks], 0)
+        return self._t(np.concatenate([tokens(chart, track, [chart.time(k)], int(k), star_value=self.config.star_value)
+                                       for k in ks], 0)
                        if track else np.zeros((len(ks), 0, TOKEN_DIM)))
 
     def encode_history(self, chart: Chart, N: int):
@@ -191,7 +267,7 @@ class R2Model(nn.Module):
         raw = self._t(history_tokens(chart, N))
         return self.temporal(raw[None])[0]
 
-    def window_hands(self, chart: Chart, ks, track=()):
+    def window_hands(self, chart: Chart, ks, track=(), vis=None):
         ks = np.asarray(ks)
         stop = int(ks.max()) + 1
         N = min(stop - 1, chart.K)
@@ -209,7 +285,7 @@ class R2Model(nn.Module):
             marks = enc[torch.as_tensor(pos, device=self.device)]
             visible = torch.as_tensor(pos[None, :] < ks[:, None], device=self.device)
         qf = self._t(query_features(chart, ks))
-        return self.hands(before, qf, marks, visible, self.row_condition(chart, track, ks))
+        return self.hands(before, qf, marks, visible, self.row_condition(chart, track, ks, vis))
 
     # ---- likelihood ------------------------------------------------------------------------------
 
@@ -218,37 +294,57 @@ class R2Model(nn.Module):
         mask = torch.as_tensor(np.asarray(masks), device=z.device)
         return logits.masked_fill(~mask, -torch.inf).log_softmax(-1)
 
-    def window(self, chart: Chart, start: int, stop: int, track=()) -> WindowOut:
-        """Teacher-forced log-probabilities of decisions [start, stop) of ``chart``."""
+    def window(self, chart: Chart, start: int, stop: int, track=(), *, pairs=False) -> WindowOut:
+        """Teacher-forced log-probabilities of decisions [start, stop) of ``chart``; ``pairs`` also keeps
+        every candidate's log-probability within its release factor (the phase-C KL term needs them)."""
         if not 0 <= start < stop <= min(chart.n, chart.K + 1):
             raise ContractError('Window outside the known decisions')
         ks = np.arange(start, stop)
         d = chart.derived()
-        z = self.window_hands(chart, ks, track)
+        vis = self.visible_sets(chart, track, ks) if track else {int(k): () for k in ks}
+        z = self.window_hands(chart, ks, track, vis)
+        held = d.held[ks]
         masks = np.stack([action_support_mask(d.held[k], k == chart.K) for k in ks])
         targets = np.array([action_index(chart.actions[k]) for k in ks])
         if not masks[np.arange(len(ks)), targets].all():
             raise ContractError('A teacher-forced action is outside its support')
         logp = self.action_log_probs(z, masks)
-        action = logp.gather(1, torch.as_tensor(targets, device=z.device)[:, None])[:, 0]
+        target_t = torch.as_tensor(targets, device=z.device)
+        action = logp.gather(1, target_t[:, None])[:, 0]
         lanes = lane_query(chart, ks).astype(np.float32)
         factors = []
         for i, k in enumerate(ks):
             for o in (0, 1):
                 factors += decision_factors(chart, int(k), i, chart.actions[k], chart.gap[k], lanes[i], o)
-        release = self.release_from_factors(z, factors, chart, track, len(ks))
+        pair_logp = pair_rows = None
+        if pairs:
+            release, pair_logp = self.release_and_pairs(z, factors, chart, track, len(ks))
+            pair_rows = np.repeat(np.array([f.owner for f in factors], dtype=np.int64),
+                                  np.array([len(f.times) for f in factors], dtype=np.int64))
+        else:
+            release = self.release_from_factors(z, factors, chart, track, len(ks))
         gap_lns = np.array([sum(1 for f in factors if f.owner == i and f.orientation == 0) for i in range(len(ks))])
-        return WindowOut(action, release, ks, ks == chart.K, gap_lns)
+        kinds = np.zeros((len(ks), 2), dtype=bool)
+        for i, k in enumerate(ks):
+            for iv in vis[int(k)]:
+                kinds[i, iv.kind] = True
+        return WindowOut(action, release, ks, ks == chart.K, gap_lns, governed_split(logp, target_t, held, masks),
+                         kinds, logp, int(sum(len(f.times) for f in factors)), pair_logp, pair_rows)
 
     def release_from_factors(self, z, factors, chart, track, m):
+        """[m] release log-likelihood of each decision."""
+        return self.release_and_pairs(z, factors, chart, track, m)[0]
+
+    def release_and_pairs(self, z, factors, chart, track, m):
+        """([m] release log-likelihood of each decision, [P] candidate log-probabilities within their factors)."""
         if not factors:
-            return z.new_zeros(m)
-        lp = self.factor_log_probs(z, factors, chart, track)
+            return z.new_zeros(m), z.new_zeros(0)
+        lp, pair_logp = self.factor_pair_log_probs(z, factors, chart, track)
         slot = torch.as_tensor([2 * f.owner + f.orientation for f in factors], device=z.device)
         sums = z.new_zeros(2 * m).index_add(0, slot, lp).reshape(m, 2)
         has = torch.zeros(m, dtype=torch.bool, device=z.device)
         has[torch.as_tensor([f.owner for f in factors], device=z.device)] = True
-        return torch.where(has, torch.logsumexp(sums, -1) - math.log(2.0), torch.zeros_like(sums[:, 0]))
+        return torch.where(has, torch.logsumexp(sums, -1) - math.log(2.0), torch.zeros_like(sums[:, 0])), pair_logp
 
     def factor_contexts(self, z, factors):
         owners = torch.as_tensor([f.owner for f in factors], device=z.device)
@@ -267,24 +363,30 @@ class R2Model(nn.Module):
             if not track:
                 return None
             d = chart.derived()
+            vis = {}
             out = []
             for f in factors:
+                if f.k not in vis:
+                    vis[f.k] = visible(chart, track, f.k, self.config.rule_l)
+                v = vis[f.k]
                 C = len(f.times)
-                fr = np.zeros((C, 3, 2, FRAME_DIM))
-                fr[:, 0] = frames(chart, track, [chart.time(f.k)], f.k)[0]
-                fr[:, 1] = frames(chart, track, f.times, f.k)
-                fr[:, 2] = frames(chart, track, [d.start[f.k][f.lane]], f.k)[0]
+                fr = np.zeros((C, self.config.roles, 2, FRAME_DIM))
+                fr[:, 0] = self._frames(chart, v, track, [chart.time(f.k)], f.k)[0]
+                fr[:, 1] = self._frames(chart, v, track, f.times, f.k)
+                if self.config.birth_role:
+                    fr[:, 2] = self._frames(chart, v, track, [d.start[f.k][f.lane]], f.k)[0]
                 out.append(fr.reshape(C, -1))
             return self._t(np.concatenate(out))
         if not track:
             return self._t(np.zeros((sum(len(f.times) for f in factors), 0, TOKEN_DIM)))
-        return self._t(np.concatenate([tokens(chart, track, f.times, f.k) for f in factors]))
+        return self._t(np.concatenate([tokens(chart, track, f.times, f.k, star_value=self.config.star_value)
+                                       for f in factors]))
 
     def pair_scores(self, base, owner, rel, cand, cond):
         q = self.pointer_out(nn.functional.gelu(base.index_select(0, owner) + self.pointer_relation(rel)))
         if self.config.conditioner == 'film':
             if cond is None:
-                cond = q.new_zeros(1, 6 * FRAME_DIM).expand(len(q), -1)
+                cond = q.new_zeros(1, self.film.inputs).expand(len(q), -1)
             q = self.film(q, cond)
         else:
             q = self.tokens(q, cond)
@@ -307,6 +409,11 @@ class R2Model(nn.Module):
         return torch.cat(parts), owner, sizes
 
     def factor_log_probs(self, z, factors, chart, track):
+        """[F] target log-probability of each factor."""
+        return self.factor_pair_log_probs(z, factors, chart, track)[0]
+
+    def factor_pair_log_probs(self, z, factors, chart, track):
+        """([F] target log-probability of each factor, [P] log-probability of every candidate in its factor)."""
         base = self.factor_contexts(z, factors)
         scores, owner, sizes = self.all_pair_scores(base, factors, chart, track)
         F = len(factors)
@@ -314,9 +421,10 @@ class R2Model(nn.Module):
         peak = peak.scatter_reduce(0, owner, scores.detach(), reduce='amax')
         total = scores.new_zeros(F).index_add(0, owner, (scores - peak.index_select(0, owner)).exp())
         lse = total.log() + peak
+        pair_logp = scores - lse.index_select(0, owner)
         offsets = np.concatenate(([0], np.cumsum(sizes)[:-1]))
         targets = torch.as_tensor(offsets + np.array([f.target for f in factors]), device=scores.device)
-        return scores.index_select(0, targets) - lse
+        return pair_logp.index_select(0, targets), pair_logp
 
     def sequence_log_prob(self, chart: Chart, start: int, stop: int, track=()):
         """Sum of complete decision log-probabilities over [start, stop) (DPO uses this)."""
@@ -328,3 +436,33 @@ class R2Model(nn.Module):
 
 def config_dict(config: R2Config):
     return asdict(config)
+
+
+def _lane_groups():
+    """[16 held patterns, 625] group index of the tap-versus-LN split: per lane, free codes 1 and 2
+    (tap, LN head) merge and held codes 3 and 4 (gap release + tap / + LN head) merge."""
+    out = np.zeros((16, len(ACTIONS)), dtype=np.int64)
+    free, held = np.array([0, 1, 1, 0, 0]), np.array([0, 1, 2, 3, 3])
+    for p in range(16):
+        h = [(p >> lane) & 1 for lane in range(4)]
+        g = np.zeros(len(ACTIONS), dtype=np.int64)
+        for lane in range(4):
+            g = g * 4 + np.where(h[lane], held[ACTIONS[:, lane]], free[ACTIONS[:, lane]])
+        out[p] = g
+    return out
+
+
+LN_GROUPS = _lane_groups()
+
+
+def held_pattern(held) -> np.ndarray:
+    held = np.asarray(held, dtype=np.int64).reshape(-1, 4)
+    return held[:, 0] + 2 * held[:, 1] + 4 * held[:, 2] + 8 * held[:, 3]
+
+
+def governed_split(logp, targets, held, masks):
+    """log P(LN-ness | head mask, release types) = log P(a) - log sum over its group of P(a') [m]."""
+    groups = torch.as_tensor(LN_GROUPS[held_pattern(held)], device=logp.device)       # [m,625]
+    same = (groups == groups.gather(1, targets[:, None])) & torch.as_tensor(np.asarray(masks), device=logp.device)
+    group_lp = logp.masked_fill(~same, -torch.inf).logsumexp(-1)
+    return logp.gather(1, targets[:, None])[:, 0] - group_lp
