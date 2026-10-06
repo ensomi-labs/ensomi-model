@@ -33,3 +33,23 @@ Full evidence: [r2-v2-readiness-20261006](r2-v2-readiness-20261006.md) (stage-0 
 **Explainer for the human:** [r2-architecture-20261006.html](r2-architecture-20261006.html), a self-contained local HTML page built from the two reports, with flow charts and a worked example you can step through. At the human's request it is not published anywhere ([private, local](private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-2)).
 
 **Status.** Nothing fixed, committed or run beyond the read-only checks above. The next step is the human's call.
+
+<a id="q-decision-unit-rethink"></a>**Question (human, 2026-10-06, [private, local](private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-3)): does the system match the human's model, and should the decision unit be rethought?**
+
+The human's model is:
+- each head row decides the LN releases in (t_{k−1}, t_k] and the new heads at t_k together;
+- EOS is fixed at the song's end and only closes holds;
+- an external module handles requests and their activation and expiry;
+- the model sees only the current section's controls, never past ones, while it reads past notes;
+- each section has at most one target per kind.
+
+The human says the decision space, its order and its learnability may be rethought.
+
+**Agent reading (main thread, checked against the code):**
+- The code matches the decision unit as stated. Within a decision, one 625-way choice over lane codes is made first; the gap release times follow from the candidate grid, lane by lane, averaged over both mirror orders (`sampling.py:84-105`).
+- The code also matches the request split. `request_set.py` validates requests, admits additions and withdrawals only before the start, refuses changes after it, and builds the intervals. The model reads only the visible intervals, and history tokens carry notes only.
+- A request may carry both kinds on one scope; scopes of different kinds may also differ. v1, by contrast, read past controls (presence bit, birth role).
+- Rule L is not an extra policy. It is what "current section" means for a decision that outputs times on both sides of a boundary: decision k emits gap releases that can fall before a.
+- If the decision unit is redesigned so that no decision straddles a section boundary, rule L reduces to t ∈ [a, b). That would also replace the "split boundary decision" the plan keeps in reserve for D8 > 5%.
+
+No redesign is decided. The architecture page's §3 and §6 were corrected for the two wordings that suggested a mismatch (notes `1fbb6cc`).
