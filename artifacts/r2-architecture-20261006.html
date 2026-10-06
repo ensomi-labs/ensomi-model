@@ -215,7 +215,7 @@ a{color:var(--accent)}
       <rect class="box" x="16" y="82" width="180" height="44" rx="4"/><text class="t" x="28" y="101">BPM segments</text><text class="s" x="28" y="117">canonical beat grid</text>
       <rect class="box" x="16" y="136" width="180" height="44" rx="4"/><text class="t" x="28" y="155">Song length T</text><text class="s" x="28" y="171">ms</text>
       <rect class="box" x="16" y="190" width="180" height="44" rx="4"/><text class="t" x="28" y="209">Chart seed (optional)</text><text class="s" x="28" y="225">first s decisions, fixed</text>
-      <rect class="box cond" x="16" y="292" width="180" height="48" rx="4"/><text class="t c" x="28" y="312">Requests</text><text class="s" x="28" y="328">scope [a, b) + one target</text>
+      <rect class="box cond" x="16" y="292" width="180" height="48" rx="4"/><text class="t c" x="28" y="312">Requests</text><text class="s" x="28" y="328">scope [a, b) + targets</text>
       <!-- bracket into loop -->
       <path class="edge" d="M196,50 H214 V212 M196,104 H214 M196,158 H214 M196,212 H214"/>
       <path class="edge" d="M214,131 H452" marker-end="url(#ah1)"/>
@@ -256,7 +256,7 @@ a{color:var(--accent)}
   </figure>
 
   <ul class="facts">
-    <li><b>The unit is a head row</b><span>K head rows give K + 1 decisions. Decision k closes any LN ending in the gap before row k, then fills row k. A final EOS decision closes what is still held before T.</span></li>
+    <li><b>The unit is a head row</b><span>K head rows give K + 1 decisions. Decision k decides the LN releases in (t<sub>k−1</sub>, t<sub>k</sub>] and the new taps and LN heads at t<sub>k</sub>. A final EOS decision, fixed at T, only closes what is still held.</span></li>
     <li><b>Rows are chosen jointly</b><span>Each lane takes one of 5 codes, so a row is one of 5⁴ = 625 actions, scored together by a low-rank joint head and masked to legal ones.</span></li>
     <li><b>Releases come from a pointer</b><span>Release times are picked from a finite set of grid-snapped candidates in the gap, lane by lane, averaged over both mirror orientations.</span></li>
     <li><b>Memory is a causal TCN</b><span>Dilated convolutions over committed rows see the last 511 rows. A landmark read attends to every 64th row. The TCN holds 83% of the weights.</span></li>
@@ -275,7 +275,7 @@ a{color:var(--accent)}
       <tr><td>BPM segments</td><td><code>GridArrays</code>: offsets, beat length, beat origins, meters</td><td>Built from red lines and head times only. "Beats" are canonical: each segment's BPM is folded by powers of 2 into [80, 160). <span class="ref">common.py:69-111</span></td></tr>
       <tr><td>Song length T</td><td>ms</td><td>Lets EOS close holds after the last row.</td></tr>
       <tr><td>Chart seed (optional)</td><td>first s decisions: codes [s,4], gap ms [s,4]</td><td>Replay-checked; its last row is the committed frontier g₀. <span class="ref">sampling.py:64-66</span></td></tr>
-      <tr><td>Requests</td><td>scope [a, b), one target (LN share or difficulty)</td><td>Validated, then turned into the effective track (§6).</td></tr>
+      <tr><td>Requests</td><td>scope [a, b), with an LN-share target, a difficulty target, or both</td><td>Validated, then turned into the effective track (§6).</td></tr>
       <tr><td>Random seed</td><td>int, default 954</td><td>One <code>torch.Generator</code> per continuation.</td></tr>
       <tr><td>Baseline style ρ</td><td>must be <code>None</code></td><td>Reserved slot; raises if set. <span class="ref">sampling.py:32-37</span></td></tr>
     </tbody>
@@ -294,7 +294,7 @@ a{color:var(--accent)}
 <!-- 3 -->
 <section id="decision">
   <h2><span class="n">3</span>The decision unit</h2>
-  <p>Decision k belongs to head row k. It first closes any long notes that end in the gap since the previous row, then fills the row itself. Decision 0 has no gap. After the last row, an extra EOS decision closes whatever is still held before T. Every row must place at least one head. <span class="ref">common.py:7-18, state.py:49-101</span></p>
+  <p>Decision k belongs to head row k. It decides every LN release in (t<sub>k−1</sub>, t<sub>k</sub>], on the row or inside the gap, together with the new taps and LN heads at t<sub>k</sub>. Inside the model this happens in two steps. One joint choice over the four lane codes (625 actions) fixes, for each held lane, whether it keeps holding, releases on the row or releases in the gap, and for each lane whether a tap or LN head starts at t<sub>k</sub>. Then the release time of each lane that releases in the gap is picked from the candidates, lane by lane (§4). Decision 0 has no gap. The EOS decision sits at the song length T, which is given: its row action is forced, and only the release times of lanes still held are chosen. With nothing held it outputs nothing. Every row must place at least one head. <span class="ref">common.py:7-18, state.py:49-101, sampling.py:84-105</span></p>
 
   <div class="twocol">
     <div>
@@ -511,7 +511,7 @@ a{color:var(--accent)}
       <h3>A request</h3>
       <ul class="tight">
         <li>A scope [a, b) in song ms, 0 ≤ a &lt; b ≤ T.</li>
-        <li>Exactly one target: LN share in [0, 1], or difficulty as tiled star over a scope of at least 30 s.</li>
+        <li>At most one target per property: LN share in [0, 1], difficulty as tiled star over a scope of at least 30 s, or both on the same scope.</li>
         <li>Strength fixed at the default. Ranges are refused.</li>
         <li>Style, demand, priority and transitions must be empty; they are reserved and raise when set.</li>
       </ul>
@@ -524,7 +524,7 @@ a{color:var(--accent)}
         <li>two targets for the same property with overlapping scopes;</li>
         <li>withdrawing or replacing a request once its scope has started.</li>
       </ul>
-      <p>Different properties may overlap; the record lists them as co-active. Flags mark a scope with no head row, an undefined readout, or a length outside what training covered (LN 8–512 beats or whole song; difficulty 30/60/120 s or whole song).</p>
+      <p>Requests for different properties may also have different scopes that partly overlap; the record lists them as co-active. Flags mark a scope with no head row, an undefined readout, or a length outside what training covered (LN 8–512 beats or whole song; difficulty 30/60/120 s or whole song).</p>
       <p class="ref">request_set.py:128-259</p>
     </div>
   </div>
