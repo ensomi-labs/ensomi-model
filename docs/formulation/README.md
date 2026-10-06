@@ -9,14 +9,14 @@ The materialized output is a sequence of complete timed rows; implementations
 may use different representations and generation methods.
 
 This directory separates the generation contract, the gameplay semantics that
-guide preference among legal continuations, and the semantics of style and
-controllable generation:
+guide preference among legal continuations, and the semantics of style
+conditions and control:
 
 | Document | Ownership |
 | --- | --- |
 | [Generation notation](notation.md) | Chart language, absolute time, exact legality, committed history and chart seeds, legal continuations, the generation and property-query interfaces, and prefix commits |
 | [Gameplay demand and style](gameplay-state.md) | Target continuation responses, the gameplay frontier, demand representations, section-style observations, demand requests, and semantic evaluation |
-| [Style and controllable generation](style.md) | Style identity, the baseline style, chart properties and their measurement semantics, scoped requests with target strength, priority and transition policy, return to natural, and the roles of chart and random seeds |
+| [Style conditions and control](style-conditions-and-control.md) | Style identity, the baseline style, chart properties and their measurement semantics, scoped requests with target strength, priority and transition policy, return to natural, and the roles of chart and random seeds |
 
 ## Research direction
 
@@ -40,7 +40,7 @@ supervision; they do not directly label numerical demand.
 
 Style dimensions are open-ended. Named concepts anchor part of the style
 space, and references and learned organization supply the rest. The
-[style formulation](style.md) states what identity, control, and readouts must
+[style formulation](style-conditions-and-control.md) states what identity, control, and readouts must
 satisfy without fixing a representation of the baseline style or a calibrated
 strength scale.
 

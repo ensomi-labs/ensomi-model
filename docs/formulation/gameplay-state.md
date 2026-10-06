@@ -15,7 +15,7 @@ numerical demand or a response evaluator.
 committed history, and the generation interface. This page owns the meaning and
 evidence requirements of demand, frontier representations, style observations,
 and demand requests, and the gameplay semantics every control must respect.
-[style.md](style.md) owns style identity, the baseline style, scoped style
+[Style conditions and control](style-conditions-and-control.md) owns style identity, the baseline style, scoped style
 directives and chart-property targets, and their composition and release.
 
 ## Canonical gameplay profile
@@ -179,7 +179,7 @@ memory features may remain unnamed.
 Local intensity and section or map difficulty require their own definitions.
 Neither is automatically a norm or average of the state. Section difficulty as
 a chart property is the readout of an evaluator declared in its measurement
-semantics ([style.md](style.md#section-difficulty-and-gameplay-demand)), not a
+semantics ([Style conditions and control](style-conditions-and-control.md#section-difficulty-and-gameplay-demand)), not a
 demand coordinate. Desired intensity, realized style strength, and confidence
 in a judgment are different quantities.
 
@@ -202,7 +202,7 @@ definitions and calibration examples accompany the dataset; the five names are
 not a universal taxonomy or the final set of generation controls.
 Style observations are readouts of realized organization; style directives
 that name the same concepts are requests
-([style.md](style.md#style-observations-and-style-directives)).
+([Style conditions and control](style-conditions-and-control.md#style-observations-and-style-directives)).
 Historical records retain their pinned vocabulary and definitions. Adding a
 concept or revising a definition does not retroactively label that concept or
 reinterpret an earlier judgment.
@@ -248,8 +248,8 @@ Unresolved and unreviewed remain distinguishable even when both are excluded
 from a supervised presence loss.
 
 An assessment describes a realized section. The requested assessment of a
-[style directive](style.md#style-observations-and-style-directives) and the
-[strength](style.md#target-strength) of a chart-property target are request
+[style directive](style-conditions-and-control.md#style-observations-and-style-directives) and the
+[strength](style-conditions-and-control.md#target-strength) of a chart-property target are request
 parameters; neither is an observation, and the ordinal assessment scale does
 not define a strength scale.
 
@@ -350,7 +350,7 @@ Generation takes a baseline style $\rho$, a possibly empty set
 $\mathscr U$ of scoped requests, and optional demand requests
 $c_W^{\mathrm{demand}}$, as defined in
 [notation.md](notation.md#generation-and-optional-controls).
-[style.md](style.md) defines the baseline, the style directives and
+[Style conditions and control](style-conditions-and-control.md) defines the baseline, the style directives and
 chart-property targets in $\mathscr U$, their scopes, composition, and
 release.
 
@@ -376,7 +376,7 @@ strength, desired demand, and sampling temperature have separate meanings. A
 style amount control must specify whether it concerns local expression,
 coverage, repetition, or another calibrated property. Target strength is an
 ordered adherence level for one property target
-([style.md](style.md#target-strength)); adherence of a style directive is a
+([Style conditions and control](style-conditions-and-control.md#target-strength)); adherence of a style directive is a
 quantity of the same kind without a defined interface. The ordinal annotation
 scale does not by itself define a numerical control interface, for a style
 amount or for a strength.
@@ -386,7 +386,7 @@ incompatible. Separate interfaces do not guarantee independently achievable
 effects. Generation must preserve legality and committed decisions. In
 $\mathscr U$, overlapping directives on the same quantity are invalid, and
 overlapping directives on different quantities compose under the optional
-priorities of [style.md](style.md#overlap-and-priority), with a declared
+priorities of [Style conditions and control](style-conditions-and-control.md#overlap-and-priority), with a declared
 shortfall when they cannot all be met. A demand request has no precedence
 relative to them until its interface is defined; a joint shortfall is
 declared.
@@ -419,7 +419,7 @@ comparison needs a continuation legal from both histories, or an explicitly
 declared correspondence between their actions.
 
 Identity, release, property-target, and strength comparisons are listed in
-[style.md](style.md#evaluation). Changes in note count, global difficulty, or
+[Style conditions and control](style-conditions-and-control.md#evaluation). Changes in note count, global difficulty, or
 decoding entropy alone do not establish successful semantic control. Human
 judgments or independently validated evaluators must recognize the intended
 change. Consistent replay and mirror behavior are useful checks, but do not

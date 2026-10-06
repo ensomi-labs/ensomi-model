@@ -1,4 +1,4 @@
-# Style and controllable generation
+# Style conditions and control
 
 Ensomi generates musically coherent, playable charts with distinctive
 organization, diverse realizations, and composable controls over both style and
@@ -182,14 +182,11 @@ windows. Steering later rows of an active scope toward its section target is
 not compensation.
 
 A request expires when the committed boundary reaches the end of its scope.
-Cancellation removes it at a committed boundary $g'$ before then. A request
-cancelled before its start governs nothing. A request cancelled inside its
-scope governs only the decisions through $g'$; its targets cease to be
-objectives, and the record keeps the readout of its committed part, marked as
-cancelled rather than as a measure of adherence. A changed directive is a new
-request and must satisfy the validity rule: a replacement for a request
-cancelled at $g'$ starts after $g'$, and the time between $g'$ and that start
-is governed by neither. Expiry and cancellation remove the directive and leave
+Before its scope starts, while $g<a$, a request may be withdrawn or replaced;
+a withdrawn request governs nothing, and a replacement is a new request under
+the validity rule. Once the committed boundary reaches $a$, the request is
+fixed: it can be neither cancelled nor changed, and it governs its scope until
+it expires. Expiry removes the directive and leaves
 committed history, ongoing holds, and the baseline unchanged.
 
 Outside its scope, generation sees nothing of a request unless its $\eta$
@@ -389,7 +386,7 @@ developed motifs. It returns to the baseline's organizing preference, not
 necessarily to the seed's local statistics, a population-average style, or the
 trajectory that would have occurred without the request.
 
-An expired or cancelled directive ceases to be an objective. Its historical
+An expired directive ceases to be an objective. Its historical
 consequences can persist: a hold may end after the scope, and a motif may be
 completed naturally. Persistence alone does not prove continued enforcement,
 and expiry does not require an immediate opposite behavior. An expired target
@@ -432,9 +429,9 @@ generation records:
   boundary;
 - the chart seed and the random seed;
 - every request with its scope, directives, $\nu$, target values, strengths,
-  and $\eta$, and the boundary of any cancellation;
+  and $\eta$, and any request withdrawn before its start;
 - for each target, its readout under $\nu$ over $S$ and the deviation, with
-  undefined readouts recorded as undefined and cancelled targets marked;
+  undefined readouts recorded as undefined;
 - overlaps that could not all be met, and the shortfall of each directive;
 - objects that cross the end of a scope, such as a hold started inside it and
   closed after it, so that a readout can separate persistence from

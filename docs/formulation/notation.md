@@ -5,7 +5,7 @@ its row language, legal continuations, committed-prefix semantics, and the
 generation and property-query interfaces.
 [Gameplay state](gameplay-state.md) defines the target gameplay response,
 frontier, style observations, demand requests, and their use in generation.
-[Style and controllable generation](style.md) defines the baseline style,
+[Style conditions and control](style-conditions-and-control.md) defines the baseline style,
 scoped requests, and chart properties.
 
 ## Chart object and time
@@ -129,7 +129,7 @@ initial closed occupancy. Its rows and no-row decisions through $g_0$ are
 committed; continuation preserves them and inherits any long notes open at
 $g_0$, with the obligation to close them by $T$. The seed's role as style
 evidence belongs to
-[Chart seed, baseline and random seed](style.md#chart-seed-baseline-and-random-seed).
+[Chart seed, baseline and random seed](style-conditions-and-control.md#chart-seed-baseline-and-random-seed).
 A random seed, which selects sampling randomness, is a different object.
 
 Exact state is derived by replay:
@@ -228,7 +228,7 @@ optional argument. The inputs after $W$ have different meanings:
 - $c_W^{\mathrm{demand}}$ expresses requested gameplay-demand responses under a
   declared response specification.
 
-[Style and controllable generation](style.md) defines $\rho$ and
+[Style conditions and control](style-conditions-and-control.md) defines $\rho$ and
 $\mathscr U$; [Controls](gameplay-state.md#controls) defines demand requests.
 With $\mathscr U$ empty and no demand request, generation is natural:
 conditioned on the baseline, with every chart property free. It still produces
@@ -238,7 +238,7 @@ Neither the baseline nor any request fixes a row or overrides committed
 decisions and long-note obligations. Requests may conflict with each other or
 be unattainable under the current boundary and implementation support.
 Generation may seek a legal compromise or report that a request cannot be met;
-[Overlap and priority](style.md#overlap-and-priority) defines which overlapping
+[Overlap and priority](style-conditions-and-control.md#overlap-and-priority) defines which overlapping
 requests are invalid, how the others compose, and how a shortfall is
 declared. This notation does not assume numerical demand coordinates, a style
 score scale, or a style representation.
@@ -261,7 +261,7 @@ semantics. The query depends only on chart content and $\nu$; it has no
 request argument. Property targets in $\mathscr U$ use the same definitions.
 A readout of a provisional branch is computed on that branch and does not
 become a committed fact.
-[Chart properties and measurement semantics](style.md#chart-properties-and-measurement-semantics)
+[Chart properties and measurement semantics](style-conditions-and-control.md#chart-properties-and-measurement-semantics)
 states what $\nu$ must declare.
 
 The [target response and frontier](gameplay-state.md#target-response-and-frontier)
