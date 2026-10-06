@@ -55,3 +55,21 @@ This refines [h-decoding-style](decoding-stage.md#h-decoding-style). Decoding-ti
 - memory (plan v5 decision 11);
 - the Lens training population: the latest three batches only, or the published layers plus High gold;
 - frozen first for phase C.
+
+<a id="d-phasen-memory"></a>**Decisions (human, 2026-10-06, [private, local](private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-9)).**
+1. **Phase-N config accepted** as proposed. It is now in the tracked `configs/ce_v2_n.json` on the working tree, uncommitted: lr 3e-4, warm-up 20k, cosine to 3e-5, 64M exposures, checkpoints every 4M, `g3c_exposures` [], n_bar 898.916 with its key.
+2. **Long-range memory off.** `memory='none'` in all three v2 configs, so phases N and C must match; this settles plan v5 decision 11. The landmark modules are still built (65,920 parameters) but unused under `none`: the parameter count stays 2,404,724 (mac job `20261006-152557`).
+
+`check_config` accepts the config with memory off.
+
+<a id="c-style-pool"></a>**Correction (human): the style training pool.** About 4,000-5,000 labelled sections are available for style training, possibly from three annotation provenances; the human's own reading is unsure. The Lens job above counted only 75 sections from today's 1,000-chart campaign as "the latest three batches", which was a misreading. Its method conclusions that rest on that count (sparse trajectories, "narrow feasibility study") need re-checking against the real pool. The inventory is part of the next Astra job.
+
+<a id="q-style-module"></a>**Question (human): what architecture should the style scorer have?** It must work with the phase-N generator during generation, not just classify finished sections, because classification differs from generation. Should it be based on phase N? Astra job `20261006-152705-r2-style-module` (default tier, effort xhigh, under 2 h) inventories the pool and compares the options:
+- a prefix discriminator on generator states (FUDGE-like);
+- a class-conditional generative discriminator (GeDi-like);
+- a section energy or reward on the frozen phase-N trunk;
+- phase-C style adapters;
+- combinations.
+It recommends one design with an exact interface. Output: `artifacts/r2-style-module-20261006/` in the code checkout.
+
+Whether to start the phase-N run now was raised as a "maybe"; the main thread asks the human to confirm.
