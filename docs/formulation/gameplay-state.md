@@ -12,8 +12,11 @@ style judgments help develop these definitions; they do not already specify
 numerical demand or a response evaluator.
 
 [notation.md](notation.md) owns chart syntax, exact replay, legal continuations,
-and committed history. This page owns the meaning and evidence requirements of
-demand, frontier representations, style observations, and semantic controls.
+committed history, and the generation interface. This page owns the meaning and
+evidence requirements of demand, frontier representations, style observations,
+and demand requests, and the gameplay semantics every control must respect.
+[style.md](style.md) owns style identity, the baseline style, scoped style
+directives and chart-property targets, and their composition and release.
 
 ## Canonical gameplay profile
 
@@ -33,7 +36,7 @@ Exact facts and gameplay interpretations have different sources:
 | --- | --- |
 | Row times, actions, and long-note occupancy | The materialized chart and exact replay |
 | Recurrence, chord sizes, timing relationships, and hold/release relationships | Computation from declared chart context |
-| Style presence and strength | Scoped semantic judgments under a versioned vocabulary |
+| Style presence and ordinal strength | Scoped semantic judgments under a versioned vocabulary |
 | Target continuation responses | The mapper-facing response specification to be defined from the initial dataset |
 | Predicted responses and runtime demand state | A chosen representation and its dynamics |
 
@@ -174,8 +177,11 @@ meaning merely from its name or correlation with a style label. Internal
 memory features may remain unnamed.
 
 Local intensity and section or map difficulty require their own definitions.
-Neither is automatically a norm or average of the state. Desired intensity,
-realized style strength, and confidence in a judgment are different quantities.
+Neither is automatically a norm or average of the state. Section difficulty as
+a chart property is the readout of an evaluator declared in its measurement
+semantics ([style.md](style.md#section-difficulty-and-gameplay-demand)), not a
+demand coordinate. Desired intensity, realized style strength, and confidence
+in a judgment are different quantities.
 
 Under the symmetric canonical profile, mirrored histories and continuations
 should have correspondingly mirrored target responses. A representation must
@@ -194,6 +200,9 @@ Jack organization, Stream organization, Trill organization, Tech, and LN
 coordination. These are experiment-specific, versioned concepts. Their local
 definitions and calibration examples accompany the dataset; the five names are
 not a universal taxonomy or the final set of generation controls.
+Style observations are readouts of realized organization; style directives
+that name the same concepts are requests
+([style.md](style.md#style-observations-and-style-directives)).
 Historical records retain their pinned vocabulary and definitions. Adding a
 concept or revising a definition does not retroactively label that concept or
 reinterpret an earlier judgment.
@@ -237,6 +246,12 @@ to one, and judging one concept does not resolve the others. Positive-first,
 partially exhaustive collection leaves missing assessments unreviewed.
 Unresolved and unreviewed remain distinguishable even when both are excluded
 from a supervised presence loss.
+
+An assessment describes a realized section. The requested assessment of a
+[style directive](style.md#style-observations-and-style-directives) and the
+[strength](style.md#target-strength) of a chart-property target are request
+parameters; neither is an observation, and the ordinal assessment scale does
+not define a strength scale.
 
 ### Scope, context, and evidence
 
@@ -331,33 +346,48 @@ evaluated aggregation rule that accounts for selection and missing coverage.
 
 ## Controls
 
-The generation problem accepts optional style and demand requests,
-$c_W^{\mathrm{style}}$ and $c_W^{\mathrm{demand}}$, as defined in
-[notation.md](notation.md#generation-and-optional-controls). Either, both, or
-neither may be supplied.
+Generation takes a baseline style $\rho$, a possibly empty set
+$\mathscr U$ of scoped requests, and optional demand requests
+$c_W^{\mathrm{demand}}$, as defined in
+[notation.md](notation.md#generation-and-optional-controls).
+[style.md](style.md) defines the baseline, the style directives and
+chart-property targets in $\mathscr U$, their scopes, composition, and
+release.
 
-A style request asks the generator to favor a declared concept or combination.
-An absent request permits the learned natural style distribution; it does not
-request an absence of style. Realized presence and strength are assessed on
-the resulting chart. The request is not itself an observation of that result.
+A style directive asks the generator to favor a declared concept or
+combination, a reference characteristic, or a relative change over its scope.
+An absent style directive leaves generation conditioned on the baseline; it
+does not request an absence of style or a population-average style. Realized
+presence and ordinal strength are assessed on the resulting chart. The
+directive is not itself an observation of that result.
 
 A demand request refers to quantities or relationships in the target-response
 specification. Its concrete interface remains open until those semantics are
-defined. A target in the coordinates of one learned state is meaningful only
-with that representation and its mapping to the declared response quantities.
-Renaming arbitrary latent coordinates as demand controls does not establish
-mapper-facing semantics.
+defined. Like other requests, it has a song-time scope independent of
+generation windows; $c_W^{\mathrm{demand}}$ denotes the demand requests whose
+scopes meet $W$. A target in the coordinates of one learned state is
+meaningful only with that representation and its mapping to the declared
+response quantities. Renaming arbitrary latent coordinates as demand controls
+does not establish mapper-facing semantics. A section-difficulty target is a
+chart property under a declared evaluator, not a demand request.
 
-Requested style tendency, style adherence, desired demand, and sampling
-temperature have separate meanings. A style amount control must specify
-whether it concerns local expression, coverage, repetition, or another
-calibrated property. The ordinal annotation scale does not by itself define
-a numerical control interface.
+Requested style tendency, style adherence, a property target's value and
+strength, desired demand, and sampling temperature have separate meanings. A
+style amount control must specify whether it concerns local expression,
+coverage, repetition, or another calibrated property. Target strength is an
+ordered adherence level for one property target
+([style.md](style.md#target-strength)); adherence of a style directive is a
+quantity of the same kind without a defined interface. The ordinal annotation
+scale does not by itself define a numerical control interface, for a style
+amount or for a strength.
 
-Style and demand requests can be correlated or incompatible. Separate
-interfaces do not guarantee independently achievable effects. Generation must
-preserve legality and committed decisions, and use a declared compromise or
-infeasibility policy when requests cannot be jointly realized.
+Style directives, property targets, and demand requests can be correlated or
+incompatible. Separate interfaces do not guarantee independently achievable
+effects. Generation must preserve legality and committed decisions. Overlapping
+requests in $\mathscr U$ compose under the priorities of
+[style.md](style.md#overlap-and-priority), with a declared shortfall when they
+cannot all be met. A demand request has no precedence relative to them until
+its interface is defined; a joint shortfall is declared.
 
 Neither control requires a separate planner or an explicit demand trajectory
 before row generation. When a representation is available, its state and
@@ -377,7 +407,7 @@ distinct purposes:
 | Does style recognition recover the declared concepts and strengths? | Held-out scoped judgments, retaining explicit negatives, unresolved assessments, related-source grouping, and ordinal strength |
 | Does a demand representation preserve the target responses? | Predictions against independently specified responses on held-out legal continuations and declared horizons |
 | What does demand contribute to style recognition? | Chart-only, demand-only, and joint predictors with declared context and density, event-count, or difficulty baselines |
-| Does a style request produce its intended semantic effect? | Fixed audio and committed history, feasible comparison conditions, and independent judgments of the generated organization |
+| Does a style directive produce its intended semantic effect? | Fixed audio and committed history, feasible comparison conditions, and independent judgments of the generated organization |
 | Does demand control change the intended response? | Defined target-response comparisons, checking style changes and other tradeoffs rather than assuming independence |
 | Does a representation respect the canonical symmetry? | Mirrored histories and legal continuations with the declared output transformation |
 
@@ -386,8 +416,10 @@ probe cannot be applied indiscriminately to every occupancy state. A paired
 comparison needs a continuation legal from both histories, or an explicitly
 declared correspondence between their actions.
 
-Changes in note count, global difficulty, or decoding entropy alone do not
-establish successful semantic control. Human judgments or independently
-validated evaluators must recognize the intended change. Consistent replay
-and mirror behavior are useful checks, but do not prove sample efficiency,
-frontier sufficiency, or agreement with mapper-defined response semantics.
+Identity, release, property-target, and strength comparisons are listed in
+[style.md](style.md#evaluation). Changes in note count, global difficulty, or
+decoding entropy alone do not establish successful semantic control. Human
+judgments or independently validated evaluators must recognize the intended
+change. Consistent replay and mirror behavior are useful checks, but do not
+prove sample efficiency, frontier sufficiency, or agreement with mapper-defined
+response semantics.

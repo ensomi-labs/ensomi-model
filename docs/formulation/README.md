@@ -1,17 +1,22 @@
 # Ensomi V3 formulation
 
-Ensomi's target is to generate musically coherent, legal 4K choreography
-from complete audio and committed chart history. Style and gameplay-demand
-requests are optional controls. The materialized output is a sequence of complete timed
-rows; implementations may use different representations and generation methods.
+Ensomi's target is to generate musically coherent, legal and playable 4K
+choreography from complete audio and committed chart history, with distinctive
+organization, diverse realizations, and composable controls over both style
+and chart properties. Generation always follows a baseline style; scoped style
+directives, chart-property targets, and gameplay-demand requests are optional.
+The materialized output is a sequence of complete timed rows; implementations
+may use different representations and generation methods.
 
-This directory separates the generation contract from the gameplay semantics
-that guide preference among legal continuations:
+This directory separates the generation contract, the gameplay semantics that
+guide preference among legal continuations, and the semantics of style and
+controllable generation:
 
 | Document | Ownership |
 | --- | --- |
-| [Generation notation](notation.md) | Chart language, absolute time, exact legality, committed history, legal continuations, optional control positions, and prefix commits |
-| [Gameplay demand and style](gameplay-state.md) | Target continuation responses, the gameplay frontier, demand representations, section-style observations, and semantic evaluation |
+| [Generation notation](notation.md) | Chart language, absolute time, exact legality, committed history and chart seeds, legal continuations, the generation and property-query interfaces, and prefix commits |
+| [Gameplay demand and style](gameplay-state.md) | Target continuation responses, the gameplay frontier, demand representations, section-style observations, demand requests, and semantic evaluation |
+| [Style and controllable generation](style.md) | Style identity, the baseline style, chart properties and their measurement semantics, scoped requests with target strength, priority and transition policy, return to natural, and the roles of chart and random seeds |
 
 ## Research direction
 
@@ -29,19 +34,29 @@ target responses. This formulation does not provide a completed response
 specification, a calibrated demand scale, or an executable V3 model.
 
 The initial style dataset uses the scoped, ordinal judgments supplied by
-@ensomi-labs/beatmap-lens. Presence, strength, unresolved judgments, and
-unreviewed dimensions remain distinct. Those observations provide style
+@ensomi-labs/beatmap-lens. Presence, ordinal strength, unresolved judgments,
+and unreviewed dimensions remain distinct. Those observations provide style
 supervision; they do not directly label numerical demand.
+
+Style dimensions are open-ended. Named concepts anchor part of the style
+space, and references and learned organization supply the rest. The
+[style formulation](style.md) states what identity, control, and readouts must satisfy without
+fixing a representation of the baseline style or a calibrated strength scale.
 
 ## Authority
 
 The chart language and commit rules are formal constraints. The canonical
-gameplay profile and annotation meanings are declared conventions. Response
-definitions, representation adequacy, and control behavior have the research
-status stated in their owning sections.
+gameplay profile and annotation meanings are declared conventions. Request
+semantics are interface requirements: scope membership, locality outside a
+scope, priority, release, and the shared definition of targets and readouts
+under declared measurement semantics. Response definitions, representation
+adequacy, style representations, the calibration of strength levels, and
+realized control behavior have the research status stated in their owning
+sections.
 
-Concrete candidate generators, state encoders, dynamics, training objectives,
-pooling models, decoding methods, and experimental results belong in
+Concrete candidate generators, state encoders, style encoders, dynamics,
+training objectives, pooling models, decoding methods, and experimental
+results belong in
 [research documentation](../research/). A particular implementation's reachable
 charts do not redefine the legal chart space.
 

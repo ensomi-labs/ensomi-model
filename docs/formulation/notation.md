@@ -1,9 +1,12 @@
 # Chart and generation contract
 
 Ensomi generates a 4-key chart from complete source audio. This page defines
-its row language, legal continuations, and committed-prefix semantics.
+its row language, legal continuations, committed-prefix semantics, and the
+generation and property-query interfaces.
 [Gameplay state](gameplay-state.md) defines the target gameplay response,
-frontier, style observations, and their use in generation.
+frontier, style observations, demand requests, and their use in generation.
+[Style and controllable generation](style.md) defines the baseline style,
+scoped requests, and chart properties.
 
 ## Chart object and time
 
@@ -119,6 +122,16 @@ $[0,e]$, so rows at time $0$ remain representable.
 A committed prefix must replay legally from the initial closed occupancy. At
 $g=T$, it must also satisfy the complete-chart closure requirement.
 
+A chart seed $\sigma=(H_0,g_0)$ is an optionally supplied initial committed
+pair in place of $((),0^-)$. It must satisfy the same requirements: every row
+of $H_0$ has time at or before $g_0$, and $H_0$ replays legally from the
+initial closed occupancy. Its rows and no-row decisions through $g_0$ are
+committed; continuation preserves them and inherits any long notes open at
+$g_0$, with the obligation to close them by $T$. The seed's role as style
+evidence belongs to
+[Chart seed, baseline and random seed](style.md#chart-seed-baseline-and-random-seed).
+A random seed, which selects sampling randomness, is a different object.
+
 Exact state is derived by replay:
 
 $$
@@ -141,10 +154,13 @@ At a row time $t$, $x_H(t^-)$ denotes the state before that row and $x_H(t)$
 the state after the complete row. For a committed boundary, $x_H(g)$ therefore
 includes any row at $g$.
 
-The pair $(H,g)$ is the source of truth. Retained replay caches must agree
-with it, but they are not additional independent semantic state. Exact replay
-summaries need not contain every arrangement distinction in the full history;
-the history remains available to generation.
+The pair $(H,g)$ is the source of truth for the chart. Retained replay caches
+must agree with it, but they are not additional independent semantic state.
+Exact replay summaries need not contain every arrangement distinction in the
+full history; the history remains available to generation. The baseline style
+and request set of [Generation and optional controls](#generation-and-optional-controls)
+are generation inputs retained across calls, not chart state: they are neither
+stored in $(H,g)$ nor derived from it.
 
 ## Legal continuations
 
@@ -183,8 +199,8 @@ but cannot belong to a legal completed chart because there is no later time
 for its close. A required `LN_CLOSE` at $T$ can be legal.
 
 These rules define chart legality. Audio correspondence, gameplay demand,
-style, model probability, and decoding support affect generation choices;
-they do not change the legal continuation set.
+style, chart-property targets, model probability, and decoding support affect
+generation choices; they do not change the legal continuation set.
 
 ## Generation and optional controls
 
@@ -193,28 +209,58 @@ formulation is
 
 $$
 Y_W\sim p_\theta\left(
-\cdot\mid X,H,g,W,
-[c_W^{\mathrm{style}}],
+\cdot\mid X,H,g,W,\rho,\mathscr U,
 [c_W^{\mathrm{demand}}]
 \right),
 $$
 
-with probability one on $\mathcal V_{\mathrm{legal}}(H,g,e)$. Brackets mark
-optional arguments. With neither request present, the generator still produces
+with probability one on $\mathcal V_{\mathrm{legal}}(H,g,e)$. Brackets mark an
+optional argument. The inputs after $W$ have different meanings:
+
+- $\rho$ is the baseline style. It is always in effect: a caller may supply it,
+  and otherwise the system establishes one at the first generation call and
+  retains it across continuation calls until it is explicitly changed.
+- $\mathscr U$ is the finite, possibly empty, set of scoped requests. A request
+  has a scope in song time, independent of $W$, and carries a style directive,
+  a set of chart-property targets, or both, with a policy for transitions and
+  priority.
+- $c_W^{\mathrm{demand}}$ expresses requested gameplay-demand responses under a
+  declared response specification.
+
+[Style and controllable generation](style.md) defines $\rho$ and
+$\mathscr U$; [Controls](gameplay-state.md#controls) defines demand requests.
+With $\mathscr U$ empty and no demand request, generation is natural:
+conditioned on the baseline, with every chart property free. It still produces
 a chart with realized gameplay organization and demand.
 
-The two requests have different meanings:
+Neither the baseline nor any request fixes a row or overrides committed
+decisions and long-note obligations. Requests may conflict with each other or
+be unattainable under the current boundary and implementation support.
+Generation may seek a legal compromise or report that a request cannot be met;
+[Overlap and priority](style.md#overlap-and-priority) defines how overlapping
+requests compose and how a shortfall is declared. This notation does not assume
+numerical demand coordinates, a style score scale, or a style representation.
 
-- $c_W^{\mathrm{style}}$ expresses a requested gameplay-style tendency.
-- $c_W^{\mathrm{demand}}$ expresses a requested gameplay-demand response under
-  a declared response specification.
+A property query reads a chart $\bar H$ over a scope $S$:
 
-Neither request fixes a row or overrides committed decisions and long-note
-obligations. Requests may conflict with each other or be unattainable under the
-current boundary and implementation support. Generation may seek a legal
-compromise or report that the request cannot be met. Request interpretation and
-matching belong to [Controls](gameplay-state.md#controls); this notation does
-not assume numerical demand coordinates or a style score scale.
+$$
+\mathsf{Properties}_\nu(\bar H,S)
+=
+\bigl(
+\operatorname{LNShare}_\nu(\bar H,S),
+\operatorname{Difficulty}_\nu(\bar H,S),
+\ldots
+\bigr).
+$$
+
+$\bar H$ may be a complete chart, a committed prefix, or a committed prefix
+extended by a provisional continuation, and $\nu$ declares the measurement
+semantics. The query depends only on chart content and $\nu$; it has no
+request argument. Property targets in $\mathscr U$ use the same definitions.
+A readout of a provisional branch is computed on that branch and does not
+become a committed fact.
+[Chart properties and measurement semantics](style.md#chart-properties-and-measurement-semantics)
+states what $\nu$ must declare.
 
 The [target response and frontier](gameplay-state.md#target-response-and-frontier)
 come before a proposed demand representation $d$ in the semantic definition.
@@ -309,8 +355,8 @@ that lane unchanged. For $W=(29.90,30.20]$:
 
 The third continuation is legal because the horizon is intermediate. If its
 endpoint were song end, a later row closing lane 3 would be required within
-that same window. Neither a style request nor a demand request can make the
-second continuation legal.
+that same window. Neither the baseline nor any request can make the second
+continuation legal.
 
 Choosing $Y_W=()$ and committing through $30.05$ leaves $H$ unchanged, fixes
 no-row decisions through $30.05$, and keeps lane 3 open. Its eventual close
