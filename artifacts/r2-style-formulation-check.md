@@ -129,4 +129,17 @@ Recorded from a mix of option selections and free text ([private, local](private
 
 The same Opus subagent is applying these to the draft. The plan revision follows.
 
+<a id="d-plan-v4-answers"></a>
+## Human answers on plan v4, 2026-10-06
+
+Source: [private, local](private/human-inputs/aa6818ba-9ce4-4d72-b1de-e7d78a7ffbee.md#answer-3).
+
+- **Q-B: yes.** Training LN scopes run past 64 beats, up to the whole song.
+- **Q-F: Astra decides the learning-rate schedule.** It may change between training phases, informed by R1's staged recipe. The agent adds a constraint from the plan's matched-comparison rule: the schedule is fixed before arm comparisons and is identical across arms.
+- **q10: no cancellation after a scope starts.** Before the start a request may still be withdrawn or replaced; that part is the agent's reading. The formulation now says so, in `docs/formulation/style-conditions-and-control.md` (renamed at the human's request, `8da2bda`).
+- **Q-E: not answered.** The human asked what the LN-emphasis arm is and why it is needed.
+- **Q-G: not understood as asked.** The human expects difficulty control to be weak with fixed head times, but says the response must still be tuned. Agent reading, to confirm: a training signal on the realised difficulty of generated sections (option B).
+
+The human also asked whether the plan is clear enough for an agent to implement, with extra attention on its ML-specific parts. Plan v4 carries these answers as amendments ([v4-amendments](r2-condition-plan-v4.md#v4-amendments)).
+
 Side observation: `docs/formulation/notation.md` ("Generation and optional controls") and `gameplay-state.md` ("Controls") predate the formulation. Their generation formula has no ρ and no request set, and they say an absent style request permits "the learned natural style distribution". Whether the formulation enters `docs/formulation/` is the human's call.
