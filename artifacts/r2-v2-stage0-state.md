@@ -53,3 +53,28 @@ The human says the decision space, its order and its learnability may be rethoug
 - If the decision unit is redesigned so that no decision straddles a section boundary, rule L reduces to t ∈ [a, b). That would also replace the "split boundary decision" the plan keeps in reserve for D8 > 5%.
 
 No redesign is decided. The architecture page's §3 and §6 were corrected for the two wordings that suggested a mismatch (notes `1fbb6cc`).
+
+<a id="d-two-phase-recipe"></a>**Decision (human, 2026-10-06, [private, local](private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-4)): two-phase training.**
+- **Phase N:** learn natural chart structure first, by teacher-forced CE with no conditions.
+- **Phase C:** then tune the conditions specifically, with the natural model either frozen or held close by a KL term. The human named both modes and has chosen neither.
+
+This supersedes the Q-E answer (condition terms on from the start, A0/A1 arms) of [d-plan-v4-answers](r2-style-formulation-check.md#d-plan-v4-answers). A fresh Opus worker is writing plan v5 and changing the code on `r2/train`. Standing rules carry: no invented training details, no AI review gates, and no run before the human's code check.
+
+Agent answers given to the human with the decision:
+- The 256-decision window bounds only the scored decisions; history is encoded from row 0 (`model.py:232-250`).
+- Window CE cannot see scope-level totals of the model's own choices, which matters for phase C on long scopes.
+- Conditioning is one shared FiLM. After training it adds MLP(0) on every decision, so phase C needs an identity gate outside visible scopes.
+- A per-kind adapter would make new kinds pluggable. It is not built.
+
+<a id="d-r2v2-scope"></a>**Decision (human, 2026-10-06, [private, local](private/human-inputs/dc997baa-3539-4368-a0b2-c72bd4cea5e8.md#prompt-5)): R2 v2 scope and conditions.**
+- **Out of scope for R2 v2:** music (audio) information, head-row (timing) decisions, and memory use.
+- **Memory:** the landmark memory cannot be trained effectively now. Its intended purpose is to offer earlier similar patterns that new generation can reuse when needed, for example when a chorus returns. This adds to [a-r2-reading](r2-average-and-control.md#a-r2-reading), where CE on real histories gives the memory no pressure.
+- **Conditions:** R2 v2 takes the five Beatmap Lens foundation concepts as condition inputs in addition to LN share and difficulty. This settles Q-K's attribute set (plan v4, line 916); the number of levels is open.
+- **Capacity:** condition-control training needs more parameters than the current conditioning path (one FiLM, 42,112 parameters).
+
+Open:
+- whether the landmark read stays on or is switched off;
+- the form and size of the larger conditioning path;
+- the data source for Lens concept labels on the corpus.
+
+The worker was told to put these in plan v5. It may make conditioning capacity configurable, but must not build Lens inputs.
