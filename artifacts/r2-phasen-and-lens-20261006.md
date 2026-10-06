@@ -123,3 +123,5 @@ Whether to start the phase-N run now was raised as a "maybe"; the main thread as
 - A decision that straddles a scope boundary is a boundary effect. It touches at most one head row per boundary, which the human judges negligible.
 - The decision unit is not redefined, and rule L stays as built.
 - The open item was removed from the architecture page (§6 and the status block).
+
+<a id="d-page-published"></a>**Decision (human, 2026-10-06, [private, local](private/human-inputs/da66cd9e-81c2-4ad1-a989-4fe6ef7c81fe.md#prompt-7)): the architecture page is published on claude.ai as it stands.** The earlier local-only rule for this page is lifted. Link: https://claude.ai/artifact/Tsmjq6BYdrwMevfVjJcStm. It is private until shared from its Share menu. The local file stays the source; republishing it keeps the link.
