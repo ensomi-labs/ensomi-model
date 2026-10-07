@@ -126,3 +126,13 @@ Nothing else is running: no Claude subagent, and no training (phase N finished a
   3. Read the investigation report, or rerun it.
   4. Decide the hint-free LN remedy with the human.
   5. Phase C stays on hold until a phase-N base is selected.
+- **Confirmed 13:53 UTC:** the subagent wrote its partial report. It is copied into the notes as
+  [r2-ln-level-20261007-partial](r2-ln-level-20261007-partial.md); the main thread read only its summary. The data side
+  is measured; the model side is unfinished, with jobs listed in its section 3, possibly still running on the mac.
+  Headline, not yet reviewed:
+  - Head times explain about 17% of a chart's LN level (R² 0.17), so a hint-free model must draw the level, not
+    predict it.
+  - The model's local inputs already carry that information, so a whole-skeleton summary would add little.
+  - Real charts hold their level along the song (first against last third, r 0.86).
+  - The phase-N failure is the spread (SD ratio 0.43), not the correlation.
+  Its sections 4-5 give what to run next and a provisional ranking of remedies.
