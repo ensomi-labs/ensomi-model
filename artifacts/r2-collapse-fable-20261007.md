@@ -186,3 +186,40 @@ Reading: in real charts the chart's own running statistic since BOS carries as m
 - Core question 2 (is the missing section information cheap?) is answered no, at least from the grid; it drops out. Question 4 is sharpened: the cumulative anchor is predicted to reduce regime C's excursion persistence (mask entropy ACF) but not to restore across-chart vocabulary commitment (M3), which still needs a held style latent.
 
 ----- END addendum -----
+
+## Addendum 2 (Fable, 16:33-16:40 UTC): does the model weight the cumulative LN share like the data?
+
+Main-thread check: `model_cum.json` and `model_cum-fr.json` (mirrored) match the 48M rows below.
+
+----- BEGIN addendum 2 -----
+
+Jobs (exit 0): `20261007-163348-fable-modelcum` (teacher-forced on real prefixes, T set, 216 charts, `tf-*.npz` marginals of the LN-level job) and `20261007-163614-fable-owncum` (the same regression on the model's own free-run prefixes, 348 runs, `fr-*.npz` marginals). Scripts `model_cum.py`, `model_cum2.py`; outputs `model_cum.json`, `model_cum-fr.json` under `artifacts/r2-collapse-20261007/fable/`. 56M not run (no teacher-forced marginals exist for it; no time for a pass).
+
+Specification: at k = 64b ≥ 512, y regressed on x_cum = LN share over [0, k) and x_rec = share over [k−64, k), pooled OLS, chart-clustered SE. y_model = the model's expected next-64-row share from its per-lane code marginals (Σ P(LN head) / Σ P(head)); y_data = the realised next block. All numbers measured.
+
+| prefixes | y | β_cum | β_recent | R² | n |
+|---|---|---|---|---|---|
+| real (T set) | data realised | 0.57 ± 0.04 | 0.43 ± 0.04 | 0.72 | 1,895 |
+| real | 48M model expected | **0.51 ± 0.04** | 0.45 ± 0.04 | 0.76 | 1,895 |
+| real | 64M model expected | **0.53 ± 0.04** | 0.45 ± 0.04 | 0.76 | 1,895 |
+| own (48M free runs) | 48M model expected | **0.23 ± 0.03** | **0.64 ± 0.03** | 0.67 | 3,048 |
+| own (48M) | realised next block | 0.23 ± 0.03 | 0.64 ± 0.03 | 0.61 | 3,048 |
+| own (64M free runs) | 64M model expected | **0.25 ± 0.04** | **0.70 ± 0.03** | 0.74 | 3,048 |
+| own (64M) | realised next block | 0.26 ± 0.04 | 0.70 ± 0.03 | 0.69 | 3,048 |
+
+Using cumulative over [0, k−64) instead (no overlap with the recent block) changes nothing material (real: 0.48/0.48; own: 0.22/0.65 and 0.24/0.72). The free-lane P(LN) version shows the same pattern at its own scale (real 0.23/0.27; own 0.12/0.28 and 0.14/0.36).
+
+Reading:
+1. **My stated prediction was wrong as posed.** On real prefixes the model's cumulative weight (0.51–0.53) matches the data (0.57) within error, with β_recent 0.45 against 0.43. The model does not under-weight the cumulative share when the history is real.
+2. **The anchor is a proxy, not a property of the model.** On the model's own prefixes the same model shifts its weight to the last 64 rows (0.64–0.70) and the cumulative weight halves (0.23–0.25). A model that read a cumulative statistic would show the same coefficients on either kind of prefix; a model that reads the recent window shows the data's coefficients only while the history itself holds a constant level, which real charts do and its own output does not. The teacher-forced match is therefore not evidence against the missing-anchor mechanism; it is what the mechanism predicts when the proxy and the anchor coincide. The own-prefix regression is the discriminating one, and it goes the theory's way. (Consistent with the LN report's segment weights on real history, 0.418 on the last 64 rows and about 0 on rows k−256..k−64, for the data and the model alike: the data's conditional is itself short-memory on top of a constant level.)
+3. **Sharpened mechanism (inferred from 1–2 and the earlier variogram rate).** A uniform 511-row window would diffuse far too slowly to produce the measured variance growth (about 0.00007 per row); that rate needs an effective memory of order 50–100 rows, which is where the response weight sits in the data and the model. So: the data's one-step conditional puts its predictive weight on the recent rows because real sections modulate a constant level; the model copies it exactly; in rollout a calibrated short-memory response is a fast martingale. The long-range anchor exists in the data only as a weak extra regressor (R² +0.05 over recent alone), which CE prices at a few mnat and rollout prices at the whole collapse.
+
+Consequence for E2: it keeps its premise in a corrected form, with one added requirement.
+- The claim is no longer "the model ignores the anchor" but "the model implements the anchor through a quantity that drifts in its own output". Adding cumulative-prefix statistics to the natural query makes the anchor a convergent quantity (the own cumulative share moves O(1/k)) instead of a window share.
+- **Identifiability risk:** on real data the cumulative feature is redundant with the window (both give β ≈ 0.5), so CE has little reason to move weight from the window path onto a zero-initialised reader; the reader may stay near zero. The fix belongs in the recipe: break the redundancy during training by randomly truncating the encoded history to the last 64–128 rows on a fraction of windows (history dropout), so the cumulative channels become the only source of the chart's level there. Pilot gate: the reader norm grows and the model's β_cum on **own** prefixes rises toward 0.5; the real-prefix β is uninformative and must not be used as the gate. Full criterion unchanged: variogram ratio and var(last − anchor) on long charts against the no-channel control.
+- E3 (external level) has less identifiability trouble: the whole-song level is a strictly better predictor than the window (R² 0.65 against 0.53), so CE will weight it; its risk is obedience under prior mode, not learning.
+- If, after the history-dropout fine-tune, β_cum on own prefixes still stays near 0.25 while the real-prefix β is 0.5, the model is reading the window and ignoring the channel; then the anchor must be imposed rather than learned (E3's drawn level, or decoding-time conditioning on the own running statistic), and the on-policy objective E5 moves up.
+
+Measured: every table entry. Inferred: the effective-memory estimate, the identifiability risk and the recipe fix.
+
+----- END addendum 2 -----
