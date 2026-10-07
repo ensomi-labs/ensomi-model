@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>R2 Research Day 2026-10-07</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a research log, sequel to the 6 October architecture snapshot and in its visual family. Sticky contents rail on wide screens, one reading column; each thread is a five-row record (problem, expectation, contradiction, analysis, reason). */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#18202c; --ink-2:#465264; --muted:#6c7787;
+  --line:#d3d9e2; --line-2:#e6eaf0;
+  --accent:#2457c5; --accent-soft:rgba(36,87,197,.08);
+  --cond:#b4511f;   --cond-soft:rgba(180,81,31,.10);
+  --hold:#00876f;   --hold-soft:rgba(0,135,111,.12);
+  --bad:#b42318;    --bad-soft:rgba(180,35,24,.08);
+  --good:#1f7a4d;   --good-soft:rgba(31,122,77,.10);
+  --s1:#2a78d6; --s2:#eb6834; --band:rgba(36,87,197,.08);
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141b; --surface:#171c25; --ink:#e4e8ef; --ink-2:#b0b8c5; --muted:#8a94a3;
+  --line:#2e3644; --line-2:#222a35;
+  --accent:#6b8fec; --accent-soft:rgba(107,143,236,.12);
+  --cond:#d0733e;   --cond-soft:rgba(208,115,62,.14);
+  --hold:#25a088;   --hold-soft:rgba(37,160,136,.16);
+  --bad:#f07167;    --bad-soft:rgba(240,113,103,.12);
+  --good:#4cbf86;   --good-soft:rgba(76,191,134,.12);
+  --s1:#3987e5; --s2:#d95926; --band:rgba(107,143,236,.12);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141b; --surface:#171c25; --ink:#e4e8ef; --ink-2:#b0b8c5; --muted:#8a94a3;
+  --line:#2e3644; --line-2:#222a35;
+  --accent:#6b8fec; --accent-soft:rgba(107,143,236,.12);
+  --cond:#d0733e;   --cond-soft:rgba(208,115,62,.14);
+  --hold:#25a088;   --hold-soft:rgba(37,160,136,.16);
+  --bad:#f07167;    --bad-soft:rgba(240,113,103,.12);
+  --good:#4cbf86;   --good-soft:rgba(76,191,134,.12);
+  --s1:#3987e5; --s2:#d95926; --band:rgba(107,143,236,.12);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--f-body);margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px}
+@media (max-width:920px){.wrap{grid-template-columns:minmax(0,1fr);padding-inline:16px}.rail{display:none}}
+.rail nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);font-size:13px;display:flex;flex-direction:column;gap:2px}
+.rail a{color:var(--ink-2);text-decoration:none;padding:4px 8px;border-radius:4px;display:block}
+.rail a:hover,.rail a:focus-visible{background:var(--accent-soft);color:var(--ink)}
+.rail .lab{font:500 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 8px 8px}
+main{min-width:0}
+a{color:var(--accent)}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15}
+h1{font-size:clamp(28px,4.2vw,42px);font-weight:800;letter-spacing:-.01em;margin:6px 0 14px}
+h2{font-size:24px;font-weight:800;margin:0 0 12px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+h2 .n{font:500 13px var(--f-mono);color:var(--muted)}
+h3{font-size:16.5px;font-weight:600;margin:26px 0 8px}
+h4{font:600 14px var(--f-body);margin:16px 0 6px;color:var(--ink)}
+p{margin:0 0 12px;max-width:72ch}
+section{padding-block:34px 6px;border-top:1px solid var(--line)}
+header{padding-bottom:22px}
+.eyebrow{font:500 12px var(--f-mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.lede{font-size:17px;color:var(--ink-2);max-width:70ch}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font:500 12.5px var(--f-mono);padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2)}
+.chip b{color:var(--ink);font-weight:500}
+.chip.good{border-color:var(--good);color:var(--good);background:var(--good-soft)}
+.chip.cond{border-color:var(--cond);color:var(--cond);background:var(--cond-soft)}
+.chip.hold{border-color:var(--hold);color:var(--hold);background:var(--hold-soft)}
+
+/* summary */
+.summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:6px 0 10px}
+@media (max-width:820px){.summary{grid-template-columns:minmax(0,1fr)}}
+.summary>div{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:6px;padding:14px 16px 6px;min-width:0}
+.summary>div.tonight{border-top-color:var(--cond)}
+.summary h3{margin:0 0 8px;font-size:15px;font-weight:600;font-family:var(--f-display)}
+.summary ul,.summary ol{margin:0 0 10px;padding-left:20px}
+.summary li{margin:0 0 8px;font-size:14.5px}
+
+/* glossary */
+dl.terms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 28px;margin:12px 0 18px}
+@media (max-width:760px){dl.terms{grid-template-columns:minmax(0,1fr)}}
+dl.terms>div{border-top:1px solid var(--line-2);padding:8px 0;min-width:0}
+dl.terms dt{font-weight:600;font-size:14px}
+dl.terms dd{margin:2px 0 0;color:var(--ink-2);font-size:13.5px}
+
+/* thread record */
+dl.thread{display:grid;grid-template-columns:9.5rem minmax(0,1fr);margin:14px 0 20px;border-top:2px solid var(--ink)}
+dl.thread>dt{font:500 11.5px/1.5 var(--f-mono);text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:12px 14px 12px 0;border-bottom:1px solid var(--line-2)}
+dl.thread>dd{margin:0;padding:10px 0 6px;border-bottom:1px solid var(--line-2);min-width:0}
+dl.thread>dd>ul{margin:2px 0 10px;padding-left:20px;max-width:76ch}
+dl.thread>dd>ul li{margin:4px 0}
+@media (max-width:640px){dl.thread{grid-template-columns:minmax(0,1fr)}dl.thread>dt{border-bottom:0;padding:12px 0 0}}
+
+/* evidence tags */
+.ev{display:inline-block;font:500 10.5px/1.5 var(--f-mono);padding:0 6px;border-radius:3px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface);white-space:nowrap;vertical-align:1px;letter-spacing:.02em}
+.ev.inf{border-style:dashed}
+.ev.dec{border-color:var(--accent);color:var(--accent)}
+.legend-ev{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--ink-2);margin:6px 0 4px}
+
+/* tables */
+.tablewrap{overflow-x:auto;margin:10px 0 16px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--surface)}
+th,td{border-bottom:1px solid var(--line-2);padding:7px 10px;text-align:left;vertical-align:top}
+th{font:600 12px var(--f-body);color:var(--ink-2);background:var(--bg);border-bottom:1px solid var(--line)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.sel td{background:var(--accent-soft)}
+td.sub{color:var(--muted);font-size:12.5px}
+.ok{color:var(--good);font-weight:500}
+.no{color:var(--bad);font-weight:500}
+caption{caption-side:top;text-align:left;font-size:12.5px;color:var(--ink-2);padding:0 0 6px}
+
+/* callouts */
+.callout{border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:var(--surface);margin:14px 0;max-width:80ch}
+.callout p:last-child{margin-bottom:0}
+.callout.cond{border-color:var(--cond);background:var(--cond-soft)}
+.callout.acc{border-color:var(--accent);background:var(--accent-soft)}
+.callout b.k{font-family:var(--f-display);font-weight:600}
+.was{text-decoration:line-through;text-decoration-thickness:1px;color:var(--muted)}
+
+.formula{font:13.5px/1.95 var(--f-mono);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 16px;overflow-x:auto;white-space:pre;margin:12px 0}
+
+ul.tight,ol.tight{margin:6px 0 14px;padding-left:20px;max-width:76ch}
+ul.tight li,ol.tight li{margin:4px 0}
+
+/* timeline */
+ol.tl{list-style:none;margin:12px 0 8px;padding:0;border-top:2px solid var(--ink)}
+ol.tl li{display:grid;grid-template-columns:7.2rem 7rem minmax(0,1fr);gap:12px;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:14px}
+ol.tl time{font:500 12.5px/1.7 var(--f-mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+ol.tl .lane{font:500 11px/1.9 var(--f-mono);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+ol.tl .lane::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;background:currentColor;vertical-align:0}
+.lane.ln{color:var(--hold)} .lane.df{color:var(--cond)} .lane.both{color:var(--accent)}
+ol.tl li>span:last-child{min-width:0}
+@media (max-width:640px){ol.tl li{grid-template-columns:auto minmax(0,1fr);gap:2px 12px}ol.tl li>span:last-child{grid-column:1 / -1}}
+
+/* stepper (the hint's three stages) */
+ol.stages{list-style:none;padding:0;margin:14px 0 18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;counter-reset:st}
+@media (max-width:820px){ol.stages{grid-template-columns:minmax(0,1fr)}}
+ol.stages li{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;min-width:0;counter-increment:st}
+ol.stages li .when{font:500 11.5px var(--f-mono);color:var(--muted);display:block;margin-bottom:4px}
+ol.stages li .when::before{content:counter(st) " · "}
+ol.stages li b{font-family:var(--f-display);font-weight:600;display:block;margin-bottom:4px}
+ol.stages li p{font-size:13.5px;color:var(--ink-2);margin:0 0 6px}
+ol.stages li.now{border-color:var(--accent);box-shadow:inset 0 3px 0 var(--accent)}
+
+/* tonight flow */
+ol.flow{list-style:none;padding:0;margin:16px 0 10px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:30px}
+ol.flow li{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;min-width:0}
+ol.flow li+li::before{content:"\2192";position:absolute;left:-23px;top:50%;transform:translateY(-50%);color:var(--muted);font:16px var(--f-mono)}
+ol.flow .k{font:500 11px var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+ol.flow b{display:block;font-family:var(--f-display);font-weight:600;font-size:15px;margin:2px 0 4px}
+ol.flow .t{font:500 12px var(--f-mono);color:var(--cond)}
+ol.flow p{font-size:13px;color:var(--ink-2);margin:6px 0 0}
+@media (max-width:980px){ol.flow{grid-template-columns:minmax(0,1fr);gap:28px}ol.flow li+li::before{content:"\2193";left:50%;top:-25px;transform:translateX(-50%)}}
+
+/* figures and charts */
+figure{margin:18px 0 22px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 14px 10px}
+figure .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+figure svg{display:block;width:100%;height:auto;min-width:540px}
+figcaption{font-size:13px;color:var(--ink-2);margin-top:8px;max-width:84ch}
+.figtitle{font:600 14px var(--f-body);margin:0 0 4px}
+.keys{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12.5px;color:var(--ink-2);margin:2px 0 8px}
+.keys span{display:inline-flex;align-items:center;gap:7px}
+.keys i{display:inline-block;width:18px;height:0;border-top:2px solid currentColor}
+.keys i.s1{color:var(--s1)} .keys i.s2{color:var(--s2)} .keys i.ink{color:var(--ink)}
+.keys i.bandkey{height:10px;border:0;background:var(--band);outline:1px solid var(--line)}
+svg .gridl{stroke:var(--line-2);stroke-width:1}
+svg .zero{stroke:var(--line);stroke-width:1.2}
+svg .axisl{stroke:var(--line);stroke-width:1}
+svg .refl{stroke:var(--muted);stroke-width:1;opacity:.75}
+svg .bandr{fill:var(--band)}
+svg text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+svg text.lbl{fill:var(--ink-2);font-family:var(--f-body);font-size:12px}
+svg text.dl{fill:var(--ink);font-family:var(--f-body);font-size:12.5px;font-weight:600}
+svg .ln1{fill:none;stroke:var(--s1);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+svg .ln2{fill:none;stroke:var(--s2);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+svg .ln0{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+svg .wh1{stroke:var(--s1);stroke-width:2;opacity:.45;stroke-linecap:round}
+svg .wh2{stroke:var(--s2);stroke-width:2;opacity:.45;stroke-linecap:round}
+svg .d1{fill:var(--s1);stroke:var(--surface);stroke-width:2}
+svg .d2{fill:var(--s2);stroke:var(--surface);stroke-width:2}
+svg .d0{fill:var(--ink);stroke:var(--surface);stroke-width:2}
+svg .hit{fill:transparent;pointer-events:all}
+svg .hit:focus{outline:none}
+svg .hit:focus-visible{stroke:var(--ink);stroke-width:1.5}
+.tip{position:absolute;z-index:20;max-width:280px;background:var(--ink);color:var(--bg);font:12px/1.45 var(--f-mono);padding:6px 9px;border-radius:4px;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+
+.twocol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:820px){.twocol{grid-template-columns:minmax(0,1fr)}}
+.twocol>div{min-width:0}
+ol.open{margin:8px 0 16px;padding-left:22px;max-width:80ch}
+ol.open li{margin:0 0 10px}
+ol.open li b{font-weight:600}
+footer{border-top:1px solid var(--line);margin-top:36px;padding-top:16px;font-size:13px;color:var(--muted);max-width:84ch}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside class="rail" aria-label="Contents">
+<nav>
+<div class="lab">Contents</div>
+<a href="#summary">Summary</a>
+<a href="#before">Where we stood</a>
+<a href="#day">The day in order</a>
+<a href="#phasen">1 Phase N ended</a>
+<a href="#shortholds">2 Short holds</a>
+<a href="#guard">3 Guard correction</a>
+<a href="#hint">4 The whole-song LN hint</a>
+<a href="#hintfree">5 Hint-free LN level</a>
+<a href="#difficulty">6 Difficulty</a>
+<a href="#corrections">7 Corrections</a>
+<a href="#tonight">8 Tonight</a>
+<a href="#open">9 Open questions</a>
+</nav>
+</aside>
+
+<main>
+<header>
+<div class="eyebrow">ensomi · R2 chart generator · research day 2026-10-07</div>
+<h1>What we learned on 7 October, and what runs tonight</h1>
+<p class="lede">This is the sequel to the architecture snapshot of 6 October. That page described R2 and left phase N training. This one covers the day that followed. Phase N finished, and its checkpoint selection failed. The reason turned out to be the chart-level long-note level, not the release mechanics, and the guard that flagged it was itself built on a false premise. Difficulty got a new measure that works on short scopes. Tonight a fine-tune gives the natural model a chart-level long-note commitment, and a difficulty-controller pilot runs on top of it. All times are UTC.</p>
+<div class="chips">
+<span class="chip good"><b>phase N</b> 56M selected under the corrected rule</span>
+<span class="chip hold"><b>LN level</b> fine-tune tonight</span>
+<span class="chip cond"><b>difficulty</b> C0 measured, pilot tonight</span>
+<span class="chip"><b>phase C design</b> still open</span>
+</div>
+</header>
+
+<section id="summary" style="border-top:0;padding-top:6px">
+<h2>Summary</h2>
+<div class="summary">
+<div>
+<h3>What we learned today</h3>
+<ul>
+<li><b>Phase N finished at 64M exposures, and the original selection rule picked no checkpoint.</b> Every checkpoint failed the guard on short holds and near-head releases, by 3–9× and 2–12×.</li>
+<li><b>The cause is the chart-level LN level.</b> From the start of a song, the model's LN amount for a chart is unrelated to the real chart's, and the model does not hold it along the song. Release timing is calibrated, the representation is faithful, and the hypothesis that "keep holding" is under-learned is refuted.</li>
+<li><b>The guard was wrong too.</b> Real charts do contain short holds: 2.72% of all holds, 7.0% at 5★. With per-band references, only model-made holds counted, and a new LN-drift guard, selection picks the 56M checkpoint. The 60 ms decoding mask is off by default.</li>
+<li><b>Without a hint, phase N draws a nearly data-like LN level for the first 128 rows, then lets it wander.</b> It does not misread its own history. Per star band, the LN-share distribution has the wrong shape. LN length is right on average, but per-chart length styles are missing.</li>
+<li><b>Difficulty has a short-scope measure, the skeleton-relative attack strain r.</b> Real charts sit at a median r of 1.43 at every scope length from 2 to 60 s. A tilt on the head-mask choice moves r, and an analytic controller reaches requested values. Two blind judges perceive its direction once two charts differ by about 0.2 in log r. Above the natural range, r keeps rising into unplayable four-key chord walls.</li>
+</ul>
+</div>
+<div class="tonight">
+<h3>What runs tonight</h3>
+<ol>
+<li><b>LN fine-tune from 56M, 12M exposures,</b> with two chart-level inputs: whole-song LN share and median LN length in beats. At generation, both come together from one real training chart of the same star band and density. In training they are dropped to "unknown" 30% of the time. The inputs are read through zero-initialised weights, so the fine-tune starts exactly at 56M.</li>
+<li><b>LN evaluation of the final checkpoint:</b> per-band share and length scorecards, persistence along the song, a fixed-level sweep and one oracle pass, all scored against criteria fixed in advance.</li>
+<li><b>A difficulty pilot on the fine-tuned model:</b> a small controller learns to imitate the best analytic controller (NB) on real chart states. Requests stay inside the natural r range and at least 20% away from natural, on scopes of 2–16 s.</li>
+</ol>
+<p style="font-size:13.5px;color:var(--ink-2)">The three run as one unattended chain, planned to end around 23:00 UTC. Nothing on this page reports their results.</p>
+</div>
+</div>
+<div class="legend-ev"><span><span class="ev">measured</span> from a finished run or analysis</span><span><span class="ev inf">inferred</span> reasoning, not measured</span><span><span class="ev dec">decided</span> a team decision</span><span>Strength (strong, moderate, weak) as the analyses rated it.</span></div>
+</section>
+
+<section id="before">
+<h2><span class="n">0</span>Where we stood after the architecture page</h2>
+<p>R2 writes a four-lane (4K) osu!mania chart one head row at a time. It is given the head skeleton (the times of the rows where at least one note starts), the BPM grid and the song length, and no audio. At each head row it jointly picks what all four lanes do (625 row actions), and for lanes that are holding a long note it picks where the note ends from grid candidates in the gap before that row. The network is about 2.4M parameters, mostly a causal convolution over the last 511 committed rows. Long-range memory is off.</p>
+<p>On 6 October, phase N was training: 64M exposures, peak learning rate 3e-4 cosine to 3e-5, a checkpoint every 4M. Its selection rule was fixed in advance. Among checkpoints that pass every guard, it takes the earliest within two standard errors of the lowest natural NLL, averaged over three checkpoints. The guards were: legality; (i) a continuation of a real chart from one third in keeps its LN share within ±0.05 of the real continuation; (iii) the model's LN forecast over 64 decisions agrees within 0.05 on real and on its own history; (iv) holds of 60 ms or less are at most 0.5% of holds, and releases 1–40 ms before another lane's head are at most the real panel's rate.</p>
+<p>Open were phase C's form (frozen or KL-held natural model), the difficulty request (absolute star, or star read as a residual against a skeleton baseline, on scopes of at least 30 s) and the style module. The expectation was simple. Selection would pick a checkpoint that passes its guards, it would become phase C's frozen base, and phase C would train LN-share and difficulty requests on it. Neither step went as expected.</p>
+<h3>Terms used on this page</h3>
+<dl class="terms">
+<div><dt>Head row, head skeleton</dt><dd>A time at which at least one note starts. The skeleton is the list of these times; it is given, and R2 decides what each row contains.</dd></div>
+<div><dt>LN (long note), hold, tap</dt><dd>An LN is pressed at its head and held until its release. A tap is a single press. "Hold" and "LN" are used interchangeably.</dd></div>
+<div><dt>Release</dt><dd>The end of an LN. R2 picks it from grid-snapped candidates in the gap before a later head row, or exactly on that row.</dd></div>
+<div><dt>Short hold, near-head release</dt><dd>A short hold lasts under 60 ms (the original guard counted ≤ 60 ms). A near-head release ends 1–40 ms before another lane's next head, which is hard to play cleanly.</dd></div>
+<div><dt>LN share, LN level</dt><dd>LN heads over all heads, over a span or the whole song. "Level" means a chart's whole-song LN share.</dd></div>
+<div><dt>Star band</dt><dd>The chart's osu!mania star rating, floored and clamped to 2–5. The corpus is ranked and loved 2–6★ charts, so band 5 holds everything from 5★ up.</dd></div>
+<div><dt>Phase N, phase C</dt><dd>Phase N trains the natural generator with no requests. Phase C then trains request-following (LN share, difficulty, later style) on top of a frozen or KL-held phase-N model.</dd></div>
+<div><dt>Scope</dt><dd>The song-time interval [a, b) a request applies to. A locality rule lets only decisions whose output lies inside the scope read it.</dd></div>
+<div><dt>Exposure, "48M"</dt><dd>One scored head decision in training. "48M" is the checkpoint after 48 million.</dd></div>
+<div><dt>Free run: BOS run, prefix run</dt><dd>The model generates from its own samples. A BOS run writes the whole chart from the beginning of the song; a prefix run continues a real chart from one third in.</dd></div>
+<div><dt>Teacher-forced</dt><dd>The model scores the real chart's decisions given the real history, as in training.</dd></div>
+<div><dt>fit_train, fit_dev; panel; set F</dt><dd>Training and development splits by song group. The selection panel is 16 development charts used at every checkpoint. Set F is 116 development charts: the panel plus 25 per band.</dd></div>
+</dl>
+</section>
+
+<section id="day">
+<h2><span class="n">·</span>The day in order</h2>
+<p>Two threads ran in parallel: the end of phase N and the LN level (green), and difficulty for phase C (orange). Decisions are the team's.</p>
+<ol class="tl">
+<li><time>before 06:00</time><span class="lane df">difficulty</span><span>Decided: no exact star labels for real-chart spans, and the osu!mania star rating is not the scoped metric. A skeleton-relative attack-strain proxy, counting attacks only, replaces them.</span></li>
+<li><time>06:10–07:45</time><span class="lane df">difficulty</span><span>Stage C0 built and measured: natural r per scope length, a fixed tilt scan, an analytic budget controller, and 48 blind comparison pairs.</span></li>
+<li><time>08:18</time><span class="lane ln">LN</span><span>Phase N finished at 64,000,573 exposures.</span></li>
+<li><time>08:21</time><span class="lane ln">LN</span><span>Selection picks no checkpoint: guard (iv) fails at all seven.</span></li>
+<li><time>~08:30</time><span class="lane both">both</span><span>First responses: a 60 ms minimum-hold mask at decoding on 48M, and a test of budget allocations relative to natural behaviour.</span></li>
+<li><time>08:50–09:45</time><span class="lane ln">LN</span><span>Short-hold investigation: the cause is the chart-level LN level; real charts do contain short holds.</span></li>
+<li><time>~09:40</time><span class="lane ln">LN</span><span>Mask measured: generated short holds gone, near-head releases still 1.63%.</span></li>
+<li><time>late morning</time><span class="lane df">difficulty</span><span>Allocation test: the natural-relative split with a dead band (NB) lowers departure by about a third at 8–16 s.</span></li>
+<li><time>~12:30</time><span class="lane ln">LN</span><span>Decided: correct guard (iv), add an LN-drift guard (v), turn the mask off by default, test a whole-song LN-level input by fine-tuning.</span></li>
+<li><time>12:50</time><span class="lane ln">LN</span><span>Decided: the LN-level input is a diagnostic only; investigate why the hint-free model misses.</span></li>
+<li><time>13:10–13:50</time><span class="lane df">difficulty</span><span>Blind screen judged by two judges.</span></li>
+<li><time>~13:55</time><span class="lane ln">LN</span><span>Data side reported: head times explain about 17% of a chart's LN level.</span></li>
+<li><time>14:10</time><span class="lane ln">LN</span><span>Goal clarified: corpus-like LN share and length distributions; a level the model draws itself may ship.</span></li>
+<li><time>14:20</time><span class="lane df">difficulty</span><span>Screen scored: direction perceived at gaps of about 0.2 in log r; positive tilt beyond the natural range is unplayable.</span></li>
+<li><time>14:30–15:10</time><span class="lane ln">LN</span><span>Model side reported: the level is drawn nearly right but not held; per-chart length styles missing.</span></li>
+<li><time>~15:10</time><span class="lane ln">LN</span><span>Corrected selection reported: 56M.</span></li>
+<li><time>15:20–15:25</time><span class="lane both">both</span><span>Decided for tonight: a share-and-length fine-tune from 56M, then the difficulty pilot on top, chained.</span></li>
+</ol>
+</section>
+
+<section id="phasen">
+<h2><span class="n">1</span>Phase N ended, and selection picked nothing</h2>
+<dl class="thread">
+<dt>Problem</dt>
+<dd>
+<p>The run ended at 08:18 with 64,000,573 exposures. It had eight restarts in all and no non-finite losses, and ran at 1,820 decisions/s over the wall time. Natural NLL per decision on development charts flattened from 40M and rose slightly at the end: 2.130 (24M), 2.089 (32M), 2.071 (40M), 2.070 (48M), 2.075 (56M), 2.084 (64M). Under the selection rule of 6 October, no checkpoint qualified.</p>
+</dd>
+<dt>Expected</dt>
+<dd><p>A checkpoint on the NLL plateau that passes every guard, to become phase C's frozen base. Guard (iv) was not expected to bind: R2 v1 had reported at most 0.3% short holds and near-head releases.</p></dd>
+<dt>Contradiction</dt>
+<dd>
+<p>Guard (iv) failed at every fully evaluated checkpoint, in both parts, with no downward trend after 24M. <span class="ev">measured</span></p>
+<div class="tablewrap"><table>
+<caption>Guard (iv) as built: free runs on the 16-chart panel, three seeds, BOS and prefix runs together.</caption>
+<thead><tr><th>Checkpoint</th><th class="num">Holds ≤ 60 ms (limit 0.5%)</th><th class="num">Near-head releases (limit 0.42%)</th><th>Guard (i)</th><th>Guard (iii)</th></tr></thead>
+<tbody>
+<tr><td>16M</td><td class="num">2.7%</td><td class="num">1.2%</td><td class="no">fail</td><td class="ok">pass</td></tr>
+<tr><td>24M</td><td class="num">1.4%</td><td class="num">1.3%</td><td class="ok">pass</td><td class="ok">pass</td></tr>
+<tr><td>32M</td><td class="num">4.4%</td><td class="num">5.2%</td><td class="ok">pass</td><td class="ok">pass</td></tr>
+<tr><td>40M</td><td class="num">3.0%</td><td class="num">1.5%</td><td class="ok">pass</td><td class="ok">pass</td></tr>
+<tr><td>48M</td><td class="num">1.9%</td><td class="num">2.5%</td><td class="ok">pass</td><td class="ok">pass</td></tr>
+<tr><td>56M</td><td class="num">2.0%</td><td class="num">1.2%</td><td class="ok">pass</td><td class="ok">pass</td></tr>
+<tr><td>64M</td><td class="num">1.4%</td><td class="num">1.6%</td><td class="ok">pass</td><td class="ok">pass</td></tr>
+</tbody></table></div>
+</dd>
+<dt>Analysis</dt>
+<dd>
+<p>With guard (iv) dropped, the rule would pick 48M, at the lowest three-checkpoint NLL of 2.0722. Our first response was a fix at decoding time: on 48M, forbid holds of 60 ms or less in sampling, on both the release candidates and the row codes, and measure guard (iv) again. Each arm had 96 legal free runs and 71,022 generated decisions. <span class="ev dec">decided</span> <span class="ev">measured</span></p>
+<div class="tablewrap"><table>
+<thead><tr><th>Arm</th><th class="num">Holds ≤ 60 ms</th><th class="num">Near-head releases (real panel 0.42%)</th><th class="num">Guard (i), mean difference</th></tr></thead>
+<tbody>
+<tr><td>48M, no mask</td><td class="num">1.88%</td><td class="num">2.45%</td><td class="num">−3.2 pp</td></tr>
+<tr><td>48M, 60 ms mask</td><td class="num">0.40%</td><td class="num">1.63%</td><td class="num">−2.4 pp</td></tr>
+<tr><td>64M, no mask</td><td class="num">1.35%</td><td class="num">1.57%</td><td class="num">+1.7 pp</td></tr>
+<tr><td>64M, 60 ms mask</td><td class="num">0.34%</td><td class="num">1.38%</td><td class="num">+0.9 pp</td></tr>
+</tbody></table></div>
+<p>The mask removed every generated short hold. The 0.34–0.40% that remain are holds inside the real chart prefixes copied into the prefix runs, and they already exposed a surprise: those real charts contain short holds. Near-head releases stayed: 48M with the mask had 365 against at most 94 allowed. Pooled LN share also overshot the real charts' 14.6%, at 17.9% for 48M and 22.5% for 64M, so it grows with training.</p>
+</dd>
+<dt>Reason</dt>
+<dd><p>By mid-morning we had a symptom fix that left half the defect in place. Two questions remained, both answered in the next thread: where the defects come from, and whether the guard measures the right thing.</p></dd>
+</dl>
+</section>
+
+<section id="shortholds">
+<h2><span class="n">2</span>The short-hold investigation</h2>
+<dl class="thread">
+<dt>Problem</dt>
+<dd>
+<p>Why does phase N make short holds and near-head releases, and can training remove them without decoding masks? Three candidates: the release representation (grid candidates and snapping); a repeat of the mechanisms that broke R1, our earlier model; and exposure bias, meaning training only on real histories while generating on the model's own. We added a fourth hypothesis: on a held lane, "keep holding" (code 0) is under-learned against the release codes, so LNs end early.</p>
+</dd>
+<dt>Expected</dt>
+<dd><p>If "keep" were under-learned, the model's release probability on a held lane would exceed the real charts' at young hold ages, and generated holds would be shorter than real ones overall. A representation fault would show up as the training cache or the candidate sets creating short outcomes that the raw chart files do not have.</p></dd>
+<dt>Contradiction</dt>
+<dd>
+<ul>
+<li><b>Release decisions are calibrated.</b> <span class="ev">measured · strong</span> Teacher-forced on 112 development charts (59,251 held-lane states), the release probability by elapsed hold length is 0.81–1.06× the real rate above 30 ms, and below it at 30–150 ms. Hold age is an input of the row decision, and "keep" carries no different weight in the loss. The only excess is a thin tail: releases of holds 30 ms old or younger, 1.9% against 0 over 884 states, worth under 0.1% of holds. <b>The keep hypothesis is refuted.</b></li>
+<li><b>Generated hold lengths match the real ones.</b> The median is 162–167 ms, against 175 ms in the panel's real charts and 167 ms in the corpus. Holds of 60 ms or less are 1.0–1.7% of generated holds, below the real panel's own 5.8%.</li>
+<li><b>The representation is faithful.</b> <span class="ev">measured · strong</span> Raw chart files and the training cache agree on all 358,953 development-set holds. Snapping releases to candidates removes about 1.5% of short holds and creates almost none. Teacher-forced, the model puts 14–15% less probability on short and near-head outcomes than real charts use.</li>
+</ul>
+<div class="tablewrap"><table>
+<caption>Release probability on a held lane by elapsed hold length, 48M, teacher-forced (model) against the real release rate (real).</caption>
+<thead><tr><th>Elapsed</th><th class="num">States</th><th class="num">Model</th><th class="num">Real</th><th class="num">Ratio</th></tr></thead>
+<tbody>
+<tr><td>≤ 30 ms</td><td class="num">884</td><td class="num">0.019</td><td class="num">0.000</td><td class="num">–</td></tr>
+<tr><td>30–60 ms</td><td class="num">2,600</td><td class="num">0.205</td><td class="num">0.253</td><td class="num">0.81</td></tr>
+<tr><td>60–100 ms</td><td class="num">8,619</td><td class="num">0.555</td><td class="num">0.590</td><td class="num">0.94</td></tr>
+<tr><td>100–150 ms</td><td class="num">8,413</td><td class="num">0.684</td><td class="num">0.713</td><td class="num">0.96</td></tr>
+<tr><td>150–250 ms</td><td class="num">20,012</td><td class="num">0.721</td><td class="num">0.702</td><td class="num">1.03</td></tr>
+<tr><td>250–500 ms</td><td class="num">13,340</td><td class="num">0.758</td><td class="num">0.755</td><td class="num">1.00</td></tr>
+<tr><td>500–1,000 ms</td><td class="num">3,727</td><td class="num">0.562</td><td class="num">0.555</td><td class="num">1.01</td></tr>
+<tr><td>&gt; 1,000 ms</td><td class="num">1,656</td><td class="num">0.482</td><td class="num">0.483</td><td class="num">1.00</td></tr>
+</tbody></table></div>
+</dd>
+<dt>Analysis</dt>
+<dd>
+<p><b>Where the defects come from.</b> <span class="ev">measured</span> From the start of a song, each free run's LN amount is unrelated to the real chart's. Over the 16 panel charts the correlation is 0.00 at 48M and −0.16 at 64M; given the real chart's first third it rises to 0.84–0.85. Three dense 5★ charts whose mappers used few LNs carry 86–89% of the failures. On one of them, a 5.6★ chart with 30 LNs, the model writes about 530 per seed. Once an LN is born on a row followed by another within 60 ms, a short hold or near-head release follows at the real-chart rate for that context, or below it.</p>
+<p><b>A control panel.</b> <span class="ev">measured · moderate</span> On 48 other random development charts, the same 48M checkpoint passes guard (iv) as written from the start of the song: 0.40% short holds, and 0.59% near-head releases against these charts' own 0.98%. Its free LN level happens to sit below the real one there. The failure is specific to dense charts that real mappers kept light. One seed per chart.</p>
+<p><b>Against earlier models.</b> R2 avoids R1's two timing mechanisms: release-only events are 72% of generated near-head releases against 74% in real charts, and holds of 40 ms or less occur at the corpus rate. It repeats R1's third mechanism in milder form: too many LNs on dense rows, with an LN level that is not tied to the chart. On the same 16 charts R2 v1 is worse, at 5.3% short holds against 1.7%. Its earlier "at most 0.3%" came from an easy four-chart panel, where phase N also stays at 0.26% or below. Phase N is not a regression.</p>
+<h4>The premise behind the guard was false</h4>
+<p>"Real charts contain no holds of 60 ms or less" had been measured on an 8-chart panel. The corpus says otherwise. <span class="ev">measured · strong</span></p>
+<div class="tablewrap"><table>
+<caption>All 11,472 cached charts with holds (3.63M holds).</caption>
+<thead><tr><th>Band</th><th class="num">Charts</th><th class="num">Holds</th><th class="num">≤ 60 ms</th><th class="num">≤ 40 ms</th><th class="num">Near-head</th><th class="num">Charts with any ≤ 60 ms</th></tr></thead>
+<tbody>
+<tr><td>2</td><td class="num">3,882</td><td class="num">644,509</td><td class="num">0.07%</td><td class="num">0.01%</td><td class="num">0.05%</td><td class="num">0.8%</td></tr>
+<tr><td>3</td><td class="num">3,575</td><td class="num">1,052,306</td><td class="num">0.91%</td><td class="num">0.04%</td><td class="num">0.44%</td><td class="num">7.5%</td></tr>
+<tr><td>4</td><td class="num">2,794</td><td class="num">1,189,226</td><td class="num">3.08%</td><td class="num">0.42%</td><td class="num">2.14%</td><td class="num">27.5%</td></tr>
+<tr><td>5</td><td class="num">1,221</td><td class="num">742,219</td><td class="num">7.01%</td><td class="num">0.89%</td><td class="num">5.48%</td><td class="num">44.3%</td></tr>
+<tr><td>all</td><td class="num">11,472</td><td class="num">3,628,260</td><td class="num">2.72%</td><td class="num">0.33%</td><td class="num">1.96%</td><td class="num">14.0%</td></tr>
+</tbody></table></div>
+<p>The median chart has none, and 88% of short holds sit in the top 5% of charts. The selection panel's own real charts are at 5.8%: one 5.1★ chart has 171 holds of exactly 60 ms, 37.6% of its holds. So guard (iv) could not be met by a model that matched the data. Its 0.5% ceiling sat below the panel's own 5.8%. Its near-head reference of 0.42% pooled a mostly LN-light panel, where the plan had specified each band's rate. And it counted holds in the copied real prefixes. The 60 ms mask, counting ≤ 60 ms, forbids 2.7% of real holds (7.0% at 5★), whole deliberate patterns included.</p>
+</dd>
+<dt>Reason</dt>
+<dd>
+<p>The cause is the chart-level LN level. Phase N has no way to know or commit to a chart's LN amount from the start, so dense charts that real mappers kept light receive mid-range LN levels, and the extra LNs on dense rows produce the defects at ordinary per-opportunity rates. Release decisions and the representation are not at fault, and "keep" is learned. <span class="ev">measured</span></p>
+<p>Decided: the 60 ms mask is off by default (the option stays in code), guard (iv) is corrected, and the natural model gets a chart-level LN commitment, first as a fine-tune test. <span class="ev dec">decided</span></p>
+<p>Not established at this point: the causal step itself. The prefix contrast is observational, because a real prefix carries the LN level and also the rest of the chart's style. <span class="ev inf">inferred</span></p>
+</dd>
+</dl>
+</section>
+
+<section id="guard">
+<h2><span class="n">3</span>The guard correction, and why 56M</h2>
+<dl class="thread">
+<dt>Problem</dt>
+<dd><p>No training remedy could be judged against a guard that a data-matching model fails, and the morning's 48M-with-mask choice rested on it.</p></dd>
+<dt>Expected</dt>
+<dd>
+<p>A guard that tests what the generator controls, against what real charts of the same band do:</p>
+<ul>
+<li><b>Guard (iv) v2.</b> Count only holds the model made. A short hold is strictly under 60 ms, which keeps exact-60 ms quarter notes at 250 BPM legal. References are per-band rates from all training charts (short / near-head: band 2 0.068% / 0.050%, band 3 0.73% / 0.44%, band 4 2.97% / 2.14%, band 5 6.20% / 5.23%). For each part, the observed count may be at most 1.25× the count those rates predict.</li>
+<li><b>Guard (v), new.</b> The mean drift of LN share from the first to the last third of BOS runs must stay within ±0.05. Guard (iii) looks only 64 decisions ahead and does not see whole-song drift.</li>
+<li>The tolerances 1.25 and 0.05 are our choices and revisable. <span class="ev dec">decided</span></li>
+</ul>
+</dd>
+<dt>Contradiction</dt>
+<dd>
+<p>Rerun on regenerated panels of all seven checkpoints (the old counts reproduced exactly), the verdict changes. 48M, the morning's choice, now fails on near-head releases, and 56M passes everything. <span class="ev">measured</span></p>
+<div class="tablewrap"><table>
+<thead><tr><th>Checkpoint</th><th class="num">NLL, 3-checkpoint mean</th><th class="num">(iv) v2: short / near-head ratio (≤ 1.25)</th><th class="num">(v) drift (|·| ≤ 0.05)</th><th>(i)</th><th>Outcome</th></tr></thead>
+<tbody>
+<tr><td>16M</td><td class="num">2.2508</td><td class="num">0.87 / 0.80</td><td class="num no">−0.082</td><td class="no">fail</td><td>fails (i) and (v)</td></tr>
+<tr><td>24M</td><td class="num">2.1522</td><td class="num">0.35 / 0.91</td><td class="num">−0.020</td><td class="ok">pass</td><td>passes, but outside 2 SE of the NLL plateau</td></tr>
+<tr><td>32M</td><td class="num">2.1056</td><td class="num"><span class="no">1.39</span> / <span class="no">3.02</span></td><td class="num">−0.015</td><td class="ok">pass</td><td>fails (iv)</td></tr>
+<tr><td>40M</td><td class="num">2.0864</td><td class="num">0.83 / 0.89</td><td class="num no">+0.061</td><td class="ok">pass</td><td>fails (v)</td></tr>
+<tr><td>48M</td><td class="num">2.0722</td><td class="num">0.52 / <span class="no">1.36</span></td><td class="num">−0.006</td><td class="ok">pass</td><td>fails (iv), near-head</td></tr>
+<tr class="sel"><td><b>56M</b></td><td class="num">2.0735</td><td class="num">0.45 / 0.75</td><td class="num">+0.034</td><td class="ok">pass</td><td><b>selected</b></td></tr>
+<tr><td>64M</td><td class="num">2.0780</td><td class="num">0.32 / 0.88</td><td class="num no">+0.077</td><td class="ok">pass</td><td>fails (v)</td></tr>
+</tbody></table></div>
+</dd>
+<dt>Analysis</dt>
+<dd>
+<p>56M is also the checkpoint with the least excess LN on dense rows from the start of the song: 0.053 LN births per head on rows followed by another within 60 ms, against 0.031 in the real charts. 48M is at 0.240 and 64M at 0.127. That fits the cause found above. <span class="ev">measured</span></p>
+<p>Per band, the picture is not clean. At 56M, band 2 still makes short holds and near-head releases at 11.6× and 17.1× the band-2 reference. The absolute counts are small (35 and 38 of 4,430 model-made holds), because band-2 reference rates are tiny. Per-band ratios are diagnostic and do not bind selection.</p>
+</dd>
+<dt>Reason</dt>
+<dd><p>56M is the base from now on. It replaces "48M with a 60 ms mask", and tonight's fine-tune starts from it. <span class="ev dec">decided</span></p></dd>
+</dl>
+</section>
+
+<section id="hint">
+<h2><span class="n">4</span>The whole-song LN hint: fix, then diagnostic, then the goal</h2>
+<p>The remedy the short-hold investigation ranked first is a chart-level LN commitment: give phase N the whole-song LN share as an input, drop it to "unknown" in some training windows, and draw it from a data prior when generating from scratch. What that input is allowed to be changed twice during the day.</p>
+<ol class="stages">
+<li><span class="when">~12:30</span><b>Proposed fix</b><p>A whole-song LN-level input to phase N, zero-initialised, dropped to unknown in training, drawn from a prior at generation. Fine-tune about 8–16M exposures as a test; a full retrain only if it works.</p></li>
+<li><span class="when">12:50</span><b>Diagnostic only</b><p>We wanted the natural model to produce a normal LN distribution without being told the chart's LN share. The input stays behind an off-by-default flag, its oracle mode may be used once as a probe, and a new investigation asks why the hint-free model misses.</p></li>
+<li class="now"><span class="when">14:10</span><b>The goal is distributional</b><p>Generated charts should have LN share and LN length distributions like the corpus, per star band, not a per-chart match to a real chart. A chart-level variable the model draws itself may ship. A level copied from a real chart (oracle) is a hint and stays a diagnostic.</p></li>
+</ol>
+<dl class="thread">
+<dt>Problem</dt>
+<dd><p>Which kind of chart-level input counts as a fair part of the natural model, and which counts as a hint that leaks the answer?</p></dd>
+<dt>Expected</dt>
+<dd><p>That a well-trained natural model would learn the corpus's LN distribution from the skeleton and its own history, with no chart-level input at all.</p></dd>
+<dt>Contradiction</dt>
+<dd><p>The data side of the new investigation showed that head times explain only about 17% of a chart's LN level (R² 0.17). About 83% of the variance is the mapper's choice. A hint-free model therefore has to draw a level and then commit to it; it cannot predict it from the skeleton. <span class="ev">measured</span></p></dd>
+<dt>Analysis</dt>
+<dd><p>Drawing a level and conditioning the chart on it is an ordinary factorisation of the same generative model, p(level | skeleton) · p(chart | level, skeleton). It uses no information from outside the model. Copying the level from a real chart does. Training can feed each chart's true level because the level is a function of the chart, so no unsupervised latent is needed to learn the second factor. <span class="ev inf">our reading</span></p></dd>
+<dt>Reason</dt>
+<dd><p>Decided: the target is per-band distributions of LN share and LN length; prior mode may ship; oracle stays a diagnostic. This made the level input in prior mode a candidate fix again, and evaluation per band against development charts became the scorecard. <span class="ev dec">decided</span></p></dd>
+</dl>
+</section>
+
+<section id="hintfree">
+<h2><span class="n">5</span>The hint-free LN investigation</h2>
+<dl class="thread">
+<dt>Problem</dt>
+<dd><p>Why does phase N not produce corpus-like LN distributions without a hint? We tested four mechanisms on 48M and 64M, with no training: how much the head skeleton reveals the level; whether the drawn level is compressed and whether it is held; whether the model misreads its own history as LN-heavier; and whether LNs are placed right within a level. LN length was added once the goal named it. Runs: set F (116 development charts) × 3 seeds from the start of the song, 348 runs per checkpoint.</p></dd>
+<dt>Expected</dt>
+<dd><p>The morning's reading predicted a compressed draw (a spread ratio of 0.43 against the real charts) that the model's own history then amplifies (+41–78% more LN births than at the real chart's states).</p></dd>
+<dt>Contradiction</dt>
+<dd>
+<p>Neither held up. The draw is not compressed for single runs, and nothing is amplified at matched history. The level is drawn nearly right and then wanders. Details below. <span class="ev">measured · strong</span></p>
+</dd>
+<dt>Analysis</dt>
+<dd>
+<h4>Data side: what real charts do</h4>
+<div class="tablewrap"><table>
+<caption>Fit on 11,368 training charts, scored on 1,163 development charts.</caption>
+<thead><tr><th>Question</th><th>Measurement</th><th class="num">Value</th></tr></thead>
+<tbody>
+<tr><td>How much the skeleton predicts the level</td><td>R² of whole-song LN share from the whole skeleton (MLP; ridge 0.13)</td><td class="num">0.17</td></tr>
+<tr><td></td><td>R² from star band alone</td><td class="num">0.00</td></tr>
+<tr><td>Shape</td><td>charts below 0.025 / exactly 0 / at or above 0.3</td><td class="num">20% / 8.5% / 21%</td></tr>
+<tr><td></td><td>near-zero mode by band 2 / 3 / 4 / 5</td><td class="num">12 / 18 / 26 / 41%</td></tr>
+<tr><td>Persistence within a chart</td><td>first against last third: correlation, slope, mean drift</td><td class="num">0.86, 0.92, +0.008</td></tr>
+<tr><td></td><td>autocorrelation of 64-row block share, chart-demeaned, at lag 64 / 128 rows</td><td class="num">0.37 / 0.06, then ≈ 0</td></tr>
+<tr><td>History against level</td><td>R² for the next 256 rows' share (late in a song): last 512 rows / whole-song share / both</td><td class="num">0.53 / 0.65 / 0.65</td></tr>
+<tr><td></td><td>weights when both are used: history / level</td><td class="num">0.12 / 0.90</td></tr>
+<tr><td>Early reveal</td><td>no LN in the first 128 (256) rows → whole song stays below 0.025</td><td class="num">60% (72%)</td></tr>
+</tbody></table></div>
+<p>A real chart's LN level is a chart constant plus short local sections. Once the constant is known, recent history adds almost nothing.</p>
+
+<h4>Model side: drawn nearly right, not held</h4>
+<div class="tablewrap"><table>
+<thead><tr><th>Measure</th><th class="num">48M</th><th class="num">64M</th><th class="num">Real charts</th></tr></thead>
+<tbody>
+<tr><td>SD of share over the first 128 rows</td><td class="num">0.209</td><td class="num">0.225</td><td class="num">0.243</td></tr>
+<tr><td>LN-free first 128 rows</td><td class="num">28%</td><td class="num">21%</td><td class="num">30%</td></tr>
+<tr><td>First- against last-third share, correlation</td><td class="num">0.61</td><td class="num">0.62</td><td class="num">0.91</td></tr>
+<tr><td>Mean drift, last minus first third</td><td class="num">−0.020</td><td class="num">+0.043</td><td class="num">+0.012</td></tr>
+<tr><td>Mean |last − first third|</td><td class="num">0.108</td><td class="num">0.152</td><td class="num">0.065</td></tr>
+<tr><td>LN-free first 256 rows that stay below 0.025</td><td class="num">50%</td><td class="num">49%</td><td class="num">81%</td></tr>
+<tr><td>Within-run SD of 256-row block share</td><td class="num">0.076</td><td class="num">0.103</td><td class="num">0.053</td></tr>
+</tbody></table></div>
+
+<figure>
+<div class="figtitle">Within-song persistence of LN share</div>
+<div class="keys"><span><i class="ink"></i>real charts (same 116)</span><span><i class="s1"></i>48M</span><span><i class="s2"></i>64M</span></div>
+<div class="scroll">
+<svg viewBox="0 0 680 300" role="img" aria-label="Autocorrelation of 64-row LN share against lag. Real charts fall to about zero by 128 rows. 48M and 64M stay positive to 256 rows and turn negative at long lags.">
+<line class="gridl" x1="70" y1="20" x2="600" y2="20"/>
+<line class="gridl" x1="70" y1="65.7" x2="600" y2="65.7"/>
+<line class="gridl" x1="70" y1="111.4" x2="600" y2="111.4"/>
+<line class="zero" x1="70" y1="157.1" x2="600" y2="157.1"/>
+<line class="gridl" x1="70" y1="202.9" x2="600" y2="202.9"/>
+<line class="gridl" x1="70" y1="248.6" x2="600" y2="248.6"/>
+<line class="axisl" x1="70" y1="262" x2="600" y2="262"/>
+<text x="62" y="24" text-anchor="end">0.6</text>
+<text x="62" y="69.7" text-anchor="end">0.4</text>
+<text x="62" y="115.4" text-anchor="end">0.2</text>
+<text x="62" y="161.1" text-anchor="end">0</text>
+<text x="62" y="206.9" text-anchor="end">−0.2</text>
+<text x="62" y="252.6" text-anchor="end">−0.4</text>
+<text x="104.6" y="280" text-anchor="middle">64</text>
+<text x="219.8" y="280" text-anchor="middle">128</text>
+<text x="335" y="280" text-anchor="middle">256</text>
+<text x="450.2" y="280" text-anchor="middle">512</text>
+<text x="565.4" y="280" text-anchor="middle">1024</text>
+<text x="335" y="297" text-anchor="middle">lag between blocks, head rows (log scale)</text>
+<text transform="translate(16 141) rotate(-90)" text-anchor="middle">autocorrelation</text>
+<polyline class="ln0" points="104.6,93.8 219.8,162.2 335.0,183.5 450.2,172.5 565.4,179.6"/>
+<polyline class="ln1" points="104.6,51.6 219.8,108.9 335.0,150.0 450.2,185.5 565.4,207.0"/>
+<polyline class="ln2" points="104.6,37.1 219.8,95.3 335.0,128.6 450.2,181.6 565.4,243.1"/>
+<circle class="d0" cx="104.6" cy="93.8" r="4.5"/><circle class="d0" cx="219.8" cy="162.2" r="4.5"/><circle class="d0" cx="335" cy="183.5" r="4.5"/><circle class="d0" cx="450.2" cy="172.5" r="4.5"/><circle class="d0" cx="565.4" cy="179.6" r="4.5"/>
+<circle class="d1" cx="104.6" cy="51.6" r="4.5"/><circle class="d1" cx="219.8" cy="108.9" r="4.5"/><circle class="d1" cx="335" cy="150" r="4.5"/><circle class="d1" cx="450.2" cy="185.5" r="4.5"/><circle class="d1" cx="565.4" cy="207" r="4.5"/>
+<circle class="d2" cx="104.6" cy="37.1" r="4.5"/><circle class="d2" cx="219.8" cy="95.3" r="4.5"/><circle class="d2" cx="335" cy="128.6" r="4.5"/><circle class="d2" cx="450.2" cy="181.6" r="4.5"/><circle class="d2" cx="565.4" cy="243.1" r="4.5"/>
+<text class="dl" x="576" y="184">real charts</text>
+<text class="dl" x="576" y="211">48M</text>
+<text class="dl" x="576" y="247">64M</text>
+<circle class="hit" cx="104.6" cy="93.8" r="11" tabindex="0" data-tip="Real charts · lag 64 rows · 0.28"/>
+<circle class="hit" cx="219.8" cy="162.2" r="11" tabindex="0" data-tip="Real charts · lag 128 rows · −0.02"/>
+<circle class="hit" cx="335" cy="183.5" r="11" tabindex="0" data-tip="Real charts · lag 256 rows · −0.12"/>
+<circle class="hit" cx="450.2" cy="172.5" r="11" tabindex="0" data-tip="Real charts · lag 512 rows · −0.07"/>
+<circle class="hit" cx="565.4" cy="179.6" r="11" tabindex="0" data-tip="Real charts · lag 1024 rows · −0.10"/>
+<circle class="hit" cx="104.6" cy="51.6" r="11" tabindex="0" data-tip="48M · lag 64 rows · 0.46"/>
+<circle class="hit" cx="219.8" cy="108.9" r="11" tabindex="0" data-tip="48M · lag 128 rows · 0.21"/>
+<circle class="hit" cx="335" cy="150" r="11" tabindex="0" data-tip="48M · lag 256 rows · 0.03"/>
+<circle class="hit" cx="450.2" cy="185.5" r="11" tabindex="0" data-tip="48M · lag 512 rows · −0.12"/>
+<circle class="hit" cx="565.4" cy="207" r="11" tabindex="0" data-tip="48M · lag 1024 rows · −0.22"/>
+<circle class="hit" cx="104.6" cy="37.1" r="11" tabindex="0" data-tip="64M · lag 64 rows · 0.53"/>
+<circle class="hit" cx="219.8" cy="95.3" r="11" tabindex="0" data-tip="64M · lag 128 rows · 0.27"/>
+<circle class="hit" cx="335" cy="128.6" r="11" tabindex="0" data-tip="64M · lag 256 rows · 0.13"/>
+<circle class="hit" cx="450.2" cy="181.6" r="11" tabindex="0" data-tip="64M · lag 512 rows · −0.11"/>
+<circle class="hit" cx="565.4" cy="243.1" r="11" tabindex="0" data-tip="64M · lag 1024 rows · −0.38"/>
+</svg>
+</div>
+<figcaption>Autocorrelation, within a run, of the LN share of 64-row blocks (chart-demeaned) against the lag between blocks. BOS runs of 48M and 64M on set F (116 skeletons × 3 seeds) and the same 116 real charts. Real charts decorrelate within 64–128 rows, the signature of a fixed level plus short local sections. Generated excursions stay correlated over 128–256 rows and turn negative at long lags, the signature of a level that wanders. <span class="ev">measured</span></figcaption>
+</figure>
+
+<ul class="tight">
+<li><b>No misreading of its own history.</b> <span class="ev">measured · strong</span> At matched recent LN share, band and row gap, the probability of a new LN on a free lane is lower on the model's own history than on real history at 48M (0.053 against 0.062) and equal at 64M (0.087 against 0.085). Counterfactual edits of a prefix find no extra response to model-made LNs, and LNs born on dense rows count no differently. On real history the model reproduces the data's response to recent LN history (slope on the last 64 rows 0.42 against 0.43 in the data).</li>
+<li><b>Why it wanders anyway.</b> <span class="ev inf">inferred</span> In real charts, recent LNs predict the next one because real LN sections exist on top of a fixed chart level. The model applies that same response to its own chance excursions, and no section structure ends them, so they propagate. In LN-free states the model's LN probability is also 1.3–1.6× the realised rate, so the near-zero mode leaks. Ruled out as causes: the 511-row receptive field, calibration early in the song, and recency weighting. <span class="ev">measured</span></li>
+<li><b>Per-band shape, not compression.</b> <span class="ev">measured · moderate</span> On 116 skeletons × 3 seeds, the single-run SD of whole-song share is 0.77× the real charts' at 48M and 1.00× at 64M. What is wrong: the near-zero mode is short (15.5% / 10.6% of runs against 23–24% expected), and the level barely follows the skeleton (slope on the skeleton prediction 0.36 / 0.18 against 1.19 for real charts). The errors depend on the checkpoint and band. 48M's pooled KS of 0.055 against development charts hides opposite errors by band.</li>
+<li><b>Placement within a level is fine on average.</b> <span class="ev">measured · moderate</span> At matched share, runs put relatively fewer LNs on dense rows than real charts (×0.77 at 48M, ×0.89 at 64M) and make fewer short holds.</li>
+</ul>
+
+<div class="tablewrap"><table>
+<caption>Whole-song LN share per band: BOS runs (84–93 per band) against all development charts of the band.</caption>
+<thead><tr><th>Band</th><th class="num">Mean: real / 48M / 64M</th><th class="num">Below 0.025</th><th class="num">At or above 0.3</th><th class="num">KS: 48M / 64M</th></tr></thead>
+<tbody>
+<tr><td>2</td><td class="num">0.177 / 0.229 / 0.319</td><td class="num">11.7 / 7.5 / 7.5%</td><td class="num">18.3 / 30.1 / 43.0%</td><td class="num">0.18 / 0.35</td></tr>
+<tr><td>3</td><td class="num">0.190 / 0.183 / 0.273</td><td class="num">16.3 / 10.3 / 10.3%</td><td class="num">23.9 / 23.0 / 33.3%</td><td class="num">0.07 / 0.26</td></tr>
+<tr><td>4</td><td class="num">0.183 / 0.152 / 0.227</td><td class="num">21.2 / 17.9 / 6.0%</td><td class="num">23.2 / 10.7 / 34.5%</td><td class="num">0.13 / 0.18</td></tr>
+<tr><td>5</td><td class="num">0.190 / 0.113 / 0.197</td><td class="num">36.5 / 27.4 / 19.0%</td><td class="num">24.3 / 7.1 / 27.4%</td><td class="num">0.23 / 0.25</td></tr>
+</tbody></table></div>
+
+<h4>LN length: right on average, styles missing</h4>
+<ul class="tight">
+<li><b>Mean length is right.</b> <span class="ev">measured</span> At matched share and skeleton, a run's median LN length equals the corpus's (×1.00 at 48M, ×1.06 at 64M), and the spread within a chart matches (SD of log length 0.60 against 0.59).</li>
+<li><b>Chart-to-chart length styles are compressed.</b> <span class="ev">measured · strong</span> The SD across charts of the per-chart median log length is 0.63–0.74× the corpus in every band, at both checkpoints, with 90% bootstrap intervals below 1. Charts built on 1/8-beat LNs, common in bands 4–5, are missing at 48M and rare at 64M.</li>
+<li><b>Short holds are thinly spread.</b> In band 2, 16–22% of generated charts carry at least one hold under 60 ms, a pattern 99.7% of real band-2 charts never show. In band 5, generated charts have fewer short holds than real ones.</li>
+<li><b>Length style is not held.</b> First- against last-third median length correlates 0.36 (48M) and 0.20 (64M), against 0.52–0.58 in real charts.</li>
+<li><b>What sets length in the data.</b> Only 16–34% of log-length variance lies between charts. The skeleton predicts 33% (ms) or 44% (beats) of a chart's mean log length; adding the LN share raises this to 54% / 61%, because LN-heavy charts use shorter LNs (r −0.41 to −0.50 within band). A residual chart style of about 0.3 log units (a factor of about 1.35) remains that neither carries.</li>
+</ul>
+<div class="tablewrap"><table>
+<caption>LN length per band, BOS runs against development charts. "SD ratio" is the across-chart SD of per-chart median log length, run over real.</caption>
+<thead><tr><th>Band</th><th class="num">Median ms: real / 48M / 64M</th><th class="num">q25 in beats</th><th class="num">Holds under 60 ms per LN</th><th class="num">SD ratio 48M / 64M</th><th class="num">Charts with any hold under 60 ms</th></tr></thead>
+<tbody>
+<tr><td>2</td><td class="num">234 / 190 / 198</td><td class="num">0.25 / 0.25 / 0.25</td><td class="num">0.05 / 0.38 / 0.18%</td><td class="num">0.73 / 0.69</td><td class="num">0.3 / 16 / 22%</td></tr>
+<tr><td>3</td><td class="num">177 / 174 / 174</td><td class="num">0.25 / 0.25 / 0.25</td><td class="num">1.01 / 0.30 / 0.42%</td><td class="num">0.69 / 0.67</td><td class="num">6 / 20 / 25%</td></tr>
+<tr><td>4</td><td class="num">155 / 158 / 158</td><td class="num">0.13 / 0.25 / 0.25</td><td class="num">2.56 / 1.60 / 2.07%</td><td class="num">0.65 / 0.68</td><td class="num">20 / 43 / 52%</td></tr>
+<tr><td>5</td><td class="num">120 / 150 / 137</td><td class="num">0.13 / 0.21 / 0.17</td><td class="num">6.60 / 2.37 / 3.69%</td><td class="num">0.74 / 0.63</td><td class="num">40 / 55 / 74%</td></tr>
+</tbody></table></div>
+<p>48M and 64M fail in opposite directions along the song: 48M drifts down, and its continuation of a real prefix is 23% below the truth; 64M drifts up toward heavy charts. Both lack a chart-level commitment, which fits the earlier observation that the level from the start of the song swings between checkpoints while NLL stays flat. <span class="ev inf">inferred</span> Neither checkpoint meets the goal.</p>
+</dd>
+<dt>Reason</dt>
+<dd>
+<p>The missing ingredient is a held chart-level commitment, for LN share and for LN length style. The model reacts correctly to recent history and starts from a sensible level, but nothing anchors that level, so its own chance excursions carry it away. <span class="ev">measured</span> for the mechanism's parts; <span class="ev inf">inferred</span> for how they combine.</p>
+<p>Best-supported remedy, by the analysis: a level input in prior mode that the model draws itself, plus a length summary drawn jointly from the same real chart, so the share-to-length coupling is kept. Ranked second: a long-horizon objective on the model's own history, using prefix rollouts of 256–512 rows. A learned per-chart latent came third. Demoted: calibrating the start-of-song draw (already near data-like), long-range memory, a whole-skeleton summary input, more start-of-song windows and loss reweighting. <span class="ev inf">inferred</span> Decided at 15:20: fine-tune with a share and a length channel. <span class="ev dec">decided</span></p>
+</dd>
+</dl>
+</section>
+
+<section id="difficulty">
+<h2><span class="n">6</span>Difficulty: a short-scope measure, measured</h2>
+
+<h3>6.1 Why exact star labels and tiled star were dropped</h3>
+<dl class="thread">
+<dt>Problem</dt>
+<dd><p>The plan of 6 October requested difficulty in absolute star and read it as a residual against a skeleton baseline b(S): a ridge fit of typical star on 23 head-time features, over fixed 30, 60 and 120 s cells. Star itself was computed by repeating a scope's objects until they fill 240 s and scoring that with the osu!mania star rating, which depends on length. It was undefined under 30 s.</p></dd>
+<dt>Expected</dt>
+<dd><p>That the residual target would carry only what the arrangement can still change, since the given head rows explain most of a section's star.</p></dd>
+<dt>Contradiction</dt>
+<dd><p>The star rating is a whole-song measure: strain peaks over 400 ms sections with top-weighted aggregation. Tiling a scope to 240 s is an artefact of making it run on short spans, and it gives nothing at all under 30 s. Requests have to work over varied scope lengths, and the style sections we want to combine with them are short, at a median of 5.5 s. Exact labels precomputed on real-chart cells would also condition phase C on source-chart cell values.</p></dd>
+<dt>Analysis</dt>
+<dd>
+<p>A redesign that treats phase C as a finite-horizon controller trained on the outcomes of its own continuations was considered. Its cost was measured on our hardware. The sampler runs at 100–220 decisions/s per process and slows along a chart. A loop that samples a 60 s scope, scores it and re-scores it with gradients completes about 700 scopes per hour per process. That is about 20× fewer decisions per hour than teacher-forced training, and sampling is about 90% of the cost. <span class="ev">measured</span> Outcome training at scale would need a faster sampler first. Analytic controllers and cheap imitation come before it.</p>
+</dd>
+<dt>Reason</dt>
+<dd><p>Out: exact difficulty labels of real-chart cells, and the star rating as the scoped metric. In: a skeleton-derived difficulty proxy, preferably an extension of the strain-based osu!mania algorithm that works on short intervals. An earlier record of this decision, which rejected any skeleton-derived reference, was corrected the same day. <span class="ev dec">decided</span></p></dd>
+</dl>
+
+<h3>6.2 The relative attack-strain proxy <code>ras-v1</code></h3>
+<p>The head times define a reference workload and the arrangement R2 writes defines the actual one; the request is their ratio. Four lane strains x and one overall strain g decay between head rows with osu!mania's bases. A row's head mask q (which lanes start a note, tap or LN alike; chord size m) adds to them. Each row is charged the rise it causes in a quadratic potential:</p>
+<div class="formula">x_l(t) = x_l(t₀)·e^(−(t−t₀)/τ_I)      g(t) = g(t₀)·e^(−(t−t₀)/τ_G)
+τ_I = −1/ln 0.125 ≈ 0.481 s           τ_G = −1/ln 0.30 ≈ 0.831 s
+row with head mask q ∈ {0,1}⁴, m = Σq:   x ← x + q,   g ← g + m
+
+Ψ = (w_I·τ_I/2)·Σ_l x_l²  +  (w_G·τ_G/2)·g²          w_I = 1,  w_G = 0.25
+ΔW(q) = Ψ⁺ − Ψ⁻ = w_I·τ_I·(x⁻·q + m/2) + w_G·τ_G·(g⁻·m + m²/2)
+
+W(S)   = Σ ΔW over head rows with t ∈ [a, b)
+W_H(S) = the same for one tap per row, cycling lanes 0, 2, 1, 3 from the chart's first row
+r(S)   = √( W(S) / W_H(S) )</div>
+<ul class="tight">
+<li><b>Why it is additive.</b> Between rows the potential decays as dΨ/dt = −(w_I·Σx² + w_G·g²). The jump a row causes therefore equals the time integral of the squared strain it adds, until that strain has decayed. Summed over a chart, the charges equal ∫(w_I·Σx² + w_G·g²)dt, and each charge belongs to the row that caused it. W over adjacent scopes adds exactly. A burst placed just before a scope boundary is charged to the scope it is in, and the remaining budget r*²·W_H − W_committed is exact at every decision. Strain carries across boundaries; nothing resets.</li>
+<li><b>What it keeps from osu!mania.</b> It keeps the decay bases and the split into per-lane and overall strain. It replaces the 400 ms section peaks and top-weighted aggregation with the workload potential, and sums squared lane strains where osu! takes the highest lane. It drops osu!'s hold terms, so LN-heavy passages read as easy. Attacks only, for version 1, is our decision. <span class="ev dec">decided</span></li>
+<li><b>Why a skeleton-relative scale.</b> The square root returns from squared strain to strain units. The reference is near the least workload a skeleton allows, so r ≈ 1 is close to the floor and density sits in W_H. r measures the arrangement given the skeleton, not the song's difficulty. <span class="ev dec">decided</span> <span class="ev inf">our reading of the scale</span></li>
+<li><b>The actuator.</b> Every row places at least one head, so the 15 non-empty head masks cover the choice. A tilt reweights them, P(q) ∝ P₀(q)·exp(η·ΔW(q)/s_S), where s_S is the scope's mean reference charge per row. It enters as a bias on the 625 row logits, so within a head mask the base's own choice between tap and LN, and its release categories, stay natural. At η = 0 sampling is byte-identical to the base, and only decisions allowed to read the request are tilted.</li>
+</ul>
+
+<h3>6.3 C0: what the proxy and the tilt do <span class="ev">measured</span></h3>
+<dl class="thread">
+<dt>Problem</dt>
+<dd><p>Is the proxy built right, what values does it take on real charts per scope length, and does a tilt on the frozen phase-N model move it in the requested direction before any controller is trained? Built with mechanical tests (split and recombine, carry-in, half-open ownership, mirror invariance). These measurements used phase-N checkpoint 52M, and 48M with the mask for the allocation test, not 56M.</p></dd>
+<dt>Expected</dt>
+<dd><p>That r would spread usefully on both sides of natural, so a request could ask for easier or harder, and that a controller held to a KL budget could reach requests with little departure from natural.</p></dd>
+<dt>Contradiction</dt>
+<dd>
+<p><b>Natural r is centred and stable, but its floor is close.</b> On 1,163 development charts (4 scopes per chart and length, at least 8 head rows), the median r is 1.43 at every length from 2 to 60 s, and the spread narrows with length.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Scope</th><th class="num">Scopes</th><th class="num">p5</th><th class="num">p10</th><th class="num">p50</th><th class="num">p90</th><th class="num">p99</th><th class="num">max</th></tr></thead>
+<tbody>
+<tr><td>2 s</td><td class="num">3,945</td><td class="num">1.04</td><td class="num">1.12</td><td class="num">1.43</td><td class="num">1.90</td><td class="num">2.41</td><td class="num">3.58</td></tr>
+<tr><td>4 s</td><td class="num">4,385</td><td class="num">1.05</td><td class="num">1.13</td><td class="num">1.43</td><td class="num">1.91</td><td class="num">2.39</td><td class="num">3.05</td></tr>
+<tr><td>8 s</td><td class="num">4,523</td><td class="num">1.07</td><td class="num">1.15</td><td class="num">1.43</td><td class="num">1.86</td><td class="num">2.36</td><td class="num">2.95</td></tr>
+<tr><td>16 s</td><td class="num">4,605</td><td class="num">1.11</td><td class="num">1.18</td><td class="num">1.43</td><td class="num">1.81</td><td class="num">2.31</td><td class="num">2.81</td></tr>
+<tr><td>32 s</td><td class="num">4,641</td><td class="num">1.14</td><td class="num">1.20</td><td class="num">1.43</td><td class="num">1.79</td><td class="num">2.23</td><td class="num">2.80</td></tr>
+<tr><td>60 s</td><td class="num">4,569</td><td class="num">1.17</td><td class="num">1.22</td><td class="num">1.43</td><td class="num">1.79</td><td class="num">2.12</td><td class="num">2.73</td></tr>
+</tbody></table></div>
+<ul class="tight">
+<li>The least-strain single-tap arrangement gives r = 1.000, and r &lt; 1 occurred in 2 of about 27,000 real scopes. Four-key chords on every row give r ≈ 3.94. Real charts sit at about 15% of the floor-to-ceiling range (p10–p90 of position 0.04–0.31). Easier-than-natural requests are confined to about 1.0–1.15. Above natural there is wide room, most of it unplayable chord density.</li>
+<li>Skeleton-relative as intended: median r is about 1.35 in band 2 and 1.46–1.51 in bands 3–5, while raw workload per second rises about fivefold from band 2 to band 5 (12 to 65 at 16 s).</li>
+</ul>
+
+<figure>
+<div class="figtitle">A fixed tilt moves r in order, but unevenly</div>
+<div class="keys"><span><i class="s1"></i>4 s scopes</span><span><i class="s2"></i>16 s scopes</span><span><i class="bandkey"></i>real 16 s scopes, p5–p99</span></div>
+<div class="scroll">
+<svg viewBox="0 0 640 332" role="img" aria-label="Median r against tilt eta for 4 s and 16 s scopes. Negative tilt stops near the floor of 1; eta plus 1 already reaches 2.9 at 16 s and plus 2 reaches the four-key ceiling, far above the natural range.">
+<rect class="bandr" x="70" y="128.8" width="530" height="133.7"/>
+<line class="gridl" x1="70" y1="280.7" x2="600" y2="280.7"/>
+<line class="gridl" x1="70" y1="240.1" x2="600" y2="240.1"/>
+<line class="gridl" x1="70" y1="207" x2="600" y2="207"/>
+<line class="gridl" x1="70" y1="154.8" x2="600" y2="154.8"/>
+<line class="gridl" x1="70" y1="114.2" x2="600" y2="114.2"/>
+<line class="gridl" x1="70" y1="81.1" x2="600" y2="81.1"/>
+<line class="gridl" x1="70" y1="28.9" x2="600" y2="28.9"/>
+<line class="refl" x1="70" y1="93.3" x2="600" y2="93.3"/>
+<line class="axisl" x1="70" y1="290" x2="600" y2="290"/>
+<text x="62" y="284.7" text-anchor="end">1.0</text>
+<text x="62" y="244.1" text-anchor="end">1.25</text>
+<text x="62" y="211" text-anchor="end">1.5</text>
+<text x="62" y="158.8" text-anchor="end">2.0</text>
+<text x="62" y="118.2" text-anchor="end">2.5</text>
+<text x="62" y="85.1" text-anchor="end">3.0</text>
+<text x="62" y="32.9" text-anchor="end">4.0</text>
+<text x="94.1" y="306" text-anchor="middle">−4</text>
+<text x="154.3" y="306" text-anchor="middle">−3</text>
+<text x="214.5" y="306" text-anchor="middle">−2</text>
+<text x="274.8" y="306" text-anchor="middle">−1</text>
+<text x="335" y="306" text-anchor="middle">0</text>
+<text x="395.2" y="306" text-anchor="middle">+1</text>
+<text x="455.5" y="306" text-anchor="middle">+2</text>
+<text x="515.7" y="306" text-anchor="middle">+3</text>
+<text x="575.9" y="306" text-anchor="middle">+4</text>
+<text x="335" y="327" text-anchor="middle">tilt η, fixed over the scope</text>
+<text transform="translate(16 160) rotate(-90)" text-anchor="middle">r (log scale)</text>
+<text class="lbl" x="76" y="144">real 16 s scopes, p5–p99</text>
+<text class="lbl" x="76" y="88">largest real 16 s r: 2.81</text>
+<text class="lbl" x="596" y="274" text-anchor="end">floor ≈ 1: single taps cycling the lanes</text>
+<line class="wh1" x1="89.1" y1="278.2" x2="89.1" y2="263.4"/>
+<line class="wh1" x1="209.5" y1="275" x2="209.5" y2="248.3"/>
+<line class="wh1" x1="269.8" y1="272.2" x2="269.8" y2="222.3"/>
+<line class="wh1" x1="330" y1="251.2" x2="330" y2="163.6"/>
+<line class="wh1" x1="390.2" y1="218.8" x2="390.2" y2="87"/>
+<line class="wh1" x1="450.5" y1="150.9" x2="450.5" y2="42.6"/>
+<line class="wh1" x1="570.9" y1="54" x2="570.9" y2="37.6"/>
+<line class="wh2" x1="99.1" y1="279.4" x2="99.1" y2="273.2"/>
+<line class="wh2" x1="219.5" y1="277.8" x2="219.5" y2="266.4"/>
+<line class="wh2" x1="279.8" y1="274.6" x2="279.8" y2="250.6"/>
+<line class="wh2" x1="340" y1="237" x2="340" y2="176.6"/>
+<line class="wh2" x1="400.2" y1="182.6" x2="400.2" y2="50.3"/>
+<line class="wh2" x1="460.5" y1="50.9" x2="460.5" y2="34.7"/>
+<line class="wh2" x1="580.9" y1="37.7" x2="580.9" y2="32.8"/>
+<polyline class="ln1" points="89.1,271.5 209.5,263.7 269.8,256.9 330.0,221.7 390.2,171.8 450.5,66.8 570.9,45.0"/>
+<polyline class="ln2" points="99.1,277.6 219.5,272.5 279.8,266.7 340.0,211.7 400.2,87.2 460.5,38.9 580.9,34.8"/>
+<circle class="d1" cx="89.1" cy="271.5" r="4.5"/><circle class="d1" cx="209.5" cy="263.7" r="4.5"/><circle class="d1" cx="269.8" cy="256.9" r="4.5"/><circle class="d1" cx="330" cy="221.7" r="4.5"/><circle class="d1" cx="390.2" cy="171.8" r="4.5"/><circle class="d1" cx="450.5" cy="66.8" r="4.5"/><circle class="d1" cx="570.9" cy="45" r="4.5"/>
+<circle class="d2" cx="99.1" cy="277.6" r="4.5"/><circle class="d2" cx="219.5" cy="272.5" r="4.5"/><circle class="d2" cx="279.8" cy="266.7" r="4.5"/><circle class="d2" cx="340" cy="211.7" r="4.5"/><circle class="d2" cx="400.2" cy="87.2" r="4.5"/><circle class="d2" cx="460.5" cy="38.9" r="4.5"/><circle class="d2" cx="580.9" cy="34.8" r="4.5"/>
+<text class="dl" x="580.9" y="22" text-anchor="middle">16 s</text>
+<text class="dl" x="570.9" y="70" text-anchor="middle">4 s</text>
+<circle class="hit" cx="89.1" cy="271.5" r="10" tabindex="0" data-tip="4 s · η −4 · median r 1.05 (p10 1.01, p90 1.10)"/>
+<circle class="hit" cx="209.5" cy="263.7" r="10" tabindex="0" data-tip="4 s · η −2 · median r 1.10 (p10 1.03, p90 1.20)"/>
+<circle class="hit" cx="269.8" cy="256.9" r="10" tabindex="0" data-tip="4 s · η −1 · median r 1.14 (p10 1.05, p90 1.38)"/>
+<circle class="hit" cx="330" cy="221.7" r="10" tabindex="0" data-tip="4 s · η 0 (natural) · median r 1.38 (p10 1.18, p90 1.91)"/>
+<circle class="hit" cx="390.2" cy="171.8" r="10" tabindex="0" data-tip="4 s · η +1 · median r 1.82 (p10 1.41, p90 2.90)"/>
+<circle class="hit" cx="450.5" cy="66.8" r="10" tabindex="0" data-tip="4 s · η +2 · median r 3.25 (p10 2.04, p90 3.71)"/>
+<circle class="hit" cx="570.9" cy="45" r="10" tabindex="0" data-tip="4 s · η +4 · median r 3.66 (p10 3.48, p90 3.81)"/>
+<circle class="hit" cx="99.1" cy="277.6" r="10" tabindex="0" data-tip="16 s · η −4 · median r 1.02 (p10 1.01, p90 1.04)"/>
+<circle class="hit" cx="219.5" cy="272.5" r="10" tabindex="0" data-tip="16 s · η −2 · median r 1.05 (p10 1.02, p90 1.08)"/>
+<circle class="hit" cx="279.8" cy="266.7" r="10" tabindex="0" data-tip="16 s · η −1 · median r 1.08 (p10 1.03, p90 1.18)"/>
+<circle class="hit" cx="340" cy="211.7" r="10" tabindex="0" data-tip="16 s · η 0 (natural) · median r 1.46 (p10 1.27, p90 1.77)"/>
+<circle class="hit" cx="400.2" cy="87.2" r="10" tabindex="0" data-tip="16 s · η +1 · median r 2.90 (p10 1.72, p90 3.56)"/>
+<circle class="hit" cx="460.5" cy="38.9" r="10" tabindex="0" data-tip="16 s · η +2 · median r 3.79 (p10 3.54, p90 3.87)"/>
+<circle class="hit" cx="580.9" cy="34.8" r="10" tabindex="0" data-tip="16 s · η +4 · median r 3.87 (p10 3.81, p90 3.92)"/>
+</svg>
+</div>
+<figcaption>Fixed tilt on every in-scope decision of 16 dense development-chart scopes, two seeds, 32 scopes per point, on phase-N 52M. Dot: median r; bar: p10–p90. Negative tilt stops at the floor of about 1. Positive tilt is steep: η = +2 already reaches the all-four-key ceiling of about 3.94, with same-lane repeat rates of 0.81–0.94 against 0.11 at η = 0. The useful range for natural-looking output is roughly η ∈ [−1, +1]. The anchors are dense: each needed at least 8 heads in its first 2 s. <span class="ev">measured</span></figcaption>
+</figure>
+
+<p><b>The analytic controller departs from natural even when asked for natural.</b> The controller splits the remaining budget over the remaining rows, solves for each decision's η by bisection so the expected charge meets that row's share, and clips at |η| ≤ 8 and at a KL cap κ on the head-mask distribution. With the reference-clock split (R), the budget goes to rows in proportion to their reference charge, a flat profile. Tested on 8 charts × 2/4/8/16 s × 4 targets × 2 caps × 2 seeds (512 scopes):</p>
+<ul class="tight">
+<li>Attainment at κ = 1.0: 94–100% of scopes within 5% of the requested r at 4, 8 and 16 s, and 75–94% at 2 s. At κ = 0.25 decisions are clipped often, and the target outside the natural range falls short at every length. No target ordering is reversed.</li>
+<li>Departure: mean KL 0.24–0.83 nats per decision at κ = 1.0 (0.15–0.24 at κ = 0.25). A request at the population median (r* = 1.43, 16 s, κ = 1) still costs KL 0.29 and −0.54 in log-likelihood per decision. Achieved r collapses to 1.427–1.432, against natural samples spread over 1.27–1.77.</li>
+<li>Likelihood is not a clean departure measure here: tilting toward easier masks raises it (+0.02 to +0.26 for low targets), because the base's most likely row is easier than its typical sample. The trace adds a median 11% to sampling time.</li>
+</ul>
+<p><b>Allocation relative to natural behaviour lowers the departure.</b> N scales the base's own expected charge by the ratio of the remaining budget to a forecast of the base's remaining workload. NB does the same, but holds η at exactly 0 while the projected final r is within 0.02 in log of the request. Run on 48M with the mask, 1,920 controlled scopes plus 64 natural references, five targets including "own" (the r the natural sample reached with the same seed):</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Scope</th><th class="num">Mean KL per decision: R / N / NB</th><th>Other</th></tr></thead>
+<tbody>
+<tr><td>2 s</td><td class="num">0.368 / 0.349 / 0.338</td><td>NB leaves η = 0 on 17% of in-scope decisions; log-likelihood fall nearly unchanged</td></tr>
+<tr><td>4 s</td><td class="num">0.332 / 0.276 / 0.263</td><td>log-likelihood fall about halved</td></tr>
+<tr><td>8 s</td><td class="num">0.280 / 0.232 / 0.215</td><td>log-likelihood fall about halved</td></tr>
+<tr><td>16 s</td><td class="num">0.256 / 0.170 / 0.154</td><td>log-likelihood fall 0.58 (R) against 0.24 / 0.23 (N / NB); NB leaves η = 0 on 38%</td></tr>
+</tbody></table></div>
+<p>Attainment within 0.05 over all scopes is 81.4% (R), 79.7% (N) and 79.8% (NB); the losses fall on short scopes with the "own" target. On paired scopes with equal attainment, NB lowers KL by 0.064 and raises log-likelihood by about 0.17. With the "own" target, NB reproduces the natural sample exactly in 24 of 128 scopes, against 1 of 128 for R.</p>
+</dd>
+<dt>Analysis</dt>
+<dd><p>The tilt is a valid actuator: exact accounting, the identity at η = 0, and movement in the requested direction. Most of the departure comes from the allocation rule, not the actuator. A flat allocation tilts nearly every decision even when the scope would land on target naturally, and removes the natural spread of r between samples. NB fixes this in direction but not in size: it still averages 0.15–0.34 nats per decision. Two likely reasons: the forecast starts from the population median rather than the anchor's own natural ratio, and with a fixed per-scope target, sampling noise has to be corrected at every step. <span class="ev inf">inferred, not tested</span></p></dd>
+<dt>Reason</dt>
+<dd><p>NB is the best teacher of the three for a learned controller. Asking for easier has little room; asking for harder has too much. Whether r tracks felt difficulty, and where playability ends, needed human eyes. That is the blind screen.</p></dd>
+</dl>
+
+<h3>6.4 The blind A/B screen</h3>
+<dl class="thread">
+<dt>Problem</dt>
+<dd>
+<p>Does r order charts the way players feel difficulty? There were 48 pairs of 8–16 s windows, each pair on the same skeleton and prefix: 16 opposite-sign tilts; 16 pairs of natural phase-N samples whose r differs by at least the natural interquartile range; 8 constructed contrasts (cycled against repeated-lane singles, singles against four-key chords); and 8 near-equal controls with |Δlog r| ≤ 0.03. LN-head share was matched within 0.10. Sides were randomised and the key sealed. The pairs come from 17 real charts, and samples are reused across pairs.</p>
+<p>Two judges answered "which side is harder: A, B or same", with a confidence and a note. The project lead used synchronised 1× playback with segment images (48 pairs in 32 minutes). The second was an AI judge working from static chart images at 240 px/s, with no audio. Neither saw the key, and checks found no sign that either saw the other's answers before finishing.</p>
+</dd>
+<dt>Expected</dt>
+<dd><p>That judges would follow the direction of r on clear gaps and call near-equal pairs "same". That was the screen's purpose, and it is how it came out. What we had not expected is what lies above the natural range.</p></dd>
+<dt>Contradiction</dt>
+<dd>
+<div class="tablewrap"><table>
+<caption>Answers by the size of the r gap, as agree / disagree / same.</caption>
+<thead><tr><th>|Δlog r|</th><th class="num">Pairs</th><th>Mostly</th><th class="num">Project lead</th><th class="num">AI judge</th></tr></thead>
+<tbody>
+<tr><td>≤ 0.03</td><td class="num">8</td><td>near-equal controls</td><td class="num">2 / 1 / 5</td><td class="num">1 / 3 / 4</td></tr>
+<tr><td>0.03–0.25</td><td class="num">8</td><td>natural pairs</td><td class="num">7 / 1 / 0</td><td class="num">6 / 0 / 2</td></tr>
+<tr><td>0.25–0.5</td><td class="num">12</td><td>natural and constructed</td><td class="num">12 / 0 / 0</td><td class="num">12 / 0 / 0</td></tr>
+<tr><td>&gt; 0.5</td><td class="num">20</td><td>tilts and constructed</td><td class="num">20 / 0 / 0</td><td class="num">20 / 0 / 0</td></tr>
+</tbody></table></div>
+<ul class="tight">
+<li><b>Direction.</b> <span class="ev">measured · moderate</span> Both judges agree with r on all 32 pairs with |Δlog r| &gt; 0.25. On the 16 natural pairs (gaps 0.175–0.459), the lead agrees 15 of 16 and the AI judge 14 of 14 plus 2 "same". Clustered by source chart, 8 of 8 charts agree for both (p = 0.0078). Every disagreement or "same" sits at |Δlog r| ≤ 0.2, and no high-confidence answer contradicts r.</li>
+<li><b>Near-equal pairs.</b> "Same" 5 of 8 (lead) and 4 of 8 (AI). The remaining answers do not follow r, and the judges agree only at chance there (Cohen's κ −0.05; 0.75 pooled over all pairs). The judges never picked opposite sides.</li>
+<li><b>Unplayable above the natural range.</b> The lead called six sides unplayable and one "collapsed to full four lanes". All seven are the higher-r side: five positive tilts and two constructed one-lane jacks. Of the 16 positive-tilt sides, 14 exceed the largest real 16 s r (2.81) and 13 have at least half their rows as four-key chords: chordjack walls.</li>
+<li><b>Note count confound.</b> The higher-r side also has more notes in 43 of 48 pairs. This screen cannot tell r from "more notes on the same skeleton".</li>
+<li><b>Holds.</b> The lead never cited holds. The AI judge often did, but went against r only on near-equal pairs. The screen was LN-matched and mostly LN-light (19 of 48 pairs had no LN on either side), so it says little about LN-heavy material.</li>
+<li><b>Jacks.</b> The one-lane jacks the lead called unplayable score only r ≈ 1.3, below the natural median, and two calls against r went to the side with a 9-row jack. A hypothesis only (2 pairs, one chart): long single-lane jacks may be under-weighted.</li>
+</ul>
+</dd>
+<dt>Analysis</dt>
+<dd><p>A step of about 20–25% in r (0.18–0.22 in log) is perceived. A few percent is not, which gives a controller a natural dead band. The real gap in <code>ras-v1</code> is not a missing term but a plausibility ceiling: r keeps rising as charts collapse into quad walls. No hold or reading term is justified by this screen; an LN-targeted screen would decide that. <span class="ev inf">inferred</span></p></dd>
+<dt>Reason</dt>
+<dd><p>For tonight: requests stay inside the natural r range per scope length and at least 20% away from natural, and playability is watched through the quad-row share and the same-lane repeat rate. <span class="ev dec">decided</span></p></dd>
+</dl>
+</section>
+
+<section id="corrections">
+<h2><span class="n">7</span>Readings corrected during the day</h2>
+<p>Where two of the day's records disagree, the later one wins. These are the corrections, so that earlier numbers met elsewhere can be read right.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Earlier reading</th><th>Corrected to</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td class="was">Real charts contain no holds of 60 ms or less.</td><td>2.72% of corpus holds are ≤ 60 ms (7.0% at 5★); 14% of charts have at least one.</td><td>The claim came from an 8-chart panel. Guard (iv) and the 60 ms mask rested on it.</td></tr>
+<tr><td class="was">Phase N regressed against R2 v1 (v1 had at most 0.3% defects).</td><td>No regression; v1 is worse on the same 16 charts (5.3% against 1.7% short holds).</td><td>v1's figure came from an easy four-chart panel, where phase N is also at ≤ 0.26%.</td></tr>
+<tr><td class="was">48M with a 60 ms decode mask is phase C's provisional base.</td><td>The mask is off by default; the corrected selection picks 56M, and tonight's fine-tune starts from 56M.</td><td>The mask forbade real patterns and left near-head releases; the guard was rebuilt.</td></tr>
+<tr><td class="was">The model's own history amplifies its LN level (+41–78%).</td><td>At matched history the model does not over-respond; the level wanders.</td><td>The +41–78% compared each run with its real chart: a difference of level, not a misreading.</td></tr>
+<tr><td class="was">The drawn level is compressed (spread ratio 0.43).</td><td>Single runs on 116 skeletons have 0.77–1.00× the real spread; the defects are the per-band shape and the holding.</td><td>0.43 was the SD of seed-averaged levels on 16 charts.</td></tr>
+<tr><td>The start-of-song level correlates r ≈ 0.00 with the real chart (48M).</td><td>That figure measures free-lane LN-birth propensity. Measured as whole-song LN share, the correlation is −0.21.</td><td>Same conclusion, no positive relation; the two numbers measure different quantities.</td></tr>
+<tr><td class="was">The whole-song LN input is the fix → it is a diagnostic only.</td><td>A level the model draws itself may ship; only a level copied from a real chart is a hint.</td><td>The goal was clarified as distributional (section 4).</td></tr>
+<tr><td class="was">Remedy ranking: a prefix-rollout objective first, start-of-song calibration second.</td><td>A prior-mode level input with a length summary first; the rollout objective second; start-of-song calibration demoted.</td><td>The model side showed the start is near data-like and the failure is the holding.</td></tr>
+<tr><td class="was">Difficulty as residual star against b(S) on 30/60/120 s cells.</td><td>Skeleton-relative attack strain r on any scope with at least 8 head rows; 2–16 s first.</td><td>Star is a whole-song measure and undefined under 30 s (section 6.1).</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="tonight">
+<h2><span class="n">8</span>Tonight in detail</h2>
+<h3>8.1 The chain</h3>
+<p>Before the chain starts, the length channel is added and checked with tests and a 0.2M-exposure smoke run, and the fine-tune launches once that code is reviewed. The chain then runs without a human check, at our request; the usual practice is a check before every run. Each stage runs from a frozen copy of the code and records a status line with its exit code.</p>
+<ol class="flow">
+<li><span class="k">Step 1</span><b>LN fine-tune</b><span class="t">12M exposures · about 2.9 h</span><p>From 56M, with the share and length channels. Teacher-forced checks at 4M, 8M and 12M only, with no free-run evaluation inside the run (it took 116 min per checkpoint in the smoke).</p></li>
+<li><span class="k">Step 2</span><b>LN evaluation</b><span class="t">final checkpoint · up to about 1 h</span><p>Prior-mode scorecards and persistence, the fixed-level sweep, one oracle pass, and guards (iv) v2 and (v).</p></li>
+<li><span class="k">Step 3</span><b>Controller training</b><span class="t">2M counterfactual exposures</span><p>The fine-tuned checkpoint, frozen, is the base. A small controller learns the NB teacher by KL on real chart states. It runs even if step 2 fails.</p></li>
+<li><span class="k">Step 4</span><b>Pilot evaluation</b><span class="t">steps 3–4 · up to about 2 h</span><p>Held-out free runs: learned controller against analytic NB and natural. The chain should end around 23:00 UTC.</p></li>
+</ol>
+<p style="font-size:13.5px;color:var(--ink-2)">Fallback: if the fine-tune leaves no final checkpoint, the pilot uses 56M and says so. Time estimates extrapolate the smoke run's 14.4 min per million exposures; they are plans, not measurements of tonight.</p>
+
+<h3>8.2 The LN fix: a fine-tune with two chart-level inputs</h3>
+<div class="tablewrap"><table>
+<thead><tr><th style="width:22%">Item</th><th>Setting</th></tr></thead>
+<tbody>
+<tr><td>Base</td><td>Phase-N 56M, strict warm start: every existing tensor must load unchanged, and only the new reader weights are added.</td></tr>
+<tr><td>Inputs</td><td><b>Whole-song LN share:</b> a known bit, the share, and logit(share). <b>LN length:</b> a known bit and the median over the chart's holds of log₂(LN length in beats), with beats from the chart's timing. The length is undefined for charts with fewer than 10 holds.</td></tr>
+<tr><td>How it enters</td><td>One bias-free linear map from these channels into the first hidden layer of the exact-state query network, added before its nonlinearity, with all weights initialised to zero. At step 0 the model equals 56M whatever the inputs are.</td></tr>
+<tr><td>Training</td><td>Each window reads its own chart's true share and length (computed from the whole chart, never from a prefix). Both are dropped to "unknown" together with p = 0.3, and the length alone is unknown when the chart has fewer than 10 holds.</td></tr>
+<tr><td>Generation (prior mode)</td><td>At the start of the song, one real training chart is drawn from the same cell, star band × skeleton-density tercile within the band (head rows per second; 11,368 training charts). Its share and length are used together for the whole song, which keeps the share-to-length coupling. The draw is seeded by the run seed and the skeleton.</td></tr>
+<tr><td>Other modes</td><td>Unknown (both off); fixed (a given share, optional length); oracle (the real chart's own values, diagnostic only).</td></tr>
+<tr><td>Schedule</td><td>12M exposures; warm-up 0.2M; peak learning rate 1e-4, cosine to 3e-5; checkpoints every 4M; the same weight, data and dropout seeds as before.</td></tr>
+</tbody></table></div>
+
+<h4>Why the analysis predicts that it should hold the level <span class="ev inf">inferred</span></h4>
+<p>In real charts, once the whole-song level is known, recent history adds almost nothing. For the next 256 rows' share, the last 512 rows alone give R² 0.53, the whole-song share 0.65, and both together 0.65, with weights 0.12 on history and 0.90 on the level. On real history the model already reproduces the data's response to recent LN history: the same slopes and the same weights on near and far history segments. Trained with the level known in 70% of windows, it should learn to lean on the level and give history a small weight. A chance excursion in a free run is then read against a fixed anchor and decays instead of propagating. Nothing systematic pushes against the anchor, because the model does not misread its own history; the only such effect is 64M's +8% in the last third of songs.</p>
+<p>The length channel adds what share cannot carry. Length is mostly a within-chart choice (16–34% of variance between charts), but the between-chart part is real. A residual chart style of about 0.3 log units remains after skeleton and share, and it is the part generated charts are missing.</p>
+
+<h4>What it will not fix by itself</h4>
+<ul class="tight">
+<li><b>Skeleton coupling is only as fine as the prior's cells.</b> Band × density tercile reproduces each band's distribution, near-zero mode and heavy tail included, by construction. It captures the skeleton dependence only partly: in band 5, the share of LN-free charts by density quartile is U-shaped (51 / 28 / 22 / 62%). Dense, LN-light charts like the panel's worst cases can still draw mid-range levels. The upgrade is a prior from skeleton neighbours, already calibrated (PIT SD 0.291). It acts only at sampling and needs no retraining.</li>
+<li><b>One number for length.</b> The median carries the chart's typical LN, not the rest of its length style. Band 2's thinly spread short holds may persist.</li>
+<li><b>The reader may be under-learned.</b> It enters through one zero-initialised linear map in the query path, for 12M exposures at a low learning rate. The logit channel reaches ±13.8 at shares of exactly 0 or 1, an unusual input scale.</li>
+<li><b>It anchors two chart-level numbers, not exposure bias in general.</b> A long-horizon objective on the model's own history is not part of tonight.</li>
+<li><b>Phase C is untouched.</b> Scoped LN-share requests are not trained, and how a chart-level level composes with a scoped request is not designed.</li>
+<li><b>Band-5 near-head releases.</b> This is the one cell above the real rate on both panels (4.3% against 2.4% on the random panel, from 20 events). A level fix may or may not remove it.</li>
+</ul>
+
+<h3>8.3 How the LN fix will be judged</h3>
+<ul class="tight">
+<li><b>Prior mode, BOS runs</b> on set F (116 charts × seeds 954–956): per-band share scorecards (mean, SD, below 0.025, at or above 0.3, KS against all development charts of the band) and length scorecards (quantiles in ms and beats, q25 in beats, holds under 60 ms and near-head releases per LN, per-chart length SD with a bootstrap interval, charts with any hold under 60 ms). Persistence covers thirds correlation and drift, block autocorrelation at lags of 64–512 rows, and the fraction of LN-free starts that stay LN-free. The definitions are the same as in the analysis of 48M and 64M, so the numbers compare directly.</li>
+<li><b>A fixed-level sweep:</b> share ∈ {0, 0.05, 0.2, 0.5}, length unknown, on 24 skeletons (6 per band), seed 954. It reports realised against supplied share (slope, R²) and thirds drift. It copies nothing from a real chart, so it is the cleaner obedience test.</li>
+<li><b>One oracle pass</b> on the 16-chart panel, seed 954: realised against real share and per-chart median length. This is an obedience test and diagnostic only.</li>
+<li><b>Guards (iv) v2 and (v)</b> on the final checkpoint.</li>
+</ul>
+<div class="tablewrap"><table>
+<caption>Confirm and refute criteria, fixed before the run, with the hint-free checkpoints for reference (from the analysis; there is no 56M analysis).</caption>
+<thead><tr><th>Criterion (confirm)</th><th>48M</th><th>64M</th></tr></thead>
+<tbody>
+<tr><td>Per-band share KS against development charts ≤ 0.10</td><td class="num">0.18 / 0.07 / 0.13 / 0.23</td><td class="num">0.35 / 0.26 / 0.18 / 0.25</td></tr>
+<tr><td>Near-zero and heavy fractions within ±5 points per band</td><td>band 2 heavy +12, band 5 heavy −17</td><td>bands 2–4 heavy +9 to +25</td></tr>
+<tr><td>Fixed or oracle: realised against supplied slope ≥ 0.9 and R² ≥ 0.8</td><td colspan="2">no input to test</td></tr>
+<tr><td>Thirds correlation ≥ 0.85 and |drift| ≤ 0.02</td><td class="num">0.61, −0.020</td><td class="num">0.62, +0.043</td></tr>
+<tr><td>Block autocorrelation at 256 rows ≤ 0.05, and 256-row SD ≤ 1.2× real</td><td class="num">0.03, 1.4×</td><td class="num">0.13, 1.9×</td></tr>
+<tr><td>LN-free starts: ≥ 70% stay below 0.025</td><td class="num">50%</td><td class="num">49%</td></tr>
+<tr><td>Per-chart length SD ratio ≥ 0.85 in every band</td><td class="num">0.65–0.74</td><td class="num">0.63–0.69</td></tr>
+<tr><td>Band-5 q25 ≤ 0.15 beat</td><td class="num">0.21</td><td class="num">0.17</td></tr>
+<tr><td>Band 2: charts with any hold under 60 ms ≤ 5%</td><td class="num">16%</td><td class="num">22%</td></tr>
+<tr><th colspan="3">Refuted if</th></tr>
+<tr><td colspan="3">Realised against supplied slope &lt; 0.6; thirds correlation still about 0.6 (history overrides the input); or the near-zero leak unchanged, with the 1.3–1.6× LN probability in LN-free states persisting against an input of 0.</td></tr>
+</tbody></table></div>
+
+<h3>8.4 The difficulty pilot</h3>
+<div class="tablewrap"><table>
+<thead><tr><th style="width:22%">Item</th><th>Setting</th></tr></thead>
+<tbody>
+<tr><td>Base</td><td>The fine-tuned checkpoint, frozen (fallback 56M). Only in-scope decisions that may read the request are tilted, through C0's head-mask tilt.</td></tr>
+<tr><td>Teacher</td><td>The analytic NB rule with KL cap κ = 1.0. Our choice: requests now stay in the natural range, where the tight cap's frequent clipping is not wanted.</td></tr>
+<tr><td>Training states</td><td>Teacher-forced training-chart prefixes at in-scope decisions of 2, 4, 8 and 16 s scopes, with anchors drawn as in C0. There the base reads the real chart's own share and length, because the history is the real chart's. This is also our choice.</td></tr>
+<tr><td>Requests</td><td>One per scope, uniform in log r* between the natural p1 and p99 for that scope length, rejecting any request within a factor 1.2 of the real scope's own r.</td></tr>
+<tr><td>Controller</td><td>A small network that outputs η for an in-scope decision from the request, the remaining budget, scope progress, the natural forecast and the base's head-mask probabilities (or a summary).</td></tr>
+<tr><td>Loss and budget</td><td>KL(teacher-tilted head-mask distribution ‖ controller-tilted distribution); 2M counterfactual exposures; learning rate 1e-4. The base stays frozen; only the controller trains.</td></tr>
+<tr><td>Evaluation</td><td>Held-out development charts disjoint from training: 8 anchors × 4 lengths × 3 targets (low, mid, high within the range rules) × 2 seeds = 192 scopes per controller, plus 64 natural continuations. The level is drawn in prior mode.</td></tr>
+<tr><td>Reported</td><td>Attainment within 5% and 10% of r*; mean KL per decision; the fall in the base's log-likelihood; quad-row share and same-lane repeat rate as playability guards; wall time per scope.</td></tr>
+</tbody></table></div>
+<p><b>Why imitation on real states first.</b> <span class="ev inf">our reading</span> The teacher's tilt on a real state comes from forward passes of the base and a one-dimensional solve, with no sampling. The controller therefore trains at roughly teacher-forced cost, while sampling-based outcome training was measured at about 20× fewer decisions per hour. A learned controller is the form later stages need: it trains on generated states and combines with other request kinds. The risk the pilot tests is transfer, because the controller sees only real histories in training and is evaluated on the model's own.</p>
+
+<h3>8.5 What each result would mean</h3>
+<div class="tablewrap"><table>
+<thead><tr><th style="width:30%">If tonight shows</th><th>Reading</th><th>Next</th></tr></thead>
+<tbody>
+<tr><th colspan="3">LN fine-tune</th></tr>
+<tr><td>Prior-mode scorecards meet the confirm criteria, and the sweep slope is ≥ 0.9</td><td>A self-drawn chart-level commitment fixes both the holding and the per-band shape.</td><td>Decide whether to retrain phase N with the inputs, upgrade to the skeleton-neighbour prior, and design how a scoped LN request composes with the level.</td></tr>
+<tr><td>The sweep obeys and persistence passes, but per-band shape or the near-zero mode is off</td><td>The model is fine; the prior's cells are too coarse.</td><td>Swap in the skeleton-neighbour prior. No retraining is needed, since the prior acts only at sampling.</td></tr>
+<tr><td>Share holds, but length misses (SD ratio &lt; 0.85, band-5 q25 above 0.15 beat, band-2 short holds remain)</td><td>One median is not enough length summary.</td><td>A two-value summary (share of LNs at 1/8 beat or shorter, plus the median), or a learned per-chart latent.</td></tr>
+<tr><td>Slope &lt; 0.6, or thirds correlation still about 0.6, or the near-zero leak unchanged</td><td>Refuted as configured: history overrides the input, or the reader did not learn.</td><td>The second-ranked remedy, a long-horizon objective on the model's own history (prefix rollouts of 256–512 rows); a fine-tune version was estimated at 3–5 h.</td></tr>
+<tr><th colspan="3">Difficulty pilot</th></tr>
+<tr><td>The learned controller matches NB on attainment and KL, and the guards stay at natural values</td><td>Imitation on real states transfers to the model's own histories.</td><td>Combine with LN-share requests (difficulty tilts the head masks, LN tilts tap against LN within them); outcome training only if needed.</td></tr>
+<tr><td>The learned controller attains clearly less than NB on held-out free runs</td><td>Real-state imitation does not transfer.</td><td>Train on generated states (KL on the model's own rollouts), at the measured sampling cost, or a faster sampler first.</td></tr>
+<tr><td>Both attain, but quad-row share or same-lane repeats rise beyond natural</td><td>The natural-range rule alone does not keep output playable.</td><td>Add an explicit guard to the request rule: a quad-row share cap or a likelihood floor.</td></tr>
+<tr><td>NB departure stays near its C0 level (0.15–0.34 nats per decision)</td><td>The allocation is the limit, not the network.</td><td>A wider dead band (gaps under about 0.2 in log r went unnoticed in the screen), or a forecast from the base's own continuation.</td></tr>
+</tbody></table></div>
+<p style="font-size:13.5px;color:var(--ink-2)">All readings in this table are inferences prepared before the results. <span class="ev inf">inferred</span></p>
+</section>
+
+<section id="open">
+<h2><span class="n">9</span>Open questions after tonight</h2>
+<ol class="open">
+<li><b>Composition.</b> How does a chart-level LN level in the natural model compose with a scoped LN-share request in phase C?</li>
+<li><b>Phase C decisions still open:</b> frozen or KL-held base, budgets and learning rates, checkpoint selection for phase C, the size of the conditioning path, and the style-module choices.</li>
+<li><b>Star band at generation.</b> The prior's cell uses the real chart's star band. A generator working from a bare skeleton would need the band as a request or an estimate. <span class="ev inf">our inference</span></li>
+<li><b>What <code>ras-v1</code> misses.</b> Holds and reading (an LN-targeted screen would decide whether to add terms); ranking at equal note count (a note-count-matched screen, if needed); possibly long single-lane jacks (2 pairs, one chart).</li>
+<li><b>What "easier" means.</b> The floor at r ≈ 1 leaves 1.0–1.15 below natural. With the skeleton fixed, an easier request can only mean fewer chords and fewer same-lane repeats.</li>
+<li><b>Residual LN defects.</b> Band-5 near-head releases above the corpus rate, and band 2's relative excess of short holds and near-head releases at 56M (few in absolute terms).</li>
+<li><b>Checkpoint oscillation.</b> The start-of-song LN level swung by about ±0.1 between checkpoints at flat NLL, from a single training run. Its cause is not identified.</li>
+<li><b>An unexplained gap.</b> In counterfactual prefix edits, the model's response to prefix LN share is about 20× smaller than the observational slope (0.022 against 0.42).</li>
+<li><b>Human judgment.</b> Would players judge short LNs in dense passages as defects when the chart's LN level is consistent, as in LN-heavy dense ranked charts?</li>
+<li><b>A source gap.</b> The stored natural-r summary lists quantiles from p5 to p99 and the minimum, not p1. The lower request bound the pilot actually uses will be read from its report. At 16 s, p5 is 1.105 and the minimum 1.003.</li>
+</ol>
+</section>
+
+<footer>
+<p>Prepared on 2026-10-07 before tonight's runs, from the day's research notes, analysis reports and measurement files. Numbers are as measured; where two records disagreed, the later correction is used and listed in section 7. The difficulty measurements used phase-N checkpoints 52M (natural r is model-free) and 48M with the decoding mask (allocation), not 56M or the fine-tune. Sample sizes are given with each claim; pairs and seeds within a chart are not independent.</p>
+</footer>
+</main>
+</div>
+<div id="tip" class="tip" role="tooltip" hidden></div>
+<script>
+(function(){
+  var tip=document.getElementById('tip');
+  if(!tip) return;
+  function show(ev){
+    var el=ev.currentTarget, r=el.getBoundingClientRect();
+    tip.textContent=el.getAttribute('data-tip');
+    tip.hidden=false;
+    var w=tip.offsetWidth, h=tip.offsetHeight, vw=document.documentElement.clientWidth;
+    var x=r.left+r.width/2-w/2;
+    x=Math.max(8,Math.min(x,vw-w-8));
+    var y=r.top-h-8;
+    if(y<4){y=r.bottom+8;}
+    tip.style.left=(x+window.scrollX)+'px';
+    tip.style.top=(y+window.scrollY)+'px';
+  }
+  function hide(){tip.hidden=true;}
+  var els=document.querySelectorAll('[data-tip]');
+  for(var i=0;i<els.length;i++){
+    els[i].addEventListener('pointerenter',show);
+    els[i].addEventListener('pointerleave',hide);
+    els[i].addEventListener('focus',show);
+    els[i].addEventListener('blur',hide);
+  }
+})();
+</script>
+</body>
+</html>
