@@ -256,3 +256,155 @@ Phase-0 results due at 17:45 adjust this:
 - X2 decides whether the row-head screen enters night 2.
 
 ----- END report -----
+
+## Addendum: network families per component (Opus, about 17:00-17:12 UTC, at the human's request)
+
+Main-thread check: `famcost.json` and `rowrate.json` (mirrored) match the per-step costs, training costs and rows-per-second figures quoted.
+
+----- BEGIN addendum -----
+
+**In short.** No history-encoder family removes F2 on its own. Under cross-entropy on real histories the window proxy is as good as a convergent statistic, whatever the encoder. A persistent-state encoder in R1 and landmark memory in R2 v1 both went unused or failed in free running.
+
+What decides holding is the recipe (history dropout, own-history training) and the inputs (θ), not the family. Per-step latency does not separate the families at R2's size: the real-time budget is 10-45× larger than the per-step cost.
+
+So no family swap replaces B2 or B3 tonight:
+- **Optional now:** one warm-startable family arm, a two-rate encoder (B4).
+- **Round two:** a residual latent z, a block reranker and a from-scratch encoder swap, each with the fair protocol in §5.
+
+Evidence codes: M = measured, C = read from the code, I = inferred.
+
+### 0. New measurements (M; 1 CPU thread on the mac, read-only)
+
+Scripts are in `~/ensomi/.sync/cp/scratch/r2-collapse/design-opus/` (`famcost.py`, `rowrate.py`). Outputs are in `artifacts/r2-collapse-20261007/design-opus/` (`famcost.json`, `rowrate.json`; mirrored). Jobs: `20261007-170624-design-opus-famcost2`, `20261007-170821-design-opus-rowrate`.
+
+**The k-linear part of the per-step cost is an implementation artifact.**
+- `sampling.continue_chart` calls `base.with_decisions(actions[:k])` and `chart.derived()` at every step. That costs 0.23 ms at k = 128 and 5.0 ms at k = 2,000, which is the whole 2.5 µs × k term.
+- An incremental state makes each step about 1.5 ms flat.
+- The fixed parts per step:
+
+| Part | ms per step |
+|---|---|
+| TCN cache append | 0.93 |
+| Query features | 0.42-0.47 |
+| Hands plus joint head | 0.11 |
+
+**Per-step cost of the alternative encoders** (H = 128, two hand sequences):
+
+| Encoder | ms per step |
+|---|---|
+| GRU, 2 layers | 0.05 |
+| Linear RNN, 4 layers | 0.20 |
+| Transformer, 4 layers, KV cache at L = 512 | 0.38 |
+| Transformer, 4 layers, KV cache at L = 2,048 | 0.86 |
+
+Every alternative is at or below the TCN's 0.93 ms.
+
+**Training cost, forward plus backward over 2,304 tokens** (2,048 prefix rows plus a 256 window):
+
+| Encoder | ms |
+|---|---|
+| TCN | 294 |
+| GRU, 1 layer | 201 |
+| Full causal transformer, 4 layers | 1,611 (5.5× the TCN) |
+| Transformer, 512 context over 768 tokens | 206 |
+
+**Real-time budget.** Rows per second of song in fit_train, median and p95 by band:
+
+| Band | Median | p95 |
+|---|---|---|
+| 2 | 4.7 | 6.4 |
+| 3 | 6.2 | 8.6 |
+| 4 | 7.8 | 11.2 |
+| 5 | 9.8 | 14.5 |
+
+- So each row has about 69 ms at p95 band 5, against about 1.5-8.7 ms of compute. Latency binds only for paradigms that multiply passes.
+- A 64-row block is 6.6 s (band 5) to 13.5 s (band 2) of music.
+
+**Chart-level sample size.** 11,368 fit_train charts in 4,167 song groups. Anything learned per chart (θ prior, z, codebook, planner) is fitted on about 4k independent songs, not 12.7M decisions.
+
+**Recipe lever that holds for every family (I, from the 294 ms figure).** The current window draw re-encodes the full prefix to score 256 rows: about 5 encoded positions per scored one at K = 2,000.
+- Scoring whole charts, or long segments, in one pass spreads the encoder cost over every position. Only the features, head and pointer still scale with the number scored.
+- That probably gives 2-3× more exposures per Mac-hour.
+- It is what makes from-scratch family comparisons affordable. It changes batch composition, not the per-decision weighting.
+
+### 1. History encoder
+
+The table uses the constraint-table row numbers from my main report.
+
+| Family | Advantages here | Disadvantages here | Rows lifted / added |
+|---|---|---|---|
+| **Dilated causal TCN (current)** | Parallel over positions; exact, testable crop invariance; strong local bias suited to about 4k songs; cheap cached step; warm start at 56M | Hard 511-row horizon with no state beyond it; activations grow with the prefix (needs checkpointing); the costliest step part (0.93 ms) | Keeps #1 |
+| **Causal transformer, full attention plus KV cache** | Reaches any committed row, so it lifts #1. It can *retrieve* the chart's own earlier patterns (motif and vocabulary reuse), which a cumulative statistic cannot: a possible lever on regime C. | Training 5.5× the TCN at 2,304 tokens (M) and O(T²) up to 3k rows. Weak inductive bias for about 4k songs. Attention under CE learns the same recency the data rewards. Training from scratch is about 10 Mac-hours at 64M-equivalent. | Lifts #1. Adds training cost and data hunger. |
+| **Windowed transformer (512)** | Cheap (206 ms), another local model, maybe better F3 | Same horizon as the TCN; lifts nothing structural | None |
+| **RNN / GRU with persistent state** | O(1) step (0.05 ms), unbounded memory in principle, ideal for real time, natural with whole-chart streaming (each token encoded once) | Sequential in time, so cost grows with depth and deep stacks are slow on CPU. TBPTT truncates credit. Gates learn the short timescale CE rewards. **R1 had a GRU over all committed rows plus landmarks and still collapsed** (`s-likelihood-vs-rollout`). | Lifts #1 formally; #2 only if the slow state is held |
+| **Linear RNN / SSM (S4, LRU; Mamba-type)** | O(1) step (0.20 ms). Parallel training by scan or convolution for time-invariant S4/LRU. Eigenvalues initialised near 1 (time constant about 1,000 rows) build in slow channels, a learned near-anchor. Mamba's input-dependent gating could learn section resets. | No fused selective-scan kernel on CPU or MPS (I), so Mamba-type training is slow or risky here. Fixed-decay channels are exponential averages, not a convergent cumulative mean. Their readout faces the same CE indifference. From scratch. | Lifts #1, partly #2. Adds implementation risk. |
+| **Hierarchical / two-rate** (fast TCN plus a slow GRU or attention over 64-row block summaries, e.g. the existing stride-64 landmark slots) | Matches the problem's chart → section → row structure. The slow path is cheap (30-50 blocks per song) and updates once per block, so the per-step cost is unchanged. **Warm-startable from 56M** (the TCN is kept; the slow path is zero-initialised). It is the natural home for θ, z or a plan. | Same CE indifference: needs history dropout on the fast path. Block boundaries are arbitrary unless 4-bar aligned (regime changes sit at 4-bar starts, Fable E1). | Lifts #1, #2 (pooled slow state), partly #7 |
+
+**Does any family remove F2 by itself? No.**
+
+Three reasons:
+1. **It is a property of the data and the objective.** On real histories the cumulative and recent statistics carry equal weight (β 0.57 / 0.43) and the cumulative one adds only R² +0.05. So *any* encoder that minimises teacher-forced CE can be optimal using the window proxy (M, Fable addendum 2).
+2. **Persistent memories already went unused.** R1's all-rows GRU did not prevent free-running collapse. R2 v1's landmark readout was unused, and its lesion improved NLL (M, from the notes).
+3. **A family only changes what is possible and what it costs.** It changes whether a convergent anchor is *representable* (the TCN cannot reach past 511 rows) and the cost. Pressure to use it comes from history dropout, own-history training or a held θ.
+
+One caveat (I): attention and hierarchical encoders could help regime C (copying the chart's own vocabulary) in a way no statistic can. That is the only family-specific gain I would test, and only after B3.
+
+### 2. Chart-level and plan representation
+
+| Family | Advantages | Disadvantages | Posterior collapse | Control surface | Labels |
+|---|---|---|---|---|---|
+| **Explicit θ (B3)** | Supplied, not inferred, so it is used whenever it predicts (whole-song level R² 0.65 against 0.53 for the window). Nonparametric donor prior; trivial to fit on 4k songs. | Covers only the chosen coordinates (not vocabulary, motif or "feel"); can be inconsistent with the skeleton; budget leak alongside the anchor channels | None | Direct: LN share and length, difficulty and style are coordinates | Computable statistics; style concepts need the Lens labels |
+| **Continuous z (VAE / CVAE with a skeleton prior p(z\|S))** | Captures unnamed dimensions (regime C); the skeleton prior is built in; sampling gives variety | **High collapse risk here (I).** The decoder re-infers θ from about 64-128 rows, so under teacher forcing z is worth about the first 100 rows plus drift. KL then removes exactly the "hold the level" dimensions we need. Needs free bits (about 4-8 nats per chart), decoder history dropout, and auxiliary θ prediction. 4k songs limits z to about 16 dimensions or fewer. | High | Indirect: needs a post-hoc map, or semi-supervised dimensions tied to θ | None, but loses meaning |
+| **Discrete codebook (VQ, style tokens)** | Mixture of styles; categorical prior given the skeleton; requestable as "style k"; avoids KL collapse | Codebook usage collapse at about 4k songs (≤ 32 codes is realistic); loses continuous controls (LN share) unless combined with θ | Usage collapse instead of KL collapse | Only if codes are supervised against the Lens concepts | Optional; supervised codes are better |
+| **Learned plan sequence (per-section z_s, conductor-style)** | Models within-chart structure; section control and regeneration; the planner has about 440k section transitions (I), enough for a small model | Two levels of collapse. Leak if the plan is computed from the section being generated. Obedience is needed at two scales. Most code. | Two levels | Section coordinates (practice targets, mapper edits) | None for learned plans; an explicit section-statistics plan (S3) needs none either |
+
+**Order.** Explicit θ first (B3). Then θ plus a small residual z with free bits, only if regime C remains after B3, measured by between-chart SD ratios of pattern entropy, 4-gram vocabulary and c4. Explicit section plans (S3) come before learned plans.
+
+### 3. Row head
+
+| Family | Advantages | Disadvantages | Rows |
+|---|---|---|---|
+| **Joint factorised (current): hand unaries plus rank-16 coupling** | Exact normalisation and masking over 625. Mirror equivariance doubles the effective data. 0.11 ms per step together with the hands. Chord-size interactions (rank ≤ 3 in per-hand head counts) are representable (I). | Pairwise between hands with rank-16 coupling; hand-symmetric at BOS | #10 (weak) |
+| **Autoregressive over lanes** | Any joint distribution with small 5-way heads; natural per-lane masks | Order dependence breaks equivariance unless marginalised over two orders (2× cost, as the pointer already does). Four sequential steps per row. No evidence it fixes a defect. | None |
+| **Full 625-way softmax** | Full joint expressivity, about 160k parameters | Loses sharing and equivariance unless symmetrised. Rare joint actions (4-chords mixed with LN codes) are poorly estimated. Expected gain small (I). | Lifts #10 |
+| **Energy / contrastive reranking (rows or blocks)** | Can encode non-local qualities (playability, consistency with chart identity) that factorised AR cannot. Trained on real against own blocks, it learns the collapse signal directly. It fills the empty `selection` node. | Needs on-policy negatives (sampling cost). Energy hacking. N× generation cost. Close to an R1-style rule residual if built on hand features. | Lifts #5, partly #4 (trained on own samples) |
+
+The row head is not where F1 or F2 live. The only head question worth Mac time is the zero-initialised 625-way residual screen (about 20 min, teacher-forced NLL), and only if X2 finds F3 local.
+
+### 4. Generation paradigm
+
+| Paradigm | Global consistency | Causal / real-time | Training cost | Rows |
+|---|---|---|---|---|
+| **Row-by-row autoregressive (current)** | Only through the inputs (θ, anchor) | Ideal: no lookahead, 1.5-8.7 ms per row against a ≥ 69 ms budget (M) | Warm start | Keeps #4, #5 |
+| **Block-autoregressive (64 rows given the past)** | Allows N-sample selection or reranking per block, and a per-block latent or plan token | Needs a lookahead of about 6.6-13.5 s (64 rows) and N× compute (fits: 4 × 64 × ~5 ms ≈ 1.3 s per 6.6 s block) | Within-block AR reuses R2 (warm); the critic is small | Lifts #5; #7 with block latents |
+| **Masked / iterative refinement or discrete diffusion over a window** | Bidirectional inside the window; revises uncommitted rows; **exactly the local-edit shape** (fixed past and future) | Fits with lookahead ≥ W (W = 64, 8 steps ≈ 8 window passes). Absorption across windows remains, so it still needs θ for F2. | **From scratch** (masked objective), about 8-10 Mac-hours. Legality is hard: holds and releases are a sequential state, so it needs constrained decoding or an LN representation as head plus length (which would also lift #9). | Lifts #5; #9 if re-represented; serves `local-edit` |
+| **Whole-song non-autoregressive** | Best: repeats, choruses, implicit plan | **Violates the standing constraint** "chart decisions and publication stay causal" (RESEARCH.md, Vision) unless the human relaxes it. Also cannot respond to a player in the practice scenario. | From scratch, highest; legality repair over the whole song | Lifts #1, #5, #7; adds a constraint violation |
+
+### 5. What enters the bake-off, at what cost, and how it is compared
+
+**Tonight (unchanged core): B0, B1, B2, B3.**
+- Optional **B4, two-rate encoder.** A zero-initialised slow path: a GRU over the 64-row TCN landmark states, plus the same history dropout as B2. No hand-built statistics.
+- B4 against B2 tests a learned anchor against a hand-built one, with everything else equal: warm start from 56M, schedule, draw seed, panel, gap-closure rule G and guards.
+- Cost: 1.25 h of training plus about 1.1 process-hours of evaluation. That makes the night about 7-7.5 h serial, so add B4 only if the first 10 minutes show that two trainings can run in parallel at ≥ 0.8× speed each.
+- Early failure sign: the slow-path output weights are still near zero at 2M exposures.
+
+**Round two, in priority order:**
+1. **θ plus a residual z (CVAE, free bits 4-8 nats per chart, decoder history dropout) on the night-1 winner.** Run it only if regime C remains.
+   - Cost: 1.5-2 h warm plus 1.1 h of evaluation.
+   - Fair control: the winner continued for the same hours with no z.
+2. **Block reranking with a learned critic** (real against own 64-row blocks, conditioned on the running chart statistics) on the winner.
+   - Cost: critic about 0.5 h; evaluation about 4.4 process-hours on the full panel, or 1.5 on 1 seed.
+   - Fair comparison: same training hours. Report generation compute separately, with a guard of ≤ 20 ms per row at k = 3,000 on 1 thread including the N×.
+   - Compare against plain sampling and against training-free S5 (the hand-built Φ critic) to show what learning adds.
+3. **Encoder family swap (LRU/S4 or a hierarchical encoder with block attention).** Only if B3 passes while regime C or F3 (X2 local) remains.
+   - This cannot be compared fairly against warm-started arms, which inherit about 10 Mac-hours.
+   - Protocol: train a TCN and the candidate **both from scratch**, with the winner's inputs and recipe and whole-chart scoring, at equal Mac-hours (about 3.5-4 h each, one night for the pair). Compare with G, fit_dev NLL and the latency guard.
+   - I would not include a full-attention transformer: 5.5× the training cost for a benefit on F2 the evidence argues against.
+4. **Masked-window refinement:** a separate track for the section-regeneration scenario, about 8-10 Mac-hours from scratch. It is not a remedy for collapse and is not a bake-off arm.
+5. **625-way head residual:** a 20-minute screen, not an arm. It goes ahead only on a gain of ≥ 3 millinats against B1 and an X2 local verdict.
+
+Two enabling changes, not arms. They are family-neutral and change cost, not the model's function:
+- incremental sampler state, which removes the k-term (5 ms per step at k = 2,000);
+- whole-chart scoring in training.
+
+----- END addendum -----
