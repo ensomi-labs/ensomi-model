@@ -161,3 +161,9 @@ f. Which of your earlier critiques of the current plan still hold, and which fal
 - **Simplification for the pilot:** the counterfactual teacher (budget allocation plus a one-dimensional η solve over 15 costs) is already a complete controller with no parameters. Evaluating it directly, before training a network to imitate it, tests the proxy and the actuator at almost no cost; a learned controller earns its place only if outcome training beats the analytic one.
 - **Compute:** the estimates use our measured rates and are plausible; short scopes are cheaper than the 60 s pipeline but anchors late in long charts pay prefix replay (about 400 decisions/s) and the slower sampler.
 - **For the human:** (1) confirm the reading of "skeleton-derived" and a skeleton-relative request r; (2) attack-only v1, or osu!'s hold terms from the start; (3) who judges the 40-60 pair blinded screen; (4) whether to start C0 now, while phase N finishes: proxy module and mechanical tests, the natural r distribution per scope length on fit_dev, and a fixed-η plus analytic-controller scan on the phase-N checkpoint (no training).
+
+<a id="d-strain-proxy-v1"></a>**Decisions (human, 2026-10-07, answers to the agent's four questions, [private, local](private/human-inputs/b87b7677-58c6-4a19-875a-6ccd15205a4f.md#answer-2)).**
+1. **Skeleton-relative request confirmed:** Astra's reading of "skeleton-derived" ([a-astra-strain-proxy](#a-astra-strain-proxy)) and the request r = sqrt(W/W_H), on the ground that the skeleton is supplied for now.
+2. **Proxy v1 counts attacks only:** no osu!mania hold terms in the first metric version.
+3. **Blind comparisons:** judged by the human and Astra with the beatmap-lens harness on bings-mac; the needed comparison pairs go to the mac, where they are rendered and inspected.
+4. **C0 starts,** run by the human and Astra; this main session closed after the handoff ([handoff-20261007-phasec](handoff-20261007-phasec.md)).
