@@ -167,3 +167,12 @@ rise at the end.
   Phase C's frozen base is therefore undecided. The choice is the human's: decode-time masks on a chosen
   checkpoint ([p-min-hold-mask](decoding-stage.md#p-min-hold-mask)), a minimum hold in the action contract and a
   retrained phase N, or a relaxed guard.
+
+<a id="d-phasen-base-mask"></a>**Decision (human, 2026-10-07, answer to the agent's question, [private, local](private/human-inputs/31d15d7a-049a-4750-95a5-fab3de17f164.md#answer-1)): mask at decoding.**
+Take `ckpt-0048000198.pt` (lowest NLL, passes guards (i) and (iii)) and add a 60 ms minimum-hold mask to sampling,
+on both the pointer candidates and the row codes. Then measure guard (iv) again on free runs. Agent reading: 48M
+is the provisional phase-C base only if the mask brings guard (iv) within its limits. If it does not, the next step
+is to propose retraining with the minimum hold in the action contract, not to launch it unasked. Delegated to
+Astra job `20261007-082909-r2-minhold-alloc` (part A; outputs `artifacts/r2-minhold-20261007/` on bings-mac;
+brief in `~/ensomi/.sync/cp/jobs/20261007-082909-r2-minhold-alloc/brief.md`). The brief does not touch the 1-40 ms
+release rate beyond measuring it, overall and by star band.
