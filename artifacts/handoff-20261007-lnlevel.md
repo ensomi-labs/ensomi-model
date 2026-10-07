@@ -97,3 +97,32 @@ Nothing else is running: no Claude subagent, and no training (phase N finished a
    judgments.
 5. Open design point, not raised with the human yet: a whole-song LN-level input in phase N overlaps with phase C's
    LN-share request. Decide how a scoped LN request composes with the chart-level level.
+
+## Update at the final closeout (13:55 UTC)
+
+- **Blind-screen judgments are done, not scored.** Both sheets are on bings-mac in
+  `artifacts/r2-phasec-c0-20261007/screen/`:
+  - `human-judgments.csv`: the human's, 48 rows;
+  - `judge-sheet.csv`: Astra's, 48 rows with long notes; its batch files and evidence are in `screen/review/`.
+  Score them against `KEY-sealed.json` as in [p-c0-judging](r2-phasec-c0-20261007.md#p-c0-judging):
+  - per category, the agreement of each judge with the direction of r;
+  - inter-judge agreement;
+  - "same" on the near-equal controls;
+  - the notes coded by cause (attacks against holds and reading).
+  Caveat: Astra judged inside `screen/`, next to the key, not in a key-free copy. Check its job transcript or
+  `screen/review/` evidence for any read of `KEY-sealed.json` before trusting its sheet as blind. The human's first
+  notes already flag an unplayable side (pair-002 B), which bears on playability, not only on difficulty.
+- **The Astra job `20261007-123218-r2-guard-lnlevel` was still running at 13:51 UTC (79 min).** Its last steps
+  were calibration and forecast work. The next steps above apply unchanged: review, commit, and record the
+  selection rerun. The LN-level code is diagnostic only.
+- **The hint-free LN investigation (fresh Opus subagent) was asked to stop and write a partial report**, to this
+  session's scratchpad `ln-level-dynamics-report.md` and to `~/ensomi/.sync/cp/scratch/r2-ln-level/report-partial.md`.
+  Its mac outputs are in `artifacts/r2-ln-level-20261007/`. Whether it wrote the report is stated below if
+  confirmed; otherwise look for these files first and rerun from
+  [q-lnlen-hintfree](r2-phasen-and-lens-20261006.md#q-lnlen-hintfree) if absent.
+- **Next session, in order:**
+  1. Score the blind screen.
+  2. Review Astra's guard and LN-level job and commit.
+  3. Read the investigation report, or rerun it.
+  4. Decide the hint-free LN remedy with the human.
+  5. Phase C stays on hold until a phase-N base is selected.
