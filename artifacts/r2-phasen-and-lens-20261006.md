@@ -281,3 +281,14 @@ The 16-chart selection panel's own sources are at 5.8%: one 5.1-star chart has 1
 - Not established: the causal step. The prefix contrast is observational: the prefix carries the LN level and also
   the rest of the chart's style. Also open is whether band-5 near-head releases stay above the corpus rate once the
   level is right. That cell is 4.3% against 2.4% on the random panel, from 20 events.
+
+<a id="d-lnlen-next"></a>**Decisions (human, 2026-10-07, answers to the agent's three questions, [private, local](private/human-inputs/31d15d7a-049a-4750-95a5-fab3de17f164.md#answer-3)).**
+1. **A fine-tune test first.** Add a whole-song LN-level input to phase N: zero-initialised, dropped out to
+   "unknown" in training, and drawn from a data prior when generating from scratch. Fine-tune from 48M for about
+   8-16M exposures. A full retrain follows only if the test works.
+2. **Correct guard (iv).** Per-star-band reference rates from fit_train; only holds the model made count;
+   a short hold is under 60 ms (strict); a whole-song LN-drift check is added. Then rerun selection on phase N.
+   The tolerances are the agent's proposal and remain revisable.
+3. **The 60 ms decode mask is off by default.** The option stays in code. This withdraws the mask premise of
+   [d-phasen-base-mask](#d-phasen-base-mask). Whether 48M becomes phase C's base waits on the corrected selection
+   and the fine-tune.
