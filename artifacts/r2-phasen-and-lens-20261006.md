@@ -391,3 +391,15 @@ for a deeper cause.
 <a id="c-lnlen-cause-revised"></a>**Corrections to earlier readings (2026-10-07, from [o-lnlen-hintfree](#o-lnlen-hintfree)).** The original text of [o-lnlen-cause](#o-lnlen-cause) and the partial report stays as written.
 - "Amplified by the model's own history" ([o-lnlen-cause](#o-lnlen-cause)): the +41-78% own-history LN-birth excess compared a run with its *source* chart. That is a difference of level between run and source. At matched history the model does not over-respond. The level wanders instead of being amplified.
 - "SD ratio 0.43" ([r2-ln-level-20261007-partial](r2-ln-level-20261007-partial.md)) is the SD of seed-averaged levels on the 16 panel charts. Single runs on 116 skeletons give 0.77-1.00. The failure is the per-band shape and the holding, not a uniformly compressed draw.
+
+<a id="d-lnlevel-ft"></a>**Decision (human, 2026-10-07 about 15:20 UTC, [private, local](private/human-inputs/022ac2c4-6b2a-4347-9894-9f142365340e.md#answer-3)): fine-tune with a share and a length channel.**
+- Order:
+  1. Review and commit Astra job [r-guard-lnlevel-job](#r-guard-lnlevel-job).
+  2. A new Astra job adds a length channel to `ln_level`: the median LN length in beats, drawn jointly with the share from the same prior chart.
+  3. Review that code.
+  4. Run the 12M fine-tune from 48M.
+- Evaluation:
+  - prior mode, on per-band share and length scorecards (`lnlength.py`);
+  - a fixed-level sweep and one oracle pass, for obedience;
+  - the confirm and refute criteria of [r2-ln-level-20261007](r2-ln-level-20261007.md) section 8.1.
+- The prior (band × density tercile, or the skeleton-neighbour upgrade) is used only at sampling, so it can change without retraining.
