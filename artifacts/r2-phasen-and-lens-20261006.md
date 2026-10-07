@@ -198,3 +198,29 @@ releasing early. Sent to the running subagent of [q-ln-length](#q-ln-length) as 
 2. the same hazard on the model's own free-run history;
 3. hold-length survival curves;
 4. from the code: whether the row decision sees the hold's age, and how keep decisions are weighted in the loss.
+
+<a id="o-minhold-mask"></a>**Observation, 2026-10-07: the 60 ms minimum-hold mask removes generated short holds, but 48M still fails guard (iv) on near-head releases** (Astra job `20261007-082909-r2-minhold-alloc`, part A; code committed as `ensomi-model` `01aacba`; report `artifacts/r2-minhold-20261007/report.md` on bings-mac; final message `~/ensomi/.sync/mac/jobs/20261007-082909-r2-minhold-alloc/last.md`; read by the main thread).
+- With the mask off, the evaluator reproduced the numbers in `evals.jsonl` exactly, and sampling stayed
+  byte-identical. Each arm has 96 legal runs and 71,022 generated decisions. The fallback never fired.
+
+  | Arm | holds ≤ 60 ms | releases 1-40 ms before a head (source 0.42%) | guard (i) mean diff |
+  | --- | ---: | ---: | ---: |
+  | 48M, no mask | 1.88% | 2.45% | -3.2 pp |
+  | 48M, 60 ms mask | 0.40% | 1.63% | -2.4 pp |
+  | 64M, no mask | 1.35% | 1.57% | +1.7 pp |
+  | 64M, 60 ms mask | 0.34% | 1.38% | +0.9 pp |
+
+- With the mask, the generated part has no short holds at all. The remaining 0.34-0.40% are holds inside the
+  fixed source prefixes of the prefix-natural panel. **The cache's source charts do contain short holds: 179 in
+  the evaluated cache.** The notes' "real charts have no holds ≤ 60 ms" is therefore wrong for the cache, or
+  true only after some filter. The native `.osu` files were not rechecked.
+- Near-head releases by star band, source / 48M no mask / 48M masked: band 2 0.11 / 0.53 / 0.49%; band 3 0.00 /
+  0.28 / 0.25%; band 4 0.14 / 0.38 / 0.33%; band 5 1.75 / 9.55 / 6.26%. The excess is 2-5× in every band. Band 5
+  carries most of it in absolute terms.
+- LN share overshoots the source (14.6% pooled): 17.9% at 48M and 22.5% at 64M. Natural-from-BOS runs exceed the
+  source by +4.6 pp at 48M and +9.9 pp at 64M, so LN share grows with training. Guard (i), on the prefix panel,
+  still passes.
+- Against the decision [d-phasen-base-mask](#d-phasen-base-mask): 48M with the mask fails guard (iv) by 1.2 pp
+  on the near-head-release part (365 events against at most 94 allowed). Per the agent's reading of that
+  decision, the next step is a proposal to the human, not a launch. The cause investigation
+  ([q-ln-length](#q-ln-length)) is still running.
