@@ -67,12 +67,13 @@ _Review: agent draft of 2026-09-30, not yet reviewed. The whole map, its edges a
 
 ## Current movement
 
-**Redirected 2026-10-07 16:05 UTC (human):** the primary problem is pattern collapse in long-range self-generation by the natural model; controls are a separate, later problem; tonight's runs are stopped. A three-agent formalisation and diagnosis returned ([o-collapse-reports](artifacts/r2-collapse-20261007.md#o-collapse-reports)). It found three components, a band-biased start draw, no holding of chart identity, and weaker local organisation, plus proposed core questions and experiments for discussion ([r2-collapse-synthesis-20261007](artifacts/r2-collapse-synthesis-20261007.md)). Design round done (Fable and Opus, with network-family addenda); proposed system bake-off for review: [r2-bakeoff-plan-20261007](artifacts/r2-bakeoff-plan-20261007.md). Next:
-  - scoring X0: the human finished the review, and the sheet is at `artifacts/r2-collapse-20261007/phase0-astra/x0-human/judge-sheet-human.csv` on bings-mac ([r-x0-done](artifacts/r2-collapse-20261007.md#r-x0-done));
-  - running X1's 2-minute analysis (X3 is done: θ must be drawn per chart, [o-x3-skeleton-theta](artifacts/r2-collapse-20261007.md#o-x3-skeleton-theta));
-  - the human's decision on the bake-off.
+**Redirected 2026-10-07 16:05 UTC (human):** the primary problem is pattern collapse in long-range self-generation by the natural model; controls are a separate, later problem; tonight's runs are stopped. A three-agent formalisation and diagnosis returned ([o-collapse-reports](artifacts/r2-collapse-20261007.md#o-collapse-reports)). It found three components, a band-biased start draw, no holding of chart identity, and weaker local organisation, plus proposed core questions and experiments for discussion ([r2-collapse-synthesis-20261007](artifacts/r2-collapse-synthesis-20261007.md)). Design round done (Fable and Opus, with network-family addenda); system bake-off plan: [r2-bakeoff-plan-20261007](artifacts/r2-bakeoff-plan-20261007.md). X3 is done: θ must be drawn per chart ([o-x3-skeleton-theta](artifacts/r2-collapse-20261007.md#o-x3-skeleton-theta)).
 
-  Where everything is: [handoff-20261007-collapse](artifacts/handoff-20261007-collapse.md). The items below are kept as context; their night plan is withdrawn.
+  **Night of 2026-10-07, decided by the human ([d-bakeoff-night](artifacts/r2-bakeoff-night-20261007.md#d-bakeoff-night)):** round 1 is being built (B1-B3, the enablers, and a decode-time selection arm `d0` for the local defects the human marked in X0). A fresh Opus subagent checks the code, then the night starts without waiting for the human. In progress:
+  - X0 scoring and X1 analysis ([r-x0-scoring](artifacts/r2-bakeoff-night-20261007.md#r-x0-scoring)). The agent's first read of the human's sheet suggests the marked collapse is mostly early local organisation, not identity lost past 511 rows ([o-x0-first-read](artifacts/r2-bakeoff-night-20261007.md#o-x0-first-read), unscored);
+  - Astra's build ([r-bakeoff-build](artifacts/r2-bakeoff-night-20261007.md#r-bakeoff-build)).
+
+  Earlier handoff: [handoff-20261007-collapse](artifacts/handoff-20261007-collapse.md). The items below are kept as context; their night plan is withdrawn.
 
 Focus, set by the human on 2026-10-06 ([private, local](artifacts/private/human-inputs/da66cd9e-81c2-4ad1-a989-4fe6ef7c81fe.md#prompt-6)):
 
