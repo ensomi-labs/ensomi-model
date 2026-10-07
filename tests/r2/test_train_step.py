@@ -13,6 +13,9 @@ import torch
 from ensomi_model.r2.common import ContractError
 from ensomi_model.r2.train_ce import Trainer, TrainConfig, build_corpus
 
+from .helpers import tiny_model
+from .locality_fixture import fixture_chart
+
 CACHE = Path('artifacts/r2-cache/v1')
 
 
@@ -113,3 +116,24 @@ def test_nonfinite_loss_reloads_skips_halves_and_stops_after_three(tmp_path):
     assert [e['lr_mult'] for e in bad] == [0.5, 0.25, 0.125]
     assert trainer.state['lr_mult'] == 0.25 and trainer.state['nan_events'] == 2
     assert all(i in trainer.state['skip'] for e in bad[:2] for i in e['windows'])
+
+
+def test_checkpointed_temporal_blocks_change_memory_only():
+    """Recomputing the TCN blocks in backward gives the same log-probabilities and the same gradient
+    for every parameter as keeping their activations."""
+    chart = fixture_chart()
+    runs = []
+    for flag in (False, True):
+        model = tiny_model(checkpoint_temporal=flag)
+        out = model.window(chart, 0, chart.K + 1)
+        (-(out.action.sum() + out.release.sum())).backward()
+        runs.append((out, {name: p.grad for name, p in model.named_parameters()}))
+    (plain, plain_grads), (recomputed, recomputed_grads) = runs
+    assert torch.equal(plain.action, recomputed.action) and torch.equal(plain.release, recomputed.release)
+    assert plain_grads.keys() == recomputed_grads.keys()
+    for name, grad in plain_grads.items():
+        other = recomputed_grads[name]
+        assert (grad is None) == (other is None), name
+        assert grad is None or torch.equal(grad, other), name
+    assert any(float(g.abs().sum()) > 0 for name, g in recomputed_grads.items()
+               if name.startswith('temporal.blocks') and g is not None)

@@ -42,6 +42,7 @@ class R2Config:
     conditioner: str = 'film'      # 'film' | 'tokens' (a lead-in form; needs token_lead_in)
     code_dim: int = 8
     candidate_budget: int = 8192
+    checkpoint_temporal: bool = True  # recompute TCN block activations in backward: memory only, same values
     max_parameters: int = MAX_PARAMETERS
     rule_l: bool = True            # False: test power checks and v1 reproduction only
     birth_role: bool = False       # True: v1's birth-role frame; test power checks and v1 reproduction only
@@ -265,7 +266,7 @@ class R2Model(nn.Module):
         if N <= 0:
             return None
         raw = self._t(history_tokens(chart, N))
-        return self.temporal(raw[None])[0]
+        return self.temporal(raw[None], checkpoint=self.config.checkpoint_temporal)[0]
 
     def window_hands(self, chart: Chart, ks, track=(), vis=None):
         ks = np.asarray(ks)

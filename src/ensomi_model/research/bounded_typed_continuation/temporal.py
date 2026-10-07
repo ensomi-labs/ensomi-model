@@ -11,6 +11,7 @@ from dataclasses import dataclass
 import torch
 from torch import Tensor, nn
 from torch.nn import functional as F
+from torch.utils.checkpoint import checkpoint as recompute
 
 from ..chart.dataset import ContractError
 
@@ -90,6 +91,10 @@ class FiniteTemporal(nn.Module):
     outside each sample's contiguous materialized sequence, never an internal
     stand-in for a skipped candidate. Cache use is inference-only and bound to
     one parameter identity/version. Durable recovery should re-encode raw rows.
+
+    ``checkpoint`` (with gradients on) keeps only each block's input for backward
+    and recomputes the block there: the same values and gradients for a fraction
+    of the activation memory, at one extra forward of the blocks.
     """
     def __init__(self, config: TemporalConfig):
         super().__init__()
@@ -101,7 +106,7 @@ class FiniteTemporal(nn.Module):
     def signature(self):
         return tuple((id(p), p._version, str(p.device), p.dtype) for p in self.parameters())
 
-    def forward(self, raw: Tensor, valid: Tensor | None = None):
+    def forward(self, raw: Tensor, valid: Tensor | None = None, *, checkpoint: bool = False):
         if raw.ndim != 4 or raw.shape[2:] != (2, self.config.input_dim) or raw.shape[1] == 0:
             raise ContractError('Dense history requires nonempty [B,T,2,input_dim] content')
         if valid is None:
@@ -116,7 +121,10 @@ class FiniteTemporal(nn.Module):
         values = pointwise(self.input, raw).permute(0, 2, 1, 3).reshape(2 * batch, rows, self.config.hidden)
         values = values * mask[..., None]
         for block in self.blocks:
-            values = block(values, mask)
+            if checkpoint and torch.is_grad_enabled():
+                values = recompute(block, values, mask, use_reentrant=False)
+            else:
+                values = block(values, mask)
         return values.reshape(batch, 2, rows, self.config.hidden).permute(0, 2, 1, 3).contiguous()
 
     def before(self, content: Tensor, valid: Tensor, *, truncated_start: Tensor):

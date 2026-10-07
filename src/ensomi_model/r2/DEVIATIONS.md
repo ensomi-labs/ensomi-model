@@ -61,3 +61,12 @@ nearest faithful version that was built and the reason.
    (fit_dev manifest ~2 s, twelve free-runs ~16 s) and 28 MB of disk, i.e. about 25 %
    overhead and ~1,000 checkpoints (~30 GB) in 20 hours. `checkpoint_every` is a config value;
    the tuning agent should set it from the pilot and record the change.
+
+10. **The TCN is activation-checkpointed per block in training** (`R2Config.checkpoint_temporal`,
+    on by default). A window's history is the whole chart prefix up to its end, so the
+    activations kept for backward grow with the prefix: about 0.14 GiB per 1,000 positions,
+    4.8 GiB for a window ending the longest fit_train chart (K = 43,661). Those transient peaks
+    tripped the 2 GiB RSS growth guard eight times in run `r2-phaseN-20261006`. Recomputing each
+    block in backward gives the same values and gradients (`test_train_step.py`), keeps
+    1.9 GiB at that length, and costs one extra forward of the blocks. Runs launched before
+    the change keep their frozen code.
