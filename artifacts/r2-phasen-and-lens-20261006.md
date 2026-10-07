@@ -417,3 +417,18 @@ for a deeper cause.
 - **Scheduling.** Code is written now. The runs chain without a human check tonight, at the human's request. The usual practice is that the human checks before a run.
 - **Astra.** The next Astra jobs use the fast service tier.
 - **No invented settings.** Any setting that the plan materials do not fix is listed in the job reports.
+
+<a id="o-selection-v2"></a>**Observation, 2026-10-07: the corrected selection picks 56M** (Astra job `20261007-123218-r2-guard-lnlevel`, code `827e306`; report `artifacts/r2-guard-v2-20261007/report.md` on bings-mac; final message read by the main thread, table not re-derived).
+- Guard (iv) v2 counts only model-made holds, a short hold is strictly under 60 ms, references are per band, and the ratios must be at most 1.25. Guard (v) bounds |drift| at 0.05. All seven regenerated checkpoint totals match `evals.jsonl`.
+- 56M passes everything: (iv) 0.454 / 0.746, (v) +0.034.
+- 24M also passes but lies outside the two-SE NLL plateau.
+- 48M fails (iv) on near-head releases (1.355), as do 32M (1.389 / 3.016) and others; 16M, 40M and 64M fail (v).
+- Per band, the band-2 near-head ratio is 12-14 at 48M and 64M (diagnostic).
+- `ln_level` smoke, 0.2M exposures from 48M:
+  - training runs at 14.45 min per million exposures;
+  - a three-mode full evaluation takes 116 min;
+  - oracle and prior modes pass all guards; unknown fails the near-head check (1.56).
+
+<a id="d-base-56m"></a>**Decision (human, 2026-10-07 about 15:25 UTC, [private, local](private/human-inputs/022ac2c4-6b2a-4347-9894-9f142365340e.md#answer-5)): tonight's fine-tune starts from 56M, the selected checkpoint.** It replaces "from 48M" in [d-lnlevel-ft](#d-lnlevel-ft) and [d-night-20261007](#d-night-20261007), and the difficulty pilot uses the fine-tune as its base.
+- Main-thread choice, not a human decision: no full free-run evaluation inside the training run, for wall time. Astra estimated 8 h 40 min with three full evaluations. The chain evaluates the final checkpoint instead.
+- Delegated: Astra job `20261007-151553-r2-lnlevel-length` (fast tier) adds the length channel; brief in `~/ensomi/.sync/cp/jobs/20261007-151553-r2-lnlevel-length/brief.md`.
