@@ -67,6 +67,8 @@ _Review: agent draft of 2026-09-30, not yet reviewed. The whole map, its edges a
 
 ## Current movement
 
+**Redirected 2026-10-07 16:05 UTC (human):** the primary problem is pattern collapse in long-range self-generation by the natural model; controls are a separate, later problem; tonight's runs are stopped. A three-agent formalisation and diagnosis is running ([d-collapse-primary](artifacts/r2-collapse-20261007.md#d-collapse-primary)). The items below are kept as context; their night plan is withdrawn.
+
 Focus, set by the human on 2026-10-06 ([private, local](artifacts/private/human-inputs/da66cd9e-81c2-4ad1-a989-4fe6ef7c81fe.md#prompt-6)):
 
 1. **Finish R2 v2 phase N and phase C** (`proposal`, `control`).
