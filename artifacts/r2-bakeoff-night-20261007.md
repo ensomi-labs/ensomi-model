@@ -75,3 +75,12 @@ Question material for the first system comparison on the collapse problem ([r2-c
 - Asked for: a formal statement and a cheap test of the assumption; at least three stateful scores (HMM, linear-chain CRF, semi-Markov or explicit-duration), with what each sees, what it is fitted on, cost and decomposition; whole-sequence search (rerank, SMC with twisting, beam); reward-hacking safeguards; a human blind-screen protocol built on whole-song calls; and one recommended experiment with a fixed pass/fail rule.
 - Probes on existing runs only, with 1 mac process; no generation while the night runs.
 - Reports: `~/ensomi/.sync/cp/scratch/r2-decode/{fable,opus}/report.md`.
+
+<a id="r-bakeoff-built"></a>**Astra's build ended, 2026-10-07 about 18:58 UTC, exit 0. Not committed, not launched** (job `20261007-181225-r2-bakeoff-build`; handoff `artifacts/r2-bakeoff-20261007/reports/build-handoff.md`, mirrored).
+- Changed: `data.py`, `features.py`, `model.py`, `sampling.py`, `generate.py`, `train_ce.py`. Added: the θ, collapse-evaluation, panel and `d0` modules, three arm configs, six test files and `night.sh`.
+- Tests: 352 passed, 4 skipped (Astra's count).
+- Sampler at k ≈ 2,000: 6.89 → 1.44 ms per step. The output matched byte for byte on 3 cached charts × BOS and prefix × 600 rows.
+- Throughput in exposures per second, with `total_exposures` set for 4,500 s: B1 2,665 (12.0M), B2 2,963 (13.3M), B3 2,964 (13.3M). History dropout makes B2 and B3 faster.
+- The anchor has 13 named channels.
+- Panel: band 3 has only 24 eligible groups at K ≥ 1,500 after the X0 exclusions. Main-thread choice: keep the threshold, so 99 charts.
+- Pre-launch check: a fresh Opus subagent from about 19:01 UTC (brief `~/ensomi/.sync/cp/scratch/r2-bakeoff/brief-opus-review.md`, which adds the two `d0` variants and the m1-m7 subset).
