@@ -133,3 +133,37 @@ Whether to start the phase-N run now was raised as a "maybe"; the main thread as
 <a id="d-page-published"></a>**Decision (human, 2026-10-06, [private, local](private/human-inputs/da66cd9e-81c2-4ad1-a989-4fe6ef7c81fe.md#prompt-7)): the architecture page is published on claude.ai as it stands.** The earlier local-only rule for this page is lifted. Link: https://claude.ai/artifact/Tsmjq6BYdrwMevfVjJcStm. It is private until shared from its Share menu. The local file stays the source; republishing it keeps the link.
 
 <a id="r-page-hosted"></a>**Record, 2026-10-06.** The claude.ai copy could not be made public from here. The human published the page on their own site (Cloudflare) at https://research.sed-i.org/r2-architecture; that is the link given to Lele Liu. The local file stays the source; updating the site is the human's step.
+
+<a id="o-phasen-finished"></a>**Observation, 2026-10-07: the phase-N run finished (main thread, from `run.json`, `events.jsonl`, `evals.jsonl` on bings-mac).**
+Ended 08:18 UTC at 64,000,573 exposures, exit 0 (`supervisor_done`), with no stop since the 03:41 resume. 8 restarts in
+all, no NaN events, 1,820 decisions/s over the whole wall time. fit_dev natural-manifest NLL per decision by full-eval
+checkpoint: 2.130 (24M), 2.089 (32M), 2.071 (40M), **2.070 (48M)**, 2.075 (56M), 2.084 (64M), flat from 40M with a slight
+rise at the end.
+
+<a id="o-phasen-no-selection"></a>**Observation, 2026-10-07: `select.py` selects no phase-N checkpoint; every candidate fails guard (iv)** (ens job
+`20261007-082126-r2-phaseN-select`, `select.py` at `7985cf9`; phase-N guards are legal, (i), (iii), (iv)).
+- Guard (iv) has two parts: holds ≤ 60 ms at most 0.5% of holds, and releases 1-40 ms before another head at most the
+  source panel's rate (0.42%). Values at the full-eval checkpoints:
+
+  | Checkpoint | holds ≤ 60 ms | releases 1-40 ms before a head | (i) | (iii) |
+  | --- | ---: | ---: | --- | --- |
+  | 16M | 2.7% | 1.2% | fail | pass |
+  | 24M | 1.4% | 1.3% | pass | pass |
+  | 32M | 4.4% | 5.2% | pass | pass |
+  | 40M | 3.0% | 1.5% | pass | pass |
+  | 48M | 1.9% | 2.5% | pass | pass |
+  | 56M | 2.0% | 1.2% | pass | pass |
+  | 64M | 1.4% | 1.6% | pass | pass |
+
+  Both parts fail at every checkpoint, by 3-9× on short holds and 2-12× on near-head releases. No downward trend
+  after 24M. Real charts have no holds of 60 ms or less ([decoding-stage](decoding-stage.md#p-min-hold-mask)). The
+  same defect class appeared at 1-3% under R2 v1's guidance and count feedback
+  ([r2-analysis-fable-judgment](r2-analysis-fable-judgment.md)); here it appears with no request at all.
+- **Diagnostic, not the rule:** with guard (iv) dropped, the rule would select `ckpt-0048000198.pt` (3-checkpoint
+  mean NLL 2.0722, the minimum; ens job `20261007-082229-r2-phaseN-select-noiv`, scratch script
+  `~/ensomi/.sync/cp/scratch/r2-phaseN-select-noiv.py`). The C0 measurements used `ckpt-0052000205.pt`, which had no
+  full evaluation.
+- This is the redirect condition in `RESEARCH.md` ("a selected phase-N checkpoint that fails its natural guards").
+  Phase C's frozen base is therefore undecided. The choice is the human's: decode-time masks on a chosen
+  checkpoint ([p-min-hold-mask](decoding-stage.md#p-min-hold-mask)), a minimum hold in the action contract and a
+  retrained phase N, or a relaxed guard.
