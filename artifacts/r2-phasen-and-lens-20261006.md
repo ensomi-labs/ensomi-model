@@ -292,3 +292,19 @@ The 16-chart selection panel's own sources are at 5.8%: one 5.1-star chart has 1
 3. **The 60 ms decode mask is off by default.** The option stays in code. This withdraws the mask premise of
    [d-phasen-base-mask](#d-phasen-base-mask). Whether 48M becomes phase C's base waits on the corrected selection
    and the fine-tune.
+
+<a id="r-guard-lnlevel-job"></a>**Delegated 2026-10-07 12:32 UTC: Astra job `20261007-123218-r2-guard-lnlevel`** (`--rw`; brief in `~/ensomi/.sync/cp/jobs/20261007-123218-r2-guard-lnlevel/brief.md`). It implements [d-lnlen-next](#d-lnlen-next) items 1 and 2.
+- **Part A, the corrected guard.**
+  - Guard (iv) v2: only model-made holds count; a short hold is under 60 ms (strict); per-band references
+    from fit_train. For each part, the observed count may be at most 1.25 × the band-expected count.
+  - Guard (v): |mean first-to-last-third LN-share drift| ≤ 0.05 over `natural_bos`.
+  - The 1.25 and 0.05 are agent choices, revisable.
+  - Selection is rerun on the regenerated natural panels of 16M-64M.
+- **Part B, the LN-level input (code and a smoke run only).**
+  - A flag `ln_level`: query channels for a known bit and the whole-song LN share, zero-initialised.
+  - Training dropout to "unknown" with probability 0.3.
+  - A strict phase-N `warm_start` from 48M.
+  - A fit_train prior P(level | band, density tercile), and level modes unknown, oracle, prior and fixed in
+    sampling and evaluation.
+  - Config `ce_v2_n_lnlevel_ft.json`: 12M exposures, peak lr 1e-4 cosine to 3e-5, full evaluation every 4M.
+  - The main thread launches the fine-tune after reviewing the code.
