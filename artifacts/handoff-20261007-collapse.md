@@ -13,7 +13,8 @@ For the next main session. Start with `RESEARCH.md`, then [r2-collapse-20261007]
 
 ## Unfinished at closeout
 
-- **X0, human review.** The pack is ready on bings-mac at `artifacts/r2-collapse-20261007/phase0-astra/x0/`. Start the server with `.venv/bin/python artifacts/r2-collapse-20261007/phase0-astra/x0/serve.py --port 8766` from `~/ensomi/ensomi-model`, then open `http://127.0.0.1:8766/review/`.
+- **X0: done by the human, not scored ([r-x0-done](r2-collapse-20261007.md#r-x0-done)).** The sheet is `artifacts/r2-collapse-20261007/phase0-astra/x0-human/judge-sheet-human.csv` on bings-mac; the original is in `/Users/l/Downloads/judge-sheet.csv`. Scoring X0 is the first step of the next session. The original pack notes follow:
+- **X0, human review (pack).** The pack is ready on bings-mac at `artifacts/r2-collapse-20261007/phase0-astra/x0/`. Start the server with `.venv/bin/python artifacts/r2-collapse-20261007/phase0-astra/x0/serve.py --port 8766` from `~/ensomi/ensomi-model`, then open `http://127.0.0.1:8766/review/`.
   - The human agreed to do it; about 57 minutes of audio.
   - Key: `x0-sealed/KEY.json`. Keep it from the judge until the judgments are done.
   - Then score each measure against the human's marks (window-level AUC ≥ 0.75) as in [p-collapse-experiments](r2-collapse-synthesis-20261007.md#p-collapse-experiments). The generated arrays and row-to-time maps are in `x0-sealed/`.
