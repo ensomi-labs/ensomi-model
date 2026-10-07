@@ -70,3 +70,22 @@ nearest faithful version that was built and the reason.
     block in backward gives the same values and gradients (`test_train_step.py`), keeps
     1.9 GiB at that length, and costs one extra forward of the blocks. Runs launched before
     the change keep their frozen code.
+
+11. **Optional whole-song LN-level input in phase N.** The model can receive a chart's LN
+    share before its first generated decision. Three shared query channels encode known,
+    level, and a logit clipped at 1e-6; a separate zero-initialized linear reader preserves
+    the phase-N checkpoint's function at warm start. The default off path keeps the original
+    feature and parameter shapes. Training drops the source level independently for 30% of
+    windows by default. Generation can use unknown, oracle, a fixed value, or a fit_train
+    empirical prior conditioned on star band and within-band head-row-density tercile.
+    Selection uses prior levels; oracle and unknown evaluations show the effect of supplied
+    source information. This input addresses the missing whole-song LN commitment at BOS.
+
+12. **Guard (iv) v2 and BOS drift guard (v).** Short holds use strict duration <60 ms.
+    Defect counts and denominators exclude holds closed inside copied prefixes. Each defect
+    count is compared with 1.25 times the expected count from fit_train rates in the source
+    star band, weighted by generated hold count. This replaces the fixed 0.5% short-hold cap
+    and the pooled source-panel near-head rate; original metrics and guard `iv_v1` remain
+    nonbinding diagnostics. Guard (v) additionally bounds the absolute mean BOS LN-share
+    drift from the first to last song third at 0.05. BOS/source correlation, SD ratio, and
+    dense-row LN-birth rates are reported without binding selection.

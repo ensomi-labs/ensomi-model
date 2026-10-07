@@ -20,6 +20,9 @@ from .common import HAND_LANES, ContractError, GridArrays, psi_pair
 HISTORY_DIM = 100
 LANE_QUERY_DIM = 15
 QUERY_DIM = 150
+LN_LEVEL_DIM = 3
+LN_LEVEL_MODES = ('off', 'on')
+LN_LEVEL_EPS = 1e-6
 RELATION_DIM = 28
 DENSITY_BEATS = (1, 2, 4, 8, 16, 32)
 LOOKAHEAD = 16
@@ -230,8 +233,34 @@ def lane_query(chart: Chart, ks) -> np.ndarray:
                            (~att_ok)[..., None].astype(np.float64), (~rel_ok)[..., None].astype(np.float64)), -1)
 
 
-def query_features(chart: Chart, ks) -> np.ndarray:
-    """[m,2,150] exact query features for decisions ks (EOS = K)."""
+def ln_level_features(level: float | None) -> np.ndarray:
+    """Three shared channels: known, level, logit(level); None makes all three zero.
+
+    Known levels must be finite and in [0,1]. Only the logit's argument is clipped
+    to [1e-6, 1-1e-6], preserving exact zero and one in the level channel.
+    """
+    if level is None:
+        return np.zeros(LN_LEVEL_DIM, dtype=np.float32)
+    if isinstance(level, (bool, np.bool_)) or not np.isscalar(level):
+        raise ContractError('ln_level must be a number in [0,1] or None')
+    try:
+        value = float(level)
+    except (TypeError, ValueError) as exc:
+        raise ContractError('ln_level must be a number in [0,1] or None') from exc
+    if isinstance(level, (str, bytes)) or not np.isfinite(value) or not 0.0 <= value <= 1.0:
+        raise ContractError('ln_level must be a finite number in [0,1] or None')
+    clipped = np.clip(value, LN_LEVEL_EPS, 1.0 - LN_LEVEL_EPS)
+    return np.array([1.0, value, np.log(clipped / (1.0 - clipped))], dtype=np.float32)
+
+
+def query_features(chart: Chart, ks, *, ln_level: str = 'off', level: float | None = None) -> np.ndarray:
+    """[m,2,150] query features at ks (EOS = K), or 153 with the LN-level input on.
+
+    The off path ignores ``level`` and preserves the original feature bytes.
+    The on path appends the same ``ln_level_features`` to both hand views.
+    """
+    if ln_level not in LN_LEVEL_MODES:
+        raise ContractError(f'ln_level must be one of {LN_LEVEL_MODES}')
     ks = np.asarray(ks)
     K, T = chart.K, chart.song_ms
     g = chart.grid
@@ -259,7 +288,11 @@ def query_features(chart: Chart, ks) -> np.ndarray:
     shared = np.concatenate((shared, dens, np.concatenate(ahead, -1)), -1)
     hands = [np.concatenate((lanes[:, list(order)].reshape(len(ks), 4 * LANE_QUERY_DIM), shared), -1)
              for order in HAND_LANES]
-    return np.stack(hands, 1).astype(np.float32)
+    out = np.stack(hands, 1).astype(np.float32)
+    if ln_level == 'on':
+        channels = np.broadcast_to(ln_level_features(level), out.shape[:-1] + (LN_LEVEL_DIM,))
+        out = np.concatenate((out, channels), -1)
+    return out
 
 
 # ---- conditions ---------------------------------------------------------------------------------

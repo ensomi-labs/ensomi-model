@@ -22,6 +22,7 @@ from .features import (Chart, gap_release_lanes, history_tokens, lane_query, mak
                        row_placements)
 from .state import action_support_mask, replay_decisions
 from .strain import action_head_masks
+from .ln_level import resolve_ln_level
 
 
 def _gumbel_argmax(logits: torch.Tensor, generator) -> int:
@@ -47,7 +48,8 @@ def _scope_closed(chart: Chart, k: int, a: float, b: float) -> bool:
 @torch.no_grad()
 def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_actions=None, prefix_gap=None,
                    track=(), seed: int = 954, stop: int | None = None, *, baseline=None, close_scope=None,
-                   head_mask_bias=None, min_hold_ms=None, min_hold_stats=None):
+                   head_mask_bias=None, min_hold_ms=None, min_hold_stats=None, ln_level='unknown',
+                   source_ln_level=None, ln_prior=None, star=None, ln_level_stats=None):
     """Return (actions [n,4], gap [n,4]) for decisions 0..n-1, n = stop (default through EOS).
 
     ``close_scope=(a, b)`` ends generation early, at the first decision at or after the exit
@@ -72,10 +74,24 @@ def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_acti
     ``min_hold_stats``, when supplied, accumulates integer ``decisions`` and
     ``fallbacks`` counts; decisions include generated head rows and EOS, exclude
     the supplied prefix, and count each row once regardless of release pointers.
+
+    For an LN-level-enabled model, ``ln_level`` is unknown, oracle, prior, or a
+    fixed numeric share in [0, 1]. Oracle requires ``source_ln_level``; prior
+    requires ``ln_prior`` and ``star``. Resolve once per whole song with an RNG
+    independent of action sampling and hold the value fixed through EOS.
+    ``ln_level_stats`` receives the resolved mode, value and prior provenance.
+    A disabled model ignores these inputs and keeps the original sampling path.
     """
     require_no_baseline(baseline)
     if min_hold_ms is not None and (not np.isfinite(min_hold_ms) or min_hold_ms < 0):
         raise ContractError('Minimum hold duration must be finite and nonnegative')
+    level_enabled = getattr(model.config, 'ln_level', 'off') == 'on'
+    level = None
+    if level_enabled:
+        level, level_record = resolve_ln_level(ln_level, source_ln_level=source_ln_level, ln_prior=ln_prior,
+                                               star=star, head_ms=head_ms, song_ms=song_ms, seed=seed)
+        if ln_level_stats is not None:
+            ln_level_stats.update(level_record)
     was_training = model.training
     model.eval()
     K = len(head_ms)
@@ -109,7 +125,7 @@ def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_acti
         before = temporal.read(cache).to(model.dtype)[None]
         mk = torch.stack(marks) if marks else None
         vis = torch.ones(1, len(marks), dtype=torch.bool, device=model.device) if marks else None
-        qf = model._t(query_features(chart, [k]))
+        qf = model.query_features(chart, [k], ln_level=level) if level_enabled else model._t(query_features(chart, [k]))
         z = model.hands(before, qf, mk, vis, model.row_condition(chart, track, [k]))
         mask = action_support_mask(held, k == K)
         hold_masked, fallback = False, False

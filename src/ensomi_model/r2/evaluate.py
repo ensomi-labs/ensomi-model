@@ -12,6 +12,11 @@ calibration (guard (iii)), legality, defects and G3 (c).
 ``min_hold_ms`` optionally changes only natural BOS and prefix-natural sampling;
 their records include the threshold and decision/fallback counts. Teacher-forced,
 calibration, conditioned and G3 sampling retain their existing decoding.
+``defects`` retains its original counts. ``defects_v2`` counts model-owned closures
+on natural BOS and prefix-natural panels against fit-train per-band references.
+With LN level on, all panels run in oracle, unknown and prior modes; prior supplies
+the selection panels and natural-manifest NLL. Manifest draws use seed_validation
+once per source chart. Oracle and unknown NLL remain separate diagnostics.
 Every generation writes its record (``generate.generation_record``) to ``records.jsonl``.
 All readouts go through ``properties``; random seeds are 954-956 unless stated.
 """
@@ -27,6 +32,7 @@ import torch
 
 from .common import ACTIONS
 from .data import Corpus, track_from_json
+from .defect_references import defect_summary, dense_births, load_reference, model_defects
 from .features import Chart, Interval
 from .generate import chart_seed_record, defects, generate, generation_record
 from .locality import reads, scope_decisions
@@ -199,6 +205,22 @@ class Evaluator:
         self.rng = np.random.default_rng(cfg.seed_validation)
         self._cpu = None
         self.code = None
+        self.ln_mode = 'unknown'
+        self._ln_prior = None
+
+    @property
+    def ln_enabled(self):
+        model = getattr(self, 'model', getattr(self, '_cpu', None))
+        return getattr(getattr(model, 'config', None), 'ln_level', 'off') == 'on'
+
+    def _level(self, chart, sha, seed, *, mode=None):
+        from .ln_level import EmpiricalLNPrior, PRIOR_FILE, resolve_ln_level, whole_ln_level
+        mode = self.ln_mode if mode is None else mode
+        if mode == 'prior' and self._ln_prior is None:
+            self._ln_prior = EmpiricalLNPrior.load(Path(self.cfg.cache) / PRIOR_FILE)
+        return resolve_ln_level(mode, source_ln_level=whole_ln_level(chart) if mode == 'oracle' else None,
+                                ln_prior=self._ln_prior, star=float(self.dev.table.set_index('sha256').loc[sha, 'star']),
+                                head_ms=chart.head_ms, song_ms=chart.song_ms, seed=seed)
 
     @property
     def cpu(self):
@@ -208,18 +230,36 @@ class Evaluator:
 
     # ---- teacher forced ----------------------------------------------------------------------------
 
-    def _nll(self, chart, start, stop, track):
-        out = self.model.window(chart, start, stop, track)
+    def _nll(self, chart, start, stop, track, *, ln_level=None):
+        kwargs = dict(ln_level=ln_level) if self.ln_enabled else {}
+        out = self.model.window(chart, start, stop, track, **kwargs)
         return out, (-(out.action + out.release)).double().cpu().numpy()
 
-    def natural(self):
+    def natural(self, ln_mode='unknown'):
         per = []
+        levels = {}
         for w in self.m['natural']['windows']:
             chart = self.dev.chart(w['sha256'])
-            _, ell = self._nll(chart, w['start'], w['stop'], ())
+            level = None
+            if self.ln_enabled:
+                if w['sha256'] not in levels:
+                    levels[w['sha256']] = self._level(chart, w['sha256'], self.cfg.seed_validation, mode=ln_mode)
+                level = levels[w['sha256']][0]
+            _, ell = self._nll(chart, w['start'], w['stop'], (), ln_level=level)
             per.append(dict(sha256=w['sha256'], group_id=w['group_id'], nll=float(ell.sum()), decisions=len(ell)))
         total = sum(p['nll'] for p in per) / sum(p['decisions'] for p in per)
-        return dict(nll_per_decision=total, windows=per)
+        return dict(nll_per_decision=total, windows=per,
+                    **(dict(ln_level_mode=ln_mode, ln_level_seed=self.cfg.seed_validation,
+                            ln_levels={sha: value[1] for sha, value in levels.items()}) if self.ln_enabled else {}))
+
+    def natural_manifests(self):
+        unknown = self.natural()
+        if not self.ln_enabled:
+            return dict(natural_manifest=unknown)
+        prior = self.natural('prior')
+        return dict(natural_manifest=prior,
+                    natural_manifest_modes=dict(unknown=unknown, oracle=self.natural('oracle'), prior=prior),
+                    natural_manifest_selection_mode='prior')
 
     def _v_lists(self, chart, track):
         """{interval index: sorted decisions (whole chart) that read it}."""
@@ -351,7 +391,7 @@ class Evaluator:
         self.model.eval()
         t0 = time.time()
         if not self.conditions:
-            return dict(natural_manifest=self.natural(), teacher_forced_s=time.time() - t0)
+            return dict(**self.natural_manifests(), teacher_forced_s=time.time() - t0)
         train = Corpus(self.cfg.cache, 'fit_train', star_conditions=False)
         dev_windows = self.m['condition']['windows']
         cond = self.condition(dev_windows, self.dev)
@@ -360,7 +400,7 @@ class Evaluator:
         tvd = {k: dict(train=onset_train['nll'][k]['mean'], dev=onset_dev['nll'][k]['mean'],
                        dev_minus_train=onset_dev['nll'][k]['mean'] - onset_train['nll'][k]['mean'])
                for k in onset_dev['nll'] if k in onset_train['nll']}
-        return dict(natural_manifest=self.natural(), condition_manifest=cond, train_vs_dev_onset=tvd,
+        return dict(**self.natural_manifests(), condition_manifest=cond, train_vs_dev_onset=tvd,
                     counterfactual=self.counterfactual(dev_windows, self.dev), probe=self.probe(dev_windows, self.dev),
                     teacher_forced_s=time.time() - t0)
 
@@ -375,21 +415,27 @@ class Evaluator:
 
     def run(self, sha, requests: RequestSet, s: int, seed: int, *, stop=None, close_scope=None, panel=''):
         chart = self.dev.chart(sha)
-        if self.min_hold_ms is not None and panel in ('natural_bos', 'prefix_natural'):
+        threshold = self.min_hold_ms if panel in ('natural_bos', 'prefix_natural') else None
+        if threshold is not None or self.ln_enabled:
             stats = {}
+            level, level_record = self._level(chart, sha, seed) if self.ln_enabled else (None, None)
             track = effective_track(requests, chart.head_ms, chart.grid, star_value=self.cpu.config.star_value,
                                     baseline=self.baseline)
             acts, gap = continue_chart(self.cpu, chart.head_ms, chart.song_ms, chart.grid,
                                        chart.actions[:s] if s else None, chart.gap[:s] if s else None,
                                        track=track.track, seed=seed, stop=stop, close_scope=close_scope,
-                                       min_hold_ms=self.min_hold_ms, min_hold_stats=stats)
+                                       min_hold_ms=threshold, min_hold_stats=stats,
+                                       **(dict(ln_level=level) if self.ln_enabled else {}))
             generated = chart.with_decisions(acts, gap)
             record = generation_record(chart=generated, requests=requests, effective=track,
                                        seed_rec=chart_seed_record(chart.head_ms, chart.actions[:s], chart.gap[:s]),
                                        random_seed=seed, model=self.cpu, baseline=self.baseline, code=self.code,
                                        objects=prefix_objects(chart.head_ms, acts, gap),
                                        complete=len(acts) == chart.K + 1)
-            record['min_hold'] = dict(ms=self.min_hold_ms, **stats)
+            if threshold is not None:
+                record['min_hold'] = dict(ms=threshold, **stats)
+            if self.ln_enabled:
+                record['ln_level'] = level_record
         else:
             acts, gap, record = generate(self.cpu, chart.head_ms, chart.song_ms, chart.grid, requests,
                                          seed_actions=chart.actions[:s] if s else None,
@@ -406,15 +452,32 @@ class Evaluator:
             rs.add(Request(f'{kind}-{i}', (a, b), {kind: Target(float(v))}), frontier)
         return rs
 
-    def panels(self):
+    def panels(self, *, panel_charts=None, natural_only=False):
+        """Enabled LN-level models report every mode; top-level panels alias prior selection."""
+        if not self.ln_enabled:
+            return self._panels(panel_charts=panel_charts, natural_only=natural_only)
+        modes = {}
+        previous = self.ln_mode
+        try:
+            for mode in ('oracle', 'unknown', 'prior'):
+                self.ln_mode = mode
+                modes[mode] = self._panels(panel_charts=panel_charts, natural_only=natural_only)['panels']
+        finally:
+            self.ln_mode = previous
+        return dict(panels=dict(modes['prior'], ln_level_modes=modes, ln_level_selection_mode='prior',
+                                panels_s=sum(p['panels_s'] for p in modes.values())))
+
+    def _panels(self, *, panel_charts=None, natural_only=False):
         from .receipts import code_identity
+        reference = load_reference(self.cfg.cache)
         self.code = code_identity()
         t0 = time.time()
         rng = np.random.default_rng(self.cfg.seed_validation)
-        prefix, a8 = prefix_panel(self.dev)
+        prefix, a8 = prefix_panel(self.dev) if panel_charts is None else (panel_charts['prefix'], panel_charts['onset'])
         out = dict(panel_charts=dict(prefix=prefix, onset=list(a8)))
         legal = dict(runs=0, illegal=0, heads_missing=0)
         defect = dict(holds=0, holds_le60=0, release_1_40=0)
+        defect_runs = []
 
         def account(chart, acts, gap, record):
             legal['runs'] += 1
@@ -432,6 +495,10 @@ class Evaluator:
             defect['holds'] += d.get('holds', 0)
             defect['holds_le60'] += d.get('holds_le60', 0)
             defect['release_1_40'] += d.get('release_1_40_before_other_head', 0)
+            if record['panel'] in ('natural_bos', 'prefix_natural'):
+                defect_runs.append(dict(sha=record['sha256'], seed=record['random_seed'], panel=record['panel'],
+                                        band=int(self.dev.band[record['sha256']]),
+                                        **model_defects(chart.head_ms, acts, gap, record['chart_seed']['decisions'])))
 
         # natural from BOS
         nat = []
@@ -454,10 +521,27 @@ class Evaluator:
                                 source=ln_share(src_obj, 0.0, src.song_ms, src.song_ms),
                                 drift=_sub(ln_share(obj, 2 * third, chart.song_ms, chart.song_ms),
                                            ln_share(obj, 0.0, third, chart.song_ms)),
+                                dense_births=dense_births(obj, chart.head_ms),
+                                source_dense_births=dense_births(src_obj, src.head_ms),
                                 chord_js=js(org['chord'], src_org['chord']) if org and src_org else None))
         out['natural_bos'] = dict(ln_share_minus_source=paired(_by(nat, lambda r: r['ln_share'] - r['source']), rng),
                                   drift=paired(_by(nat, lambda r: r['drift']), rng),
                                   chord_js_mean=float(np.mean([r['chord_js'] for r in nat if r['chord_js'] is not None])))
+        generated = [float(np.mean([r['ln_share'] for r in nat if r['sha'] == sha])) for sha in prefix]
+        source = [next(r['source'] for r in nat if r['sha'] == sha) for sha in prefix]
+        gen_sd, src_sd = np.std(generated, ddof=1), np.std(source, ddof=1)
+        out['natural_bos'].update(
+            guard_v=bool(out['natural_bos']['drift']['mean'] is not None and
+                         abs(out['natural_bos']['drift']['mean']) <= 0.05),
+            ln_share_correlation=float(np.corrcoef(generated, source)[0, 1]) if gen_sd > 0 and src_sd > 0 else None,
+            ln_share_sd_ratio=float(gen_sd / src_sd) if src_sd > 0 else None,
+            ln_share_chart_aggregation='mean over seeds per chart; Pearson correlation and sample SD against source',
+            dense_ln_birth={name: dict(heads=sum(r[key]['heads'] for r in nat),
+                                      ln_heads=sum(r[key]['ln_heads'] for r in nat),
+                                      rate=sum(r[key]['ln_heads'] for r in nat) / sum(r[key]['heads'] for r in nat)
+                                      if sum(r[key]['heads'] for r in nat) else None)
+                            for name, key in (('generated', 'dense_births'), ('source', 'source_dense_births'))},
+            runs=nat)
         # natural continuation on the prefix panel: guard (i)
         cont = []
         cont_runs = {}
@@ -478,20 +562,22 @@ class Evaluator:
         out['prefix_natural'] = dict(mean_difference=diff, sd_ratio=sd_ratio,
                                      guard_i=bool(diff['mean'] is not None and abs(diff['mean']) <= 0.05),
                                      sd_ratio_flag=bool(sd_ratio is not None and not 0.5 <= sd_ratio <= 2.0))
-        if self.conditions:
+        if self.conditions and not natural_only:
             self.condition_panels(out, a8, rng, account)
-        out['calibration'] = self.calibration(prefix)
-        out['calibration']['guard_iii'] = bool(out['calibration']['gap'] is not None
-                                               and abs(out['calibration']['gap']) <= 0.05)
-        if self.conditions:
+        if not natural_only:
+            out['calibration'] = self.calibration(prefix)
+            out['calibration']['guard_iii'] = bool(out['calibration']['gap'] is not None
+                                                   and abs(out['calibration']['gap']) <= 0.05)
+        if self.conditions and not natural_only:
             out['g3'] = self.g3(prefix, cont_runs, rng, account)
-        elif self.g3c:
+        elif self.g3c and not natural_only:
             out['g3'] = dict(c=self.g3_c(prefix, rng))
         out['legality'] = legal
         out['source_defects'] = dict(src_def, release_1_40_rate=src_def['release_1_40'] / src_def['holds']
                                      if src_def['holds'] else None)
         out['defects'] = dict(defect, holds_le60_rate=defect['holds_le60'] / defect['holds'] if defect['holds'] else None,
                               release_1_40_rate=defect['release_1_40'] / defect['holds'] if defect['holds'] else None)
+        out['defects_v2'] = defect_summary(defect_runs, reference)
         out['panels_s'] = time.time() - t0
         return dict(panels=out)
 
@@ -589,18 +675,25 @@ class Evaluator:
     def calibration(self, charts, states=96, horizon=64):
         """Expected LN forecast on real against own-sampled histories from the same start states."""
         diffs = {}
+        levels = []
         for sha in charts:
             chart = self.dev.chart(sha)
             if chart.K <= horizon + 1:
                 continue
             for s in np.unique(np.linspace(1, chart.K - horizon, states).astype(int)):
-                real = _forecast(self.cpu, chart, s, s + horizon)
+                level_kwargs = {}
+                if self.ln_enabled:
+                    level, record = self._level(chart, sha, int(s) + 954)
+                    level_kwargs['ln_level'] = level
+                    levels.append(dict(sha=sha, start=int(s), seed=int(s) + 954, **record))
+                real = _forecast(self.cpu, chart, s, s + horizon, **level_kwargs)
                 acts, gap = continue_chart(self.cpu, chart.head_ms, chart.song_ms, chart.grid, chart.actions[:s],
-                                           chart.gap[:s], seed=int(s) + 954, stop=s + horizon)
-                own = _forecast(self.cpu, chart.with_decisions(acts, gap), s, s + horizon)
+                                           chart.gap[:s], seed=int(s) + 954, stop=s + horizon, **level_kwargs)
+                own = _forecast(self.cpu, chart.with_decisions(acts, gap), s, s + horizon, **level_kwargs)
                 diffs.setdefault(sha, []).append(own - real)
         res = paired(diffs, np.random.default_rng(955))
-        return dict(gap=res['mean'], se=res['se'], charts=res['charts'], states_per_chart=states, horizon=horizon)
+        return dict(gap=res['mean'], se=res['se'], charts=res['charts'], states_per_chart=states, horizon=horizon,
+                    **(dict(ln_levels=levels) if self.ln_enabled else {}))
 
     def g3(self, prefix, cont_runs, rng, account):
         out = {}
@@ -758,9 +851,9 @@ def _heads(held):
 
 
 @torch.no_grad()
-def _forecast(model, chart, lo, hi):
+def _forecast(model, chart, lo, hi, **level_kwargs):
     """Expected LN heads / expected heads over decisions [lo, hi) given the chart's own history."""
-    out = model.window(chart, lo, hi, ())
+    out = model.window(chart, lo, hi, (), **level_kwargs)
     p = out.logp.exp().double().numpy()
     held = chart.derived().held[out.ks]
     heads = (p * _heads(held)).sum(1)

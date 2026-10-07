@@ -5,9 +5,10 @@ evaluation whose free runs are all legal with every head present. The primary is
 natural-manifest per-decision NLL, read as the mean over the checkpoint and its two
 predecessors, with a paired song-group bootstrap SE (2,000 resamples). Guards: (i) binding,
 the prefix-panel chart-paired continuation LN-share difference within +-0.05; (ii) onset
-span following slope >= 0.7 and MAE <= 0.15; (iii) own-history gap <= 0.05; (iv) holds
-<= 60 ms at most 0.5 % and releases 1-40 ms before another head at most the source panel's
-rate; (a1) the released-property identity check. The selected checkpoint is the earliest
+span following slope >= 0.7 and MAE <= 0.15; (iii) own-history gap <= 0.05; (iv) model-owned
+holds shorter than 60 ms and near-head releases each at most 1.25 times their expected
+counts from fit-train per-band rates; (v) absolute mean BOS LN-share drift <= 0.05;
+(a1) the released-property identity check. The selected checkpoint is the earliest
 candidate passing every guard whose primary is within 2 SE of the minimum among passing
 candidates. The adherence report lists, per property and scope length, the deviation
 distribution of the selected checkpoint's panels, undefined readouts apart. A phase-N run
@@ -37,7 +38,7 @@ def load_evals(run: Path):
 
 
 def window_table(record):
-    w = record['natural_manifest']['windows']
+    w = record.get('natural_manifest_modes', {}).get('prior', record['natural_manifest'])['windows']
     return np.array([x['nll'] for x in w]), np.array([x['decisions'] for x in w]), [x['group_id'] for x in w]
 
 
@@ -54,17 +55,25 @@ def primary_samples(chain, rng, groups):
     return point, np.array(out)
 
 
+def guard_iv_v1(p):
+    """The old panel-relative rule, retained as a nonbinding diagnostic."""
+    d = p.get('defects', {})
+    src = p.get('source_defects', {})
+    return bool(d.get('holds_le60_rate') is not None and d['holds_le60_rate'] <= 0.005 and
+                (d.get('release_1_40_rate') or 0.0) <= (src.get('release_1_40_rate') or 0.0))
+
+
 def guards(record, phase='conditions'):
     p = record.get('panels', {})
+    p = p.get('ln_level_modes', {}).get('prior', p)
     g = {}
     g['legal'] = bool(p.get('legality', {}).get('illegal', 1) == 0 and p.get('legality', {}).get('heads_missing', 1) == 0)
     g['i'] = bool(p.get('prefix_natural', {}).get('guard_i'))
     g['ii'] = bool(p.get('onset', {}).get('guard_ii'))
     g['iii'] = bool(p.get('calibration', {}).get('guard_iii'))
-    d = p.get('defects', {})
-    src = p.get('source_defects', {})
-    g['iv'] = bool(d.get('holds_le60_rate') is not None and d['holds_le60_rate'] <= 0.005 and
-                   (d.get('release_1_40_rate') or 0.0) <= (src.get('release_1_40_rate') or 0.0))
+    g['iv'] = bool(p.get('defects_v2', {}).get('guard_iv'))
+    drift = p.get('natural_bos', {}).get('drift', {}).get('mean')
+    g['v'] = bool(drift is not None and abs(drift) <= 0.05)
     g['a1'] = bool(p.get('g3', {}).get('a1', {}).get('identical'))
     if phase == 'natural':
         del g['ii'], g['a1']
@@ -87,15 +96,24 @@ def select(run: Path, warmup: int, phase='conditions'):
                           guards=guards(r, phase), record=r))
     passing = [c for c in cands if all(c['guards'].values())]
     result = dict(rule=SELECTION_RULE, candidates=[dict(checkpoint=c['checkpoint'], exposures=c['exposures'],
-                                                        primary=c['primary'], guards=c['guards']) for c in cands])
+                                                        primary=c['primary'], guards=c['guards'],
+                                                        se_to_min=None, within_two_se=False,
+                                                        nonbinding=dict(iv_v1=guard_iv_v1(c['record']['panels'])))
+                                                   for c in cands])
     if not passing:
         result.update(selected=None, reason='no selection: no candidate passes every guard',
                       failing={c['checkpoint']: [k for k, v in c['guards'].items() if not v] for c in cands})
         return result, None
     best = min(passing, key=lambda c: c['primary'])
-    for c in sorted(passing, key=lambda c: c['exposures']):
+    for c, summary in zip(cands, result['candidates']):
+        summary['delta_to_min'] = c['primary'] - best['primary']
+        if not all(c['guards'].values()):
+            continue
         se = float(np.std(c['samples'] - best['samples'], ddof=1))
         c['se_to_min'] = se
+        summary.update(se_to_min=se, within_two_se=bool(c['primary'] - best['primary'] <= 2 * se))
+    for c in sorted(passing, key=lambda c: c['exposures']):
+        se = c['se_to_min']
         if c['primary'] - best['primary'] <= 2 * se:
             result.update(selected=c['checkpoint'], exposures=c['exposures'], primary=c['primary'],
                           minimum=dict(checkpoint=best['checkpoint'], primary=best['primary']), se_to_min=se)

@@ -18,7 +18,7 @@ DECODING = dict(sampler='Gumbel maximum on the masked log-softmax (CPU float64)'
                 orientation='fair coin', pointer='one lane at a time in the orientation order', truncation=None)
 
 SELECTION_RULE = dict(
-    version='r2-select-v1',
+    version='r2-select-v2',
     candidates='regular-cadence checkpoints after warm-up (safe checkpoints excluded) whose natural and '
                'conditioned free runs are all legal with every head present',
     primary='natural-manifest per-decision NLL, mean over the checkpoint and its two predecessors, paired '
@@ -27,11 +27,19 @@ SELECTION_RULE = dict(
                   'within +-0.05 (binding); SD ratio reported, outside [0.5, 2] flagged',
                 ii='span following at onsets: slope >= 0.7 and MAE <= 0.15',
                 iii='own-history calibration gap <= 0.05',
-                iv='holds <= 60 ms at most 0.5 % and releases 1-40 ms before another head within the source rate',
+                iv='natural BOS and prefix-natural holds closed by model decisions: strict <60 ms and '
+                   'another-lane head 1-40 ms after release counts each <=1.25 times the sum of model-owned '
+                   'hold counts times fit_train reference rates by common.band_of(cache star)',
+                v='absolute chart-paired mean natural-BOS LN-share drift (last third minus first third) <=0.05',
                 a1='released-property identity check passes'),
+    nonbinding=dict(iv_v1='holds <=60 ms <=0.5% and near-head release rate <=source panel rate',
+                    bos='per-chart LN-share correlation and SD ratio against source; generated/source dense-row '
+                        'LN-birth rates, where the next head row is <=60 ms later'),
     rule='the earliest candidate passing every binding guard whose primary is within 2 SE of the minimum '
          'among passing candidates; none passing: no selection',
-    phase_n='a phase-N run (no conditions) is selected on guards legal, (i), (iii) and (iv) only')
+    phase_n='a phase-N run (no conditions) is selected on guards legal, (i), (iii), (iv) and (v)',
+    ln_level='when LN level is on, free-run guards and natural-manifest NLL use prior mode; '
+             'oracle and unknown modes are diagnostics; NLL uses one prior draw per chart at seed_validation')
 
 CONDITIONING = dict(rule_l=RULE_L_VERSION, presence='none', eta='default (no priority, no transitions)',
                     conditioner='film', baseline_style='none (not implemented)')
