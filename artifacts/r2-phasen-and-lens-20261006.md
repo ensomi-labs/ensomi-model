@@ -403,3 +403,17 @@ for a deeper cause.
   - a fixed-level sweep and one oracle pass, for obedience;
   - the confirm and refute criteria of [r2-ln-level-20261007](r2-ln-level-20261007.md) section 8.1.
 - The prior (band × density tercile, or the skeleton-neighbour upgrade) is used only at sampling, so it can change without retraining.
+
+<a id="d-night-20261007"></a>**Decision (human, 2026-10-07 about 15:20 UTC, [private, local](private/human-inputs/022ac2c4-6b2a-4347-9894-9f142365340e.md#answer-4)): run the LN fine-tune and then the difficulty pilot tonight, scheduled automatically.**
+- **LN.** The share and length fine-tune of [d-lnlevel-ft](#d-lnlevel-ft) is the only LN training tonight. Phase C's scoped LN-share request waits.
+- **Difficulty pilot (phase C, C1-type).** It runs after the LN fine-tune finishes.
+  - Defaults, the agent's option as selected:
+    - the head-mask tilt of C0 ([o-c0-tilt](r2-phasec-c0-20261007.md#o-c0-tilt));
+    - a small controller that learns the analytic NB teacher by KL on source states;
+    - requests inside the natural r range per scope length (about p1-p99) and at least about 20% from natural ([o-c0-screen-scored](r2-phasec-c0-20261007.md#o-c0-screen-scored));
+    - scopes of 2-16 s;
+    - evaluation by held-out free runs against the analytic controller and natural.
+  - Agent reading: the base is the fine-tuned checkpoint, frozen, with the level drawn in prior mode. 48M is used only if the fine-tune leaves no final checkpoint.
+- **Scheduling.** Code is written now. The runs chain without a human check tonight, at the human's request. The usual practice is that the human checks before a run.
+- **Astra.** The next Astra jobs use the fast service tier.
+- **No invented settings.** Any setting that the plan materials do not fix is listed in the job reports.
