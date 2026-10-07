@@ -119,3 +119,21 @@ Question material for the first system comparison on the collapse problem ([r2-c
   - B2 can hold a wrong start, and truncating history to 64-128 rows may leave the shortcut. The diagnostic and the BOS-against-prefix split will show it.
   - For on-policy work, labels must be valid under the generated history (naive scheduled sampling is inconsistent), and there should be no generic anti-repetition objective.
   - For the next screen, reviewed passages early, middle and late, with "not inspected" kept separate from "acceptable".
+
+<a id="r-night-launched"></a>**Pre-launch check passed; night launched 2026-10-07 19:32 UTC** (check: fresh Opus subagent, 19:01-19:30 UTC, GO; code `df4458c` on `r2/train`, not pushed; ens job `20261007-193157-r2-bakeoff-night`; runner `artifacts/r2-bakeoff-20261007/night.sh` on bings-mac, source copy `~/ensomi/.sync/cp/scratch/r2-bakeoff/night.sh`).
+- The check fixed:
+  - the anchor's pattern entropy, now normalised by non-empty rows;
+  - θ's noise SD, which was √2 too large; θ values are unchanged;
+  - m3-m5, now with each run as one observation, where a chart's runs had been averaged first;
+  - `night.sh`, now running both `d0` variants with no `set -e` and at most 8 threads.
+  - It applied the [amendments](#d-review-amendments): two-sided G with `G_core` (no m1 or m6) beside it; B3's prefix-mode θ computed on the prefix; the θ channel-use probe `theta_probe.py`.
+  - It removed defensive code in `theta.py` and an unused oracle-from-source path.
+  - Tests: 353 passed, 4 skipped. B3's training smoke: 420k exposures in 150 s, no NaN, both readers logged.
+- Main thread, after the check: `d0-env`'s score summed raw distances, so `lock` and `hlock` (in rows) outweighed the share statistics. Each distance is now divided by its envelope width; tests passed (job `20261007-193129-bo-envscore-test`).
+- Launch arguments: `d0` = `phi,envelope`; G = m1-m7; envelope statistics = jack, fjack, rep1, hlock, lock, bus4.
+- Known limits, from the check:
+  - the single-head and 4-gram guard can hardly fail;
+  - `d0-*`, `b3-unknown` and `b3-oracle` are matched to B0 on seed-954 BOS runs only;
+  - B2 and B3 draw different history-dropout masks;
+  - schedules will likely stretch past 1.25 h with panels alongside. The check estimates the night at 4-4.5 h.
+- Evaluation is separate from generation, so G or the guards can be recomputed on the saved runs in minutes.
