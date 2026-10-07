@@ -308,3 +308,27 @@ The 16-chart selection panel's own sources are at 5.8%: one 5.1-star chart has 1
     sampling and evaluation.
   - Config `ce_v2_n_lnlevel_ft.json`: 12M exposures, peak lr 1e-4 cosine to 3e-5, full evaluation every 4M.
   - The main thread launches the fine-tune after reviewing the code.
+
+<a id="q-lnlen-hintfree"></a>**Question (human, 2026-10-07, [private, local](private/human-inputs/31d15d7a-049a-4750-95a5-fab3de17f164.md#prompt-6)): why does phase N not learn a normal LN distribution without a whole-song hint?**
+The human hopes the natural model learns a normal LN distribution without being told the chart's LN share, and asks
+for a deeper cause.
+- Agent reframing: without a hint, the model cannot know a given mapper's level. "Normal" means three things: a level
+  consistent with the skeleton, with the data's spread and bimodality; kept along the song; and placed within the
+  level like real charts, dense rows included.
+- Ruled out in reply: under-trained song starts. Training windows start at BOS with p 0.125 (`data.py`).
+- Four mechanisms proposed:
+  1. how far head times reveal the level;
+  2. under-commitment of the level (the spread ratio 0.43 at 48M);
+  3. self-misidentification on own history (the +41-78% drift);
+  4. placement within a level.
+
+<a id="d-lnlen-hint-diagnostic"></a>**Decisions (human, 2026-10-07, [private, local](private/human-inputs/31d15d7a-049a-4750-95a5-fab3de17f164.md#answer-6)).**
+1. **Investigate now.** A fresh Opus subagent tests the four mechanisms on 48M and 64M, without training. It
+   imports the frozen phase-N code, reuses the [r2-ln-length-20261007](r2-ln-length-20261007.md) tables, writes to
+   `artifacts/r2-ln-level-20261007/` on bings-mac, and keeps scripts in `~/ensomi/.sync/cp/scratch/r2-ln-level/`.
+2. **The whole-song LN-level input is a diagnostic only, not the fix.** It supersedes item 1 of
+   [d-lnlen-next](#d-lnlen-next) in that role.
+   - Its code (Astra job [r-guard-lnlevel-job](#r-guard-lnlevel-job), part B) stays behind an off-by-default flag.
+   - Its oracle mode may be used once, as a probe of placement within a level.
+   - The shipped natural model gets no hint.
+   - Agent reading: the 12M fine-tune is not launched until the investigation reports.

@@ -82,13 +82,16 @@ Nothing else is running: no Claude subagent, and no training (phase N finished a
    - the strict warm start;
    - the test count.
    Then commit the code from the control plane and record the corrected selection result in the notes.
-2. Launch the 12M fine-tune with the command in its report, through `ens run` (frozen-code launcher), about 2 h.
-   Its evaluation answers whether, with the level given (oracle) and drawn (prior):
-   - BOS LN level follows the chart;
-   - dense-row LN births fall;
-   - guards (iv) v2 and (v) pass.
-   The refuting outcome is in [p-lnlen-remedies](r2-ln-length-20261007.md#p-lnlen-remedies).
-3. Only if the fine-tune works: propose a full phase-N retrain with the input to the human.
+2. **Changed after the closeout (12:50 UTC).** The whole-song LN-level input is a diagnostic only, not the fix
+   ([d-lnlen-hint-diagnostic](r2-phasen-and-lens-20261006.md#d-lnlen-hint-diagnostic)). Do not launch the 12M
+   fine-tune as a fix. A fresh Opus subagent is investigating why phase N lacks a normal LN distribution without a
+   hint ([q-lnlen-hintfree](r2-phasen-and-lens-20261006.md#q-lnlen-hintfree)).
+   - Outputs: `artifacts/r2-ln-level-20261007/` on bings-mac; report to this session's scratchpad
+     `ln-level-dynamics-report.md`.
+   - If this session ends before the subagent reports, the report may be lost with the scratchpad. Then check
+     the outputs directory and rerun the investigation from the question.
+3. Use the oracle-level fine-tune once as a probe of placement within a level, only if the investigation says it
+   adds information.
 4. Phase C stays on hold for its base: rerun C0 parts 3-4 and the allocation on whichever checkpoint is selected.
    Open for the human: [v5-open](r2-condition-plan-v5.md#v5-open), the style-module choices, and the blind-screen
    judgments.
