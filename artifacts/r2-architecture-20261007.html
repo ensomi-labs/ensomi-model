@@ -372,9 +372,9 @@ R2            q(aₖ | last 511 rows, exact lane state, local skeleton)</div>
   <h2><span class="n">4</span>Architecture choice → what it rules out</h2>
   <p>The human asked which architecture choice intrinsically constrains which behaviour. The causal chain both design rounds arrived at: <span class="pill good">measured</span> links, <span class="pill warn">inferred</span> chain</p>
   <ol class="tight">
-    <li>No chart-level input, so the start regresses to the corpus mean given the skeleton (F1).</li>
+    <li>No chart-level input: nothing makes the start commit to one chart organisation, and measured starts lean toward the band's corpus mean (F1). An explicit θ is an inductive bias against this, not a prerequisite for coherent autoregressive generation.</li>
     <li>The TCN and its row-local tokens give chart identity nowhere to live (F2).</li>
-    <li>Teacher-forced CE never penalises losing it, and will not teach a new anchor unless training forces it.</li>
+    <li>The present CE recipe gives weak pressure to learn a persistent representation of identity, and does not train recovery from the generated states where the model fails. Teacher forcing by itself is not the cause: exact conditionals would sample the right joint distribution.</li>
     <li>Single-sample decoding never corrects an excursion.</li>
     <li>Selection on short-chart panels and NLL never notices.</li>
   </ol>
@@ -384,7 +384,7 @@ R2            q(aₖ | last 511 rows, exact lane state, local skeleton)</div>
     <tbody>
       <tr><td>Causal dilated TCN over 511 rows, no memory</td><td>A convergent estimate of chart identity is <b>not representable</b>: a finite window cannot compute a running mean. In practice the window that matters is 64–128 rows.</td><td>F2</td><td>Code; logits identical when history beyond 511 rows changes; β<sub>cum</sub> 0.51 on real prefixes against 0.23 on own</td></tr>
       <tr><td>Row-local history tokens; running counts only in the FiLM frames</td><td>No sufficient statistic of the chart so far on the natural path</td><td>F2</td><td>Code</td></tr>
-      <tr><td>No chart-level variable (θ, band or latent) in phase N</td><td>Chart identity at the start is the corpus mean given the skeleton; variety between charts is compressed</td><td>F1, compression</td><td>Start offsets by band; between-chart SD ratios 0.41–0.80 of real</td></tr>
+      <tr><td>No chart-level variable (θ, band or latent) in phase N</td><td>Nothing makes the start commit to one chart organisation; measured starts lean toward the band mean and variety between charts is compressed</td><td>F1, compression</td><td>Start offsets by band; between-chart SD ratios 0.41–0.80 of real</td></tr>
       <tr><td>Per-decision teacher-forced CE only</td><td>No gradient on behaviour under the model's own history; anchoring is worth thousandths of a nat</td><td>F2, absorption</td><td>NLL flat while the regime flips between checkpoints</td></tr>
       <tr><td>One ancestral sample at T = 1, every draw kept</td><td>Nothing rejects an excursion; temperature trades drift against composition</td><td>Absorption</td><td>Temperature probe; stay rate 0.53–0.57 against 0.24</td></tr>
       <tr><td>Head times given</td><td>A too-intense regime on a sparse skeleton can only show as chord and LN pile-up, all four lanes busy</td><td>The form F1 takes in band 2</td><td>Held share 0.27–0.35 in flagged band-2 windows against 0.077</td></tr>
@@ -429,7 +429,7 @@ R2            q(aₖ | last 511 rows, exact lane state, local skeleton)</div>
       <tr><td><b>B0</b></td><td>Phase N 56M, no training</td><td>Reference</td></tr>
       <tr><td><b>B1</b></td><td>56M + plain CE fine-tune</td><td>The effect of more fine-tuning alone; regimes have flipped between checkpoints before</td></tr>
       <tr><td><b>B2</b></td><td>B1 + self-anchor: about 16 running statistics of the chart so far through a zero-initialised reader, plus history dropout (on 25% of windows the encoded history is cut to the last 64–128 rows, so the running statistics become the only source of the chart's level there)</td><td>B2 − B1: does a convergent statistic of its own past hold identity (F2)?</td></tr>
-      <tr><td><b>B3</b></td><td>B2 + explicit chart vector θ: 10 standardised whole-chart coordinates with a known bit, noised, dropped to unknown on 30% of windows. At generation θ is drawn once from a donor prior, one of the 32 nearest training charts in skeleton space</td><td>B3 − B2: does a held, drawn identity fix the start (F1) and restore variety? Every planned control is a θ coordinate</td></tr>
+      <tr><td><b>B3</b></td><td>B2 + explicit chart vector θ: 10 standardised whole-chart coordinates with a known bit, noised, dropped to unknown on 30% of windows. At generation θ is drawn once from a donor prior, one of the 32 nearest training charts in skeleton space</td><td>B3 − B2: does a held, drawn identity fix the start (F1) and restore variety? Planned controls could be θ coordinates; a scoped request still needs its own design</td></tr>
       <tr><td><b>d0</b></td><td>56M with decode-time selection: 4 candidates per 64-row block, keep the best by a block score. Two variants: one keeps the chart's own level (heads per row, held share, chords, pattern entropy relative to the running chart); one penalises local organisation outside the source range (jacks, fast jacks, row repetition, head and lane locks, all-four-busy)</td><td>The local defects the human marked, without training; a bound on what selection buys</td></tr>
     </tbody>
   </table>
@@ -469,9 +469,10 @@ R2            q(aₖ | last 511 rows, exact lane state, local skeleton)</div>
 
   <h3>Decision rule and guards</h3>
   <p>The pre-registered measures include identity hold at rows 1k+ after a real prefix, the stay rate and band-2 all-lanes-busy exits, the ratio of between-chart spread to real charts (variety), first-to-last-third correlation from the song start, and adjacent-row dependence (F3). Each is turned into a gap closure per band:</p>
-  <div class="formula">g = (m_system − m_source) / (m_B0 − m_source)        G = mean of g     (0 = like real charts, 1 = like B0)</div>
+  <div class="formula">g = |m_system − m_source| / |m_B0 − m_source|        G = mean of g     (0 = like real charts, 1 = as far as B0)</div>
+  <p style="font-size:14px;color:var(--ink-2)">Revised before any result: the first draft used the signed gap, which rewards overshooting past real charts (too much spread would score below 0). Terms where B0 is already within the real charts' bootstrap noise are dropped. G is also reported without the band-relative terms, because a natural generator that draws a different but legitimate organisation for a skeleton need not match the source chart's band. In continuation from a real prefix, B3 takes θ from the observed prefix, not from a skeleton-only draw.</p>
   <ul class="tight">
-    <li><b>Winner:</b> the guard-passing arm with the lowest G, at least 0.15 below B1, with a chart-bootstrap 90% interval on the difference that excludes zero. It then goes to a human blind screen of 8 long charts.</li>
+    <li><b>Shortlist, then the human decides</b> (revised before any result): the measures characterise the arms and shortlist those whose G is at least 0.15 below B1, with a chart-bootstrap 90% interval on the difference that excludes zero. The human then compares the shortlisted arms <i>and B1</i> blind, on matched songs. A trained arm that wins is repeated with a second training seed before it becomes the base. Three claims stay separate: the new input is used, the generated process improves, and the charts improve.</li>
     <li><b>Guards:</b> legal export; NLL with θ unknown at most B0 + 0.02 nats; single-head share and 4-gram ratio inside the source envelope; end-of-song exits at most 1.5× the source's; no head-lock run of 30 rows or more.</li>
   </ul>
 
@@ -480,10 +481,10 @@ R2            q(aₖ | last 511 rows, exact lane state, local skeleton)</div>
   <table>
     <thead><tr><th>Outcome</th><th>Reading</th><th>Next</th></tr></thead>
     <tbody>
-      <tr><td>B3 &lt; B2 &lt; B1</td><td>The chart variable is the lever</td><td>Controls become θ coordinates, LN share and length first. Round 2: plan-then-realise against B3, and an on-policy term on B3.</td></tr>
+      <tr><td>B3 &lt; B2 &lt; B1</td><td>The chart variable is the lever</td><td>θ becomes a candidate route for controls, LN share and length first; a scoped request remains a separate problem. Round 2: plan-then-realise against B3, and an on-policy term on B3.</td></tr>
       <tr><td>B2 ≈ B3, both below B1</td><td>Holding is the main fix</td><td>Keep the anchor; add θ only for controls.</td></tr>
       <tr><td>B3 fixes variety and the start, not holding; B2 null</td><td>Either the reader never learned or it learned and was overridden</td><td>Separate the two; an on-policy objective on B3, with decode-time selection as the training-free bound.</td></tr>
-      <tr><td>Nothing beats B1</td><td>CE will not make R2 hold any input</td><td>Rollout objectives and decode-time selection become the main route.</td></tr>
+      <tr><td>Nothing beats B1</td><td>These inputs, under this recipe and budget, did not help. Check channel use, the dropout and the donor prior before concluding against CE.</td><td>Rollout objectives and decode-time selection become the main route.</td></tr>
       <tr><td>B1 differs from B0 by more than 0.2 in G</td><td>Fine-tuning alone moves the regime</td><td>Any margin needs a second training seed.</td></tr>
       <tr><td>d0 closes the local gap</td><td>The local defects can be held off at decode time</td><td>A bound and a fallback. If its own score improves while unscored measures (4-grams, 4-chords, jack runs) worsen, it is fitting the score.</td></tr>
     </tbody>
@@ -501,7 +502,7 @@ R2            q(aₖ | last 511 rows, exact lane state, local skeleton)</div>
     <li><b>Unnamed style</b> such as lane vocabulary and motif habits, if B3 leaves variety compressed: a clustered style token or a residual latent.</li>
     <li><b>Later rounds:</b> an on-policy objective, plan-then-realise, block reranking with a learned critic, and a from-scratch encoder comparison with whole-chart scoring.</li>
     <li><b>What ends a section.</b> Real section ends do not follow the 8- or 16-bar grid; they likely need audio or the mapper's intent, which are outside R2 v2.</li>
-    <li><b>Controls</b> return as θ coordinates once natural generation holds.</li>
+    <li><b>Controls</b> return once natural generation holds. θ coordinates are one candidate route, not the definition of a scoped request or of style.</li>
   </ul>
 </section>
 

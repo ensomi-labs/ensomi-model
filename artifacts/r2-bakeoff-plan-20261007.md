@@ -110,3 +110,5 @@ Whole-chart scoring is deferred to round 2. It would change batch composition an
 - A from-scratch encoder-family comparison: TCN against LRU or a hierarchical encoder, with whole-chart scoring, at equal Mac-hours, about 3.5-4 h each.
 - A 625-way head-residual screen, about 20 minutes.
 - Separate tracks: windowed masked refinement for local edit (several Mac-nights from scratch). Audio stays out of R2 v2 scope.
+
+**Revised 2026-10-07 before any result:** the gap-closure rule is two-sided and becomes a shortlist followed by a human blind comparison that includes B1; B3 in prefix mode takes θ from the prefix; causal wording above is to be read as corrected in [d-review-amendments](r2-bakeoff-night-20261007.md#d-review-amendments).

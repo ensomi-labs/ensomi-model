@@ -99,3 +99,23 @@ Question material for the first system comparison on the collapse problem ([r2-c
   - The main thread finds Opus's argument stronger for long songs. SMC also keeps the whole-sequence target and suits real-time play.
 - **New and worth keeping (Opus): a source-oracle arm.** The same block search, scored against the real chart's same rows. It tests directly whether acceptable charts are in the model's proposals. If even the oracle cannot reach the source's stay rate and identity, the lever is training, not decoding.
 - **Proposed next, not authorised:** `d1` = SMC, P = 4, scored by chart-relative identity plus a penalty on staying in a flagged stretch; plus the oracle arm. It reuses tonight's B0 and `d0` panel runs, about 75 Mac-minutes for 48 charts × 2 seeds. Then a human screen of 6 songs × (plain, `d0`, `d1`) + 2 real foils, about 1 hour, with Opus's fixed pass rule. Fable's satisficing clip can be added to `d1`'s weights.
+
+<a id="d-review-amendments"></a>**Amendments before any result, 2026-10-07 about 19:20 UTC, after an external review the human shared** ([private, local](private/human-inputs/28c38740-5d34-43bb-ad36-ff8ec6d0299f.md#prompt-7); the review is ChatGPT Pro's, kept privately).
+- **Main-thread judgment:** the review is largely right. Continue B1/B2/B3/`d0`; correct the evaluation and the causal claims before results exist.
+- **Applied (passed to the pre-launch check, or edited on the page):**
+  - **G is two-sided:** g = |m_sys − m_src| / |m_B0 − m_src|. The signed version rewarded overshooting past the source, so a system with too much spread would score g < 0 and win.
+    - Terms where B0 is within the source's bootstrap noise are dropped.
+    - G is also reported without the band-relative terms (m1 envelope, m6 band offset). A natural generator that draws a different but legitimate organisation for a skeleton need not match the source chart's band.
+  - **B3 in prefix mode** takes θ computed on the observed prefix, or "unknown" if that is not simple. A skeleton-only donor draw could contradict the prefix it is scored on preserving.
+  - **A B3 channel-use diagnostic, if cheap:** shift held share or nh in θ by ±1 within-band SD at fixed prefixes, real and own, and report the realised slope.
+  - **The winner rule becomes a shortlist plus a human blind comparison that includes B1**, on matched songs. A trained arm that wins is repeated with a second training seed before it becomes the base.
+  - **Three claims are kept separate:** the input is used; the generated process improves; the charts improve.
+  - **Causal wording corrected** on [r2-architecture-20261007.html](r2-architecture-20261007.html), and to be read the same way in [s-arch-constraints](r2-bakeoff-plan-20261007.md#s-arch-constraints) and the plan's outcome lines:
+    - teacher forcing by itself is not the cause; sequence CE is a KL on whole charts. The present recipe gives weak pressure toward a persistent identity and does not train recovery;
+    - explicit θ is an inductive bias, not a prerequisite;
+    - "nothing beats B1" would not show that CE cannot hold any input;
+    - θ coordinates are one candidate route for controls, not their definition.
+- **Not applied tonight, kept for later:**
+  - B2 can hold a wrong start, and truncating history to 64-128 rows may leave the shortcut. The diagnostic and the BOS-against-prefix split will show it.
+  - For on-policy work, labels must be valid under the generated history (naive scheduled sampling is inconsistent), and there should be no generic anti-repetition objective.
+  - For the next screen, reviewed passages early, middle and late, with "not inspected" kept separate from "acceptable".
