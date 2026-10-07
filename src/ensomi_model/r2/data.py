@@ -31,7 +31,7 @@ from .conditions import WINDOW, DrawConfig, draw_window, old_start
 from .features import Chart, Interval
 from .labels import load_cells
 from .locality import RULE_L_VERSION, masked
-from .ln_level import whole_ln_level
+from .ln_level import whole_ln_length, whole_ln_level
 from .properties import NU_HASH
 
 NATURAL_SEED = 954
@@ -46,6 +46,7 @@ class Draw:
     record: dict
     weight: float = 1.0
     ln_level: float | None = None
+    ln_length: float | None = None
 
 
 def chart_from_cache(dec) -> Chart:
@@ -79,6 +80,7 @@ class Corpus:
         self._charts: OrderedDict = OrderedDict()
         self._frame_cells: dict = {}
         self._source_ln_levels: dict[str, float] = {}
+        self._source_ln_lengths: dict[str, float | None] = {}
 
     def chart(self, sha: str) -> Chart:
         if sha in self._charts:
@@ -107,6 +109,12 @@ class Corpus:
         if sha not in self._source_ln_levels:
             self._source_ln_levels[sha] = whole_ln_level(self.chart(sha))
         return self._source_ln_levels[sha]
+
+    def source_ln_length(self, sha: str) -> float | None:
+        """Whole-source median log2 length in beats, cached independently of window draws."""
+        if sha not in self._source_ln_lengths:
+            self._source_ln_lengths[sha] = whole_ln_length(self.chart(sha))
+        return self._source_ln_lengths[sha]
 
     def pick(self, rng):
         group = self.groups[int(rng.integers(0, len(self.groups)))]

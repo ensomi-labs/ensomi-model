@@ -93,6 +93,8 @@ class TrainConfig:
     init_from: str | None = None         # phase C: the phase-N checkpoint (its natural parameters)
     warm_start: str | None = None        # phase N: complete weights; fresh optimizer and exposure counter
     ln_level: str = 'off'
+    ln_length: str = 'off'
+    ln_prior: str | None = None          # explicit evaluation prior path; never fitted by the trainer
     ln_level_dropout: float = 0.3        # independent whole-window dropout to the unknown input
     seed_ln_level: int = 1471
     base_mode: str | None = None         # phase C: 'frozen' | 'kl'
@@ -181,6 +183,8 @@ def check_config(cfg: TrainConfig):
         raise ContractError(f'phase must be one of {PHASES} (got {cfg.phase!r})')
     if cfg.ln_level not in LN_LEVEL_MODES:
         raise ContractError(f'ln_level must be one of {LN_LEVEL_MODES}')
+    if cfg.ln_length not in LN_LEVEL_MODES or (cfg.ln_length == 'on' and cfg.ln_level != 'on'):
+        raise ContractError('ln_length must be off|on and requires ln_level on')
     if (isinstance(cfg.ln_level_dropout, bool) or not isinstance(cfg.ln_level_dropout, (int, float))
             or not math.isfinite(cfg.ln_level_dropout) or not 0.0 <= cfg.ln_level_dropout <= 1.0):
         raise ContractError('ln_level_dropout must be a finite number in [0,1]')
@@ -292,7 +296,7 @@ def reference_model(data, device, dtype) -> R2Model:
 
 
 def load_warm_start(path, model: R2Model):
-    """Load every source weight; only a new zero LN-level reader may be absent.
+    """Load every source weight; only explicitly enabled new zero LN readers may be absent.
 
     Both runs must be phase N. Model configuration must match, except that an off
     source may initialize an on target. Optimizer, counters and RNGs are not loaded.
@@ -306,15 +310,16 @@ def load_warm_start(path, model: R2Model):
     except (KeyError, TypeError, ValueError) as exc:
         raise ContractError('warm_start has an invalid model_config') from exc
     theirs, mine = asdict(source), asdict(model.config)
-    upgrade = theirs['ln_level'] == 'off' and mine['ln_level'] == 'on'
-    if upgrade:
-        theirs['ln_level'] = 'on'
+    allowed = set()
+    for name in ('ln_level', 'ln_length'):
+        if theirs[name] == 'off' and mine[name] == 'on':
+            theirs[name] = 'on'
+            allowed.add(f'{name}_reader.weight')
     if theirs != mine:
         mismatch = {k: (theirs[k], mine[k]) for k in mine if theirs[k] != mine[k]}
         raise ContractError(f'warm_start model configuration mismatch: {mismatch}')
     source_state = data['model']
     target_state = model.state_dict()
-    allowed = {'ln_level_reader.weight'} if upgrade else set()
     missing = set(target_state) - set(source_state)
     unexpected = set(source_state) - set(target_state)
     if missing != allowed or unexpected:
@@ -324,8 +329,8 @@ def load_warm_start(path, model: R2Model):
               if v.shape != target_state[k].shape}
     if shapes:
         raise ContractError(f'warm_start parameter shape mismatch: {shapes}')
-    if allowed and torch.count_nonzero(target_state['ln_level_reader.weight']).item():
-        raise ContractError('warm_start requires the new LN-level reader to be exactly zero')
+    if any(torch.count_nonzero(target_state[name]).item() for name in allowed):
+        raise ContractError('warm_start requires every new LN reader to be exactly zero')
     model.load_state_dict({**target_state, **source_state}, strict=True)
     record = dict(path=str(path), sha256=file_sha256(path), exposures=int(data['state']['exposures']),
                   recipe_hash=recipe_hash(data['config']), model_config=data['model_config'],
@@ -434,7 +439,8 @@ def model_config(cfg: TrainConfig) -> R2Config:
     return R2Config(memory=cfg.memory, levels=cfg.levels, conditioner=cfg.conditioner, hidden=cfg.hidden,
                     expansion=cfg.expansion, rank=cfg.rank, max_parameters=cfg.max_parameters,
                     presence=cfg.presence, rule_l=cfg.rule_l, star_value=cfg.star_value,
-                    film_width=cfg.film_width, film_layers=cfg.film_layers, ln_level=cfg.ln_level)
+                    film_width=cfg.film_width, film_layers=cfg.film_layers, ln_level=cfg.ln_level,
+                    ln_length=cfg.ln_length)
 
 
 class Stats:
@@ -608,6 +614,8 @@ class Trainer:
         saved_cfg = data.get('config') or {}
         if saved_cfg.get('ln_level', 'off') != self.cfg.ln_level:
             raise ContractError('Checkpoint has another ln_level setting')
+        if saved_cfg.get('ln_length', 'off') != self.cfg.ln_length:
+            raise ContractError('Checkpoint has another ln_length setting')
         if self.ln_level_rng is not None:
             if any(saved_cfg.get(k) != getattr(self.cfg, k) for k in ('ln_level_dropout', 'seed_ln_level')):
                 raise ContractError('Checkpoint has another LN-level dropout configuration')
@@ -637,6 +645,8 @@ class Trainer:
             if self.ln_level_rng is not None:
                 dropped = self.ln_level_rng.random() < self.cfg.ln_level_dropout
                 draw.ln_level = None if dropped else self.corpus.source_ln_level(draw.sha)
+                if self.cfg.ln_length == 'on':
+                    draw.ln_length = None if dropped else self.corpus.source_ln_length(draw.sha)
             self.state['windows'] += 1
             if index in self.state['skip']:
                 continue
@@ -655,6 +665,8 @@ class Trainer:
         for index, draw in batch:
             chart = self.corpus.chart(draw.sha)
             level = dict(ln_level=draw.ln_level) if cfg.ln_level == 'on' else {}
+            if cfg.ln_length == 'on':
+                level['ln_length'] = draw.ln_length
             out = self.model.window(chart, draw.start, draw.stop, draw.track,
                                     pairs=self.reference is not None, **level)
             terms = window_terms(out, draw.weight)
@@ -823,7 +835,7 @@ class Trainer:
                                                                         draws=self.cfg.seed_draws,
                                                                         validation=self.cfg.seed_validation),
                     ln_level=dict(mode=self.cfg.ln_level, dropout=self.cfg.ln_level_dropout,
-                                  seed=self.cfg.seed_ln_level),
+                                  seed=self.cfg.seed_ln_level, length=self.cfg.ln_length),
                     conditioning=dict(conditioner=self.cfg.conditioner, presence=self.cfg.presence,
                                       rule_l=RULE_L_VERSION if self.cfg.rule_l else 'off', eta='default',
                                       star_value=self.cfg.star_value, birth_role=False),
@@ -888,7 +900,9 @@ class Trainer:
             self.append('events.jsonl', dict(event='resume', checkpoint=latest.name, time=time.time(),
                                              **self.state_brief()))
             if self.state['exposures'] > 0 and latest.name not in self.evaluated():
-                self.eval_and_log(latest)  # the previous process stopped before this checkpoint's evaluation
+                count = self.state['checkpoints']
+                full = count > 0 and count % max(1, cfg.full_eval_every) == 0
+                self.eval_and_log(latest, full=full)
         else:
             if self.latest() is not None:
                 raise ContractError('Run directory already has checkpoints; pass --resume')

@@ -21,6 +21,7 @@ HISTORY_DIM = 100
 LANE_QUERY_DIM = 15
 QUERY_DIM = 150
 LN_LEVEL_DIM = 3
+LN_LENGTH_DIM = 2
 LN_LEVEL_MODES = ('off', 'on')
 LN_LEVEL_EPS = 1e-6
 RELATION_DIM = 28
@@ -253,14 +254,25 @@ def ln_level_features(level: float | None) -> np.ndarray:
     return np.array([1.0, value, np.log(clipped / (1.0 - clipped))], dtype=np.float32)
 
 
-def query_features(chart: Chart, ks, *, ln_level: str = 'off', level: float | None = None) -> np.ndarray:
-    """[m,2,150] query features at ks (EOS = K), or 153 with the LN-level input on.
+def ln_length_features(length: float | None) -> np.ndarray:
+    """Known bit and median log2 hold length in beats; None gives two zeros."""
+    from .ln_level import checked_length
+    if length is None:
+        return np.zeros(LN_LENGTH_DIM, dtype=np.float32)
+    return np.array([1.0, checked_length(length)], dtype=np.float32)
+
+
+def query_features(chart: Chart, ks, *, ln_level: str = 'off', level: float | None = None,
+                   ln_length: str = 'off', length: float | None = None) -> np.ndarray:
+    """[m,2,150] queries at ks (EOS = K); share adds three channels, length adds two.
 
     The off path ignores ``level`` and preserves the original feature bytes.
     The on path appends the same ``ln_level_features`` to both hand views.
     """
     if ln_level not in LN_LEVEL_MODES:
         raise ContractError(f'ln_level must be one of {LN_LEVEL_MODES}')
+    if ln_length not in LN_LEVEL_MODES or (ln_length == 'on' and ln_level != 'on'):
+        raise ContractError('ln_length must be off|on and requires ln_level on')
     ks = np.asarray(ks)
     K, T = chart.K, chart.song_ms
     g = chart.grid
@@ -291,6 +303,9 @@ def query_features(chart: Chart, ks, *, ln_level: str = 'off', level: float | No
     out = np.stack(hands, 1).astype(np.float32)
     if ln_level == 'on':
         channels = np.broadcast_to(ln_level_features(level), out.shape[:-1] + (LN_LEVEL_DIM,))
+        out = np.concatenate((out, channels), -1)
+    if ln_length == 'on':
+        channels = np.broadcast_to(ln_length_features(length), out.shape[:-1] + (LN_LENGTH_DIM,))
         out = np.concatenate((out, channels), -1)
     return out
 

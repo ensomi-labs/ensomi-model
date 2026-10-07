@@ -113,14 +113,18 @@ def generation_record(*, chart: Chart, requests: RequestSet, effective, seed_rec
 
 def generate(model, head_ms, song_ms, grid, requests: RequestSet, *, seed_actions=None, seed_gap=None,
              random_seed: int = 954, stop=None, close_scope=None, baseline=None, baseline_model=None,
-             checkpoint=None, train_config=None, code=None):
-    """Returns (actions, gap, record)."""
+             checkpoint=None, train_config=None, code=None, ln_level='unknown', ln_length=None,
+             source_ln_level=None, source_ln_length=None, ln_prior=None, star=None):
+    """Return (actions, gap, record); whole-song LN inputs follow ``continue_chart`` modes."""
     require_no_baseline(baseline)
     s = 0 if seed_actions is None else len(seed_actions)
     requests.check_frontier(frontier_of(head_ms, s))
     effective = effective_track(requests, head_ms, grid, star_value=model.config.star_value, baseline=baseline_model)
+    level_stats = {}
     acts, gap = continue_chart(model, head_ms, song_ms, grid, seed_actions, seed_gap, track=effective.track,
-                               seed=random_seed, stop=stop, close_scope=close_scope)
+                               seed=random_seed, stop=stop, close_scope=close_scope, ln_level=ln_level,
+                               ln_length=ln_length, source_ln_level=source_ln_level, source_ln_length=source_ln_length,
+                               ln_prior=ln_prior, star=star, ln_level_stats=level_stats)
     chart = Chart(np.asarray(head_ms), float(song_ms), grid, acts, gap)
     objects = prefix_objects(head_ms, acts, gap)
     record = generation_record(chart=chart, requests=requests, effective=effective,
@@ -128,6 +132,8 @@ def generate(model, head_ms, song_ms, grid, requests: RequestSet, *, seed_action
                                model=model, checkpoint=checkpoint, train_config=train_config,
                                baseline=baseline_model, objects=objects, complete=len(acts) == len(head_ms) + 1,
                                code=code)
+    if level_stats:
+        record['ln_level'] = level_stats
     return acts, gap, record
 
 
@@ -152,6 +158,9 @@ def main(argv=None):
     p.add_argument('--continue', dest='cont', default=None)
     p.add_argument('--random-seed', type=int, default=954)
     p.add_argument('--stop', type=int, default=None)
+    p.add_argument('--ln-level', default='unknown', help='unknown, oracle, prior, or a numeric share in [0, 1]')
+    p.add_argument('--ln-length', type=float, help='Optional median log2 length in beats with a fixed share')
+    p.add_argument('--ln-prior', help='Empirical prior JSON; joint v2 when the length input is enabled')
     p.add_argument('--out', required=True)
     a = p.parse_args(argv)
     data = torch.load(a.checkpoint, map_location='cpu', weights_only=False)
@@ -159,6 +168,18 @@ def main(argv=None):
     model.load_state_dict(data['model'])
     corpus = Corpus(a.cache, 'fit_dev', star_conditions=False)
     chart = corpus.chart(a.sha)
+    from .ln_level import EmpiricalLNPrior, JOINT_PRIOR_FILE, PRIOR_FILE, whole_ln_length, whole_ln_level
+    mode = a.ln_level if a.ln_level in ('unknown', 'oracle', 'prior') else float(a.ln_level)
+    level_kwargs = dict(ln_level=mode, ln_length=a.ln_length)
+    if model.config.ln_level == 'on':
+        if mode == 'oracle':
+            level_kwargs['source_ln_level'] = whole_ln_level(chart)
+            if model.config.ln_length == 'on':
+                level_kwargs['source_ln_length'] = whole_ln_length(chart)
+        elif mode == 'prior':
+            filename = JOINT_PRIOR_FILE if model.config.ln_length == 'on' else PRIOR_FILE
+            level_kwargs['ln_prior'] = EmpiricalLNPrior.load(a.ln_prior or Path(a.cache) / filename)
+            level_kwargs['star'] = float(corpus.table.set_index('sha256').loc[a.sha, 'star'])
     baseline_model = None
     if model.config.star_value == 'residual':
         from .baseline import load_baseline
@@ -179,7 +200,7 @@ def main(argv=None):
                                  seed_gap=seed_gap, random_seed=a.random_seed, stop=a.stop,
                                  baseline_model=baseline_model, train_config=data.get('config'),
                                  checkpoint=dict(path=a.checkpoint, sha256=hashlib.sha256(
-                                     Path(a.checkpoint).read_bytes()).hexdigest()), code=code_identity())
+                                     Path(a.checkpoint).read_bytes()).hexdigest()), code=code_identity(), **level_kwargs)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     stem = f'{a.sha[:16]}-{a.random_seed}'

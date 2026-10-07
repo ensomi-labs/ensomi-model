@@ -22,7 +22,7 @@ from ..research.bounded_typed_continuation.model import JointHead
 from ..research.bounded_typed_continuation.temporal import FiniteTemporal, TemporalConfig, pointwise
 from .candidates import CANDIDATE_DIM
 from .common import ACTIONS, ContractError, action_index
-from .features import (FRAME_DIM, HISTORY_DIM, LANE_QUERY_DIM, LN_LEVEL_DIM, LN_LEVEL_MODES,
+from .features import (FRAME_DIM, HISTORY_DIM, LANE_QUERY_DIM, LN_LENGTH_DIM, LN_LEVEL_DIM, LN_LEVEL_MODES,
                        PRESENCE, QUERY_DIM, RELATION_DIM, STAR_VALUES,
                        TOKEN_DIM, Chart, decision_factors, frames, history_tokens, lane_query, query_features, tokens)
 from .locality import visible
@@ -54,6 +54,7 @@ class R2Config:
     film_layers: int = 1           # FiLM MLP hidden layers
     identity_gate: bool = True     # False: FiLM(z, 0) acts on natural decisions; test power checks only
     ln_level: str = 'off'          # whole-song LN share: three extra shared query channels when on
+    ln_length: str = 'off'         # whole-song median log2 hold length in beats: known bit and value
 
     def __post_init__(self):
         if self.memory not in ('landmarks', 'none') or self.conditioner not in ('film', 'tokens'):
@@ -69,6 +70,8 @@ class R2Config:
             raise ContractError(f'star_value must be one of {STAR_VALUES}')
         if self.ln_level not in LN_LEVEL_MODES:
             raise ContractError(f'ln_level must be one of {LN_LEVEL_MODES}')
+        if self.ln_length not in LN_LEVEL_MODES or (self.ln_length == 'on' and self.ln_level != 'on'):
+            raise ContractError('ln_length must be off|on and requires ln_level on')
 
     @property
     def roles(self):
@@ -190,6 +193,10 @@ class R2Model(nn.Module):
             with torch.random.fork_rng(devices=[]):
                 self.ln_level_reader = nn.Linear(LN_LEVEL_DIM, H, bias=False)
                 nn.init.zeros_(self.ln_level_reader.weight)
+        if c.ln_length == 'on':
+            with torch.random.fork_rng(devices=[]):
+                self.ln_length_reader = nn.Linear(LN_LENGTH_DIM, H, bias=False)
+                nn.init.zeros_(self.ln_length_reader.weight)
         counts = self.parameter_counts()
         if verbose:
             print({'parameters': counts}, flush=True)
@@ -249,8 +256,11 @@ class R2Model(nn.Module):
             exact = pointwise(self.exact, qf)
         else:
             base = pointwise(self.exact[0], qf[..., :QUERY_DIM].contiguous())
-            added = pointwise(self.ln_level_reader, qf[..., QUERY_DIM:])
-            exact = pointwise(self.exact[2], self.exact[1](base + added))
+            added = pointwise(self.ln_level_reader, qf[..., QUERY_DIM:QUERY_DIM + LN_LEVEL_DIM])
+            base = base + added
+            if self.config.ln_length == 'on':
+                base = base + pointwise(self.ln_length_reader, qf[..., QUERY_DIM + LN_LEVEL_DIM:])
+            exact = pointwise(self.exact[2], self.exact[1](base))
         h = pointwise(self.fuse, torch.cat((before, exact), -1))
         if self.config.memory == 'landmarks':
             h = h + self.read_landmarks(h, marks, visible)
@@ -283,11 +293,13 @@ class R2Model(nn.Module):
         raw = self._t(history_tokens(chart, N))
         return self.temporal(raw[None], checkpoint=self.config.checkpoint_temporal)[0]
 
-    def query_features(self, chart: Chart, ks, ln_level: float | None = None):
+    def query_features(self, chart: Chart, ks, ln_level: float | None = None, ln_length: float | None = None):
         """Model-dtype query tensor with the configured whole-song LN-level channels."""
-        return self._t(query_features(chart, ks, ln_level=self.config.ln_level, level=ln_level))
+        return self._t(query_features(chart, ks, ln_level=self.config.ln_level, level=ln_level,
+                                      ln_length=self.config.ln_length, length=ln_length))
 
-    def window_hands(self, chart: Chart, ks, track=(), vis=None, *, ln_level: float | None = None):
+    def window_hands(self, chart: Chart, ks, track=(), vis=None, *, ln_level: float | None = None,
+                     ln_length: float | None = None):
         ks = np.asarray(ks)
         stop = int(ks.max()) + 1
         N = min(stop - 1, chart.K)
@@ -304,7 +316,7 @@ class R2Model(nn.Module):
             pos = np.arange(0, N, self.config.stride)
             marks = enc[torch.as_tensor(pos, device=self.device)]
             visible = torch.as_tensor(pos[None, :] < ks[:, None], device=self.device)
-        qf = self.query_features(chart, ks, ln_level)
+        qf = self.query_features(chart, ks, ln_level, ln_length)
         return self.hands(before, qf, marks, visible, self.row_condition(chart, track, ks, vis))
 
     # ---- likelihood ------------------------------------------------------------------------------
@@ -315,17 +327,18 @@ class R2Model(nn.Module):
         return logits.masked_fill(~mask, -torch.inf).log_softmax(-1)
 
     def window(self, chart: Chart, start: int, stop: int, track=(), *, pairs=False,
-               ln_level: float | None = None) -> WindowOut:
+               ln_level: float | None = None, ln_length: float | None = None) -> WindowOut:
         """Teacher-forced log-probabilities of decisions [start, stop) of ``chart``; ``pairs`` also keeps
         every candidate's log-probability within its release factor (the phase-C KL term needs them).
         ``ln_level`` is a whole-song level in [0,1], or None for unknown, used only with the input on.
+        ``ln_length`` is the whole-song median log2 hold length in beats, or None for unknown.
         """
         if not 0 <= start < stop <= min(chart.n, chart.K + 1):
             raise ContractError('Window outside the known decisions')
         ks = np.arange(start, stop)
         d = chart.derived()
         vis = self.visible_sets(chart, track, ks) if track else {int(k): () for k in ks}
-        z = self.window_hands(chart, ks, track, vis, ln_level=ln_level)
+        z = self.window_hands(chart, ks, track, vis, ln_level=ln_level, ln_length=ln_length)
         held = d.held[ks]
         masks = np.stack([action_support_mask(d.held[k], k == chart.K) for k in ks])
         targets = np.array([action_index(chart.actions[k]) for k in ks])
@@ -449,12 +462,14 @@ class R2Model(nn.Module):
         targets = torch.as_tensor(offsets + np.array([f.target for f in factors]), device=scores.device)
         return pair_logp.index_select(0, targets), pair_logp
 
-    def sequence_log_prob(self, chart: Chart, start: int, stop: int, track=(), *, ln_level: float | None = None):
+    def sequence_log_prob(self, chart: Chart, start: int, stop: int, track=(), *, ln_level: float | None = None,
+                          ln_length: float | None = None):
         """Sum of complete decision log-probabilities over [start, stop) (DPO uses this)."""
-        return self.window(chart, start, stop, track, ln_level=ln_level).total.sum()
+        return self.window(chart, start, stop, track, ln_level=ln_level, ln_length=ln_length).total.sum()
 
-    def decision_log_prob(self, chart: Chart, k: int, track=(), *, ln_level: float | None = None):
-        return self.window(chart, k, k + 1, track, ln_level=ln_level).total[0]
+    def decision_log_prob(self, chart: Chart, k: int, track=(), *, ln_level: float | None = None,
+                          ln_length: float | None = None):
+        return self.window(chart, k, k + 1, track, ln_level=ln_level, ln_length=ln_length).total[0]
 
 
 def config_dict(config: R2Config):

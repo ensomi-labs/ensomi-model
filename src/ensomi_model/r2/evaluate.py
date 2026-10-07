@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import copy
 import json
+from numbers import Real
 from pathlib import Path
 import time
 
@@ -195,7 +196,7 @@ def onset_scope(chart: Chart, frac: float, beats: int):
 
 class Evaluator:
     def __init__(self, model, cfg, manifests, *, star, baseline=None, write_dir=None, g3c=False, conditions=True,
-                 min_hold_ms=None):
+                 min_hold_ms=None, ln_length=None):
         self.model, self.cfg, self.m, self.star, self.baseline = model, cfg, manifests, star, baseline
         self.conditions = conditions
         self.min_hold_ms = min_hold_ms
@@ -206,6 +207,7 @@ class Evaluator:
         self._cpu = None
         self.code = None
         self.ln_mode = 'unknown'
+        self.ln_length = ln_length
         self._ln_prior = None
 
     @property
@@ -213,14 +215,36 @@ class Evaluator:
         model = getattr(self, 'model', getattr(self, '_cpu', None))
         return getattr(getattr(model, 'config', None), 'ln_level', 'off') == 'on'
 
+    @property
+    def length_enabled(self):
+        model = getattr(self, 'model', getattr(self, '_cpu', None))
+        return getattr(getattr(model, 'config', None), 'ln_length', 'off') == 'on'
+
     def _level(self, chart, sha, seed, *, mode=None):
-        from .ln_level import EmpiricalLNPrior, PRIOR_FILE, resolve_ln_level, whole_ln_level
+        from .ln_level import (EmpiricalLNPrior, JOINT_PRIOR_FILE, PRIOR_FILE, resolve_ln_controls,
+                               resolve_ln_level, whole_ln_length, whole_ln_level)
         mode = self.ln_mode if mode is None else mode
         if mode == 'prior' and self._ln_prior is None:
-            self._ln_prior = EmpiricalLNPrior.load(Path(self.cfg.cache) / PRIOR_FILE)
-        return resolve_ln_level(mode, source_ln_level=whole_ln_level(chart) if mode == 'oracle' else None,
-                                ln_prior=self._ln_prior, star=float(self.dev.table.set_index('sha256').loc[sha, 'star']),
-                                head_ms=chart.head_ms, song_ms=chart.song_ms, seed=seed)
+            filename = JOINT_PRIOR_FILE if self.length_enabled else PRIOR_FILE
+            path = getattr(self.cfg, 'ln_prior', None) or Path(self.cfg.cache) / filename
+            self._ln_prior = EmpiricalLNPrior.load(path)
+        kwargs = dict(source_ln_level=whole_ln_level(chart) if mode == 'oracle' else None,
+                      ln_prior=self._ln_prior, star=float(self.dev.table.set_index('sha256').loc[sha, 'star']),
+                      head_ms=chart.head_ms, song_ms=chart.song_ms, seed=seed)
+        if self.length_enabled:
+            level, _, record = resolve_ln_controls(
+                mode, source_ln_length=whole_ln_length(chart) if mode == 'oracle' else None,
+                ln_length=getattr(self, 'ln_length', None) if isinstance(mode, Real) else None, **kwargs)
+            return level, record
+        return resolve_ln_level(mode, **kwargs)
+
+    def _level_kwargs(self, level, record):
+        if not self.ln_enabled:
+            return {}
+        kwargs = dict(ln_level=level)
+        if self.length_enabled:
+            kwargs['ln_length'] = record['length']['value']
+        return kwargs
 
     @property
     def cpu(self):
@@ -230,8 +254,10 @@ class Evaluator:
 
     # ---- teacher forced ----------------------------------------------------------------------------
 
-    def _nll(self, chart, start, stop, track, *, ln_level=None):
+    def _nll(self, chart, start, stop, track, *, ln_level=None, ln_length=None):
         kwargs = dict(ln_level=ln_level) if self.ln_enabled else {}
+        if self.length_enabled:
+            kwargs['ln_length'] = ln_length
         out = self.model.window(chart, start, stop, track, **kwargs)
         return out, (-(out.action + out.release)).double().cpu().numpy()
 
@@ -240,12 +266,12 @@ class Evaluator:
         levels = {}
         for w in self.m['natural']['windows']:
             chart = self.dev.chart(w['sha256'])
-            level = None
+            level, record = None, None
             if self.ln_enabled:
                 if w['sha256'] not in levels:
                     levels[w['sha256']] = self._level(chart, w['sha256'], self.cfg.seed_validation, mode=ln_mode)
-                level = levels[w['sha256']][0]
-            _, ell = self._nll(chart, w['start'], w['stop'], (), ln_level=level)
+                level, record = levels[w['sha256']]
+            _, ell = self._nll(chart, w['start'], w['stop'], (), **self._level_kwargs(level, record))
             per.append(dict(sha256=w['sha256'], group_id=w['group_id'], nll=float(ell.sum()), decisions=len(ell)))
         total = sum(p['nll'] for p in per) / sum(p['decisions'] for p in per)
         return dict(nll_per_decision=total, windows=per,
@@ -425,7 +451,7 @@ class Evaluator:
                                        chart.actions[:s] if s else None, chart.gap[:s] if s else None,
                                        track=track.track, seed=seed, stop=stop, close_scope=close_scope,
                                        min_hold_ms=threshold, min_hold_stats=stats,
-                                       **(dict(ln_level=level) if self.ln_enabled else {}))
+                                       **self._level_kwargs(level, level_record))
             generated = chart.with_decisions(acts, gap)
             record = generation_record(chart=generated, requests=requests, effective=track,
                                        seed_rec=chart_seed_record(chart.head_ms, chart.actions[:s], chart.gap[:s]),
@@ -684,7 +710,7 @@ class Evaluator:
                 level_kwargs = {}
                 if self.ln_enabled:
                     level, record = self._level(chart, sha, int(s) + 954)
-                    level_kwargs['ln_level'] = level
+                    level_kwargs = self._level_kwargs(level, record)
                     levels.append(dict(sha=sha, start=int(s), seed=int(s) + 954, **record))
                 real = _forecast(self.cpu, chart, s, s + horizon, **level_kwargs)
                 acts, gap = continue_chart(self.cpu, chart.head_ms, chart.song_ms, chart.grid, chart.actions[:s],

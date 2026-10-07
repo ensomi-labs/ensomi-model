@@ -117,7 +117,8 @@ def test_select_earliest_plateau_candidate_ignores_iv_v1(tmp_path):
     assert all(c['within_two_se'] and c['se_to_min'] == 0. for c in result['candidates'])
 
 
-def test_evaluator_enabled_modes_and_prior_selection(tmp_path, monkeypatch):
+@pytest.mark.parametrize('length_enabled', [False, True])
+def test_evaluator_enabled_modes_and_prior_selection(tmp_path, monkeypatch, length_enabled):
     import types
     import pandas as pd
     import torch
@@ -128,7 +129,7 @@ def test_evaluator_enabled_modes_and_prior_selection(tmp_path, monkeypatch):
 
     torch.set_num_threads(1)
     chart = chart_from_objects([hold(100, 400, 0), tap(200, 1), tap(300, 2), tap(500, 3)], 700)[0]
-    model = tiny_model(torch.float32, ln_level='on')
+    model = tiny_model(torch.float32, ln_level='on', ln_length='on' if length_enabled else 'off')
     ev = object.__new__(evaluate.Evaluator)
     ev.model = ev._cpu = model
     ev.cfg = types.SimpleNamespace(cache=str(tmp_path), seed_validation=954)
@@ -138,7 +139,10 @@ def test_evaluator_enabled_modes_and_prior_selection(tmp_path, monkeypatch):
                                     table=pd.DataFrame([dict(sha256=s, star=2.) for s in ('a', 'b')]))
     prior_rows = [dict(sha256=f'{b}-{i}', role='fit_train', star=float(b), K=i + 1,
                        song_ms=1000., n_objects=10, n_ln=i) for b in (2, 3, 4, 5) for i in range(3)]
-    ev._ln_prior = EmpiricalLNPrior.fit(prior_rows)
+    if length_enabled:
+        for row in prior_rows:
+            row.update(n_objects=20, n_ln=10, ln_length=-1.5)
+    ev._ln_prior = EmpiricalLNPrior.fit(prior_rows, with_length=length_enabled)
     ev.m = dict(natural=dict(windows=[dict(sha256='a', group_id='g', start=0, stop=chart.K + 1)]))
     monkeypatch.setattr(evaluate, 'load_reference', lambda cache: reference())
     with torch.no_grad():
@@ -148,6 +152,10 @@ def test_evaluator_enabled_modes_and_prior_selection(tmp_path, monkeypatch):
     assert set(manifests['natural_manifest_modes']) == {'oracle', 'unknown', 'prior'}
     oracle = manifests['natural_manifest_modes']['oracle']['ln_levels']['a']
     assert oracle['value'] == whole_ln_level(chart)
+    if length_enabled:
+        assert oracle['length']['value'] is None
+        assert manifests['natural_manifest_modes']['unknown']['ln_levels']['a']['length']['value'] is None
+        assert manifests['natural_manifest_modes']['prior']['ln_levels']['a']['length']['value'] == -1.5
     assert manifests['natural_manifest_modes']['unknown']['ln_levels']['a']['value'] is None
     assert manifests['natural_manifest'] is manifests['natural_manifest_modes']['prior']
     assert np.array_equal(window_table(manifests)[0], np.array([manifests['natural_manifest']['windows'][0]['nll']]))
@@ -169,15 +177,19 @@ def test_evaluator_enabled_modes_and_prior_selection(tmp_path, monkeypatch):
     nested['panels']['calibration']['guard_iii'] = False
     assert guards(nested, 'natural')['iii']
 
-    forecasts, samples = [], []
+    forecasts, samples, forecast_lengths, sample_lengths = [], [], [], []
     original_forecast, original_continue = evaluate._forecast, evaluate.continue_chart
 
     def forecast(*args, **kwargs):
         forecasts.append(kwargs['ln_level'])
+        if length_enabled:
+            forecast_lengths.append(kwargs['ln_length'])
         return original_forecast(*args, **kwargs)
 
     def continuation(*args, **kwargs):
         samples.append(kwargs['ln_level'])
+        if length_enabled:
+            sample_lengths.append(kwargs['ln_length'])
         return original_continue(*args, **kwargs)
 
     monkeypatch.setattr(evaluate, '_forecast', forecast)
@@ -185,6 +197,8 @@ def test_evaluator_enabled_modes_and_prior_selection(tmp_path, monkeypatch):
     for mode in ('oracle', 'unknown', 'prior'):
         forecasts.clear()
         samples.clear()
+        forecast_lengths.clear()
+        sample_lengths.clear()
         ev.ln_mode = mode
         calibrated = ev.calibration(['a'], states=2, horizon=2)
         levels = [r['value'] for r in calibrated['ln_levels']]
@@ -192,3 +206,7 @@ def test_evaluator_enabled_modes_and_prior_selection(tmp_path, monkeypatch):
         assert forecasts == [levels[0], levels[0], levels[1], levels[1]]
         assert samples == levels
         assert all(r['mode'] == mode for r in calibrated['ln_levels'])
+        if length_enabled:
+            lengths = [r['length']['value'] for r in calibrated['ln_levels']]
+            assert forecast_lengths == [lengths[0], lengths[0], lengths[1], lengths[1]]
+            assert sample_lengths == lengths
