@@ -224,3 +224,60 @@ releasing early. Sent to the running subagent of [q-ln-length](#q-ln-length) as 
   on the near-head-release part (365 events against at most 94 allowed). Per the agent's reading of that
   decision, the next step is a proposal to the human, not a launch. The cause investigation
   ([q-ln-length](#q-ln-length)) is still running.
+
+<a id="o-lnlen-cause"></a>**Observation, 2026-10-07: what causes the short holds and near-head releases** ([r2-ln-length-20261007](r2-ln-length-20261007.md), fresh Opus subagent, measured on bings-mac with the run's frozen code; no training).
+- **Cause: where LNs are placed, not how they end.** From the start of a song, the model's per-chart LN level is
+  unrelated to the source chart's: r = 0.00 at 48M and -0.16 at 64M over the 16 panel charts. Given the source's first
+  third, r rises to 0.84-0.85. On its own history, the LN-birth rate exceeds the same chart's teacher-forced rate by
+  41% at 48M and 78% at 64M, and at 64M it rises along the song. On dense, LN-light 5-star charts this fills rows
+  40-60 ms apart with LNs. One such chart has 30 source LNs; the model gives it about 530 per seed. Three of the 16
+  panel charts carry 86-89% of the failures
+  ([s-lnlen-gen](r2-ln-length-20261007.md#s-lnlen-gen), [s-lnlen-exposure](r2-ln-length-20261007.md#s-lnlen-exposure)).
+- **Release decisions are calibrated.** At teacher-forced states, the model's mass on short and near-head
+  outcomes is 14-15% below the source's. On its own history, matched for context, its release, short-hold and
+  near-head rates are at or below the teacher-forced ones. Generated hold-length distributions match the sources'
+  (median 162-167 ms against 175 ms).
+- **Representation: not the cause (strong).** Raw `.osu` and the cache agree on all 358,953 fit_dev holds. Snapping
+  removes about 1.5% of short holds and creates almost none. Candidates allow both outcomes everywhere, but the
+  pointer does not over-use them ([s-lnlen-repr](r2-ln-length-20261007.md#s-lnlen-repr)).
+- **[h-keep-underlearned](#h-keep-underlearned) refuted (strong):**
+  - The release hazard by elapsed hold length is 0.81-1.06 times the source's above 30 ms (59,251 held-lane
+    states), and lower than the source's at 30-150 ms.
+  - Hold age is an input of the row decision (`lane_query`), and keep is not weighted differently in the loss.
+  - The only excess is a tail under 0.1% of holds ([s-lnlen-keep](r2-ln-length-20261007.md#s-lnlen-keep)).
+- **Exposure bias amplifies, it does not create.** The drift is in the LN level only, a channel guard (iii) (64
+  decisions) does not see.
+- **R1:** R2 avoids R1's two timing mechanisms. Release-only events are 72% of generated near-head releases against
+  74% in sources, and holds of 40 ms or less occur at the corpus rate. It repeats R1's third mechanism in milder form:
+  too many LNs on dense rows, with an LN level fed back through history ([s-lnlen-r1](r2-ln-length-20261007.md#s-lnlen-r1)).
+  [a-ln-mode](r2-ln-design.md#a-ln-mode) predicted this on 2026-10-03: "LN amount is a chart- and passage-level
+  choice the row model cannot infer reliably".
+- **R2 v1 against v2: no regression.** On the same 16 charts, v1 at 48M is worse: 5.3% short holds against 1.7%, and
+  an LN-birth rate on own history 2.4 times its teacher-forced rate. v1's "at most 0.3%" came from an easy 4-chart
+  panel, on which phase N is also at 0.26% or less ([s-lnlen-v1](r2-ln-length-20261007.md#s-lnlen-v1)).
+- **On a random panel, 48M passes guard (iv) from BOS:** 0.40% short holds and 0.59% near-head releases, against
+  the sources' 0.98%. This is 48 other fit_dev charts, one seed; there the model's free LN level is below the sources'.
+
+<a id="c-no-short-holds-claim"></a>**Correction, 2026-10-07: "real charts contain no holds of 60 ms or less" is false for the corpus.**
+That claim, in [o-phasen-no-selection](#o-phasen-no-selection), in [p-min-hold-mask](decoding-stage.md#p-min-hold-mask)
+and in the brief behind [d-phasen-base-mask](#d-phasen-base-mask), holds only for the 8-chart panel it was measured
+on. In the corpus, 2.72% of holds are 60 ms or less, rising to 7.0% at 5 stars; 14% of charts have at least one.
+The 16-chart selection panel's own sources are at 5.8%: one 5.1-star chart has 171 holds of exactly 60 ms. Releases
+1-40 ms before another head are 1.96% of corpus holds, rising to 5.5% at 5 stars
+([s-lnlen-repr](r2-ln-length-20261007.md#s-lnlen-repr)). Consequences:
+- Guard (iv) as built cannot be met by a model that matches the data. Its 0.5% ceiling is below the panel sources'
+  own 5.8%. Its 0.42% near-head reference pools a mostly LN-light panel, whereas plan v4 specified the band's rate.
+  It also counts holds in copied source prefixes ([s-lnlen-guard](r2-ln-length-20261007.md#s-lnlen-guard)).
+- A 60 ms mask counting `<= 60` forbids 2.7% of real holds (7.0% at 5 stars), whole deliberate patterns included.
+  The human chose the mask on a premise that is now false.
+
+<a id="a-lnlen-reading"></a>**Agent reading (main thread, 2026-10-07; report spot-checked against the mirrored outputs, nothing new run).**
+- The evidence supports the subagent's ranking. The training-side lever is a chart-level LN commitment in the natural
+  model: phase N has no way to know a chart's LN level from the start, and its own history then amplifies whatever
+  level it drew ([p-lnlen-remedies](r2-ln-length-20261007.md#p-lnlen-remedies), R1). A long-horizon LN-drift
+  measure in selection costs nothing and belongs with it (R2a).
+- Guard (iv) needs correcting before any checkpoint can be judged by it. The candidates are per-band references
+  from fit_train, model-made holds only, and `< 60` or ≤ 40 ms. This is an evaluation change and the human's call.
+- Not established: the causal step. The prefix contrast is observational: the prefix carries the LN level and also
+  the rest of the chart's style. Also open is whether band-5 near-head releases stay above the corpus rate once the
+  level is right. That cell is 4.3% against 2.4% on the random panel, from 20 events.
