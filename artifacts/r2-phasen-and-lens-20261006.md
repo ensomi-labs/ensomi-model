@@ -176,3 +176,16 @@ is to propose retraining with the minimum hold in the action contract, not to la
 Astra job `20261007-082909-r2-minhold-alloc` (part A; outputs `artifacts/r2-minhold-20261007/` on bings-mac;
 brief in `~/ensomi/.sync/cp/jobs/20261007-082909-r2-minhold-alloc/brief.md`). The brief does not touch the 1-40 ms
 release rate beyond measuring it, overall and by star band.
+
+<a id="q-ln-length"></a>**Question (human, 2026-10-07, [private, local](private/human-inputs/31d15d7a-049a-4750-95a5-fab3de17f164.md#prompt-2)): what causes phase N's short holds, and how is it removed in training?**
+The human wants the guard (iv) defects rare by the model itself, without decoding-time tuning. Three questions:
+does the release representation cause them; does R2 repeat the R1 mechanism recorded in
+[s-ln-open-state](lineage-review/synthesis.md#s-ln-open-state); does the lack of training on the model's own history
+over whole songs (exposure bias) cause or amplify them. Agent reading: the decode mask
+([d-phasen-base-mask](#d-phasen-base-mask)) continues as a measurement and fallback, not as the answer. Delegated
+2026-10-07 about 08:50 UTC to a fresh Opus subagent (Claude, control plane). It is read-only on tracked files while Astra
+edits the working tree, imports the run's frozen code `artifacts/r2-runs/r2-phaseN-20261006/code`, puts its scripts in
+`~/ensomi/.sync/cp/scratch/r2-ln-length/` and its outputs in `artifacts/r2-ln-length-20261007/` on bings-mac, and does no
+training. The brief asks for: the generation path of each defect; source rates and representation (candidates, snapping);
+the model's teacher-forced mass at source states against its free-run rate on its own history, and that rate along
+the song; R2 v1 against v2; the R1 comparison; ranked training-side remedies with costs.
