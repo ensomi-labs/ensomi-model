@@ -136,3 +136,15 @@ Nothing else is running: no Claude subagent, and no training (phase N finished a
   - Real charts hold their level along the song (first against last third, r 0.86).
   - The phase-N failure is the spread (SD ratio 0.43), not the correlation.
   Its sections 4-5 give what to run next and a provisional ranking of remedies.
+- **The subagent stopped at 13:55 UTC.** Its two model-side jobs were left running on bings-mac:
+  `20261007-125618-lnlev-run-n48` (counterfactual-prefix stage) and `20261007-130636-lnlev-run-n64` (prefix-run
+  stage). They write to `artifacts/r2-ln-level-20261007/runs/<tag>/`. When they end, run `analyze_runs.py` and
+  `dataq.py` from `~/ensomi/.sync/cp/scratch/r2-ln-level/` with the commands in section 4 of the partial report.
+  That answers four questions: is the level compressed from the start of a song, is it kept, is placement right
+  at a matched level, and does the model read its own history as more LN-heavy. Its provisional ranking of
+  remedies, from the data side only:
+  1. a prefix-rollout objective that calibrates the LN level;
+  2. a calibration of the level drawn at the start of the song;
+  3. a learned per-chart latent level (whether that counts as a hint is the human's call);
+  4. long-range memory on (small gain).
+  A whole-skeleton input, longer windows and loss reweighting are not supported.
