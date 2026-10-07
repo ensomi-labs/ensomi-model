@@ -432,3 +432,25 @@ for a deeper cause.
 <a id="d-base-56m"></a>**Decision (human, 2026-10-07 about 15:25 UTC, [private, local](private/human-inputs/022ac2c4-6b2a-4347-9894-9f142365340e.md#answer-5)): tonight's fine-tune starts from 56M, the selected checkpoint.** It replaces "from 48M" in [d-lnlevel-ft](#d-lnlevel-ft) and [d-night-20261007](#d-night-20261007), and the difficulty pilot uses the fine-tune as its base.
 - Main-thread choice, not a human decision: no full free-run evaluation inside the training run, for wall time. Astra estimated 8 h 40 min with three full evaluations. The chain evaluates the final checkpoint instead.
 - Delegated: Astra job `20261007-151553-r2-lnlevel-length` (fast tier) adds the length channel; brief in `~/ensomi/.sync/cp/jobs/20261007-151553-r2-lnlevel-length/brief.md`.
+
+<a id="r-night-20261007"></a>**Running, 2026-10-07 from 15:46 UTC: the night chain** ([d-night-20261007](#d-night-20261007), [d-base-56m](#d-base-56m)).
+- **Length channel.** Code `8bd2cdd`, from Astra job `20261007-151553-r2-lnlevel-length`.
+  - `ln_length` adds a known bit and the median log2 hold length in grid beats, undefined below 10 holds.
+  - Share and length drop to unknown together.
+  - Prior v2 draws share and length from one fit_train chart (11,368 observations, 1,488 without a defined length).
+  - `tests/r2`: 284 passed, 4 skipped.
+  - The 0.2M smoke from 56M trained in 84 s.
+  - Main-thread review: the code is again heavy with validation of internal values (`checked_length`, closure and gap contract checks). It was committed as is so the run could start tonight. Removing that bulk is a morning item under the new rule in `~/ensomi/AGENTS.md`.
+- **Fine-tune.** Run `r2-lnlevel2-12m-20261007`, `ens` job `20261007-154601-r2-lnlevel2-12m`, launched 15:46 UTC.
+  - Config `ce_v2_n_lnlevel2_ft.json` with `--set ln_prior=artifacts/r2-lnlevel2-20261007/ln-level-prior-v2.json`.
+  - Teacher-forced evaluation only at 4M, 8M and 12M.
+  - Expected to end about 17:15-17:30 UTC.
+- **Astra job `20261007-154633-r2-night-chain`** (fast tier) writes three things; brief in `~/ensomi/.sync/cp/jobs/20261007-154633-r2-night-chain/brief.md`:
+  - the LN evaluation of the final checkpoint, Part A;
+  - the difficulty-controller pilot, Part B;
+  - the chain script, Part C.
+  - Main-thread choices in that brief, not human decisions:
+    - teacher KL cap κ = 1.0;
+    - on source states the base reads the source's own share and length;
+    - the final 12M checkpoint is used without selection, with 56M as the fallback;
+    - a runtime budget so the chain ends by about 23:00 UTC.
