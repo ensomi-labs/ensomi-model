@@ -332,3 +332,27 @@ for a deeper cause.
    - Its oracle mode may be used once, as a probe of placement within a level.
    - The shipped natural model gets no hint.
    - Agent reading: the 12M fine-tune is not launched until the investigation reports.
+
+<a id="d-lnlen-distribution-goal"></a>**Decisions (human, 2026-10-07 about 14:10 UTC, [private, local](private/human-inputs/022ac2c4-6b2a-4347-9894-9f142365340e.md#prompt-2), [answers 1-2](private/human-inputs/022ac2c4-6b2a-4347-9894-9f142365340e.md#answer-1)): the goal is corpus-like LN distributions; a self-drawn level is not a hint.**
+1. **Goal.** The natural model should produce LN share and LN length *distributions* like the real corpus. The
+   target is distributional, not a per-chart match to a source chart.
+2. **What counts as a hint.** A chart-level LN variable that the model samples itself at generation (for example
+   the `ln_level` input in prior mode, or a per-chart latent drawn from p(z | skeleton)) may ship in the natural
+   model. A level copied from an existing chart (oracle mode) is a hint and stays a diagnostic. This narrows "the
+   shipped natural model gets no hint" in [d-lnlen-hint-diagnostic](#d-lnlen-hint-diagnostic) item 2 to "no level
+   supplied from outside". It reopens remedies 2 and 3 of the partial report
+   ([r2-ln-level-20261007-partial](r2-ln-level-20261007-partial.md), section 5), and the `ln_level` code in prior
+   mode becomes a candidate fix again, not only a probe.
+3. **Timing.** No fine-tune yet: wait until the analyses of the n48 and n64 runs
+   (`20261007-125618-lnlev-run-n48`, `20261007-130636-lnlev-run-n64`) give enough results, then start. Agent
+   reading of "both analysis"; it may instead mean that investigation plus Astra's guard and selection job.
+- Agent notes, not decisions:
+  - Training can feed the chart's true level (it is a function of the chart), so an explicit level needs no
+    unsupervised latent. Astra's prior is P(level | band, density tercile); a skeleton-conditional prior is
+    sharper (R² 0.17 against about 0).
+  - A drawn level fixes the across-chart spread only if the model obeys it and holds it against its own history
+    (drift +41-78% earlier, [o-lnlen-cause](#o-lnlen-cause)). Oracle mode tests that.
+  - The level carries share, not length. LN length needs its own corpus comparison. If length is also mostly a
+    per-chart choice, the level could carry a length summary; check that in the data first.
+  - Evaluation then scores, per band against fit_dev: the SD of LN share, the fractions below 0.025 and at or
+    above 0.3, the PIT within the skeleton cell, LN length quantiles and the short-hold rate.
