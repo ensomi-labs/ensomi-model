@@ -189,3 +189,12 @@ edits the working tree, imports the run's frozen code `artifacts/r2-runs/r2-phas
 training. The brief asks for: the generation path of each defect; source rates and representation (candidates, snapping);
 the model's teacher-forced mass at source states against its free-run rate on its own history, and that rate along
 the song; R2 v1 against v2; the R1 comparison; ranked training-side remedies with costs.
+
+<a id="h-keep-underlearned"></a>**Hypothesis (human, 2026-10-07, [private, local](private/human-inputs/31d15d7a-049a-4750-95a5-fab3de17f164.md#prompt-3)): the keep decision is poorly learned, so LNs end early.**
+On a held lane, code 0 (keep) may be under-learned against the release codes, which would bias the model toward
+releasing early. Sent to the running subagent of [q-ln-length](#q-ln-length) as a test with four parts:
+1. model against source release hazard by elapsed hold length (ms and beats), gap, density and star band, at
+   teacher-forced states;
+2. the same hazard on the model's own free-run history;
+3. hold-length survival curves;
+4. from the code: whether the row decision sees the hold's age, and how keep decisions are weighted in the loss.
