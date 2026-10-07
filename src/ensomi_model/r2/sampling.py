@@ -21,6 +21,7 @@ from .common import ACTIONS, ContractError, GridArrays
 from .features import (Chart, gap_release_lanes, history_tokens, lane_query, make_factor, query_features,
                        row_placements)
 from .state import action_support_mask, replay_decisions
+from .strain import action_head_masks
 
 
 def _gumbel_argmax(logits: torch.Tensor, generator) -> int:
@@ -45,11 +46,22 @@ def _scope_closed(chart: Chart, k: int, a: float, b: float) -> bool:
 
 @torch.no_grad()
 def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_actions=None, prefix_gap=None,
-                   track=(), seed: int = 954, stop: int | None = None, *, baseline=None, close_scope=None):
+                   track=(), seed: int = 954, stop: int | None = None, *, baseline=None, close_scope=None,
+                   head_mask_bias=None):
     """Return (actions [n,4], gap [n,4]) for decisions 0..n-1, n = stop (default through EOS).
 
     ``close_scope=(a, b)`` ends generation early, at the first decision at or after the exit
     decision of [a, b) after which no LN headed in [a, b) is still held (realised-response runs).
+
+    ``head_mask_bias(k, chart, held, logp)`` optionally returns 15 finite additive
+    biases, ordered by masks 1..15 (bit l denotes lane l). Inputs are read-only:
+    chart contains every committed decision < k, including the source prefix;
+    held is its replayed held-before state; logp is the unmodified normalized
+    [625] action log probability tensor. The next call exposes the last sampled
+    action and gaps; a call also occurs at EOS. Biases apply only to the action
+    Gumbel maximum, with zero for the empty mask/EOS. The release pointer is
+    unchanged. None and all-zero biases preserve the original sampling bits.
+    A caller collecting a trace must consume returned arrays after early stop.
     """
     require_no_baseline(baseline)
     was_training = model.training
@@ -89,6 +101,14 @@ def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_acti
         z = model.hands(before, qf, mk, vis, model.row_condition(chart, track, [k]))
         mask = action_support_mask(held, k == K)
         logp = model.action_log_probs(z, mask[None])[0]
+        if head_mask_bias is not None:
+            bias = torch.as_tensor(head_mask_bias(k, chart, held, logp), dtype=torch.float64, device='cpu')
+            if bias.shape != (15,) or not torch.isfinite(bias).all():
+                raise ContractError('Head-mask bias must contain 15 finite values')
+            if torch.any(bias != 0):
+                ids = torch.as_tensor(action_head_masks(held, eos=k == K))
+                action_bias = torch.cat((bias.new_zeros(1), bias))[ids]
+                logp = logp.detach().cpu().to(torch.float64) + action_bias
         codes = ACTIONS[_gumbel_argmax(logp, generator)]
         orientation = int(torch.randint(2, (), generator=generator))
         lanes = gap_release_lanes(held, codes, orientation)
