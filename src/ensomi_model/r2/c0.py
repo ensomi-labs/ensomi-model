@@ -1567,6 +1567,554 @@ def run_screen(cache, output, seed, checkpoint, *, measurements, corpus_root, ma
         raise
 
 
+class AllocationBias(MeasurementBias):
+    """Allocate a realized remaining budget using masked natural expectations.
+
+    N's running numerator includes the current history's expectation and all
+    earlier in-scope expectations. NB updates that estimate even inside its
+    exact-zero band. Reference charges and the eight-row prior use C0 units.
+    """
+
+    def __init__(self, head_ms, song_ms, a, b, *, rule, target, kappa, rho0, stats):
+        super().__init__(head_ms, song_ms, a, b, target=target, kappa=kappa)
+        if rule not in ('R', 'N', 'NB', 'reference'):
+            raise ValueError('Unknown allocation rule')
+        self.rule, self.rho0, self.stats = rule, rho0, stats
+        self.natural_sum = 0.0
+        self.prior_fallbacks = 0
+
+    def __call__(self, k, chart, held, logp):
+        import numpy as np
+        from .strain import head_mask_log_probs
+
+        self.trace.extend(chart.actions, chart.gap)
+        if k != self.trace.replay.k or not np.array_equal(held, self.trace.replay.held):
+            raise ValueError('Allocation replay and sampler held states disagree')
+        if not self.start <= k < self.stop:
+            return np.zeros(15)
+        costs = self.trace.state.mask_costs(chart.time(k))
+        lm = head_mask_log_probs(logp.double(), held).detach().cpu().numpy()
+        expected0, _, _ = tilted_moments(lm, costs, self.scale, 0.0)
+        self.natural_sum += expected0
+        committed = self.trace.workload_rows(self.start, k)
+        remaining = self.trace.reference_rows(k, self.stop)
+        row_reference = self.trace.reference_rows(k, k + 1)
+        elapsed_reference = self.trace.reference_rows(self.start, k + 1)
+        rho2 = (self.natural_sum + 8 * self.scale * self.rho0 ** 2) / (elapsed_reference + 8 * self.scale)
+        forecast = expected0 + rho2 * self.trace.reference_rows(k + 1, self.stop)
+        projected = math.sqrt((committed + forecast) / self.reference)
+        budget = None if self.target is None else self.target ** 2 * self.reference - committed
+        desired = None
+        in_band = self.rule == 'NB' and abs(math.log(projected / self.target)) <= 0.02
+        if self.rule == 'reference' or in_band:
+            solution = dict(eta=0.0, expected_charge=expected0, kl=0.0, limit=None, limit_side=None)
+        else:
+            desired = (budget * row_reference / remaining if self.rule == 'R' or forecast <= 0
+                       else expected0 * budget / forecast)
+            solution = solve_eta(lm, costs, self.scale, desired, self.kappa)
+        fallbacks = self.stats.get('fallbacks', 0)
+        row = dict(k=k, time_ms=chart.time(k), supported_masks=int(np.isfinite(lm).sum()),
+                   committed_workload=committed, remaining_budget=budget,
+                   remaining_reference=remaining, row_reference=row_reference,
+                   desired_charge=desired, natural_expected_charge=expected0,
+                   natural_expected_sum=self.natural_sum, elapsed_reference=elapsed_reference,
+                   rho2=rho2, forecast_remaining_workload=forecast, projected_r=projected,
+                   neutral_band=in_band, forecast_fallback=forecast <= 0,
+                   min_hold_fallback=bool(fallbacks - self.prior_fallbacks),
+                   mask_costs=costs.tolist(),
+                   natural_mask_log_probs=[float(x) if np.isfinite(x) else None for x in lm], **solution)
+        self.prior_fallbacks = fallbacks
+        self.rows.append(row)
+        eta = solution['eta']
+        return eta * costs / self.scale if eta else np.zeros(15)
+
+
+def allocation_hold_audit(chart, start, rows):
+    """Count closed holds by release decision; unfinished holds are excluded."""
+    import numpy as np
+
+    derived = chart.derived()
+    counts = dict(prefix_holds=0, prefix_short_holds=0, generated_holds=0,
+                  generated_short_holds=0, generated_prefix_start_holds=0,
+                  generated_prefix_start_short_holds=0)
+    shorts = []
+    by_k = {row['k']: row for row in rows}
+    for k, codes in enumerate(chart.actions):
+        durations = []
+        for lane in np.flatnonzero(derived.held[k] & (codes > 0)):
+            end = chart.time(k) if codes[lane] == 1 else float(chart.gap[k, lane])
+            begin = float(derived.start[k, lane])
+            duration = end - begin
+            kind = 'prefix' if k < start else 'generated'
+            counts[kind + '_holds'] += 1
+            counts[kind + '_short_holds'] += int(duration <= 60)
+            if k >= start and begin < chart.time(start):
+                counts['generated_prefix_start_holds'] += 1
+                counts['generated_prefix_start_short_holds'] += int(duration <= 60)
+            if k >= start:
+                if codes[lane] >= 2 and not np.any(chart.candidates(k).times == end):
+                    raise ValueError('Allocation sampled a release outside its candidates')
+                if duration <= 60 and not by_k[k]['min_hold_fallback']:
+                    raise ValueError('Allocation sampled a short hold without fallback')
+                durations.append(dict(lane=int(lane), start_ms=begin, end_ms=end, duration_ms=duration))
+            if duration <= 60:
+                shorts.append(dict(k=k, lane=int(lane), start_ms=begin, end_ms=end, inherited=k < start))
+        if k in by_k:
+            by_k[k]['completed_holds'] = durations
+    return dict(**counts, short_holds=shorts)
+
+
+ALLOCATION_CHECKPOINT_SHA256 = '09271d55d177e0c0ab3a8f3b1b293f66fc14feb338a7b657fdc4fe26d44c56b1'
+ALLOCATION_SOURCE_FILES = ('src/ensomi_model/r2/sampling.py', 'src/ensomi_model/r2/evaluate.py',
+                           'src/ensomi_model/r2/c0.py', 'src/ensomi_model/r2/README.md',
+                           'tests/r2/test_min_hold.py')
+_ALLOCATION_WORKER = None
+
+
+def allocation_worker_init(cache, output, checkpoint):
+    global _ALLOCATION_WORKER
+    environment = configure_threads()
+    model, loading = load_measurement_model(checkpoint)
+    _ALLOCATION_WORKER = dict(cache=Path(cache), output=Path(output), model=model,
+                              charts={}, checkpoint=loading, environment=environment)
+
+
+def allocation_worker(spec):
+    from .cache import load_chart
+
+    state = _ALLOCATION_WORKER
+    if spec['chart_sha256'] not in state['charts']:
+        path = state['cache'] / 'charts' / spec['chart_file']
+        if file_sha256(path) != spec['chart_file_sha256']:
+            raise ValueError('Frozen allocation anchor chart changed')
+        state['charts'][spec['chart_sha256']] = load_chart(path)
+    row = measure_allocation_scope(state['model'], state['charts'][spec['chart_sha256']], spec,
+                                   state['output'] / 'trajectories' / (spec['id'] + '.json'))
+    row['worker_pid'] = os.getpid()
+    return row
+
+
+def allocation_specs(anchors, targets, seed, references=None):
+    """Freeze the original C0 sampling seeds and shuffle controls independently."""
+    import numpy as np
+
+    specs = []
+    for anchor in anchors:
+        for length in (2, 4, 8, 16):
+            for seed_index in range(2):
+                ref_id = f"ref-a{anchor['anchor']}-l{length}-s{seed_index}"
+                shared = {key: anchor[key] for key in ('anchor', 'chart_sha256', 'chart_file',
+                                                       'chart_file_sha256', 'a_ms')}
+                shared.update(length_sec=length, seed_index=seed_index,
+                              sampling_seed=seed + 10000 + 100 * anchor['anchor'] + seed_index,
+                              rho0=targets[str(length)]['middle'], min_hold_ms=60, reference_id=ref_id)
+                if references is None:
+                    specs.append(dict(**shared, id=ref_id, rule='reference', treatment='reference',
+                                      eta=0.0, target=None, kappa=None))
+                    continue
+                ref = references[ref_id]
+                for name, target in dict(targets[str(length)], own=ref['r']).items():
+                    for rule in ('R', 'N', 'NB'):
+                        for kappa in (0.25, 1.0):
+                            specs.append(dict(**shared, id=f"{rule}-a{anchor['anchor']}-l{length}-{name}-k{kappa}-s{seed_index}",
+                                              rule=rule, treatment='controller', target=target, target_name=name,
+                                              kappa=kappa, reference_trajectory=ref['trajectory']))
+    if references is not None:
+        order = np.random.Generator(np.random.PCG64(seed + 63)).permutation(len(specs))
+        specs = [specs[int(i)] for i in order]
+    return specs
+
+
+def allocation_summary(rows):
+    """C0 aggregate weights, with exact-zero and short-hold counters."""
+    import numpy as np
+
+    if not rows:
+        return dict(N=0)
+    result = summarize_generated(rows, 2026100703 + rows[0]['length_sec'])
+    decisions = sum(row['head_rows'] for row in rows)
+    result.update(decisions=decisions, eta_zero_fraction=sum(row['eta_zero_count'] for row in rows) / decisions,
+                  full_sample_reproduction_fraction=float(np.mean([row['full_sample_reproduction'] for row in rows])),
+                  fallback_count=sum(row['min_hold']['fallbacks'] for row in rows),
+                  generated_holds=sum(row['hold_audit']['generated_holds'] for row in rows),
+                  generated_short_holds=sum(row['hold_audit']['generated_short_holds'] for row in rows),
+                  inherited_prefix_holds=sum(row['hold_audit']['prefix_holds'] for row in rows),
+                  inherited_prefix_short_holds=sum(row['hold_audit']['prefix_short_holds'] for row in rows))
+    return result
+
+
+def allocation_paired_comparisons(rows):
+    """Pair on anchor, seed, length, target, and cap before comparing departure."""
+    import numpy as np
+
+    def key(row):
+        return row['anchor'], row['sampling_seed'], row['length_sec'], row['target_name'], row['kappa']
+
+    baseline = {key(row): row for row in rows if row['rule'] == 'R'}
+    output = []
+    for rule in ('N', 'NB'):
+        for length in (2, 4, 8, 16):
+            for target in ('low', 'middle', 'high', 'outlier', 'own'):
+                for kappa in (0.25, 1.0):
+                    pairs = [(baseline[key(row)], row) for row in rows if row['rule'] == rule
+                             and row['length_sec'] == length and row['target_name'] == target
+                             and row['kappa'] == kappa and key(row) in baseline]
+                    if not pairs:
+                        continue
+                    subsets = dict(all=pairs,
+                                   both_within_005=[p for p in pairs if max(abs(p[0]['log_ratio_error']), abs(p[1]['log_ratio_error'])) <= .05],
+                                   matched_abs_error_001=[p for p in pairs if abs(abs(p[0]['log_ratio_error']) - abs(p[1]['log_ratio_error'])) <= .01])
+                    row = dict(rule=rule, length_sec=length, target_name=target, kappa=kappa, subsets={})
+                    for name, selected in subsets.items():
+                        out = dict(N=len(selected))
+                        if selected:
+                            out.update(absolute_log_error_delta=float(np.mean([abs(b['log_ratio_error']) - abs(a['log_ratio_error']) for a, b in selected])),
+                                       within_005_delta=float(np.mean([int(abs(b['log_ratio_error']) <= .05) - int(abs(a['log_ratio_error']) <= .05) for a, b in selected])),
+                                       kl_delta=float(np.mean([b['kl_mean'] - a['kl_mean'] for a, b in selected])),
+                                       full_ll_delta=float(np.mean([b['full_log_likelihood_per_decision'] - a['full_log_likelihood_per_decision'] for a, b in selected])),
+                                       eta_zero_delta=float(np.mean([b['eta_zero_count'] / b['head_rows'] - a['eta_zero_count'] / a['head_rows'] for a, b in selected])))
+                        row['subsets'][name] = out
+                    output.append(row)
+    return output
+
+
+def run_allocation(cache, output, measurements, checkpoint, *, stage, workers, command):
+    """Run masked paired references, time 20 controls, then resume the frozen grid."""
+    from concurrent.futures import ProcessPoolExecutor
+    import multiprocessing
+    import numpy as np
+
+    started = time.perf_counter()
+    environment = configure_threads()
+    cache, output, measurements, checkpoint = map(Path, (cache, output, measurements, checkpoint))
+    if output.resolve() == measurements.resolve() or measurements.resolve() in output.resolve().parents:
+        raise ValueError('Allocation outputs must be outside the read-only C0 input directory')
+    if file_sha256(checkpoint) != ALLOCATION_CHECKPOINT_SHA256:
+        raise ValueError('Allocation requires the frozen 48M checkpoint')
+    output.mkdir(parents=True, exist_ok=True)
+    frozen = json.loads((measurements / 'part3-anchors.json').read_text())
+    if frozen['cache'] != str(cache):
+        raise ValueError('Allocation cache differs from frozen C0 anchors')
+    anchors = [a for a in frozen['anchors'] if 16 <= a['anchor'] <= 23]
+    if [a['anchor'] for a in anchors] != list(range(16, 24)):
+        raise ValueError('Allocation requires exactly frozen anchors 16 through 23')
+    natural = json.loads((measurements / 'part2.json').read_text())
+    targets = {str(length): natural['by_length'][str(length)]['controller_targets'] for length in (2, 4, 8, 16)}
+    provenance = model_provenance(checkpoint, environment, output, 'allocation')
+    provenance['whole_task_source_sha256'] = {p: file_sha256(p) for p in ALLOCATION_SOURCE_FILES}
+    provenance['inputs'] = {str(measurements / name): file_sha256(measurements / name)
+                            for name in ('part3-anchors.json', 'part2.json')}
+    manifest = dict(seed=frozen['seed'], anchors=anchors, targets=targets, min_hold_ms=60,
+                    checkpoint=dict(path=str(checkpoint), sha256=ALLOCATION_CHECKPOINT_SHA256),
+                    whole_task_source_sha256=provenance['whole_task_source_sha256'],
+                    input_sha256=provenance['inputs'], code_sha256=provenance['code_sha256'])
+    path = output / 'allocation-manifest.json'
+    if path.exists() and json.loads(path.read_text()) != manifest:
+        raise ValueError('Allocation manifest differs from the frozen experiment')
+    path.write_text(json.dumps(manifest, indent=2) + '\n')
+    refs_specs = allocation_specs(anchors, targets, frozen['seed'])
+    references = {}
+    if stage != 'references':
+        for spec in refs_specs:
+            row = json.loads((output / 'trajectories' / (spec['id'] + '.json')).read_text())
+            if not row['zero_tilt_identity']:
+                raise ValueError('Masked zero-tilt reference identity failed')
+            references[spec['id']] = row
+    specs = refs_specs if stage == 'references' else allocation_specs(anchors, targets, frozen['seed'], references)
+    full_count = len(specs)
+    if stage == 'pilot':
+        specs = specs[:20]
+    elif stage in ('full', 'summarize'):
+        pilot = json.loads((output / 'allocation-pilot.json').read_text())
+        if pilot['workers'] != workers:
+            raise ValueError('Allocation pilot and full run need identical worker counts')
+        if pilot['projected_full_design_seconds'] > 90 * 60:
+            specs = [s for s in specs if not (s['rule'] == 'R' and s['kappa'] == .25)]
+    rows, pending = [], []
+    for spec in specs:
+        receipt = output / 'trajectories' / (spec['id'] + '.json')
+        if receipt.exists():
+            row = json.loads(receipt.read_text())
+            if any(row.get(k) != v for k, v in spec.items()):
+                raise ValueError(f"Allocation receipt spec mismatch: {spec['id']}")
+            rows.append(row)
+        else:
+            pending.append(spec)
+    if stage == 'summarize' and pending:
+        raise ValueError('Allocation summaries require the complete selected grid')
+    execution_started = time.perf_counter()
+    if pending:
+        with ProcessPoolExecutor(max_workers=workers, mp_context=multiprocessing.get_context('spawn'),
+                                 initializer=allocation_worker_init,
+                                 initargs=(str(cache), str(output), str(checkpoint))) as pool:
+            for row in pool.map(allocation_worker, pending, chunksize=1):
+                rows.append(row)
+                if len(rows) % 20 == 0 or len(rows) == len(specs):
+                    print(json.dumps(dict(stage=stage, complete=len(rows), total=len(specs),
+                                          wall_seconds=time.perf_counter() - started)), flush=True)
+    execution_seconds = time.perf_counter() - execution_started
+    result = dict(stage=stage, status='complete', N=len(rows), workers=workers,
+                  newly_measured=len(pending), execution_seconds=execution_seconds,
+                  wall_seconds=time.perf_counter() - started, command=command, provenance=provenance,
+                  scope_wall_seconds=sum(r['wall_seconds'] for r in rows))
+    if stage == 'pilot':
+        if len(pending) != 20:
+            raise ValueError('Timing pilot requires exactly 20 newly measured controls')
+        result.update(scope_ids=[s['id'] for s in specs], full_design_scopes=full_count,
+                      projected_full_design_seconds=execution_seconds / 20 * full_count,
+                      timing_boundary='four spawned workers including model load, sampling, full LL, identity for own, and file writes',
+                      schedule=[{k: s[k] for k in ('rule', 'anchor', 'length_sec', 'target_name', 'kappa', 'seed_index')} for s in specs])
+    if stage == 'references':
+        if len(rows) != 64 or not all(r['zero_tilt_identity'] for r in rows):
+            raise ValueError('All 64 masked references must reproduce the no-bias arrays')
+        result['zero_tilt_identity_count'] = len(rows)
+        result['generated_short_holds'] = sum(r['hold_audit']['generated_short_holds'] for r in rows)
+        result['fallback_count'] = sum(r['min_hold']['fallbacks'] for r in rows)
+    if stage in ('full', 'summarize'):
+        for row in rows:
+            ref = references[row['reference_id']]
+            row['reference_second_half_share_delta'] = row['second_half_workload_share'] - ref['second_half_workload_share']
+            for metric in ('full_log_likelihood_per_decision', 'ln_share', 'same_lane_repeat_rate'):
+                row[metric + '_minus_reference'] = row[metric] - ref[metric]
+        result['deviations'] = [] if len(rows) == 1920 else ['R kappa .25 omitted because the 20-scope projection exceeded 90 minutes']
+        result['groups'] = {rule: {str(length): {str(kappa): {name: allocation_summary([r for r in rows
+                            if r['rule'] == rule and r['length_sec'] == length and r['kappa'] == kappa and r['target_name'] == name])
+                            for name in ('low', 'middle', 'high', 'outlier', 'own')}
+                            for kappa in (.25, 1.)} for length in (2, 4, 8, 16)} for rule in ('R', 'N', 'NB')}
+        result['pooled'] = {rule: {str(length): allocation_summary([r for r in rows if r['rule'] == rule and r['length_sec'] == length])
+                                  for length in (2, 4, 8, 16)} for rule in ('R', 'N', 'NB')}
+        result['paired_comparisons'] = allocation_paired_comparisons(rows)
+        with gzip.open(output / 'allocation-scopes.jsonl.gz', 'wt', encoding='utf-8') as stream:
+            for row in sorted(rows, key=lambda r: r['id']):
+                stream.write(json.dumps(row, separators=(',', ':'), allow_nan=False) + '\n')
+        write_allocation_report(output, result)
+    (output / f'allocation-{stage}.json').write_text(json.dumps(result, indent=2, allow_nan=False) + '\n')
+    return result
+
+
+def write_allocation_report(output, summary):
+    """Write attained workload and original phase-N likelihood beside masked KL."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    def triplet(d):
+        return '/'.join(f"{d[k]:.3f}" for k in ('p10', 'p50', 'p90'))
+
+    def cells(g):
+        ll = g['metrics']['full_log_likelihood_per_decision']['mean']
+        dll = g['full_log_likelihood_per_decision_minus_reference']['mean']
+        return (f"{g['N']} | {triplet(g['metrics']['r'])} | {triplet(g['log_ratio_error'])} | "
+                f"{g['within_log_005']:.3f} | {g['within_log_010']:.3f} | {g['pooled_per_decision_kl']:.4f} | "
+                f"{g['eta_zero_fraction']:.3f} | {ll:.4f} | {dll:+.4f} | {g['saturation_fraction']:.3f} | "
+                f"{g['second_half_share_minus_reference']['p50']:+.4f} | {g['pooled_repeat_rate']:.4f} | "
+                f"{g['pooled_ln_share']:.4f} | {g['generated_short_holds']}/{g['generated_holds']} | "
+                f"{g['inherited_prefix_short_holds']}/{g['inherited_prefix_holds']} | {g['fallback_count']} | "
+                f"{g['full_sample_reproduction_fraction']:.3f}")
+
+    columns = ('N | r p10/p50/p90 | log error p10/p50/p90 | within .05 | within .10 | KL/decision | '
+               'exact eta=0 | full LL/decision | LL delta vs reference | saturated | second-half share delta p50 | '
+               'repeat rate | LN share | generated ≤60 ms/holds | inherited ≤60 ms/holds | fallbacks | exact arrays')
+    lines = ['# R2 allocation under minimum-hold decoding', '',
+             f"Completed {summary['N']} controlled scopes and 64 paired masked phase-N references. "
+             'Every generation uses the 48M checkpoint and `min_hold_ms=60`.', '',
+             '## Measurement definitions', '',
+             'The metric, carried source prefix, continuous cyclic reference, half-open scope, 15 head-mask costs, '
+             'and scale `sS=WH/K` are the frozen C0 definitions. Anchors 16–23, lengths 2/4/8/16 seconds, '
+             'and both original C0 sampling seeds are reused. Targets are frozen source p10, p50, p90, '
+             '`max(p99,1.5*p50)`, and the achieved ratio of the paired zero-tilt masked reference (`own`).', '',
+             'R requests `B*dWHk/WHrem`. N requests `ek*B/Fk`, where `ek` is the masked phase-N '
+             'expectation at the current controller history, `rho2=(sum(ej)+8*sS*rho0²)/(sum(dWHj)+8*sS)`, '
+             'and `Fk=ek+rho2*WH(k+1:end)`. Both sums include the current in-scope row, and `rho0` is the '
+             'frozen natural median for the length. N falls back to R only when `Fk<=0`. NB updates the '
+             'same estimate on every row, but uses exactly eta zero if '
+             '`abs(log(sqrt((Wcommitted+Fk)/WH)/target))<=.02`. Else it uses N. '
+             'All nonzero decisions use the unchanged C0 solver, `abs(eta)<=8` and head-mask KL cap .25 or 1.', '',
+             'The duration mask is applied and renormalized before the callback computes `ek` or head-mask KL. '
+             'The reported full LL uses the original, unmasked phase-N density on each sampled history: '
+             '`R2Model.window` joint-action LL plus the log-mean-exp of both directed release-pointer orientations. '
+             'It includes all pointer choices and orientation marginalization, and is not merely head-mask log mass. '
+             'It is deliberately not renormalized over minimum-hold support, so it has the same scoring definition '
+             'as C0. Both controlled samples and paired references are scored this way.', '',
+             'Sampling reuses the unchanged Gumbel/orientation/pointer draw policy. All 64 reference arrays were '
+             'checked byte-for-byte against same-seed masked sampling without a callback. The own-target array '
+             'rate compares complete prefix-plus-scope action and gap arrays with that reference. '
+             'Scopes stop before the exit row, as in C0; open holds are not artificially closed. Hold rates count '
+             'completed holds by release decision: inherited means release before generation begins; generated '
+             'includes closures of holds opened in the supplied prefix. Every generated gap release is checked '
+             'against its candidate set and every nonfallback generated hold is strictly longer than 60 ms.', '',
+             'Quantiles, attainment, LL means and paired LL deltas weight scopes equally. KL, saturation and exact-zero '
+             'shares weight head decisions; LN share weights individual heads; repeat rate weights predecessor heads. '
+             'Second-half changes compare each run with its same-anchor/length/seed reference. Pooled rows mix all '
+             'five target strata and caps; the paired tables retain target and cap to avoid that confounding.', '',
+             '## Per-rule, length, target and cap', '',
+             '| Rule | L | Target | kappa | ' + columns + ' |',
+             '| ' + ' | '.join(['---'] * 21) + ' |']
+    for rule, lengths in summary['groups'].items():
+        for length, caps in lengths.items():
+            for cap, targets in caps.items():
+                for name, group in targets.items():
+                    if group['N']:
+                        lines.append(f'| {rule} | {length} | {name} | {cap} | {cells(group)} |')
+    lines += ['', '## Pooled by rule and length', '', '| Rule | L | ' + columns + ' |',
+              '| ' + ' | '.join(['---'] * 19) + ' |']
+    for rule, lengths in summary['pooled'].items():
+        for length, group in lengths.items():
+            lines.append(f'| {rule} | {length} | {cells(group)} |')
+    lines += ['', '## Paired departure at comparable attainment', '',
+              'Each N/NB run is paired with R on anchor, sampling seed, length, target and cap. '
+              'The matched-error subset requires the absolute log errors to differ by at most .01; '
+              'the second subset requires both errors to be at most .05. Delta is N/NB minus R. '
+              'Negative KL delta indicates less head-mask tilt; positive LL delta indicates greater '
+              'original phase-N likelihood. These are descriptive selected subsets, not randomized '
+              'comparisons at an exactly fixed achieved ratio.', '',
+              '| Rule | L | Target | kappa | all N | attainment .05 delta | abs-error delta | matched N | matched KL delta | matched LL delta | both ≤.05 N | both KL delta | both LL delta |',
+              '| ' + ' | '.join(['---'] * 13) + ' |']
+    for row in summary['paired_comparisons']:
+        a, m, b = (row['subsets'][k] for k in ('all', 'matched_abs_error_001', 'both_within_005'))
+        def val(d, k):
+            return f'{d[k]:+.4f}' if k in d else '-'
+        lines.append(f"| {row['rule']} | {row['length_sec']} | {row['target_name']} | {row['kappa']} | {a['N']} | "
+                     f"{val(a, 'within_005_delta')} | {val(a, 'absolute_log_error_delta')} | {m['N']} | "
+                     f"{val(m, 'kl_delta')} | {val(m, 'full_ll_delta')} | {b['N']} | {val(b, 'kl_delta')} | {val(b, 'full_ll_delta')} |")
+    lines += ['', '## Provenance and execution', '',
+              f"Checkpoint: `artifacts/r2-runs/r2-phaseN-20261006/checkpoints/ckpt-0048000198.pt`; SHA-256 `{ALLOCATION_CHECKPOINT_SHA256}`.", '',
+              f"The command used {summary['workers']} compute processes, one numerical-library thread per process. "
+              'No training was performed. `allocation-manifest.json` freezes anchors, targets, source hashes and input hashes. '
+              '`allocation-source/` preserves runtime sources; `baseline-source/c0.py` preserves the pre-extension command implementation. '
+              'The compressed scope and per-decision files retain exact measurements; each NPZ retains replayable arrays. '
+              'No sealed screen key or private screen data is an input.', '',
+              f"Full invocation wall time: {summary['wall_seconds']:.3f} seconds; summed measured scope wall times: {summary['scope_wall_seconds']:.3f} seconds.", '',
+              'Deviations: ' + ('; '.join(summary['deviations']) or 'none') + '.', '',
+              '```sh', summary['command'], '```', '', '| Whole-task source/test | SHA-256 |', '| --- | --- |']
+    for path, sha in summary['provenance']['whole_task_source_sha256'].items():
+        lines.append(f'| `{path}` | `{sha}` |')
+    lines += ['', 'Exact commands, stage wall times, the first-20 schedule and worker count are in '
+              '`allocation-references.json`, `allocation-pilot.json`, `allocation-full.json`, and `commands.json`. '
+              'Final tests and source identities are recorded separately in `final-verification.json`.', '',
+              '![Attainment and departure](allocation-response.png)', '']
+    (Path(output) / 'report.md').write_text('\n'.join(lines))
+    fig, axes = plt.subplots(1, 2, figsize=(9, 3.5))
+    for rule, lengths in summary['pooled'].items():
+        xs = [int(x) for x in lengths]
+        axes[0].plot(xs, [g['within_log_005'] for g in lengths.values()], marker='o', label=rule)
+        axes[1].plot(xs, [g['pooled_per_decision_kl'] for g in lengths.values()], marker='o', label=rule)
+    axes[0].set(ylabel='Fraction within |log error| ≤ .05', xlabel='Scope length (s)', ylim=(0, 1.05))
+    axes[1].set(ylabel='Masked head KL / decision', xlabel='Scope length (s)')
+    for ax in axes:
+        ax.legend()
+        ax.grid(alpha=.2)
+    fig.tight_layout()
+    fig.savefig(Path(output) / 'allocation-response.png', dpi=150)
+    plt.close(fig)
+
+
+def measure_allocation_scope(model, dec, spec, destination):
+    """Generate one scope, score complete decisions, and retain replayable arrays."""
+    import numpy as np
+    import torch
+    from .cache import chart_grid
+    from .common import GridArrays
+    from .features import Chart
+    from .sampling import continue_chart
+    from .strain import heads_from_codes
+
+    started = time.perf_counter()
+    a, b = spec['a_ms'], spec['a_ms'] + 1000 * spec['length_sec']
+    start, stop = (int(k) for k in np.searchsorted(dec.head_ms, (a, b), side='left'))
+    if stop - start < MIN_HEAD_ROWS:
+        raise ValueError('Frozen C0 anchor has fewer than eight scope heads')
+    stats = {}
+    tilt = AllocationBias(dec.head_ms, dec.song_ms, a, b, rule=spec['rule'],
+                          target=spec.get('target'), kappa=spec.get('kappa'), rho0=spec['rho0'], stats=stats)
+    grid = GridArrays.from_grid(chart_grid(dec))
+    with torch.inference_mode():
+        actions, gap = continue_chart(model, dec.head_ms, dec.song_ms, grid,
+                                      dec.actions[:start], dec.gap_release_ms[:start], track=(),
+                                      seed=spec['sampling_seed'], stop=stop, head_mask_bias=tilt,
+                                      min_hold_ms=60, min_hold_stats=stats)
+        assert np.array_equal(actions[:start], dec.actions[:start])
+        assert np.array_equal(gap[:start], dec.gap_release_ms[:start], equal_nan=True)
+        zero_identity = None
+        if spec['rule'] == 'reference':
+            plain = continue_chart(model, dec.head_ms, dec.song_ms, grid,
+                                   dec.actions[:start], dec.gap_release_ms[:start], track=(),
+                                   seed=spec['sampling_seed'], stop=stop, min_hold_ms=60)
+            zero_identity = all(x.dtype == y.dtype and x.tobytes() == y.tobytes()
+                                for x, y in zip((actions, gap), plain))
+            if not zero_identity:
+                raise ValueError('Masked phase-N zero-tilt arrays differ from no-bias arrays')
+        tilt.finish(actions, gap)
+        chart = Chart(dec.head_ms, dec.song_ms, grid, actions, gap)
+        action_lp, release_lp = [], []
+        for j in range(start, stop, 128):
+            scored = model.window(chart, j, min(stop, j + 128), track=())
+            action_lp.extend(scored.action.cpu().double().tolist())
+            release_lp.extend(scored.release.cpu().double().tolist())
+    if not (np.isfinite(action_lp).all() and np.isfinite(release_lp).all()):
+        raise ValueError('C0 generated likelihood is nonfinite')
+    held = chart.derived().held[:stop]
+    heads = heads_from_codes(actions, held)
+    q = heads[start:stop]
+    sizes = q.sum(axis=1)
+    ln = np.where(held[start:stop], actions[start:stop] == 4, actions[start:stop] == 2) & q
+    pairs = q[1:] & q[:-1]
+    measured = tilt.trace.scope(a, b)
+    halfway = int(np.searchsorted(dec.head_ms, (a + b) / 2, side='left'))
+    first = tilt.trace.workload_rows(start, halfway)
+    second = tilt.trace.workload_rows(halfway, stop)
+    for i, row in enumerate(tilt.rows):
+        row.update(action_log_likelihood=action_lp[i], release_log_likelihood=release_lp[i],
+                   head_mask=int(q[i].astype(int) @ (1 << np.arange(4))))
+    result = dict(**spec, b_ms=b, start_row=start, stop_row=stop, head_rows=stop - start,
+                  r=measured.ratio, workload=measured.workload, reference=measured.reference,
+                  workload_per_sec=measured.intensity, chord_size_counts=np.bincount(sizes, minlength=5)[1:].tolist(),
+                  heads=int(sizes.sum()), ln_heads=int(ln.sum()), ln_share=float(ln.sum() / sizes.sum()),
+                  same_lane_repeat_count=int(pairs.sum()), repeat_denominator=int(q[:-1].sum()),
+                  same_lane_repeat_rate=float(pairs.sum() / q[:-1].sum()),
+                  kl_mean=float(np.mean([r['kl'] for r in tilt.rows])),
+                  kl_max=max(r['kl'] for r in tilt.rows),
+                  singleton_supported_mask_rate=float(np.mean([r['supported_masks'] == 1 for r in tilt.rows])),
+                  action_log_likelihood_per_decision=float(np.mean(action_lp)),
+                  release_log_likelihood_per_decision=float(np.mean(release_lp)),
+                  full_log_likelihood_per_decision=float(np.mean(np.array(action_lp) + release_lp)),
+                  first_half_workload=first, second_half_workload=second,
+                  first_half_workload_share=first / measured.workload,
+                  second_half_workload_share=second / measured.workload,
+                  saturation_counts=dict(Counter(r['limit'] or 'none' for r in tilt.rows)),
+                  saturation_side_counts=dict(Counter(r['limit_side'] or 'none' for r in tilt.rows)),
+                  eta_min=min(r['eta'] for r in tilt.rows), eta_max=max(r['eta'] for r in tilt.rows))
+    if spec.get('target') is not None:
+        result['log_ratio_error'] = math.log(result['r'] / spec['target'])
+        result['terminal_budget'] = spec['target'] ** 2 * result['reference'] - result['workload']
+    result.update(min_hold=dict(ms=60, **stats), zero_tilt_identity=zero_identity,
+                  eta_zero_count=sum(row['eta'] == 0 for row in tilt.rows),
+                  hold_audit=allocation_hold_audit(chart, start, tilt.rows),
+                  action_sha256=hashlib.sha256(actions.tobytes()).hexdigest(),
+                  gap_sha256=hashlib.sha256(gap.tobytes()).hexdigest(),
+                  full_sample_reproduction=spec['rule'] == 'reference')
+    if spec['rule'] != 'reference':
+        with np.load(spec['reference_trajectory'], allow_pickle=False) as ref:
+            result['full_sample_reproduction'] = all(x.dtype == y.dtype and x.tobytes() == y.tobytes()
+                for x, y in ((actions, ref['actions']), (gap, ref['gap'])))
+    destination = Path(destination)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    trajectory = destination.with_suffix('.npz')
+    np.savez_compressed(trajectory, head_ms=dec.head_ms, song_ms=dec.song_ms,
+                        grid_segments=dec.grid_segments, grid_bars=dec.grid_bars,
+                        actions=actions, gap=gap, prefix_actions=dec.actions[:start],
+                        prefix_gap=dec.gap_release_ms[:start], metadata=json.dumps(result))
+    with gzip.open(destination.with_suffix('.decisions.jsonl.gz'), 'wt', encoding='utf-8') as stream:
+        for row in tilt.rows:
+            stream.write(json.dumps(row, separators=(',', ':'), allow_nan=False) + '\n')
+    result['trajectory'] = str(trajectory)
+    result['decisions'] = str(destination.with_suffix('.decisions.jsonl.gz'))
+    result['wall_seconds'] = time.perf_counter() - started
+    destination.with_suffix('.json').write_text(json.dumps(result, indent=2, allow_nan=False) + '\n')
+    return result
+
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     commands = parser.add_subparsers(dest='command', required=True)
@@ -1594,10 +2142,18 @@ def main(argv=None):
         if name != 'overhead':
             child.add_argument('--pilot-only', action='store_true')
             child.add_argument('--seeds', type=int, choices=(1, 2), default=2)
+    allocation = commands.add_parser('allocation', help='Compare masked R/N/NB workload allocation')
+    for name in ('cache', 'output', 'checkpoint', 'measurements'):
+        allocation.add_argument('--' + name, type=Path, required=True)
+    allocation.add_argument('--stage', choices=('references', 'pilot', 'full', 'summarize'), required=True)
+    allocation.add_argument('--workers', type=int, choices=range(1, 5), default=4)
     args = parser.parse_args(argv)
     command = ' '.join(f'{name}=1' for name in THREAD_ENV) + ' PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.c0 '
     command += shlex.join(sys.argv[1:] if argv is None else argv)
-    if args.command == 'natural':
+    if args.command == 'allocation':
+        summary = run_allocation(args.cache, args.output, args.measurements, args.checkpoint,
+                                 stage=args.stage, workers=args.workers, command=command)
+    elif args.command == 'natural':
         summary = run_natural(args.cache, args.output, args.seed, args.checkpoint, command=command)
     elif args.command == 'screen':
         summary = run_screen(args.cache, args.output, args.seed, args.checkpoint,

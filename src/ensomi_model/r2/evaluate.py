@@ -9,6 +9,9 @@ section 9.4, the calibration of 9.5 and G3 (a1), (a2), (b), (f) of 9.7, plus (c)
 With ``conditions=False`` (phase N of plan v5, a model that reads no condition) only the
 natural parts run: the natural manifest, natural from BOS, the prefix panel (guard (i)), the
 calibration (guard (iii)), legality, defects and G3 (c).
+``min_hold_ms`` optionally changes only natural BOS and prefix-natural sampling;
+their records include the threshold and decision/fallback counts. Teacher-forced,
+calibration, conditioned and G3 sampling retain their existing decoding.
 Every generation writes its record (``generate.generation_record``) to ``records.jsonl``.
 All readouts go through ``properties``; random seeds are 954-956 unless stated.
 """
@@ -25,10 +28,10 @@ import torch
 from .common import ACTIONS
 from .data import Corpus, track_from_json
 from .features import Chart, Interval
-from .generate import defects, generate
+from .generate import chart_seed_record, defects, generate, generation_record
 from .locality import reads, scope_decisions
 from .properties import ln_share, prefix_objects, scope_contains
-from .request_set import Request, RequestSet, Target
+from .request_set import Request, RequestSet, Target, effective_track
 from .sampling import continue_chart
 
 SEEDS = (954, 955, 956)
@@ -185,9 +188,11 @@ def onset_scope(chart: Chart, frac: float, beats: int):
 
 
 class Evaluator:
-    def __init__(self, model, cfg, manifests, *, star, baseline=None, write_dir=None, g3c=False, conditions=True):
+    def __init__(self, model, cfg, manifests, *, star, baseline=None, write_dir=None, g3c=False, conditions=True,
+                 min_hold_ms=None):
         self.model, self.cfg, self.m, self.star, self.baseline = model, cfg, manifests, star, baseline
         self.conditions = conditions
+        self.min_hold_ms = min_hold_ms
         self.dev = Corpus(cfg.cache, 'fit_dev', star_conditions=False)
         self.write_dir = Path(write_dir) if write_dir else None
         self.g3c = g3c
@@ -370,11 +375,27 @@ class Evaluator:
 
     def run(self, sha, requests: RequestSet, s: int, seed: int, *, stop=None, close_scope=None, panel=''):
         chart = self.dev.chart(sha)
-        acts, gap, record = generate(self.cpu, chart.head_ms, chart.song_ms, chart.grid, requests,
-                                     seed_actions=chart.actions[:s] if s else None,
-                                     seed_gap=chart.gap[:s] if s else None, random_seed=seed, stop=stop,
-                                     close_scope=close_scope, baseline_model=self.baseline, code=self.code,
-                                     train_config=None)
+        if self.min_hold_ms is not None and panel in ('natural_bos', 'prefix_natural'):
+            stats = {}
+            track = effective_track(requests, chart.head_ms, chart.grid, star_value=self.cpu.config.star_value,
+                                    baseline=self.baseline)
+            acts, gap = continue_chart(self.cpu, chart.head_ms, chart.song_ms, chart.grid,
+                                       chart.actions[:s] if s else None, chart.gap[:s] if s else None,
+                                       track=track.track, seed=seed, stop=stop, close_scope=close_scope,
+                                       min_hold_ms=self.min_hold_ms, min_hold_stats=stats)
+            generated = chart.with_decisions(acts, gap)
+            record = generation_record(chart=generated, requests=requests, effective=track,
+                                       seed_rec=chart_seed_record(chart.head_ms, chart.actions[:s], chart.gap[:s]),
+                                       random_seed=seed, model=self.cpu, baseline=self.baseline, code=self.code,
+                                       objects=prefix_objects(chart.head_ms, acts, gap),
+                                       complete=len(acts) == chart.K + 1)
+            record['min_hold'] = dict(ms=self.min_hold_ms, **stats)
+        else:
+            acts, gap, record = generate(self.cpu, chart.head_ms, chart.song_ms, chart.grid, requests,
+                                         seed_actions=chart.actions[:s] if s else None,
+                                         seed_gap=chart.gap[:s] if s else None, random_seed=seed, stop=stop,
+                                         close_scope=close_scope, baseline_model=self.baseline, code=self.code,
+                                         train_config=None)
         record.update(panel=panel, sha256=sha)
         self._record(record)
         return chart, acts, gap, record

@@ -26,7 +26,7 @@ caffeinate come with `ens run`).
 | `train_ce.py` | Trainer: checkpoints, exact resume, NaN recovery, logs, pilot and free-run modes |
 | `sampling.py`, `export.py`, `report.py` | Free-running generation with an optional per-decision head-mask bias, `.osu` export, free-run summary |
 | `strain.py` | Frozen `ras-v1` replay-backed workload and reference prefix sums, scope ratios and budgets, 15-mask costs and probability masses, fixed-eta sampling bias |
-| `c0.py` | Source strain distributions, fixed-tilt scans, bounded analytic workload control, full decision likelihoods, replayable scope trajectories, paired proxy overhead, and blind comparison export with sealed provenance |
+| `c0.py` | Source strain distributions, fixed-tilt scans, bounded analytic workload control, full decision likelihoods, replayable scope trajectories, paired proxy overhead, blind comparison export with sealed provenance, and masked R/N/NB allocation comparisons |
 | `launch.py` | Frozen-code launcher and restarting supervisor |
 
 ## Build the cache
