@@ -114,17 +114,21 @@ def generation_record(*, chart: Chart, requests: RequestSet, effective, seed_rec
 def generate(model, head_ms, song_ms, grid, requests: RequestSet, *, seed_actions=None, seed_gap=None,
              random_seed: int = 954, stop=None, close_scope=None, baseline=None, baseline_model=None,
              checkpoint=None, train_config=None, code=None, ln_level='unknown', ln_length=None,
-             source_ln_level=None, source_ln_length=None, ln_prior=None, star=None):
+             source_ln_level=None, source_ln_length=None, ln_prior=None, star=None,
+             theta='unknown', theta_table=None, theta_source_sha256=None):
     """Return (actions, gap, record); whole-song LN inputs follow ``continue_chart`` modes."""
     require_no_baseline(baseline)
     s = 0 if seed_actions is None else len(seed_actions)
     requests.check_frontier(frontier_of(head_ms, s))
     effective = effective_track(requests, head_ms, grid, star_value=model.config.star_value, baseline=baseline_model)
     level_stats = {}
+    theta_record = {}
     acts, gap = continue_chart(model, head_ms, song_ms, grid, seed_actions, seed_gap, track=effective.track,
                                seed=random_seed, stop=stop, close_scope=close_scope, ln_level=ln_level,
                                ln_length=ln_length, source_ln_level=source_ln_level, source_ln_length=source_ln_length,
-                               ln_prior=ln_prior, star=star, ln_level_stats=level_stats)
+                               ln_prior=ln_prior, star=star, ln_level_stats=level_stats,
+                               theta=theta, theta_table=theta_table,
+                               theta_source_sha256=theta_source_sha256, theta_record=theta_record)
     chart = Chart(np.asarray(head_ms), float(song_ms), grid, acts, gap)
     objects = prefix_objects(head_ms, acts, gap)
     record = generation_record(chart=chart, requests=requests, effective=effective,
@@ -134,6 +138,8 @@ def generate(model, head_ms, song_ms, grid, requests: RequestSet, *, seed_action
                                code=code)
     if level_stats:
         record['ln_level'] = level_stats
+    if theta_record:
+        record['theta'] = theta_record
     return acts, gap, record
 
 
@@ -161,6 +167,8 @@ def main(argv=None):
     p.add_argument('--ln-level', default='unknown', help='unknown, oracle, prior, or a numeric share in [0, 1]')
     p.add_argument('--ln-length', type=float, help='Optional median log2 length in beats with a fixed share')
     p.add_argument('--ln-prior', help='Empirical prior JSON; joint v2 when the length input is enabled')
+    p.add_argument('--theta', default='unknown', help='prior, unknown, oracle, or a JSON standardised 10-vector')
+    p.add_argument('--theta-table', default=None)
     p.add_argument('--out', required=True)
     a = p.parse_args(argv)
     data = torch.load(a.checkpoint, map_location='cpu', weights_only=False)
@@ -171,6 +179,8 @@ def main(argv=None):
     from .ln_level import EmpiricalLNPrior, JOINT_PRIOR_FILE, PRIOR_FILE, whole_ln_length, whole_ln_level
     mode = a.ln_level if a.ln_level in ('unknown', 'oracle', 'prior') else float(a.ln_level)
     level_kwargs = dict(ln_level=mode, ln_length=a.ln_length)
+    level_kwargs.update(theta=a.theta if a.theta in ('unknown', 'oracle', 'prior') else json.loads(a.theta),
+                        theta_table=a.theta_table, theta_source_sha256=a.sha)
     if model.config.ln_level == 'on':
         if mode == 'oracle':
             level_kwargs['source_ln_level'] = whole_ln_level(chart)

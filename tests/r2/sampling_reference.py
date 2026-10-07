@@ -9,23 +9,20 @@ history is extended with the TCN's online cache (fixed weights only).
 
 ``track`` is the effective track (``request_set.effective_track``); the model applies
 rule L per decision. Requests, their validation and the generation record live in
-``generate.py``. The separate ``baseline`` slot admits only ``None``; optional
-chart identity enters through the configured self-anchor and theta readers.
+``generate.py``. The ``baseline`` slot (the formulation's baseline style rho) admits
+only ``None``: R2 carries identity through committed history alone.
 """
 from __future__ import annotations
-
-from dataclasses import fields
 
 import numpy as np
 import torch
 
-from .common import ACTIONS, HAND_LANES, ContractError, GridArrays, psi_pair
-from .candidates import phase
-from .features import (Chart, Derived, _onehot, _views, gap_release_lanes, history_tokens, lane_query,
-                       make_factor, row_placements)
-from .state import action_support_mask, replay_decisions
-from .strain import action_head_masks
-from .ln_level import resolve_ln_controls, resolve_ln_level
+from ensomi_model.r2.common import ACTIONS, ContractError, GridArrays
+from ensomi_model.r2.features import (Chart, gap_release_lanes, history_tokens, lane_query, make_factor, query_features,
+                       row_placements)
+from ensomi_model.r2.state import action_support_mask, replay_decisions
+from ensomi_model.r2.strain import action_head_masks
+from ensomi_model.r2.ln_level import resolve_ln_controls, resolve_ln_level
 
 
 def _gumbel_argmax(logits: torch.Tensor, generator) -> int:
@@ -34,7 +31,7 @@ def _gumbel_argmax(logits: torch.Tensor, generator) -> int:
     return int((logits - (-u.log()).log()).argmax())
 
 
-BASELINE_NONE = 'none (not implemented)'
+BASELINE_NONE = 'none (not implemented; identity carried by committed history only)'
 
 
 def require_no_baseline(baseline):
@@ -48,90 +45,12 @@ def _scope_closed(chart: Chart, k: int, a: float, b: float) -> bool:
     return not any(np.isfinite(x) and a <= x < b for x in starts)
 
 
-class IncrementalState:
-    """Committed chart with preallocated replay arrays; append changes its live views."""
-
-    def __init__(self, head_ms, song_ms, grid, actions, gap, n=0):
-        self.actions, self.gap = actions, gap
-        self.chart = Chart(head_ms, song_ms, grid, actions[:n], gap[:n])
-        initial = self.chart.derived()
-        self.arrays = {}
-        self.extra = {}
-        for f in fields(initial):
-            value = getattr(initial, f.name)
-            extra = len(value) - n
-            arr = np.zeros((len(actions) + extra,) + value.shape[1:], dtype=value.dtype)
-            arr[:len(value)] = value
-            self.arrays[f.name], self.extra[f.name] = arr, extra
-        self._view(n)
-
-    def _view(self, n):
-        self.chart.actions, self.chart.gap = self.actions[:n], self.gap[:n]
-        self.chart.cache['derived'] = Derived(**{name: arr[:n + self.extra[name]]
-                                                for name, arr in self.arrays.items()})
-
-    def append(self, codes, gap):
-        k, d = self.chart.n, self.arrays
-        self.actions[k], self.gap[k] = codes, gap
-        t = self.chart.time(k)
-        held = d['held'][k]
-        closed = held & (codes != 0)
-        attack = np.where(held, codes >= 3, (codes == 1) | (codes == 2))
-        ln_head = np.where(held, codes == 4, codes == 2)
-        release = np.where(closed, np.where(codes == 1, t, gap), np.nan)
-        d['held'][k + 1] = (held & ~closed) | ln_head
-        d['start'][k + 1] = np.where(ln_head, t, np.where(closed, np.nan, d['start'][k]))
-        d['birth'][k + 1] = np.where(ln_head, k, np.where(closed, -1, d['birth'][k]))
-        d['release'][k], d['row_release'][k] = release, closed & (codes == 1)
-        d['attack'][k], d['ln_head'][k] = attack, ln_head
-        d['last_attack'][k + 1] = np.where(attack, t, d['last_attack'][k])
-        d['last_release'][k + 1] = np.fmax(release, d['last_release'][k])
-        d['cum_heads'][k + 1] = d['cum_heads'][k] + attack.sum()
-        d['cum_ln'][k + 1] = d['cum_ln'][k] + ln_head.sum()
-        repeat = (attack & d['attack'][k - 1]).sum() if k else 0
-        d['cum_repeat'][k + 1] = d['cum_repeat'][k] + repeat
-        d['cum_held'][k + 1] = d['cum_held'][k] + held.sum()
-        heads = attack.sum()
-        d['cum_c3'][k + 1] = d['cum_c3'][k] + (heads >= 3)
-        d['cum_c4'][k + 1] = d['cum_c4'][k] + (heads == 4)
-        pattern = int((attack * (1 << np.arange(4))).sum())
-        d['cum_patterns'][k + 1] = d['cum_patterns'][k]
-        d['cum_patterns'][k + 1, pattern] += 1
-        d['cum_pattern_repeat'][k + 1] = d['cum_pattern_repeat'][k]
-        for i, lag in enumerate((1, 2, 4)):
-            if k >= lag:
-                d['cum_pattern_repeat'][k + 1, i] += np.array_equal(attack, d['attack'][k - lag])
-        lengths = self.chart.grid.beat(release[closed]) - self.chart.grid.beat(d['start'][k, closed])
-        d['cum_ln_log_length'][k + 1] = d['cum_ln_log_length'][k] + np.log2(np.maximum(lengths, 1e-4)).sum()
-        d['cum_closed_ln'][k + 1] = d['cum_closed_ln'][k] + closed.sum()
-        d['cum_hand_heads'][k + 1] = d['cum_hand_heads'][k] + attack.reshape(2, 2).sum(1)
-        self._view(k + 1)
-
-
-def _history_token(chart, k):
-    """The k-th history token, with the same float operations as history_tokens."""
-    d, ks = chart.derived(), np.array([k])
-    acts, rel = chart.actions[ks].astype(np.int64), d.release[ks]
-    lane = np.concatenate((_onehot(acts, 5), d.held[ks, :, None].astype(np.float64),
-                           (~np.isnan(rel))[..., None].astype(np.float64),
-                           _views(chart, rel, ks[:, None], d.start[ks])), -1)
-    t, b = chart.head_ms[ks], chart.head_beats[ks]
-    prev = max(k - 1, 0)
-    shared = np.concatenate((psi_pair(t - chart.head_ms[prev], b - chart.head_beats[prev]),
-                             psi_pair(t - chart.head_ms[0], b - chart.head_beats[0]), phase(b),
-                             _onehot(d.attack[ks].sum(1), 5), _onehot(d.ln_head[ks].sum(1), 5)), -1)
-    hands = [np.concatenate((lane[:, list(order)].reshape(1, 76), shared), -1) for order in HAND_LANES]
-    return np.stack(hands, 1).astype(np.float32)[0]
-
-
 @torch.no_grad()
 def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_actions=None, prefix_gap=None,
                    track=(), seed: int = 954, stop: int | None = None, *, baseline=None, close_scope=None,
                    head_mask_bias=None, min_hold_ms=None, min_hold_stats=None, ln_level='unknown',
                    source_ln_level=None, ln_prior=None, star=None, ln_level_stats=None,
-                   ln_length=None, source_ln_length=None, theta='unknown', theta_table=None,
-                   theta_source_sha256=None, theta_record=None,
-                   _history_cache=None, _history_out=None):
+                   ln_length=None, source_ln_length=None):
     """Return (actions [n,4], gap [n,4]) for decisions 0..n-1, n = stop (default through EOS).
 
     ``close_scope=(a, b)`` ends generation early, at the first decision at or after the exit
@@ -167,10 +86,6 @@ def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_acti
     ``ln_length`` in log2 beats. Unknown clears both inputs; absent length stays
     unknown. Metadata includes the length's known bit, value and units.
     A disabled model ignores these inputs and keeps the original sampling path.
-
-    ``theta`` accepts unknown, oracle, prior, or a standardised ten-coordinate
-    vector. It is resolved once and held fixed; ``theta_record`` receives its
-    value and donor provenance. Disabled theta readers ignore it.
     """
     require_no_baseline(baseline)
     if min_hold_ms is not None and (not np.isfinite(min_hold_ms) or min_hold_ms < 0):
@@ -188,22 +103,6 @@ def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_acti
                                                    star=star, head_ms=head_ms, song_ms=song_ms, seed=seed)
         if ln_level_stats is not None:
             ln_level_stats.update(level_record)
-    theta_value = None
-    theta_enabled = getattr(model.config, 'theta', 'off') == 'on'
-    if theta_enabled:
-        from .theta import resolve_theta
-        theta_value, record = resolve_theta(theta, head_ms=head_ms, song_ms=song_ms,
-                                            grid=grid, seed=seed, table=theta_table,
-                                            source_sha256=theta_source_sha256)
-        if theta_record is not None:
-            theta_record.update(record)
-    query_kwargs = {}
-    if level_enabled:
-        query_kwargs['ln_level'] = level
-    if length_enabled:
-        query_kwargs['ln_length'] = length
-    if theta_enabled:
-        query_kwargs['theta'] = theta_value
     was_training = model.training
     model.eval()
     K = len(head_ms)
@@ -218,26 +117,29 @@ def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_acti
         replay_decisions(head_ms, song_ms, actions[:s], gap[:s])  # raises if the prefix is not legal
     generator = torch.Generator().manual_seed(int(seed))
     temporal = model.temporal
-    cache, marks = (temporal.empty_cache(), []) if _history_cache is None else _history_cache
-    marks = list(marks)
+    cache = temporal.empty_cache()
+    marks = []
     stride = model.config.stride
-    if s and _history_cache is None:
+    if s:
         chart = Chart(head_ms, song_ms, grid, actions[:s], gap[:s])
         toks = model._t(history_tokens(chart, min(s, K)))
         for i in range(len(toks)):
             cache = temporal.append(cache, toks[i])
             if i % stride == 0:
                 marks.append(temporal.read(cache))
-    state = IncrementalState(head_ms, song_ms, grid, actions, gap, s)
+    base = Chart(head_ms, song_ms, grid, actions[:0], gap[:0])
     exit_k = None if close_scope is None else int(np.searchsorted(head_ms, close_scope[1], side='left'))
     n = stop
     for k in range(s, stop):
-        chart = state.chart
+        chart = base.with_decisions(actions[:k], gap[:k])
         held = chart.derived().held[k]
         before = temporal.read(cache).to(model.dtype)[None]
         mk = torch.stack(marks) if marks else None
         vis = torch.ones(1, len(marks), dtype=torch.bool, device=model.device) if marks else None
-        qf = model.query_features(chart, [k], **query_kwargs)
+        if length_enabled:
+            qf = model.query_features(chart, [k], ln_level=level, ln_length=length)
+        else:
+            qf = model.query_features(chart, [k], ln_level=level) if level_enabled else model._t(query_features(chart, [k]))
         z = model.hands(before, qf, mk, vis, model.row_condition(chart, track, [k]))
         mask = action_support_mask(held, k == K)
         hold_masked, fallback = False, False
@@ -283,18 +185,19 @@ def continue_chart(model, head_ms, song_ms: float, grid: GridArrays, prefix_acti
                 u = float(f.times[_gumbel_argmax(scores, generator)])
                 placed[lane] = (u, False)
                 rel[lane] = u
-        state.append(codes, rel)
+        actions[k], gap[k] = codes, rel
+        base = chart
         if exit_k is not None and k >= exit_k:
-            if _scope_closed(chart, k, *close_scope):
+            done = base.with_decisions(actions[:k + 1], gap[:k + 1])
+            if _scope_closed(done, k, *close_scope):
                 n = k + 1
                 break
         if k < K:
-            tok = model._t(_history_token(chart, k))
+            nxt = base.with_decisions(actions[:k + 1], gap[:k + 1])
+            tok = model._t(history_tokens(nxt, k + 1)[k])
             cache = temporal.append(cache, tok)
             if k % stride == 0:
                 marks.append(temporal.read(cache))
     if was_training:
         model.train()
-    if _history_out is not None:
-        _history_out.update(cache=cache, marks=marks)
     return actions[:n], gap[:n]

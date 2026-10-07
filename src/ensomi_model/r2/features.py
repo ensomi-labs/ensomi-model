@@ -22,6 +22,8 @@ LANE_QUERY_DIM = 15
 QUERY_DIM = 150
 LN_LEVEL_DIM = 3
 LN_LENGTH_DIM = 2
+ANCHOR_DIM = 13
+THETA_DIM = 11
 LN_LEVEL_MODES = ('off', 'on')
 LN_LEVEL_EPS = 1e-6
 RELATION_DIM = 28
@@ -107,6 +109,13 @@ class Derived:
     cum_ln: np.ndarray      # [n+1]
     cum_repeat: np.ndarray  # [n+1] heads at rows j < k whose lane also has a head at row j - 1
     cum_held: np.ndarray    # [n+1] lanes held entering rows j < k
+    cum_c3: np.ndarray
+    cum_c4: np.ndarray
+    cum_patterns: np.ndarray       # [n+1,16] head-mask counts
+    cum_pattern_repeat: np.ndarray # [n+1,3] matching masks at lags 1, 2, 4
+    cum_ln_log_length: np.ndarray  # log2 beat lengths of holds closed before k
+    cum_closed_ln: np.ndarray
+    cum_hand_heads: np.ndarray     # [n+1,2] physical left/right head counts
 
 
 def derive(chart: Chart) -> Derived:
@@ -167,8 +176,23 @@ def derive(chart: Chart) -> Derived:
         repeat[1:] = (attack[1:] & attack[:-1]).sum(1)
     cum_repeat = np.concatenate(([0], np.cumsum(repeat)))
     cum_held = np.concatenate(([0], np.cumsum(held[:n].sum(1))))
+    def cumulative(values):
+        return np.concatenate((np.zeros((1,) + values.shape[1:]), np.cumsum(values, axis=0)), axis=0)
+
+    counts = attack.sum(1)
+    patterns = (attack * (1 << np.arange(4))).sum(1)
+    pattern_repeat = np.zeros((n, 3))
+    for i, lag in enumerate((1, 2, 4)):
+        pattern_repeat[lag:, i] = patterns[lag:] == patterns[:-lag]
+    closed = ~np.isnan(release)
+    log_length = np.zeros((n, 4))
+    if chart.grid is not None:  # generation seed records build grid-free charts
+        log_length[closed] = np.log2(np.maximum(chart.grid.beat(release[closed]) -
+                                               chart.grid.beat(start[:n][closed]), 1e-4))
     return Derived(held, start, birth, release, row_rel, attack, ln_head, last_attack, last_release, cum_heads, cum_ln,
-                   cum_repeat, cum_held)
+                   cum_repeat, cum_held, cumulative(counts >= 3), cumulative(counts == 4),
+                   cumulative(np.eye(16)[patterns]), cumulative(pattern_repeat), cumulative(log_length.sum(1)),
+                   cumulative(closed.sum(1)), cumulative(attack.reshape(n, 2, 2).sum(2)))
 
 
 def _views(chart: Chart, u, k_rows, start):
@@ -262,12 +286,43 @@ def ln_length_features(length: float | None) -> np.ndarray:
     return np.array([1.0, checked_length(length)], dtype=np.float32)
 
 
-def query_features(chart: Chart, ks, *, ln_level: str = 'off', level: float | None = None,
-                   ln_length: str = 'off', length: float | None = None) -> np.ndarray:
-    """[m,2,150] queries at ks (EOS = K); share adds three channels, length adds two.
+def anchor_features(chart: Chart, ks) -> np.ndarray:
+    """Thirteen committed-prefix channels, with own-hand share in each hand view."""
+    ks = np.asarray(ks)
+    d = chart.derived()
+    rows, heads = np.maximum(ks, 1), np.maximum(d.cum_heads[ks], 1)
+    nonempty = d.cum_patterns[ks, 1:]
+    p = nonempty / np.maximum(nonempty.sum(1), 1)[:, None]
+    entropy = -(p * np.log2(np.maximum(p, 1e-30))).sum(1)
+    shared = np.column_stack((d.cum_heads[ks] / rows, d.cum_c3[ks] / rows, d.cum_c4[ks] / rows,
+                              d.cum_repeat[ks] / heads, d.cum_held[ks] / (4 * rows),
+                              d.cum_ln[ks] / heads,
+                              d.cum_ln_log_length[ks] / np.maximum(d.cum_closed_ln[ks], 1), entropy,
+                              d.cum_pattern_repeat[ks] / np.maximum(ks[:, None] - np.array([1, 2, 4]), 1),
+                              np.log1p(ks)))
+    own = d.cum_hand_heads[ks] / heads[:, None]
+    return np.concatenate((np.broadcast_to(shared[:, None], (len(ks), 2, shared.shape[-1])),
+                           own[..., None]), -1).astype(np.float32)
 
-    The off path ignores ``level`` and preserves the original feature bytes.
-    The on path appends the same ``ln_level_features`` to both hand views.
+
+def theta_features(value) -> np.ndarray:
+    """Known bit and ten standardised coordinates; own-hand share changes sign on mirroring."""
+    out = np.zeros((2, THETA_DIM), dtype=np.float32)
+    if value is not None:
+        out[:, 0] = 1
+        out[:, 1:] = value
+        out[1, -1] *= -1
+    return out
+
+
+def query_features(chart: Chart, ks, *, ln_level: str = 'off', level: float | None = None,
+                   ln_length: str = 'off', length: float | None = None, anchor: str = 'off',
+                   theta: str = 'off', theta_value=None) -> np.ndarray:
+    """[m,2,150] base queries at ks (EOS = K), followed by enabled reader channels.
+
+    LN share adds three shared channels and length adds two. Anchor adds thirteen
+    prefix channels; theta adds a known bit and ten standardised coordinates.
+    Own-hand channels transform with the hand view. Disabled inputs add nothing.
     """
     if ln_level not in LN_LEVEL_MODES:
         raise ContractError(f'ln_level must be one of {LN_LEVEL_MODES}')
@@ -306,6 +361,11 @@ def query_features(chart: Chart, ks, *, ln_level: str = 'off', level: float | No
         out = np.concatenate((out, channels), -1)
     if ln_length == 'on':
         channels = np.broadcast_to(ln_length_features(length), out.shape[:-1] + (LN_LENGTH_DIM,))
+        out = np.concatenate((out, channels), -1)
+    if anchor == 'on':
+        out = np.concatenate((out, anchor_features(chart, ks)), -1)
+    if theta == 'on':
+        channels = np.broadcast_to(theta_features(theta_value), (len(ks), 2, THETA_DIM))
         out = np.concatenate((out, channels), -1)
     return out
 

@@ -47,6 +47,8 @@ class Draw:
     weight: float = 1.0
     ln_level: float | None = None
     ln_length: float | None = None
+    theta: np.ndarray | None = None
+    history_start: int = 0
 
 
 def chart_from_cache(dec) -> Chart:
