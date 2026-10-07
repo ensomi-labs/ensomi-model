@@ -47,8 +47,11 @@ nearest faithful version that was built and the reason.
 
 8. **Supervisor and the resource guard.** The trainer stops on `ResourceGuard` (exit 4,
    after a safe checkpoint), as spec section 7 says. The supervisor, as the brief asks,
-   resumes after any non-zero exit except the NaN-limit stop (exit 3), at most five times, so
-   a resource stop is followed by a restart from the latest checkpoint in a fresh process.
+   resumes after any non-zero exit except the NaN-limit stop (exit 3), at most five times in
+   six hours, so a resource stop is followed by a restart from the latest checkpoint in a fresh
+   process. A restart that reaches a new regular checkpoint clears the count; the supervisor
+   reads that from the checkpoint directory, since a resource stop points `latest.json` at its
+   safe checkpoint.
 
 9. **Checkpoint cadence versus measured throughput (not changed, flagged).** The spec's
    250k-exposure checkpoint and per-checkpoint evaluation assume a few hundred decisions per

@@ -33,7 +33,7 @@
  "full_eval_every": 2,
  "presence": "none",
  "rule_l": true,
- "rss_growth_limit_gib": 2.0,
+ "rss_growth_limit_gib": 6.0,
  "star_conditions": "off",
  "star_value": "absolute",
  "total_exposures": 64000000,

@@ -87,11 +87,13 @@ def prepare(args):
     return run, code
 
 
-def latest_checkpoint(run: Path, previous=None):
-    """The newest regular checkpoint name; a safe checkpoint written at a resource stop does not count."""
-    marker = run / 'checkpoints' / 'latest.json'
-    name = json.loads(marker.read_text()).get('path') if marker.exists() else None
-    return previous if name is None or name.endswith('-safe.pt') else name
+def latest_checkpoint(run: Path):
+    """The newest regular checkpoint name; a safe checkpoint written at a resource stop does not count.
+
+    Read from the directory, not ``latest.json``: a resource stop points ``latest.json`` at its safe
+    checkpoint, which would hide the regular checkpoints written since the last restart."""
+    names = [p.name for p in (run / 'checkpoints').glob('ckpt-*.pt') if p.stem[5:].isdigit()]
+    return max(names, default=None)
 
 
 def restart_allowed(times, now, window=RESTART_WINDOW_S, limit=MAX_RESTARTS):
@@ -120,7 +122,7 @@ def supervise(run: Path, code: Path, resume: bool):
         if rc == EXIT_NAN:
             event(run, event='supervisor_stop', reason='nan_limit')
             return rc
-        now_mark = latest_checkpoint(run, mark)
+        now_mark = latest_checkpoint(run)
         if now_mark != mark:
             times, mark = [], now_mark   # the last resume reached a new checkpoint
         allowed, times = restart_allowed(times, time.time())
