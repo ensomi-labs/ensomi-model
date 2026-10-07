@@ -63,3 +63,15 @@ Question material for the first system comparison on the collapse problem ([r2-c
   - `d0-phi`, the chart's own restoring force on nh, held, c3 and pent (the `phi` score);
   - `d0-env`, a penalty on local organisation outside the band's source envelope over jack, fjack, rep1, hlock, lock and `bus4`. These are the statistics that matched the clearest type notes and the best AUCs. LN share is left out, because of the x0-08 finding.
 - The two variants split decode-time holding from decode-time local organisation, the defect the human marked.
+
+<a id="d-decode-direction"></a>**Direction (human, 2026-10-07 about 18:40 UTC, [private, local](private/human-inputs/28c38740-5d34-43bb-ad36-ff8ec6d0299f.md#prompt-6)): decode-time selection, done right.**
+- Tonight's `d0` is naive but probably not wrong, and it stays.
+- The right version ranks whole sequences with a stateful heuristic that is efficient to compute and adds up to one whole-sequence score. Ideas to borrow: HMMs, CRFs, semi-Markov CRFs.
+- The final judge is the human's whole-song blind screen. The human's time ranges are imprecise, but bad patterns across a whole song are spotted reliably.
+- Working assumption: the wanted charts are already in the model's distribution and are not sampled. To be tested.
+- Reward hacking is a real risk.
+
+<a id="r-decode-design"></a>**Delegated 2026-10-07 about 18:42 UTC: design round on a stateful whole-sequence score.** Fable and Opus work as fresh subagents, independently, from the same brief, `~/ensomi/.sync/cp/scratch/r2-decode/brief-design.md`. Due in 60 minutes.
+- Asked for: a formal statement and a cheap test of the assumption; at least three stateful scores (HMM, linear-chain CRF, semi-Markov or explicit-duration), with what each sees, what it is fitted on, cost and decomposition; whole-sequence search (rerank, SMC with twisting, beam); reward-hacking safeguards; a human blind-screen protocol built on whole-song calls; and one recommended experiment with a fixed pass/fail rule.
+- Probes on existing runs only, with 1 mac process; no generation while the night runs.
+- Reports: `~/ensomi/.sync/cp/scratch/r2-decode/{fable,opus}/report.md`.
