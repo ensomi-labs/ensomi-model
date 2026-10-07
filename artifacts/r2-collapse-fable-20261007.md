@@ -117,3 +117,72 @@ A condition is an anchor set from outside; phase C's interval FiLM is a time-var
 Literature anchors: exposure bias and compounding (Ross & Bagnell 2010; Ross, Gordon & Bagnell DAgger 2011; Ranzato et al. 2016), scheduled sampling and its inconsistency (Bengio et al. 2015; Huszár 2015), professor forcing (Lamb et al. 2016), global latent sequence models and posterior collapse (Bowman et al. 2016; Roberts et al. MusicVAE 2018; Chung et al. VRNN 2015), exchangeability and urn convergence (de Finetti; Pólya urn / Blackwell–MacQueen).
 
 ----- END report -----
+
+## Addendum (Fable, resumed for 30 minutes at the human's request, 16:24-16:33 UTC)
+
+Main-thread checks: `data.freerun_charts` has `max_rows=600` (the trainer's own free-run panel uses only charts of at most 600 rows); `candidates.PHASE_PERIODS = (1.0, 4.0, 16.0)`; `cum_anchor-fit_dev.json` matches the LN-share and heads/row coefficients quoted.
+
+----- BEGIN addendum -----
+
+# Fable addendum (16:24–16:33 UTC)
+
+Three corpus/free-run diagnostics, all measured unless marked inferred. Jobs on the mac (exit 0): `20261007-162611-fable-phrase`, `20261007-162613-fable-length`, `20261007-162846-fable-cum`. Scripts in `~/ensomi/.sync/cp/scratch/r2-collapse/fable/` (`phrase_hazard.py`, `length_acf.py`, `cum_anchor.py`); outputs in `artifacts/r2-collapse-20261007/fable/` (`phrase_hazard-fit_dev.json`, `length_acf.json`, `cum_anchor-fit_dev.json`). The E2 pilot was skipped: without editing tracked files it would need a monkey-patched trainer and 15 minutes cannot give a readable signal; its premise was tested on the corpus instead (item 3).
+
+## 1. E1, phrase-boundary hazard (fit_dev, 1,163 charts with K ≥ 128, 1.38M head rows): FAIL for 8/16 bars
+
+Ratio = P(position class | event row) / P(class | head row). Bar coordinate is segment-local (local beat // meter), bar start = first 1/16 of a bar.
+
+| event | n | bar start | 4-bar start | 8-bar start | 16-bar | 8-bar given 4-bar | 16 given 8 | best-of-8 offset (events / random-row null) |
+|---|---|---|---|---|---|---|---|---|
+| LN section onset (no LN in the previous 32 rows) | 4,914 | 1.55 | 2.11 | 2.08 | 2.04 | 0.99 | 0.98 | 2.08 / 0.88 |
+| LN section end (none in the next 32) | 4,819 | 0.65 | 0.78 | 0.68 | 0.76 | 0.87 | 1.11 | 0.68 / 0.77 |
+| density step (|Δ heads/row| ≥ 0.75 over 16 rows) | 5,097 | 1.24 | 1.50 | 1.51 | 1.52 | 1.01 | 1.01 | 1.51 / 0.82 |
+| jack-run onset (≥ 6 rows) | 2,465 | 1.42 | 1.75 | 1.96 | 2.17 | 1.12 | 1.11 | 1.96 / 0.96 |
+
+Reading: regime changes in real charts do concentrate at bar and 4-bar starts (onsets 1.5–2.1×), but conditional on a 4-bar start there is no further 8- or 16-bar concentration (0.99–1.12). The model already has beat phase at periods 1, 4 and 16 beats (`candidates.PHASE_PERIODS`), i.e. bar and 4-bar position in 4/4, so the information it lacks about section ends is not a cheap grid feature. Section ends sit just before boundaries (0.65×), consistent with "something else starts at the boundary". Caveat: the segment-local bar index is skewed toward 0 (P(8-bar | 4-bar start) among rows is 0.71, not 0.5) because timing segments are short; a global bar coordinate would be a cleaner 8/16-bar test, low priority. Consequence: **E4 (phrase features) is dropped**; the missing ending information is audio- or mapper-level. Regime B needs anchors plus guards until audio exists.
+
+## 2. Predictions of the theory on the free runs: confirmed
+
+**Diffusion grows with song length** (LN share, 64-row blocks, variance about the mean of blocks 0–1; sources are the same 116 charts; runs 3 seeds each):
+
+| K tercile (blocks ≈) | sources V(8)/V(1) | sources var(last block − anchor) | 48M runs ratio | 48M var(last − anchor) | 64M ratio | 64M var(last − anchor) |
+|---|---|---|---|---|---|---|
+| short (≈9) | 0.73 | 0.017 | 1.33 | 0.034 | 1.28 | 0.044 |
+| middle (≈15) | 0.78 | 0.033 | 1.25 | 0.057 | 1.87 | 0.075 |
+| long (≈26) | 0.64 | 0.031 | 2.05 | 0.062 | 1.84 | 0.134 |
+
+Sources: the last block stays as near its early level on long charts as on middle ones. Runs: the departure grows ×1.8 (48M) and ×3.0 (64M) from short to long; on long charts the runs' end-of-song departure is 2× (48M) and 4.3× (64M) the sources'. Code consequence (measured from `data.freerun_charts`, `max_rows=600`): the trainer's in-run free-run report and the 4-chart panel use charts with K ≤ 600, the tercile where diffusion is weakest, so the run's own free-run evaluation could not see this. Selection panels must include long charts (K ≥ 1,500).
+
+**Short-memory excursion signature in every Φ component** (demeaned block ACF, lags 1–3 blocks = 64–192 rows):
+
+| component | sources | 48M runs | 64M runs |
+|---|---|---|---|
+| LN share | +0.27 −0.02 −0.08 | +0.44 +0.20 +0.07 | +0.50 +0.26 +0.15 |
+| heads/row | +0.37 +0.04 −0.11 | +0.38 +0.09 +0.02 | +0.40 +0.17 +0.07 |
+| lane-mask entropy | +0.29 +0.04 −0.07 | +0.36 +0.11 +0.02 | +0.40 +0.16 +0.06 |
+| jack rate | +0.29 −0.04 −0.14 | +0.33 +0.07 +0.00 | +0.33 +0.14 +0.02 |
+
+Excursions outlast the real ones in all four components, ordered LN share > mask entropy ≈ heads/row > jack rate, and 64M is worse than 48M on every component (the checkpoint with the higher NLL and the upward gain). The runs' LN-share ACF reaches 0 at 5–6 blocks (320–384 rows) against 2 blocks (128 rows) in the sources; inferred: W_eff of the level-estimating path is of order 128–256 rows. The negative tail at lags 6–8 is a demeaning artefact present in both groups; compare like with like.
+
+## 3. E2 premise on the corpus (fit_dev, 12,058 block transitions at k ≥ 512, chart-clustered SE)
+
+Next-64-row statistic regressed on the causal cumulative statistic over [0, k) and the last-64-row statistic:
+
+| component | β cumulative | β recent | R² both | R² cumulative alone | R² recent alone |
+|---|---|---|---|---|---|
+| LN share | 0.49 ± 0.03 | 0.48 ± 0.03 | 0.673 | 0.588 | 0.620 |
+| heads/row | 0.51 ± 0.02 | 0.45 ± 0.02 | 0.545 | 0.449 | 0.485 |
+| mask entropy | 0.41 ± 0.02 | 0.44 ± 0.02 | 0.467 | 0.355 | 0.409 |
+| jack rate | 0.49 ± 0.02 | 0.41 ± 0.02 | 0.459 | 0.364 | 0.397 |
+
+Reading: in real charts the chart's own running statistic since BOS carries as much weight as the last 64 rows for every component, including the lane vocabulary (regime C). The total gain is about 1 (0.9–0.98), split half on the cumulative anchor; a process with that conditional is a converging urn, not a windowed one (inferred from the measured coefficients). The CE value of the cumulative statistic is small (R² +0.05–0.06 over recent alone, a few thousandths of a nat per decision), which is why nothing in the current recipe pushes the model to use the 511-row window for anchoring and why landmarks went unused: small in likelihood, first-order in rollout. (The LN report's 0.90/0.12 split used the whole-song level, which includes the future; the causal split is 0.49/0.48.)
+
+## 4. Changes to the ranking
+
+- **E2 (self-anchor: cumulative prefix statistics as natural query channels, zero-init reader, warm-start 56M) moves to first.** Its premise now holds for all four Φ components, not only LN share, so it addresses regimes A and part of C at once, needs no prior and no chosen condition. Pilot pass criterion changed: not NLL (expected gain is only a few mnat) but (a) the reader's weight norm grows away from zero and (b) the model's teacher-forced response to the cumulative share at fixed recent share approaches the data's 0.49 (slope on real prefixes); then the 12M run is judged by M1 on **long** charts (K ≥ 1,500, where the effect is largest) with the no-channel warm-start control.
+- **E3 (external drawn level) second**, as the control-side experiment; same obedience and M1 criteria.
+- **E4 dropped** (E1 failed). Regime B has no cheap information fix; keep legality-style guards on degenerate runs as guards, not as the remedy, and treat audio or phrase structure from audio as the eventual source of section ends.
+- **New guard, no compute:** evaluate drift on long charts; the present free-run panels (K ≤ 600 in training; 16 charts for selection) under-measure collapse by about 2× (48M) to 3× (64M).
+- Core question 2 (is the missing section information cheap?) is answered no, at least from the grid; it drops out. Question 4 is sharpened: the cumulative anchor is predicted to reduce regime C's excursion persistence (mask entropy ACF) but not to restore across-chart vocabulary commitment (M3), which still needs a held style latent.
+
+----- END addendum -----
