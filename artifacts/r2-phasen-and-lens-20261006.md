@@ -356,3 +356,38 @@ for a deeper cause.
     per-chart choice, the level could carry a length summary; check that in the data first.
   - Evaluation then scores, per band against fit_dev: the SD of LN share, the fractions below 0.025 and at or
     above 0.3, the PIT within the skeleton cell, LN length quantiles and the short-hold rate.
+
+<a id="o-lnlen-hintfree"></a>**Observation, 2026-10-07: phase N draws a nearly data-like LN level at the start of a song but does not hold it; it does not misread its own history; LN length is right on average but lacks per-chart styles** (final report [r2-ln-level-20261007](r2-ln-level-20261007.md), fresh Opus subagent, analysis of the n48 and n64 runs with no training; key numbers rechecked by the main thread against the mirrored JSON). Answers [q-lnlen-hintfree](#q-lnlen-hintfree), scored against [d-lnlen-distribution-goal](#d-lnlen-distribution-goal).
+- **Holding fails (strong).**
+  - The first 128 rows are close to the data: SD of share 0.86-0.93× the sources', and 28% LN-free starts against 30% at 48M.
+  - First-to-last-third correlation is 0.61-0.62, against 0.91 for the same charts' sources.
+  - Excursions within a run last 2-4× longer and are 1.4-1.9× larger than in real charts.
+  - Half of the LN-free starts acquire LNs; in the sources 81% stay LN-free.
+  - Drift runs down at 48M (−0.020) and up at 64M (+0.043).
+  - Not the cause: the 511-row receptive field, early-song calibration, or recency weighting.
+- **No own-history misreading (strong).**
+  - At matched history share, band and gap, own-history P(LN) is lower than on real history at 48M (0.053 against 0.062) and equal at 64M.
+  - Model-made and dense-born LNs get no extra response.
+  - The subagent's reading (inferred): calibrated one-step responses compound on the model's own chance excursions.
+- **Per-band shape, not compression.**
+  - Over 116 skeletons × 3 seeds, the single-run SD of share is 0.77× (48M) and 1.00× (64M) the sources'.
+  - The zero mode is short: 15.5% / 10.6% against 23-24% expected.
+  - The level barely follows the skeleton: slope 0.36 / 0.18 against 1.19.
+  - Per-band shifts depend on the checkpoint. 48M's pooled KS of 0.055 hides opposite errors by band.
+- **Placement within a level is fine on average (moderate):** no excess on dense rows, and fewer short holds than real charts at matched share.
+- **LN length.**
+  - At matched share and skeleton, median length equals the corpus' (×1.00 at 48M, ×1.06 at 64M), and the within-chart spread matches.
+  - Chart-to-chart length styles are compressed: SD 0.63-0.74× the corpus in every band. Charts built on 1/8-beat LNs (bands 4-5) are missing.
+  - Short holds are spread thinly over many charts. In band 2, 16-22% of generated charts have a hold under 60 ms, against 0.3% of real ones.
+  - Length style is held only with r 0.20-0.36 along the song.
+  - In the data, 16-34% of length variance is between charts. Skeleton and share predict 54-61% of the chart mean; a residual chart style of about 0.3 log units remains.
+- **Proposed by the subagent (inference, for human review):**
+  - a prior-mode `ln_level` fine-tune from 48M, with a length channel (median LN length in beats) drawn jointly with the share from the same prior chart;
+  - the skeleton-neighbour prior as an upgrade of P(level | band, density tercile);
+  - an evaluation that adds a fixed-level sweep and one oracle pass for obedience;
+  - confirm and refute criteria in report section 8.1. Cost about 2.5-3 h plus small code.
+  - Re-ranked remedies are in section 8.2: a prefix-rollout objective second, a latent third; BOS calibration and long memory demoted.
+
+<a id="c-lnlen-cause-revised"></a>**Corrections to earlier readings (2026-10-07, from [o-lnlen-hintfree](#o-lnlen-hintfree)).** The original text of [o-lnlen-cause](#o-lnlen-cause) and the partial report stays as written.
+- "Amplified by the model's own history" ([o-lnlen-cause](#o-lnlen-cause)): the +41-78% own-history LN-birth excess compared a run with its *source* chart. That is a difference of level between run and source. At matched history the model does not over-respond. The level wanders instead of being amplified.
+- "SD ratio 0.43" ([r2-ln-level-20261007-partial](r2-ln-level-20261007-partial.md)) is the SD of seed-averaged levels on the 16 panel charts. Single runs on 116 skeletons give 0.77-1.00. The failure is the per-band shape and the holding, not a uniformly compressed draw.
