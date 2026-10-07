@@ -84,3 +84,18 @@ Question material for the first system comparison on the collapse problem ([r2-c
 - The anchor has 13 named channels.
 - Panel: band 3 has only 24 eligible groups at K ≥ 1,500 after the X0 exclusions. Main-thread choice: keep the threshold, so 99 charts.
 - Pre-launch check: a fresh Opus subagent from about 19:01 UTC (brief `~/ensomi/.sync/cp/scratch/r2-bakeoff/brief-opus-review.md`, which adds the two `d0` variants and the m1-m7 subset).
+
+<a id="s-decode-design"></a>**Decode design round returned, 2026-10-07 about 19:12 UTC: [Fable](r2-decode-fable-20261007.md), [Opus](r2-decode-opus-20261007.md). Main-thread synthesis, proposed for the human's review.**
+- **Agree (measured by both on existing runs).** A row-level density score from an HMM is the wrong instrument.
+  - Fitted on real charts alone, it is a rarity meter: sparse, LN-free, jack-free charts score as most real. Contrasted against the model's own runs, it learns the band offset (Fable) or ranks the human's marks the wrong way round (Opus: window AUC 0.24-0.31). The corpus holds jacks and LN in charts built around them, so without chart context the score rewards out-of-context jacks and LN.
+  - Both point to scores relative to the chart's own running level (Opus's sID: item AUC 0.83, window AUC 0.60-0.66; exploratory, coordinates chosen after reading the type notes).
+  - Both point to durations modelled per chart type: real charts that stay uniform exist (x0-01), so a global duration law would penalise them.
+- **Measured, new:** the chance of leaving a degenerate stretch falls with its length in the model's runs (0.57-0.62 after one flagged window, 0.15-0.31 after 3-6) and is flat in sources (0.74-0.80). Selection has to act early in a stretch.
+- **Agree on safeguards:** use the score for ranking or as a tilt only, keep the model's log-probability, keep held-out evaluators that are never selected on, guard variety across seeds, and make the human screen with real foils the final judge.
+  - Fable adds a satisficing clip: pick at random among candidates inside the real charts' score range, so a score above q95 is suspect rather than better.
+- **Differ on the search.**
+  - Fable: whole-song rerank with N = 32, about 3.3 Mac-hours for 100 charts.
+  - Opus: SMC with 4 particles over 64-row blocks, at `d0`'s compute. The argument: the whole-song acceptable mass falls with length (back-of-envelope from X0's 8 items, about 0.35 at 1,550 rows and 0.13 at 3,000), while the per-block mass stays near 0.96.
+  - The main thread finds Opus's argument stronger for long songs. SMC also keeps the whole-sequence target and suits real-time play.
+- **New and worth keeping (Opus): a source-oracle arm.** The same block search, scored against the real chart's same rows. It tests directly whether acceptable charts are in the model's proposals. If even the oracle cannot reach the source's stay rate and identity, the lever is training, not decoding.
+- **Proposed next, not authorised:** `d1` = SMC, P = 4, scored by chart-relative identity plus a penalty on staying in a flagged stretch; plus the oracle arm. It reuses tonight's B0 and `d0` panel runs, about 75 Mac-minutes for 48 charts × 2 seeds. Then a human screen of 6 songs × (plain, `d0`, `d1`) + 2 real foils, about 1 hour, with Opus's fixed pass rule. Fable's satisficing clip can be added to `d1`'s weights.
