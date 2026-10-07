@@ -69,7 +69,7 @@ _Review: agent draft of 2026-09-30, not yet reviewed. The whole map, its edges a
 
 **Redirected 2026-10-07 16:05 UTC (human):** the primary problem is pattern collapse in long-range self-generation by the natural model; controls are a separate, later problem; tonight's runs are stopped. A three-agent formalisation and diagnosis returned ([o-collapse-reports](artifacts/r2-collapse-20261007.md#o-collapse-reports)). It found three components, a band-biased start draw, no holding of chart identity, and weaker local organisation, plus proposed core questions and experiments for discussion ([r2-collapse-synthesis-20261007](artifacts/r2-collapse-synthesis-20261007.md)). Design round done (Fable and Opus, with network-family addenda); proposed system bake-off for review: [r2-bakeoff-plan-20261007](artifacts/r2-bakeoff-plan-20261007.md). Next:
   - the human's X0 review, to validate the collapse measures;
-  - reading the X1 and X3 outputs;
+  - running X1's 2-minute analysis (X3 is done: θ must be drawn per chart, [o-x3-skeleton-theta](artifacts/r2-collapse-20261007.md#o-x3-skeleton-theta));
   - the human's decision on the bake-off.
 
   Where everything is: [handoff-20261007-collapse](artifacts/handoff-20261007-collapse.md). The items below are kept as context; their night plan is withdrawn.

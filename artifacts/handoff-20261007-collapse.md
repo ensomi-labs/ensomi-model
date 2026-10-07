@@ -21,7 +21,7 @@ For the next main session. Start with `RESEARCH.md`, then [r2-collapse-20261007]
   - Its two mac jobs were still running at 17:12 UTC and were left to finish: `20261007-165741-p0opus-x1a` (start against drift) and `20261007-165827-p0opus-x3` (skeleton → θ R²). Both are analysis only, no training.
   - Outputs: `artifacts/r2-collapse-20261007/phase0-opus/x1/` and `x3/`. Scripts: `~/ensomi/.sync/cp/scratch/r2-collapse/phase0-opus/`.
   - Read the outputs against the fixed pass/fail rules in [p-collapse-experiments](r2-collapse-synthesis-20261007.md#p-collapse-experiments).
-  - If the subagent's report arrived, it is recorded in [r2-collapse-20261007](r2-collapse-20261007.md). Otherwise only the files exist.
+  - Its report arrived and the subagent was stopped. X3 has a verdict, [o-x3-skeleton-theta](r2-collapse-20261007.md#o-x3-skeleton-theta): θ must be drawn per chart. X1's generation finished, but its analysis has not run ([r-x1-unanalysed](r2-collapse-20261007.md#r-x1-unanalysed), one command of about 2 minutes). No mac jobs are running.
 - **Leftover drafts in `ensomi-model`, untracked and untested:** `src/ensomi_model/r2/c1_difficulty.py`, `lnlevel_eval.py`, `tests/r2/test_c1_difficulty.py`, `test_lnlevel_eval.py`, from the killed night-chain job.
   - Not committed and not reviewed. The difficulty pilot is deprioritised by the human.
   - Also not this line of work: `.gitignore` and `src/ensomi_model/evaluation/operators/`.
