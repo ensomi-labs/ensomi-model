@@ -72,7 +72,7 @@ _Review: agent draft of 2026-09-30, not yet reviewed. The whole map, its edges a
   **Night of 2026-10-07, decided by the human ([d-bakeoff-night](artifacts/r2-bakeoff-night-20261007.md#d-bakeoff-night)):** round 1 is being built (B1-B3, the enablers, and a decode-time selection arm `d0` for the local defects the human marked in X0). A fresh Opus subagent checks the code, then the night starts without waiting for the human.
   - X0 is scored: no measure passes robustly (the LN-share measures pass only under the primary label); the marked collapse is mostly early and local, inside the 511-row history ([o-x0-scored](artifacts/r2-bakeoff-night-20261007.md#o-x0-scored)). X1: start-dominant in bands 2 and 4 ([o-x1-scored](artifacts/r2-bakeoff-night-20261007.md#o-x1-scored)).
   - Tonight's arms are judged on the full m1-m7 set, and `d0` runs as two variants, holding and local organisation (main-thread choice, for the human's review: [d-night-measures](artifacts/r2-bakeoff-night-20261007.md#d-night-measures)).
-  - In progress: Astra's build ([r-bakeoff-build](artifacts/r2-bakeoff-night-20261007.md#r-bakeoff-build)); a sequel to the architecture page.
+  - In progress: Astra's build ([r-bakeoff-build](artifacts/r2-bakeoff-night-20261007.md#r-bakeoff-build)); the sequel to the architecture page is [r2-architecture-20261007.html](artifacts/r2-architecture-20261007.html) (shareable; written by a fresh Opus subagent, checked by the main thread against the notes).
 
   Earlier handoff: [handoff-20261007-collapse](artifacts/handoff-20261007-collapse.md). The items below are kept as context; their night plan is withdrawn.
 

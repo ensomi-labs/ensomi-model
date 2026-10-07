@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R2 Collapse and Systems</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same layout and tokens as the 2026-10-06 architecture page: contents rail on wide screens, one reading column. */
+:root{
+  --bg:#f3f5f8; --surface:#ffffff; --ink:#18202c; --ink-2:#465264; --muted:#6c7787;
+  --line:#d3d9e2; --line-2:#e6eaf0;
+  --accent:#2457c5; --accent-soft:rgba(36,87,197,.08); --accent-mid:rgba(36,87,197,.26);
+  --cond:#b4511f;   --cond-soft:rgba(180,81,31,.10);
+  --hold:#00876f;   --hold-soft:rgba(0,135,111,.16);
+  --bad:#b42318; --bad-soft:rgba(180,35,24,.08);
+  --warn:#9a5b00; --warn-soft:rgba(154,91,0,.10);
+  --good:#1f7a4d; --good-soft:rgba(31,122,77,.10);
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10141b; --surface:#171c25; --ink:#e4e8ef; --ink-2:#b0b8c5; --muted:#8a94a3;
+  --line:#2e3644; --line-2:#222a35;
+  --accent:#6b8fec; --accent-soft:rgba(107,143,236,.12); --accent-mid:rgba(107,143,236,.32);
+  --cond:#d0733e;   --cond-soft:rgba(208,115,62,.14);
+  --hold:#25a088;   --hold-soft:rgba(37,160,136,.22);
+  --bad:#f07167; --bad-soft:rgba(240,113,103,.12);
+  --warn:#e0a443; --warn-soft:rgba(224,164,67,.12);
+  --good:#4cbf86; --good-soft:rgba(76,191,134,.12);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141b; --surface:#171c25; --ink:#e4e8ef; --ink-2:#b0b8c5; --muted:#8a94a3;
+  --line:#2e3644; --line-2:#222a35;
+  --accent:#6b8fec; --accent-soft:rgba(107,143,236,.12); --accent-mid:rgba(107,143,236,.32);
+  --cond:#d0733e;   --cond-soft:rgba(208,115,62,.14);
+  --hold:#25a088;   --hold-soft:rgba(37,160,136,.22);
+  --bad:#f07167; --bad-soft:rgba(240,113,103,.12);
+  --warn:#e0a443; --warn-soft:rgba(224,164,67,.12);
+  --good:#4cbf86; --good-soft:rgba(76,191,134,.12);
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--f-body);margin:0}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:grid;grid-template-columns:200px minmax(0,1fr);gap:40px}
+@media (max-width:920px){.wrap{grid-template-columns:minmax(0,1fr);padding-inline:16px}.rail{display:none}}
+.rail nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);font-size:13px;display:flex;flex-direction:column;gap:2px}
+.rail a{color:var(--ink-2);text-decoration:none;padding:4px 8px;border-radius:4px;display:block}
+.rail a:hover,.rail a:focus-visible{background:var(--accent-soft);color:var(--ink)}
+.rail .lab{font:500 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 8px 8px}
+main{min-width:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.15}
+h1{font-size:clamp(30px,4.4vw,44px);font-weight:800;letter-spacing:-.01em;margin:6px 0 14px}
+h2{font-size:24px;font-weight:800;margin:0 0 12px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+h2 .n{font:500 13px var(--f-mono);color:var(--muted)}
+h3{font-size:16px;font-weight:600;margin:26px 0 8px}
+p{margin:0 0 12px;max-width:72ch}
+section{padding-block:34px 6px;border-top:1px solid var(--line)}
+header{padding-bottom:22px}
+.eyebrow{font:500 12px var(--f-mono);letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.lede{font-size:17px;color:var(--ink-2);max-width:68ch}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+.ref{font:400 12px var(--f-mono);color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font:500 12.5px var(--f-mono);padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2)}
+.chip b{color:var(--ink);font-weight:500}
+.chip.bad{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+figure{margin:18px 0 22px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 14px 10px}
+figure .scroll{overflow-x:auto}
+figcaption{font-size:13px;color:var(--ink-2);margin-top:8px;max-width:80ch}
+.tablewrap{overflow-x:auto;margin:10px 0 18px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--surface)}
+th,td{border-bottom:1px solid var(--line-2);padding:7px 10px;text-align:left;vertical-align:top}
+th{font:600 12px var(--f-body);color:var(--ink-2);background:var(--bg);border-bottom:1px solid var(--line);white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+th.num{white-space:nowrap}
+.tablewrap table{min-width:640px}
+.callout{border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:var(--surface);margin:14px 0;max-width:80ch}
+.callout.cond{border-color:var(--cond);background:var(--cond-soft)}
+.callout.bad{border-color:var(--bad);background:var(--bad-soft)}
+.callout.acc{border-color:var(--accent);background:var(--accent-soft)}
+.callout p:last-child,.callout ul:last-child{margin-bottom:0}
+.formula{font:14px/1.9 var(--f-mono);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 16px;overflow-x:auto;white-space:pre;margin:12px 0}
+ul.tight,ol.tight{margin:6px 0 14px;padding-left:20px;max-width:76ch}
+ul.tight li,ol.tight li{margin:3px 0}
+.pill{display:inline-block;font:500 11px var(--f-mono);padding:1px 7px;border-radius:999px;border:1px solid currentColor;white-space:nowrap;vertical-align:1px}
+.pill.bad{color:var(--bad)} .pill.warn{color:var(--warn)} .pill.good{color:var(--good)} .pill.muted{color:var(--muted)} .pill.cond{color:var(--cond)} .pill.acc{color:var(--accent)}
+h2 .pill{font-family:var(--f-mono);font-weight:500;align-self:center}
+
+/* status cards, as on the 2026-10-06 page */
+.goal{border-left:3px solid var(--accent);background:var(--surface);padding:12px 16px;margin:4px 0 18px;max-width:80ch;border-radius:0 6px 6px 0}
+.goal b{font-family:var(--f-display);font-weight:600}
+.status{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:6px 0 22px}
+@media (max-width:860px){.status{grid-template-columns:minmax(0,1fr)}}
+.status>div{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--muted);border-radius:6px;padding:10px 14px 4px;min-width:0}
+.status>div.good{border-top-color:var(--good)}
+.status>div.warn{border-top-color:var(--warn)}
+.status>div.open{border-top-color:var(--cond)}
+.status>div.acc{border-top-color:var(--accent)}
+.status h3{margin:0 0 6px;font-size:15px}
+.status ul{margin:0 0 8px;padding-left:18px;font-size:14px}
+.status li{margin:4px 0}
+.status p{font-size:14px;margin:0 0 8px}
+
+/* evidence legend */
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2);margin:14px 0 0}
+
+/* timeline */
+.timeline{list-style:none;margin:8px 0 18px;padding:0;max-width:80ch}
+.timeline li{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;padding:6px 0;border-bottom:1px solid var(--line-2);font-size:14px}
+.timeline .t{font:500 12.5px var(--f-mono);color:var(--muted);padding-top:2px}
+
+/* blind-judgment unit chart */
+.units{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:12px 0 8px;max-width:640px}
+@media (max-width:520px){.units{grid-template-columns:minmax(0,1fr)}}
+.units .grp{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+.units .lab{font:600 13px var(--f-display);margin-bottom:8px}
+.units .cells{display:flex;gap:6px;flex-wrap:wrap}
+.units .cell{width:28px;height:28px;border-radius:4px;border:1.5px solid var(--ink-2);background:transparent}
+.units .cell.on{background:var(--bad);border-color:var(--bad)}
+.units .cap{font-size:13px;color:var(--ink-2);margin-top:8px}
+
+/* diagrams */
+svg.dg{display:block;width:100%;height:auto;min-width:640px}
+.dg text{font-family:var(--f-body);font-size:12.5px;fill:var(--ink)}
+.dg text.t{font-weight:600}
+.dg text.s{font-size:11.5px;fill:var(--ink-2)}
+.dg text.m{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.dg text.c{fill:var(--cond)}
+.dg text.a{fill:var(--accent)}
+.dg text.b{fill:var(--bad)}
+.dg text.off{fill:var(--muted)}
+.dg .box{fill:var(--surface);stroke:var(--line);stroke-width:1.2}
+.dg .box.cond{fill:var(--cond-soft);stroke:var(--cond)}
+.dg .box.acc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.6}
+.dg .box.off{fill:none;stroke:var(--muted);stroke-dasharray:4 3}
+.dg .box.miss{fill:var(--bad-soft);stroke:var(--bad);stroke-width:1.6;stroke-dasharray:6 4}
+.dg .edge{stroke:var(--ink-2);stroke-width:1.3;fill:none}
+.dg .edge.cond{stroke:var(--cond);stroke-dasharray:5 4}
+.dg .edge.loop{stroke:var(--accent);stroke-width:1.6}
+.dg .ah{fill:var(--ink-2)}
+.dg .ah.cond{fill:var(--cond)}
+.dg .ah.acc{fill:var(--accent)}
+.dg .track{fill:var(--bg);stroke:var(--line)}
+.dg .old{fill:url(#oldhatch);stroke:none}
+.dg .hatchline{stroke:var(--muted);stroke-width:1;stroke-opacity:.45}
+.dg .win{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+.dg .recent{fill:var(--accent-mid);stroke:none}
+.dg .brk{stroke:var(--ink-2);stroke-width:1.4;fill:none}
+.dg .brk.bad{stroke:var(--bad)}
+.dg .tick{stroke:var(--muted);stroke-width:1}
+.dg .now{stroke:var(--ink);stroke-width:1.8}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+footer p{max-width:90ch}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<aside class="rail"><nav aria-label="Contents">
+  <div class="lab">Contents</div>
+  <a href="#before">1 What changed</a>
+  <a href="#collapse">2 Collapse, measured</a>
+  <a href="#x0">3 The blind judgment</a>
+  <a href="#constraints">4 What the architecture rules out</a>
+  <a href="#tonight">5 Tonight's bake-off</a>
+  <a href="#open">6 What stays open</a>
+</nav></aside>
+
+<main>
+<header>
+  <div class="eyebrow">ensomi · R2 chart generator · evening of 2026-10-07</div>
+  <h1>Pattern collapse, and the systems that compete tonight</h1>
+  <p class="lede">This is the sequel to the <a href="r2-architecture-20261006.html">architecture snapshot of 6 October</a>. Phase N has finished. Its generator is calibrated when it reads real chart histories, but when it writes a whole song on its own, its patterns collapse. This evening we measured what that collapse is, the human judged it blind, three models worked through what the architecture rules out, and tonight complete alternative systems are compared as steps toward a working generator. No results from tonight's runs exist yet. Times are UTC.</p>
+  <div class="chips">
+    <span class="chip"><b>0.51 → 0.23</b> β<sub>cum</sub>, real → own history</span>
+    <span class="chip"><b>0.53–0.57</b> vs 0.24 stay rate</span>
+    <span class="chip"><b>511</b>-row hard horizon</span>
+    <span class="chip bad"><b>6 of 8</b> generated songs marked collapsed</span>
+  </div>
+  <div class="legend">
+    <span><span class="pill good">measured</span> computed on data or code</span>
+    <span><span class="pill warn">inferred</span> a reading of measurements</span>
+    <span><span class="pill acc">proposed</span> a plan, not a result</span>
+  </div>
+</header>
+
+<!-- 1 -->
+<section id="before">
+  <h2><span class="n">1</span>Where yesterday's page left off, and what changed</h2>
+  <p>Yesterday's page ended with phase N training: the natural generator, with no requests and long-range memory switched off. Phase C, which teaches the model to follow requests for LN share and difficulty, was to start from the selected phase-N checkpoint. The checkpoint chosen today is <b>56M</b>, the one after 56 million training decisions. The <a href="r2-day-20261007.html">research day page</a> covers the morning and afternoon; its plan for the night, an LN fine-tune plus a difficulty-controller pilot, was withdrawn at about 16:05, when the human redirected the evening.</p>
+  <div class="goal">
+    <p><b>The new primary problem.</b> Phase N does not yet generate playable charts stably over a whole song. Fixing pattern collapse in long-range self-generation comes first. Controls (LN share and length, perceived difficulty, the five style concepts) are a separate, later problem, and they must work while patterns stay playable.</p>
+    <p style="margin-bottom:0">The human also pointed out that the withdrawn fine-tune, like phase N, was trained by teacher-forced cross-entropy (CE) on real histories, which never targets drift as generation gets longer, and asked for targeted, strictly scoped experiments.</p>
+  </div>
+  <h3>The evening in order</h3>
+  <ol class="timeline">
+    <li><span class="t">16:05</span><span>The redirect. The LN fine-tune and the night chain are stopped.</span></li>
+    <li><span class="t">16:08–16:40</span><span>Three independent diagnoses: a formal theory, an empirical diagnosis of existing free runs, and an audit of the code and information paths. A synthesis names three components of collapse (<a href="#collapse">§2</a>).</span></li>
+    <li><span class="t">16:50</span><span>The human asks for two things: tie each defect to the architecture choice that causes it, and compare complete alternative systems on progress toward the goal rather than only analysing.</span></li>
+    <li><span class="t">16:55–17:45</span><span>Phase 0, which needs no training: the blind review pack X0, the self-history test X2, the skeleton-to-style test X3, and the start-or-drift test X1. In parallel, two independent design rounds (<a href="#constraints">§4</a>).</span></li>
+    <li><span class="t">~17:55</span><span>The human finishes judging X0 (<a href="#x0">§3</a>).</span></li>
+    <li><span class="t">18:08–18:12</span><span>The human decides what to build tonight; the build starts (<a href="#tonight">§5</a>).</span></li>
+  </ol>
+</section>
+
+<!-- 2 -->
+<section id="collapse">
+  <h2><span class="n">2</span>What collapse is, measured</h2>
+  <p>The short version: <b>the training objective is satisfied while generation fails.</b> On real histories the model is calibrated. Its expected number of heads per row is within ±0.05 of the realised number in every difficulty band and song position. On its own histories the whole-song statistics fail. <span class="pill good">measured</span></p>
+
+  <h3>A formal picture</h3>
+  <p>A real chart is hierarchical. A chart-level organisation θ is chosen once per chart: density, chord habit, LN level and length, lane vocabulary, jack regime, hand use. Every row is then written under that θ. The given head skeleton S identifies little of θ.</p>
+  <div class="formula">real charts   p*(D | S) = ∫ ∏ₖ p*(aₖ | sₖ, θ) · p*(θ | S) dθ
+R2            q(aₖ | last 511 rows, exact lane state, local skeleton)</div>
+  <p>R2 has no θ. It re-estimates the chart's organisation at every decision from its recent rows, in effect the last 64–128. On real histories that estimate is good, because a real chart holds its level. On its own output each chance excursion becomes part of the evidence for the next rows. <span class="pill warn">inferred</span> from the measurements below.</p>
+
+  <h3>Three components</h3>
+  <div class="status">
+    <div class="open">
+      <h3>F1 · Start drawn toward the band mean</h3>
+      <p>Within 64–192 rows a run settles into a regime biased by difficulty band, and the offset then stays flat. Band 2 comes out too busy and too LN-heavy; bands 4–5 too sparse and looping. A 64-row real prefix removes about two thirds of the band-2 excess for the whole song. <span class="pill good">measured</span></p>
+    </div>
+    <div class="open">
+      <h3>F2 · No holding of chart identity</h3>
+      <p>Nothing older than 511 rows reaches the decision except lane clocks. Even after a correct start, identity fades past about 512 rows. The model's long-range anchoring is a proxy that breaks on its own output: β<sub>cum</sub> 0.51 on real prefixes, 0.23 on its own. <span class="pill good">measured</span> The mechanism, a calibrated short-memory response compounding on its own output, is <span class="pill warn">inferred</span>.</p>
+    </div>
+    <div class="open">
+      <h3>F3 · Local organisation degrades</h3>
+      <p>Dependence between adjacent rows is weaker than in real charts from the start, and it gets weaker as self-generated history accumulates, at a fixed song position (X2). <span class="pill good">measured</span> on a proxy measure; the blind judgment in <a href="#x0">§3</a> did not validate it.</p>
+    </div>
+  </div>
+
+  <figure>
+    <div class="scroll">
+    <svg class="dg" viewBox="0 0 1000 560" role="img" aria-label="Information path of the phase-N generator. Committed rows become row-local history tokens read by a causal TCN that sees the last 511 rows. Query features (lane clocks, the next 16 gaps, densities up to 32 beats ahead, song progress) go through an exact-state MLP. Both are fused into hand vectors and scored by the joint row head and release pointer. One sample at temperature 1 is committed and fed back as history. Running counts of heads, LN and holds exist but reach only the FiLM condition frames, which are identity when no request is read. The landmark memory is switched off. There is no input, latent or band for chart identity. Below, a timeline of a 2,000-row song shows that only the last 511 rows reach the decision, that most weight sits on the last 64 to 128 rows, and where F1, F2 and F3 appear.">
+      <defs>
+        <marker id="ahA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="ahC" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah cond" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="ahL" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah acc" d="M0,0 L10,5 L0,10 z"/></marker>
+        <pattern id="oldhatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line class="hatchline" x1="0" y1="0" x2="0" y2="6"/></pattern>
+      </defs>
+
+      <!-- natural path -->
+      <rect class="box" x="20" y="30" width="200" height="56" rx="4"/><text class="t" x="32" y="52">Committed rows</text><text class="s" x="32" y="72">own output in generation</text>
+      <rect class="box" x="270" y="30" width="230" height="56" rx="4"/><text class="t" x="282" y="52">History tokens</text><text class="s" x="282" y="72">row-local codes, holds, gaps</text>
+      <rect class="box acc" x="270" y="118" width="230" height="66" rx="4"/><text class="t a" x="282" y="140">Causal TCN</text><text class="s" x="282" y="158">sees the last 511 rows only</text><text class="s" x="282" y="175">weight sits on the last 64–128</text>
+      <rect class="box" x="540" y="30" width="230" height="56" rx="4"/><text class="t" x="552" y="52">Query features</text><text class="s" x="552" y="72">lane clocks, next 16 gaps</text>
+      <rect class="box" x="540" y="118" width="230" height="66" rx="4"/><text class="t" x="552" y="140">Exact-state MLP</text><text class="s" x="552" y="158">densities up to 32 beats ahead,</text><text class="s" x="552" y="175">beat phase, song progress</text>
+      <rect class="box" x="270" y="216" width="500" height="40" rx="4"/><text class="t" x="282" y="241">Fuse → hand vectors</text>
+      <rect class="box acc" x="270" y="288" width="500" height="40" rx="4"/><text class="t a" x="282" y="313">Joint row head (625 actions) + release pointer</text>
+      <rect class="box" x="20" y="288" width="200" height="40" rx="4"/><text class="t" x="32" y="313">One sample, T = 1, kept</text>
+
+      <path class="edge" d="M220,58 H268" marker-end="url(#ahA)"/>
+      <path class="edge" d="M385,86 V116" marker-end="url(#ahA)"/>
+      <path class="edge" d="M655,86 V116" marker-end="url(#ahA)"/>
+      <path class="edge" d="M385,184 V214" marker-end="url(#ahA)"/>
+      <path class="edge" d="M655,184 V214" marker-end="url(#ahA)"/>
+      <path class="edge" d="M520,256 V286" marker-end="url(#ahA)"/>
+      <path class="edge" d="M270,308 H222" marker-end="url(#ahA)"/>
+      <path class="edge loop" d="M120,288 V88" marker-end="url(#ahL)"/>
+      <text class="s a" x="128" y="180">every draw</text><text class="s a" x="128" y="196">becomes history</text>
+
+      <!-- side paths -->
+      <rect class="box" x="800" y="30" width="180" height="56" rx="4"/><text class="t" x="812" y="52">Running counts</text><text class="s" x="812" y="72">heads, LN, holds so far</text>
+      <rect class="box cond" x="800" y="118" width="180" height="66" rx="4"/><text class="t c" x="812" y="140">FiLM condition frames</text><text class="s" x="812" y="158">identity on natural rows;</text><text class="s" x="812" y="175">read only by requests</text>
+      <path class="edge cond" d="M890,86 V116" marker-end="url(#ahC)"/>
+      <path class="edge cond" d="M800,170 H786 V236 H772" marker-end="url(#ahC)"/>
+      <rect class="box off" x="800" y="206" width="180" height="50" rx="4"/><text class="t off" x="812" y="227">Landmark memory</text><text class="s off" x="812" y="245">built, switched off</text>
+      <rect class="box miss" x="800" y="276" width="180" height="64" rx="4"/><text class="t b" x="812" y="297">Chart identity θ</text><text class="s" x="812" y="314">no input, latent or band</text><text class="t b" x="812" y="332">nowhere to live</text>
+
+      <!-- timeline -->
+      <text class="t" x="20" y="384">One song of 2,000 rows, at decision k = 1,500</text>
+      <rect class="track" x="20" y="400" width="960" height="26" rx="3"/>
+      <rect class="old" x="20" y="400" width="475" height="26"/>
+      <rect class="win" x="495" y="400" width="245" height="26"/>
+      <rect class="recent" x="679" y="401" width="61" height="24"/>
+      <line class="now" x1="740" y1="392" x2="740" y2="434"/>
+      <text class="m" x="736" y="446">k</text>
+      <line class="tick" x1="20" y1="426" x2="20" y2="434"/><text class="m" x="20" y="446">0</text>
+      <line class="tick" x1="266" y1="426" x2="266" y2="434"/><text class="m" x="254" y="446">512</text>
+      <line class="tick" x1="500" y1="426" x2="500" y2="434"/><text class="m" x="484" y="446">1,000</text>
+      <line class="tick" x1="980" y1="426" x2="980" y2="434"/><text class="m" x="944" y="446">2,000</text>
+      <text class="s" x="32" y="417">older than 511 rows: replaced, logits unchanged</text>
+      <text class="s a" x="506" y="417">511-row window</text>
+      <text class="s a" x="684" y="383" text-anchor="end">last 64–128 rows carry most weight</text>
+      <path class="edge" d="M690,386 V398" marker-end="url(#ahA)"/>
+
+      <path class="brk bad" d="M20,462 V470 H112 V462"/>
+      <text class="t b" x="20" y="488">F1</text><text class="s" x="42" y="488">regime set in rows 64–192</text>
+      <path class="brk bad" d="M266,462 V470 H495 V462"/>
+      <text class="t b" x="266" y="488">F2</text><text class="s" x="288" y="488">a correct start fades past ~512 rows</text>
+      <path class="brk bad" d="M20,506 V514 H980 V506"/>
+      <text class="t b" x="20" y="534">F3</text><text class="s" x="42" y="534">adjacent-row organisation weaker from the start, and weaker still as self-history accumulates</text>
+    </svg>
+    </div>
+    <figcaption>The phase-N information path at a natural decision (no request). Running counts of the chart so far exist, but only the condition frames read them, and those are identity when no request is active, so no statistic of the whole chart reaches the natural decision. There is no slot that could hold a chart-level identity. Replacing history older than 511 rows doubled the running head count (768 → 1,539) and left the logits identical. The 511-row window spans a median of 61 s of song (10th–90th percentile 34–85 s). <span class="pill good">measured</span></figcaption>
+  </figure>
+
+  <h3>The numbers behind each component</h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Measure</th><th class="num">Real charts</th><th class="num">Generated</th><th>Component</th><th>What it shows</th></tr></thead>
+    <tbody>
+      <tr><td>Weight on the running LN share since song start (β<sub>cum</sub>), next-64-row prediction</td><td class="num">0.57 (data)</td><td class="num">0.51–0.53 on real prefixes; 0.23–0.25 on own</td><td>F2</td><td>The model matches the data while history is real. On its own history the weight halves and the last 64 rows take 0.64–0.70.</td></tr>
+      <tr><td>Stay rate: P(degenerate next 64-row window | degenerate now)</td><td class="num">0.24</td><td class="num">0.53–0.57</td><td>F2</td><td>Degenerate stretches start at the corpus rate (entry 0.059–0.069 against 0.059) but last about twice as long.</td></tr>
+      <tr><td>Correlation of the run with its real prefix's identity (heads per row), from rows 0–128 to rows 1k+ after the prefix</td><td class="num">0.78–0.92</td><td class="num">0.63 → 0.35 (48M)</td><td>F2</td><td>A correct start does not survive past about 512 rows.</td></tr>
+      <tr><td>First-to-last-third correlation within a chart (held share, heads per row, chords, jacks, pattern entropy)</td><td class="num">0.80–0.91</td><td class="num">0.49–0.64</td><td>F2</td><td>All pattern statistics drift, not only LN.</td></tr>
+      <tr><td>LN-share drift about the early level on long charts, end of song</td><td class="num">1×</td><td class="num">2× (48M) to 4.3× (64M)</td><td>F2</td><td>Collapse grows with song length. The trainer's own free-run panel used only charts of ≤ 600 rows, which hold 11% of training decisions.</td></tr>
+      <tr><td>Band 2: windows with all four lanes busy</td><td class="num">1.3%</td><td class="num">16–31%</td><td>F1</td><td>The busy start regime of band 2, with all four lanes in use.</td></tr>
+      <tr><td>Adjacent-row dependence above a shuffle null (56M, T = 1)</td><td class="num">baseline</td><td class="num">−0.18 bits (90% CI −0.24 to −0.12)</td><td>F3</td><td>Weaker local organisation, present from the start.</td></tr>
+      <tr><td>X2: the same final 128 rows after 128 / 512 / 1,024 self-generated rows</td><td class="num">0.562 bits</td><td class="num">0.429 / 0.397 / 0.317 bits</td><td>F3</td><td>The gap to the source grows by +0.075 bits (95% CI +0.027 to +0.126); 7 of 8 charts worsen. The criterion fixed in advance (≥ 0.05 bits) is met.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Why β<sub>cum</sub> is the telling number. In real charts the running statistic since song start adds only about R² +0.05 over the last 64 rows when predicting the next block, a few thousandths of a nat per decision in CE. A window stands in for the chart's level as long as the history holds that level, which real charts do. So CE gives no reason to learn a true anchor, and in generation the window drifts with the model's own output. <span class="pill good">measured</span> coefficients; <span class="pill warn">inferred</span> mechanism.</p>
+
+  <h3>Can the skeleton supply θ? No (X3)</h3>
+  <p>48 whole-song skeleton features were fitted to 10 θ coordinates on 11,368 charts and scored on 1,163 held-out charts. Within each band every coordinate has R² below 0.3; the best overall is heads per row at 0.32. Adding the star band as an input lifts heads per row to 0.64 and the 3-or-more-head chord rate to 0.58, but held share, LN length, loop rate and hand balance stay below 0.3 even then. By the threshold fixed in advance (below 0.3), <b>θ must be drawn per chart</b> rather than read off the skeleton. <span class="pill good">measured</span></p>
+
+  <h3>Ruled out as causes or levers</h3>
+  <ul class="tight">
+    <li>The training window and its start rule: the full prefix is encoded, and calibration at rows 0–64 is fine. <span class="pill good">measured</span></li>
+    <li>More training: from 48M to 64M, degenerate windows rose from 0.11 to 0.14 and busy-lock runs of 30+ rows from 14 to 70 of 348 runs, at flat NLL. <span class="pill good">measured</span></li>
+    <li>Row temperature: T = 0.8 broke composition (91% single-head rows late in the song, against 69.6% in real charts). The test was inconclusive on collapse. <span class="pill good">measured</span></li>
+    <li>8- and 16-bar phrase features: regime changes in real charts cluster at 4-bar starts (1.5–2.1×), which the model already sees, and not further at 8 or 16 bars. <span class="pill good">measured</span></li>
+    <li>R1-style fixed-lane runs: 1–4 of 348 runs. <span class="pill good">measured</span></li>
+  </ul>
+</section>
+
+<!-- 3 -->
+<section id="x0">
+  <h2><span class="n">3</span>The human's blind judgment (X0)</h2>
+  <p>Every measure above is a proxy until it agrees with what a player sees. X0 checks that. The human judged 12 full songs, 3 per band (bands 2–5), in random order: 8 generated by 56M from the song start and 4 real charts as foils, about 57 minutes of audio in all. The key stayed sealed until the sheet was in. For each song the human marked where collapse starts and what kind it is.</p>
+
+  <div class="units" role="img" aria-label="Generated songs: 6 of 8 marked collapsed. Real charts: 1 of 4 marked collapsed.">
+    <div class="grp">
+      <div class="lab">Generated, 8 songs</div>
+      <div class="cells"><span class="cell on"></span><span class="cell on"></span><span class="cell on"></span><span class="cell on"></span><span class="cell on"></span><span class="cell on"></span><span class="cell"></span><span class="cell"></span></div>
+      <div class="cap">6 marked collapsed; one band-3 and one band-4 song not marked.</div>
+    </div>
+    <div class="grp">
+      <div class="lab">Real charts, 4 songs</div>
+      <div class="cells"><span class="cell on"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span></div>
+      <div class="cap">1 marked collapsed: a band-5 LN chart of 451 s.</div>
+    </div>
+  </div>
+
+  <h3>First read <span class="pill muted">unscored, superseded below</span></h3>
+  <p>The first read put the sheet against the key without scoring. The human's descriptions name LN distribution and organisation, jack organisation (same-lane, mechanical repetitive jacks), repetition and lack of variance, hand balance, and difficulty diverging between parts of a song. Most first marks fall early in the song. The human added that the marked ranges are not precise and that only parts of each chart were checked, so unmarked windows are not reliable negatives.</p>
+
+  <div id="x0-scoring" class="callout acc">
+    <h3 style="margin-top:0">Scoring: no collapse measure passes robustly</h3>
+    <p>Each candidate measure was scored per 64-row window on the 12 songs, by window-level AUC against the human's marks. The bar set in advance was AUC ≥ 0.75. Item-bootstrap 90% intervals are 0.3–0.45 wide, so differences under about 0.05 are noise. <span class="pill good">measured</span></p>
+    <ul class="tight">
+      <li><b>Five LN-related measures pass under the primary labelling, and none survives the checks.</b> LN share against the band's source range 0.83, an LN-level drift measure 0.82, the all-four-lanes-busy rate 0.79, the longest one-lane lock 0.78, maximum drift 0.78. They fall to 0.58–0.72 when any overlap counts as marked, when the marks are widened by ±3 s or ±6 s, or when one song is left out; that song supplies 15 of the 26 marked windows. Inside a marked song they locate the marked span at only 0.47–0.68. <span class="pill good">measured</span> They mostly separate songs by LN level rather than find the collapsed spans. <span class="pill warn">inferred</span></li>
+      <li><b>The others fail under every labelling.</b> Envelope-exit count 0.58; stay rate 0.57–0.66 at item level; identity drift in heads per row 0.32, which is inverted; shuffle-corrected adjacency 0.51–0.53. <span class="pill good">measured</span></li>
+      <li><b>The marked real chart</b> is a band-5 LN chart with held share 0.37, against a band-5 source median of 0.004. The LN measures rank it the most collapsed of all 12 songs. <span class="pill good">measured</span> What the human calls collapse includes some real LN-heavy charting, so LN measures need a reference such as the chart's own level, not the band median. <span class="pill warn">inferred</span></li>
+      <li><b>Where the marks fall.</b> In 5 of the 6 marked generated songs the first mark comes before row 512: rows 121–472, 4–28% of the way into the song. The exception is one low-confidence mark at 87% of the song. <span class="pill good">measured</span> What the human sees is mostly inside the encoder's 511-row history, not identity lost beyond it. The marks are partial (19–80% of each song lies after the last mark), so they may be biased early. <span class="pill warn">inferred</span></li>
+      <li><b>The descriptions do show up in some statistics.</b> The song described with repetitive jacks has marked windows with jack rate +2.3 IQR and row repetition +7.8 IQR, which separate its marked from its unmarked windows at AUC about 0.98. The song whose difficulty diverged between parts has a window-to-window SD of heads per row 1.87× the band's sources. One song described for its LN and jack organisation has <em>less</em> LN in its marked windows, so the organisation meant is not LN share. <span class="pill good">measured</span></li>
+    </ul>
+    <p><b>Consequence for tonight</b> <span class="pill acc">proposed</span>, for the human's morning review: X0 did not validate a subset of measures, so the bake-off judges arms on the full set of seven measures registered before the night and reports the LN-share measures separately. The decode-time selection arm runs in two variants (<a href="#tonight">§5</a>). A human blind screen of the winner stays the final judge.</p>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="constraints">
+  <h2><span class="n">4</span>Architecture choice → what it rules out</h2>
+  <p>The human asked which architecture choice intrinsically constrains which behaviour. The causal chain both design rounds arrived at: <span class="pill good">measured</span> links, <span class="pill warn">inferred</span> chain</p>
+  <ol class="tight">
+    <li>No chart-level input, so the start regresses to the corpus mean given the skeleton (F1).</li>
+    <li>The TCN and its row-local tokens give chart identity nowhere to live (F2).</li>
+    <li>Teacher-forced CE never penalises losing it, and will not teach a new anchor unless training forces it.</li>
+    <li>Single-sample decoding never corrects an excursion.</li>
+    <li>Selection on short-chart panels and NLL never notices.</li>
+  </ol>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Choice</th><th>What it intrinsically rules out</th><th>Defect</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Causal dilated TCN over 511 rows, no memory</td><td>A convergent estimate of chart identity is <b>not representable</b>: a finite window cannot compute a running mean. In practice the window that matters is 64–128 rows.</td><td>F2</td><td>Code; logits identical when history beyond 511 rows changes; β<sub>cum</sub> 0.51 on real prefixes against 0.23 on own</td></tr>
+      <tr><td>Row-local history tokens; running counts only in the FiLM frames</td><td>No sufficient statistic of the chart so far on the natural path</td><td>F2</td><td>Code</td></tr>
+      <tr><td>No chart-level variable (θ, band or latent) in phase N</td><td>Chart identity at the start is the corpus mean given the skeleton; variety between charts is compressed</td><td>F1, compression</td><td>Start offsets by band; between-chart SD ratios 0.41–0.80 of real</td></tr>
+      <tr><td>Per-decision teacher-forced CE only</td><td>No gradient on behaviour under the model's own history; anchoring is worth thousandths of a nat</td><td>F2, absorption</td><td>NLL flat while the regime flips between checkpoints</td></tr>
+      <tr><td>One ancestral sample at T = 1, every draw kept</td><td>Nothing rejects an excursion; temperature trades drift against composition</td><td>Absorption</td><td>Temperature probe; stay rate 0.53–0.57 against 0.24</td></tr>
+      <tr><td>Head times given</td><td>A too-intense regime on a sparse skeleton can only show as chord and LN pile-up, all four lanes busy</td><td>The form F1 takes in band 2</td><td>Held share 0.27–0.35 in flagged band-2 windows against 0.077</td></tr>
+      <tr><td>LN length as a chain of release decisions, with no chart-level length</td><td>No per-chart length style</td><td>Compressed length style</td><td>Earlier LN-length study</td></tr>
+      <tr><td>Interval-local FiLM conditions on a frozen phase-N base</td><td>A whole-chart request fights a policy that re-estimates θ from its own window</td><td>Control defects</td><td>Code; the difficulty screen</td></tr>
+      <tr><td>Selection on NLL plus short (≤ 600 rows), 16-chart panels</td><td>Cannot see F1 or F2; the panel covers 11% of decisions</td><td>Every defect, by omission</td><td>Checkpoint sweep; corpus census</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><b>Not constraints:</b> the training window and start rule, more exposure, the row head (probably), and phrase features beyond the 4-bar starts the model already sees.</p>
+
+  <h3>Network families</h3>
+  <ul class="tight">
+    <li><b>No encoder family fixes F2 on its own.</b> The TCN makes a convergent anchor impossible. A GRU, a linear RNN or state-space model (LRU, S4), attention, or a two-rate hierarchy make it possible, but none makes it likely without pressure from the recipe: history dropout, on-policy training, or a held θ. Precedent: R1's GRU over all rows and R2 v1's landmark attention could represent an anchor and went unused. <span class="pill warn">inferred</span> from measured precedent</li>
+    <li><b>Latency does not discriminate between families.</b> The per-step cost that grows with song position (2.5 µs × k) comes from the sampler replaying the whole prefix at every step, not from the network; an incremental state makes a step about 1.5 ms flat. Per-step encoder costs are at or below the TCN's, against a budget of at least 69 ms per row at the 95th percentile of band 5. <span class="pill good">measured</span> The sampler's replay is what needs fixing.</li>
+    <li><b>Training cost</b> differs: forward and backward over 2,304 tokens takes 294 ms for the TCN, 201 ms for a GRU and 1,611 ms for a full causal transformer (5.5×). <span class="pill good">measured</span> The current window draw re-encodes about 5 positions per scored one, so scoring whole charts should give 2–3× more training per machine-hour for any family. <span class="pill warn">inferred</span></li>
+    <li><b>Explicit θ before a VAE latent.</b> Named whole-chart statistics have no posterior collapse and are a direct control surface. A VAE latent faces near-certain collapse under this objective, because the decoder already predicts well from its window. A clustered style token or a small residual latent is an add-on for unnamed style, only if that gap persists. About 4,000 song groups bound any chart-level model. <span class="pill warn">inferred</span></li>
+    <li><b>The generation paradigm is orthogonal to F1 and F2.</b> Block-autoregressive generation is plan-then-realise. Windowed masked refinement suits the mapper's local-edit scenario but needs a legality redesign and training from scratch, so it is a separate track. Whole-song non-autoregressive generation breaks the standing constraint that chart decisions and publication stay causal. <span class="pill warn">inferred</span></li>
+  </ul>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Encoder</th><th class="num">ms per generation step</th><th class="num">ms to train on 2,304 tokens</th></tr></thead>
+    <tbody>
+      <tr><td>Dilated causal TCN (current)</td><td class="num">0.93</td><td class="num">294</td></tr>
+      <tr><td>GRU</td><td class="num">0.05</td><td class="num">201</td></tr>
+      <tr><td>Linear RNN</td><td class="num">0.20</td><td class="num">not measured</td></tr>
+      <tr><td>Transformer with KV cache, context 512 to 2,048</td><td class="num">0.38–0.86</td><td class="num">1,611 (full causal)</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="font-size:14px;color:var(--ink-2)">Three models produced these findings independently, in two design rounds with network-family addenda and an earlier code and information-path audit. They agreed on the causal chain and that no encoder family fixes F2 alone; they disagreed on whether the θ arm should also carry the self-anchor channels (one round yes, the other no), on the decision rule (rank sum against gap closure), and on whether attention deserves a later test for pattern vocabulary.</p>
+</section>
+
+<!-- 5 -->
+<section id="tonight">
+  <h2><span class="n">5</span>Tonight: a system bake-off toward a working generator <span class="pill acc">proposed · no results yet</span></h2>
+  <p>Instead of testing one mechanism at a time, tonight compares complete systems on the same long-chart benchmark. The arms are nested, so each difference isolates one change. All trained arms start from 56M with the same schedule (200k warm-up, learning rate 1e-4 cosine to 3e-5), the LN level and length inputs off, and equal training wall-clock of about 1.25 h each; each arm's cosine schedule is set from its measured throughput.</p>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Arm</th><th>System</th><th>What the comparison isolates</th></tr></thead>
+    <tbody>
+      <tr><td><b>B0</b></td><td>Phase N 56M, no training</td><td>Reference</td></tr>
+      <tr><td><b>B1</b></td><td>56M + plain CE fine-tune</td><td>The effect of more fine-tuning alone; regimes have flipped between checkpoints before</td></tr>
+      <tr><td><b>B2</b></td><td>B1 + self-anchor: about 16 running statistics of the chart so far through a zero-initialised reader, plus history dropout (on 25% of windows the encoded history is cut to the last 64–128 rows, so the running statistics become the only source of the chart's level there)</td><td>B2 − B1: does a convergent statistic of its own past hold identity (F2)?</td></tr>
+      <tr><td><b>B3</b></td><td>B2 + explicit chart vector θ: 10 standardised whole-chart coordinates with a known bit, noised, dropped to unknown on 30% of windows. At generation θ is drawn once from a donor prior, one of the 32 nearest training charts in skeleton space</td><td>B3 − B2: does a held, drawn identity fix the start (F1) and restore variety? Every planned control is a θ coordinate</td></tr>
+      <tr><td><b>d0</b></td><td>56M with decode-time selection: 4 candidates per 64-row block, keep the best by a block score. Two variants: one keeps the chart's own level (heads per row, held share, chords, pattern entropy relative to the running chart); one penalises local organisation outside the source range (jacks, fast jacks, row repetition, head and lane locks, all-four-busy)</td><td>The local defects the human marked, without training; a bound on what selection buys</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>B3 nests on B2 because the two design rounds disagreed on whether θ should carry the anchor channels; nesting keeps every difference interpretable, and B3 with θ unknown is a second self-anchor at no cost. A two-rate encoder arm (B4, the network-family test) is not built tonight.</p>
+
+  <div class="status">
+    <div class="good">
+      <h3>Decided</h3>
+      <ul>
+        <li>Build now; fix the arm list after X0 is scored (the human, about 18:08–18:10).</li>
+        <li>Decode-time block selection runs tonight as an arm for the local defects.</li>
+        <li>An independent code review before launch; training then starts without waiting for the human.</li>
+      </ul>
+    </div>
+    <div class="warn">
+      <h3>Being built</h3>
+      <ul>
+        <li>An incremental sampler state, tested for equality against the current sampler. It removes the prefix replay and roughly halves evaluation time.</li>
+        <li>One evaluation module with the candidate measures, gap closure and guards.</li>
+        <li>The long-chart panel; arms B1–B3 behind flags; d0.</li>
+        <li>A night runner: B1, B2, B3 train in series, and each panel runs alongside the next training.</li>
+      </ul>
+    </div>
+    <div class="acc">
+      <h3>Set by the X0 scoring</h3>
+      <ul>
+        <li>No measure subset was validated, so all seven pre-registered measures count, with LN-share measures reported separately. <span class="pill acc">proposed</span></li>
+        <li>d0's block score: the two variants above.</li>
+        <li>On-policy training is not ruled out; it stays open for a later round.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>The long-chart panel</h3>
+  <p>Held-out charts, one per song group, 25 groups per band. Bands 3–5 use charts of at least 1,500 rows. Band 2 uses at least 1,000 rows, because only 4 held-out band-2 charts reach 1,500. X0's songs are excluded. Each system runs in two modes: from the song start at three seeds, capped at 2,560 rows, which tests F1 and F2 together; and continuing a real first-third prefix at one seed, which tests F2 alone. B3 is judged with θ drawn from its prior, the mode a user would get; θ copied from the real chart is a diagnostic only.</p>
+
+  <h3>Decision rule and guards</h3>
+  <p>The pre-registered measures include identity hold at rows 1k+ after a real prefix, the stay rate and band-2 all-lanes-busy exits, the ratio of between-chart spread to real charts (variety), first-to-last-third correlation from the song start, and adjacent-row dependence (F3). Each is turned into a gap closure per band:</p>
+  <div class="formula">g = (m_system − m_source) / (m_B0 − m_source)        G = mean of g     (0 = like real charts, 1 = like B0)</div>
+  <ul class="tight">
+    <li><b>Winner:</b> the guard-passing arm with the lowest G, at least 0.15 below B1, with a chart-bootstrap 90% interval on the difference that excludes zero. It then goes to a human blind screen of 8 long charts.</li>
+    <li><b>Guards:</b> legal export; NLL with θ unknown at most B0 + 0.02 nats; single-head share and 4-gram ratio inside the source envelope; end-of-song exits at most 1.5× the source's; no head-lock run of 30 rows or more.</li>
+  </ul>
+
+  <h3>What each outcome would mean next <span class="pill warn">inferred</span></h3>
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Outcome</th><th>Reading</th><th>Next</th></tr></thead>
+    <tbody>
+      <tr><td>B3 &lt; B2 &lt; B1</td><td>The chart variable is the lever</td><td>Controls become θ coordinates, LN share and length first. Round 2: plan-then-realise against B3, and an on-policy term on B3.</td></tr>
+      <tr><td>B2 ≈ B3, both below B1</td><td>Holding is the main fix</td><td>Keep the anchor; add θ only for controls.</td></tr>
+      <tr><td>B3 fixes variety and the start, not holding; B2 null</td><td>Either the reader never learned or it learned and was overridden</td><td>Separate the two; an on-policy objective on B3, with decode-time selection as the training-free bound.</td></tr>
+      <tr><td>Nothing beats B1</td><td>CE will not make R2 hold any input</td><td>Rollout objectives and decode-time selection become the main route.</td></tr>
+      <tr><td>B1 differs from B0 by more than 0.2 in G</td><td>Fine-tuning alone moves the regime</td><td>Any margin needs a second training seed.</td></tr>
+      <tr><td>d0 closes the local gap</td><td>The local defects can be held off at decode time</td><td>A bound and a fallback. If its own score improves while unscored measures (4-grams, 4-chords, jack runs) worsen, it is fitting the score.</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="open">
+  <h2><span class="n">6</span>What stays open</h2>
+  <ul class="tight">
+    <li><b>A measure that tracks the human.</b> None passed X0 robustly. LN measures need a per-chart reference; jack and repetition statistics matched the one song described that way. A better-labelled panel is needed before any measure gates a decision.</li>
+    <li><b>Start or drift, by band (X1).</b> Does a 64-row real prefix remove the start offset in heads per row? Band 2 is start-dominant (55% removed at both spans); band 4 start-dominant with a wide interval (58–61%); band 3 undetermined; band 5 mixed, just above the drift line (26% removed at rows 512–1k). Every band's interval at rows 512–1k spans at least two verdict zones. <span class="pill good">measured</span></li>
+    <li><b>A learned anchor against a hand-built one:</b> the two-rate encoder arm, not built tonight.</li>
+    <li><b>Unnamed style</b> such as lane vocabulary and motif habits, if B3 leaves variety compressed: a clustered style token or a residual latent.</li>
+    <li><b>Later rounds:</b> an on-policy objective, plan-then-realise, block reranking with a learned critic, and a from-scratch encoder comparison with whole-chart scoring.</li>
+    <li><b>What ends a section.</b> Real section ends do not follow the 8- or 16-bar grid; they likely need audio or the mapper's intent, which are outside R2 v2.</li>
+    <li><b>Controls</b> return as θ coordinates once natural generation holds.</li>
+  </ul>
+</section>
+
+<footer>
+  <p>Sequel to <a href="r2-architecture-20261006.html">R2 generator architecture (6 October)</a>; the morning and afternoon are in <a href="r2-day-20261007.html">the research day page</a>. Phase-N checkpoints are named by training decisions seen (48M, 56M, 64M). Evidence labels follow the research notes. Nothing on this page reports tonight's training runs; they had not finished when it was written.</p>
+</footer>
+</main>
+</div>
+
+</body>
+</html>
