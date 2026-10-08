@@ -5,22 +5,27 @@ creates for possible future actions. The gameplay frontier collects those
 responses. A demand state $d$ is a proposed representation of that object.
 
 The target responses take semantic priority over their representation. Their
-concrete definitions will be established from a mapper's perspective after the
-initial chart dataset is complete: which gameplay distinctions matter, which
-do not, and what evidence establishes each distinction. The initial dataset's
-style judgments help develop these definitions; they do not already specify
-numerical demand or a response evaluator.
+concrete definitions are open. They are to be established from a mapper's
+perspective: which gameplay distinctions matter, which do not, and what
+evidence establishes each distinction. The style judgments of the initial chart
+dataset help develop these definitions; they do not already specify numerical
+demand or a response evaluator.
 
 [notation.md](notation.md) owns chart syntax, exact replay, legal continuations,
-and committed history. This page owns the meaning and evidence requirements of
-demand, frontier representations, style observations, and semantic controls.
+committed history, and the generation interface. This page owns the meaning and
+evidence requirements of demand, frontier representations, style observations,
+and demand requests, and the gameplay semantics every control must respect.
+[Style conditions and control](style-conditions-and-control.md) owns the
+chart identity, scoped style directives and chart-property targets, and their
+composition and release.
 
 ## Canonical gameplay profile
 
 The canonical profile $\pi_0$ fixes the 4K lane-to-hand-role mapping, successful
 execution of legal actions at their chart times, and left-right symmetry.
 It supplies one reproducible convention for discussing gameplay organization.
-The target-response specification will supply the associated demand semantics.
+The target-response specification is to supply the associated demand
+semantics.
 
 This scope excludes individual capacity, misses, timing noise, adaptive
 fingering, handedness-specific profiles, physiological fatigue, and subjective
@@ -33,7 +38,7 @@ Exact facts and gameplay interpretations have different sources:
 | --- | --- |
 | Row times, actions, and long-note occupancy | The materialized chart and exact replay |
 | Recurrence, chord sizes, timing relationships, and hold/release relationships | Computation from declared chart context |
-| Style presence and strength | Scoped semantic judgments under a versioned vocabulary |
+| Style presence and ordinal strength | Scoped semantic judgments under a versioned vocabulary |
 | Target continuation responses | The mapper-facing response specification to be defined from the initial dataset |
 | Predicted responses and runtime demand state | A chosen representation and its dynamics |
 
@@ -75,11 +80,15 @@ responses. Whether two histories should have different frontiers is decided by
 the target-response semantics, rather than by whether a candidate state encoder
 happens to distinguish them.
 
+The frontier's domain depends on the history: a start, hold, or release
+continuation is legal only from a matching occupancy. Relating the frontiers
+of two histories therefore needs continuations legal from both, or an
+explicitly declared correspondence between their actions.
+
 ### Defining the response from mapper evidence
 
 The initial chart dataset provides concrete arrangements, local style judgments,
-and their surrounding context. After its completion, response definitions must
-state:
+and their surrounding context. Response definitions must state:
 
 - the mapper-facing question each response answers, including its exclusions;
 - the historical context and legal continuation on which it depends;
@@ -118,10 +127,10 @@ $$
 \mathcal C_0(H_{\le t},t;Y,e).
 $$
 
-The approximation must be assessed against a declared continuation family,
-horizon range, response comparison, and acceptable discrepancy. These criteria
-depend on the target-response specification. A representation need not preserve
-all information useful for music, motif identity, or style recognition.
+An approximation claim is relative to a declared continuation family, horizon
+range, response comparison, and acceptable discrepancy, all of which depend on
+the target-response specification. A representation need not preserve all
+information useful for music, motif identity, or style recognition.
 
 State sufficiency concerns the entire retained summary, including any exact
 history features supplied alongside $d$. Storing omitted history in another
@@ -155,27 +164,29 @@ produce the same state and predictions. A cached state must agree with replay
 under the same specification and boundary, including initialization before
 the first row and advance through silent time. Splitting a time advance into
 smaller intervals must preserve that result within the declared numerical
-tolerance. This establishes reproducibility; it does not establish that the
+tolerance. Reproducibility is distinct from sufficiency: it does not make the
 predictions preserve the intended responses.
 
 In particular, at the same boundary time, matching $(x,d)$ and applying the
 same predictor to the same continuation and horizon must give matching
-predictions. That equality cannot reveal information already lost by the
-representation. Sufficiency requires comparison with target
-responses whose basis is independent of the candidate compression. A
-full-history reference model can provide such a comparison, but the resulting
-claim is relative to that reference model.
+predictions. That equality concerns the representation's own consistency; it
+cannot contain information the representation has already lost. Sufficiency
+is defined against target responses whose basis is independent of the
+candidate compression.
 
 ### Interpretable quantities and symmetry
 
-An exposed demand quantity needs a declared interpretation, scale, and
-supporting response comparisons. A coordinate does not acquire a gameplay
-meaning merely from its name or correlation with a style label. Internal
-memory features may remain unnamed.
+An exposed demand quantity needs a declared interpretation and scale in terms
+of the target responses. A coordinate does not acquire a gameplay meaning
+merely from its name or correlation with a style label. Internal memory
+features may remain unnamed.
 
 Local intensity and section or map difficulty require their own definitions.
-Neither is automatically a norm or average of the state. Desired intensity,
-realized style strength, and confidence in a judgment are different quantities.
+Neither is automatically a norm or average of the state. Section difficulty as
+a chart property is the readout of an evaluator declared in its measurement
+semantics ([Style conditions and control](style-conditions-and-control.md#section-difficulty-and-gameplay-demand)), not a
+demand coordinate. Desired intensity, realized style strength, and confidence
+in a judgment are different quantities.
 
 Under the symmetric canonical profile, mirrored histories and continuations
 should have correspondingly mirrored target responses. A representation must
@@ -194,6 +205,9 @@ Jack organization, Stream organization, Trill organization, Tech, and LN
 coordination. These are experiment-specific, versioned concepts. Their local
 definitions and calibration examples accompany the dataset; the five names are
 not a universal taxonomy or the final set of generation controls.
+Style observations are readouts of realized organization; style directives
+that name the same concepts are requests
+([Style conditions and control](style-conditions-and-control.md#style-observations-and-style-directives)).
 Historical records retain their pinned vocabulary and definitions. Adding a
 concept or revising a definition does not retroactively label that concept or
 reinterpret an earlier judgment.
@@ -235,8 +249,14 @@ realized styles.
 Multiple concepts can be prominent in the same scope. Assessments do not sum
 to one, and judging one concept does not resolve the others. Positive-first,
 partially exhaustive collection leaves missing assessments unreviewed.
-Unresolved and unreviewed remain distinguishable even when both are excluded
-from a supervised presence loss.
+Unresolved and unreviewed remain distinguishable in every use of the
+observations, including one that sets both aside.
+
+An assessment describes a realized section. The requested assessment of a
+[style directive](style-conditions-and-control.md#style-observations-and-style-directives) and the
+[strength](style-conditions-and-control.md#target-strength) of a chart-property target are request
+parameters; neither is an observation, and the ordinal assessment scale does
+not define a strength scale.
 
 ### Scope, context, and evidence
 
@@ -275,10 +295,7 @@ A rejected proposal is not an absent label. A deferred decision supplies no
 settled assessment. Read the assessment itself even when a historical record
 carries human provenance; provenance alone does not establish presence.
 Older annotation formats retain their original meanings and require explicit
-reinterpretation before being combined under another scale.
-
-Overlapping claims, related difficulties, and examples exposed during
-calibration must remain grouped appropriately for evaluation. A collection of
+reinterpretation before being combined under another scale. A collection of
 selected positive episodes does not establish exhaustive chart coverage or
 whole-map style prevalence.
 
@@ -300,15 +317,11 @@ specification intentionally treats its alternatives as equivalent.
 
 Conversely, if mapper-defined target responses distinguish two histories,
 a demand representation must retain that distinction within its claimed
-scope, whether or not the histories receive different style labels. Better
-style recognition alone cannot establish response sufficiency.
+scope, whether or not the histories receive different style labels. Response
+sufficiency is defined by the target responses, not by style recognition.
 
-Chart-only, demand-only, and joint recognition comparisons can help examine
-this relationship. Their available history, model capacity, and evaluation
-examples must be declared: a gain from longer context is not, by itself,
-evidence of a distinct demand mechanism. Since demand is derived from chart
-history, it adds a representation of that history rather than a new external
-observation.
+Since demand is derived from chart history, it adds a representation of that
+history rather than a new external observation.
 
 ## Community observations
 
@@ -326,68 +339,59 @@ No community alignments or pooling rules are fixed by this formulation.
 Retain catalogue identity and available vote information. Votes are neither
 independent training examples nor calibrated probabilities of truth. Missing
 tags remain unobserved, and a map tag must not be copied to every section.
-Any attempt to predict map tags from section observations needs a separately
-evaluated aggregation rule that accounts for selection and missing coverage.
+Predicting map tags from section observations needs a separate aggregation
+rule that accounts for selection and missing coverage.
 
 ## Controls
 
-The generation problem accepts optional style and demand requests,
-$c_W^{\mathrm{style}}$ and $c_W^{\mathrm{demand}}$, as defined in
-[notation.md](notation.md#generation-and-optional-controls). Either, both, or
-neither may be supplied.
+Generation takes a chart identity $\rho$, a possibly empty set $\mathscr U$ of
+scoped requests, and optional demand requests $c_W^{\mathrm{demand}}$, as
+defined in [notation.md](notation.md#generation-and-optional-controls).
+[Style conditions and control](style-conditions-and-control.md) defines the
+identity, the style directives and chart-property targets in $\mathscr U$,
+their scopes, composition, and release.
 
-A style request asks the generator to favor a declared concept or combination.
-An absent request permits the learned natural style distribution; it does not
-request an absence of style. Realized presence and strength are assessed on
-the resulting chart. The request is not itself an observation of that result.
+A style directive asks the generator to favor a declared concept or
+combination, a reference characteristic, or a relative change over its scope.
+An absent style directive leaves generation following the chart identity; it
+does not request an absence of style or a population-average style. Realized
+presence and ordinal strength are assessed on the resulting chart. The
+directive is not itself an observation of that result.
 
 A demand request refers to quantities or relationships in the target-response
 specification. Its concrete interface remains open until those semantics are
-defined. A target in the coordinates of one learned state is meaningful only
-with that representation and its mapping to the declared response quantities.
-Renaming arbitrary latent coordinates as demand controls does not establish
-mapper-facing semantics.
+defined. Like other requests, it has a song-time scope independent of
+generation windows; $c_W^{\mathrm{demand}}$ denotes the demand requests whose
+scopes meet $W$. A target in the coordinates of one learned state is
+meaningful only with that representation and its mapping to the declared
+response quantities. Renaming arbitrary latent coordinates as demand controls
+does not establish mapper-facing semantics. A section-difficulty target is a
+chart property under a declared evaluator, not a demand request.
 
-Requested style tendency, style adherence, desired demand, and sampling
-temperature have separate meanings. A style amount control must specify
-whether it concerns local expression, coverage, repetition, or another
-calibrated property. The ordinal annotation scale does not by itself define
-a numerical control interface.
+Requested style tendency, style adherence, a property target's value and
+strength, desired demand, and sampling temperature have separate meanings. A
+style amount control must specify whether it concerns local expression,
+coverage, repetition, or another calibrated property. Target strength is an
+ordered adherence level for one property target
+([Style conditions and control](style-conditions-and-control.md#target-strength));
+a style directive carries no strength. The ordinal annotation scale does not
+by itself define a numerical control interface, for a style amount or for a
+strength.
 
-Style and demand requests can be correlated or incompatible. Separate
-interfaces do not guarantee independently achievable effects. Generation must
-preserve legality and committed decisions, and use a declared compromise or
-infeasibility policy when requests cannot be jointly realized.
+Style directives, property targets, and demand requests can be correlated or
+incompatible. Separate interfaces do not guarantee independently achievable
+effects. Generation must preserve legality and committed decisions. In
+$\mathscr U$, overlapping directives on the same quantity are invalid, and
+overlapping directives on different quantities all apply under the optional
+priorities of
+[Style conditions and control](style-conditions-and-control.md#overlap-and-priority),
+with a declared shortfall when they cannot all be met. A demand request has no
+precedence relative to them until its interface is defined; a joint shortfall
+is declared.
 
-Neither control requires a separate planner or an explicit demand trajectory
+No control requires a separate planner or an explicit demand trajectory
 before row generation. When a representation is available, its state and
 predictions can be derived from each proposed branch without becoming committed
-facts. Generation and evaluation must preserve the branch isolation defined in
+facts. Generation, and any readout computed on a branch, must preserve the
+branch isolation defined in
 [notation.md](notation.md#provisional-branches-and-prefix-commit).
-
-## Evaluation questions
-
-The initial dataset supports assessment of style recognition and provides
-examples for defining target responses. Demand representation evaluation
-requires that response specification first. The following comparisons have
-distinct purposes:
-
-| Question | Required comparison |
-| --- | --- |
-| Does style recognition recover the declared concepts and strengths? | Held-out scoped judgments, retaining explicit negatives, unresolved assessments, related-source grouping, and ordinal strength |
-| Does a demand representation preserve the target responses? | Predictions against independently specified responses on held-out legal continuations and declared horizons |
-| What does demand contribute to style recognition? | Chart-only, demand-only, and joint predictors with declared context and density, event-count, or difficulty baselines |
-| Does a style request produce its intended semantic effect? | Fixed audio and committed history, feasible comparison conditions, and independent judgments of the generated organization |
-| Does demand control change the intended response? | Defined target-response comparisons, checking style changes and other tradeoffs rather than assuming independence |
-| Does a representation respect the canonical symmetry? | Mirrored histories and legal continuations with the declared output transformation |
-
-Continuation probes require legal starting states. A start, hold, or release
-probe cannot be applied indiscriminately to every occupancy state. A paired
-comparison needs a continuation legal from both histories, or an explicitly
-declared correspondence between their actions.
-
-Changes in note count, global difficulty, or decoding entropy alone do not
-establish successful semantic control. Human judgments or independently
-validated evaluators must recognize the intended change. Consistent replay
-and mirror behavior are useful checks, but do not prove sample efficiency,
-frontier sufficiency, or agreement with mapper-defined response semantics.
