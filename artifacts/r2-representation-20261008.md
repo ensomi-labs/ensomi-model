@@ -121,3 +121,32 @@
 - **Budget:** at most 4 mac threads and about 45 minutes of mac time.
 - **Outputs:** `artifacts/r2-represent-20261008/step1/` on bings-mac; scripts in `~/ensomi/.sync/cp/scratch/r2-represent-step1/worker/`.
 - **Step 2, the clip screen, is not authorised.**
+
+<a id="o-step1-returned"></a>**Step 1 returned, 2026-10-08 about 04:30 UTC:** [r2-represent-step1-20261008](r2-represent-step1-20261008.md). The main thread checked the headline numbers against the mirrored outputs ([v-step1-checks](r2-represent-step1-20261008.md#v-step1-checks)).
+
+<a id="s-step1-answer"></a>**Synthesis after step 1 (main thread, 2026-10-08).**
+1. **The same-rows human null is mostly one mapper across two difficulties** ([o-step1-null-same-mapper](r2-represent-step1-20261008.md#o-step1-null-same-mapper)).
+   - 92 % of the same-band pairs share a creator.
+   - The different-mapper null is about 1.8× wider for the LN measures.
+   - Any threshold has to name which null it uses.
+2. **X0: the window claim belongs to one chart [M, post hoc]** ([o-step1-x0](r2-represent-step1-20261008.md#o-step1-x0)).
+   - A one-sided LN-excess flag (more lanes held than the source) catches 73 % of the marks and none of the windows on charts the human passed.
+   - Without x0-02 it catches 3 of 14 marks.
+   - The two charts the human passed hold *less* than their sources. "Distance from the source" would flag them too, so direction is part of the measure.
+   - The other marks (x0-03, x0-09, x0-11, x0-12) are not located by any validated means; the block-2 norm is a weak candidate.
+3. **Jacks and repetition, per chart:** paired against the source, they are inside the human spread on 7 of 8 items. What separates generated from real is unpaired: fast jacks and full jacks, AUC 0.84-0.94 ([o-step1-jack](r2-represent-step1-20261008.md#o-step1-jack)). This fits the human's answer that these are whole-song impressions ([d-x0-whole-song](#d-x0-whole-song)).
+4. <a id="c-ln-placement-mapper"></a>**Correction to [s-represent-answer](#s-represent-answer) point 2 and to the main thread's report to the human.** The LN-head agreement between two humans (r 0.64) is mostly one mapper's convention.
+   - LN-head r: 0.67 same creator, 0.45 different creator.
+   - LN-level ICC: 0.68 same creator, 0.20 different creator.
+   - Chord-placement agreement holds across mappers: 0.79 same creator, 0.735 different, against 0.59 from the rows alone ([o-step1-mapper](r2-represent-step1-20261008.md#o-step1-mapper)).
+   - **What this changes [I from M, 47 different-creator pairs]:**
+     - The information R2 lacks for LN looks like a chart-level identity: which lanes, how much and how long to hold. It does not look like an audio cue.
+     - Chord placement is where song information, from audio or structure, would add most.
+     - The earlier line "closing the gap needs information outside the rows, such as audio" was too broad for LN.
+5. **R separates R2 from a second human without labels** ([o-step1-labelfree](r2-represent-step1-20261008.md#o-step1-labelfree)).
+   - Block 1 (LN relations) gives chart AUC 0.80. Block 2 is inside R2's seed spread.
+   - This is a texture gap, not a validated defect. It may be the same missing chart-level LN identity as point 4.
+6. **Ready for a preregistered screen; none validated yet:**
+   - the one-sided block-1 flag, with the different-mapper unit;
+   - the block-2 chart norm, for non-LN complaints;
+   - the unpaired fast-jack and full-jack rates, for whole-song impressions.

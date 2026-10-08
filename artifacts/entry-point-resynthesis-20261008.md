@@ -42,3 +42,8 @@
   - one paragraph of where things stand.
 - The rounds' accounts stay in their materials, reached through [old-movement-20261008](entry-point-before-20261008.md#old-movement-20261008).
 - **Proposed:** the style formulation, focus item 2 of 2026-10-06, is listed as deferred with `control`. The 2026-10-07 and 2026-10-08 redirects did not mention it, and it has had no work since.
+
+## The human's review of the two proposals (2026-10-08 about 04:33 UTC, [private, local](private/human-inputs/00e97a87-25ca-4fab-a49a-668fbf454be4.md#prompt-5))
+
+- <a id="d-control-after-eval"></a>**Decision (human): `control` is not parked.** Control is still part of R2's goal. It is solved after the representation, measure and evaluation work. The node stays `open`, and the "parked (proposed)" status is withdrawn.
+- <a id="d-style-parallel"></a>**Decision (human): the style formulation stays in focus.** It is a separate branch, pushed in parallel as formulation work. The proposal to defer it with `control` is withdrawn.
