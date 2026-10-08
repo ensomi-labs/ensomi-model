@@ -69,6 +69,23 @@ Guardrail 4 of `.agents/skills/ensomi-research-guardrails/SKILL.md` asks what ea
 - **Bears on the human's premise** that the fitter "works in most cases" ([d-audio-rows-path](#d-audio-rows-path)): it holds at a 20 ms tolerance (57-68 %) and after simple fixes; under a strict 10 ms rule it holds on about half. The human judges from the example songs per class in `examples.json`.
 - **Bears on the design's M1** ([o-design-returned](#o-design-returned)): by the design's own rule the targets should be built on the fitted grid with offsets (G2), since only about half of single-tempo charts reach 90 % of heads within 10 ms. Passed to the implementing worker at 07:12; the choice stays the human's if the evidence is mixed.
 
+<a id="r-astra-v1"></a>**Running, 2026-10-08 07:28 UTC: subagents stopped at the human's instruction, and the work moved to Astra at xhigh effort ([private, local](private/human-inputs/a6d111aa-4123-4bf0-8743-94f00985c427.md#prompt-3)).**
+- **What was stopped:** the design worker, mid-implementation, and its mac job `20261008-072347-ar-design-post1` (killed; confirmed gone). It left:
+  - an unreviewed package `audio_rows`: uncommitted in the worktree `~/wt/ensomi-model-audio-rows/src/ensomi_model/audio_rows/` with tests in `tests/audio_rows/`, and mirrored at `~/ensomi/.sync/cp/scratch/audio-rows/design/src/`;
+  - a pilot data build of 877 train and 120 dev charts;
+  - seed 1 (3,000 steps, 188 s, 213k parameters);
+  - a partial end-to-end pass on 8 fit_dev songs, on stored fitted segments, not BeatThis run on audio. Head F1 at 20 ms against the source was 0.67-0.89 on most songs, and 0.002 on one song with a failed fitted grid [measured, unreviewed].
+  - Outputs on bings-mac in `artifacts/audio-rows-20261008/design/`.
+- **Astra job `20261008-072851-ar-astra-v1`** (`--rw --effort xhigh --no-hooks`), brief `~/ensomi/.sync/cp/scratch/audio-rows/astra/brief-v1.md`:
+  - review and fix the earlier code;
+  - extend the data;
+  - measure G1 against G2 at equal budget, two seeds each;
+  - test that the difficulty label is read (teacher-forced ablation, dose response, band table);
+  - run end to end from audio (BeatThis plus `GridFitter`, the 30 ms lag, the V2 fix and the octave fold, then heads, then R2 56M natural, then `.osu`) on about 12 fit_dev songs with per-stage runtimes.
+  - Bounds: writes only in `artifacts/audio-rows-20261008/astra/`, no tracked edits or commits, at most 3 threads, each run at most 40 minutes, about 3 hours in all.
+  - `--no-hooks` keeps the mac's relay hooks from making it a research lead.
+  - The Codex quota stood at 91 % used at launch, so the job may stop early.
+
 ## Proposed first steps (not started; each needs the human's go)
 
 1. Fitter check on existing outputs: the 5,050 surviving fitted grids against the charts' timing lines with the lag corrected, to size "works in most cases" and find the songs that need a fallback. Small mac job.
