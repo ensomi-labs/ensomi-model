@@ -137,3 +137,37 @@ Question material for the first system comparison on the collapse problem ([r2-c
   - B2 and B3 draw different history-dropout masks;
   - schedules will likely stretch past 1.25 h with panels alongside. The check estimates the night at 4-4.5 h.
 - Evaluation is separate from generation, so G or the guards can be recomputed on the saved runs in minutes.
+
+<a id="o-bakeoff-r1"></a>**Observation, 2026-10-08 01:11 UTC: round 1 finished (exit 0). No arm passes the shortlist rule. Fine-tuning alone made free-running worse, θ brings it back to about B0, B3 barely follows θ, and decode-time selection gets the lowest G partly by removing LN.** (`artifacts/r2-bakeoff-20261007/comparison.md`, `b3-probe/probe.md` on bings-mac, mirrored; read by the main thread.)
+- **Training:** all three arms finished with no NaN.
+  - B1: 12.0M exposures in 7,124 s. B2: 13.3M in 5,686 s. B3: 13.3M in 6,029 s.
+  - The panels running alongside stretched the planned 1.25 h, so the arms were matched on exposures, not wall-clock.
+- **G** (two-sided; lower is better; B0 = 1), with G without m1 and m6 in brackets:
+
+  | System | G | G_core | Runs matched to B0 |
+  | --- | ---: | ---: | ---: |
+  | B1 | 1.41 | 1.21 | 396 |
+  | B2 | 1.29 | 1.20 | 396 |
+  | B3 (prior θ) | 1.02 | 0.96 | 396 |
+  | B3, θ unknown | 1.18 | 1.06 | 198 |
+  | B3, oracle θ (diagnostic) | 0.90 | 0.90 | 198 |
+  | `d0-env` | 0.87 | 0.88 | 99 |
+  | `d0-phi` | 0.91 | 0.78 | 99 |
+
+- **The bootstrap intervals are not interpretable.** The lower bounds sit near −2 for most differences, with point estimates at the upper edge (e.g. B0 − B1 −0.41 [−2.18, −0.33]). Inferred cause: the ratio's denominator |m_B0 − m_src| is re-estimated in each resample and nearly vanishes in some. As computed, every candidate's interval against B1 includes 0: B3 0.39 [−0.06, 1.03], oracle 0.43 [−0.02, 2.48], `d0-env` 0.25 [−0.83, 0.91]. So nothing passes the shortlist rule. The rule's interval needs a fixed scale before it can decide anything.
+- **B1 is worse than B0 by 0.41 in G.** It has more LN and more all-four-busy rows in bands 2-3 (`bus4` 0.087-0.089 against 0.030-0.038 in sources) and longer lane locks. Per the plan's own rule, fine-tuning alone moves the regime, so any margin needs a second training seed.
+- **B3 recovers to about B0, from B1's 1.41.** Its band 4-5 LN spread is closer to the sources than B0's (held IQR [0.069, 0.212] in band 5, against [0.064, 0.244] in sources and [0.077, 0.151] for B0). Bands 2-3 stay too LN-heavy. θ unknown is worse (1.18) and oracle θ better (0.90), so θ is read, but weakly.
+- **Channel-use probe (B3), realised shift per requested shift:**
+  - held share: 0.23 from real prefixes, 0.05 from the model's own prefixes;
+  - nh: about 0 from both.
+  - The plan's early-fail threshold was a slope below 0.6. Reading: B3 barely follows θ, and almost not at all on its own output, which is where it was needed.
+- **Decode-time selection gets the lowest G, partly by gaming the statistics:**
+  - `d0-phi` strips LN in bands 4-5: held IQR [0.009, 0.078] against sources [0.058, 0.247]; `bus4` 0.011-0.018 against 0.076-0.118; band-5 stay rate far below the source's (signed −27).
+  - `d0-env` also lowers band-5 LN (held [0.026, 0.128], `bus4` 0.039 against 0.118).
+  - `d0-env` is the only system that passes the head-lock and tail-exit guards, and it selects on those very statistics.
+  - This is the LN-avoidance hack both decode designs predicted ([s-decode-design](#s-decode-design)).
+- **Guards:** every system, B0 included, fails the head-lock-≥30 and tail-exit guards except `d0-env`. Legal export, NLL and the single/4-gram guard pass for all.
+- **What this does and does not show:**
+  - None of these measures is validated against the human (X0). The ranking is about distance from source statistics, not about charts the human would accept.
+  - Under this recipe and budget, the three trained arms do not beat B0 in free-running statistics, and B3's θ is weakly used. Fine-tuning itself is a confound.
+  - Decode-time selection moves the statistics most, with visible reward hacking.
