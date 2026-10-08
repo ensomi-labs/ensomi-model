@@ -256,3 +256,5 @@
   - Mac ≤ 2 threads. Brief `~/ensomi/.sync/cp/scratch/r2-vqvae/brief.md`; outputs in `artifacts/r2-vqvae-20261008/`.
 
 <a id="r-spaces-vqvae-stopped"></a>**Stopped for the handoff, 2026-10-08 06:05:50 UTC.** The human closed the session. Neither subagent had written a file or started a mac job. Both are to be relaunched unchanged from their briefs ([handoff-20261008-spaces](handoff-20261008-spaces.md)).
+
+<a id="r-spaces-vqvae-relaunch"></a>**Relaunched unchanged, 2026-10-08 about 06:07 UTC (main session 6d71c094), at the human's request to take over the handoff ([private, local](private/human-inputs/6d71c094-25a1-4a33-8638-8cde30b9b79b.md#prompt-1)).** Same briefs and launch prompt, two fresh subagents in parallel: spaces-build on Opus, vqvae on Fable. Before the launch, the mac index held no `r2-spaces-20261008/` or `r2-vqvae-20261008/` and no job was running. Each prompt added that the worker is on the control plane and that the other worker shares the mac. Due within 120 minutes (spaces-build) and 90 minutes (vqvae). The VQ-VAE's full training still waits for the human's check.
