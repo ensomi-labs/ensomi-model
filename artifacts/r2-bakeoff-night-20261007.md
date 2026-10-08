@@ -171,3 +171,8 @@ Question material for the first system comparison on the collapse problem ([r2-c
   - None of these measures is validated against the human (X0). The ranking is about distance from source statistics, not about charts the human would accept.
   - Under this recipe and budget, the three trained arms do not beat B0 in free-running statistics, and B3's θ is weakly used. Fine-tuning itself is a confound.
   - Decode-time selection moves the statistics most, with visible reward hacking.
+
+<a id="c-bakeoff-r1-readings"></a>**Correction, 2026-10-08 about 02:20 UTC, to [o-bakeoff-r1](#o-bakeoff-r1), from the decode analyst ([r2-diagnose-decode-20261008](r2-diagnose-decode-20261008.md)). Two of the main thread's readings were artefacts:**
+- **"`d0-phi` drives the band-5 stay rate far below the source's (signed −27)."** It is *above* the source: 0.50 against 0.32, over few transitions. The −27 came from a denominator of 0.007.
+- **"`d0-env` also lowers band-5 LN."** The B0 row in `comparison.md` pools seeds 954-956 with prefix continuations; band-5 prefix runs hold 0.177. Against its matched seed, `d0-env` is 0.091 and plain 0.085, so no lowering. `d0-phi`'s LN stripping in bands 4-5 stands.
+- **Also measured:** a single-seed G between plain seeds is 0.93-1.19, and one system's G across seeds is 1.13-1.47 for B1. So round 1's G differences are mostly within noise. The `d0` rows (99 runs) are not comparable with the B rows (396).
