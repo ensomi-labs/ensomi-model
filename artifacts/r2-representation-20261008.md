@@ -295,3 +295,10 @@
 - **Part B:** the Lens evidence notes (`noteRefs`, `contextNoteRefs`, `rationale`) measured: coverage, shape, localisation against S3 and S4 signatures, boundaries, human against machine evidence, a read sample of rationales.
 - **Part C:** implications for the approved fixes and for the VQ-VAE refinement; questions for the human.
 - **Budget:** mac ≤ 3 threads and about 40 minutes; due within 90 minutes.
+
+<a id="o-perception-returned"></a>**perception returned, 2026-10-08 about 07:12 UTC:** [r2-perception-20261008](r2-perception-20261008.md). Headline numbers checked against the mirrored tables ([v-perception-checks](r2-perception-20261008.md#v-perception-checks)). Reading ([s-perception-reading](r2-perception-20261008.md#s-perception-reading)):
+- the Lens evidence spans are all the labeller's, so they show where the skill looks, not the human;
+- labels attach to episodes inside a scope (peak beats mean, most for trill and tech), which points to data-driven nested segments as the unit;
+- one-line counts from the Foundation definitions recognise the human cells about as well as S3 in absolute AUC;
+- whole-song intensity, judged by the human against the whole chart, is a separate target from pattern presence;
+- the worker advises deferring one approved fix (residualising S5 and S8 on S3); put to the human with five design questions.
