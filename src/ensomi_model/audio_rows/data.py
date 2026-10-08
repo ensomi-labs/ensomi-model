@@ -89,7 +89,7 @@ def frame_indices(beat_ms, slot_ms, f0: int, n: int, align=None):
     return torch.from_numpy(spans), torch.from_numpy(np.clip(slots, 0, n - 1))
 
 
-def select(cache_root: Path, corpus: Path) -> list[dict]:
+def select(cache_root: Path, corpus: Path, audio_root: Path = Path('.')) -> list[dict]:
     """fit_train and fit_dev rows of the R2 cache whose audio is present."""
     import pyarrow.parquet as pq
     index = pq.read_table(cache_root / 'index.parquet').to_pandas()
@@ -98,11 +98,31 @@ def select(cache_root: Path, corpus: Path) -> list[dict]:
     index = index[index.audio_present.astype(bool) & index.role.isin(('fit_train', 'fit_dev'))].sort_values('sha256')
     rows = []
     for r in index.itertuples():
-        audio = str(Path(r.set_dir) / r.audio_filename)
+        audio = str(audio_root / r.set_dir / r.audio_filename)
         key = r.audio_sha256 if isinstance(r.audio_sha256, str) else hashlib.sha256(audio.encode()).hexdigest()
         rows.append(dict(sha=r.sha256, file=r.file, group=r.group_id, role=r.role, band=int(r.band),
                          song_ms=float(r.song_ms), audio=audio, key=key))
     return rows
+
+
+def audio_subset(rows, train_audio=None, dev_audio=None, seed=20261009):
+    """Seeded audio-file sample per split, retaining every chart of each selected file.
+
+    ``None`` keeps a split in full. Sampling sorted keys makes membership independent of
+    row order; fit_train and fit_dev must not share audio. Limits must be positive.
+    """
+    keys = {role: sorted({r['key'] for r in rows if r['role'] == role})
+            for role in ('fit_train', 'fit_dev')}
+    if set(keys['fit_train']) & set(keys['fit_dev']):
+        raise ValueError('Audio files must not cross fit_train and fit_dev')
+    rng = np.random.default_rng(seed)
+    keep = set()
+    for role, limit in zip(keys, (train_audio, dev_audio)):
+        if limit is not None and limit < 1:
+            raise ValueError('Audio sample limits must be positive')
+        order = rng.permutation(keys[role])
+        keep.update(order if limit is None else order[:limit])
+    return [r for r in rows if r['key'] in keep]
 
 
 _LISTENER = None
@@ -123,15 +143,18 @@ def _listen_job(args):
     except Exception as exc:    # one undecodable or beatless file must not stop the build
         return key, None, f'{type(exc).__name__}: {exc}'[:200]
     np.save(Path(out) / f'{key}.npy', song.features)
-    return key, dict(segments=song.segments.tolist(), song_ms=song.song_ms), None
+    return key, dict(segments=song.segments.tolist(), song_ms=song.song_ms, seconds=song.seconds), None
 
 
-def build(cache_root: Path, corpus: Path, out: Path, beatthis: Path, workers: int):
+def build(cache_root: Path, corpus: Path, out: Path, beatthis: Path, workers: int, *,
+          audio_root: Path = Path('.'), train_audio=None, dev_audio=None, selection_seed=20261009):
     t0 = time.time()
-    rows = select(cache_root, corpus)
+    rows = audio_subset(select(cache_root, corpus, audio_root), train_audio, dev_audio, selection_seed)
     for d in ('audio', *GRIDS):
         (out / d).mkdir(parents=True, exist_ok=True)
     paths = {r['key']: r['audio'] for r in rows}
+    selection = dict(train_audio=train_audio, dev_audio=dev_audio, seed=selection_seed, rows=rows)
+    (out / 'selection.json').write_text(json.dumps(selection))
     audio, failed = {}, {}
     jobs = [(k, p, str(out / 'audio')) for k, p in paths.items()]
     with get_context('spawn').Pool(workers, initializer=_init_worker, initargs=(str(beatthis),)) as pool:
@@ -250,8 +273,13 @@ def main(argv=None):
     p.add_argument('--out', required=True)
     p.add_argument('--beatthis', required=True, help='BeatThis final0 checkpoint')
     p.add_argument('--workers', type=int, default=3)
+    p.add_argument('--audio-root', type=Path, default=Path('.'), help='Root for relative corpus audio paths')
+    p.add_argument('--train-audio', type=int, help='Sample this many fit_train audio files; default: all')
+    p.add_argument('--dev-audio', type=int, help='Sample this many fit_dev audio files; default: all')
+    p.add_argument('--selection-seed', type=int, default=20261009)
     a = p.parse_args(argv)
-    build(Path(a.cache), Path(a.corpus), Path(a.out), Path(a.beatthis), a.workers)
+    build(Path(a.cache), Path(a.corpus), Path(a.out), Path(a.beatthis), a.workers,
+          audio_root=a.audio_root, train_audio=a.train_audio, dev_audio=a.dev_audio, selection_seed=a.selection_seed)
 
 
 if __name__ == '__main__':

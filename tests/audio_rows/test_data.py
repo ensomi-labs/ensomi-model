@@ -1,6 +1,6 @@
 import numpy as np
 
-from ensomi_model.audio_rows.data import chart_targets, section_label, sections
+from ensomi_model.audio_rows.data import audio_subset, chart_targets, section_label, sections
 from ensomi_model.r2.common import GridArrays, grid_from_arrays
 from ensomi_model.r2.strain import StrainTrace
 
@@ -33,3 +33,13 @@ def test_a_head_on_a_beat_edge_counts_in_the_beat_it_starts():
     for a, b in ((edge - 1, edge), (edge, edge + 1)):
         expected = reference_label(trace, t['beat_ms'][a], t['beat_ms'][b])
         assert np.isclose(section_label(t['wh_beat'], t['beat_ms'], a, b), expected)
+
+
+def test_audio_subset_preserves_all_charts_and_split_membership():
+    rows = [dict(key=f'{role}-{audio}', role=role, sha=f'{role}-{audio}-{chart}')
+            for role in ('fit_train', 'fit_dev') for audio in range(5) for chart in range(3)]
+    chosen = audio_subset(rows, 2, 1, seed=8)
+    assert len(chosen) == 9
+    assert {r['sha'] for r in chosen} == {r['sha'] for r in audio_subset(rows[::-1], 2, 1, seed=8)}
+    assert all(r in chosen for r in rows if r['key'] in {c['key'] for c in chosen})
+    assert audio_subset(rows) == rows

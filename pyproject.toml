@@ -19,12 +19,14 @@ dependencies = [
 
 [project.optional-dependencies]
 mps = [
+    "beat-this==1.1.0; platform_system == 'Darwin'",
     "torch==2.11.0; platform_system == 'Darwin'",
     "torchaudio==2.11.0; platform_system == 'Darwin'",
     "nnAudio==0.3.4; platform_system == 'Darwin'",
     "soundfile==0.13.1; platform_system == 'Darwin'",
 ]
 cuda = [
+    "beat-this==1.1.0; platform_system == 'Linux'",
     "torch==2.11.0; platform_system == 'Linux'",
     "torchaudio==2.11.0; platform_system == 'Linux'",
     "nnAudio==0.3.4; platform_system == 'Linux'",
