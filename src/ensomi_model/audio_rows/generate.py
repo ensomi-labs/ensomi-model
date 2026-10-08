@@ -13,6 +13,11 @@ the fit_train median of that band; ``--sections`` overrides intervals with a JSO
 interval; a later entry wins where entries overlap. Requests are workload targets, not star
 ratings; the model attains them only statistically.
 
+``--profile <profile.json>`` distributes the band request using a fitted audio workload
+profile (``audio_rows.profile``), preserving its duration-weighted song mean before
+explicit section overrides. Without it the request stays constant. Overrides remain
+absolute section requests and can change the song mean.
+
 R2 receives the complete head list, K, the audio duration T and the corrected grid before row 0,
 with no prefix, no request track and ``ln_level='unknown'``::
 
@@ -83,11 +88,16 @@ def decode(model, feats: np.ndarray, grid, song_ms: float, label=None, seed: int
     return heads, dict(b0=b0, nb=nb, lattice=lattice, count=count, mask=mask, beat_ms=beat_ms)
 
 
-def requests(grid, song_ms: float, band: int, bands: dict, overrides=()) -> np.ndarray:
-    """log(W_H / s) requested per beat of ``beat_range(grid, song_ms)``."""
+def requests(grid, song_ms: float, band: int, bands: dict, overrides=(), *, base=None) -> np.ndarray:
+    """log(W_H / s) per beat, with overrides applied after optional raw per-beat ``base``.
+
+    ``base`` is copied and must contain one finite value per beat.
+    """
     b0, nb = beat_range(grid, song_ms)
     start = grid.time_of_beat(b0 + np.arange(nb))
-    values = np.full(nb, bands[band])
+    values = np.full(nb, bands[band]) if base is None else np.asarray(base, dtype=float).copy()
+    if values.shape != (nb,) or not np.isfinite(values).all():
+        raise ValueError('Base requests need one finite log workload per beat')
     for s in overrides:
         if not 0 <= s['start_ms'] < s['end_ms'] <= song_ms:
             raise ValueError(f'Section {s} must satisfy 0 <= start_ms < end_ms <= {song_ms:.0f} ms')
@@ -114,13 +124,16 @@ class Generator:
     ``record`` is the head model's training record (label normalisation and band requests);
     ``listener`` is an ``audio.Listener``."""
 
-    def __init__(self, head, record, r2, listener):
+    def __init__(self, head, record, r2, listener, profile=None):
         self.head, self.record, self.r2, self.listener = head, record, r2, listener
+        self.profile = profile
 
     @classmethod
-    def load(cls, head_checkpoint, r2_checkpoint, beatthis_checkpoint):
+    def load(cls, head_checkpoint, r2_checkpoint, beatthis_checkpoint, profile_checkpoint=None):
         from .audio import Listener
-        return cls(*load_model(head_checkpoint), load_r2(r2_checkpoint), Listener(beatthis_checkpoint))
+        from .profile import WorkloadProfile
+        profile = WorkloadProfile.load(profile_checkpoint) if profile_checkpoint is not None else None
+        return cls(*load_model(head_checkpoint), load_r2(r2_checkpoint), Listener(beatthis_checkpoint), profile)
 
     def prepare(self, audio) -> dict:
         song = self.listener.listen(audio)
@@ -131,7 +144,9 @@ class Generator:
         song, grid = prepared['song'], prepared['grid']
         rec = self.record
         t0 = time.perf_counter()
-        wanted = requests(grid, song.song_ms, band, rec['bands'], overrides)
+        base = self.profile.requests(song.features, grid, song.song_ms, rec['bands'][band]) if self.profile else None
+        wanted = requests(grid, song.song_ms, band, rec['bands'], overrides, base=base)
+        tp = time.perf_counter()
         heads, beats = decode(self.head, song.features, grid, song.song_ms,
                               label=(wanted - rec['label_mean']) / rec['label_std'], seed=seed)
         t1 = time.perf_counter()
@@ -150,7 +165,8 @@ class Generator:
         dt = np.diff(beats['beat_ms'])
         result = dict(band=band, seed=seed, K=len(heads), song_ms=song.song_ms, raw_segments=song.segments.tolist(),
                       segments=prepared['seg'].tolist(),
-                      seconds=dict(song.seconds, heads=t1 - t0, r2=t2 - t1, export=t3 - t2),
+                      workload_profile=self.profile is not None,
+                      seconds=dict(song.seconds, profile=tp - t0, heads=t1 - tp, r2=t2 - t1, export=t3 - t2),
                       section_ms=[[float(beats['beat_ms'][a]), float(beats['beat_ms'][b])] for a, b in scopes],
                       requested_log_wh_per_s=[float(np.log(np.average(np.exp(wanted[a:b]), weights=dt[a:b])))
                                               for a, b in scopes],
@@ -169,12 +185,13 @@ def main(argv=None):
     p.add_argument('--band', type=int, choices=(2, 3, 4, 5), default=3)
     p.add_argument('--seeds', type=int, nargs='+', default=(0,))
     p.add_argument('--sections', help='JSON list of {start_ms, end_ms, band or log_wh_per_s}')
+    p.add_argument('--profile', help='Audio workload profile fitted by audio_rows.profile; default: flat request')
     p.add_argument('--threads', type=int, default=3)
     a = p.parse_args(argv)
     torch.set_num_threads(a.threads)
     torch.set_num_interop_threads(1)
     t = time.perf_counter()
-    generator = Generator.load(a.model, a.r2, a.beatthis)
+    generator = Generator.load(a.model, a.r2, a.beatthis, a.profile)
     print(json.dumps(dict(setup_seconds=time.perf_counter() - t)), flush=True)
     prepared = generator.prepare(a.audio)
     overrides = json.loads(Path(a.sections).read_text()) if a.sections else ()

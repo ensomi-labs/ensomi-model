@@ -8,6 +8,7 @@ import torch
 from ensomi_model.audio_rows.audio import FEATURE_DIM, Song
 from ensomi_model.audio_rows.generate import Generator
 from ensomi_model.audio_rows.model import load_model
+from ensomi_model.audio_rows.profile import FEATURE_NAMES, WorkloadProfile
 from ensomi_model.audio_rows.train import TrainConfig, train
 from ensomi_model.r2.model import R2Config, R2Model
 
@@ -33,3 +34,7 @@ def test_a_trained_checkpoint_generates_an_osu_chart_beside_its_audio(tmp_path):
     assert len(starts) == result['K'] > 0
     assert np.allclose(result['requested_log_wh_per_s'], BANDS[4])
     assert json.loads((tmp_path / 'out' / 'band-4-seed-1.json').read_text())['segments'][0][0] == 100.0
+    generator.profile = WorkloadProfile([1.0] * len(FEATURE_NAMES), [0.0] * len(FEATURE_NAMES))
+    profiled = generator.generate(generator.prepare(audio), tmp_path / 'profiled', band=4, seed=1)
+    assert profiled['workload_profile'] is True
+    assert (tmp_path / 'profiled' / 'band-4-seed-1.osu').read_text() == text
