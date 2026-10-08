@@ -44,7 +44,7 @@ Real charts are hierarchical: p*(D | S) = ∫ Π_k p*(a_k | s_k, θ) p*(θ | S) 
 - R2 approximates the hierarchical model with q(a_k | last 511 rows, exact state, local skeleton). It re-infers θ at every decision from recent rows, in effect the last 64-128.
 
 Three components follow:
-- **F1, a wrong start draw (band-dependent).** From the start of a song, a run adopts a band-biased regime within about 64-192 rows, and the offset then stays flat.
+- **F1, a wrong start draw (band-dependent).** From the start of a song, a run adopts a band-biased regime within about 64-192 rows, and the offset then stays flat. _Re-read 2026-10-08: measured against the band mean, which mixes rows with arrangement; against E[θ | rows] the start follows the rows ([c-band-reference](r2-representation-20261008.md#c-band-reference))._
   - Band 2 is too busy and too LN-heavy: "all four lanes busy" in 16-31% of windows against 1.3%. This is the natural-generation form of the human's "full 4 lane".
   - Bands 4-5 are too sparse and loop.
   - A 64-row real prefix removes about two thirds of the band-2 excess for the whole song ([Opus D3, D7](r2-collapse-opus-20261007.md)).
