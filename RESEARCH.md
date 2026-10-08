@@ -104,7 +104,9 @@ _Review: agent draft. The map dates from 2026-09-30 and was re-synthesised on 20
      - The three-block R and its Conv1d embedding are not the design.
      - The clip screen is on hold.
    - **Design study returned ([o-design-returned](artifacts/r2-representation-20261008.md#o-design-returned)), and the human answered its questions ([d-design-answers](artifacts/r2-representation-20261008.md#d-design-answers)).**
-   - **Running, relaunched unchanged after the 06:10 handoff:** building S1-S6 and S8 against a preregistered pass rule on the Lens pool, and designing a VQ-VAE-like learned representation (code and smoke run only; its full training waits for the human's check) ([r-spaces-vqvae](artifacts/r2-representation-20261008.md#r-spaces-vqvae), [r-spaces-vqvae-relaunch](artifacts/r2-representation-20261008.md#r-spaces-vqvae-relaunch)).
+   - **Relaunched unchanged after the 06:10 handoff** ([r-spaces-vqvae](artifacts/r2-representation-20261008.md#r-spaces-vqvae), [r-spaces-vqvae-relaunch](artifacts/r2-representation-20261008.md#r-spaces-vqvae-relaunch)):
+     - building S1-S6 and S8 against a preregistered pass rule on the Lens pool: running;
+     - a VQ-VAE-like learned representation: design, code and smoke run returned ([o-vqvae-returned](artifacts/r2-representation-20261008.md#o-vqvae-returned)). The pipeline works; nothing is established about the concepts yet. Its full run and three design questions wait for the human ([q-vqvae](artifacts/r2-vqvae-20261008.md#q-vqvae)).
    - **Would redirect (proposed):**
      - if the human-pair null absorbs the X0 LN result, the representation question reopens;
      - if the screen disagrees with the measures, they stay characterisation only.
