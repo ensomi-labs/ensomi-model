@@ -24,3 +24,7 @@
 - **opus-skeleton:** what the supplied rows carry and assume; what the separation of concerns lets R2 achieve without what; a pilot on how much the rows determine; deployment shift; counterfactual.
 
 <a id="r-represent-stopped"></a>**Stopped for the handoff, 2026-10-08 03:11 UTC.** The human closed the session about 5 minutes after the delegation. The three workers had written no file and started no mac job. They were stopped, and the round is to be relaunched unchanged from the same briefs ([handoff-20261008-represent](handoff-20261008-represent.md)).
+
+<a id="r-represent-relaunch"></a>**Relaunched unchanged, 2026-10-08 03:14 UTC (main session 00e97a87), due about 04:30 UTC.** Same briefs, three fresh subagents in parallel (opus-history on Opus, fable-represent on Fable, opus-skeleton on Opus). Two facts were added to their prompts:
+- **The mac venv has no scikit-learn, statsmodels or polars.** It has numpy 1.26.4, scipy 1.15.3, torch 2.11.0, pandas 2.3.3 and pyarrow 22.0.0 (job `20261008-031255-venv-check`). The probes are to be written with numpy, scipy or torch; no installs.
+- **A correction to [r-represent-stopped](#r-represent-stopped):** the stopped launch had run two read-only checks on the mac, `20261008-030906-fr-envcheck` and `20261008-030938-osk-probe`. Both found sklearn missing and neither wrote outputs.
