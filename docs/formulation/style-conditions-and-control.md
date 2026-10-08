@@ -70,8 +70,8 @@ responses that a demand request refers to in the
 Both kinds of request can apply to the same scope; they can be correlated and
 may be jointly unattainable. In the
 [decomposed problem](notation.md#decomposed-problem-given-head-times), given
-head times fix part of a chart's difficulty, so a difficulty target is
-attainable only within what they leave open.
+head times constrain the legal arrangements over which a difficulty target
+must be attainable.
 
 ## Chart identity
 
@@ -90,8 +90,9 @@ overrides them within its scope, and a style directive overrides the
 organization attributes it specifies. Elsewhere generation follows the
 identity, and its expression adapts to the music, the head times, the history,
 and active directives while retaining recognizable character. Given head times
-fix part of what an identity would otherwise choose, such as part of the chord
-density; the identity governs only the part they leave open.
+fix head-row rhythm and density; chord multiplicity remains an arrangement
+choice. The identity governs only the part the given inputs and requests leave
+open.
 
 An identity is always in effect. It can be supplied, extracted or calculated
 from some chart (any chart, such as a style reference, possibly the one a

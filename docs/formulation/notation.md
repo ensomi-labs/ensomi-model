@@ -444,11 +444,10 @@ decomposed problem.
 
 ### Why this decomposition
 
-- Head times are largely a property of the music. Generating them is a timing
-  problem that can be posed from audio separately.
+- Head times follow musical timing cues. Generating them is a timing problem
+  that can be posed from audio separately.
 - The arrangement given the head times is where choreography, hand roles, and
-  most of the [chart identity](style-conditions-and-control.md#chart-identity)
-  live.
+  [chart identity](style-conditions-and-control.md#chart-identity) are expressed.
 - With the head times given, the legal arrangements at each row form a finite
   set, and a training target taken from a human chart has no timing error.
 
@@ -468,14 +467,16 @@ Taking the head times as given constrains what the arrangement can attain:
 The decomposition rests on three assumptions. Here the rows are the head rows at
 the head times.
 
-1. **Raw audio decides the rows.** The head times follow from the audio, so
-   generating them is a timing problem that can be posed from audio.
-2. **The rows give enough for choreography and control.** The head times fix
-   enough of the chart for the arrangement on them to be choreographed and
-   controlled.
+1. **Audio provides timing cues for the rows.** Generating head times can be
+   posed as a timing problem from audio without assuming a unique set of rows
+   for each song.
+2. **Given rows support choreography and control.** The head times fix head-row
+   rhythm and density on which the arrangement can be choreographed and
+   controlled, with audio and chart identity remaining inputs.
 3. **Separating the concerns lets the arrangement stage achieve some things
    without the others.** The arrangement stage can meet some generation targets
-   without the generation of the head times, and without audio.
+   without generating the head times. Which targets can be met without audio
+   is a separate empirical question.
 
 The evidence on these assumptions is recorded in
 [Head-time decomposition](../research/head_time_decomposition.md).
