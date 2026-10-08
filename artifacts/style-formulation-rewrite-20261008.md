@@ -185,3 +185,12 @@ Source: [private, local](private/human-inputs/515ba54a-4eb7-4951-92c7-3c98608325
 The human also asked that the docs be rewritten accordingly. The work went to one fresh Sonnet worker, Sonnet per the standing rule for new workers. Brief: `~/ensomi/.sync/cp/scratch/style-formulation-rewrite2-20261008/brief.md`. It is uncommitted until the main thread reviews it, and the result is to update PR #17.
 
 **Feedback on working style:** do not return review points that the stated principles already settle.
+
+<a id="r-formulation-pr-2"></a>**Second rewrite pushed to PR #17, 2026-10-08.**
+- Commit `cd9343f` on `docs/style-formulation`. Main-thread review:
+  - the worker's diff was read in full;
+  - the numbers in the new research document were spot-checked against [r2-represent-skeleton-20261008](r2-represent-skeleton-20261008.md) and [r2-represent-step1-20261008](r2-represent-step1-20261008.md), and match;
+  - the main thread reflowed long lines and loosened the research README's intro.
+- The open-for-review list was removed from the PR description, since every point is answered.
+- Agent choices left in, settled by the human's principles and not put back: the push away from the target value increases the deviation, in either direction; a sentence about "replacing a request record" was dropped as redundant; "most of the difficulty" became "part of" in the formulation.
+- The PR is not merged.
