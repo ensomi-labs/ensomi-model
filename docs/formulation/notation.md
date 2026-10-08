@@ -1,12 +1,14 @@
 # Chart and generation contract
 
 Ensomi generates a 4-key chart from complete source audio. This page defines
-its row language, legal continuations, committed-prefix semantics, and the
-generation and property-query interfaces.
+its row language, legal continuations, committed-prefix semantics, the
+generation and property-query interfaces, and the
+[decomposed problem](#decomposed-problem-given-head-times) in which the head
+times are given.
 [Gameplay state](gameplay-state.md) defines the target gameplay response,
 frontier, style observations, demand requests, and their use in generation.
-[Style conditions and control](style-conditions-and-control.md) defines the baseline style,
-scoped requests, and chart properties.
+[Style conditions and control](style-conditions-and-control.md) defines the
+chart identity, scoped requests, and chart properties.
 
 ## Chart object and time
 
@@ -122,15 +124,16 @@ $[0,e]$, so rows at time $0$ remain representable.
 A committed prefix must replay legally from the initial closed occupancy. At
 $g=T$, it must also satisfy the complete-chart closure requirement.
 
-A chart seed $\sigma=(H_0,g_0)$ is an optionally supplied initial committed
-pair in place of $((),0^-)$. It must satisfy the same requirements: every row
-of $H_0$ has time at or before $g_0$, and $H_0$ replays legally from the
-initial closed occupancy. Its rows and no-row decisions through $g_0$ are
-committed; continuation preserves them and inherits any long notes open at
-$g_0$, with the obligation to close them by $T$. The seed's role as style
-evidence belongs to
-[Chart seed, baseline and random seed](style-conditions-and-control.md#chart-seed-baseline-and-random-seed).
-A random seed, which selects sampling randomness, is a different object.
+A caller may supply a prefix: an initial committed pair $(H_0,g_0)$ in place
+of $((),0^-)$. It must satisfy the same requirements: every row of $H_0$ has
+time at or before $g_0$, and $H_0$ replays legally from the initial closed
+occupancy. Its rows and no-row decisions through $g_0$ are committed;
+continuation preserves them and inherits any long notes open at $g_0$, with
+the obligation to close them by $T$. A supplied prefix is committed history
+and nothing else. It is not a request, and it is not by definition evidence
+for the chart identity;
+[Identity and prefix](style-conditions-and-control.md#identity-and-prefix)
+states how the two relate.
 
 Exact state is derived by replay:
 
@@ -157,7 +160,7 @@ includes any row at $g$.
 The pair $(H,g)$ is the source of truth for the chart. Retained replay caches
 must agree with it, but they are not additional independent semantic state.
 Exact replay summaries need not contain every arrangement distinction in the
-full history; the history remains available to generation. The baseline style
+full history; the history remains available to generation. The chart identity
 and request set of [Generation and optional controls](#generation-and-optional-controls)
 are generation inputs retained across calls, not chart state: they are neither
 stored in $(H,g)$ nor derived from it.
@@ -217,9 +220,12 @@ $$
 with probability one on $\mathcal V_{\mathrm{legal}}(H,g,e)$. Brackets mark an
 optional argument. The inputs after $W$ have different meanings:
 
-- $\rho$ is the baseline style. It is always in effect: a caller may supply it,
-  and otherwise the system establishes one at the first generation call and
-  retains it across continuation calls until it is explicitly changed.
+- $\rho$ is the chart identity: the whole-chart choice that the music, any
+  given head times and the requests leave open, held across the song. It is
+  always in effect: a caller may supply it, and otherwise the system
+  establishes one at the first generation call. It is retained across
+  continuation calls and changes only by an explicit update at a committed
+  boundary.
 - $\mathscr U$ is the finite, possibly empty, set of scoped requests. A request
   has a scope in song time, independent of $W$, and carries a style directive,
   a set of chart-property targets, or both, with a policy for transitions and
@@ -230,18 +236,22 @@ optional argument. The inputs after $W$ have different meanings:
 
 [Style conditions and control](style-conditions-and-control.md) defines $\rho$ and
 $\mathscr U$; [Controls](gameplay-state.md#controls) defines demand requests.
-With $\mathscr U$ empty and no demand request, generation is natural:
-conditioned on the baseline, with every chart property free. It still produces
-a chart with realized gameplay organization and demand.
+The [decomposed problem](#decomposed-problem-given-head-times) adds given head
+times and a beat grid to these inputs. With $\mathscr U$ empty and no demand
+request, generation is
+[natural continuation](style-conditions-and-control.md#natural-continuation)
+under the identity, with every chart property free. It still produces a chart
+with realized gameplay organization and demand.
 
-Neither the baseline nor any request fixes a row or overrides committed
+Neither the identity nor any request fixes a row or overrides committed
 decisions and long-note obligations. Requests may conflict with each other or
-be unattainable under the current boundary and implementation support.
-Generation may seek a legal compromise or report that a request cannot be met;
+be unattainable under the committed boundary, given head times, and
+implementation support. Generation may seek a legal compromise or report that
+a request cannot be met;
 [Overlap and priority](style-conditions-and-control.md#overlap-and-priority) defines which overlapping
 requests are invalid, how the others compose, and how a shortfall is
 declared. This notation does not assume numerical demand coordinates, a style
-score scale, or a style representation.
+score scale, or a style or identity representation.
 
 A property query reads a chart $\bar H$ over a scope $S$:
 
@@ -334,10 +344,11 @@ continuation omitted by that subset is an implementation support limitation.
 In particular, an implementation can leave itself without a reachable closing
 row even though the chart language permits one.
 
-Such limitations must be evaluated against downstream chart quality and
-controllability. Pointwise timing recall alone does not characterize the quality
-or diversity of reachable charts. The formulation does not require a candidate
-stage or prescribe its inputs, refresh policy, or internal timing paths.
+The formulation does not require a candidate stage or prescribe its inputs,
+refresh policy, or internal timing paths. Taking the head times as given is
+not a support limitation of this kind: it changes the problem, and
+[Decomposed problem: given head times](#decomposed-problem-given-head-times)
+defines the resulting legal set.
 
 ## Worked example
 
@@ -357,9 +368,149 @@ that lane unchanged. For $W=(29.90,30.20]$:
 
 The third continuation is legal because the horizon is intermediate. If its
 endpoint were song end, a later row closing lane 3 would be required within
-that same window. Neither the baseline nor any request can make the second
+that same window. Neither the identity nor any request can make the second
 continuation legal.
 
 Choosing $Y_W=()$ and committing through $30.05$ leaves $H$ unchanged, fixes
 no-row decisions through $30.05$, and keeps lane 3 open. Its eventual close
 must occur after $30.05$ and no later than $T$.
+
+## Decomposed problem: given head times
+
+In the full problem, generation places every row: it chooses the row times as
+well as their contents. The decomposed problem takes the times of the head
+rows as given and generates the arrangement on them. Ensomi's generation is
+posed on the decomposed problem; the full problem, in which the head times are
+generated as well, remains the target. The decomposition changes what is
+given, not the chart language or its legality.
+
+### Head times and the decomposed legal set
+
+A row is a **head row** if it contains at least one `TAP` or `LN_START`. Every
+other row is a **close-only row**: its non-`EMPTY` actions are all `LN_CLOSE`.
+For a chart, prefix, or continuation $\bar H$, write $\operatorname{Heads}(\bar H)$
+for the set of its head-row times.
+
+The decomposed problem receives two further inputs. Both cover the whole song
+and, like the audio, are available to every generation call:
+
+- a finite set of head times
+  $\mathcal T_{\mathrm h}=\{s_1<\cdots<s_K\}\subset[0,T]$;
+- a beat grid $\Gamma$, a tempo and phase over the song, to which release
+  times refer. Its positions form a finite set $P_\Gamma\subset[0,T]$, and
+  close-only rows lie at these positions.
+
+A solution is a legal complete chart whose head rows lie exactly at
+$\mathcal T_{\mathrm h}$ and whose close-only rows lie in $P_\Gamma$.
+Close-only rows can fall at times that are not head times. For a
+committed boundary $(H,g)$ and window $W=(g,e]$, the decomposed legal set is
+
+$$
+\mathcal V_{\mathrm{legal}}(H,g,e;\mathcal T_{\mathrm h},\Gamma)
+=
+\bigl\{
+Y_W\in\mathcal V_{\mathrm{legal}}(H,g,e):
+\operatorname{Heads}(Y_W)=\mathcal T_{\mathrm h}\cap W,
+\quad
+\text{every close-only row of }Y_W\text{ lies in }P_\Gamma
+\bigr\}.
+$$
+
+The committed history satisfies
+$\operatorname{Heads}(H)=\mathcal T_{\mathrm h}\cap(0^-,g]$. Prefix commits
+preserve this, and a supplied prefix must satisfy it at $g_0$.
+
+Every head time in $W$ needs a head row, so the empty continuation is legal
+only for a window that contains no head time. Because `TAP` and `LN_START` act
+only on closed lanes, a head row at $s$ requires at least one lane closed at
+$s^-$: a continuation that reaches a head time with all four lanes open cannot
+place its head row.
+
+The decomposed generation law is
+
+$$
+Y_W\sim p_\theta\left(
+\cdot\mid X,H,g,W,\mathcal T_{\mathrm h},\Gamma,\rho,\mathscr U,
+[c_W^{\mathrm{demand}}]
+\right),
+$$
+
+with probability one on
+$\mathcal V_{\mathrm{legal}}(H,g,e;\mathcal T_{\mathrm h},\Gamma)$. The other
+inputs keep their meanings from
+[Generation and optional controls](#generation-and-optional-controls); the
+audio remains an input. Legal charts with other head times lie outside the
+decomposed problem.
+
+### Why this decomposition
+
+- Head times are largely a property of the music. Generating them is a timing
+  problem that can be posed from audio separately.
+- The arrangement given the head times is where choreography, hand roles, and
+  most of the [chart identity](style-conditions-and-control.md#chart-identity)
+  live.
+- With the head times given, the legal arrangements at each row form a finite
+  set, and a training target taken from a human chart has no timing error.
+
+### What given head times fix
+
+Human charts show the following. These observations bear on the
+decomposition's assumptions; the definitions above do not depend on them.
+
+- Head times fix density and the section-to-section density profile
+  completely, and most of the difficulty.
+- They fix only a minority of the chart-level identity (chord density, jacks,
+  LN level and length, pattern variety, repetition) and none of the hand
+  balance. Lane choice is largely free given the head times.
+- Two human charts on the same head times agree on chord placement much more
+  than the head times imply, also when their mappers differ. That agreement
+  points to song information, from the audio or the song's structure.
+- LN-head placement and LN level agree mainly within one mapper. They are a
+  mapper's convention and therefore belong to the chart identity.
+- Two humans mapping the same audio agree on head times well, but not exactly.
+- Head times that an audio timing model generated lost the difficulty that the
+  human head times of the same songs carry.
+
+Two consequences follow:
+
+- When the head times come from an existing chart, they carry that chart's
+  difficulty and part of its identity. A target is attainable only within what
+  they leave open, and the chart identity governs only that open part.
+- When the head times are generated, the chart identity and the difficulty and
+  LN requests must reach the generation of the head times, because the head
+  times carry part of what those inputs specify.
+
+### Assumptions
+
+The decomposition rests on three assumptions. The observations above support
+each only in part.
+
+1. **Raw audio decides the rows.** Supported in that two humans mapping the
+   same audio agree on head times well. Contradicted in that their agreement
+   is not exact, and in that head times also carry most of a chart's
+   difficulty, a chart-level choice that head times generated from audio lost.
+2. **The rows give enough for choreography and control.** Contradicted for
+   choreography: the head times leave most of the chart identity open,
+   including all of the hand balance, and leave lane choice largely free;
+   chord placement shared across mappers depends on song information beyond
+   the head times; and LN placement and level are a mapper's convention.
+   Choreography therefore needs the chart identity and song information as
+   well as the head times. Control is limited where the head times fix a
+   property: density completely, difficulty mostly.
+3. **Separating the concerns lets the arrangement stage achieve some things
+   without the others.** Supported for density and the density profile, which
+   given head times fix exactly without a timing model or audio, and for most
+   of the difficulty when the head times are human. Not supported for the
+   chart identity beyond what the head times fix, for song-informed placement,
+   or for difficulty on generated head times.
+
+### An implementation of the decomposition
+
+For orientation only, one implementation studied in Ensomi's research works as
+follows; these are properties of that implementation, not of the problem. It
+takes the head times and the beat grid from an existing human chart. At each
+head row it decides which lanes receive taps and long-note heads, together
+with the releases of open holds in the gap before that row at grid positions,
+so releases can produce close-only rows at times that are not head times.
+After the last head row, a terminal decision releases the remaining holds. It
+does not use audio.
