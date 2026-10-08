@@ -6,6 +6,11 @@ flux; it does not add channels to the head model. At inference a song-level requ
 sets the duration-weighted arithmetic mean W_H/s. The audio supplies its distribution
 over 16-beat sections, with the same 0.001 floor as training labels. This preserves
 requested workload, not a guarantee about realised workload or star rating.
+
+Fit with ``python -m ensomi_model.audio_rows.profile --data <build> --grid chart
+--out <profile.json>`` and pass the result to ``audio_rows.generate --profile``.
+This does not retrain the head generator. Validate the predicted requests on held-out
+songs and ablate them on trained head weights before drawing an input-use conclusion.
 """
 from __future__ import annotations
 

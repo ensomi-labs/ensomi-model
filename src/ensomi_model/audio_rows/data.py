@@ -5,6 +5,11 @@ fitter once per audio file)::
 
     python -m ensomi_model.audio_rows.data --out <dir> --beatthis <beat_this-final0.ckpt>
 
+``--audio-root`` resolves relative corpus audio paths. ``--train-audio`` and
+``--dev-audio`` bound a seeded audio-file sample, retaining every eligible chart of
+each selected file; omitting them keeps the complete split. ``selection.json``
+records membership before feature extraction.
+
 ``<dir>`` holds:
 
 - ``audio/<key>.npy``: ``audio.Song.features`` per audio file (key: the corpus audio SHA-256);
