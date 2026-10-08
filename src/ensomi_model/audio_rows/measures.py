@@ -69,6 +69,8 @@ def chart_measures(head_ms, song_ms, grid, features, section_beats=16):
     a half-beat circular shift of the head is the density-preserving timing null.
     A head in a clipped boundary beat with no available slot is excluded from both
     onset means and counted in ``onset_unscored_heads``.
+    Interior measures use sections whose midpoints lie in the middle 80% of the song,
+    so opening and ending silence alone cannot establish density following the music.
     """
     b0, nb = beat_range(grid, song_ms)
     beat_ms = np.clip(grid.time_of_beat(b0 + np.arange(nb + 1)), 0.0, song_ms)
@@ -87,6 +89,13 @@ def chart_measures(head_ms, song_ms, grid, features, section_beats=16):
     low, high = order[:n_tail], order[-n_tail:]
     low_rate = float(workload[low].sum() / durations[low].sum())
     high_rate = float(workload[high].sum() / durations[high].sum())
+    middle = np.flatnonzero(((edges[:-1] + edges[1:]) / 2 >= song_ms * .1)
+                            & ((edges[:-1] + edges[1:]) / 2 <= song_ms * .9))
+    mid_order = middle[np.argsort(audio[middle, 0], kind='stable')]
+    mid_n = max(1, len(middle) // 4)
+    mid_low, mid_high = mid_order[:mid_n], mid_order[-mid_n:]
+    mid_low_rate = float(workload[mid_low].sum() / durations[mid_low].sum()) if len(middle) else None
+    mid_high_rate = float(workload[mid_high].sum() / durations[mid_high].sum()) if len(middle) else None
     _, flux = audio_curves(features)
     slots = slot_times(grid, b0, nb)
     hb = grid.beat(head_ms)
@@ -106,6 +115,11 @@ def chart_measures(head_ms, song_ms, grid, features, section_beats=16):
     shifted = onset_ranks(grid.time_of_beat(np.floor(hb) + (hb % 1 + 0.5) % 1))
     return dict(K=len(head_ms), sections=len(scopes),
                 intensity_workload_rho=correlation(audio[:, 0], rates, rank=True),
+                interior_sections=len(middle),
+                interior_intensity_workload_rho=correlation(audio[middle, 0], rates[middle], rank=True),
+                interior_low_high_ratio=mid_low_rate / mid_high_rate if mid_high_rate else None,
+                interior_low_rest=float(np.average(rest[mid_low], weights=durations[mid_low])) if len(middle) else None,
+                interior_high_rest=float(np.average(rest[mid_high], weights=durations[mid_high])) if len(middle) else None,
                 flux_workload_rho=correlation(audio[:, 1], rates, rank=True),
                 low_intensity_wh_s=low_rate, high_intensity_wh_s=high_rate,
                 low_high_ratio=low_rate / high_rate if high_rate else None,
