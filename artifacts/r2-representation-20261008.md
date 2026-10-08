@@ -150,3 +150,30 @@
    - the one-sided block-1 flag, with the different-mapper unit;
    - the block-2 chart norm, for non-LN complaints;
    - the unpaired fast-jack and full-jack rates, for whole-song impressions.
+
+<a id="d-projection-spaces"></a>**Direction (human, 2026-10-08 about 05:00 UTC, [private, local](private/human-inputs/00e97a87-25ca-4fab-a49a-668fbf454be4.md#prompt-7)): project charts into several designed spaces. The three-block R is not what the human wants.**
+- **Kept:** the division of responsibility between representation, measure and evaluation, and how they compound ([x-evaluation](r2-represent-explained-20261008.md#x-evaluation)).
+- **Rejected as the design:** representation R ([x-representation](r2-represent-explained-20261008.md#x-representation)), the Conv1d embedding included. The human's reasons: it is trivial; some features are deeply coupled; some carry hidden priors that make evaluation less reliable.
+- **Wanted:**
+  - A chart, or a section of it, is projected into several spaces.
+  - Each space is defined first by what it encodes and compares, and by what it leaves indistinguishable. The human's examples:
+    - sections of different duration and row count, comparable by overall shape;
+    - a space with no time or sequence, where mass and lane distribution compare.
+  - Then the mappings, constants, curves and similarity metrics are tuned to the real corpus.
+- **Main-thread reading:** the step-1 numbers stay as observations about R2 and the human pairs, but R is not the representation going forward.
+  - The same-rows human-pair null and the mapper split are properties of the data and of the comparison design, and they carry over.
+  - The X0 and label-free AUCs are properties of R.
+
+<a id="r-represent-design"></a>**Delegated 2026-10-08 about 05:05 UTC to one fresh Opus subagent.**
+- **Brief:** `~/ensomi/.sync/cp/scratch/r2-represent-design/brief.md`.
+- **Deliverable:** a design document with:
+  - principles;
+  - 4-8 spaces, each with what it encodes and makes indistinguishable, its mapping, corpus-fitted constants and curves, metric and null;
+  - a coupling analysis;
+  - an audit of R's hidden priors;
+  - measures and evaluation on top;
+  - a build-and-check plan;
+  - analogues;
+  - questions for the human.
+- **Budget:** at most 2 mac threads and about 20 minutes of mac time, for corpus statistics only. No training. Due about 06:35 UTC.
+- **The six style questions wait** ([q-style-20261008](style-formulation-recheck-20261008.md#q-style-20261008)).

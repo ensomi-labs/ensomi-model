@@ -99,7 +99,11 @@ _Review: agent draft. The map dates from 2026-09-30 and was re-synthesised on 20
      - A one-sided LN-excess flag locates the X0 marks, but on one chart only.
      - Jacks and repetition separate generated from real only unpaired.
      - LN placement agreement between humans is mostly one mapper's convention.
-   - **Next, not authorised:** a 15-minute preregistered blind clip screen on new charts ([p-represent-next](artifacts/r2-representation-20261008.md#p-represent-next)). It would test the candidates in [s-step1-answer](artifacts/r2-representation-20261008.md#s-step1-answer), point 6.
+   - **Redirected by the human, 05:00 UTC ([d-projection-spaces](artifacts/r2-representation-20261008.md#d-projection-spaces)):**
+     - Project charts into several designed spaces, each defined by what it encodes and what it leaves indistinguishable, with mappings, constants and metrics tuned to the corpus.
+     - The three-block R and its Conv1d embedding are not the design.
+     - The clip screen is on hold.
+   - **Running:** a design study by a fresh Opus subagent, due about 06:35 UTC ([r-represent-design](artifacts/r2-representation-20261008.md#r-represent-design)).
    - **Would redirect (proposed):**
      - if the human-pair null absorbs the X0 LN result, the representation question reopens;
      - if the screen disagrees with the measures, they stay characterisation only.
