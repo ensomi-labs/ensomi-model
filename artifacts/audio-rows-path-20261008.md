@@ -46,6 +46,12 @@ Guardrail 4 of `.agents/skills/ensomi-research-guardrails/SKILL.md` asks what ea
 - When and against what the fitter is fine-tuned; what to do on songs where it fails (multi-section tempo).
 - How the rows' difficulty and R2's difficulty request are set together in the running system.
 
+<a id="r-fitter-design"></a>**Running, 2026-10-08 about 06:40 UTC, authorised by the human ([private, local](private/human-inputs/a6d111aa-4123-4bf0-8743-94f00985c427.md#answer-2)): steps 1 and 3 below, as two fresh subagents.**
+- **Step 2 dropped by the human:** R2 does not see audio, so a fitted grid will not affect it much. Agent reading: heads generated on the fitted grid stay consistent with it, and the lag matters only for sync with the audio. This answers [o-grid-shift](#o-grid-shift) for now.
+- **"fitter" (Opus):** step 1, at most 2 mac threads and about 30 minutes of mac time, BeatThis inference on at most 10 songs to time the whole-song grid and check the lag. Mac outputs `artifacts/audio-rows-20261008/fitter/`.
+- **"design" (Fable):** step 3, read-only, widened by the human to the difficulty problem: what the rows' section difficulty is, and how it composes with R2's difficulty condition, which is under development.
+- Briefs: `~/ensomi/.sync/cp/scratch/audio-rows/{context,brief-fitter,brief-design}.md` (control plane).
+
 ## Proposed first steps (not started; each needs the human's go)
 
 1. Fitter check on existing outputs: the 5,050 surviving fitted grids against the charts' timing lines with the lag corrected, to size "works in most cases" and find the songs that need a fallback. Small mac job.
