@@ -186,3 +186,22 @@
   - report the human-authority subset separately.
 - **Budget:** about 30 minutes of mac time at 2 threads, no training. Due about 06:50 UTC.
 - **Main-thread note:** about 96 % of the pool's labels come from the labeller agent. A space checked on them is checked against that labeller as calibrated to experts. The human-authority subset is the direct check against human judgment.
+
+<a id="o-lens-pool-inventory"></a>**Lens pool inventory, pasted by the human, 2026-10-08 about 05:15 UTC.** The author is not stated; it reads like a beatmap-lens inventory ([private, local](private/human-inputs/00e97a87-25ca-4fab-a49a-668fbf454be4.md#prompt-9)).
+- **2,860 sections are complete five-dimensional examples,** labelled either by a human or by an independently supported machine label:
+
+  | Source | Complete sections |
+  |---|---:|
+  | Published v3 | 736 |
+  | Eligible local sections outside v3 | 59 |
+  | October 6 campaign | 1,023 |
+  | October 7 campaign | 1,042 |
+
+- **Disputed sections:** the October campaigns have 335. They are excluded from the complete count, but their supported per-dimension labels remain usable.
+- **v3's 954 machine-annotated sections** do not all have five published labels.
+- **Unchanged since v3 (2026-09-12):** the judgment skill, the Foundation and the evidence harness.
+- **Changed in October:**
+  - the execution setup: batches of up to 25 sections per worker instead of 4;
+  - the dataset inputs.
+- **600 human observations** are preserved.
+- **Forwarded to the design subagent.** It is asked to reconcile the inventory with disk, split by batch as well as by song group (a batch effect is possible), and use the 600 human observations as the validation anchor.
