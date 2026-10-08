@@ -302,3 +302,25 @@
 - one-line counts from the Foundation definitions recognise the human cells about as well as S3 in absolute AUC;
 - whole-song intensity, judged by the human against the whole chart, is a separate target from pattern presence;
 - the worker advises deferring one approved fix (residualising S5 and S8 on S3); put to the human with five design questions.
+
+<a id="d-unit-composition"></a>**Human answers, 2026-10-08 about 07:20 UTC ([private, local](private/human-inputs/bc8c7d3c-b2c1-4def-b578-4b60d2c6fdec.md#answer-1)).** The questions are at the end of [s-perception-reading](r2-perception-20261008.md#s-perception-reading) and in the agent's message.
+1. **All three spaces fixes are applied as approved.** The worker's advice to defer residualising S5 and S8 on S3 is set aside.
+2. **The unit is nested data-driven segments:** pattern, phrase, passage.
+3. **A section is one main organization plus decorations.**
+4. **No new human marks for now.** The human thinks the evidence notes are probably useful per Foundation pattern. Agent's reading: use each span as an instance of the concept it witnesses, reported per concept. The reading "useful for only one concept" is not excluded.
+5. **Kiai as a label, and per-chart or absolute intensity:** undecided.
+6. **The human asked to start the VQ-VAE experiments now.**
+   - Started: the refinement, its implementation and a pilot.
+   - Still waiting for the human's check: the full training run, because the refined design's training details have not been seen (standing rule).
+
+<a id="r-vqvae2-fixes"></a>**Delegated 2026-10-08 about 07:24 UTC, two fresh subagents in parallel.**
+- **vqvae2 (Fable; the human named Fable for this):**
+  - refines the VQ-VAE to segment units, with a label-free segmenter, two code levels, a contrastive term between a chart's own repeats, decoration robustness, and evidence-instance readouts per concept;
+  - implements it and runs a pilot of about 30 minutes of mac time: seed noise floor, the per-beat design as a baseline arm, ablations, leakage, Lens readouts at pilot scale;
+  - proposes the full run with its preregistration, for the human's check.
+  - Brief `~/ensomi/.sync/cp/scratch/r2-vqvae2/brief.md`; outputs `artifacts/r2-vqvae2-20261008/`; mac ≤ 3 threads; due within 120 minutes.
+- **spaces-fix (Sonnet, the human's default for new workers):**
+  - applies the three fixes;
+  - judges them by their label-free purpose (coupling near 0, S6 truncation passes);
+  - re-reports the Lens claims before and after, marked post hoc, since every split has been looked at.
+  - Brief `~/ensomi/.sync/cp/scratch/r2-spaces-fix/brief.md`; outputs `artifacts/r2-spaces-fix-20261008/`; mac ≤ 2 threads, about 20 minutes; due within 60 minutes.
