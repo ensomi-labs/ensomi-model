@@ -1,6 +1,6 @@
 # Ensomi V3 research
 
-Code and document paths resolve at the baseline commit: `git show 5c56e28:<path>` in any ensomi-model clone. Section rules and the review policy are in the research-relay convention, "Entry point". The fuller account this file gave before 2026-10-06, including the path from the lineage review to R2 v2: [entry-point-before-20261006](artifacts/entry-point-before-20261006.md).
+Code and document paths resolve at the baseline commit: `git show 5c56e28:<path>` in any ensomi-model clone. Recurring agent failures and their guardrails: `.agents/skills/ensomi-research-guardrails/SKILL.md` on `r2/train` (from `3692ca2`), with the evidence in [agent-failure-modes](artifacts/agent-failure-modes.md) and [r2-represent-history-20261008](artifacts/r2-represent-history-20261008.md). Section rules and the review policy are in the research-relay convention, "Entry point". The fuller account this file gave before 2026-10-06, including the path from the lineage review to R2 v2: [entry-point-before-20261006](artifacts/entry-point-before-20261006.md).
 
 ## Vision
 

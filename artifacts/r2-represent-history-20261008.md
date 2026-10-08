@@ -196,3 +196,12 @@ Every night spent under this pattern bought numbers that could not teach anythin
 - **Not read in full:** condition plans v2-v5, the design-fable and design-opus reports, the decode reports.
 - **Brief counts** cover brief files on disk only; Claude subagent briefs before 10-07 are not countable.
 - **No pilot was run** for any of the proposed changes.
+
+<a id="d-guardrails-in-context"></a>**Decision (human, 2026-10-08 about 03:30 UTC, [private, local](private/human-inputs/00e97a87-25ca-4fab-a49a-668fbf454be4.md#prompt-3)): no hard-coded constraints; feed the patterns and guardrails into agents' context through skills or AGENTS.md.**
+- Changes 1 and 5 above, in their launcher-enforced form, are set aside: no `ens` checks, no launch-card forms, no hashes in briefs.
+- Done the same day, code commit `3692ca2` on `r2/train`:
+  - a repository skill, `.agents/skills/ensomi-research-guardrails/SKILL.md`, gives the nine patterns as guardrails, each with a trigger and dated instances;
+  - `ensomi-model/AGENTS.md` gains a routing row and a short "Research guardrails" section with the core lines.
+  - Claude, its subagents and Astra load `AGENTS.md`, so briefs name the skill instead of copying a list. This answers [s-history-list-decay](#s-history-list-decay).
+- Changes 2-4 survive as guidance inside the skill (guardrails 1, 4 and 5), not as gates.
+- A recurrence adds its instance to the matching guardrail.
