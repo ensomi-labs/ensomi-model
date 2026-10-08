@@ -49,6 +49,13 @@ New and sound: "returning to the identity's level preference is not compensation
    - whether a level below the default sits above "free" in a defined way.
 5. **Root `README.md` lines 93-97** still say "optional style and gameplay-demand controls". The line is accurate but does not mention the identity or the decomposition. The file is outside the brief's scope and was not edited.
 
+
+<a id="r-formulation-pr"></a>**Committed and opened for review, 2026-10-08, at the human's request ([private, local](private/human-inputs/515ba54a-4eb7-4951-92c7-3c986083259c.md#prompt-1)).**
+- The rewrite is commit `1a1b8ff` on `docs/style-formulation`, pushed to `origin`.
+- PR [ensomi-labs/ensomi-model#17](https://github.com/ensomi-labs/ensomi-model/pull/17) into `main` (base `178ea3c`). Not merged.
+- The PR description lists the five points above as open for review.
+- Checks: 95 relative links resolve and `git diff --check` is clean. Documentation only.
+
 ## Subagent report
 
 Verbatim, as returned:
