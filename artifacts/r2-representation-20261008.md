@@ -177,3 +177,12 @@
   - questions for the human.
 - **Budget:** at most 2 mac threads and about 20 minutes of mac time, for corpus statistics only. No training. Due about 06:35 UTC.
 - **The six style questions wait** ([q-style-20261008](style-formulation-recheck-20261008.md#q-style-20261008)).
+
+<a id="d-lens-pool-primary"></a>**Direction (human, 2026-10-08 about 05:10 UTC, [private, local](private/human-inputs/00e97a87-25ca-4fab-a49a-668fbf454be4.md#prompt-8)): data matters, so the 5,000+ Lens-annotated sections are the primary data for designing representations, measures and evaluation.** The human's own screens (X0, C0) are too small.
+- **Passed to the design subagent:**
+  - find and describe the full pool, with batches and label provenance;
+  - state, per space, which concepts it should separate;
+  - build the check plan on the pool, with labels for design and for validation kept apart by song group or batch;
+  - report the human-authority subset separately.
+- **Budget:** about 30 minutes of mac time at 2 threads, no training. Due about 06:50 UTC.
+- **Main-thread note:** about 96 % of the pool's labels come from the labeller agent. A space checked on them is checked against that labeller as calibrated to experts. The human-authority subset is the direct check against human judgment.
