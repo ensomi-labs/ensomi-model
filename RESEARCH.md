@@ -110,6 +110,7 @@ _Review: agent draft. The map dates from 2026-09-30 and was re-synthesised on 20
 3. **`style`: the style formulation, a separate branch pushed in parallel as formulation work** (human, 2026-10-06, confirmed 2026-10-08: [d-style-parallel](artifacts/entry-point-resynthesis-20261008.md#d-style-parallel)).
    - **Question:** what do the draft's open questions resolve to, and where does it still disagree with `notation.md`, `gameplay-state.md` and the R2 v2 plan?
    - **Where it stands:** draft `8da2bda` on branch `docs/style-formulation`, not reviewed by the human ([open-questions](artifacts/style-formulation-rethink.md#open-questions), [conflicts](artifacts/style-formulation-rethink.md#conflicts)).
+   - **Running since 04:45 UTC:** a fresh read-only subagent re-examines the open questions against the 2026-10-07/08 findings, including whether the baseline ρ is the chart identity. It prepares at most six questions for the human (brief `~/ensomi/.sync/cp/scratch/style-formulation-20261008/brief.md`).
    - **Would redirect (proposed):** a resolution that changes what a style or property request means reopens the control plan.
 4. **`control`: after representation, measures and evaluation.** Phase C and its open decisions ([v5-open](artifacts/r2-condition-plan-v5.md#v5-open)) and the style module ([a-style-module](artifacts/r2-phasen-and-lens-20261006.md#a-style-module)) wait for that work.
 
