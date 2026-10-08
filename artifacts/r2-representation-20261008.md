@@ -102,3 +102,22 @@
    - An explicit chart identity latent: a rows part computed from the whole song, plus a free part.
    - Whether LN and chord placement need information outside the rows, which would reopen audio in R2's scope ([d-r2v2-scope](r2-v2-stage0-state.md#d-r2v2-scope)).
    - Step 1's mapper split bears on the second question.
+
+<a id="d-x0-whole-song"></a>**Human answer, 2026-10-08 about 03:52 UTC ([private, local](private/human-inputs/00e97a87-25ca-4fab-a49a-668fbf454be4.md#answer-1)): the X0 complaints about jacks and repetition are whole-song impressions.**
+- The agent asked whether they were marks at particular places.
+- **Effect:**
+  - Jacks and repetition are measured per chart.
+  - Window flags are kept for what the human marked in place. The marks are mostly LN relations ([o-fable-x0-ln](r2-represent-fable-20261008.md#o-fable-x0-ln)).
+- This supports fable-represent's reading that the jack and repetition complaints are item-level fingerprints ([o-fable-two-targets](r2-represent-fable-20261008.md#o-fable-two-targets)).
+
+<a id="r-step1"></a>**Step 1 authorised by the human ("okay", same message) and delegated at 03:55 UTC.** One fresh Fable subagent; measurement only. Generation from the frozen 56M checkpoint is allowed; training is not.
+- **Brief:** `~/ensomi/.sync/cp/scratch/r2-represent-step1/brief.md`. It names the guardrails skill and guardrails 1, 2, 4 and 8.
+- **Tasks:**
+  - one script for representation R;
+  - the same-rows human-pair null for the paired measures, by band;
+  - the X0 re-score in null units, windows for in-place marks and charts for whole-song impressions, with and without x0-02, plus the false-flag rate on the human pairs;
+  - a split into same-creator and different-creator pairs;
+  - a label-free test: does R tell R2 on A's rows from human B on the same rows?
+- **Budget:** at most 4 mac threads and about 45 minutes of mac time.
+- **Outputs:** `artifacts/r2-represent-20261008/step1/` on bings-mac; scripts in `~/ensomi/.sync/cp/scratch/r2-represent-step1/worker/`.
+- **Step 2, the clip screen, is not authorised.**
