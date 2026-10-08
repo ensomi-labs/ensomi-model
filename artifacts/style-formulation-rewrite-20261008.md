@@ -161,3 +161,27 @@ Not edited: root `README.md` lines 93-97.
 ### 6. Not done
 
 Report file not written (harness block); GitHub rendering not previewed; no independent review; the answers material and `artifacts/private/` not opened; numbers in the notes not re-verified (none used in the documents); root README not edited.
+
+<a id="d-style-answers-2"></a>
+## The human's answers to the PR #17 review points, 2026-10-08
+
+Source: [private, local](private/human-inputs/515ba54a-4eb7-4951-92c7-3c986083259c.md#prompt-2). Free text, read against the points in [o-rewrite-points](#o-rewrite-points).
+
+**What the formulation rules, and what it does not:**
+- **Requests:** the style formulation rules only that a request applies to the ungenerated future. It does not rule whether a request can be withdrawn before it enters, so that sentence goes. Agent reading: the earlier decision that an active request can be neither cancelled nor changed ([d-plan-v4-answers](r2-style-formulation-check.md#d-plan-v4-answers), q10) stays.
+- **Prefix and identity:** both are concepts of the formulation. The identity is always intrinsically needed, and the prefix is not. The prefix-without-identity question therefore does not arise.
+- **The mirror:** how an identity behaves under the mirror needs no discussion, so the paragraph goes.
+
+**Points confirmed:**
+- **Release positions:** the grid restriction on releases is right.
+- **Research results:** the cleanup is right. The corpus observations and the assumption verdicts move to `docs/research/`; the reasons and assumptions stay in the formulation.
+- **Overlap:** two style directives on the same concept must not overlap.
+
+**Points changed:**
+- **Interpretable outcomes:** declare the shortfall and the expected behaviour only.
+- **Strength:** a level below the default pushes generation away from the target value. This replaces "weighs the target less".
+- **Root README:** it is to include the style formulation.
+
+The human also asked that the docs be rewritten accordingly. The work went to one fresh Sonnet worker, Sonnet per the standing rule for new workers. Brief: `~/ensomi/.sync/cp/scratch/style-formulation-rewrite2-20261008/brief.md`. It is uncommitted until the main thread reviews it, and the result is to update PR #17.
+
+**Feedback on working style:** do not return review points that the stated principles already settle.
