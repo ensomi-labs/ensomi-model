@@ -452,65 +452,30 @@ decomposed problem.
 - With the head times given, the legal arrangements at each row form a finite
   set, and a training target taken from a human chart has no timing error.
 
-### What given head times fix
+### Consequences of given head times
 
-Human charts show the following. These observations bear on the
-decomposition's assumptions; the definitions above do not depend on them.
-
-- Head times fix density and the section-to-section density profile
-  completely, and most of the difficulty.
-- They fix only a minority of the chart-level identity (chord density, jacks,
-  LN level and length, pattern variety, repetition) and none of the hand
-  balance. Lane choice is largely free given the head times.
-- Two human charts on the same head times agree on chord placement much more
-  than the head times imply, also when their mappers differ. That agreement
-  points to song information, from the audio or the song's structure.
-- LN-head placement and LN level agree mainly within one mapper. They are a
-  mapper's convention and therefore belong to the chart identity.
-- Two humans mapping the same audio agree on head times well, but not exactly.
-- Head times that an audio timing model generated lost the difficulty that the
-  human head times of the same songs carry.
-
-Two consequences follow:
+Taking the head times as given constrains what the arrangement can attain:
 
 - When the head times come from an existing chart, they carry that chart's
-  difficulty and part of its identity. A target is attainable only within what
-  they leave open, and the chart identity governs only that open part.
-- When the head times are generated, the chart identity and the difficulty and
-  LN requests must reach the generation of the head times, because the head
-  times carry part of what those inputs specify.
+  properties that they fix. A target is attainable only within what they leave
+  open, and the chart identity governs only that open part.
+- When the head times are generated, the chart identity and the property
+  requests must reach the generation of the head times, because the head times
+  carry part of what those inputs specify.
 
 ### Assumptions
 
-The decomposition rests on three assumptions. The observations above support
-each only in part.
+The decomposition rests on three assumptions. Here the rows are the head rows at
+the head times.
 
-1. **Raw audio decides the rows.** Supported in that two humans mapping the
-   same audio agree on head times well. Contradicted in that their agreement
-   is not exact, and in that head times also carry most of a chart's
-   difficulty, a chart-level choice that head times generated from audio lost.
-2. **The rows give enough for choreography and control.** Contradicted for
-   choreography: the head times leave most of the chart identity open,
-   including all of the hand balance, and leave lane choice largely free;
-   chord placement shared across mappers depends on song information beyond
-   the head times; and LN placement and level are a mapper's convention.
-   Choreography therefore needs the chart identity and song information as
-   well as the head times. Control is limited where the head times fix a
-   property: density completely, difficulty mostly.
+1. **Raw audio decides the rows.** The head times follow from the audio, so
+   generating them is a timing problem that can be posed from audio.
+2. **The rows give enough for choreography and control.** The head times fix
+   enough of the chart for the arrangement on them to be choreographed and
+   controlled.
 3. **Separating the concerns lets the arrangement stage achieve some things
-   without the others.** Supported for density and the density profile, which
-   given head times fix exactly without a timing model or audio, and for most
-   of the difficulty when the head times are human. Not supported for the
-   chart identity beyond what the head times fix, for song-informed placement,
-   or for difficulty on generated head times.
+   without the others.** The arrangement stage can meet some generation targets
+   without the generation of the head times, and without audio.
 
-### An implementation of the decomposition
-
-For orientation only, one implementation studied in Ensomi's research works as
-follows; these are properties of that implementation, not of the problem. It
-takes the head times and the beat grid from an existing human chart. At each
-head row it decides which lanes receive taps and long-note heads, together
-with the releases of open holds in the gap before that row at grid positions,
-so releases can produce close-only rows at times that are not head times.
-After the last head row, a terminal decision releases the remaining holds. It
-does not use audio.
+The evidence on these assumptions is recorded in
+[Head-time decomposition](../research/head_time_decomposition.md).

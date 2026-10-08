@@ -1,8 +1,8 @@
 # Research documents
 
-These documents describe code on this branch. They record implementations and
-measurements. The [formulation](../formulation/README.md) owns the V3
-specification.
+These documents describe code on this branch or on the research line they name.
+They record implementations and measurements. The
+[formulation](../formulation/README.md) owns the V3 specification.
 
 | Document | Covers |
 | --- | --- |
@@ -11,6 +11,7 @@ specification.
 | [Vacation training queue](vacation_training.md) | unattended multi-day queue: audio cache, 35M teacher, stress runs |
 | [R1 training distribution](r1_training_distribution.md) | difficulty and long-note exposure of the training plan |
 | [Oracle-time continuation](oracle_time_continuation.md) | row replay, corpus cache and the causal backbone R1 builds on |
+| [Head-time decomposition](head_time_decomposition.md) | measurements on the R2 line (branch `r2/train`) of what supplied head times carry, and the evidence on the decomposed problem's three assumptions |
 | [4K style tag reference](osu_mania_4k_style_tag_reference.md), [community tag semantics](osu_mania_community_tag_semantics.md) | the style vocabulary behind the formulation's style observations |
 
 ## Earlier work

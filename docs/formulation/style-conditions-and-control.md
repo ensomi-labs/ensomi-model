@@ -70,7 +70,7 @@ responses that a demand request refers to in the
 Both kinds of request can apply to the same scope; they can be correlated and
 may be jointly unattainable. In the
 [decomposed problem](notation.md#decomposed-problem-given-head-times), given
-head times fix most of a chart's difficulty, so a difficulty target is
+head times fix part of a chart's difficulty, so a difficulty target is
 attainable only within what they leave open.
 
 ## Chart identity
@@ -91,8 +91,7 @@ organization attributes it specifies. Elsewhere generation follows the
 identity, and its expression adapts to the music, the head times, the history,
 and active directives while retaining recognizable character. Given head times
 fix part of what an identity would otherwise choose, such as part of the chord
-density; the identity governs only the part they leave open
-([What given head times fix](notation.md#what-given-head-times-fix)).
+density; the identity governs only the part they leave open.
 
 An identity is always in effect. It can be supplied, extracted or calculated
 from some chart (any chart, such as a style reference, possibly the one a
@@ -111,24 +110,17 @@ A **style reference** informs organization, as a source of $\rho$ or of
 reference characteristics in a style directive, without becoming committed
 history.
 
-Hand balance belongs to the identity and is directional: the
-[mirror](notation.md#canonical-hand-role-coordinates) $\mu$ exchanges the
-hands. This formulation fixes neither how an identity transforms under $\mu$
-nor a representation of the identity.
-
 ### Identity and prefix
 
-A [supplied prefix](notation.md#committed-history-and-exact-replay) is
-committed history and nothing else. The identity is a separate input, and a
-prefix is not by definition evidence for it. A prefix and a supplied identity
-need not agree: the prefix fixes its rows, its no-row decisions, and its open
-long-note obligations, and the identity governs the choice they leave open. The
-prefix's LN share, difficulty, and other statistics become neither targets nor
-identity preferences by appearing in the prefix.
-
-When a prefix is supplied without an identity, the system establishes one as
-it does without a prefix. This formulation does not fix whether it takes the
-prefix into account.
+Every generation has a chart identity; a prefix is optional. A
+[supplied prefix](notation.md#committed-history-and-exact-replay) is committed
+history and nothing else. The identity is a separate input that is present
+whether or not a prefix is supplied, and a prefix is not by definition evidence
+for it. A prefix and a supplied identity need not agree: the prefix fixes its
+rows, its no-row decisions, and its open long-note obligations, and the
+identity governs the choice they leave open. The prefix's LN share, difficulty,
+and other statistics become neither targets nor identity preferences by
+appearing in the prefix.
 
 Sampling randomness is outside the formulation: variation within an identity,
 part of the [overall target](#overall-target), is a property of the generation
@@ -199,11 +191,10 @@ for each property:
 
 Queries and targets use the same property definitions under the same $\nu$, so
 $\nu$ fixes what a target means. A readout depends only on chart content and
-$\nu$. It does not depend on the requests that produced the chart, and
-replacing a request record does not change it. A readout over a partly
-materialized scope describes the chart it receives; it does not predict the
-value after the scope is complete. $\nu$ assigns a hold whose head lies in $S$
-but whose close is not yet materialized.
+$\nu$. It does not depend on the requests that produced the chart. A readout
+over a partly materialized scope describes the chart it receives; it does not
+predict the value after the scope is complete. $\nu$ assigns a hold whose head
+lies in $S$ but whose close is not yet materialized.
 
 ## Scoped requests
 
@@ -264,13 +255,11 @@ therefore lies after the committed prefix, and its targets concern $S$,
 including rows committed under the same request in earlier windows. Steering
 later rows of an active scope toward its section target is not compensation.
 
-A request expires when the committed boundary reaches the end of its scope.
-Before its scope starts, while $g<a$, a request may be withdrawn or replaced;
-a withdrawn request governs nothing, and a replacement is a new request under
-the validity rule. Once the committed boundary reaches $a$, the request is
-fixed: it can be neither cancelled nor changed, and it governs its scope until
-it expires. Expiry removes the directive and leaves committed history, ongoing
-holds, and the identity unchanged.
+A request expires when the committed boundary reaches the end of its scope. Once
+the committed boundary reaches $a$, the request is fixed: it can be neither
+cancelled nor changed, and it governs its scope until it expires. Expiry removes
+the directive and leaves committed history, ongoing holds, and the identity
+unchanged.
 
 Outside its scope, generation sees nothing of a request unless its $\eta$
 declares a transition. For $u\in\mathscr U$ with scope $[a,b)$ and the default
@@ -305,11 +294,11 @@ $[0,60)$ and $[60,90)$ do not overlap.
 
 Overlapping directives on the same quantity are invalid: two targets for the
 same property, under any $\nu$, or two style directives that specify the same
-attribute. A request set that contains such a pair is rejected. There is no
-composition and no priority between them. A directive that specifies every
-style attribute therefore cannot overlap any other style directive. A caller who
-wants different values for one property in different parts of the song states
-scopes that do not overlap.
+attribute, including two directives on the same named concept. A request set
+that contains such a pair is rejected. There is no composition and no priority
+between them. A directive that specifies every style attribute therefore cannot
+overlap any other style directive. A caller who wants different values for one
+property in different parts of the song states scopes that do not overlap.
 
 Overlapping directives on different quantities all apply: an LN-share target
 and a difficulty target, a style directive and a property target, or style
@@ -352,9 +341,10 @@ its attribute or property unspecified.
 
 ## Target strength
 
-A property target's strength is an ordered request level for how strongly the
-target governs generation in its scope, weighed against everything else
-generation balances. Strength applies to property targets only; a style
+A property target's strength is an ordered request level of how strongly
+generation in its scope is drawn toward the target value or, at levels below
+the default, pushed away from it, weighed against everything else generation
+balances. Strength applies to property targets only; a style
 directive carries no strength. Strength does not change the target value,
 $\nu$, the scope, $\eta$, or the priority.
 
@@ -372,11 +362,12 @@ $\nu$, the scope, $\eta$, or the priority.
   within the identity. It never trades legality or committed obligations.
   Where the default already reaches the resolution of $\nu$, a higher level
   has nothing left to reduce.
-- **Lower levels.** A level below the default weighs the target less than the
-  default balance does, so it may leave a larger deviation in favor of
-  everything else generation balances. It is still a target, not a release.
+- **Lower levels.** A level below the default pushes generation away from the
+  target value, and the lower the level, the farther the readout is pushed from
+  it. It is still a stated target, not a release.
 - **Monotone.** With every other input fixed, raising the strength must not
-  increase the expected deviation under $\nu$.
+  increase the expected deviation under $\nu$. This holds across levels on both
+  sides of the default.
 - **Order, not scale.** Levels are ordered. They are not equally spaced,
   probabilities, or numerical weights. A numerical strength scale needs its
   own declared calibration for each property.
@@ -386,8 +377,9 @@ $\nu$, the scope, $\eta$, or the priority.
 Strength is distinct from the other request parameters:
 
 - **Target value.** The value states the desired readout and the strength how
-  strongly it is pursued. LN share $0.2$ at a higher strength requests no more
-  long notes than LN share $0.2$ at the default.
+  strongly it is pursued or, below the default, avoided. LN share $0.2$ at a
+  higher strength requests no more long notes than LN share $0.2$ at the
+  default.
 - **Priority.** Priority orders overlapping requests on different quantities
   that cannot all be met. Strength trades one target against the default
   balance, not against other directives: a higher-strength target of lower
@@ -450,10 +442,9 @@ outcomes**:
   playability as [Target strength](#target-strength) describes; continuity and
   committed obligations hold at every level. Playability is a quality
   judgment; it does not change the legal continuation set.
-- **Interpretable outcomes.** The identity in effect, the requests that
-  governed, and every declared shortfall accompany each generation, and the
-  property query reads the realized result under the definitions its targets
-  use.
+- **Interpretable outcomes.** Every request has an expected behavior that this
+  page defines, and when directives cannot all be met the generation declares
+  the shortfall.
 
 The system supports extracting and reusing identities and style references,
 editing scoped directives, and reading both realized organization and chart

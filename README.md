@@ -92,8 +92,12 @@ corpus, which is not distributed.
 
 The [V3 formulation](docs/formulation/README.md) defines the target: legal,
 musically coherent 4K choreography generated from complete audio and committed
-chart history, with optional style and gameplay-demand controls. It owns the
-chart language, legality, commit rules and the open questions. R1 implements the
+chart history. Generation always follows a chart identity. Optional scoped
+requests (style directives and chart-property targets, with gameplay-demand
+requests) apply only to the ungenerated future. Generation is posed on a
+decomposed problem with given head times; the full problem also generates
+them. The formulation owns the chart language, legality, commit
+rules, style and control semantics and the open questions. R1 implements the
 chart language and exact replay; it does not yet meet the audio part of that
 target.
 
@@ -113,7 +117,7 @@ qualified as playable. That code is not on this branch.
 
 | Path | Contents |
 | --- | --- |
-| [`docs/formulation/`](docs/formulation/README.md) | V3 problem definition, notation and gameplay semantics |
+| [`docs/formulation/`](docs/formulation/README.md) | V3 problem definition, notation, gameplay semantics, and style conditions and control |
 | [`docs/research/`](docs/research/README.md) | R1 task, training recipe and generation guide; index of earlier work |
 | `src/ensomi_model/research/bounded_typed_continuation/` | R1 model, training and generation |
 | `src/ensomi_model/research/r1_restore/`, `vacation_training/` | staged training workers |

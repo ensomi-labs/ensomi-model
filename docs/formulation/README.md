@@ -41,9 +41,11 @@ space, and references and learned organization supply the rest. The
 identity and control must satisfy without fixing a representation of the
 identity or a calibrated strength scale.
 
-The decomposed problem rests on assumptions that human charts support only in
-part; [Assumptions](notation.md#assumptions) states which. The full problem, in
-which the head times are generated as well, remains the target.
+The decomposed problem rests on the [assumptions](notation.md#assumptions)
+stated with it; the
+[research document](../research/head_time_decomposition.md) records the
+evidence on them. The full problem, in which the head times are generated as
+well, remains the target.
 
 This formulation does not provide a completed response specification, a
 calibrated demand scale, or an executable V3 model.
@@ -52,8 +54,8 @@ calibrated demand scale, or an executable V3 model.
 
 The chart language and commit rules are formal constraints. The canonical
 gameplay profile and annotation meanings are declared conventions. The
-decomposed problem is a declared problem scope; its assumptions and their
-status are stated with it. Identity and request semantics are interface
+decomposed problem is a declared problem scope; its assumptions are stated
+with it. Identity and request semantics are interface
 requirements: the chart identity as a generation input outside chart state,
 scope membership, request validity, locality outside a scope, overlap,
 priority, release, the order of strength levels, and the shared definition of
