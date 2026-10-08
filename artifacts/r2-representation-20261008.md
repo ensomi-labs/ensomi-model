@@ -22,3 +22,5 @@
 - **opus-history:** recurring agent failure patterns across the whole record; why the 2026-10-02 list did not stop them; at most five structural changes. Read-only.
 - **fable-represent:** counterfactual analysis of the representation space and measures. The pilot probes window statistics against a structural (hand trajectory / pattern grammar) representation and a quickly learned section embedding, on the Lens sections and X0.
 - **opus-skeleton:** what the supplied rows carry and assume; what the separation of concerns lets R2 achieve without what; a pilot on how much the rows determine; deployment shift; counterfactual.
+
+<a id="r-represent-stopped"></a>**Stopped for the handoff, 2026-10-08 03:11 UTC.** The human closed the session about 5 minutes after the delegation. The three workers had written no file and started no mac job. They were stopped, and the round is to be relaunched unchanged from the same briefs ([handoff-20261008-represent](handoff-20261008-represent.md)).
