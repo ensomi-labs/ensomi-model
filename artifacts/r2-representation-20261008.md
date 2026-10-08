@@ -205,3 +205,25 @@
   - the dataset inputs.
 - **600 human observations** are preserved.
 - **Forwarded to the design subagent.** It is asked to reconcile the inventory with disk, split by batch as well as by song group (a batch effect is possible), and use the 600 human observations as the validation anchor.
+
+<a id="o-design-returned"></a>**The design study returned, 2026-10-08 about 05:35 UTC:** [r2-represent-design-20261008](r2-represent-design-20261008.md). Status: proposed, for the human's review. Nothing is built.
+- **Eight projection spaces,** each defined by what it encodes and by what it makes indistinguishable:
+  - S1: mass and lane distribution, with no time and no order;
+  - S2: within-section shape across durations and row counts;
+  - S3: metrical recurrence, blind to lane identity and to speed;
+  - S4: hold relations, order only (Allen relations, fill ratio);
+  - S5: contour;
+  - S6: placement given the rhythm, which is R2's own choice;
+  - S7: anticipation, to be built last;
+  - S8: physical speed in ms.
+- **One owner per factor;** every other space is chance-corrected or residualised against it.
+- **Constants fitted to the corpus,** each against a null at matched size.
+- **The Lens pool is the backbone,** with splits by batch and song group, and the 600 human observations as a separate validation anchor.
+- **Corpus facts that shaped the design [M]:**
+  - repetition is metrical (1.35-1.57× chance at 1-16 beats), not sequential;
+  - lane marginals are under-dispersed and carry little identity at section level, while chord subsets and held sets carry it;
+  - within-section shape exists only at low resolution, growing with size;
+  - hands are anti-persistent;
+  - 97 % of gaps and 95 % of hold lengths sit at simple ratios.
+- **Old R audited:** the 63 features have about 10 effective dimensions, with two exact duplicates, and held share alone explains 0.54-0.74 of seven block-1 features.
+- **Six questions for the human** are in §8.
