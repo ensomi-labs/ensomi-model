@@ -254,3 +254,5 @@
   - Evaluated on the Lens splits against a mass-only baseline and the spaces.
   - **The full training run waits for the human's check.**
   - Mac ≤ 2 threads. Brief `~/ensomi/.sync/cp/scratch/r2-vqvae/brief.md`; outputs in `artifacts/r2-vqvae-20261008/`.
+
+<a id="r-spaces-vqvae-stopped"></a>**Stopped for the handoff, 2026-10-08 06:05:50 UTC.** The human closed the session. Neither subagent had written a file or started a mac job. Both are to be relaunched unchanged from their briefs ([handoff-20261008-spaces](handoff-20261008-spaces.md)).

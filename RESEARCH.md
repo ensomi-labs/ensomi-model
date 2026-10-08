@@ -104,9 +104,7 @@ _Review: agent draft. The map dates from 2026-09-30 and was re-synthesised on 20
      - The three-block R and its Conv1d embedding are not the design.
      - The clip screen is on hold.
    - **Design study returned ([o-design-returned](artifacts/r2-representation-20261008.md#o-design-returned)), and the human answered its questions ([d-design-answers](artifacts/r2-representation-20261008.md#d-design-answers)).**
-   - **Running since 06:05 UTC ([r-spaces-vqvae](artifacts/r2-representation-20261008.md#r-spaces-vqvae)):**
-     - S1-S6 and S8 being built and checked against a preregistered pass rule on the Lens pool, measurement only;
-     - a VQ-VAE-like learned representation being designed, with code and a smoke run; its full training waits for the human's check.
+   - **Delegated at 06:05 UTC and stopped unstarted at the 06:10 handoff:** building S1-S6 and S8 against a preregistered pass rule on the Lens pool, and designing a VQ-VAE-like learned representation (code and smoke run only; its full training waits for the human's check). Relaunching both from their briefs is the next session's first step ([r-spaces-vqvae](artifacts/r2-representation-20261008.md#r-spaces-vqvae), [handoff-20261008-spaces](artifacts/handoff-20261008-spaces.md)).
    - **Would redirect (proposed):**
      - if the human-pair null absorbs the X0 LN result, the representation question reopens;
      - if the screen disagrees with the measures, they stay characterisation only.
@@ -126,7 +124,7 @@ _Review: agent draft. The map dates from 2026-09-30 and was re-synthesised on 20
 - Phase N finished; no checkpoint selected ([o-phasen-no-selection](artifacts/r2-phasen-and-lens-20261006.md#o-phasen-no-selection)).
 - Bake-off round 1 measured mostly checkpoint noise ([o-bakeoff-r1](artifacts/r2-bakeoff-night-20261007.md#o-bakeoff-r1), [s-diagnose-answer](artifacts/r2-diagnose-synthesis-20261008.md#s-diagnose-answer)).
 - What the agents got wrong, and the guardrails now in agents' context: [r2-round1-agent-failures-20261008](artifacts/r2-round1-agent-failures-20261008.md), [d-guardrails-in-context](artifacts/r2-represent-history-20261008.md#d-guardrails-in-context).
-- Handoffs: [handoff-20261008-represent](artifacts/handoff-20261008-represent.md), [handoff-20261007-collapse](artifacts/handoff-20261007-collapse.md). The earlier account of this section: [old-movement-20261008](artifacts/entry-point-before-20261008.md#old-movement-20261008).
+- Handoffs: [handoff-20261008-spaces](artifacts/handoff-20261008-spaces.md) (latest), [handoff-20261008-represent](artifacts/handoff-20261008-represent.md), [handoff-20261007-collapse](artifacts/handoff-20261007-collapse.md). The earlier account of this section: [old-movement-20261008](artifacts/entry-point-before-20261008.md#old-movement-20261008).
 
 _Review: the focus is the human's: the redirects of 2026-10-07 and 2026-10-08, and the authorisation of step 1 ([private, local](artifacts/private/human-inputs/00e97a87-25ca-4fab-a49a-668fbf454be4.md#answer-1)). The human reviewed the sequencing on 2026-10-08: `control` comes after representation, measures and evaluation, and the style formulation continues in parallel ([private, local](artifacts/private/human-inputs/00e97a87-25ca-4fab-a49a-668fbf454be4.md#prompt-5)). The questions, the why-now lines and the redirect lines are an agent draft._
 
