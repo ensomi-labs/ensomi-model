@@ -324,3 +324,11 @@
   - judges them by their label-free purpose (coupling near 0, S6 truncation passes);
   - re-reports the Lens claims before and after, marked post hoc, since every split has been looked at.
   - Brief `~/ensomi/.sync/cp/scratch/r2-spaces-fix/brief.md`; outputs `artifacts/r2-spaces-fix-20261008/`; mac ≤ 2 threads, about 20 minutes; due within 60 minutes.
+
+<a id="r-vqvae2-fixes-astra"></a>**Stopped and moved to Astra, 2026-10-08 about 07:26 UTC, at the human's instruction ([private, local](private/human-inputs/bc8c7d3c-b2c1-4def-b578-4b60d2c6fdec.md#prompt-3-unsolicited-under-unsolicited-input--steering)).**
+- **Stopped:** both subagents of [r-vqvae2-fixes](#r-vqvae2-fixes). They had written no file and started no mac job.
+- **Relaunched as Astra jobs on bings-mac:** effort xhigh, default tier, workspace-write.
+  - `20261008-072609-r2-vqvae2`: brief `~/ensomi/.sync/cp/scratch/r2-vqvae2/brief-astra.md`, outputs `artifacts/r2-vqvae2-20261008/`.
+  - `20261008-072613-r2-spaces-fix`: brief `~/ensomi/.sync/cp/scratch/r2-spaces-fix/brief-astra.md`, outputs `artifacts/r2-spaces-fix-20261008/`.
+- **Changes from the subagent briefs:** run on the mac directly, scripts and reports under `artifacts/<slug>/`, and the Astra code-style lines. The task and its limits are unchanged; the VQ-VAE full run still waits for the human's check.
+- **Codex primary quota** was at 90 % used at launch.
