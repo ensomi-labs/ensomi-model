@@ -27,3 +27,10 @@ def test_lattice_measure_counts_shared_slots_separately():
     assert m['triple_only_heads'] == 2
     assert m['triple_occupied_beats'] == 1 and m['occupied_beats'] == 1
     assert correlation([0, 0, 0], [1, 2, 3], rank=True) is None
+
+
+def test_onset_rank_reports_a_head_with_no_slot_in_its_partial_boundary_beat():
+    features = np.zeros((200, FEATURE_DIM), dtype=np.float32)
+    m = chart_measures([1, 531, 1031], 2000, grid(31, 500), features)
+    assert m['onset_unscored_heads'] == 1 and m['onset_heads'] == 2
+    assert m['onset_rank'] == m['shifted_onset_rank'] == 0.5

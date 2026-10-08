@@ -67,6 +67,8 @@ def chart_measures(head_ms, song_ms, grid, features, section_beats=16):
     no heads, weighted by physical duration. Head onset rank compares each head's
     tolerated flux with every distinct duple/triple slot in its canonical beat;
     a half-beat circular shift of the head is the density-preserving timing null.
+    A head in a clipped boundary beat with no available slot is excluded from both
+    onset means and counted in ``onset_unscored_heads``.
     """
     b0, nb = beat_range(grid, song_ms)
     beat_ms = np.clip(grid.time_of_beat(b0 + np.arange(nb + 1)), 0.0, song_ms)
@@ -93,10 +95,12 @@ def chart_measures(head_ms, song_ms, grid, features, section_beats=16):
     reference_times = np.concatenate((slots[:, 0], slots[:, 1, np.flatnonzero(np.arange(12) % 3 != 0)]), axis=1)
     reference = local_strength(flux, reference_times)[head_beats]
     available = ((reference_times >= 0) & (reference_times < song_ms))[head_beats]
+    eligible = available.any(1)
 
     def onset_ranks(times):
         strength = local_strength(flux, times)[:, None]
-        return (((strength > reference) + 0.5 * (strength == reference)) * available).sum(1) / available.sum(1)
+        sums = (((strength > reference) + 0.5 * (strength == reference)) * available).sum(1)
+        return sums[eligible] / available.sum(1)[eligible]
 
     selected = onset_ranks(head_ms)
     shifted = onset_ranks(grid.time_of_beat(np.floor(hb) + (hb % 1 + 0.5) % 1))
@@ -110,7 +114,8 @@ def chart_measures(head_ms, song_ms, grid, features, section_beats=16):
                 wh_s=float(workload.sum() / durations.sum()),
                 onset_rank=float(np.mean(selected)) if len(selected) else None,
                 shifted_onset_rank=float(np.mean(shifted)) if len(shifted) else None,
-                onset_heads=len(selected), section_edges_ms=edges.tolist(),
+                onset_heads=len(selected), onset_unscored_heads=len(head_ms) - len(selected),
+                section_edges_ms=edges.tolist(),
                 section_intensity=audio[:, 0].tolist(), section_flux=audio[:, 1].tolist(),
                 section_wh_s=rates.tolist(), section_rest=rest.tolist())
 
