@@ -152,3 +152,5 @@ A main thread copies these into every Astra or subagent brief. Each is one line 
 8. Every model name resolves to a checkpoint hash and module list; reuse a release name only with the release's module set; "held out" means absent from every ancestor's fit and selection sets ([fm-name-drift](#fm-name-drift)).
 9. Keep the question ledger: each recognised question is settled, scheduled, or parked by the human; after three repairs in one module without a ledger row, stop and report ([fm-local-repair](#fm-local-repair)).
 10. Keep the advice ledger: each recommendation's condition, status and artifact; flag a conditional whose condition held and was not followed ([fm-advice-adopted-in-name](#fm-advice-adopted-in-name)).
+
+<a id="fm-recurrence-20261008"></a>**Recurrence, 2026-10-08.** In R2 bake-off round 1, [fm-margin-below-noise](#fm-margin-below-noise) and [fm-preconditions](#fm-preconditions) recurred, along with new items. See [r2-round1-agent-failures-20261008](r2-round1-agent-failures-20261008.md).
