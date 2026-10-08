@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Guardrails"
+  short_description: "Recurring research failures and the guardrail for each."
+  default_prompt: "Use $ensomi-research-guardrails to check a plan, brief, launch or reading against the recurring failure patterns, and say how each guardrail whose trigger holds was applied."
