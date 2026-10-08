@@ -332,3 +332,5 @@
   - `20261008-072613-r2-spaces-fix`: brief `~/ensomi/.sync/cp/scratch/r2-spaces-fix/brief-astra.md`, outputs `artifacts/r2-spaces-fix-20261008/`.
 - **Changes from the subagent briefs:** run on the mac directly, scripts and reports under `artifacts/<slug>/`, and the Astra code-style lines. The task and its limits are unchanged; the VQ-VAE full run still waits for the human's check.
 - **Codex primary quota** was at 90 % used at launch.
+
+<a id="o-fixes-returned"></a>**spaces-fix returned, 2026-10-08 07:57 UTC:** [r2-spaces-fix-20261008](r2-spaces-fix-20261008.md). S5 and S8 are now unpredictable from S3, and S6 passes truncation. S4 keeps a third of its variance predictable from mass. Post hoc: S5's stream ordering and jack leak were what it shared with S3, and both go to chance. S4's LN increment over mass survives. S8 keeps trill information on the human cells. Headline numbers checked ([v-fixes-checks](r2-spaces-fix-20261008.md#v-fixes-checks)); the residual maps used 500 fit_train charts, not the full fit set.
