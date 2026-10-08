@@ -227,3 +227,30 @@
   - 97 % of gaps and 95 % of hold lengths sit at simple ratios.
 - **Old R audited:** the 63 features have about 10 effective dimensions, with two exact duplicates, and held share alone explains 0.54-0.74 of seven block-1 features.
 - **Six questions for the human** are in §8.
+
+<a id="d-design-answers"></a>**The human's answers on the design study, 2026-10-08 about 05:55 UTC ([private, local](private/human-inputs/00e97a87-25ca-4fab-a49a-668fbf454be4.md#answer-2)).** The questions are §8 of [r2-represent-design-20261008](r2-represent-design-20261008.md).
+1. **Shape keeps position.** S2 uses the low-DCT L2 metric.
+2. **Mass is modelled jointly** ("model jointly?"). The agent reads this as: per-row mass in S1, rows per second in the rows channel, and per-second mass as their product beside them. The reading is to be confirmed.
+3. **The hand difference is kept.** S3's group is the mirror only.
+4. **No:** the calibration and heldout charts stay closed.
+5. **Undecided.** The agent's default is fixed metrical windows of W beats, fitted, with sensitivity checks and Lens scopes as an alternative.
+6. **Yes:** S8, physical speed, is built.
+- **New requirement:** besides the spaces, a VQ-VAE-like learned representation that distinguishes the five Foundation concepts on the annotation pool.
+- **Tuning:** measures and constants may be tuned on the real big corpus, all 11,368 fit_train charts of the cache.
+- **Pass bar (main-thread choice):** stricter than the design's. Each claimed ordering must also add to a mass-only baseline within strata, by a song-group bootstrap interval above 0.
+
+<a id="r-spaces-vqvae"></a>**Delegated 2026-10-08 about 06:05 UTC, two fresh subagents in parallel.**
+- **spaces-build (Opus):** builds S1-S6 and S8 to the design.
+  - Constants are fitted on the big corpus, outside the validation song groups.
+  - Invariance unit tests run first.
+  - `prereg.md` is written before any V1 or V2 result.
+  - Validation: D, then V1, then V2, plus the batch swap.
+  - Checks: coupling, same against different creator, and R2 against a human on the same rows.
+  - No training and no generation. Mac: ≤ 3 threads, about 60 minutes.
+  - Brief `~/ensomi/.sync/cp/scratch/r2-spaces-build/brief.md`; outputs in `artifacts/r2-spaces-20261008/`.
+- **vqvae (Fable):** writes the design document, the code and a smoke run of at most about 3 minutes.
+  - The decoder is conditioned on the rows, so the codes carry the arrangement.
+  - Hyperparameters are chosen by label-free criteria.
+  - Evaluated on the Lens splits against a mass-only baseline and the spaces.
+  - **The full training run waits for the human's check.**
+  - Mac ≤ 2 threads. Brief `~/ensomi/.sync/cp/scratch/r2-vqvae/brief.md`; outputs in `artifacts/r2-vqvae-20261008/`.

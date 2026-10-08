@@ -103,7 +103,10 @@ _Review: agent draft. The map dates from 2026-09-30 and was re-synthesised on 20
      - Project charts into several designed spaces, each defined by what it encodes and what it leaves indistinguishable, with mappings, constants and metrics tuned to the corpus.
      - The three-block R and its Conv1d embedding are not the design.
      - The clip screen is on hold.
-   - **Design study returned, proposed ([o-design-returned](artifacts/r2-representation-20261008.md#o-design-returned)):** eight projection spaces with corpus-fitted constants, one owner per factor, and the Lens pool as backbone. Waiting on the human's six questions before anything is built.
+   - **Design study returned ([o-design-returned](artifacts/r2-representation-20261008.md#o-design-returned)), and the human answered its questions ([d-design-answers](artifacts/r2-representation-20261008.md#d-design-answers)).**
+   - **Running since 06:05 UTC ([r-spaces-vqvae](artifacts/r2-representation-20261008.md#r-spaces-vqvae)):**
+     - S1-S6 and S8 being built and checked against a preregistered pass rule on the Lens pool, measurement only;
+     - a VQ-VAE-like learned representation being designed, with code and a smoke run; its full training waits for the human's check.
    - **Would redirect (proposed):**
      - if the human-pair null absorbs the X0 LN result, the representation question reopens;
      - if the screen disagrees with the measures, they stay characterisation only.
