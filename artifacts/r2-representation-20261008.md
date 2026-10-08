@@ -267,3 +267,31 @@
 - Most blindness claims fail; repetition shows in several spaces, and one owner per factor is not achieved.
 - R2 against a same-rows human: mostly seed spread; a small offset only in S3 and S6, at window level.
 - V1 has been used; fixes re-checked on it would be post hoc.
+
+<a id="d-perception-first"></a>**Direction (human, 2026-10-08 about 06:45 UTC, [private, local](private/human-inputs/bc8c7d3c-b2c1-4def-b578-4b60d2c6fdec.md#prompt-2)).**
+- **Approved, not yet started:** the three spaces fixes ([p-spaces-fixes](r2-spaces-20261008.md#p-spaces-fixes)).
+- **First:**
+  1. how humans and mappers read charts (boundaries, pattern recognition and composition, buildups and drops), whether that can be modelled, and whether the Lens labeller's evidence-note selections can inform the representation;
+  2. justify the VQ-VAE details, or have Fable refine the design first.
+- **Main-thread choice:** answer (2) with a short justification now and run the Fable refinement after (1) returns, with its findings as input. No VQ-VAE full run is approved.
+
+<a id="a-vqvae-justification"></a>**Main-thread review of the VQ-VAE design (2026-10-08), given to the human.**
+- **Grounded in the corpus or in prior results:**
+  - the metrical unit (repetition is metrical);
+  - the mirror symmetry and tempo invariance;
+  - the decoder conditioned on the rows, so codes carry the arrangement given the rows;
+  - label-free selection, the permuted-code and rows-only ablations, the null-code control, and seed agreement.
+- **Convention, harmless:** β, EMA decay, width, depth and kernel size.
+- **Not grounded:** what a code stands for.
+  - The objective rewards reconstructing every lane code of each beat, so a code describes the content of one beat, at lane-level detail. A section becomes a bag of beat contents.
+  - Human reading works with pattern units, their boundaries, their combination and the passage's trajectory; nothing in the design models these.
+  - The spaces result points the same way. S3, which recognises jack and trill, measures relations between beats (recurrence at lags 1-32), not the content of a beat. The smoke run's codes did not add for jack or trill.
+  - Fixed windows split patterns at their edges.
+  - The only invariance besides mirror is tempo, so arrangements a reader sees as the same pattern on other lanes get different codes.
+
+<a id="r-perception"></a>**Delegated 2026-10-08 about 06:52 UTC to one fresh Opus subagent ("perception"), measurement and reading only.**
+- **Brief:** `~/ensomi/.sync/cp/scratch/r2-perception/brief.md`.
+- **Part A:** what is known and what can be modelled about boundaries, pattern units and composition, and buildups and drops. Sources: the beatmap-lens reading framework and decisions, music-perception and MIR analogues, mapping practice.
+- **Part B:** the Lens evidence notes (`noteRefs`, `contextNoteRefs`, `rationale`) measured: coverage, shape, localisation against S3 and S4 signatures, boundaries, human against machine evidence, a read sample of rationales.
+- **Part C:** implications for the approved fixes and for the VQ-VAE refinement; questions for the human.
+- **Budget:** mac ≤ 3 threads and about 40 minutes; due within 90 minutes.
