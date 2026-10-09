@@ -1,4 +1,4 @@
-"""Each segment's phase from the Mel onsets the mappers' beats follow.
+"""Each segment's phase and tempo from the Mel onsets the mappers' beats follow.
 
 BeatThis's sub-frame peaks give the grid its tempo and segments, but their lag behind the music
 changes with the instrumentation, so a grid fitted through them carries a per-song phase error
@@ -34,8 +34,29 @@ panel and 40 multi-tempo songs, moved no bar phase or tempo, and added no whole-
 sub-frame shifts. On a holdout sealed before the rule was built and looked at once (289 fit_train
 songs no earlier round had used, 519 charts), against the committed grid on the same logits: S1-20
 0.784 to 0.840, +0.056 [+0.025, +0.090]; heads within 20 ms 0.897 to 0.928, +0.031 [+0.015,
-+0.052]; S1-10 +0.125 [+0.076, +0.176]. Details:
-``~/ensomi/.sync/cp/scratch/timing/opt/report-opt.md`` (2026-10-09).
++0.052]; S1-10 +0.125 [+0.076, +0.176].
+
+``mel_tempo`` then refits each segment's tempo to the same onsets. BeatThis's peaks and the integer
+BPM rounding leave tempos off by up to a few per mille, which over a long segment walks the grid
+off the mappers' beats. Per segment of the corrected grid with at least ``TEMPO_MIN_ONSETS``
+onsets, a trimmed line through (onset - beat) against beat time gives the drift; where the line
+moves at least ``TEMPO_MIN_DRIFT_MS`` across the segment's beats (and its slope stays within
+``TEMPO_MAX_SLOPE``), the beat length is scaled by one plus the slope and the offset follows the
+line. A grid of one line (one tempo) is then rounded to an integer BPM again when it lies within
+``grid.BPM_ROUNDING`` of one, keeping the beat in the middle of the peak span; ``corrected_grid``
+leaves an integer BPM as it is. Chosen on fit_train among 18 settings by the same cross-fitting;
+on fit_dev against ``mel_phase`` alone (same logits and charts): S1-20 0.846 to 0.859, +0.012
+[+0.002, +0.024]; heads within 20 ms 0.943 to 0.948, +0.005 [+0.002, +0.008]; S1-10 +0.030; no
+segment count or bar phase changed and no whole-grid flip added. On the sealed holdout against
+``mel_phase`` alone: S1-20 0.840 to 0.850, +0.010 [+0.000, +0.020]; heads within 20 ms 0.928 to
+0.931, +0.003 [+0.002, +0.004]; S1-10 +0.035 [+0.010, +0.063]; 157 of 289 songs refitted, no
+segment count or bar phase changed.
+
+Together, against the committed grid: on fit_dev S1-20 0.808 to 0.859, +0.051 [+0.025, +0.079],
+heads within 20 ms 0.920 to 0.948, +0.028 [+0.016, +0.043]; on the holdout S1-20 0.784 to 0.850,
++0.066 [+0.033, +0.101], heads within 20 ms 0.897 to 0.931, +0.034 [+0.018, +0.055]. Both add
+0.003 s per audio-minute to the Listener's 1.50 s (CPU, two threads, the mac at load 1.5).
+Details: ``~/ensomi/.sync/cp/scratch/timing/opt/report-opt.md`` (2026-10-09).
 """
 from __future__ import annotations
 
@@ -43,7 +64,7 @@ from typing import Sequence
 
 import numpy as np
 
-from ..grid import LAG_MS, corrected_grid
+from ..grid import BPM_ROUNDING, LAG_MS, corrected_grid
 from .peaks import beat_peaks
 from .types import TimingSegment
 
@@ -52,6 +73,10 @@ ONSET_WINDOW_MS = 60.0      # ... and reaches this far on each side
 MAPPER_OFFSET_MS = -14.873  # the beat sits this far from the median onset (set on fit_train)
 MIN_SEGMENT_ONSETS = 32
 MIN_SONG_ONSETS = 8
+TEMPO_MIN_ONSETS = 16       # mel_tempo refits a segment from at least this many onsets ...
+TEMPO_MIN_DRIFT_MS = 3.0    # ... when they drift at least this far across its beats ...
+TEMPO_MAX_SLOPE = 0.03      # ... by a slope no larger than this
+TEMPO_OUTLIER_MS = 25.0     # onsets this far from the segment's median offset are left out
 ENVELOPE_HOP_MS = 10.0
 ENVELOPE_FIRST_MS = 15.0    # envelope sample k lies between the centres of Mel frames k - 1 and k
 
@@ -142,3 +167,80 @@ def mel_phase(segments: Sequence[TimingSegment], log_mel, beat_logits, frame_rat
     for j, k in enumerate(order):
         out[k] = TimingSegment(offset_ms=segments[k].offset_ms + float(shift[j]), beat_length_ms=segments[k].beat_length_ms)
     return tuple(out)
+
+
+def _drift(x, y):
+    """(intercept, slope) of a trimmed least-squares line y = a + b x, or None with too few points.
+
+    Points more than ``TEMPO_OUTLIER_MS`` from the median are dropped, the line is fitted, points
+    beyond max(3 ms, 3 robust SD) of it are dropped, and the line is fitted once more.
+    """
+    keep = np.abs(y - np.median(y)) <= TEMPO_OUTLIER_MS
+    if keep.sum() < MIN_SONG_ONSETS:
+        return None
+    for _ in range(2):
+        design = np.column_stack((np.ones(int(keep.sum())), x[keep]))
+        (a, b), *_ = np.linalg.lstsq(design, y[keep], rcond=None)
+        r = y - a - b * x
+        bound = max(3.0, 3 * 1.4826 * np.median(np.abs(r[keep] - np.median(r[keep]))))
+        if (np.abs(r) <= bound).sum() < MIN_SONG_ONSETS:
+            break
+        keep = np.abs(r) <= bound
+    return float(a), float(b)
+
+
+def mel_tempo(segments: Sequence[TimingSegment], log_mel, beat_logits, frame_rate_hz: float,
+              song_ms: float) -> tuple[TimingSegment, ...]:
+    """The segments with each tempo refitted to the Mel onsets of its beats (after ``mel_phase``).
+
+    Same inputs as ``mel_phase``. Returns ``segments`` unchanged when no segment is refitted.
+    When ``corrected_grid`` keeps one line, the result is that one segment.
+    """
+    segments = tuple(segments)
+    if not segments:
+        return segments
+    times, probability = beat_peaks(beat_logits, frame_rate_hz)
+    times = times[probability > 0.5]
+    if times.shape[0] == 0:
+        return segments
+    raw = np.array([(s.offset_ms, s.beat_length_ms) for s in segments], dtype=np.float64)
+    order = np.argsort(raw[:, 0], kind='stable')
+    grid = corrected_grid(raw, song_ms)[1][:, :2]
+    lo, hi = times[0] - LAG_MS, times[-1] - LAG_MS
+    beats, index = _beats(grid, lo, hi)
+    offset = onset_times(onset_envelope(log_mel), beats + ONSET_CENTRE_MS) - beats
+    out = grid.copy()
+    refitted = False
+    for j in range(grid.shape[0]):
+        found = np.isfinite(offset) & (index == j)
+        if found.sum() < TEMPO_MIN_ONSETS:
+            continue
+        centre = float(np.mean(beats[found]))
+        line = _drift(beats[found] - centre, offset[found])
+        if line is None:
+            continue
+        a, b = line
+        span = float(np.ptp(beats[index == j]))
+        if abs(b) * span < TEMPO_MIN_DRIFT_MS or abs(b) > TEMPO_MAX_SLOPE or grid[j, 1] == 750.0:
+            continue                # 750 ms is corrected_grid's 80/160 BPM convention, not a fitted length
+        start = grid[j, 0] + a + MAPPER_OFFSET_MS + b * (grid[j, 0] - centre)
+        if (j > 0 and start <= out[j - 1, 0]) or (j + 1 < grid.shape[0] and start >= grid[j + 1, 0]):
+            continue
+        out[j] = (start, grid[j, 1] * (1 + b))
+        refitted = True
+    if not refitted:
+        return segments
+    if grid.shape[0] == 1:
+        ends = np.r_[raw[order][1:, 0], max(song_ms, raw[order][-1, 0] + 1)] - raw[order][:, 0]
+        octave = 2.0 ** np.round(np.log2(raw[order][int(np.argmax(ends)), 1] / grid[0, 1]))
+        bpm = 60000.0 / (out[0, 1] * octave)
+        if abs(bpm - round(bpm)) <= BPM_ROUNDING:
+            length = 60000.0 / round(bpm) / octave
+            middle = 0.5 * (max(out[0, 0], lo) + hi)
+            out[0] = (out[0, 0] + round((middle - out[0, 0]) / out[0, 1]) * (out[0, 1] - length), length)
+        return (TimingSegment(offset_ms=float(out[0, 0] + LAG_MS), beat_length_ms=float(out[0, 1] * octave)),)
+    result = list(segments)
+    for j, k in enumerate(order):
+        scale = out[j, 1] / grid[j, 1]
+        result[k] = TimingSegment(offset_ms=float(out[j, 0] + LAG_MS), beat_length_ms=segments[k].beat_length_ms * scale)
+    return tuple(result)
