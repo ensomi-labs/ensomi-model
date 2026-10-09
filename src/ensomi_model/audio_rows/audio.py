@@ -14,8 +14,11 @@ is prepended where that decoder trims an MP3 start that osu!'s BASS keeps (about
 12 ms), so the grid and the features sit where the mappers' notes sit. When BeatThis's loader
 cannot decode a file (it failed on 2 of 300 corpus MP3s), BeatThis reads the Mel waveform instead.
 After the legacy fit, ``fitter.peaks.refine_segments`` refits each segment's offset and beat
-length to BeatThis's sub-frame peaks, and ``fitter.peaks.downbeat_phase`` takes the first
-segment's bar phase from the downbeat activations.
+length to BeatThis's sub-frame peaks, ``fitter.peaks.downbeat_phase`` takes the first
+segment's bar phase from the downbeat activations, and ``fitter.mel_phase.mel_phase`` moves each
+segment's offset to the onsets of the song's own log-Mel, which the mappers' beats follow more
+closely than BeatThis's peaks; ``fitter.mel_phase.mel_tempo`` then refits each segment's tempo to
+the same onsets.
 """
 from __future__ import annotations
 
@@ -27,6 +30,7 @@ import numpy as np
 from ..features.mel_base import MUSIC_MEL_CACHE_CONFIG, compute_log_mel_10ms
 from .decoder import lead_seconds
 from .fitter import fit_segments
+from .fitter.mel_phase import mel_phase, mel_tempo
 from .fitter.peaks import downbeat_phase, refine_segments
 
 HOP_MS = MUSIC_MEL_CACHE_CONFIG.hop_ms
@@ -99,10 +103,14 @@ class Listener:
         beat_np, downbeat_np = (x.detach().cpu().numpy() for x in (beat_logits, downbeat_logits))
         segments = refine_segments(segments, beat_np, BEATTHIS_FPS)
         segments = downbeat_phase(segments, beat_np, downbeat_np, BEATTHIS_FPS)
-        segments = np.array([(s.offset_ms, s.beat_length_ms) for s in segments])
         t3 = time.perf_counter()
         log_mel = compute_log_mel_10ms(mel_wave, sample_rate=sr_mel, config=MUSIC_MEL_CACHE_CONFIG)
         feats = features(log_mel, beat, downbeat)
         t4 = time.perf_counter()
-        return Song(feats, segments, 1000.0 * len(wave) / sr,
-                    dict(load=t1 - t0, beatthis=t2 - t1, fit=t3 - t2, features=t4 - t3))
+        song_ms = 1000.0 * len(wave) / sr
+        segments = mel_phase(segments, log_mel, beat_np, BEATTHIS_FPS, song_ms)
+        segments = mel_tempo(segments, log_mel, beat_np, BEATTHIS_FPS, song_ms)
+        segments = np.array([(s.offset_ms, s.beat_length_ms) for s in segments])
+        t5 = time.perf_counter()
+        return Song(feats, segments, song_ms,
+                    dict(load=t1 - t0, beatthis=t2 - t1, fit=t3 - t2 + t5 - t4, features=t4 - t3))
