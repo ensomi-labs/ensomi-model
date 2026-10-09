@@ -6,6 +6,9 @@ and private function names match the source so each file diffs against it. Remov
 validation, the fit diagnostics and ramp detection (they never changed the segments), branches
 the default config never takes, and the ``FrameTimingPrediction`` wrapper. On the same beat and
 downbeat probabilities the segments equal the source's.
+
+``peaks.refine_segments`` is new (2026-10-09): it refits each segment's offset and beat length to
+BeatThis's sub-frame peaks after this fit, which the audio-rows path applies in ``audio.Listener``.
 """
 from __future__ import annotations
 
