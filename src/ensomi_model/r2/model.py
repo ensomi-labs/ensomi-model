@@ -523,3 +523,23 @@ def governed_split(logp, targets, held, masks):
     same = (groups == groups.gather(1, targets[:, None])) & torch.as_tensor(np.asarray(masks), device=logp.device)
     group_lp = logp.masked_fill(~same, -torch.inf).logsumexp(-1)
     return logp.gather(1, targets[:, None])[:, 0] - group_lp
+
+
+def head_nll_parts(logp, targets, held, release):
+    """NLL of head count, lanes given count, and remaining codes plus releases.
+
+    All marginals sum the already-normalized legal action support. Held-lane
+    codes 1/2 release notes, whereas codes 3/4 place new heads.
+    """
+    codes = torch.as_tensor(ACTIONS.copy(), device=logp.device)
+    occupied = torch.as_tensor(held, device=logp.device)[:, None, :]
+    heads = torch.where(occupied, codes[None] >= 3,
+                        (codes[None] == 1) | (codes[None] == 2))
+    masks = (heads * torch.tensor([1, 2, 4, 8], device=logp.device)).sum(-1)
+    counts = heads.sum(-1)
+    chosen_mask = masks.gather(1, targets[:, None])
+    chosen_count = counts.gather(1, targets[:, None])
+    count_lp = logp.masked_fill(counts != chosen_count, -torch.inf).logsumexp(-1)
+    mask_lp = logp.masked_fill(masks != chosen_mask, -torch.inf).logsumexp(-1)
+    action_lp = logp.gather(1, targets[:, None])[:, 0]
+    return -count_lp, count_lp - mask_lp, mask_lp - action_lp - release
