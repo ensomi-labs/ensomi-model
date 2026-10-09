@@ -14,7 +14,8 @@ is prepended where that decoder trims an MP3 start that osu!'s BASS keeps (about
 12 ms), so the grid and the features sit where the mappers' notes sit. When BeatThis's loader
 cannot decode a file (it failed on 2 of 300 corpus MP3s), BeatThis reads the Mel waveform instead.
 After the legacy fit, ``fitter.peaks.refine_segments`` refits each segment's offset and beat
-length to BeatThis's sub-frame peaks.
+length to BeatThis's sub-frame peaks, and ``fitter.peaks.downbeat_phase`` takes the first
+segment's bar phase from the downbeat activations.
 """
 from __future__ import annotations
 
@@ -26,7 +27,7 @@ import numpy as np
 from ..features.mel_base import MUSIC_MEL_CACHE_CONFIG, compute_log_mel_10ms
 from .decoder import lead_seconds
 from .fitter import fit_segments
-from .fitter.peaks import refine_segments
+from .fitter.peaks import downbeat_phase, refine_segments
 
 HOP_MS = MUSIC_MEL_CACHE_CONFIG.hop_ms
 MEL_BINS = MUSIC_MEL_CACHE_CONFIG.mel_bins
@@ -95,7 +96,9 @@ class Listener:
         beat, downbeat = _probability(beat_logits), _probability(downbeat_logits)
         t2 = time.perf_counter()
         segments = fit_segments(beat, downbeat, BEATTHIS_FPS)
-        segments = refine_segments(segments, beat_logits.detach().cpu().numpy(), BEATTHIS_FPS)
+        beat_np, downbeat_np = (x.detach().cpu().numpy() for x in (beat_logits, downbeat_logits))
+        segments = refine_segments(segments, beat_np, BEATTHIS_FPS)
+        segments = downbeat_phase(segments, beat_np, downbeat_np, BEATTHIS_FPS)
         segments = np.array([(s.offset_ms, s.beat_length_ms) for s in segments])
         t3 = time.perf_counter()
         log_mel = compute_log_mel_10ms(mel_wave, sample_rate=sr_mel, config=MUSIC_MEL_CACHE_CONFIG)

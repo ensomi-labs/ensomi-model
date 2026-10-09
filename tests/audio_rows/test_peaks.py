@@ -83,3 +83,19 @@ def test_segments_without_peaks_on_their_grid_keep_the_legacy_values():
     x = _logits(np.arange(500.0, 59_500.0, 400.0))
     legacy = (TimingSegment(700.0, 400.0),)                                     # half a beat off every peak
     assert refine_segments(legacy, x, FPS) == legacy
+
+
+def test_bar_phase_follows_the_downbeats_and_keeps_the_line():
+    from ensomi_model.audio_rows.fitter.peaks import downbeat_phase
+    from ensomi_model.audio_rows.fitter.types import TimingSegment
+    beats = np.arange(1000.0, 59_000.0, 500.0)
+    x, down = _logits(beats), _logits(beats[2::4])                             # bars start at 2000 + 2000 k ms
+    for committed, offset in (((TimingSegment(1500.0, 500.0),), 2000.0),        # first offset on the wrong beat
+                              ((TimingSegment(1000.0, 500.0),), 2000.0),        # two beats off: the later bar start
+                              ((TimingSegment(30_500.0, 500.0),), 30_000.0),    # mid-song (a merged refit)
+                              ((TimingSegment(1250.0, 250.0),), 2000.0),        # raw line at twice the canonical tempo
+                              ((TimingSegment(1500.0, 500.0), TimingSegment(40_000.0, 400.0)), 2000.0)):
+        out = downbeat_phase(committed, x, down, FPS)
+        assert out[0] == TimingSegment(offset, committed[0].beat_length_ms)    # the bar's beat nearest the old offset
+        assert out[1:] == committed[1:]
+    assert downbeat_phase((TimingSegment(1500.0, 500.0),), x, None, FPS) == (TimingSegment(1500.0, 500.0),)
