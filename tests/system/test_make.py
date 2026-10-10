@@ -71,8 +71,11 @@ def test_difficulty_passes_map_clamp_and_correct():
 
 
 class StubRows:
-    def __init__(self, head, song, g):
-        self.head, self.song, self.grid = head, song, g
+    def __init__(self, head, song, g, prepared=None):
+        self.head, self.song, self.grid, self.prepared = head, song, g, prepared
+
+    def prepare(self, audio):
+        return self.prepared
 
     def heads(self, prepared, *, star=None, request=None, sections=(), seed=0, temperature=1.0):
         return dict(head_ms=self.head, K=len(self.head), grid=self.grid, segments=np.array([[0.0, 500.0, 4.0]]),
@@ -121,3 +124,32 @@ def test_copy_setting_resolution():
         system.copy_setting('on', 1.5)
     with pytest.raises(ValueError):
         System(dict(copy={}), None, None, None, None).copy_setting('on')
+
+
+def test_cli_main_reads_its_flags(tmp_path, monkeypatch, capsys):
+    import ensomi_model.system.make as make
+    rng = np.random.default_rng(4)
+    head, song = skeleton(rng, 120)
+    g = grid()
+    X = rng.normal(size=(50, 4))
+    Y = np.column_stack((np.full(50, 0.1), np.full(50, 1.4), np.full(50, 0.03), np.full(50, 0.01), np.full(50, 0.25)))
+    prior = Prior(dict(method='median', bands={str(b): fit_band(X, Y) for b in range(2, 6)}))
+    audio = tmp_path / 'song.mp3'
+    audio.write_bytes(b'x')
+    prepared = dict(audio=audio, song=SimpleNamespace(features=np.zeros((int(song / 10) + 10, 130), np.float16)),
+                    grid=g, song_ms=song)
+    config = dict(default_q={str(b): 'off' for b in range(2, 6)}, copy=dict(default='off'))
+    system = System(config, StubRows(head, song, g, prepared), tiny_r2(), calibration(), prior, None, scopes=scopes(rng))
+    monkeypatch.setattr(make.System, 'load', classmethod(lambda cls, cfg: system))
+    (tmp_path / 'system.json').write_text(json.dumps(config))
+    out = tmp_path / 'o.osz'
+    make.main(['--config', str(tmp_path / 'system.json'), '--audio', str(audio), '--star', '4.2', '--out', str(out),
+               '--ln', 'tap', '--difficulty-q', '0.3', '--jack', '5000,15000,0.9', '--seed', '1'])
+    printed = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert printed['band'] == 4 and printed['copy'] is False and printed['difficulty']['q'] == 0.3
+    receipt = json.loads((tmp_path / 'o' / 'receipt.json').read_text())
+    assert receipt['controls']['ln']['mode'] == 'tap' and receipt['controls']['ln']['ln_heads'] == 0
+    assert receipt['r2_seed'] == 955 and receipt['controls']['sections'][0]['concept'] == 'jack'
+    make.main(['--config', str(tmp_path / 'system.json'), '--audio', str(audio), '--star', '2.0', '--out', str(out),
+               '--difficulty', 'default'])
+    assert json.loads(capsys.readouterr().out.strip().splitlines()[-1])['difficulty'] is None
