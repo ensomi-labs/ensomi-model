@@ -6,6 +6,8 @@ each (start uniform). The audio is shifted by up to ±``shift_ms``; with probabi
 (``beatdata.Beats.window``). Loss: mean figure NLL over the step's beats (``net.nll``), beats with
 a figure outside the vocabulary excluded.
 
+The next batch is drawn in a background thread while the current one trains.
+
 Every ``eval_every`` steps the run saves ``model.pt`` and ``model-<step>.pt`` and logs the NLL of
 fixed development windows, given and with the copy path off: an early sign, not the ablation
 (``ablate`` is). Kill rules: a nonfinite loss; ``max_minutes``; from the ``kill_after``-th
@@ -16,6 +18,7 @@ evaluation on, a development NLL not below the entropy of the development figure
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, fields
 import json
 import math
@@ -117,6 +120,18 @@ def fit(cfg: FitConfig):
     (out / 'config.json').write_text(json.dumps({k: v for k, v in record.items() if k != 'vocab'}, indent=1))
     log = open(out / 'train.jsonl', 'a')
     gen = torch.Generator(device=device).manual_seed(cfg.seed)
+
+    def draw():
+        windows = []
+        for _ in range(cfg.batch):
+            row = data.train[int(rng.integers(len(data.train)))]
+            start = int(rng.integers(0, max(row['nb'] - cfg.window, 0) + 1))
+            windows.append(data.window(row, start, cfg.window, rng, shift_ms=cfg.shift_ms,
+                                       section_rate=cfg.section_rate))
+        return collate(windows, 'cpu')
+
+    prefetch = ThreadPoolExecutor(1)        # the next batch is read while this one trains
+    pending = prefetch.submit(draw)
     t0 = time.time()
     killed = None
     acc = n_acc = data_s = 0.0
@@ -129,13 +144,8 @@ def fit(cfg: FitConfig):
         for g in opt.param_groups:
             g['lr'] = lr
         td = time.time()
-        windows = []
-        for _ in range(cfg.batch):
-            row = data.train[int(rng.integers(len(data.train)))]
-            start = int(rng.integers(0, max(row['nb'] - cfg.window, 0) + 1))
-            windows.append(data.window(row, start, cfg.window, rng, shift_ms=cfg.shift_ms,
-                                       section_rate=cfg.section_rate))
-        batch = collate(windows, device)
+        batch = {k: v.to(device) for k, v in pending.result().items()}
+        pending = prefetch.submit(draw)
         data_s += time.time() - td
         loss, m = nll(model, batch, drop=cfg.drop, rng=gen)
         total = loss.sum() / m.sum()
@@ -167,6 +177,7 @@ def fit(cfg: FitConfig):
         if (time.time() - t0) / 60 > cfg.max_minutes:
             killed = f'time budget of {cfg.max_minutes} minutes at step {step}'
             break
+    prefetch.shutdown(cancel_futures=True)
     summary = dict({k: v for k, v in record.items() if k != 'vocab'}, steps_done=step, killed=killed,
                    wall_seconds=time.time() - t0)
     (out / 'summary.json').write_text(json.dumps(summary, indent=1))

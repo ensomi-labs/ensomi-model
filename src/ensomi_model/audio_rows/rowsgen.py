@@ -8,8 +8,23 @@ least 2 ms after the last head), and samples a figure. The generator's logits ar
 Requests are log(W_H / s) (``beatdata``): ``request`` for the song, ``sections`` a list of
 (start_ms, end_ms, log W_H/s) applied to the beats starting in [start_ms, end_ms).
 ``star_request`` maps a star rating to a song request with the training record's map.
+
+``Rows`` is the interface the running system uses: audio file, request and seed to the Listener
+grid, the head times on its positions and K, in the form R2's sampler takes
+(``r2.sampling.continue_chart(r2, head_ms, song_ms, grid)``). The CLI writes one JSON per seed and,
+with ``--r2``, an ``.osu`` arranged by natural R2 for viewing::
+
+    python -m ensomi_model.audio_rows.rowsgen --audio <file> --model <run>/model.pt \
+        --beatthis <beat_this-final0.ckpt> --star 3.5 --seeds 0 1 --out <dir> [--r2 <ckpt>] \
+        [--sections '[{"start_ms": 30000, "end_ms": 60000, "star": 4.5}]']
 """
 from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+import shutil
+import time
 
 import numpy as np
 import torch
@@ -18,7 +33,7 @@ from ..r2.common import MIN_GAP_MS
 from .audio import HOP_MS, MEL_BINS
 from .figures import POSITIONS, head_times
 from .lattice import beat_range
-from .net import FigureNet
+from .net import FigureNet, load_net
 
 
 def star_request(record, star: float) -> float:
@@ -102,3 +117,88 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
     figures = np.asarray(record['vocab'], dtype=np.int64)[ids]
     heads = np.unique(head_times(grid, b0, figures))
     return heads, dict(b0=b0, nb=nb, ids=ids, figures=figures, edges=edges, gates=gates)
+
+
+def section_requests(record, sections) -> list:
+    """(start_ms, end_ms, log W_H/s) from dicts with start_ms, end_ms and star or request."""
+    return [(s['start_ms'], s['end_ms'], s['request'] if 'request' in s else star_request(record, s['star']))
+            for s in sections]
+
+
+class Rows:
+    """The rows model and the Listener held once; ``prepare`` per audio file, ``heads`` per request and seed."""
+
+    def __init__(self, model, record, listener):
+        self.model, self.record, self.listener = model, record, listener
+
+    @classmethod
+    def load(cls, checkpoint, beatthis_checkpoint):
+        from .audio import Listener
+        return cls(*load_net(checkpoint), Listener(beatthis_checkpoint))
+
+    def prepare(self, audio) -> dict:
+        from .grid import corrected_grid
+        song = self.listener.listen(audio)
+        grid, seg = corrected_grid(song.segments, song.song_ms)
+        return dict(audio=Path(audio), song=song, grid=grid, seg=seg, song_ms=song.song_ms)
+
+    def heads(self, prepared, *, star=None, request=None, sections=(), seed=0, temperature=1.0) -> dict:
+        """Head times on the Listener grid. ``star`` or ``request`` (log W_H/s) sets the song request;
+        ``sections`` are dicts with start_ms, end_ms and star or request."""
+        if request is None:
+            request = star_request(self.record, star)
+        t = time.perf_counter()
+        heads, beats = decode(self.model, self.record, prepared['song'].features, prepared['grid'], prepared['song_ms'],
+                              request, section_requests(self.record, sections), seed, temperature)
+        return dict(head_ms=heads, K=len(heads), grid=prepared['grid'], segments=prepared['seg'],
+                    song_ms=prepared['song_ms'], request=request, beats=beats, seconds=time.perf_counter() - t)
+
+
+def main(argv=None):
+    p = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+    p.add_argument('--audio', required=True)
+    p.add_argument('--model', required=True, help='figure generator checkpoint from audio_rows.fit')
+    p.add_argument('--beatthis', required=True, help='BeatThis final0 checkpoint')
+    p.add_argument('--out', required=True)
+    q = p.add_mutually_exclusive_group(required=True)
+    q.add_argument('--star', type=float)
+    q.add_argument('--request', type=float, help='song log(W_H / s)')
+    p.add_argument('--sections', default='[]', help='JSON list of {start_ms, end_ms, star or request}')
+    p.add_argument('--seeds', type=int, nargs='+', default=(0,))
+    p.add_argument('--r2', help='R2 checkpoint: also write an .osu arranged by natural R2')
+    p.add_argument('--threads', type=int, default=3)
+    a = p.parse_args(argv)
+    torch.set_num_threads(a.threads)
+    rows = Rows.load(a.model, a.beatthis)
+    prepared = rows.prepare(a.audio)
+    out = Path(a.out)
+    out.mkdir(parents=True, exist_ok=True)
+    r2 = None
+    if a.r2:
+        from .generate import load_r2
+        r2 = load_r2(a.r2)
+    for seed in a.seeds:
+        r = rows.heads(prepared, star=a.star, request=a.request, sections=json.loads(a.sections), seed=seed)
+        name = f'rows-seed-{seed}'
+        rec = dict(audio=str(a.audio), star=a.star, request=r['request'], sections=json.loads(a.sections), seed=seed,
+                   K=r['K'], song_ms=r['song_ms'], segments=r['segments'].tolist(), head_ms=r['head_ms'].tolist(),
+                   seconds=dict(prepared['song'].seconds, heads=r['seconds']))
+        if r2 is not None:
+            from ..r2.export import export_chart, minimal_header
+            from ..r2.sampling import continue_chart
+            t = time.perf_counter()
+            actions, gap = continue_chart(r2, r['head_ms'], r['song_ms'], r['grid'], seed=954 + seed, track=(),
+                                          ln_level='unknown')
+            rec['seconds']['r2'] = time.perf_counter() - t
+            audio_name = 'audio' + prepared['audio'].suffix.lower()
+            header = minimal_header(r['segments'], f'Rows seed {seed}').replace(
+                '[General]\n', f'[General]\nAudioFilename:{audio_name}\n')
+            export_chart(r['head_ms'], r['song_ms'], actions, gap, out / f'{name}.osu', header)
+            if not (out / audio_name).exists():
+                shutil.copy2(prepared['audio'], out / audio_name)
+        (out / f'{name}.json').write_text(json.dumps(rec))
+        print(json.dumps(dict(seed=seed, K=r['K'], seconds=rec['seconds'])), flush=True)
+
+
+if __name__ == '__main__':
+    main()
