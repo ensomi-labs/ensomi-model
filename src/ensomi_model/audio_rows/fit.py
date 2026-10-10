@@ -5,8 +5,7 @@ each (start uniform). The audio is shifted by up to ±``shift_ms``; with probabi
 ``section_rate`` a window carries true section requests on a share ``section_prob`` of its
 sections (``beatdata.Beats.window``). The pilot ran section_rate .5, section_prob .3 and
 copy_rests on; the defaults are the full-training recipe. Loss: mean figure NLL over the step's
-beats (``net.nll``), beats with
-a figure outside the vocabulary excluded.
+beats (``net.nll``), beats with a figure outside the vocabulary excluded.
 
 The next batch is drawn in a background thread while the current one trains.
 
