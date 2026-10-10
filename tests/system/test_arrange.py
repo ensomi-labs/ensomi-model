@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 from ensomi_model.r2.sampling import continue_chart
 from ensomi_model.r2.state import action_support_mask
@@ -68,3 +69,22 @@ def test_controls_run_on_rows_with_masks_force_and_a_scope():
     assert len(tr['requests']) == 1 and tr['requests'][0]['band_status'] == 'in band'
     assert tr['requests'][0]['transitions'] > 0
     assert heads.any(1).all()
+
+
+def test_copy_bias_through_r2s_own_hook_matches_arrange():
+    from ensomi_model.system.copy import CopyBias, CopyConfig, CopyPath
+    rng = np.random.default_rng(8)
+    head, song = skeleton(rng, 60)
+    g = grid()
+    model = tiny_r2()
+    torch.manual_seed(1)
+    path = CopyPath(CopyConfig())
+    with torch.no_grad():
+        for p in path.parameters():
+            p.normal_(0, 0.3)
+    mel = rng.normal(size=(int(song / 10) + 10, 130)).astype(np.float16)
+    a, _, _ = arrange(model, head, song, g, seed=954, target=[0, 1, 0], kappa=0,
+                      copy=CopyBias(path.eval(), head, g, mel, strength=0.5))
+    b, _ = continue_chart(model, head, song, g, seed=954, head_mask_bias=CopyBias(path, head, g, mel, strength=0.5).hook)
+    plain, _ = continue_chart(model, head, song, g, seed=954)
+    assert a.tobytes() == b.tobytes() and a.tobytes() != plain.tobytes()

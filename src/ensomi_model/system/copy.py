@@ -280,12 +280,22 @@ class CopyBias:
     def __call__(self, k, hist, lp15):
         lp = torch.as_tensor(np.asarray(lp15), dtype=torch.float32)
         trace = {} if self.record else None
-        b15 = self.model.chart_bias(torch.tensor([k]), torch.as_tensor(np.asarray(hist[:max(k, 1)])), self.b,
-                                    self.keys, self.aud, lp[None], trace=trace)[0].double().numpy()
+        h = np.asarray(hist[:k], dtype=np.int64) if k else np.zeros(1, np.int64)     # row 0 attends to nothing
+        b15 = self.model.chart_bias(torch.tensor([k]), torch.as_tensor(h), self.b, self.keys, self.aud, lp[None],
+                                    trace=trace)[0].double().numpy()
         b15 = np.where(np.isfinite(np.asarray(lp15)), b15, 0.0)
         if self.record and k:
             self.rows.append({name: float(v[0]) for name, v in attention_stats(trace).items()})
         return jack_dial(lp15, b15, int(hist[k - 1]) if k else 0, self.strength)
+
+    def hook(self, k, chart, held, logp):
+        """The ``head_mask_bias(k, chart, held, logp)`` form of ``r2.sampling.continue_chart`` (zero at EOS)."""
+        from ..r2.strain import head_mask_log_probs
+        if k >= chart.K:
+            return np.zeros(15)
+        hist = chart.derived().attack[:k].astype(np.int64) @ (1 << np.arange(4))
+        lp15 = head_mask_log_probs(logp.detach().cpu().to(torch.float64), held).numpy()
+        return self(k, hist, lp15)
 
 
 def attention_stats(trace) -> dict:
