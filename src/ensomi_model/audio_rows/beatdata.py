@@ -212,18 +212,21 @@ class Beats:
                     edges=self.edges[e:e + n + 1])
 
     def window(self, row, start: int, length: int, rng, *, shift_ms=0.0, section_rate=0.0, request=None,
-               sections=None) -> dict:
+               sections=None, roll=0.0) -> dict:
         """Teacher-forcing arrays of beats [start, start + length) of one chart.
 
         The audio is shifted by a draw uniform in ±``shift_ms``. With probability ``section_rate``
         the window is cut into sections of 8/16/32 beats and each carries its own true log(W_H / s)
         with probability 0.3. ``request`` replaces the chart's song request; ``sections`` (a list of
-        (a, b, log W_H/s) in window beats) replaces the drawn sections."""
+        (a, b, log W_H/s) in window beats) replaces the drawn sections. ``roll`` rotates the song's
+        Mel by that fraction of its length (an ablation)."""
         c = self.chart(row)
         n = min(length, row['nb'] - start)
         edges = c['edges'][start:start + n + 1]
         shift = float(rng.uniform(-shift_ms, shift_ms))
         mel = self.mel(row['key'])
+        if roll:
+            mel = np.roll(mel[:, :MEL_BINS], int(roll * len(mel)), 0)
         pos_ms = edges[:-1, None] + np.diff(edges)[:, None] * POSITIONS[None] / 48.0 + shift
         f0 = min(max(int(edges[0] / HOP_MS) - 64, 0), len(mel) - 1)
         f1 = min(max(int(edges[-1] / HOP_MS) + 64, f0 + 1), len(mel))
