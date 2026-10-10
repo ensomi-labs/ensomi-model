@@ -78,11 +78,13 @@ def ablate(model, data: Beats, max_beats=1024, batch=8, device='cpu', seed=973, 
         todo = [r for r in rows if cond != 'request_same_audio' or r['sha'] in same]
         for i in range(0, len(todo), batch):
             chunk = todo[i:i + batch]
-            b = collate(windows(cond, chunk), device)
+            b = collate(windows(cond, chunk), device, max_beats, 4096)
             loss, m = nll(model, b, drop=0.0, off=off.get(cond, ()))
             for r, l, mm in zip(chunk, loss.sum(1).tolist(), m.sum(1).tolist()):
                 records[r['sha']][cond] = l
                 records[r['sha']]['beats'] = mm
+            if torch.device(device).type == 'mps' and i % (25 * batch) == 0:
+                torch.mps.empty_cache()
     recs = list(records.values())
     for r in recs:
         for cond in CONDITIONS[1:]:
