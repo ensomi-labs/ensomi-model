@@ -12,8 +12,8 @@ the rows were generated on) and the song's standardised log-Mel:
   each bin centred on the song) and the equality of the two blocks' figures (pairs where both
   blocks are empty excluded); ``recurrence_excess`` is its mean over lags minus the same with the
   audio similarity taken half the song away (shifted-audio null).
-- Locked stretches: runs of beats whose figure equals the figure 4 beats earlier, not all empty,
-  of 32 beats or more; ``locked_share`` the share of beats in them, ``locked_changing_share`` of
+- Locked stretches: runs of 32 beats or more whose figure equals the figure 4 beats earlier,
+  with at least one head; ``locked_share`` the share of beats in them, ``locked_changing_share`` of
   those runs whose mean lag-4 audio similarity is below the song's median.
 - Drift: realised log(W_H / s) per 64-beat block minus ``request``; least-squares slope against
   the song position (0-1), and the mean of the last third minus that of the first third.
@@ -101,7 +101,7 @@ def recurrence(figures, desc) -> dict:
 def locked(figures, desc, min_run: int = 32) -> dict:
     nb = len(figures)
     rep = np.zeros(nb, dtype=bool)
-    rep[4:] = (figures[4:] == figures[:-4]) & ((figures[4:] != 0) | (figures[:-4] != 0))
+    rep[4:] = figures[4:] == figures[:-4]
     sim = block_similarity(desc, 4)
     median = np.nanmedian(sim) if np.isfinite(sim).any() else np.nan
     in_run = changing = 0
@@ -113,7 +113,7 @@ def locked(figures, desc, min_run: int = 32) -> dict:
         e = b
         while e < nb and rep[e]:
             e += 1
-        if e - b >= min_run:
+        if e - b >= min_run and (figures[b:e] != 0).any():
             in_run += e - b
             s = sim[b:e][np.isfinite(sim[b:e])]
             if len(s) and s.mean() < median:
