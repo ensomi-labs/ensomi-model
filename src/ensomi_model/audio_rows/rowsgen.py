@@ -100,7 +100,7 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
             bj = np.where(jj - d >= 0, ids[np.maximum(jj - d, 0)], -1)
             eq.append((ok & (bj == before) & (before >= 0)).astype(np.float32))
         scores = model.copy_scores(q[b:b + 1], k[torch.from_numpy(jj)][None], torch.from_numpy(np.stack(eq, -1))[None])
-        att_ok = ok & (np.where(ok, ids[jj], -1) != 0) if 'copy_empty' in off else ok
+        att_ok = ok & (np.where(ok, ids[jj], -1) != 0) if 'copy_empty' in off or not cfg.copy_rests else ok
         g, logp, att = model.mixture(hb, logits, scores, torch.from_numpy(att_ok)[None])
         p_gen = logp[0].exp()
         if 'copy' in off:

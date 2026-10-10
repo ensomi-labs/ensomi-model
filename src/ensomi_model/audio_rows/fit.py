@@ -2,8 +2,10 @@
 
 Each step draws ``batch`` fit_train charts uniformly and a window of up to ``window`` beats from
 each (start uniform). The audio is shifted by up to ±``shift_ms``; with probability
-``section_rate`` a window carries true section requests on some of its sections
-(``beatdata.Beats.window``). Loss: mean figure NLL over the step's beats (``net.nll``), beats with
+``section_rate`` a window carries true section requests on a share ``section_prob`` of its
+sections (``beatdata.Beats.window``). The pilot ran section_rate .5, section_prob .3 and
+copy_rests on; the defaults are the full-training recipe. Loss: mean figure NLL over the step's
+beats (``net.nll``), beats with
 a figure outside the vocabulary excluded.
 
 The next batch is drawn in a background thread while the current one trains.
@@ -48,7 +50,9 @@ class FitConfig:
     eval_every: int = 250
     eval_windows: int = 64
     shift_ms: float = 10.0
-    section_rate: float = 0.5
+    section_rate: float = 0.75
+    section_prob: float = 0.5
+    copy_rests: bool = False
     drop: float = 0.1
     kill_after: int = 2
     log_every: int = 25
@@ -106,7 +110,7 @@ def fit(cfg: FitConfig):
     out = Path(cfg.out)
     out.mkdir(parents=True, exist_ok=True)
     data = Beats(cfg.data)
-    net_cfg = NetConfig(vocab=len(data.vocab))
+    net_cfg = NetConfig(vocab=len(data.vocab), copy_rests=cfg.copy_rests)
     model = to_device(FigureNet(net_cfg, data.vocab.members), device)
     opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr, betas=(0.9, 0.95), weight_decay=0.01)
     dev_rng = np.random.default_rng(1000)
@@ -131,7 +135,7 @@ def fit(cfg: FitConfig):
             row = data.train[int(rng.integers(len(data.train)))]
             start = int(rng.integers(0, max(row['nb'] - cfg.window, 0) + 1))
             windows.append(data.window(row, start, cfg.window, rng, shift_ms=cfg.shift_ms,
-                                       section_rate=cfg.section_rate))
+                                       section_rate=cfg.section_rate, section_prob=cfg.section_prob))
         return collate(windows, 'cpu', cfg.window, 4096)
 
     prefetch = ThreadPoolExecutor(1)        # the next batch is read while this one trains
@@ -194,8 +198,8 @@ def fit(cfg: FitConfig):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     for f in fields(FitConfig):
-        p.add_argument('--' + f.name.replace('_', '-'), type=type(f.default), default=f.default,
-                       required=f.name in ('data', 'out'))
+        kind = (lambda v: v.lower() in ('1', 'true', 'yes')) if isinstance(f.default, bool) else type(f.default)
+        p.add_argument('--' + f.name.replace('_', '-'), type=kind, default=f.default, required=f.name in ('data', 'out'))
     torch.set_num_interop_threads(1)
     fit(FitConfig(**vars(p.parse_args(argv))))
 

@@ -14,7 +14,8 @@
   audio context, a learned bias per lag, and whether the figures 1 and 2 beats before b and before
   the attended beat are equal), each with a null slot that falls back to the generator. Each head
   points at the attended beat's figure; the gate g from the decoder state mixes the generator and
-  the heads.
+  the heads. With ``copy_rests`` off the heads never attend to empty beats, so rests come from the
+  generator and the audio: copied rests made emptiness self-reinforcing in free-running songs.
 
 Teacher forcing scores only the target figure (``nll``); ``Decoder`` runs it one beat at a time.
 """
@@ -46,6 +47,7 @@ class NetConfig:
     heads: int = 4
     lags: int = 64
     key: int = 16
+    copy_rests: bool = True         # False: the copy heads never attend to empty beats
 
     @classmethod
     def from_dict(cls, d):
@@ -226,6 +228,8 @@ def nll(model: FigureNet, batch, *, drop=0.1, rng=None, off=()):
     kb = _back(k, cfg.lags, 0.0).reshape(n, cfg.lags, cfg.heads, cfg.key)
     back_ids = _back(ids, cfg.lags, -1).reshape(n, cfg.lags)
     back_ok = _back(valid, cfg.lags, False).reshape(n, cfg.lags) & (back_ids >= 0)
+    if not cfg.copy_rests:
+        back_ok &= back_ids != 0
     scores = model.copy_scores(q.reshape(n, cfg.heads, cfg.key), kb, eq_features(ids, cfg.lags).reshape(n, cfg.lags, 2))
     g, logp, att = model.mixture(hf, logits, scores, back_ok)
     target = ids.clamp_min(0).reshape(n)
