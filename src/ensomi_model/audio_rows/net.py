@@ -207,7 +207,9 @@ def nll(model: FigureNet, batch, *, drop=0.1, rng=None, off=()):
     prev = torch.where(prev < 0, V, prev)
     if drop:
         prev = torch.where(torch.rand(prev.shape, generator=rng, device=prev.device) < drop, V, prev)
-    h, _ = model.gru(torch.cat((A, model.input_table()[prev], batch['extra']), -1))
+    x = torch.cat((A, model.input_table()[prev], batch['extra']), -1)
+    h, _ = model.gru(x.to(model.gru.weight_ih_l0.device))     # the GRU may sit on the CPU (``to_device``)
+    h = h.to(x.device)
     B, L = ids.shape
     if 'copy_audio' in off:
         g = torch.Generator().manual_seed(5)
@@ -234,6 +236,15 @@ def nll(model: FigureNet, batch, *, drop=0.1, rng=None, off=()):
     out = torch.zeros(B, L, device=ids.device)
     out[m] = -torch.log(p.clamp_min(1e-30))
     return out, m
+
+
+def to_device(model: FigureNet, device):
+    """Move the model to ``device``, keeping the GRU on the CPU under MPS, where its step-by-step
+    kernels make it the slowest part of a training step."""
+    model.to(device)
+    if torch.device(device).type == 'mps':
+        model.gru.to('cpu')
+    return model
 
 
 def load_net(path, map_location='cpu'):

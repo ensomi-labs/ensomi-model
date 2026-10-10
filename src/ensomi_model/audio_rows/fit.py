@@ -26,7 +26,7 @@ import numpy as np
 import torch
 
 from .beatdata import Beats
-from .net import FigureNet, NetConfig, nll
+from .net import FigureNet, NetConfig, nll, to_device
 
 
 @dataclass
@@ -101,7 +101,7 @@ def fit(cfg: FitConfig):
     out.mkdir(parents=True, exist_ok=True)
     data = Beats(cfg.data)
     net_cfg = NetConfig(vocab=len(data.vocab))
-    model = FigureNet(net_cfg, data.vocab.members).to(device)
+    model = to_device(FigureNet(net_cfg, data.vocab.members), device)
     opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr, betas=(0.9, 0.95), weight_decay=0.01)
     dev_rng = np.random.default_rng(1000)
     dev_windows = []
