@@ -61,7 +61,8 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
            temperature: float = 1.0, off=()):
     """(head times [K] ms, per-beat record) for a whole song; ``mel`` [F, >=128] standardised log-Mel.
 
-    ``off``: 'copy' forces the gate to the generator (an ablation)."""
+    ``off``: 'copy' forces the gate to the generator; 'copy_empty' keeps the copy heads from
+    attending to empty beats (diagnostics)."""
     cfg = model.cfg
     b0, edges, pos_ms, extra = song_inputs(grid, song_ms, record, request, sections)
     nb = len(extra)
@@ -99,13 +100,14 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
             bj = np.where(jj - d >= 0, ids[np.maximum(jj - d, 0)], -1)
             eq.append((ok & (bj == before) & (before >= 0)).astype(np.float32))
         scores = model.copy_scores(q[b:b + 1], k[torch.from_numpy(jj)][None], torch.from_numpy(np.stack(eq, -1))[None])
-        g, logp, att = model.mixture(hb, logits, scores, torch.from_numpy(ok)[None])
+        att_ok = ok & (np.where(ok, ids[jj], -1) != 0) if 'copy_empty' in off else ok
+        g, logp, att = model.mixture(hb, logits, scores, torch.from_numpy(att_ok)[None])
         p_gen = logp[0].exp()
         if 'copy' in off:
             p = p_gen
         else:
             p = g[0, 0] * p_gen
-            okt = torch.from_numpy(ok)
+            okt = torch.from_numpy(att_ok)
             for hd in range(cfg.heads):
                 p_h = (att[0, hd, -1] * p_gen).index_add(0, back_ids[okt], att[0, hd, :-1][okt])
                 p = p + g[0, 1 + hd] * p_h
