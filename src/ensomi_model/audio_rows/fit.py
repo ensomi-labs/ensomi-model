@@ -139,7 +139,7 @@ def fit(cfg: FitConfig):
         total = loss.sum() / m.sum()
         opt.zero_grad()
         total.backward()
-        if not math.isfinite(float(total)):
+        if not math.isfinite(total.item()):
             killed = f'nonfinite loss at step {step}'
             break
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)

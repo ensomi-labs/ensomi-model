@@ -85,7 +85,8 @@ class LocalAttention(nn.Module):
         near = lag.abs() <= self.window
         s = q @ k.transpose(-1, -2) / (d // self.heads) ** 0.5
         s = s + self.bias[:, lag.clamp(-self.window, self.window) + self.window]
-        s = s.masked_fill(~(near[None, None] & valid[:, None, None, :]), -torch.inf)
+        self_ = torch.eye(L, dtype=torch.bool, device=x.device)      # keeps padded queries finite
+        s = s.masked_fill(~((near[None, None] & valid[:, None, None, :]) | self_), -torch.inf)
         a = torch.softmax(s, -1)
         x = x + self.out((a @ v).transpose(1, 2).reshape(B, L, d))
         return x + self.ff(self.norm2(x))
