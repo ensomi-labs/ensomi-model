@@ -232,7 +232,7 @@ class Beats:
         f1 = min(max(int(edges[-1] / HOP_MS) + 64, f0 + 1), len(mel))
         pos_frames = np.clip((pos_ms / HOP_MS).astype(np.int64) - f0, 0, f1 - f0 - 1)
         beat_frames = np.clip(((edges + shift) / HOP_MS).astype(np.int64) - f0, 0, f1 - f0)
-        beat_frames = np.stack((beat_frames[:-1], np.maximum(beat_frames[1:], beat_frames[:-1] + 1)), 1)
+        beat_frames = np.stack((beat_frames[:-1], np.maximum(beat_frames[1:], beat_frames[:-1] + 1)), 1).clip(0, f1 - f0)
         song = self.standardise(row['label'] if request is None else request)
         sec = np.zeros((n, 2), dtype=np.float32)
         if sections is None and section_rate and rng.random() < section_rate:

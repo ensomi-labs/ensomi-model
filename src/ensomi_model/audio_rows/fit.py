@@ -119,7 +119,7 @@ def fit(cfg: FitConfig):
     gen = torch.Generator(device=device).manual_seed(cfg.seed)
     t0 = time.time()
     killed = None
-    acc = n_acc = 0.0
+    acc = n_acc = data_s = 0.0
     n_eval = step = 0
     for step in range(1, cfg.steps + 1):
         lr = cfg.lr * min(1.0, step / cfg.warmup)
@@ -128,6 +128,7 @@ def fit(cfg: FitConfig):
                                                                           / (cfg.steps - cfg.warmup)))
         for g in opt.param_groups:
             g['lr'] = lr
+        td = time.time()
         windows = []
         for _ in range(cfg.batch):
             row = data.train[int(rng.integers(len(data.train)))]
@@ -135,6 +136,7 @@ def fit(cfg: FitConfig):
             windows.append(data.window(row, start, cfg.window, rng, shift_ms=cfg.shift_ms,
                                        section_rate=cfg.section_rate))
         batch = collate(windows, device)
+        data_s += time.time() - td
         loss, m = nll(model, batch, drop=cfg.drop, rng=gen)
         total = loss.sum() / m.sum()
         opt.zero_grad()
@@ -147,7 +149,8 @@ def fit(cfg: FitConfig):
         acc += float(loss.sum())
         n_acc += float(m.sum())
         if step % cfg.log_every == 0:
-            log.write(json.dumps(dict(step=step, lr=lr, nll=acc / n_acc, seconds=time.time() - t0)) + '\n')
+            log.write(json.dumps(dict(step=step, lr=lr, nll=acc / n_acc, seconds=time.time() - t0,
+                                      data_seconds=data_s)) + '\n')
             log.flush()
             acc = n_acc = 0.0
         if step % cfg.eval_every == 0 or step == cfg.steps:
