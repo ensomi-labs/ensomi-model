@@ -17,6 +17,7 @@ the rows were generated on) and the song's standardised log-Mel:
   those runs whose mean lag-4 audio similarity is below the song's median.
 - Drift: realised log(W_H / s) per 64-beat block minus ``request``; least-squares slope against
   the song position (0-1), and the mean of the last third minus that of the first third.
+- Long rests: share of the middle 80 % of beats in runs of 16 or more empty beats.
 - Copy readiness: share of heads whose 9-entry rhythm key (8 inter-onset intervals in 1/48 beat
   and the beat phase, as in the R2 copy path) equals that of a head 4-32 beats earlier.
 
@@ -181,7 +182,18 @@ def song_measures(head_ms, grid, song_ms: float, mel, request: float | None = No
     out.update(drift(head_ms, song_ms, edges, out['log_wh_s'] if request is None else request))
     out['copy_readiness'] = copy_readiness(grid.beat(head_ms))
     out['empty_beats'] = float((figures == 0).mean())
+    out['long_rest_share'] = long_rests(figures)
     return out
+
+
+def long_rests(figures, min_run: int = 16) -> float:
+    """Share of the middle 80 % of beats that sit in runs of ``min_run`` or more empty beats."""
+    nb = len(figures)
+    a, b = int(0.1 * nb), int(0.9 * nb)
+    empty = np.r_[False, figures[a:b] == 0, False].astype(int)
+    edges = np.flatnonzero(np.diff(empty))
+    runs = edges[1::2] - edges[::2]
+    return float(runs[runs >= min_run].sum() / max(b - a, 1))
 
 
 def pair_measures(gen_ms, ref_ms, grid, song_ms: float) -> dict:
