@@ -218,24 +218,25 @@ def nll(model: FigureNet, batch, *, drop=0.1, rng=None, off=()):
             idx[i, :n] = torch.randperm(n, generator=g)
         k = k[torch.arange(B)[:, None], idx.to(k.device)]
     m = valid & (ids >= 0)
-    hm, posm = h[m], pos[m]
-    logits = model.generator_logits(hm, posm, 0.0 if 'unary' in off else 1.0)
-    kb = _back(k, cfg.lags, 0.0)[m]
-    back_ids = _back(ids, cfg.lags, -1)[m]                                   # [N, lags]
-    back_ok = _back(valid, cfg.lags, False)[m] & (back_ids >= 0)
-    scores = model.copy_scores(q[m], kb, eq_features(ids, cfg.lags)[m])
-    g, logp, att = model.mixture(hm, logits, scores, back_ok)
-    target = ids[m]
+    # Every beat is scored, padded ones too, and masked afterwards: shapes stay fixed, so MPS does
+    # not compile and cache a new graph for each count of valid beats.
+    n = B * L
+    hf = h.reshape(n, -1)
+    logits = model.generator_logits(hf, pos.reshape(n, NPOS, -1), 0.0 if 'unary' in off else 1.0)
+    kb = _back(k, cfg.lags, 0.0).reshape(n, cfg.lags, cfg.heads, cfg.key)
+    back_ids = _back(ids, cfg.lags, -1).reshape(n, cfg.lags)
+    back_ok = _back(valid, cfg.lags, False).reshape(n, cfg.lags) & (back_ids >= 0)
+    scores = model.copy_scores(q.reshape(n, cfg.heads, cfg.key), kb, eq_features(ids, cfg.lags).reshape(n, cfg.lags, 2))
+    g, logp, att = model.mixture(hf, logits, scores, back_ok)
+    target = ids.clamp_min(0).reshape(n)
     lp_gen = logp.gather(1, target[:, None])[:, 0]
-    hit = (back_ids == target[:, None]).float()                              # [N, lags]
-    p_copy = (att[..., :-1] * hit[:, None]).sum(-1) + att[..., -1] * lp_gen.exp()[:, None]   # [N, heads]
+    hit = (back_ids == target[:, None]).float()                              # [n, lags]
+    p_copy = (att[..., :-1] * hit[:, None]).sum(-1) + att[..., -1] * lp_gen.exp()[:, None]   # [n, heads]
     if 'copy' in off:
         p = lp_gen.exp()
     else:
         p = g[:, 0] * lp_gen.exp() + (g[:, 1:] * p_copy).sum(-1)
-    out = torch.zeros(B, L, device=ids.device)
-    out[m] = -torch.log(p.clamp_min(1e-30))
-    return out, m
+    return -torch.log(p.clamp_min(1e-30)).reshape(B, L) * m, m
 
 
 def to_device(model: FigureNet, device):
