@@ -55,11 +55,14 @@ class FitConfig:
     max_minutes: float = 60.0
 
 
-def collate(windows, device) -> dict:
-    """Pad windows to one batch: frames with zeros, beats with ids -1 and valid False."""
+def collate(windows, device, beats=None, frame_multiple=1) -> dict:
+    """Pad windows to one batch: frames with zeros, beats with ids -1 and valid False.
+
+    ``beats`` and ``frame_multiple`` fix the padded shapes, so that the MPS allocator reuses its
+    blocks instead of caching one per shape."""
     B = len(windows)
-    L = max(len(w['ids']) for w in windows)
-    Fm = max(len(w['mel']) for w in windows)
+    L = beats or max(len(w['ids']) for w in windows)
+    Fm = -(-max(len(w['mel']) for w in windows) // frame_multiple) * frame_multiple
     out = dict(mel=torch.zeros(B, Fm, windows[0]['mel'].shape[1]), pos_frames=torch.zeros(B, L, 24, dtype=torch.long),
                beat_frames=torch.zeros(B, L, 2, dtype=torch.long), extra=torch.zeros(B, L, windows[0]['extra'].shape[1]),
                ids=torch.full((B, L), -1, dtype=torch.long), valid=torch.zeros(B, L, dtype=torch.bool))
@@ -112,7 +115,8 @@ def fit(cfg: FitConfig):
         row = data.dev[int(dev_rng.integers(len(data.dev)))]
         start = int(dev_rng.integers(0, max(row['nb'] - cfg.window, 0) + 1))
         dev_windows.append(data.window(row, start, cfg.window, dev_rng))
-    dev_batches = [collate(dev_windows[i:i + cfg.batch], device) for i in range(0, len(dev_windows), cfg.batch)]
+    dev_batches = [collate(dev_windows[i:i + cfg.batch], device, cfg.window, 4096)
+                   for i in range(0, len(dev_windows), cfg.batch)]
     baseline = figure_entropy(np.concatenate([w['ids'].numpy() for w in dev_windows]), len(data.vocab))
     record = dict(config=asdict(cfg), net=asdict(net_cfg), parameters=sum(p.numel() for p in model.parameters()),
                   train_charts=len(data.train), dev_charts=len(data.dev), figure_entropy_dev=baseline,
@@ -128,7 +132,7 @@ def fit(cfg: FitConfig):
             start = int(rng.integers(0, max(row['nb'] - cfg.window, 0) + 1))
             windows.append(data.window(row, start, cfg.window, rng, shift_ms=cfg.shift_ms,
                                        section_rate=cfg.section_rate))
-        return collate(windows, 'cpu')
+        return collate(windows, 'cpu', cfg.window, 4096)
 
     prefetch = ThreadPoolExecutor(1)        # the next batch is read while this one trains
     pending = prefetch.submit(draw)
@@ -158,6 +162,8 @@ def fit(cfg: FitConfig):
         opt.step()
         acc += float(loss.sum())
         n_acc += float(m.sum())
+        if device.type == 'mps' and step % 25 == 0:
+            torch.mps.empty_cache()
         if step % cfg.log_every == 0:
             log.write(json.dumps(dict(step=step, lr=lr, nll=acc / n_acc, seconds=time.time() - t0,
                                       data_seconds=data_s)) + '\n')
