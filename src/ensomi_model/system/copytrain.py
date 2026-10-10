@@ -10,7 +10,10 @@ Subcommands::
 
     prepare --tf T --panels P --rows-data D --out O       per-row audio -> O/audio/<sha16>.npy (float16)
     train NAME --tf T --panels P --out O [--key-tol 1 --audio 1 --exclude-rows 2 --exclude-beats 2] [--steps 1500]
-    eval NAME[,NAME...] --tf T --panels P --out O         teacher-forced NLL with ablations -> O/copyeval*.csv
+    eval NAME=CKPT[,NAME=CKPT...] --tf T --panels P --out O   teacher-forced NLL with ablations
+
+``--out`` holds the large files (audio, checkpoints); logs, tables and summaries go to ``--report`` (default
+``--out``).
 
 Training (unchanged from the study): 8 charts x 64 query rows per step against every earlier row of the chart,
 AdamW lr 3e-3, 200 warm-up steps, cosine to 10 %, gradient clip 1. Validation on V every 500 steps. Kill rules
@@ -52,7 +55,7 @@ def load(sha, tf_dir, audio_dir):
     return d
 
 
-def prepare(tf_dir: Path, panels: Path, rows_data: Path, cache: Path, out: Path):
+def prepare(tf_dir: Path, panels: Path, rows_data: Path, cache: Path, out: Path, report: Path):
     """Per-row audio of every panel chart whose audio is in the rows build."""
     import pyarrow.parquet as pq
     from ..r2.cache import load_chart
@@ -85,7 +88,7 @@ def prepare(tf_dir: Path, panels: Path, rows_data: Path, cache: Path, out: Path)
             done += 1
     summary = dict(written=done, missing={k: len(v) for k, v in missing.items()}, missing_shas=missing,
                    charts={k: len(v) for k, v in pn.items()}, seconds=round(time.time() - t0, 1))
-    (out / 'audio-summary.json').write_text(json.dumps(summary, indent=1))
+    (report / 'audio-summary.json').write_text(json.dumps(summary, indent=1))
     print(json.dumps({k: v for k, v in summary.items() if k != 'missing_shas'}), flush=True)
 
 
@@ -166,17 +169,18 @@ def train(a):
     model = CopyPath(cfg).to(DEV)
     models = Path(a.out) / 'models'
     models.mkdir(parents=True, exist_ok=True)
-    log = open(Path(a.out) / f'train-{a.name}.jsonl', 'w')
+    log = open(Path(a.report) / f'train-{a.name}.jsonl', 'w')
 
     def emit(**rec):
         rec.update(name=a.name, seconds=round(time.monotonic() - start, 1))
-        line = json.dumps(rec)
+        line = json.dumps(rec, default=str)
         print(line, flush=True)
         log.write(line + '\n')
         log.flush()
 
     def save(path, step):
-        torch.save(dict(state=model.state_dict(), config=config_dict(cfg), args=vars(a), step=step), path)
+        args = {k: str(v) if isinstance(v, Path) else v for k, v in vars(a).items()}
+        torch.save(dict(state=model.state_dict(), config=config_dict(cfg), args=args, step=step), path)
 
     emit(event='start', params=sum(p.numel() for p in model.parameters()), train_charts=len(train_data),
          val_charts=len(val), rows=int(sum(len(d['h']) for d in train_data)), device=DEV, config=config_dict(cfg),
@@ -283,7 +287,7 @@ def evaluate(names, paths, a):
                                  lanes=base[:, 1].mean(), total=base[:, 2].mean()))
         print(name, 'scored', flush=True)
     df = pd.DataFrame(rows)
-    out = Path(a.out)
+    out = Path(a.report)
     df.to_csv(out / f'copyeval-per-chart-{a.tag}.csv', index=False)
     pd.DataFrame(att).to_csv(out / f'copy-attention-P-{a.tag}.csv', index=False)
     summary = []
@@ -316,6 +320,7 @@ def main(argv=None):
     p.add_argument('--rows-data', type=Path)
     p.add_argument('--cache', type=Path, default=Path('artifacts/r2-cache/v1'))
     p.add_argument('--out', type=Path, required=True)
+    p.add_argument('--report', type=Path, help='logs and tables (default: --out)')
     p.add_argument('--tag', default='p2')
     p.add_argument('--seed', type=int, default=0)
     p.add_argument('--steps', type=int, default=1500)
@@ -333,8 +338,10 @@ def main(argv=None):
     p.add_argument('--exclude-beats', type=float, default=2.0)
     p.add_argument('--limit', type=int, default=0, help='use only this many training charts (smoke tests)')
     a = p.parse_args(argv)
+    a.report = a.report or a.out
+    a.report.mkdir(parents=True, exist_ok=True)
     if a.cmd == 'prepare':
-        prepare(a.tf, a.panels, a.rows_data, a.cache, a.out)
+        prepare(a.tf, a.panels, a.rows_data, a.cache, a.out, a.report)
     elif a.cmd == 'train':
         train(a)
     else:
