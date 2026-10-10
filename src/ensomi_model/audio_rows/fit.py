@@ -12,7 +12,8 @@ The next batch is drawn in a background thread while the current one trains.
 Every ``eval_every`` steps the run saves ``model.pt`` and ``model-<step>.pt`` and logs the NLL of
 fixed development windows, given and with the copy path off: an early sign, not the ablation
 (``ablate`` is). Kill rules: a nonfinite loss; ``max_minutes``; from the ``kill_after``-th
-evaluation on, a development NLL not below the entropy of the development figure marginal::
+evaluation on, a development NLL not below the entropy of the development figure marginal; and,
+with ``warn_step``, a development NLL above ``warn_nll`` at that step::
 
     python -m ensomi_model.audio_rows.fit --data <build> --out <run> --seed 1
 """
@@ -54,6 +55,8 @@ class FitConfig:
     copy_rests: bool = False
     drop: float = 0.1
     kill_after: int = 2
+    warn_step: int = 0              # early warning: stop when the dev NLL at this step exceeds warn_nll
+    warn_nll: float = 0.0
     log_every: int = 25
     max_minutes: float = 60.0
 
@@ -180,6 +183,9 @@ def fit(cfg: FitConfig):
             torch.save(checkpoint, out / 'model.pt')
             torch.save(checkpoint, out / f'model-{step}.pt')
             print(json.dumps(ev), flush=True)
+            if cfg.warn_step and step == cfg.warn_step and ev['given'] > cfg.warn_nll:
+                killed = f'early warning: dev NLL {ev["given"]:.3f} above {cfg.warn_nll:.3f} at step {step}'
+                break
             if n_eval >= cfg.kill_after and ev['given'] >= baseline:
                 killed = f'kill rule: dev NLL {ev["given"]:.3f} not below the figure entropy {baseline:.3f}'
                 break
