@@ -102,7 +102,7 @@ def test_section_tilt_pulls_a_section_toward_its_request_and_stays_inside_it():
     assert n_in[3.0] > n_in[0.0]
 
 
-def test_rests_variants_keep_the_current_rule_at_zero_and_the_trained_heads_at_full_strength():
+def test_quiet_rests_keep_the_current_rule_at_zero_and_the_trained_heads_on_every_beat():
     model = tiny_net().eval()
     g = grid()
     song_ms = 20_210.0
@@ -116,11 +116,10 @@ def test_rests_variants_keep_the_current_rule_at_zero_and_the_trained_heads_at_f
     for seed in range(4):
         current, trained = run(seed), run(seed, copy_rests=True)
         differs += len(current) != len(trained) or not np.array_equal(current, trained)
-        assert np.array_equal(run(seed, rests=('quiet', 0.0)), current)
-        assert np.array_equal(run(seed, rests=('quiet', 1.1)), trained)
-        for rests in (('similar', 0.9), ('cap', 0.5)):
-            heads = run(seed, rests=rests)
-            assert np.all(np.diff(heads) > 0) and heads.max() <= song_ms - 2.0
+        assert np.array_equal(run(seed, quiet_rests=0.0), current)
+        assert np.array_equal(run(seed, quiet_rests=1.1), trained)
+        heads = run(seed, quiet_rests=0.4)
+        assert np.all(np.diff(heads) > 0) and heads.max() <= song_ms - 2.0
     assert differs
 
 
