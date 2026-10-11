@@ -151,6 +151,27 @@ def test_copy_setting_resolution():
         System(dict(copy={}), None, None, None, None).copy_setting('on')
 
 
+def test_load_resolves_a_model_directory(tmp_path, monkeypatch):
+    import ensomi_model.audio_rows.rowsgen as rowsgen
+    import ensomi_model.r2.bakeoff_panel as panel
+    from ensomi_model.system import prior as prior_module
+    seen = {}
+    monkeypatch.setattr(rowsgen.Rows, 'load', classmethod(lambda cls, model, beatthis: seen.update(rows=model, beatthis=beatthis)))
+    monkeypatch.setattr(panel, 'load_model', lambda p: seen.update(r2=p))
+    monkeypatch.setattr(prior_module.Prior, 'load', classmethod(lambda cls, p: seen.update(prior=p)))
+    model = tmp_path / 'model'
+    model.mkdir()
+    for name in ('rows.pt', 'r2.pt', 'prior.json', 'beat.ckpt'):
+        (model / name).write_bytes(name.encode())
+    (model / 'cal.json').write_text(json.dumps(dict(scope_table='scopes.parquet')))
+    config = dict(rows_model='rows.pt', r2='r2.pt', prior='prior.json', calibration='cal.json', beatthis='final0')
+    system = System.load(config, model)
+    assert seen == dict(rows=str(model / 'rows.pt'), beatthis='final0', r2=str(model / 'r2.pt'), prior=str(model / 'prior.json'))
+    assert system.cal['scope_table'] == str(model / 'scopes.parquet') and system.config == config
+    System.load(dict(config, beatthis='beat.ckpt'), model)
+    assert seen['beatthis'] == str(model / 'beat.ckpt')
+
+
 def test_cli_main_reads_its_flags(tmp_path, monkeypatch, capsys):
     import ensomi_model.system.make as make
     rng = np.random.default_rng(4)
@@ -165,7 +186,7 @@ def test_cli_main_reads_its_flags(tmp_path, monkeypatch, capsys):
                     grid=g, song_ms=song)
     config = dict(default_q={str(b): 'off' for b in range(2, 6)}, copy=dict(default='off'))
     system = System(config, StubRows(head, song, g, prepared), tiny_r2(), calibration(), prior, None, scopes=scopes(rng))
-    monkeypatch.setattr(make.System, 'load', classmethod(lambda cls, cfg: system))
+    monkeypatch.setattr(make.System, 'load', classmethod(lambda cls, cfg, model_dir=None: system))
     (tmp_path / 'system.json').write_text(json.dumps(config))
     out = tmp_path / 'o.osz'
     make.main(['--config', str(tmp_path / 'system.json'), '--audio', str(audio), '--star', '4.2', '--out', str(out),
@@ -178,4 +199,6 @@ def test_cli_main_reads_its_flags(tmp_path, monkeypatch, capsys):
     assert receipt['metadata'] == dict(title='song', artist='Unknown')
     make.main(['--config', str(tmp_path / 'system.json'), '--audio', str(audio), '--star', '2.0', '--out', str(out),
                '--difficulty', 'default'])
+    assert json.loads(capsys.readouterr().out.strip().splitlines()[-1])['difficulty'] is None
+    make.main(['--model-dir', str(tmp_path), '--audio', str(audio), '--star', '2.0', '--out', str(out), '--difficulty', 'off'])
     assert json.loads(capsys.readouterr().out.strip().splitlines()[-1])['difficulty'] is None
