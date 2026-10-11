@@ -54,7 +54,7 @@ def mask_log_probs(logp, held):
 
 @torch.no_grad()
 def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln_fraction=1., requests=(),
-            masks=None, copy=None):
+            masks=None, copy=None, recorder=None, random_source=None, random_prefix='r2'):
     """Full BOS sampling; target order held, heads per row, all-busy share. Masks are one band's config.
 
     Resolved requests contain concept, a_ms, b_ms, target, q, band; optional w selects open loop. Callers
@@ -73,6 +73,13 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
     temporal = model.temporal
     cache = temporal.empty_cache()
     marks = []
+    stepper = None
+    if recorder is not None:
+        from ..export.r2_graph import R2Stepper
+        from ..export.recording import RandomSource
+        stepper = R2Stepper(model, recorder.graph, K)
+        if random_source is None:
+            random_source = RandomSource(recorder=recorder)
     busy = np.zeros(K + 2)
     hist = np.zeros(K + 1, np.int64)
     action_nll = np.zeros(stop)
@@ -109,16 +116,24 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
         chart = state.chart
         d = chart.derived()
         held = d.held[k]
-        before = temporal.read(cache).to(model.dtype)[None]
-        mk = torch.stack(marks) if marks else None
-        vis = torch.ones(1, len(marks), dtype=torch.bool, device=model.device) if marks else None
-        z = model.hands(before, model.query_features(chart, [k]), mk, vis, model.row_condition(chart, (), [k]))
-        plain = model.action_log_probs(z, action_support_mask(held, k == K)[None])[0]
+        support = action_support_mask(held, k == K)[None]
+        if stepper is None:
+            before = temporal.read(cache).to(model.dtype)[None]
+            mk = torch.stack(marks) if marks else None
+            vis = torch.ones(1, len(marks), dtype=torch.bool, device=model.device) if marks else None
+            z = model.hands(before, model.query_features(chart, [k]), mk, vis, model.row_condition(chart, (), [k]))
+            plain = model.action_log_probs(z, support)[0]
+        else:
+            z, logits = stepper.predict(chart, k)
+            plain = logits.masked_fill(~torch.from_numpy(support), -torch.inf).log_softmax(-1)[0]
+            recorder.event(f'{k}/support', held=held, mask=support, log_probability=plain)
         if copy is not None and k < K:
             p64 = plain.detach().cpu().to(torch.float64).numpy()
             b15 = np.asarray(copy(k, hist, mask_log_probs(p64, held)), dtype=np.float64)
             copy_abs[k] = float(np.abs(b15).max())
             plain = torch.from_numpy(log_normalize(p64 + np.r_[0., b15][action_head_masks(held)]))
+        if recorder is not None:
+            recorder.event(f'{k}/copy', log_probability=plain)
         logp = plain
         fallback = None
         pattern = int(np.asarray(held, dtype=int) @ np.array([1, 2, 4, 8]))
@@ -128,12 +143,17 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
             if ln_fraction == 0:
                 logp[ln.any(1)] = -np.inf
             legal_logp = logp.copy()
+            if recorder is not None:
+                recorder.event(f'{k}/tap_mask', log_probability=logp, rejected=ln.any(1) if ln_fraction == 0 else
+                               np.zeros(len(ACTIONS), bool))
             if guard is not None:
                 rejected = guard.rejections(chart, k, held)
                 for j, bad in enumerate(rejected.values()):
                     mask_firings[k, j] = bool(np.any(bad & np.isfinite(logp)))
                     mask_mass[k, j] = float(np.exp(log_normalize(logp)[bad]).sum())
                 logp[np.logical_or.reduce(list(rejected.values()))] = -np.inf
+                if recorder is not None:
+                    recorder.event(f'{k}/playability', log_probability=logp, **rejected)
             if guard is not None and not np.isfinite(logp).any():
                 elapsed = head_ms[k] - d.last_attack[k]
                 fallback = fallback_action(legal_logp, heads, elapsed)
@@ -148,6 +168,8 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
                                       violated_masks=[name for name, bad in rejected.items() if bad[fallback]]))
                 logp[fallback] = 0.
             logp = torch.from_numpy(log_normalize(logp))
+        if recorder is not None:
+            recorder.event(f'{k}/masked', log_probability=logp, fallback=-1 if fallback is None else fallback)
         if np.any(kappa) and k < K and k:
             start = max(0, k - 64)
             n = k - start
@@ -165,6 +187,8 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
             bias = candidate_bias(held, running, target, gains)
             logp = logp.detach().cpu().to(torch.float64) + torch.from_numpy(bias)
             bias_abs[k] = np.max(np.abs(bias[np.isfinite(plain.cpu().numpy())]))
+        if recorder is not None:
+            recorder.event(f'{k}/force', log_probability=logp)
         active = None
         feature = None
         allowed = None
@@ -187,6 +211,8 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
                         if wc:
                             base = changed
                             logp = torch.from_numpy(base)
+                    if recorder is not None:
+                        recorder.event(f'{k}/chord', log_probability=logp)
                 if k:
                     eligible = heads & ~held
                     jf, sf = transition_features(eligible, d.attack[k - 1], d.attack[k - 2] if k >= 2 else None)
@@ -214,6 +240,8 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
                         changed, marginal_error[k] = tilt(base, feature, CLASSES[pattern, group], w)
                         if w:
                             logp = torch.from_numpy(changed)
+                        if recorder is not None:
+                            recorder.event(f'{k}/concept', log_probability=logp)
                         s['visible'] += 1
                     s['expected'] += expected
                     s['expected_chance'] += expected_chance
@@ -223,10 +251,15 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
         finite = np.isfinite(normalized)
         base_plain = plain.detach().cpu().to(torch.float64).numpy()
         kl[k] = float(np.exp(normalized[finite]) @ (normalized[finite] - base_plain[finite]))
-        chosen = _gumbel_argmax(logp, generator) if fallback is None else fallback
+        if recorder is not None:
+            recorder.event(f'{k}/final_probability', log_probability=normalized, probability=np.exp(normalized))
+        sample = lambda scores, name: (_gumbel_argmax(scores, generator) if random_source is None else
+                                      random_source.gumbel(scores, generator, f'{random_prefix}/{k}/{name}'))
+        chosen = sample(logp, 'action') if fallback is None else fallback
         codes = ACTIONS[chosen]
         action_nll[k] = -float(plain[chosen])
-        orientation = int(torch.randint(2, (), generator=generator))
+        orientation = (int(torch.randint(2, (), generator=generator)) if random_source is None else
+                       random_source.orientation(generator, f'{random_prefix}/{k}/orientation'))
         lanes = gap_release_lanes(held, codes, orientation)
         rel = np.full(4, np.nan)
         if lanes:
@@ -234,11 +267,19 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
             lq = lane_query(chart, [k]).astype(np.float32)[0]
             for lane in lanes:
                 factor = make_factor(chart, k, 0, codes, lane, orientation, dict(placed), lq)
-                ctx = model.factor_contexts(z, [factor])
-                scores, _, _ = model.all_pair_scores(ctx, [factor], chart, ())
-                u = float(factor.times[_gumbel_argmax(scores, generator)])
+                if stepper is None:
+                    ctx = model.factor_contexts(z, [factor])
+                    scores, _, _ = model.all_pair_scores(ctx, [factor], chart, ())
+                else:
+                    scores = stepper.release(z, factor, chart)
+                u = float(factor.times[sample(scores, f'release_{lane}')])
+                if recorder is not None:
+                    recorder.event(f'{k}/release_{lane}', candidates=factor.times, scores=scores,
+                                   probability=torch.softmax(scores, -1), chosen=u)
                 placed[lane] = (u, False)
                 rel[lane] = u
+        if recorder is not None:
+            recorder.event(f'{k}/chosen', index=chosen, codes=codes, orientation=orientation, releases=rel)
         state.append(codes, rel)
         busy[k + 1] = busy[k] + bool((held | chart.derived().attack[k]).all())
         if k < K:
@@ -262,9 +303,12 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
                     active['chord_success'] += int(chord_feature(actual.sum(), active['request']['subtype']))
                     active['chord_n'] += 1
         if k < K:
-            cache = temporal.append(cache, model._t(_history_token(chart, k)))
-            if k % model.config.stride == 0:
-                marks.append(temporal.read(cache))
+            if stepper is None:
+                cache = temporal.append(cache, model._t(_history_token(chart, k)))
+                if k % model.config.stride == 0:
+                    marks.append(temporal.read(cache))
+            else:
+                stepper.commit(chart, k)
     receipts = []
     for i, s in enumerate(scopes):
         r = s['request']

@@ -84,7 +84,7 @@ class Listener:
         self.frames = Audio2Frames(checkpoint_path=str(beatthis_checkpoint), device=device, float16=False)
         self.load = load_audio
 
-    def listen(self, path) -> Song:
+    def listen(self, path, *, recorder=None) -> Song:
         """Raises ValueError from ``fit_segments`` on audio shorter than 3 s or without beats."""
         from ..features.audio import load_audio_file
         sr_mel = MUSIC_MEL_CACHE_CONFIG.sample_rate
@@ -96,7 +96,23 @@ class Listener:
         except Exception:   # BeatThis's decoder fails on some MP3s; fall back to the Mel waveform
             wave, sr = mel_wave, sr_mel
         t1 = time.perf_counter()
-        beat_logits, downbeat_logits = self.frames(wave, sr)
+        if recorder is None:
+            beat_logits, downbeat_logits = self.frames(wave, sr)
+        else:
+            import torch
+            from beat_this.inference import split_predict_aggregate
+            with torch.inference_mode():
+                spect = self.frames.signal2spect(wave, sr)
+                recorder.event('audio', pcm=wave, sample_rate=sr, mel_pcm=mel_wave, mel_sample_rate=sr_mel,
+                               spectrogram=spect)
+                def predict(spect):
+                    def run():
+                        out = self.frames.model(spect)
+                        return dict(beat_logits=out['beat'], downbeat_logits=out['downbeat'])
+                    out = recorder.graph('beatthis', dict(spect=spect), run)
+                    return dict(beat=out['beat_logits'], downbeat=out['downbeat_logits'])
+                prediction = split_predict_aggregate(spect, 1500, 6, 'keep_first', predict)
+                beat_logits, downbeat_logits = prediction['beat'].float(), prediction['downbeat'].float()
         beat, downbeat = _probability(beat_logits), _probability(downbeat_logits)
         t2 = time.perf_counter()
         segments = fit_segments(beat, downbeat, BEATTHIS_FPS)
@@ -111,6 +127,10 @@ class Listener:
         segments = mel_phase(segments, log_mel, beat_np, BEATTHIS_FPS, song_ms)
         segments = mel_tempo(segments, log_mel, beat_np, BEATTHIS_FPS, song_ms)
         segments = np.array([(s.offset_ms, s.beat_length_ms) for s in segments])
+        if recorder is not None:
+            recorder.event('listener', log_mel=log_mel, features=feats, beat_logits=beat_logits,
+                           downbeat_logits=downbeat_logits, beat_probability=beat, downbeat_probability=downbeat,
+                           segments=segments, song_ms=song_ms)
         t5 = time.perf_counter()
         return Song(feats, segments, song_ms,
                     dict(load=t1 - t0, beatthis=t2 - t1, fit=t3 - t2 + t5 - t4, features=t4 - t3))
