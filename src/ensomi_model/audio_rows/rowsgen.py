@@ -11,10 +11,11 @@ free-running long songs: on the pilot weights the last fifth of long songs came 
 request, and +.01 with the heads kept off empty beats (human charts -.27).
 
 Section requests also steer at decode time: the learned section input moved a section by only
-16-21 % of its request in the pilot. Inside a section, a tilt adds ``tilt`` x head count to every
-figure's log-probability; from the section's fifth beat on, ``tilt`` moves by ``section_gain`` x
-(request - realised log W_H/s of the section so far) per beat, so the section is pulled toward its
-request. The realised W_H uses the reference strain of the rows decoded so far (``r2.strain``).
+16-21 % of its request in the pilot. Inside a section, every figure's log-probability gains
+``tilt`` x its head count, with ``tilt`` = ``section_gain`` x (request - realised), clipped to
+±``TILT_MAX``. Realised is log W_H/s over the section's beats so far, extended back to the last 4
+beats while the section is shorter; W_H uses the reference strain of the rows decoded so far
+(``r2.strain``). A proportional rule on the running mean: integrating the error overshot.
 
 Requests are log(W_H / s) (``beatdata``): ``request`` for the song, ``sections`` a list of
 (start_ms, end_ms, log W_H/s) applied to the beats starting in [start_ms, end_ms).
@@ -49,7 +50,7 @@ from .lattice import beat_range
 from .net import FigureNet, load_net
 
 
-SECTION_GAIN = 0.05     # tilt change per beat per unit of log W_H/s below the section request
+SECTION_GAIN = 3.0      # tilt per unit of log W_H/s that the section so far lies below its request
 TILT_MAX = 2.0
 
 
@@ -90,7 +91,8 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
         target[(beat_ms[:-1] >= a) & (beat_ms[:-1] < b)] = value
     steer = bool(section_gain) and not np.isnan(target).all()
     counts = model.fig_counts.float()
-    strain, n_heads, tilt, sec_wh, sec_b0 = StrainState(), 0, 0.0, 0.0, 0
+    strain, n_heads, sec_b0 = StrainState(), 0, 0
+    wh = np.zeros(nb)
     tilts = np.zeros(nb, dtype=np.float32)
     nf = len(mel)
     pos_frames = np.clip((pos_ms / HOP_MS).astype(np.int64), 0, nf - 1)
@@ -140,12 +142,12 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
         p = p * allowed[b]
         if steer and not np.isnan(target[b]):
             if b == 0 or target[b - 1] != target[b]:         # a section starts (NaN never equals)
-                tilt, sec_wh, sec_b0 = 0.0, 0.0, b
-            elif b - sec_b0 >= 4:
-                realised = np.log(max(sec_wh / ((beat_ms[b] - beat_ms[sec_b0]) / 1000.0), LABEL_FLOOR))
-                tilt = float(np.clip(tilt + section_gain * (target[b] - realised), -TILT_MAX, TILT_MAX))
-            p = p * torch.exp(tilt * counts)
-            tilts[b] = tilt
+                sec_b0 = b
+            a = max(min(sec_b0, b - 4), 0)
+            if b > a and beat_ms[b] > beat_ms[a]:
+                realised = np.log(max(wh[a:b].sum() / ((beat_ms[b] - beat_ms[a]) / 1000.0), LABEL_FLOOR))
+                tilts[b] = np.clip(section_gain * (target[b] - realised), -TILT_MAX, TILT_MAX)
+                p = p * torch.exp(float(tilts[b]) * counts)
         f = int(torch.multinomial(p / p.sum(), 1, generator=gen))
         ids[b] = f
         gates[b] = g[0].numpy()
@@ -154,8 +156,7 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
             for t_ms in np.round(pos_ms[b][members[f]], 3):
                 strain, charge = strain.append(t_ms, np.arange(4) == REFERENCE_LANES[n_heads % 4])
                 n_heads += 1
-                if not np.isnan(target[b]):
-                    sec_wh += charge
+                wh[b] += charge
     figures = np.asarray(record['vocab'], dtype=np.int64)[ids]
     heads = np.unique(head_times(grid, b0, figures))
     return heads, dict(b0=b0, nb=nb, ids=ids, figures=figures, edges=edges, gates=gates, tilts=tilts)
