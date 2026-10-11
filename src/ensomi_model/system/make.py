@@ -289,9 +289,12 @@ class System:
         return on, s, c.get('reason')
 
     def make(self, audio, star, out, *, sections=(), ln='natural', difficulty_q='default', stream=(), jack=(),
-             copy=None, copy_jacks=None, seed=0, name=None, title=None, artist=None, prepared=None, progress=None):
+             copy=None, copy_jacks=None, seed=0, name=None, title=None, artist=None, prepared=None, progress=None,
+             recorder=None, random_source=None):
         """``progress(phase)``, when given, is called as each stage starts: 'timing' (not when ``prepared`` is
-        given), 'rows', 'arrangement', 'export'."""
+        given), 'rows', 'arrangement', 'export'. ``recorder`` receives graph calls and decode arrays;
+        ``random_source`` supplies sampling variates. With neither, the normal sampling path is unchanged.
+        Recorded arrays replace the convenience ``arrays.npz`` beside the chart."""
         from .arrange import arrange
         from .copy import CopyBias
         from .prior import kappa_targets, rows_features
@@ -301,14 +304,18 @@ class System:
             raise ValueError(f'--ln must be one of {sorted(LN)}')
         t_all = time.monotonic()
         seconds = {}
+        if recorder is not None and random_source is None:
+            from ..export.recording import RandomSource
+            random_source = RandomSource(recorder=recorder)
         progress = progress or (lambda phase: None)
         if prepared is None:
             progress('timing')
             t = time.monotonic()
-            prepared = self.rows.prepare(audio)
+            prepared = self.rows.prepare(audio) if recorder is None else self.rows.prepare(audio, recorder=recorder)
             seconds['listener'] = time.monotonic() - t
         progress('rows')
-        rows = self.rows.heads(prepared, star=star, sections=list(sections), seed=seed)
+        hooks = dict(recorder=recorder, random_source=random_source) if recorder is not None or random_source is not None else {}
+        rows = self.rows.heads(prepared, star=star, sections=list(sections), seed=seed, **hooks)
         seconds['rows'] = rows['seconds']
         song_ms, grid = rows['song_ms'], rows['grid']
         head_ms, dropped = clean_heads(rows['head_ms'], song_ms)
@@ -318,6 +325,10 @@ class System:
         masks = self.cal['masks'][str(band)]
         features = rows_features(head_ms, song_ms, grid)
         pred = self.prior.predict(features, band)
+        if recorder is not None:
+            recorder.event('system/rows', head_ms=head_ms, song_ms=song_ms, grid_offsets=grid.offsets,
+                           grid_lengths=grid.lengths, grid_origins=grid.origins, grid_meters=grid.meters)
+            recorder.event('system/prior', features=features, band=band, **pred)
         external = [parse_scope(t, 'stream') for t in stream] + [parse_scope(t, 'jack') for t in jack]
         requests = resolve_requests(head_ms, song_ms, external, band, self.cal, self.scopes if external else None)
         ln_fraction = LN[ln]
@@ -325,12 +336,19 @@ class System:
         mel = prepared['song'].features
         r2_seed = R2_SEED + seed
         bias_record = {}
+        pass_number = 0
 
         def run(m):
+            nonlocal pass_number
+            pass_number += 1
+            if recorder is not None:
+                recorder.scope = f'r2_pass_{pass_number}'
+                recorder.event('target', values=kappa_targets(pred, ln_fraction, m), multiplier=m, kappa=KAPPA)
             cb = CopyBias(self.copy, head_ms, grid, mel, strength) if on else None
             a, g, tr = arrange(self.r2, head_ms, song_ms, grid, seed=r2_seed,
                                target=kappa_targets(pred, ln_fraction, m), kappa=KAPPA, ln_fraction=ln_fraction,
-                               requests=requests, masks=masks, copy=cb)
+                               requests=requests, masks=masks, copy=cb, recorder=recorder, random_source=random_source,
+                               random_prefix=f'r2_pass_{pass_number}')
             bias_record['copy_max_abs'] = float(tr['copy_abs'].max()) if on else None
             return a, g, tr
 
@@ -352,6 +370,9 @@ class System:
             multiplier = difficulty['m_final']
         seconds['r2'] = time.monotonic() - t
         gap = whole_ms_releases(head_ms, song_ms, gap)
+        if recorder is not None:
+            recorder.scope = ''
+            recorder.event('system/final', head_ms=head_ms, song_ms=song_ms, actions=actions, gap_release_ms=gap)
         from ..r2.theta import decode
         K = len(head_ms)
         held, heads, ln_heads = decode(actions[:K])
@@ -411,8 +432,14 @@ class System:
         work = Path(out).with_suffix('')
         write_export(head_ms, song_ms, rows['segments'], actions, gap, prepared['audio'], work, out, receipt,
                      bookmarks, title=title, artist=artist)
-        np.savez_compressed(work / 'arrays.npz', actions=actions, gap_release_ms=gap, head_ms=head_ms,
-                            song_ms=song_ms)
+        if recorder is not None:
+            from ..osu_core.hitobjects import parse_mania_hit_objects
+            objects = parse_mania_hit_objects(work / 'generated.osu')
+            recorder.event('system/objects', objects=np.array([(o.start_time_ms, o.lane, o.end_time_ms)
+                                                               for o in objects]))
+        if recorder is None:
+            np.savez_compressed(work / 'arrays.npz', actions=actions, gap_release_ms=gap, head_ms=head_ms,
+                                song_ms=song_ms)
         return receipt
 
 

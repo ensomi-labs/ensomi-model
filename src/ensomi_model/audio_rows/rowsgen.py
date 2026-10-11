@@ -94,7 +94,7 @@ def quiet_rank(mel, beat_frames, window: int = REST_WINDOW) -> np.ndarray:
 @torch.no_grad()
 def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, sections=(), seed: int = 0,
            temperature: float = 1.0, off=(), copy_rests: bool = False, section_gain: float = SECTION_GAIN,
-           quiet_rests: float = QUIET_RESTS):
+           quiet_rests: float = QUIET_RESTS, *, recorder=None, random_source=None):
     """(head times [K] ms, per-beat record) for a whole song; ``mel`` [F, >=128] standardised log-Mel.
 
     ``off``: 'copy' forces the gate to the generator (diagnostics). ``copy_rests`` lets the copy
@@ -122,8 +122,19 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
     allowed = torch.from_numpy(~(members[None] & ~available[:, None]).any(-1))          # [nb, V]
     t = lambda x: torch.from_numpy(np.asarray(x))[None]
     ex = t(extra)
-    pos, A, q, k = model.audio(t(np.asarray(mel[:, :MEL_BINS], dtype=np.float32)), t(pos_frames), t(beat_frames),
-                               ex, torch.ones(1, nb, dtype=torch.bool))
+    audio_inputs = dict(mel=t(np.asarray(mel[:, :MEL_BINS], dtype=np.float32)), pos_frames=t(pos_frames),
+                        beat_frames=t(beat_frames), extra=ex, valid=torch.ones(1, nb, dtype=torch.bool))
+    if recorder is None:
+        pos, A, q, k = model.audio(*audio_inputs.values())
+    else:
+        from ..export.rows_graph import RowsSongEncoder, RowsStep
+        encoder, step = RowsSongEncoder(model), RowsStep(model)
+        def encode():
+            return dict(zip(('pos', 'context', 'query', 'key'), encoder(*audio_inputs.values())))
+        encoded = recorder.graph('rows_encoder', audio_inputs, encode)
+        pos, A, q, k = (encoded[key] for key in ('pos', 'context', 'query', 'key'))
+        recorder.event('rows/grid', edges=edges, position_ms=pos_ms, available=available, allowed=allowed,
+                       beat_frames=beat_frames, target=target)
     pos, A, q, k, ex = pos[0], A[0], q[0], k[0], ex[0]
     V, lags = cfg.vocab, cfg.lags
     quiet = quiet_rank(mel, beat_frames) < quiet_rests
@@ -134,10 +145,6 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
     prev = V
     table_in, table_out = model.input_table(), model.output_table()
     for b in range(nb):
-        x = torch.cat((A[b], table_in[prev], ex[b]))[None, None]
-        out, h = model.gru(x, h)
-        hb = out[0]
-        logits = model.generator_logits(hb, pos[b:b + 1], table=table_out) / temperature
         j = np.arange(b - 1, b - lags - 1, -1)
         ok = j >= 0
         jj = np.where(ok, j, 0)
@@ -147,9 +154,25 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
             before = ids[b - d] if b - d >= 0 else -1
             bj = np.where(jj - d >= 0, ids[np.maximum(jj - d, 0)], -1)
             eq.append((ok & (bj == before) & (before >= 0)).astype(np.float32))
-        scores = model.copy_scores(q[b:b + 1], k[torch.from_numpy(jj)][None], torch.from_numpy(np.stack(eq, -1))[None])
         att_ok = ok if copy_rests or quiet[b] else ok & (np.where(ok, ids[jj], -1) != 0)
-        g, logp, att = model.mixture(hb, logits, scores, torch.from_numpy(att_ok)[None])
+        if recorder is None:
+            x = torch.cat((A[b], table_in[prev], ex[b]))[None, None]
+            out, h = model.gru(x, h)
+            hb = out[0]
+            logits = model.generator_logits(hb, pos[b:b + 1], table=table_out) / temperature
+            scores = model.copy_scores(q[b:b + 1], k[torch.from_numpy(jj)][None],
+                                       torch.from_numpy(np.stack(eq, -1))[None])
+            g, logp, att = model.mixture(hb, logits, scores, torch.from_numpy(att_ok)[None])
+        else:
+            inputs = dict(context=A[b:b + 1], pos=pos[b:b + 1], query=q[b:b + 1], extra=ex[b:b + 1],
+                          prev=torch.tensor([prev]), hidden=torch.zeros(1, 1, cfg.hidden) if h is None else h,
+                          back_keys=k[torch.from_numpy(jj)][None], eq=torch.from_numpy(np.stack(eq, -1))[None],
+                          back_ok=torch.from_numpy(att_ok)[None], temperature=torch.tensor(temperature, dtype=torch.float32))
+            def run_step():
+                return dict(zip(('hidden_out', 'hb', 'logits', 'scores', 'gate', 'logp', 'attention'),
+                                step(*inputs.values())))
+            output = recorder.graph('rows_step', inputs, run_step)
+            h, g, logp, att = (output[key] for key in ('hidden_out', 'gate', 'logp', 'attention'))
         p_gen = logp[0].exp()
         if 'copy' in off:
             p = p_gen
@@ -159,7 +182,12 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
             for hd in range(cfg.heads):
                 p_h = (att[0, hd, -1] * p_gen).index_add(0, back_ids[okt], att[0, hd, :-1][okt])
                 p = p + g[0, 1 + hd] * p_h
+        if recorder is not None:
+            recorder.event(f'rows/{b}/mixture', generator=p_gen, mixed=p, back_ids=back_ids,
+                           quiet=quiet[b], copy_allowed=att_ok)
         p = p * allowed[b]
+        if recorder is not None:
+            recorder.event(f'rows/{b}/allowed', probability=p)
         if steer and not np.isnan(target[b]):
             if b == 0 or target[b - 1] != target[b]:         # a section starts (NaN never equals)
                 sec_b0 = b
@@ -168,7 +196,11 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
                 realised = np.log(max(wh[a:b].sum() / ((beat_ms[b] - beat_ms[a]) / 1000.0), LABEL_FLOOR))
                 tilts[b] = np.clip(section_gain * (target[b] - realised), -TILT_MAX, TILT_MAX)
                 p = p * torch.exp(float(tilts[b]) * counts)
-        f = int(torch.multinomial(p / p.sum(), 1, generator=gen))
+        probability = p / p.sum()
+        f = (int(torch.multinomial(probability, 1, generator=gen)) if random_source is None else
+             random_source.multinomial(probability, gen, f'rows/{b}/figure'))
+        if recorder is not None:
+            recorder.event(f'rows/{b}/sample', probability=probability, tilt=tilts[b], chosen=f)
         ids[b] = f
         gates[b] = g[0].numpy()
         prev = f
@@ -199,20 +231,22 @@ class Rows:
         from .audio import Listener
         return cls(*load_net(checkpoint), Listener(beatthis_checkpoint))
 
-    def prepare(self, audio) -> dict:
+    def prepare(self, audio, *, recorder=None) -> dict:
         from .grid import corrected_grid
-        song = self.listener.listen(audio)
+        song = self.listener.listen(audio) if recorder is None else self.listener.listen(audio, recorder=recorder)
         grid, seg = corrected_grid(song.segments, song.song_ms)
         return dict(audio=Path(audio), song=song, grid=grid, seg=seg, song_ms=song.song_ms)
 
-    def heads(self, prepared, *, star=None, request=None, sections=(), seed=0, temperature=1.0) -> dict:
+    def heads(self, prepared, *, star=None, request=None, sections=(), seed=0, temperature=1.0,
+              recorder=None, random_source=None) -> dict:
         """Head times on the Listener grid. ``star`` or ``request`` (log W_H/s) sets the song request;
         ``sections`` are dicts with start_ms, end_ms and star or request."""
         if request is None:
             request = star_request(self.record, star)
         t = time.perf_counter()
         heads, beats = decode(self.model, self.record, prepared['song'].features, prepared['grid'], prepared['song_ms'],
-                              request, section_requests(self.record, sections), seed, temperature)
+                              request, section_requests(self.record, sections), seed, temperature,
+                              recorder=recorder, random_source=random_source)
         return dict(head_ms=heads, K=len(heads), grid=prepared['grid'], segments=prepared['seg'],
                     song_ms=prepared['song_ms'], request=request, beats=beats, seconds=time.perf_counter() - t)
 
