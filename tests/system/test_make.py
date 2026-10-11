@@ -100,8 +100,10 @@ def test_make_writes_a_playable_osz_and_its_receipt(tmp_path):
     prepared = dict(audio=audio, song=SimpleNamespace(features=rng.normal(size=(int(song / 10) + 10, 130)).astype(np.float16)),
                     grid=g, song_ms=song)
     out = tmp_path / 'out' / 'x.osz'
+    phases = []
     receipt = system.make(str(audio), 3.4, out, ln='half', stream=['5000,15000,0.9'], jack=['20000,30000,0.5'],
-                          seed=2, title='A Song', artist='Someone', prepared=prepared)
+                          seed=2, title='A Song', artist='Someone', prepared=prepared, progress=phases.append)
+    assert phases == ['rows', 'arrangement', 'export']          # no 'timing': the Listener's pass was given
     names = zipfile.ZipFile(out).namelist()
     assert sorted(names) == ['audio.ogg', 'generated.osu', 'receipt.json']
     saved = json.loads((out.with_suffix('') / 'receipt.json').read_text())
