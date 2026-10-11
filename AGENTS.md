@@ -17,6 +17,7 @@ Use task-specific guidance only when its scope matches the work.
 | Authoring-session, review, PR, change-narration, or reasoning-transcript leakage in durable prose | `.agents/skills/ensomi-trim-cot-leakage/SKILL.md` |
 | Packaged Hydra configs, mapper training presets, inference profiles, config adapters, CLI entrypoints, or Hydra tests | `.agents/skills/hydra-conventions/SKILL.md` |
 | ML research direction, analogue search, hypothesis branching, bounded experiment design, or result evaluation | `.agents/skills/research-triage/SKILL.md` |
+| Planning, briefing, launching or reading an experiment, training run, evaluation or design round; choosing a measure, baseline or decision rule | `.agents/skills/ensomi-research-guardrails/SKILL.md` |
 | Root-cause analyses, performance investigations, or postmortems | `docs/guides/technical_analysis_writing.md` |
 
 ## Repository context
@@ -34,6 +35,25 @@ Use task-specific guidance only when its scope matches the work.
   names one.
 - Put durable conclusions and reusable constraints in curated `docs/`
   documentation.
+
+## Research guardrails
+
+Agents here have repeated the same research failures under new names. Before
+planning, briefing, launching or reading an experiment, read
+`.agents/skills/ensomi-research-guardrails/SKILL.md` and apply the guardrails
+whose trigger holds. The core:
+
+- A measure decides only after it is shown to recognise the human's labels.
+  Until then it characterises, and the human's screen decides.
+- Measure the seed and checkpoint noise of a decision statistic before setting
+  a margin. Never use a selected checkpoint as the only baseline.
+- Before training on a new input, show with a teacher-forced ablation that the
+  model uses it.
+- Work out what the fixed inputs let the model learn and the evaluation see:
+  supplied head rows, warm start, panel and scope.
+- Before a launch, put the human's contradicting evidence to the human. If the
+  human cannot be reached, run only measurements.
+- Briefs for subagents and Astra name the skill instead of copying the rules.
 
 ## Verification
 

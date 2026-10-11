@@ -1,0 +1,291 @@
+{
+  "api_match": {
+    "None": 110,
+    "beatmap_id": 1321,
+    "checksum": 20532,
+    "none": 103
+  },
+  "corpus": 22066,
+  "corpus_sha256": "49ab9e1bbbdcf7a08bf86ee02181515dfa04bdc9efa3be25fe6bd4b0e6d9ee4b",
+  "excluded": {
+    "not_4k_mania": 3893,
+    "timing": 41
+  },
+  "excluded_charts": [
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1649795/Roselia - ZEAL of proud (FerdiXIA-) [Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1708332/MisoilePunch ~pan soe~ - MeTear'n TruX (fvrex) [Easy].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1708332/MisoilePunch ~pan soe~ - MeTear'n TruX (fvrex) [Normal].osu"
+    },
+    {
+      "error": "timing: No red line with a plausible BPM",
+      "path": "dataset/0/1730156/Helblinde - Heaven's Fall ([GS]hina) [remove this plz].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1736091/Nakanoke no Itsutsugo - Gotoubun no Kimochi (TV Size) (keksikosu) [Nabi's Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1738425/Eve - Avant (keksikosu) [Asha's Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1743116/t+pazolite - Refactoring Travel (feat. Nanahira) (Cut Ver.) (keksikosu) [Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1743116/t+pazolite - Refactoring Travel (feat. Nanahira) (Cut Ver.) (keksikosu) [Insane].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1743116/t+pazolite - Refactoring Travel (feat. Nanahira) (Cut Ver.) (keksikosu) [Normal].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1752211/Yonekura Chihiro - DEAR MY WAKER (Symmatrix-) [GD's HARD here].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1752211/Yonekura Chihiro - DEAR MY WAKER (Symmatrix-) [GD's NORMAL here].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1761527/EDOGA-SULLIVAN - WONDERFUL WONDER (TV Size) (Sun) [Asha's Easy].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1761527/EDOGA-SULLIVAN - WONDERFUL WONDER (TV Size) (Sun) [Nabi's Normal].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1762835/Aiobahn - Islands (Tigerinity) [Easy].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1762835/Aiobahn - Islands (Tigerinity) [Hytex's Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1767320/yanaginagi - Megumi no Ame (TV Size) (Savageeeee) [Happily ever after].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1767320/yanaginagi - Megumi no Ame (TV Size) (Savageeeee) [Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1768974/in love with a ghost - am i a girl am i a boy do i really care (fvrex) [4k easy].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1768974/in love with a ghost - am i a girl am i a boy do i really care (fvrex) [4k hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1768974/in love with a ghost - am i a girl am i a boy do i really care (fvrex) [4k normal].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1788950/Umeboshi Chazuke - Run2 Run To You!! ([Crz]Alleyne) [Hard!!].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1788950/Umeboshi Chazuke - Run2 Run To You!! ([Crz]Alleyne) [Insane!!].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1788950/Umeboshi Chazuke - Run2 Run To You!! ([Crz]Alleyne) [Normal!!].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1793916/Leoneed x Hatsune Miku - Hibana -Reloaded- (Yuiazu-) [Sies' Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1794551/Nightcord At 2500 x Hatsune Miku - Jishou Mushoku (Nicknem_) [Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1794551/Nightcord At 2500 x Hatsune Miku - Jishou Mushoku (Nicknem_) [Normal].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1799685/Takanori Nishikawa - Eden through the rough (TV Size) (Mirsaaa) [Insane].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1805371/Hai Zakura (CV Waki Azumi) - Usuhana Sakura (Short ver.) (Hidden is fun) [Easy].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1805371/Hai Zakura (CV Waki Azumi) - Usuhana Sakura (Short ver.) (Hidden is fun) [Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1805371/Hai Zakura (CV Waki Azumi) - Usuhana Sakura (Short ver.) (Hidden is fun) [Normal].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1813106/Kagura Hikari (CV Mimori Suzuko), Daiba Nana (CV Koizumi Moeka) - RECREATE (AWMRone) [xixi's 4K 3].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1832804/FELT - In my room (mukotsuu) [Respite].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1864421/Kenshi Yonezu - KICK BACK (TV Size) (keksikosu) [Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1864421/Kenshi Yonezu - KICK BACK (TV Size) (keksikosu) [Maxim's Normal].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1868727/Vaundy - CHAINSAW BLOOD (TV Size) (Akasha-) [Normal].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1881842/syudou - In The Back Room (TV Size) (Akasha-) [Normal].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1881842/syudou - In the Back Room (TV Size) (Akasha-) [Hard].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1885830/Vickeblanka - Black Rover (TV Size) (keksikosu) [Easy].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/1885830/Vickeblanka - Black Rover (TV Size) (keksikosu) [Normal].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/342407/Various Artists - SUPER EUROBEAT FOR RUNNING SELECTIONS (Jole) [(A Super Eurobeat Marathon)].osu"
+    },
+    {
+      "error": "timing: no hit objects",
+      "path": "dataset/0/675918/Various Artists - Jack Dumps (Seiryuu) [Marathon - Delete After Download].osu"
+    }
+  ],
+  "excluded_mode_keys": {
+    "mode0": 889,
+    "mode1": 584,
+    "mode2": 207,
+    "mode3-10k": 112,
+    "mode3-11k": 2,
+    "mode3-12k": 7,
+    "mode3-14k": 4,
+    "mode3-16k": 3,
+    "mode3-18k": 5,
+    "mode3-1k": 6,
+    "mode3-2k": 2,
+    "mode3-3k": 1,
+    "mode3-5k": 291,
+    "mode3-6k": 288,
+    "mode3-7k": 1301,
+    "mode3-8k": 128,
+    "mode3-9k": 63
+  },
+  "files": 26000,
+  "format": "ensomi-r2/corpus-v1",
+  "grid": {
+    "charts_with_expressive": 1640,
+    "charts_with_implausible": 109,
+    "charts_with_several_musical": 4619,
+    "dominant_fold": {
+      "-3": 1,
+      "-2": 121,
+      "-1": 14581,
+      "0": 6822,
+      "1": 250,
+      "2": 4
+    },
+    "expressive_reasons": {
+      "detour": 1780,
+      "empty": 69389,
+      "implausible": 62617,
+      "short_bar": 16938,
+      "superseded": 273
+    },
+    "head_on_grid_ge_0_9": 21293,
+    "head_on_grid_lt_0_9_several_musical": 175,
+    "head_on_grid_median": 1.0,
+    "ranked_loved": 21779,
+    "red_line_roles": {
+      "expressive": 150997,
+      "musical": 121851,
+      "redundant": 7641
+    },
+    "renotation_invariant": {
+      "True": 22066
+    },
+    "roundtrip_max_ms": 4.656612873077393e-10
+  },
+  "groups": 6222,
+  "largest_group_charts": 163,
+  "origin": {
+    "base": 14774,
+    "ranked-loved-4k-1to8-20261002": 1511,
+    "ranked-loved-4k-20261002": 5734,
+    "supplemental/tech-packs": 16,
+    "tech-community-20260908": 31
+  },
+  "r1_catalog": {
+    "matched": {
+      "train": 11564,
+      "validation": 1652
+    },
+    "sha256": "e31b7e8f4daa044503ef2b8411bc41727ba371eec804c9462a4608be8112ad28"
+  },
+  "r1_trained_in_heldout": 0,
+  "ranked_loved_star_bands": {
+    "0": 197,
+    "1": 4630,
+    "2": 5240,
+    "3": 4931,
+    "4": 3960,
+    "5": 1830,
+    "6": 691,
+    "7": 237,
+    "8": 63
+  },
+  "split": {
+    "calibration": 3363,
+    "fit": 17357,
+    "heldout": 1346
+  },
+  "split_groups_ranked_loved": {
+    "calibration": 940,
+    "fit": 4817,
+    "heldout": 451
+  },
+  "split_ranked_loved": {
+    "calibration": 3336,
+    "fit": 17106,
+    "heldout": 1337
+  },
+  "star_vs_api": {
+    "charts": 20532,
+    "max_abs": 0.26546086180100925,
+    "over_1e_4": 1,
+    "ranked_loved_max_abs": 3.992916817807668e-05
+  },
+  "status": {
+    "None": 213,
+    "graveyard": 42,
+    "loved": 2632,
+    "pending": 7,
+    "ranked": 19147,
+    "wip": 25
+  }
+}
