@@ -108,7 +108,7 @@ def test_rests_variants_keep_the_current_rule_at_zero_and_the_trained_heads_at_f
     song_ms = 20_210.0
     mel = np.random.default_rng(1).normal(size=(2021, 128)).astype(np.float32)
     mel[:1000] += 1.0                                                   # a loud first half
-    beat_frames = np.stack((np.arange(41) * 50, np.arange(41) * 50 + 50), 1)
+    beat_frames = np.stack((np.arange(40) * 50, np.arange(40) * 50 + 50), 1)
     rank = quiet_rank(mel, beat_frames)
     assert rank[:15].min() > rank[25:].max() and rank.min() == 0 and rank.max() == 1
     run = lambda seed, **kw: decode(model, RECORD, mel, g, song_ms, 2.5, seed=seed, **kw)[0]
