@@ -3,7 +3,8 @@
     python -m ensomi_model.system.make --config <system.json> --audio <file> --star 3.5 --out <x.osz> \
         [--sections '[{"start_ms": 60000, "end_ms": 90000, "star": 4.5}]'] [--ln tap|half|natural] \
         [--difficulty-q Q | --difficulty off] [--stream A_MS,B_MS,Q[,jumpstream|chordstream]] \
-        [--jack A_MS,B_MS,Q[,chordjack]] [--copy on|off] [--copy-jacks S] [--seed N] [--name LABEL]
+        [--jack A_MS,B_MS,Q[,chordjack]] [--copy on|off] [--copy-jacks S] [--seed N] [--name LABEL] \
+        [--title TEXT] [--artist TEXT]
 
 Stages:
 1. The Listener's beat grid (``audio_rows.audio``, ``audio_rows.grid``).
@@ -18,11 +19,16 @@ Stages:
      the prior's base r for these rows; one correction pass when the first misses by more than the band's seed SD;
      default q per band from the config;
    - stream and jack sections (8-32 s) with the demo's presets, targets looked up on these rows' gaps.
-5. Export with the replay and legality checks, the audio, and ``receipt.json`` in one ``.osz``.
+5. Export with the replay and legality checks, the audio, and ``receipt.json`` in one ``.osz``. Every time in the
+   ``.osu`` is a whole millisecond: heads are rounded before R2 arranges them, gap releases after (kept strictly
+   between their neighbouring rows), timing-point offsets at export. Not every osu! client is known to parse
+   fractional times. Title and artist default to a cached human chart of the same audio (``cache_index``, matched
+   by the audio file's sha256), else the audio file's stem and "Unknown".
 
 The config (``system.json``) names the checkpoints and calibrations (paths relative to the job's cwd):
 ``rows_model``, ``beatthis``, ``r2``, ``calibration`` (the demo's), ``prior``, ``copy`` (weights, ``default``
-on/off, ``strength``, ``reason``), and ``default_q`` per band. No statistic here is validated against the human.
+on/off, ``strength``, ``reason``), ``default_q`` per band and, optionally, ``cache_index`` (the R2 cache's
+``index.parquet``, for song metadata). No statistic here is validated against the human.
 """
 from __future__ import annotations
 
@@ -88,12 +94,38 @@ def resolve_requests(head_ms, song_ms, requests, band, calibration, scopes=None)
 
 
 def clean_heads(head_ms, song_ms):
-    """Heads sorted, at least MIN_GAP_MS apart (later ones dropped) and at least MIN_GAP_MS before the song end."""
+    """Heads rounded to whole milliseconds, sorted, at least MIN_GAP_MS apart (later ones dropped) and at least
+    MIN_GAP_MS before the song end."""
     out = []
-    for t in np.sort(np.asarray(head_ms, dtype=np.float64)):
+    for t in np.sort(np.round(np.asarray(head_ms, dtype=np.float64))):
         if t >= 0 and t <= song_ms - MIN_GAP_MS and (not out or t - out[-1] >= MIN_GAP_MS):
             out.append(t)
     return np.array(out), len(head_ms) - len(out)
+
+
+def whole_ms_releases(head_ms, song_ms, gap):
+    """Gap releases rounded to whole milliseconds and kept strictly between the decision's neighbouring rows:
+    decision k releases in (head k-1, head k), the last decision before the song end. Heads are whole ms and at
+    least MIN_GAP_MS apart, so the interval holds a whole ms."""
+    gap = np.asarray(gap, dtype=np.float64)
+    lo = np.concatenate(([-np.inf], head_ms))[:len(gap)] + 1
+    hi = np.concatenate((head_ms, [np.ceil(song_ms)]))[:len(gap)] - 1
+    return np.clip(np.round(gap), lo[:, None], hi[:, None])
+
+
+def song_metadata(audio, index):
+    """(title, artist) from a cached human chart of the same audio file (sha256), else the file's stem and
+    "Unknown"."""
+    if index and Path(index).exists():
+        import pandas as pd
+        from ..osu_core.metadata import parse_osu_metadata
+        rows = pd.read_parquet(index, columns=['path', 'audio_sha256'])
+        for path in rows.path[rows.audio_sha256 == file_sha(audio)]:
+            if Path(path).exists():
+                meta = parse_osu_metadata(path)
+                if meta.title:
+                    return meta.title, meta.artist or 'Unknown'
+    return Path(audio).stem, 'Unknown'
 
 
 def song_r(head_ms, song_ms, actions, gap):
@@ -140,8 +172,10 @@ def file_sha(path):
     return sha.hexdigest()
 
 
-def write_export(head_ms, song_ms, seg, actions, gap, audio, workdir, osz, receipt, bookmarks=(), title='Ensomi'):
-    """Replay/legality-checked .osu and the audio in one .osz, plus the receipt."""
+def write_export(head_ms, song_ms, seg, actions, gap, audio, workdir, osz, receipt, bookmarks=(), title='Ensomi',
+                 artist='Unknown'):
+    """Replay/legality-checked .osu and the audio in one .osz, plus the receipt. Timing-point offsets are written as
+    whole milliseconds; heads and releases must already be whole."""
     from ..evaluation.redlines import read_red_lines
     from ..osu_core.hitobjects import parse_mania_hit_objects
     from ..r2.cache import decisions_from_objects
@@ -151,7 +185,10 @@ def write_export(head_ms, song_ms, seg, actions, gap, audio, workdir, osz, recei
     workdir.mkdir(parents=True, exist_ok=True)
     name = 'audio' + Path(audio).suffix.lower()
     shutil.copyfile(audio, workdir / name)
+    seg = np.array(seg, dtype=np.float64)
+    seg[:, 0] = np.round(seg[:, 0])
     header = minimal_header(seg, re.sub(r'[\r\n]', ' ', title))
+    header = header.replace('Artist:Ensomi\n', 'Artist:' + re.sub(r'[\r\n]', ' ', artist) + '\n')
     header = header.replace('[General]\n', f'[General]\nAudioFilename:{name}\n')
     header = header.replace('Version:R2', f"Version:Ensomi {receipt['setting']} s{receipt['seed']}\n"
                             'BeatmapID:0\nBeatmapSetID:-1')
@@ -238,7 +275,7 @@ class System:
         return on, s, c.get('reason')
 
     def make(self, audio, star, out, *, sections=(), ln='natural', difficulty_q='default', stream=(), jack=(),
-             copy=None, copy_jacks=None, seed=0, name=None, prepared=None):
+             copy=None, copy_jacks=None, seed=0, name=None, title=None, artist=None, prepared=None):
         from .arrange import arrange
         from .copy import CopyBias
         from .prior import kappa_targets, rows_features
@@ -294,6 +331,7 @@ class System:
             difficulty['default'] = difficulty_q == 'default'
             multiplier = difficulty['m_final']
         seconds['r2'] = time.monotonic() - t
+        gap = whole_ms_releases(head_ms, song_ms, gap)
         from ..r2.theta import decode
         K = len(head_ms)
         held, heads, ln_heads = decode(actions[:K])
@@ -344,10 +382,14 @@ class System:
             mask_firings_total=dict(zip(('reattack', 'quad', 'jack'), trace['mask_firings'][:K].sum(0).tolist())),
             quad_guard=quad, seconds=dict(seconds, total=time.monotonic() - t_all),
             claims='Characterisation only; no statistic here is validated against the human.')
+        if title is None or artist is None:
+            meta = song_metadata(prepared['audio'], c.get('cache_index'))
+            title, artist = title or meta[0], artist or meta[1]
+        receipt['metadata'] = dict(title=title, artist=artist)
         receipt = _jsonable(receipt)
         work = Path(out).with_suffix('')
         write_export(head_ms, song_ms, rows['segments'], actions, gap, prepared['audio'], work, out, receipt,
-                     bookmarks, title=Path(audio).stem)
+                     bookmarks, title=title, artist=artist)
         np.savez_compressed(work / 'arrays.npz', actions=actions, gap_release_ms=gap, head_ms=head_ms,
                             song_ms=song_ms)
         return receipt
@@ -370,6 +412,8 @@ def main(argv=None):
     p.add_argument('--seed', type=int, default=0)
     p.add_argument('--out', required=True, help='output .osz')
     p.add_argument('--name', help='short label for the difficulty name and work directory')
+    p.add_argument('--title', help='song title in the .osu; default from a cached chart of the audio, else its stem')
+    p.add_argument('--artist', help='song artist in the .osu; default from a cached chart of the audio, else "Unknown"')
     p.add_argument('--threads', type=int, default=1)
     a = p.parse_args(argv)
     import torch
@@ -377,7 +421,8 @@ def main(argv=None):
     system = System.load(json.loads(Path(a.config).read_text()))
     q = a.difficulty_q if a.difficulty_q is not None else a.difficulty
     receipt = system.make(a.audio, a.star, a.out, sections=json.loads(a.sections), ln=a.ln, difficulty_q=q,
-                          stream=a.stream, jack=a.jack, copy=a.copy, copy_jacks=a.copy_jacks, seed=a.seed, name=a.name)
+                          stream=a.stream, jack=a.jack, copy=a.copy, copy_jacks=a.copy_jacks, seed=a.seed, name=a.name,
+                          title=a.title, artist=a.artist)
     d = receipt['controls']['difficulty']
     print(json.dumps(dict(osz=a.out, K=receipt['rows']['K'], band=receipt['band'], copy=receipt['copy']['on'],
                           difficulty=None if d is None else {k: d[k] for k in ('q', 'target_r', 'achieved_r', 'm_final',

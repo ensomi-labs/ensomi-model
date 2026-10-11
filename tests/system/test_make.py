@@ -8,7 +8,8 @@ import pytest
 
 from ensomi_model.osu_core.hitobjects import parse_mania_hit_objects
 from ensomi_model.system.copy import CopyConfig, CopyPath
-from ensomi_model.system.make import System, clean_heads, difficulty_passes, parse_scope, resolve_requests
+from ensomi_model.system.make import (System, clean_heads, difficulty_passes, file_sha, parse_scope, resolve_requests,
+                                     song_metadata, whole_ms_releases)
 from ensomi_model.system.prior import Prior, fit_band
 
 from .helpers import calibration, grid, skeleton, tiny_r2
@@ -78,13 +79,14 @@ class StubRows:
         return self.prepared
 
     def heads(self, prepared, *, star=None, request=None, sections=(), seed=0, temperature=1.0):
-        return dict(head_ms=self.head, K=len(self.head), grid=self.grid, segments=np.array([[0.0, 500.0, 4.0]]),
+        return dict(head_ms=self.head, K=len(self.head), grid=self.grid, segments=np.array([[0.4, 500.0, 4.0]]),
                     song_ms=self.song, request=2.3, beats={}, seconds=0.01)
 
 
 def test_make_writes_a_playable_osz_and_its_receipt(tmp_path):
     rng = np.random.default_rng(1)
     head, song = skeleton(rng, 160)
+    head = head + 0.37                      # the Listener's grid gives fractional times
     g = grid()
     X = rng.normal(size=(50, 4))
     Y = np.column_stack((np.full(50, 0.1), np.full(50, 1.4), np.full(50, 0.03), np.full(50, 0.01), np.full(50, 0.25)))
@@ -99,7 +101,7 @@ def test_make_writes_a_playable_osz_and_its_receipt(tmp_path):
                     grid=g, song_ms=song)
     out = tmp_path / 'out' / 'x.osz'
     receipt = system.make(str(audio), 3.4, out, ln='half', stream=['5000,15000,0.9'], jack=['20000,30000,0.5'],
-                          seed=2, prepared=prepared)
+                          seed=2, title='A Song', artist='Someone', prepared=prepared)
     names = zipfile.ZipFile(out).namelist()
     assert sorted(names) == ['audio.ogg', 'generated.osu', 'receipt.json']
     saved = json.loads((out.with_suffix('') / 'receipt.json').read_text())
@@ -109,10 +111,33 @@ def test_make_writes_a_playable_osz_and_its_receipt(tmp_path):
     assert len(saved['controls']['sections']) == 2 and saved['export']['legal']
     assert saved['prior']['method'] == 'median' and saved['targets'][1] == pytest.approx(1.4 * saved['controls']['difficulty']['m_final'])
     parsed = parse_mania_hit_objects(out.with_suffix('') / 'generated.osu')
-    assert np.array_equal(np.unique([o.start_time_ms for o in parsed]), head)
+    assert np.array_equal(np.unique([o.start_time_ms for o in parsed]), np.round(head))
+    assert all(float(t).is_integer() for o in parsed for t in (o.start_time_ms, o.end_time_ms))
     text = (out.with_suffix('') / 'generated.osu').read_text()
     assert 'AudioFilename:audio.ogg' in text and 'Bookmarks:5000,15000,20000,30000' in text
-    assert text.count('[Metadata]') == 1
+    assert text.count('[Metadata]') == 1 and 'Title:A Song\n' in text and 'Artist:Someone\n' in text
+    timing = text.split('[TimingPoints]\n')[1].split('\n')[0]
+    assert timing.startswith('0,500') and saved['metadata'] == dict(title='A Song', artist='Someone')
+
+
+def test_whole_ms_releases_stay_between_their_rows():
+    n = np.nan
+    gap = [[n] * 4, [10.4, 15.6, 19.7, n], [29.9, 20.2, n, n]]
+    out = whole_ms_releases(np.array([10.0, 20.0]), 30.6, gap)
+    assert np.array_equal(out, [[n] * 4, [11, 16, 19, n], [30, 21, n, n]], equal_nan=True)
+
+
+def test_song_metadata_from_the_cache(tmp_path):
+    audio = tmp_path / 'audio.mp3'
+    audio.write_bytes(b'abc')
+    osu = tmp_path / 'x.osu'
+    osu.write_text('osu file format v14\n[Metadata]\nTitle:unravel\nArtist:Ado\n')
+    pd.DataFrame(dict(path=[str(osu)], audio_sha256=[file_sha(audio)])).to_parquet(tmp_path / 'index.parquet')
+    assert song_metadata(audio, tmp_path / 'index.parquet') == ('unravel', 'Ado')
+    other = tmp_path / 'b.mp3'
+    other.write_bytes(b'x')
+    assert song_metadata(other, tmp_path / 'index.parquet') == ('b', 'Unknown')
+    assert song_metadata(audio, None) == ('audio', 'Unknown')
 
 
 def test_copy_setting_resolution():
@@ -150,6 +175,7 @@ def test_cli_main_reads_its_flags(tmp_path, monkeypatch, capsys):
     receipt = json.loads((tmp_path / 'o' / 'receipt.json').read_text())
     assert receipt['controls']['ln']['mode'] == 'tap' and receipt['controls']['ln']['ln_heads'] == 0
     assert receipt['r2_seed'] == 955 and receipt['controls']['sections'][0]['concept'] == 'jack'
+    assert receipt['metadata'] == dict(title='song', artist='Unknown')
     make.main(['--config', str(tmp_path / 'system.json'), '--audio', str(audio), '--star', '2.0', '--out', str(out),
                '--difficulty', 'default'])
     assert json.loads(capsys.readouterr().out.strip().splitlines()[-1])['difficulty'] is None
