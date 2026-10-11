@@ -289,7 +289,9 @@ class System:
         return on, s, c.get('reason')
 
     def make(self, audio, star, out, *, sections=(), ln='natural', difficulty_q='default', stream=(), jack=(),
-             copy=None, copy_jacks=None, seed=0, name=None, title=None, artist=None, prepared=None):
+             copy=None, copy_jacks=None, seed=0, name=None, title=None, artist=None, prepared=None, progress=None):
+        """``progress(phase)``, when given, is called as each stage starts: 'timing' (not when ``prepared`` is
+        given), 'rows', 'arrangement', 'export'."""
         from .arrange import arrange
         from .copy import CopyBias
         from .prior import kappa_targets, rows_features
@@ -299,10 +301,13 @@ class System:
             raise ValueError(f'--ln must be one of {sorted(LN)}')
         t_all = time.monotonic()
         seconds = {}
+        progress = progress or (lambda phase: None)
         if prepared is None:
+            progress('timing')
             t = time.monotonic()
             prepared = self.rows.prepare(audio)
             seconds['listener'] = time.monotonic() - t
+        progress('rows')
         rows = self.rows.heads(prepared, star=star, sections=list(sections), seed=seed)
         seconds['rows'] = rows['seconds']
         song_ms, grid = rows['song_ms'], rows['grid']
@@ -330,6 +335,7 @@ class System:
             return a, g, tr
 
         q = self.config['default_q'][str(band)] if difficulty_q == 'default' else difficulty_q
+        progress('arrangement')
         t = time.monotonic()
         if q is None or q == 'off':
             multiplier, difficulty = 1.0, None
@@ -401,6 +407,7 @@ class System:
             title, artist = title or meta[0], artist or meta[1]
         receipt['metadata'] = dict(title=title, artist=artist)
         receipt = _jsonable(receipt)
+        progress('export')
         work = Path(out).with_suffix('')
         write_export(head_ms, song_ms, rows['segments'], actions, gap, prepared['audio'], work, out, receipt,
                      bookmarks, title=title, artist=artist)

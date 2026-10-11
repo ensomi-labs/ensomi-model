@@ -34,6 +34,12 @@ cuda = [
     "soundfile==0.13.1; platform_system == 'Linux'",
 ]
 
+service = [
+    "websockets==15.0.1",
+    "protobuf==5.29.6",
+    "ensomi-protocol @ git+https://github.com/ensomi-labs/protocol.git@c79ffbe5ac97ed3dbce92b92ef006325a4cddf3b",
+]
+
 [dependency-groups]
 dev = [
     "pytest==9.0.3",

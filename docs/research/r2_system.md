@@ -350,6 +350,42 @@ that `uv sync` installs failed to load (`dlopen` rejects its `__thread_bss`
 section); the check used a repaired copy of the same version. Other macOS
 versions were not tried.
 
+## Serve the app
+
+The Ensomi macOS app asks for whole charts over a websocket instead of running
+the model itself. The service loads the model directory once and answers the
+complete-chart messages of
+[EnsomiProtocol](https://github.com/ensomi-labs/protocol) (`chart.proto`, from
+version 0.2.0) as binary protobuf `Envelope` frames.
+
+```sh
+uv sync --python 3.10 --extra mps --extra service
+uv run --python 3.10 --extra mps --extra service python -m ensomi_model.service \
+  --model-dir artifacts/hf-r2 [--host 127.0.0.1] [--port 8765] [--cache-dir ensomi-service-cache]
+```
+
+The app connects to `ws://127.0.0.1:8765` and sends
+
+- `CapabilitiesRequest`, answered with `ModelCapabilities`: the model name and
+  version, the checksums in the model directory's `SHA256SUMS`, the star range
+  [2, 6) and each control with its status from "What you can ask for";
+- `GenerateChartRequest` with a non-empty `session_id`, the audio as
+  `local_path` (the service reads that path, so app and service run on one
+  machine), a star, an optional seed (default 0), the long-note amount and
+  section requests. It is answered with `GenerationProgress` as each phase
+  starts (loading, timing, rows, arrangement, export), then one `ChartResult`:
+  the chart as `{lane, start_ms, end_ms?}` objects in whole milliseconds with
+  no latency applied, the song length, a receipt, and the path of the `.osz`
+  written to the cache directory;
+- `StopSessionRequest` for that session to give up: the result is discarded and
+  the service answers with a stopped `StatusEvent`.
+
+Failures arrive as `ErrorEvent` with the code `star_out_of_range`,
+`audio_unreadable`, `unsupported_control` (a request the model refuses, for
+example a pattern span outside 8 to 32 seconds) or `generation_failed`. One
+chart is generated at a time and further requests wait. A stopped generation
+still runs to its end, so the next one starts after it.
+
 ## Files and licences
 
 | File | Bytes | SHA-256 |
