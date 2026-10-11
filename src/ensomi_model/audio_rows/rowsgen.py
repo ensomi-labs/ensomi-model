@@ -10,9 +10,10 @@ The copy heads never attend to empty beats while decoding, whatever the training
 free-running long songs: on the pilot weights the last fifth of long songs came out .89 below the
 request, and +.01 with the heads kept off empty beats (human charts -.27).
 
-``quiet_rests`` relaxes the rule where the music is quiet; it stays off by default. On the 96-song panel
-(full2-s1 5000, first chart per song, 2026-10-11), .40 raised the rest share of quiet interior sections from
-.053 to .076 (human .085); the last fifth of the 16 long songs was at -.10 (rule on: -.00, human -.15).
+``quiet_rests`` relaxes the rule where the music is quiet; the default is .40 (``QUIET_RESTS``, adopted
+2026-10-11; 0 restores the strict rule). On the 96-song panel (full2-s1 5000, first chart per song), .40 raised
+the rest share of quiet interior sections from .053 to .076 (human .085); the last fifth of the 16 long songs
+was at -.10 (rule on: -.00, human -.15).
 
 Section requests also steer at decode time: the learned section input moved a section by only
 16-21 % of its request in the pilot. Inside a section, every figure's log-probability gains
@@ -56,6 +57,7 @@ from .net import FigureNet, load_net
 
 SECTION_GAIN = 3.0      # tilt per unit of log W_H/s that the section so far lies below its request
 TILT_MAX = 2.0
+QUIET_RESTS = 0.40      # default ``quiet_rests``: copied rests allowed on the quietest 40 % of beats
 REST_WINDOW = 4         # beats on each side of a beat for its local intensity (``quiet_rests``)
 
 
@@ -92,13 +94,13 @@ def quiet_rank(mel, beat_frames, window: int = REST_WINDOW) -> np.ndarray:
 @torch.no_grad()
 def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, sections=(), seed: int = 0,
            temperature: float = 1.0, off=(), copy_rests: bool = False, section_gain: float = SECTION_GAIN,
-           quiet_rests: float = 0.0):
+           quiet_rests: float = QUIET_RESTS):
     """(head times [K] ms, per-beat record) for a whole song; ``mel`` [F, >=128] standardised log-Mel.
 
     ``off``: 'copy' forces the gate to the generator (diagnostics). ``copy_rests`` lets the copy
     heads attend to empty beats, ``section_gain`` 0 turns the section tilt off (diagnostics; see the
     module docstring). ``quiet_rests`` u lets the copy heads attend to empty beats on beats whose
-    ``quiet_rank`` is below u, so rests copy where the music is quiet (0, the default: never)."""
+    ``quiet_rank`` is below u, so rests copy where the music is quiet (default ``QUIET_RESTS``; 0: never)."""
     cfg = model.cfg
     b0, edges, pos_ms, extra = song_inputs(grid, song_ms, record, request, sections)
     nb = len(extra)

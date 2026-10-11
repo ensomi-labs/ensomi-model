@@ -114,11 +114,11 @@ def test_quiet_rests_keep_the_current_rule_at_zero_and_the_trained_heads_on_ever
     run = lambda seed, **kw: decode(model, RECORD, mel, g, song_ms, 2.5, seed=seed, **kw)[0]
     differs = 0
     for seed in range(4):
-        current, trained = run(seed), run(seed, copy_rests=True)
+        current, trained = run(seed, quiet_rests=0.0), run(seed, copy_rests=True)
         differs += len(current) != len(trained) or not np.array_equal(current, trained)
-        assert np.array_equal(run(seed, quiet_rests=0.0), current)
         assert np.array_equal(run(seed, quiet_rests=1.1), trained)
         heads = run(seed, quiet_rests=0.4)
+        assert np.array_equal(run(seed), heads)                         # the default is .40
         assert np.all(np.diff(heads) > 0) and heads.max() <= song_ms - 2.0
     assert differs
 
