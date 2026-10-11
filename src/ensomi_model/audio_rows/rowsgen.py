@@ -52,6 +52,7 @@ from .net import FigureNet, load_net
 
 SECTION_GAIN = 3.0      # tilt per unit of log W_H/s that the section so far lies below its request
 TILT_MAX = 2.0
+REST_WINDOW = 4         # beats on each side of a beat for its local intensity (``rests``)
 
 
 def star_request(record, star: float) -> float:
@@ -74,14 +75,29 @@ def song_inputs(grid, song_ms: float, record, request: float, sections=()):
     return b0, edges, pos_ms, extra
 
 
+def quiet_rank(mel, beat_frames, window: int = REST_WINDOW) -> np.ndarray:
+    """[nb] rank among the song's beats (0 quietest, 1 loudest) of each beat's local intensity: the mean
+    standardised log-Mel over the 128 bins (``measures.audio_curves``) from beat b - ``window`` to b + ``window``."""
+    nb = len(beat_frames)
+    cs = np.concatenate(([0.0], np.cumsum(np.asarray(mel[:, :MEL_BINS], dtype=np.float32).mean(1), dtype=np.float64)))
+    lo = beat_frames[np.maximum(np.arange(nb) - window, 0), 0]
+    hi = beat_frames[np.minimum(np.arange(nb) + window, nb - 1), 1]
+    return np.argsort(np.argsort((cs[hi] - cs[lo]) / np.maximum(hi - lo, 1), kind='stable')) / max(nb - 1, 1)
+
+
 @torch.no_grad()
 def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, sections=(), seed: int = 0,
-           temperature: float = 1.0, off=(), copy_rests: bool = False, section_gain: float = SECTION_GAIN):
+           temperature: float = 1.0, off=(), copy_rests: bool = False, section_gain: float = SECTION_GAIN,
+           rests=None):
     """(head times [K] ms, per-beat record) for a whole song; ``mel`` [F, >=128] standardised log-Mel.
 
     ``off``: 'copy' forces the gate to the generator (diagnostics). ``copy_rests`` lets the copy
     heads attend to empty beats, ``section_gain`` 0 turns the section tilt off (diagnostics; see the
-    module docstring)."""
+    module docstring). ``rests`` lets the copy heads copy rests in part (probe of 2026-10-11; default
+    ``None``, never), with ``rank`` from ``quiet_rank``: ('quiet', u) on beats whose rank is below u;
+    ('similar', u) from empty beats whose copy-key audio score q_b . k_j lies above the head's u-quantile
+    over the song's (beat, lag) pairs; ('cap', c) from every beat, with the copied rest mass capped at
+    c x max(0, 1 - 2 rank) and the excess given to the generator."""
     cfg = model.cfg
     b0, edges, pos_ms, extra = song_inputs(grid, song_ms, record, request, sections)
     nb = len(extra)
@@ -107,6 +123,11 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
                                ex, torch.ones(1, nb, dtype=torch.bool))
     pos, A, q, k, ex = pos[0], A[0], q[0], k[0], ex[0]
     V, lags = cfg.vocab, cfg.lags
+    kind, value = rests or (None, None)
+    rank = quiet_rank(mel, beat_frames) if kind in ('quiet', 'cap') else None
+    if kind == 'similar':
+        pairs = torch.cat([(q[d:] * k[:-d]).sum(-1) for d in range(1, min(lags, nb - 1) + 1)]) / cfg.key ** 0.5
+        floor = torch.quantile(pairs, value, dim=0)                                       # [heads]
     gen = torch.Generator().manual_seed(int(seed))
     ids = np.full(nb, -1, dtype=np.int64)
     gates = np.zeros((nb, 1 + cfg.heads), dtype=np.float32)
@@ -128,7 +149,12 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
             bj = np.where(jj - d >= 0, ids[np.maximum(jj - d, 0)], -1)
             eq.append((ok & (bj == before) & (before >= 0)).astype(np.float32))
         scores = model.copy_scores(q[b:b + 1], k[torch.from_numpy(jj)][None], torch.from_numpy(np.stack(eq, -1))[None])
-        att_ok = ok if copy_rests else ok & (np.where(ok, ids[jj], -1) != 0)
+        rest = ok & (np.where(ok, ids[jj], -1) == 0)
+        free = copy_rests or kind in ('similar', 'cap') or (kind == 'quiet' and rank[b] < value)
+        att_ok = ok if free else ok & ~rest
+        if kind == 'similar':
+            low = (q[b][None] * k[torch.from_numpy(jj)]).sum(-1).T / cfg.key ** 0.5 < floor[:, None]   # [heads, lags]
+            scores = scores.masked_fill(low[None] & torch.from_numpy(rest)[None, None], -torch.inf)
         g, logp, att = model.mixture(hb, logits, scores, torch.from_numpy(att_ok)[None])
         p_gen = logp[0].exp()
         if 'copy' in off:
@@ -139,6 +165,12 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
             for hd in range(cfg.heads):
                 p_h = (att[0, hd, -1] * p_gen).index_add(0, back_ids[okt], att[0, hd, :-1][okt])
                 p = p + g[0, 1 + hd] * p_h
+            if kind == 'cap':
+                copied = float((g[0, 1:] * att[0, :, :-1][:, torch.from_numpy(rest)].sum(-1)).sum())
+                excess = copied - value * max(0.0, 1.0 - 2.0 * rank[b])
+                if excess > 0:
+                    p[0] = (p[0] - excess).clamp_min(0.0)
+                    p = p + excess * p_gen
         p = p * allowed[b]
         if steer and not np.isnan(target[b]):
             if b == 0 or target[b - 1] != target[b]:         # a section starts (NaN never equals)

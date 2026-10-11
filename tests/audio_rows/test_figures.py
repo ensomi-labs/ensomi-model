@@ -7,7 +7,7 @@ from ensomi_model.audio_rows.lattice import snap
 from ensomi_model.audio_rows.net import FigureNet, NetConfig, nll
 from ensomi_model.audio_rows.rowmeasures import copy_readiness, locked
 from ensomi_model.audio_rows.audio import Song
-from ensomi_model.audio_rows.rowsgen import Rows, decode
+from ensomi_model.audio_rows.rowsgen import Rows, decode, quiet_rank
 from ensomi_model.r2.common import GridArrays, grid_from_arrays
 
 
@@ -100,6 +100,28 @@ def test_section_tilt_pulls_a_section_toward_its_request_and_stays_inside_it():
             assert np.all(rec['tilts'][~inside] == 0)
             assert gain == 0.0 or rec['tilts'][inside][1:].max() > 0
     assert n_in[3.0] > n_in[0.0]
+
+
+def test_rests_variants_keep_the_current_rule_at_zero_and_the_trained_heads_at_full_strength():
+    model = tiny_net().eval()
+    g = grid()
+    song_ms = 20_210.0
+    mel = np.random.default_rng(1).normal(size=(2021, 128)).astype(np.float32)
+    mel[:1000] += 1.0                                                   # a loud first half
+    beat_frames = np.stack((np.arange(41) * 50, np.arange(41) * 50 + 50), 1)
+    rank = quiet_rank(mel, beat_frames)
+    assert rank[:15].min() > rank[25:].max() and rank.min() == 0 and rank.max() == 1
+    run = lambda seed, **kw: decode(model, RECORD, mel, g, song_ms, 2.5, seed=seed, **kw)[0]
+    differs = 0
+    for seed in range(4):
+        current, trained = run(seed), run(seed, copy_rests=True)
+        differs += len(current) != len(trained) or not np.array_equal(current, trained)
+        assert np.array_equal(run(seed, rests=('quiet', 0.0)), current)
+        assert np.array_equal(run(seed, rests=('quiet', 1.1)), trained)
+        for rests in (('similar', 0.9), ('cap', 0.5)):
+            heads = run(seed, rests=rests)
+            assert np.all(np.diff(heads) > 0) and heads.max() <= song_ms - 2.0
+    assert differs
 
 
 def test_rows_gives_heads_on_the_listener_grid_for_a_star_request():
