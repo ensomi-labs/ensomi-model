@@ -3,9 +3,11 @@
 Each step draws ``batch`` fit_train charts uniformly and a window of up to ``window`` beats from
 each (start uniform). The audio is shifted by up to ±``shift_ms``; with probability
 ``section_rate`` a window carries true section requests on a share ``section_prob`` of its
-sections (``beatdata.Beats.window``). The pilot ran section_rate .5, section_prob .3 and
-copy_rests on; the defaults are the full-training recipe. Loss: mean figure NLL over the step's
-beats (``net.nll``), beats with a figure outside the vocabulary excluded.
+sections (``beatdata.Beats.window``). The defaults are the trained recipe (pilot and full length):
+section_rate .5, section_prob .3, copy heads trained on rests too; ``rowsgen.decode`` keeps them off
+empty beats. A full-length run with section_rate .75, section_prob .5 and copy_rests off thinned
+long songs far more at step 1,500 and was stopped. Loss: mean figure NLL over the step's beats
+(``net.nll``), beats with a figure outside the vocabulary excluded.
 
 The next batch is drawn in a background thread while the current one trains.
 
@@ -50,9 +52,9 @@ class FitConfig:
     eval_every: int = 250
     eval_windows: int = 64
     shift_ms: float = 10.0
-    section_rate: float = 0.75
-    section_prob: float = 0.5
-    copy_rests: bool = False
+    section_rate: float = 0.5
+    section_prob: float = 0.3
+    copy_rests: bool = True
     drop: float = 0.1
     kill_after: int = 2
     warn_step: int = 0              # early warning: stop when the dev NLL at this step exceeds warn_nll
