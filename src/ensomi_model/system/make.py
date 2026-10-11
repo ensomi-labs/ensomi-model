@@ -1,6 +1,6 @@
 """One command: audio, a star request and the controls in; a playable osu!mania 4K ``.osz`` and a receipt out.
 
-    python -m ensomi_model.system.make --config <system.json> --audio <file> --star 3.5 --out <x.osz> \
+    python -m ensomi_model.system.make (--config <system.json> | --model-dir <dir>) --audio <file> --star 3.5 --out <x.osz> \
         [--sections '[{"start_ms": 60000, "end_ms": 90000, "star": 4.5}]'] [--ln tap|half|natural] \
         [--difficulty-q Q | --difficulty off] [--stream A_MS,B_MS,Q[,jumpstream|chordstream]] \
         [--jack A_MS,B_MS,Q[,chordjack]] [--copy on|off] [--copy-jacks S] [--seed N] [--name LABEL] \
@@ -26,9 +26,11 @@ Stages:
    by the audio file's sha256), else the audio file's stem and "Unknown".
 
 The config (``system.json``) names the checkpoints and calibrations (paths relative to the job's cwd):
-``rows_model``, ``beatthis``, ``r2``, ``calibration`` (the demo's), ``prior``, ``copy`` (weights, ``default``
-on/off, ``strength``, ``reason``), ``default_q`` per band and, optionally, ``cache_index`` (the R2 cache's
-``index.parquet``, for song metadata). No statistic here is validated against the human.
+``rows_model``, ``beatthis`` (a checkpoint path, or a name such as ``final0`` that ``beat_this`` downloads), ``r2``,
+``calibration`` (the demo's), ``prior``, ``copy`` (weights, ``default`` on/off, ``strength``, ``reason``), ``default_q``
+per band and, optionally, ``cache_index`` (the R2 cache's ``index.parquet``, for song metadata). With ``--model-dir``
+the config is ``<dir>/system.json`` and every path in it, and the calibration's ``scope_table``, is relative to
+``<dir>``, so a downloaded model directory runs from any cwd. No statistic here is validated against the human.
 """
 from __future__ import annotations
 
@@ -243,18 +245,30 @@ class System:
         self._scopes = scopes
 
     @classmethod
-    def load(cls, config: dict):
+    def load(cls, config: dict, model_dir=None):
+        """``config`` paths are relative to the cwd, or to ``model_dir`` when given (``config`` itself is kept as
+        written, for the receipt)."""
         from ..audio_rows.rowsgen import Rows
         from ..r2.bakeoff_panel import load_model
         from .prior import Prior
+        root = Path(model_dir or '.')
+        path = lambda p: str(root / p)
+        beatthis = config['beatthis']
+        if (root / beatthis).exists():          # else a checkpoint name such as final0, which beat_this fetches
+            beatthis = path(beatthis)
         copy = None
-        hashes = {k: file_sha(config[k]) for k in ('rows_model', 'r2', 'prior')}
+        hashes = {k: file_sha(path(config[k])) for k in ('rows_model', 'r2', 'prior')}
         if config.get('copy', {}).get('weights'):
             from .copytrain import load_model as load_copy
-            copy = load_copy(config['copy']['weights']).to('cpu')
-            hashes['copy'] = file_sha(config['copy']['weights'])
-        return cls(config, Rows.load(config['rows_model'], config['beatthis']), load_model(config['r2']),
-                   json.loads(Path(config['calibration']).read_text()), Prior.load(config['prior']), copy, hashes)
+            copy = load_copy(path(config['copy']['weights'])).to('cpu')
+            hashes['copy'] = file_sha(path(config['copy']['weights']))
+        cal = json.loads(Path(path(config['calibration'])).read_text())
+        cal['scope_table'] = path(cal['scope_table'])
+        cache_index = config.get('cache_index')
+        if cache_index:
+            config = dict(config, cache_index=path(cache_index))
+        return cls(config, Rows.load(path(config['rows_model']), beatthis), load_model(path(config['r2'])), cal,
+                   Prior.load(path(config['prior'])), copy, hashes)
 
     @property
     def scopes(self):
@@ -397,7 +411,9 @@ class System:
 
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__.split('\n')[0], formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument('--config', required=True, help='system.json')
+    g = p.add_mutually_exclusive_group(required=True)
+    g.add_argument('--config', help='system.json, paths relative to the cwd')
+    g.add_argument('--model-dir', help='a model directory: <dir>/system.json with paths relative to <dir>')
     p.add_argument('--audio', required=True)
     p.add_argument('--star', type=float, required=True, help='star request, 2 <= star < 6')
     p.add_argument('--sections', default='[]', help='rows sections: JSON list of {start_ms, end_ms, star or request}')
@@ -418,7 +434,8 @@ def main(argv=None):
     a = p.parse_args(argv)
     import torch
     torch.set_num_threads(a.threads)
-    system = System.load(json.loads(Path(a.config).read_text()))
+    config = Path(a.config or Path(a.model_dir) / 'system.json')
+    system = System.load(json.loads(config.read_text()), a.model_dir)
     q = a.difficulty_q if a.difficulty_q is not None else a.difficulty
     receipt = system.make(a.audio, a.star, a.out, sections=json.loads(a.sections), ln=a.ln, difficulty_q=q,
                           stream=a.stream, jack=a.jack, copy=a.copy, copy_jacks=a.copy_jacks, seed=a.seed, name=a.name,
