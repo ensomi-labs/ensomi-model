@@ -6,6 +6,7 @@ They record implementations and measurements. The
 
 | Document | Covers |
 | --- | --- |
+| [Ensomi R2](r2_system.md) | the released end-to-end system: timing system, rows model and R2, decode-time rules, verification, runtime, files and licences |
 | [Bounded typed continuation](bounded_typed_continuation.md) | the R1 task, model, training stages and generation commands |
 | [Staged R1 restoration](r1_staged_restoration.md) | the six-stage recipe behind the released checkpoint |
 | [Vacation training queue](vacation_training.md) | unattended multi-day queue: audio cache, 35M teacher, stress runs |
@@ -46,6 +47,17 @@ Each stage of the R1 lineage ended at a commit on this branch's history.
 | `3500eac` | vacation training queue |
 | `cdbc687` | staged restoration; training revision of the released checkpoint |
 | `8f13103` | release, tag `r1-restored-6.75m` |
+
+## Ensomi R2 training commits
+
+The released checkpoints were trained from these commits, which are on `main`.
+The tags `rows-1.0`, `timing-1.0` and `r2-1.0` mark the release commit, which
+holds the code that runs the released system.
+
+| Commit | Component |
+| --- | --- |
+| `cf753aa` | rows model; the training run's recorded settings, not the defaults of a later checkout, are authoritative |
+| `3954031` | R2 phase N (56,000,574 exposures) |
 
 ## Archived branches
 

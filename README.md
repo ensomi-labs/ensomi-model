@@ -1,11 +1,80 @@
 # Ensomi Model
 
 Research code for Ensomi V3, a system that generates 4-key rhythm-game charts
-(osu!mania 4K) from music. This branch holds the problem definition and the one
-released model. Earlier and unfinished lines of work live on other refs, listed
-under [History](#history).
+(osu!mania 4K) from music. This branch holds the problem definition and the two
+released models: the end-to-end system [Ensomi R2](#released-model-ensomi-r2)
+and, below it, the earlier continuation model [R1](#earlier-released-model-r1).
+Earlier and unfinished lines of work live on other refs, listed under
+[History](#history).
 
-## Released model: R1
+## Released model: Ensomi R2
+
+Ensomi R2 turns an audio file and a star request into a legal osu!mania 4K
+`.osz`: the chart, the audio and a receipt of every setting and measurement. It
+runs three components: a timing system that fits a beat grid to the audio, a
+rows model that places the chart's head rows, and R2, which arranges lanes, taps
+and long notes for each head row under a corpus prior, a restoring force,
+playability masks and four controls. It generates a whole song at a time, in
+8 to 12 s on an Apple M5 CPU for a 2 to 3.3 minute song.
+
+![SaiGetsu: Ensomi R2 generated chart](https://huggingface.co/sed-i/ensomi-r2/resolve/main/previews/saigetsu.png)
+
+| Adventure | Catch the Moment |
+| --- | --- |
+| ![Adventure: Ensomi R2 generated chart](https://huggingface.co/sed-i/ensomi-r2/resolve/main/previews/adventure.png) | ![Catch the Moment: Ensomi R2 generated chart](https://huggingface.co/sed-i/ensomi-r2/resolve/main/previews/catch-the-moment.png) |
+
+Yellow notes are taps and cyan notes are long notes. Each panel reads bottom to
+top, then continues in the panel to its right. These are seed-0 outputs of the
+released system; they illustrate behavior and are not a quality benchmark. The
+[gallery](https://huggingface.co/sed-i/ensomi-r2/blob/main/PREVIEWS.md) has four
+songs with their generated `.osu` files.
+
+| | |
+| --- | --- |
+| Weights, prior, calibration | [`sed-i/ensomi-r2`](https://huggingface.co/sed-i/ensomi-r2) on Hugging Face, licensed CC BY-NC-SA 4.0 (no commercial use) |
+| Release tags | `rows-1.0`, `timing-1.0`, `r2-1.0`, all on one commit |
+| Report | [`docs/research/r2_system.md`](docs/research/r2_system.md) |
+| Inputs | complete audio, a star request in [2, 6), optional controls |
+| Outputs | `.osz` with whole-millisecond times, and `receipt.json` |
+
+What it does not do:
+
+- It does not stream. The rows model needs the complete audio first.
+- Long-note amount on generated rows, absolute section difficulty, chordjack
+  requests and copy are not offered as working. Whole-song difficulty by star
+  and jumpstream and chordstream requests passed one listener's screen.
+- It is checked for legal rows and an exact osu! export. Playability and musical
+  quality are established only by that listener's screens, one seed per side; the
+  human chart was chosen in all three reference pairs. The
+  [report](docs/research/r2_system.md#what-was-verified) has the evidence and
+  its limits.
+
+### Generate a chart
+
+Install [uv](https://docs.astral.sh/uv/) and the
+[Hugging Face CLI](https://huggingface.co/docs/huggingface_hub/guides/cli).
+Use `--extra cuda` instead of `--extra mps` on Linux with NVIDIA; only macOS
+arm64 with the CPU has been checked.
+
+```sh
+git clone https://github.com/ensomi-labs/ensomi-model.git
+cd ensomi-model
+git checkout --detach r2-1.0
+uv sync --python 3.10 --extra mps
+hf download sed-i/ensomi-r2 --local-dir artifacts/hf-r2
+
+uv run --python 3.10 --extra mps python -m ensomi_model.system.make \
+  --model-dir artifacts/hf-r2 --audio /path/to/song.mp3 --star 3.5 \
+  --title "Song title" --artist "Artist" --seed 0 --out artifacts/my-chart.osz
+```
+
+`--model-dir` takes `artifacts/hf-r2/system.json` as the config and resolves its
+paths against that directory, so the command runs from any working directory.
+BeatThis `final0` is downloaded on the first run from its own source. The
+`--config` form with paths relative to the working directory remains for
+development. `python -m ensomi_model.system.make --help` lists the controls.
+
+## Earlier released model: R1
 
 R1 continues a chart. Given a short playable seed and the times at which events
 occur, it chooses the lanes, taps, long-note starts and releases for the rest of
@@ -106,7 +175,9 @@ target.
 After the R1 release, work from 2026-09-23 to 2026-09-29 tried to replace the
 supplied event times with timing learned from audio and to train timing and rows
 jointly. It produced working prototypes and evaluation tools, and no model that
-qualified as playable. That code is not on this branch.
+qualified as playable. That code is not on this branch. The line that followed
+split the problem: the timing system, the rows model and R2 are trained
+separately and released together as [Ensomi R2](#released-model-ensomi-r2).
 
 - Research questions, human decisions and outcomes:
   [`RESEARCH.md` on the `relay-notes` branch](https://github.com/ensomi-labs/ensomi-model/blob/relay-notes/RESEARCH.md).
@@ -118,7 +189,10 @@ qualified as playable. That code is not on this branch.
 | Path | Contents |
 | --- | --- |
 | [`docs/formulation/`](docs/formulation/README.md) | V3 problem definition, notation, gameplay semantics, and style conditions and control |
-| [`docs/research/`](docs/research/README.md) | R1 task, training recipe and generation guide; index of earlier work |
+| [`docs/research/`](docs/research/README.md) | the Ensomi R2 report; R1 task, training recipe and generation guide; index of earlier work |
+| `src/ensomi_model/system/` | the end-to-end entry point (`System`, `make`), the prior, the controls and the arrangement loop |
+| `src/ensomi_model/audio_rows/` | the timing system (Listener, grid fitter) and the rows model |
+| `src/ensomi_model/r2/` | R2: model, sampling, strain, export |
 | `src/ensomi_model/research/bounded_typed_continuation/` | R1 model, training and generation |
 | `src/ensomi_model/research/r1_restore/`, `vacation_training/` | staged training workers |
 | `src/ensomi_model/research/oracle_time_continuation/` | row replay, corpus cache and the causal backbone R1 builds on |
@@ -137,6 +211,7 @@ Tests run with `uv run --python 3.10 --extra mps --group dev pytest`.
 | 2026-09-13 to 2026-09-15 | scoped style probes, source-action modeling | branch `legacy/v2` |
 | 2026-09-15 to 2026-09-21 | oracle-time continuation, R1 stages and release | this branch, tag `r1-restored-6.75m` |
 | 2026-09-23 to 2026-09-29 | audio-conditioned joint model | tag `audio-joint-2026-09` |
+| 2026-10 | R2, the timing system and the rows model; the end-to-end system | this branch, tags `r2-1.0`, `timing-1.0`, `rows-1.0` |
 
 `legacy/v2` is this branch as it stood before the cleanup. The Ensomi client's
 websocket endpoint is served from there. [`docs/research/README.md`](docs/research/README.md)
@@ -145,4 +220,7 @@ lists the archived branches.
 ## License
 
 Ensomi Model is licensed under the GNU Affero General Public License v3.0 only
-(`AGPL-3.0-only`). See [`LICENSE`](LICENSE).
+(`AGPL-3.0-only`). See [`LICENSE`](LICENSE). The released weights, prior,
+calibration and previews on Hugging Face are licensed separately: Ensomi R2's
+under CC BY-NC-SA 4.0 (no commercial use) and R1's under `AGPL-3.0-only`.
+BeatThis, which the timing system downloads, is MIT licensed.
