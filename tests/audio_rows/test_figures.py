@@ -6,7 +6,8 @@ from ensomi_model.audio_rows.beatdata import EXTRA_DIM
 from ensomi_model.audio_rows.lattice import snap
 from ensomi_model.audio_rows.net import FigureNet, NetConfig, nll
 from ensomi_model.audio_rows.rowmeasures import copy_readiness, locked
-from ensomi_model.audio_rows.rowsgen import decode
+from ensomi_model.audio_rows.audio import Song
+from ensomi_model.audio_rows.rowsgen import Rows, decode
 from ensomi_model.r2.common import GridArrays, grid_from_arrays
 
 
@@ -76,6 +77,43 @@ def test_decode_emits_heads_inside_the_song_on_vocabulary_figures():
     heads, rec = decode(model, record, mel, g, song_ms, 2.5, sections=[(1000.0, 3000.0, 3.0)], seed=3)
     assert np.all(np.diff(heads) > 0) and heads.min() >= 0 and heads.max() <= song_ms - 2.0
     assert len(heads) == FG.counts(rec['figures']).sum()
+
+
+RECORD = dict(vocab=[0, 1, 1 | (1 << 12), (1 << 6) | (1 << 18), 1 | (1 << 6) | (1 << 12) | (1 << 18), 1 << 12],
+              label_mean=2.0, label_std=1.0, star_map=dict(star=[2.0, 6.0], request=[1.5, 3.5]))
+
+
+def test_section_tilt_pulls_a_section_toward_its_request_and_stays_inside_it():
+    model = tiny_net().eval()
+    g = grid()
+    song_ms = 20_210.0
+    mel = np.random.default_rng(1).normal(size=(2021, 128)).astype(np.float32)
+    sec = [(5000.0, 15000.0, 5.0)]
+    n_in = {}
+    for gain in (0.0, 3.0):
+        n_in[gain] = 0
+        for seed in range(3):
+            heads, rec = decode(model, RECORD, mel, g, song_ms, 1.0, sections=sec, seed=seed, section_gain=gain)
+            n_in[gain] += int(((heads >= 5000.0) & (heads < 15000.0)).sum())
+            start = np.clip(rec['edges'][:-1], 0, song_ms)
+            inside = (start >= 5000.0) & (start < 15000.0)
+            assert np.all(rec['tilts'][~inside] == 0)
+            assert gain == 0.0 or rec['tilts'][inside][1:].max() > 0
+    assert n_in[3.0] > n_in[0.0]
+
+
+def test_rows_gives_heads_on_the_listener_grid_for_a_star_request():
+    class Listener:
+        def listen(self, audio):
+            mel = np.random.default_rng(2).normal(size=(1200, 130)).astype(np.float16)
+            return Song(mel, np.array([[130.0, 500.0]]), 12_000.0, dict(listen=0.1))
+
+    rows = Rows(tiny_net().eval(), RECORD, Listener())
+    prepared = rows.prepare('song.ogg')
+    r = rows.heads(prepared, star=3.0, sections=[dict(start_ms=4000.0, end_ms=8000.0, star=5.0)], seed=1)
+    assert r['K'] == len(r['head_ms']) > 0 and r['request'] == 2.0
+    assert np.all(np.diff(r['head_ms']) > 0) and r['head_ms'][-1] <= r['song_ms'] - 2.0
+    assert r['segments'].shape == (1, 3) and r['grid'].bpm(np.array([1000.0]))[0] == 120.0
 
 
 def test_copy_readiness_and_locked_stretches_on_a_repeated_bar():
