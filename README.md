@@ -9,13 +9,15 @@ Earlier and unfinished lines of work live on other refs, listed under
 
 ## Released model: Ensomi R2
 
-Ensomi R2 turns an audio file and a star request into a legal osu!mania 4K
-`.osz`: the chart, the audio and a receipt of every setting and measurement. It
-runs three components: a timing system that fits a beat grid to the audio, a
-rows model that places the chart's head rows, and R2, which arranges lanes, taps
-and long notes for each head row under a corpus prior, a restoring force,
-playability masks and four controls. It generates a whole song at a time, in
-8 to 12 s on an Apple M5 CPU for a 2 to 3.3 minute song.
+Ensomi R2 turns a song into an osu!mania 4K chart. Give it an audio file and a
+star rating, and it writes a complete `.osz` with the chart, the audio and a
+receipt of every setting used. A timing system fits a beat grid to the song, a
+rows model decides where notes start, and R2 arranges the lanes, taps and long
+notes, holding a chart-level character taken from similar human charts. It
+generates a whole song at a time, in 8 to 12 s for a 2 to 3.3 minute song on
+one CPU thread of an Apple M5. The [report](docs/research/r2_system.md) tells
+what the project is aiming for, the decisions that shaped R2 and what it can
+and cannot do yet.
 
 ![SaiGetsu: Ensomi R2 generated chart](https://huggingface.co/sed-i/ensomi-r2/resolve/main/previews/saigetsu.png)
 
@@ -37,17 +39,19 @@ songs with their generated `.osu` files.
 | Inputs | complete audio, a star request in [2, 6), optional controls |
 | Outputs | `.osz` with whole-millisecond times, and `receipt.json` |
 
-What it does not do:
+What has been checked, and what has not:
 
-- It does not stream. The rows model needs the complete audio first.
-- Long-note amount on generated rows, absolute section difficulty, chordjack
-  requests and copy are not offered as working. Whole-song difficulty by star
-  and jumpstream and chordstream requests passed one listener's screen.
-- It is checked for legal rows and an exact osu! export. Playability and musical
-  quality are established only by that listener's screens, one seed per side; the
-  human chart was chosen in all three reference pairs. The
-  [report](docs/research/r2_system.md#what-was-verified) has the evidence and
-  its limits.
+- Every chart is legal and exported exactly. Playability and musical quality
+  rest on one listener's blind screens, one seed per side: the new rows were
+  preferred over the earlier generator 10 to 3, and the human chart was chosen
+  over R2's in all three reference pairs.
+- Star rating and jumpstream and chordstream requests work in those screens.
+  The long-note amount control does not work yet; section difficulty and
+  chordjack are not offered as working, and copy is off.
+- It generates a whole song at a time; it does not play along in real time.
+
+The [report](docs/research/r2_system.md#what-has-been-checked) has the evidence
+and its limits.
 
 ### Generate a chart
 

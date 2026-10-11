@@ -1,138 +1,390 @@
-# Ensomi R2: the end-to-end chart system
+# Ensomi R2: from a song to a playable chart
 
-<!-- SKELETON: facts only, for the main thread to write up. The "Source" columns and bracketed anchors name the
-relay-note file (artifacts/<file>.md) and anchor each figure came from; remove them before publishing, the notes are
-not public. -->
+Ensomi R2 turns a song into an osu!mania 4K chart. Give it an audio file and a
+star rating, and a few seconds later it writes a complete `.osz` that opens in
+osu!. It is the first Ensomi release that starts from audio alone. The previous
+release, [R1](bounded_typed_continuation.md), could only continue a chart that
+a person had already mapped.
 
-## What it is
+This report explains what the project wants a chart generator to be, the
+decisions that shaped R2 and why they were made, how the system works, and what
+it can and cannot do yet.
 
-- Audio file + star request in [2, 6) + optional controls in; legal osu!mania 4K `.osz` (chart, audio, `receipt.json`) out.
-- Code: `src/ensomi_model/system/` (entry `System`, `make`), `src/ensomi_model/audio_rows/` (timing system, rows model), `src/ensomi_model/r2/`.
-- Whole song at a time; the rows model needs the complete audio and the head-row count before R2's first row. Not streaming. [handoff-20261011-e2e, "It generates a whole song at a time"]
-- Tags `rows-1.0`, `timing-1.0`, `r2-1.0` on the release commit (to be created by the caller). Hugging Face: `sed-i/ensomi-r2`.
+| | |
+| --- | --- |
+| Weights | [`sed-i/ensomi-r2`](https://huggingface.co/sed-i/ensomi-r2) on Hugging Face, CC BY-NC-SA 4.0 |
+| Code | tags `timing-1.0`, `rows-1.0` and `r2-1.0`, all on one release commit; AGPL-3.0-only |
+| Components | a timing system (no trained weights of its own), a rows model (2.1M parameters) and R2 (2.4M parameters) |
+| Input | an audio file, a star rating from 2 up to 6, optional requests |
+| Output | a legal osu!mania 4K `.osz` with the audio, and a receipt of every setting used |
+| Speed | 8-12 s for a 2-3.3 minute song on one CPU thread of an Apple M5 |
 
-## Components
+## What we are building toward
 
-| Component | Tag | Parameters | Training data | Training commit |
-| --- | --- | --- | --- | --- |
-| Timing system (Listener) | `timing-1.0` | none of its own; BeatThis `final0` (third party, MIT, not redistributed) | no training | code `audio_rows/audio.py`, `audio_rows/fitter/` |
-| Rows model | `rows-1.0` | 2,105,199 trainable + 8,853-figure buffer; 9,622,005 bytes; no optimizer state | 11,368 train charts, 1,163 dev | `cf753aa`; run `config.json` is authoritative (two later commits changed `fit.py` defaults; the job passed settings explicitly) [release-r2-20261011, `o-release-inventory`] |
-| R2 (frozen, phase N) | `r2-1.0` | 2,404,724; slim file 9,655,631 bytes (`model`, `model_config`); training checkpoint 27.3 MB incl. 17.6 MB optimizer state | R2 cache v1: 12,531 charts, 13.97M head rows; fit_train 11,368 charts in 4,167 groups | `3954031` |
+Ensomi wants to change how music and choreography are joined, so that
+listening to music, playing it and creating for it become one activity. Three
+scenarios carry that aim:
 
-Sources: parameter counts, bytes: `artifacts/release-r2/ckpt_inspect.json` (mac) and [r2-v2-stage0-state, `s-v2-stage0-state`] for 2,404,724; corpus counts: [handoff-20261008-audio-rows.md, `summary.json` line "12,531 charts, 13.97M head rows"], rows record `train_charts` 11368, `dev_charts` 1163 (`artifacts/release-r2/rec_inspect.txt`).
+- **Ambient play.** Music is already playing around you. Ensomi recognises it,
+  finds the current position and plays a chart, generated in real time, that
+  follows the music without interrupting it.
+- **Mapping.** A mapper selects one section and asks for candidate
+  choreography while the rest of the chart stays in place. Candidates are
+  compared, kept, retried or undone. Choice and expression stay with the
+  mapper.
+- **Training.** A player picks music they like and a movement to practise, and
+  the chart is shaped around it.
 
-### Timing system facts
+From these follow the properties a generated chart needs:
 
-- Pipeline (`audio_rows/audio.py` docstring): BeatThis `final0` beat/downbeat probabilities -> legacy grid fit -> `refine_segments` to BeatThis sub-frame peaks -> `downbeat_phase` -> `mel_phase` (segment offset to the song's own log-Mel onsets) -> `mel_tempo` (tempo refit to their drift). Model inputs: standardised 128-bin log-Mel at 10 ms hop (24 kHz) + BeatThis beat/downbeat probabilities.
-- Log-Mel flux onsets about 2.7 ms rSD from mappers' beats within a chart vs 6.5 ms for BeatThis peaks; Mel steps need no training, add about 0.003 s per audio-minute. [timing-phase-20261009, `s-timing-final`]
-- Sealed holdout, 519 charts of 289 songs (one song failed BeatThis's loader, excluded), paired on identical `final0` logits [timing-phase-20261009, `o-opt-final`]:
-  - charts with 90 % of heads within 20 ms (S1-20): 0.784 -> 0.850 (+0.066 [+0.033, +0.101]);
-  - heads within 20 ms (H-20): 0.897 -> 0.931 (+0.034 [+0.018, +0.055]);
-  - S1-10: 0.514 -> 0.674.
-- Runtime 1.499 s per audio-minute, quiet mac, CPU, 2 threads [`o-opt-final`].
-- No human has screened the grids by ear [`o-opt-final`, "Evidence strength"]. Out of reach chart-free: per-set offset at 10 ms (ridge on 166 descriptors, R² at most 0.08); short tempo sections and phase resets (85 % of those spans hold fewer than four BeatThis peaks) [`s-timing-final`].
+- **Legal and playable** at the requested difficulty, from 2 to 6 stars. The
+  reference is the whole population of osu!'s ranked and loved 4K charts in
+  that range: mostly ordinary charts, together with the expressive styles that
+  ranked mapping contains. A generator should be able to produce what that
+  population produces, not one average chart.
+- **Musical.** Notes fall on the music's events; the chart rests where the
+  music rests and repeats where the music repeats.
+- **Coherent over a whole song.** A human chart has a character (how many long
+  notes, how dense the chords, how the hands share the work) that the mapper
+  chooses once and holds to the end. A generated chart needs one too.
+- **Steerable.** Difficulty, long-note amount and section styles such as stream
+  or jack are requests that change the output in the requested way while it
+  stays playable.
+- **Causal in its decisions.** The system may listen to the whole song, but it
+  places notes in order, so that one day a chart can be produced ahead of
+  playback.
 
-### Rows model facts
+R2 serves the simplest form of the mapping and training scenarios: a whole
+song, generated while you wait. It does not yet play along with music in real
+time, and it does not regenerate one section inside an existing chart.
 
-- Architecture (`audio_rows/net.py` docstring, record `net`): frame encoder (dilated convs, about ±310 ms), transformer over beats (window ±64, 4 heads, 2 layers), GRU hidden 256, figure vocabulary 8,853 over 24 positions, 4 audio-keyed copy heads over 64 lags, request = log(W_H / s).
-- Training record (`rec_inspect.txt`): 5,000 steps, batch 8, window 512, lr 2e-3 -> 2e-4, warmup 100, seed 1, device mps, `copy_rests` true; label_mean 2.392, label_std 0.627; `star_map` of 16 star/request points.
-- Chosen model `full2-s1` step 5,000 vs the old generator, 96 held-out fit_dev songs, 231 human charts, 2 seeds, characterising only [rows-e2e-20261010, `o-p1-stageb`]:
+## How we got here
 
-  | Measure | Rows | Old | Human |
-  | --- | ---: | ---: | ---: |
-  | onsets over a half-beat shift | .050 | .024-.028 | .052 |
-  | rows repeating where the audio repeats | .19 | .05 | .234 |
-  | head F1 at 20 ms | .74 | .66 | pairs .868 |
-  | figure agreement | .71 | .61 | pairs .978 |
+**Earlier lines of work, May to September 2026.** A mapper, a timing-grid
+fitter, a control system and later an audio-conditioned joint model all
+produced charts. A review at the end of September found that their own
+evaluators could not tell their failures from their successes, and that some
+claims described components the played system did not run. That work is on
+branch `legacy/v2` and tag `audio-joint-2026-09`.
 
-  - Input ablations: request from another chart of the same audio +.068 nats/beat; copy heads off +.41; position audio off +.72.
-  - Attained density rises with the request on 100 % of songs. End third minus first third +.20 to +.23 (human -.02, wide).
+**R1, September.** The project restarted from a small model with an exact
+chart contract. R1 continues a chart from a seed, at event times taken from an
+existing chart. Its legality, replay and export are exact, and that core lives
+on in R2. As a chart maker it failed, for two reasons. The event times it was
+given included the source chart's long-note releases, so its long notes were
+partly another mapper's choreography. And it was trained only to predict the
+next row of human charts, which did not keep it good over a whole song of its
+own output.
 
-### R2 facts
+**R2, October.** R2 arranges notes on given head rows. Trained first on
+natural structure alone, it produced legal charts that drifted over long songs.
+Once the cause was found (below), a decode-time fix and corpus-measured
+playability limits turned it into a demo that does not drift and responds to
+four controls, without new training. Head-row generation was then redesigned
+from scratch to hear the music's rhythm, and with it the system runs from audio
+alone. The project's lead screened the result blind on 2026-10-11 and judged it
+playable. That system is this release.
 
-- Architecture: TCN (82.8 % of parameters), hidden 128, 8 levels, FiLM conditioner width 128, memory `none`, `rule_l` on, 625-way lane-action code per head row plus gap releases. Does not read audio. [r2-v2-stage0-state; `ckpt_inspect.json` `model_config`]
-- Phase N: teacher-forced CE, no conditions. Config: lr 3e-4, warmup 20k, cosine to 3e-5, window 256, accumulate 4, checkpoints every 4M, 64M budget, CPU 4 threads, seed 171. [r2-phasen-and-lens-20261006, `s-phasen-tune`, `r-phasen-run`; run `config.json`]
-- Run ended at 64,000,573 exposures; fit_dev natural NLL per decision: 2.130 (24M), 2.089 (32M), 2.071 (40M), 2.070 (48M), 2.075 (56M), 2.084 (64M). [`o-phasen-finished`]
-- Selection of 56M (56,000,574 exposures): corrected guards (iv) v2 and (v); 56M passes everything ((iv) 0.454 / 0.746, (v) +0.034); 24M also passes but lies outside the two-SE NLL plateau; 48M fails (iv) near-head releases (1.355); 32M fails (iv); 16M, 40M, 64M fail (v). [`o-selection-v2`; code `827e306`, report `artifacts/r2-guard-v2-20261007/report.md` on the mac]
-  - Caveat: the run directory's `selection.json` predates the correction and records "no selection: no candidate passes every guard". The guards were calibrated on a short panel and are not validated against the human (guardrail 1 in `.agents/skills/ensomi-research-guardrails`).
-- 56,000,574 exposures about 4.4 passes over 12.7M fit_train head rows (121.7M exposures = about 9.6 passes, so 12.7M head rows) [r2-condition-plan.md].
+## The decisions that shaped R2
 
-## Decode-time parts
+**The ear decides; measures describe.** No automatic measure has yet been
+shown to recognise what an experienced player rejects in a chart. Ranked charts
+contain the very patterns a player objects to in generated ones, so a defect is
+a matter of where and how often, not whether. Every quality decision in R2 was
+therefore made by blind listening: pairs of charts in Beatmap Lens Compare,
+sides hidden, criteria written before the pairs were built. Measures are used
+to describe and diagnose. A capability is claimed only after such a check, and
+human charts serve as a reference, not as a ceiling the system may not pass.
 
-- **Star to request:** `star_request` through the record's `star_map`.
-- **Section tilt** (`rowsgen.py`): in a section each figure's log-probability gains head count x tilt; tilt = `SECTION_GAIN` 3.0 x (request - realised), clipped to ±`TILT_MAX` 2.0; realised = log W_H/s over the section's beats so far, extended back to the last 4. Learned section input alone moves 12-17 % of a request; tilt moves 80-92 %, right direction 96-98 %, spill .09-.15. [`o-p1-stageb`]
-- **Copy heads off empty beats** (`copy_rests` off at decode): on pilot weights the last fifth of long songs was .89 below the request, +.01 with the heads kept off empty beats (human -.27). A decode-time patch on pilot-recipe weights, not a training fix; one untested arm would separate the causes. [`rowsgen.py` docstring; `o-drift-rca`]
-- **Quiet-rests rule** `quiet_rests` 0.40 (`QUIET_RESTS`, `REST_WINDOW` 4): copy heads may attend to empty beats below the song's 40th percentile of local intensity. 96-song panel: quiet-section rests .053 -> .076 [.057, .098] (human .085), paired +.023 [.013, .035]; long-song last fifth -.095 (human -.146); gain in bands 4-5 (band 5 overshoots .113 vs .079), bands 2-3 barely move; precision .409 -> .372, recall .314 -> .363. Adopted as default. [rows-e2e-20261010, `o-rests`, `s-rests-adopt`]
-- **Prior** (`system/prior.py`, `prior.json`): kNN, 64 neighbours, fit_train 11,368 charts (per band 3,754 / 3,530 / 2,819 / 1,265 train charts); features log rows/s, log median gap, log W_H/s, log BPM; targets held share, heads per row, busy-free, quad share, log r. Replaces the source chart's values the R2 demo used. [`o-p2`; prior.json]
-- **Restoring force** (`system/arrange.py`): candidate bias = -(candidate values of [LN heads, heads, all-busy] . (kappa x (running - target))), running over the last 64 rows, kappa (3, 3, 3); acts after masks, before the Gumbel draw.
-- **Masks** (calibration `masks`): re-attack floor ms by band 2-5 = 145 / 105 / 85 / 75; quad run cap 0 / 0 / 1 / 1; jack run caps by gap tercile [2,3,5], [2,4,6], [2,4,8], [1,3,14]. No surviving action -> legal single head on the oldest lane, counted as a fallback.
-- **Four controls:**
-  - LN amount `tap|half|natural` (natural = prior's held share);
-  - whole-song difficulty: r at quantile q of human charts in the band (values per band 3,568 / 3,479 / 2,807 / 1,264); default q .5 (bands 2-4), .467 (band 5); q -> heads-per-row multiplier m by per-band power map (fit: 40 observations, 4 charts per band, seed SD .039 / .033 / .020 / .011), clamped to [0.8, 1.2] (`DIFFICULTY_M_EDGE`), one correction pass; tested q range .1-.75;
-  - stream and jack sections, 8-32 s, presets jumpstream / chordstream / chordjack, targets looked up on `scopes.parquet` (132,053 rows);
-  - section difficulty: absolute stars only, applied in the rows model [rows-e2e-20261010, `d-absolute-sections`].
-- **Whole milliseconds:** heads rounded before R2, gap releases after (kept strictly between neighbouring rows), timing points at export; export is parsed back and replayed (objects, head times, holds closed).
-- **R2 copy path** (`system/copy*.py`): off, weights not shipped. Rule: no candidate raised recurrence beyond seed noise .013 (C1 +.007, C2 +.008, C3 +.009, C4 +.004) [`system.json` reason; `o-p2`].
+**An exact contract under everything.** Every chart is a sequence of complete
+rows whose legality and long-note state are derived by replay. The model can
+only choose among legal rows, and every output is parsed back and replayed
+after export. Whatever else is wrong with a chart, it is a valid chart.
 
-## Verified, and how
+**Split when notes fall from how they are arranged.** The
+[formulation](../formulation/README.md) poses generation in two steps: first
+the head rows, the moments where at least one note starts; then the
+arrangement on them, which lanes, taps or long notes, and where each long note
+ends. [Measurements](head_time_decomposition.md) showed that head times fix
+the density, its shape through the song and most of the difficulty, but only
+part of a chart's character. So each half has its own job: the rows must carry
+the music's rhythm, and the arrangement must make the choices the rows leave
+open.
 
-All figures one listener, one seed per side unless stated. [rows-e2e-20261010]
+**No release times are given.** R1's given releases leaked another mapper's
+long notes into the output. R2 instead makes one decision per head row, and
+that decision also places the releases of the long notes the row closes. Notes
+born together can end together or apart.
 
-| Item | Result | Source |
+**Natural structure first, control at decode time.** R2 learned the corpus's
+own structure with no difficulty or style inputs. Controls act at decode time
+on the frozen model by tilting probability inside each class of actions, so a
+style request can change which lanes a row uses but not how many notes it has
+or whether it uses long notes.
+
+**Every chart chooses a character and holds it.** Free-running over a whole
+song, R2's long-note level and density wandered until the chart settled into
+one texture. The cause was precise: R2 copies the level of its recent past
+almost one to one (a slope of .85 to .97 per 64 rows), as real charts do. In a
+real chart that persistence holds a level the mapper chose for the whole chart;
+R2 had no such choice, so its level performed a random walk. A search at decode
+time toward a target level held it, which showed that the right level was among
+R2's proposals. What was missing was a choice and something to hold it. The
+system now takes the choice from the corpus, as the median of the 64 human
+charts whose head rows look most like these, and a restoring force holds it to
+the end.
+
+**The beat grid comes from the song's own sound.** A pretrained beat tracker
+gets the tempo right but places beats several milliseconds from where mappers
+put them. The song's own note onsets, read from its spectrogram, sit much
+closer, so each tempo segment is refitted to them. This needs no training.
+
+**The rows hear the music, beat by beat, and remember it.** The rows model
+chooses a rhythmic figure for each beat from what it hears at each position in
+the beat, and four copy heads let it repeat an earlier figure where the music
+sounds the same. Charts repeat where songs repeat; a model that looks back by
+musical similarity can do that, where one that only remembers the last few
+rows cannot.
+
+**Playable first, then more.** When the project chose between adding audio to
+R2, a copy mechanism and fixing the drift, it chose a playable demo first: no
+mistakes, no drift, responding to control. R2 therefore does not hear the
+music. Measurements showed that audio would help it place chords and jacks,
+and that work is deferred. A part that did not earn its place in blind checks
+ships switched off, as R2's own copy path does.
+
+## How R2 makes a chart
+
+```text
+audio ─> timing system ─> rows model ─> corpus prior ─> R2 with controls ─> .osz
+         beat grid        head rows     chart-level      lanes, taps,
+                                        targets          long notes
+```
+
+### Timing system
+
+BeatThis, a published beat tracker, finds beats and downbeats, which are
+grouped into constant-tempo segments. Each segment's phase and tempo are then
+refitted to the song's own onsets from the log-Mel spectrogram. Within a chart
+those onsets sit about 2.7 ms (robust SD) from the mapper's beats, against 6.5
+ms for the beat tracker's peaks.
+
+On a sealed holdout of 519 human charts of 289 songs, 85 % of charts have 90 %
+of their heads within 20 ms of the fitted grid (78 % before the refit), and
+93 % of all heads fall within 20 ms. The grid costs about 1.5 s per minute of
+audio. Without a chart to read, some things stay out of reach: an offset of
+about 10 ms that all charts of one mapset share, short tempo sections and phase
+resets. No one has yet screened the grids by ear.
+
+### Rows model
+
+At each beat the rows model picks one *figure*: the set of positions inside
+the beat, on a lattice of sixteenths and twelfths, that carry a note head. Its
+vocabulary of 8,853 figures covers 99.6 % of the beats in the training charts.
+A figure's score combines the spectrogram at each of its positions, a
+transformer that hears 64 beats either side, and a recurrent prior over the
+figures already chosen. Four copy heads look 1 to 64 beats back, keyed by how
+alike the audio sounds. The star rating maps to a workload the model is asked
+to produce.
+
+The model uses every input: shifting the spectrogram, removing the
+per-position audio or the copy heads, or giving it another chart's request all
+cost likelihood in teacher-forced tests. On 96 held-out songs, with two
+generation seeds, it beats the earlier head generator on every rhythm measure
+by margins two to ten times the seed and checkpoint spread, in every star band.
+These measures describe the output; none has been validated against a player.
+
+| Measure | Rows model | Earlier generator | Human charts |
+| --- | ---: | ---: | ---: |
+| heads on onsets, over a half-beat shift | .050 | .024-.028 | .052 |
+| rows repeating where the audio repeats | .19 | .05 | .234 |
+| head F1 against human charts at 20 ms | .74 | .66 | .868 (two humans) |
+| same figure on comparable beats | .71 | .61 | .978 (two humans) |
+
+Two decode-time rules keep long songs alive. Left free, the copy heads copied
+rests, rests reinforced themselves, and long songs thinned out toward the end.
+The copy heads may therefore attend to an empty beat only where the music is
+quiet, on the song's quietest 40 % of beats. That keeps the last fifth of long
+songs close to the requested density and raises the share of rests in quiet
+passages from .053 to .076, against .085 in human charts. This holds the
+problem at decode time; its training-time cause is not yet separated. A
+section request tilts the density of figures inside its span.
+
+### The chart's character
+
+The rows come with no arrangement and so with no character. The corpus prior
+supplies one: for the requested star band it finds the 64 training charts whose
+head rows look most like these (rows per second, median gap, workload, tempo)
+and takes their median long-note level, heads per row and share of rows where
+all four lanes are busy, together with a base difficulty. These targets play
+the part of the mapper's choice for the whole chart.
+
+### R2
+
+R2 has 2.4M parameters. A causal temporal convolution network reads the head
+rows and everything already placed; R2 does not read the audio. At each head
+row it chooses a code for every lane at once, 625 joint actions in all. On a
+free lane the code means nothing, a tap or a long-note head. On a lane holding
+a long note it means keep holding, release on this row, or release earlier in
+the gap before it, possibly starting a new note on this row. A pointer then
+places each gap release. Mirror symmetry between the hands is built into the
+model.
+
+It was trained on osu!'s ranked and loved 4K charts from 2 to 6 stars: 11,368
+charts of 4,167 songs, with 1,163 charts of other songs held out for
+development and the corpus's reference parts never opened. Training was
+teacher-forced cross-entropy for 64 million head-row decisions, about 4.4
+passes. The released checkpoint is the one at 56 million. Development loss
+was flat from 40 million (2.075 nats per decision at 56 million), and among the
+checkpoints on that plateau only 56 million passed the project's checks on very
+short holds, releases just before another note and level drift. Those checks
+were set by the project and have not been validated against a player.
+
+At generation time three things act on R2's choices:
+
+- **The restoring force** pulls the running long-note level, heads per row and
+  all-busy share over the last 64 rows back toward the targets. On human head
+  rows it keeps the long-note level about as close to its target as a human
+  chart stays to its own mean (RMSE .075 against .071; .139 without the
+  force).
+- **Playability limits** measured per star band on human charts: a minimum
+  time before re-pressing the same lane (145 ms at 2 stars, 75 ms at 5), and
+  caps on four-note runs and jack runs. When no action survives, a single legal
+  note is placed and counted.
+- **The requests** described below.
+
+## What you can ask for
+
+| Request | What it does | Status |
 | --- | --- | --- |
-| Early packet, new rows vs old, 6 pairs | new 4, old 1, can't tell 1 | `h-early-verdict` |
-| Final packet, rows new vs old | new 6, old 2 | `h-final-verdict` |
-| Combined | new 10, old 3, 1 can't tell | `h-final-verdict` |
-| Whole-song star pairs 015, 016 | both called correctly | `h-final-verdict` |
-| Jumpstream, chordstream | work | `h-final-verdict` |
-| Chordjack | out of band | `h-final-verdict` |
-| LN | can't tell; "long notes didn't perform well" | `h-final-verdict` |
-| Copy | on 1, off 2, no difference 1 | `h-final-verdict` |
-| Human chart vs generated, bands 2-4 | human chart chosen 3 of 3, no notes | `h-final-verdict` |
-| Seed nulls | a side picked in both | `h-final-verdict` |
-| Rests | pair 001 "too empty in the silence part"; early 005 wanted more breath (sub-beat spacing: rows stream at quarter beats where the mapper used half beats, 0 of 32 empty beats in all three) | `h-final-verdict`, `o-rests` |
-| Absolute-section pairs | not yet screened | handoff-20261011-e2e |
+| Star rating | sets the rows' workload and the arrangement's difficulty for the whole song | **works**: both blind pairs called the right way |
+| Jumpstream, chordstream sections | an 8-32 s span in that style, at a strength from 0 to 1 | **works** in blind pairs |
+| Stream, jack sections | the same, plain styles | reach their target band in measurement (48 of 48 and 35 of 48 runs); not screened on their own |
+| Chordjack sections | the same | out of band on generated rows (18 of 28 runs); not offered as working |
+| Long-note amount | tap only, half, or natural | **does not work yet**: "half" removes about a third, and a blind pair could not tell |
+| Section difficulty | an absolute star target for one span | not yet screened; spans asked to be easier land about .15 log units short |
+| Copy in R2 | the arrangement repeats its own earlier patterns | off: on generated rows it did not make the arrangement follow the music's repetition |
 
-Measured, characterising (phase 2 [`o-p2`], measured with `quiet_rests` 0; the end-to-end runs used .40):
+## What has been checked
 
-- 11 of 11 end-to-end runs legal, whole-ms times; difficulty within seed SD on 9 of 11; 84 tests passed at that time.
-- Controls, 24 held-out songs x 2 seeds per arm, copy off, attained in band: stream 48/48, jack 35/48, jumpstream 36/48, chordstream 37/48, chordjack 18/28; fallbacks .15-.59 per 1,000 head rows; LN half removes about a third of the LN; difficulty multiplier clamps in a third of runs at q .1 and .75.
-- Default q: W_H/W near human medians; band 2 .527 vs .535.
-- Section gain test [`o-section-fix`]: gain 3 up residual -.055, down +.150; gain 4.5 -.045 / +.098 (fails up artifacts); gain 6 -.030 / +.057 (fails artifacts and precision); 12+-row beats .090 at gain 3 vs .018 in human charts.
-- Open rows items [handoff-20261011-e2e, "Open, for later"]: quarter-beat stream tendency, rest level pulls both ways, long-song stability rests on a decode-time rule.
+**Mechanically, every time.** Every chart passes the replay and legality
+checks, every time in the `.osu` is a whole millisecond, and the export is
+parsed back and replayed.
 
-Claims allowed as working: jumpstream and chordstream requests; whole-song difficulty by star. Not offered: LN amount on generated rows; absolute section difficulty; copy; (chordjack, by the screen).
+**By ear.** The project's lead judged blind pairs in Beatmap Lens Compare.
+Each pair is one listener and one generation seed per side. In the two pairs
+that secretly compared the system with itself under different seeds, the
+listener still picked a side, so one pair's preference is weak evidence.
 
-## Release check
+- New rows against the earlier generator: **10 to 3, one undecided.** The new
+  side was preferred for catching the rhythm and the details in quiet
+  passages. The old side won three times: once for more breath in a dense
+  passage, once where the new rows broke a late section into abrupt short
+  phrases, and once with the listener unsure.
+- Whole-song difficulty: both star pairs called the right way.
+- Jumpstream and chordstream: work. Long-note amount: fails.
+- Copy on against off: 1 to 2, one no difference.
+- R2 against the human chart of the same song: **the human chart was chosen in
+  all three pairs.** On this evidence R2 has not reached human charts.
 
-- Parity record: `artifacts/release-r2/parity.md` (mac; text mirrored). P1-P4 regenerated from the built directory, cwd outside the repo, empty `TORCH_HOME` so BeatThis `final0` is downloaded: hit objects identical, 1,214 / 1,215 / 1,192 / 2,557. Old `--config` path for P1 identical. Stream + jack (4 requests) identical between the original calibration/scope table and the shipped ones (1,179 objects). Downloaded `final0` SHA-256 equals the cached file's (`8c328b45...8331`).
-- Clean-room `uv sync --python 3.10 --extra mps`: needed `pandas==2.3.3` added to `pyproject.toml` (commit `431452a`); on this mac the scipy 1.15.3 wheel fails to dlopen (macOS 27.0 build 26A428) and the repo `.venv`'s patched copy was substituted; the check passed with that.
-- Tests on the mac at `431452a`: `tests/system` 33 passed, `tests/audio_rows` 51 passed, `tests/test_package_layout.py` 1 passed (10 subtests).
+**Reproduction.** Generated from the published files, from outside the
+repository and with BeatThis freshly downloaded, the four example charts come
+out with every note identical.
 
-## Runtime
+## What it does not do yet
 
-- Release check (macOS arm64, Apple M5, Python 3.10.20, torch 2.11.0, CPU, 1 thread), process wall time: P1 (2.8 min) 19 s cold incl. 77.3 MB BeatThis download (77 s in the clean-room run on a slow link); P2 (2.2 min) 8 s; P3 (2.0 min) 8 s; P4 (3.3 min) 12 s.
-- In process (listener / rows / R2 / total s): P1 5.5 / 0.19 / 1.19 / 7.0; P2 4.3 / 0.12 / 2.06 / 6.6; P3 4.1 / 0.11 / 2.20 / 6.5; P4 7.2 / 0.21 / 2.44 / 10.0.
-- Earlier measurement, idle mac, model loads included: 7.8 / 11.6 / 14.6 s for 2.0 / 3.3 / 5.4 min songs [`o-p2`]. Not run on Linux or CUDA.
+- **Long notes.** The long-note control does not work on generated rows, and
+  earlier screens placed the main problems in where long notes fall against the
+  sound.
+- **Section difficulty** is unscreened, and easier sections land short of
+  their target.
+- **Breath.** In one dense passage the rows streamed in quarter beats where the
+  mapper used half beats; in one quiet passage they left too much silence.
+- **Long-song stability** rests on the decode-time rest rule, not on training.
+- **R2 does not hear the music.** Its arrangement follows the music only
+  through the head rows.
+- **Real time and local edits.** It generates a whole song at a time and cannot
+  regenerate one section inside a fixed chart.
+- **One judge.** Every verdict above is one person's.
 
-## Download and run (commands actually run)
+The next steps are to plug the system into the Ensomi macOS app so that a song
+can be generated and played end to end, and to design one model runtime shared
+by that app and a future web app, where people generate charts for their own
+songs locally with downloaded models.
+
+## Generate a chart
+
+Install [uv](https://docs.astral.sh/uv/) and the
+[Hugging Face CLI](https://huggingface.co/docs/huggingface_hub/guides/cli).
+The release was checked on macOS arm64 (Apple M5, Python 3.10.20, torch
+2.11.0, CPU, one thread). Linux and CUDA (`--extra cuda` instead of
+`--extra mps`) were not run.
 
 ```sh
-git clone https://github.com/ensomi-labs/ensomi-model.git && cd ensomi-model
-git checkout --detach r2-1.0                       # tag to be created; the checks ran on release/r2
-uv sync --python 3.10 --extra mps                  # Linux NVIDIA: --extra cuda (not run)
-hf download sed-i/ensomi-r2 --local-dir artifacts/hf-r2   # not run: the repository is not uploaded yet
+git clone https://github.com/ensomi-labs/ensomi-model.git
+cd ensomi-model
+git checkout --detach r2-1.0
+uv sync --python 3.10 --extra mps
+hf download sed-i/ensomi-r2 --local-dir artifacts/hf-r2
+
 uv run --python 3.10 --extra mps python -m ensomi_model.system.make \
   --model-dir artifacts/hf-r2 --audio /path/to/song.mp3 --star 3.5 \
   --title "Song title" --artist "Artist" --seed 0 --out artifacts/my-chart.osz
 ```
 
-The run checks used `uv sync` in a clean environment and `--model-dir` on the locally built directory (`artifacts/release-r2/bulk/hf/ensomi-r2/`). `hf download` has not been run.
+`--model-dir` reads `system.json` from the directory and resolves every path
+in it there, so the command runs from any working directory. The first run
+downloads BeatThis's `final0` checkpoint (77 MB) from its authors. Decoding
+audio other than WAV needs ffmpeg. Requests, for example:
+
+```sh
+  --stream 60000,90000,0.7,jumpstream    # a jumpstream section from 60 s to 90 s at strength .7
+  --ln tap                               # no long notes
+```
+
+`python -m ensomi_model.system.make --help` lists every option. Without
+`--title` and `--artist` the chart is named after the audio file.
+
+On the macOS 27.0 build used for the check (26A428), the scipy 1.15.3 wheel
+that `uv sync` installs failed to load (`dlopen` rejects its `__thread_bss`
+section); the check used a repaired copy of the same version. Other macOS
+versions were not tried.
 
 ## Files and licences
 
-- File table with sizes and SHA-256: the model card (`hf/README.md` in the scratch directory, filled in by the build) and `SHA256SUMS` in the directory.
-- Not shipped: BeatThis weights (MIT; fetched by `beat_this` from its own source), copy weights, cache index (paths expose titles and mappers), audio of any song.
-- HF repo content (weights, prior, calibration, scope table, card, examples, previews): CC BY-NC-SA 4.0 (`LICENSE` is the official legal code). GitHub code: AGPL-3.0-only. Example charts carry song titles and artists; no audio.
-- `.pt` files are PyTorch pickles loaded by the project's code.
-- Removed from the shipped calibration: `difficulty_fit.monotone_per_chart` (16 chart hashes), `step2a.status_file`, `subtype_calibration.grade_landmarks`; the scope table keeps 8 columns (`band`, `length_s`, `median_gap_ms`, `J_ex`, `S`, `jump_share`, `hand_share`, `chord_share`), 132,053 rows, 2,447,837 bytes (from 9.9 MB). Example receipts: source audio reduced to a file name, config paths release-relative, copy weights null; their `r2.sha256` is the full training checkpoint's (`e67f388d2f10...`), the regenerated `.osu` comment carries `r2/model.pt`'s prefix (`8dedefe4b11d`).
+| File | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `rows/model.pt` | 9,622,005 | `46b6ca37870120fda4d5de632949921fc26e020cf80abe44b4ba7f6f9557dda4` |
+| `r2/model.pt` | 9,655,631 | `8dedefe4b11d238ad0b3186e6dfefe31f52cb333091aafe2e8efda8ad2ee3c6f` |
+| `prior.json` | 1,958,310 | `be5741d520120aaeb7ecf9126c2c12401015095b107b025584802f8e715590af` |
+| `calibration.json` | 443,193 | `d39cd16fda451163d00d70cd6a913eb4bf64326ecd577feab08c25d8c22455ab` |
+| `scopes.parquet` | 2,447,837 | `61f8648523cddb86e7316812b46896410f12b1a6ae179dcbf082c8b8615e3134` |
+| `system.json` | 209 | `333d1c59a5ca199e07369b980992c2bb9683851246807426f1152260502e9718` |
+
+`SHA256SUMS` in the Hugging Face repository lists every file, including the
+four example charts with their receipts and the previews. `r2/model.pt` holds
+only R2's weights and model configuration; the training checkpoint also held
+optimizer state, and the example receipts record the training checkpoint's
+hash. The `.pt` files are PyTorch pickles, loaded by this repository's code.
+
+Everything in the Hugging Face repository (weights, prior, calibration, scope
+table, examples, previews and model card) is licensed CC BY-NC-SA 4.0: free to
+use, share and adapt with credit, not for commercial use, and adaptations under
+the same terms. The code is AGPL-3.0-only. BeatThis (code and weights, MIT) is
+not redistributed; the `beat_this` package downloads it.
+
+The training charts are osu! community beatmaps. Neither they nor their audio
+are distributed. The prior, the calibration and the scope table hold numbers
+derived from them, with no titles, artists, mappers or file paths. The example
+charts carry their songs' titles and artists, without audio.
+
+## Code and training lineage
+
+| Component | Trained from | Released at |
+| --- | --- | --- |
+| Timing system | no training | `timing-1.0` |
+| Rows model | commit `cf753aa`, 5,000 steps; the run's recorded settings, not the defaults of a later checkout, are authoritative | `rows-1.0` |
+| R2 | commit `3954031`, 64M decisions without conditions; checkpoint at 56,000,574 | `r2-1.0` |
+
+The three tags mark one release commit, which holds the code that runs the
+released files. The training commits are earlier commits on `main`.
