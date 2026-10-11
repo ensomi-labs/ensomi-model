@@ -132,7 +132,8 @@ def _bootstrap_mae(err, groups, reps=1000, seed=712):
 
 
 def choose(errors: dict, groups) -> tuple[str, dict]:
-    """The plainest method whose fit_dev error on every target is not worse than the best's."""
+    """The plainest method whose fit_dev error on every target is not worse than the best's. When none holds up
+    on every target, the method with the smallest summed error ratio to each target's best method."""
     mae = {m: e.mean(0) for m, e in errors.items()}
     best = {t: min(METHODS, key=lambda m: mae[m][i]) for i, t in enumerate(TARGETS)}
     table = {}
@@ -149,6 +150,11 @@ def choose(errors: dict, groups) -> tuple[str, dict]:
         table[m] = dict(targets=rows, holds_up=ok)
         if ok and chosen is None:
             chosen = m
+    if chosen is None:
+        ratio = {m: float(sum(mae[m][i] / mae[best[t]][i] for i, t in enumerate(TARGETS))) for m in METHODS}
+        for m in METHODS:
+            table[m]['summed_ratio_to_best'] = ratio[m]
+        chosen = min(METHODS, key=ratio.get)
     return chosen, table
 
 
@@ -186,9 +192,10 @@ def fit(cache_root: Path, out: Path, workers: int, limit=None):
         record['dev'][str(band)] = dict(charts=len(dv), train_charts=len(tr))
     errors = {m: np.concatenate(e) for m, e in errors.items()}
     method, table = choose(errors, np.asarray(dev_groups))
-    record.update(method=method or 'median', selection=table, seconds=time.time() - t0,
+    record.update(method=method, selection=table, seconds=time.time() - t0,
                   rule='plainest of median, linear, knn whose fit_dev MAE on every target is not worse than the '
-                       "best method's (paired song-group bootstrap interval of the difference reaches zero)")
+                       "best method's (paired song-group bootstrap interval of the difference reaches zero); when "
+                       "none is, the smallest sum over targets of MAE / the target's best MAE")
     if method != 'knn':                 # the neighbour tables are only needed by the knn predictor
         for b in record['bands'].values():
             b.pop('table')

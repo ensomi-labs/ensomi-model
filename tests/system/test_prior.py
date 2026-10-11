@@ -71,6 +71,11 @@ def test_choose_keeps_the_plainest_that_holds_up():
     assert method == 'linear' and not table['median']['holds_up'] and table['knn']['holds_up']
     errors['median'] = same.copy()
     assert choose(errors, groups)[0] == 'median'
+    worse = np.zeros_like(same)
+    worse[:, 0] = 1.0                          # each method loses clearly on one target: none holds up
+    errors = {'median': same + 3 * worse, 'linear': same + np.roll(worse, 1, 1), 'knn': same + 0.2 * np.roll(worse, 2, 1)}
+    method, table = choose(errors, groups)
+    assert method == 'knn' and not any(v['holds_up'] for v in table.values())
 
 
 def test_fit_on_a_small_cache(tmp_path):
