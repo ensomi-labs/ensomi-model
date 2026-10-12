@@ -374,7 +374,9 @@ The app keeps this repository's model service as its other engine, the chart
 server, selectable on the same screen. The service loads the model directory
 once and answers the complete-chart messages of
 [EnsomiProtocol](https://github.com/ensomi-labs/protocol) (`chart.proto`, from
-version 0.2.0) as binary protobuf `Envelope` frames.
+version 0.2.0) as binary protobuf `Envelope` frames. Like the runtime, it
+arranges each song once (`max_difficulty_passes=1`), while the command in
+[Generate a chart](#generate-a-chart) keeps the release's second pass.
 
 ```sh
 uv sync --python 3.10 --extra mps --extra service
