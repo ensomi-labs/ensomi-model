@@ -307,10 +307,10 @@ out with every note identical.
   regenerate one section inside a fixed chart.
 - **One judge.** Every verdict above is one person's.
 
-Since the release, the Ensomi app generates a song and plays it end to end, and
-one runtime, shared by the app and the web page at
+Since the release, the Ensomi macOS app generates a song and plays it end to
+end, and one runtime, shared by that app and the web page at
 [ensomi.app](https://ensomi.app), generates charts for people's own songs on
-their own devices from the downloaded model. [Serve the app](#serve-the-app)
+their own computers from the downloaded model. [Serve the app](#serve-the-app)
 says how.
 
 ## Generate a chart
@@ -353,9 +353,10 @@ versions were not tried.
 
 ## Serve the app
 
-Once the model is installed, the Ensomi app, on macOS and iOS, makes charts by
-default on the device that plays them. Since 2026-10-12 it generates through
-the shared [Ensomi runtime](https://github.com/ensomi-labs/runtime) 0.2.0, a
+Once the model is installed, the Ensomi macOS app makes charts by default on
+the device that plays them. The iOS target shares that path and has so far been
+built only for the simulator. Since 2026-10-12 the app generates through the
+shared [Ensomi runtime](https://github.com/ensomi-labs/runtime) 0.2.0, a
 Rust core whose generator runs the released networks with ONNX Runtime as the
 ONNX step graphs that `python -m ensomi_model.export.onnx` writes
 (`src/ensomi_model/export/`). They are published as the `onnx/` directory of
