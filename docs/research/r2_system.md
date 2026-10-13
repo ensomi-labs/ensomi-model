@@ -428,11 +428,13 @@ hash. The `.pt` files are PyTorch pickles, loaded by this repository's code.
 Everything in the Hugging Face repository (weights, prior, calibration, scope
 table, ONNX graphs, examples, previews and model card) is licensed CC BY-NC-SA
 4.0: free to use, share and adapt with credit, not for commercial use, and
-adaptations under the same terms. The exception is `onnx/beatthis.onnx`, an ONNX
-export of BeatThis `final0`, which keeps BeatThis's MIT licence
-(`onnx/LICENSE-beat_this`). The code is AGPL-3.0-only. The Python system reads
-nothing in `onnx/`: the `beat_this` package downloads BeatThis (code and
-weights, MIT) from its authors.
+adaptations under the same terms. The exception is BeatThis: `onnx/beatthis.onnx`,
+an ONNX export of its `final0` checkpoint, and its front-end arrays
+`onnx/beatthis-mel-filter.bin` and `onnx/beatthis-hann-window.bin` keep
+BeatThis's MIT licence (`onnx/BeatThis-LICENSE.txt`, which `runtime.json`
+names). The code is AGPL-3.0-only. The Python system reads nothing in `onnx/`:
+the `beat_this` package downloads BeatThis (code and weights, MIT) from its
+authors.
 
 The training charts are osu! community beatmaps. Neither they nor their audio
 are distributed. The prior, the calibration and the scope table hold numbers
