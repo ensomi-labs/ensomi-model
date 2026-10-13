@@ -307,10 +307,11 @@ out with every note identical.
   regenerate one section inside a fixed chart.
 - **One judge.** Every verdict above is one person's.
 
-The next steps are to plug the system into the Ensomi macOS app so that a song
-can be generated and played end to end, and to design one model runtime shared
-by that app and a future web app, where people generate charts for their own
-songs locally with downloaded models.
+Since the release, the Ensomi macOS app generates a song and plays it end to
+end, and one runtime, shared by that app and the web page at
+[ensomi.app](https://ensomi.app), generates charts for people's own songs on
+their own computers from the downloaded model. [Serve the app](#serve-the-app)
+says how.
 
 ## Generate a chart
 
@@ -352,11 +353,31 @@ versions were not tried.
 
 ## Serve the app
 
-The Ensomi macOS app asks for whole charts over a websocket instead of running
-the model itself. The service loads the model directory once and answers the
-complete-chart messages of
+Once the model is installed, the Ensomi macOS app makes charts by default on
+the device that plays them. The iOS target shares that path and has so far been
+built only for the simulator. Since 2026-10-12 the app generates through the
+shared [Ensomi runtime](https://github.com/ensomi-labs/runtime) 0.2.0, a
+Rust core whose generator runs the released networks with ONNX Runtime as the
+ONNX step graphs that `python -m ensomi_model.export.onnx` writes
+(`src/ensomi_model/export/`). They are published as the `onnx/` directory of
+the Hugging Face repository, which the app downloads or reads from a folder;
+nothing is sent to a server. The same core, built for WebAssembly, runs the
+in-browser generator at [ensomi.app](https://ensomi.app).
+
+The runtime arranges a song once. `r2-1.0` arranges it a second time when the
+first arrangement misses the star's difficulty target by more than the
+difficulty fit's seed spread, and for such a song the runtime's chart differs
+from the release's. Two of the four example charts, SaiGetsu and Catch the
+Moment, took that second pass. The receipt's `controls.difficulty` records
+every pass.
+
+The app keeps this repository's model service as its other engine, the chart
+server, selectable on the same screen. The service loads the model directory
+once and answers the complete-chart messages of
 [EnsomiProtocol](https://github.com/ensomi-labs/protocol) (`chart.proto`, from
-version 0.2.0) as binary protobuf `Envelope` frames.
+version 0.2.0) as binary protobuf `Envelope` frames. Like the runtime, it
+arranges each song once (`max_difficulty_passes=1`), while the command in
+[Generate a chart](#generate-a-chart) keeps the release's second pass.
 
 ```sh
 uv sync --python 3.10 --extra mps --extra service
@@ -364,7 +385,8 @@ uv run --python 3.10 --extra mps --extra service python -m ensomi_model.service 
   --model-dir artifacts/hf-r2 [--host 127.0.0.1] [--port 8765] [--cache-dir ensomi-service-cache]
 ```
 
-The app connects to `ws://127.0.0.1:8765` and sends
+The app connects to `ws://localhost:8765` unless `ENSOMI_SERVICE_URL` or its
+`EnsomiServiceURL` default names another address, and sends
 
 - `CapabilitiesRequest`, answered with `ModelCapabilities`: the model name and
   version, the checksums in the model directory's `SHA256SUMS`, the star range

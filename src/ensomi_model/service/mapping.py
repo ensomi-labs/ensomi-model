@@ -49,7 +49,9 @@ def check_star(star, what='star'):
 
 
 def make_arguments(request, cache_dir):
-    """``GenerateChartRequest`` -> ``System.make`` keyword arguments (the output ``.osz`` goes in ``cache_dir``)."""
+    """``GenerateChartRequest`` -> ``System.make`` keyword arguments (the output ``.osz`` goes in ``cache_dir``). The
+    arrangement runs once, as in the runtime: a chart whose first pass misses its difficulty target is kept, where
+    ``r2-1.0`` arranged it a second time."""
     if request.audio.WhichOneof('ref') != 'local_path':
         raise RequestError('audio_unreadable', 'only audio.local_path is supported')
     audio = Path(request.audio.local_path)
@@ -77,7 +79,7 @@ def make_arguments(request, cache_dir):
         raise RequestError('unsupported_control', f'unknown long_notes value {request.controls.long_notes}')
     return dict(audio=str(audio), star=request.star, out=str(Path(cache_dir) / f'{uuid.uuid4().hex}.osz'),
                 sections=sections, stream=stream, jack=jack, ln=LONG_NOTES[request.controls.long_notes],
-                seed=request.seed if request.HasField('seed') else 0, name='r2',
+                seed=request.seed if request.HasField('seed') else 0, name='r2', max_difficulty_passes=1,
                 title=request.title if request.HasField('title') else None,
                 artist=request.artist if request.HasField('artist') else None)
 

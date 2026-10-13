@@ -62,6 +62,7 @@ def test_defaults_and_tap_only(audio, tmp_path):
     a = make_arguments(request(audio), tmp_path)
     assert (a['ln'], a['seed'], a['title'], a['artist'], a['sections'], a['stream'], a['jack']) == (
         'natural', 0, None, None, [], [], [])
+    assert a['max_difficulty_passes'] == 1                  # one arrangement, as in the runtime
     tap = chart_pb2.ChartControls(long_notes=chart_pb2.LONG_NOTE_AMOUNT_TAP_ONLY)
     assert make_arguments(request(audio, controls=tap), tmp_path)['ln'] == 'tap'
 

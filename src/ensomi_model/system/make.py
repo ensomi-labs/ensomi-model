@@ -16,8 +16,9 @@ Stages:
    - LN amount: tap (no long notes), half (half the natural level), natural (the prior's held share; the demo
      called this "mapped", the source chart's own level);
    - difficulty: whole-song r at quantile q of human charts in the band, mapped to a heads-per-row multiplier m from
-     the prior's base r for these rows; one correction pass when the first misses by more than the band's seed SD;
-     default q per band from the config;
+     the prior's base r for these rows; one correction pass when the first misses by more than the band's seed SD
+     (``max_difficulty_passes=1`` arranges once, as the service and the runtime do); default q per band from the
+     config;
    - stream and jack sections (8-32 s) with the demo's presets, targets looked up on these rows' gaps.
 5. Export with the replay and legality checks, the audio, and ``receipt.json`` in one ``.osz``. Every time in the
    ``.osu`` is a whole millisecond: heads are rounded before R2 arranges them, gap releases after (kept strictly
@@ -52,6 +53,7 @@ LN = {'tap': 0.0, 'half': 0.5, 'natural': 1.0}
 NAMES = {'stream': ('jumpstream', 'chordstream'), 'jack': ('chordjack',)}
 KAPPA = (3.0, 3.0, 3.0)
 R2_SEED = 954                     # R2's seed is R2_SEED + --seed; the rows use --seed
+DIFFICULTY_PASSES = 2             # r2-1.0: a second arrangement when the first misses the difficulty target
 
 
 def parse_scope(text, concept):
@@ -135,9 +137,10 @@ def song_r(head_ms, song_ms, actions, gap):
     return StrainTrace(head_ms, song_ms).extend(actions, gap).scope(0, song_ms).ratio
 
 
-def difficulty_passes(run, head_ms, song_ms, cal, band, q, base_r):
-    """Whole-song difficulty: m from the band map given the base r, clamped to [lo, DIFFICULTY_M_EDGE], at most
-    one correction pass. ``run(m)`` arranges at multiplier m. Returns (actions, gap, trace, info)."""
+def difficulty_passes(run, head_ms, song_ms, cal, band, q, base_r, max_passes=DIFFICULTY_PASSES):
+    """Whole-song difficulty: m from the band map given the base r, clamped to [lo, DIFFICULTY_M_EDGE], and a
+    corrected m for each further pass while the achieved r misses by more than the band's seed SD, up to
+    ``max_passes`` arrangements in all. ``run(m)`` arranges at multiplier m. Returns (actions, gap, trace, info)."""
     values = cal['difficulty'][str(band)]['values']
     target_r = float(np.quantile(values, q))
     fit = cal['difficulty_fit']['by_band'][str(band)]
@@ -146,13 +149,13 @@ def difficulty_passes(run, head_ms, song_ms, cal, band, q, base_r):
     m_raw = difficulty_multiplier(target_r, base_r, fit)
     m = float(np.clip(m_raw, lo, hi))
     passes = []
-    for attempt in range(2):
+    for attempt in range(max_passes):
         t0 = time.monotonic()
         a, g, tr = run(m)
         achieved = song_r(head_ms, song_ms, a, g)
         passes.append(dict(multiplier=m, achieved=achieved, fallback_count=tr['fallback_count'],
                            wall_seconds=time.monotonic() - t0))
-        if attempt or abs(achieved - target_r) <= fit['seed_sd']:
+        if attempt == max_passes - 1 or abs(achieved - target_r) <= fit['seed_sd']:
             break
         corrected = float(np.clip(m * np.exp((np.log(target_r) - np.log(achieved)) / fit['beta']), lo, hi))
         if corrected == m:
@@ -290,9 +293,10 @@ class System:
 
     def make(self, audio, star, out, *, sections=(), ln='natural', difficulty_q='default', stream=(), jack=(),
              copy=None, copy_jacks=None, seed=0, name=None, title=None, artist=None, prepared=None, progress=None,
-             recorder=None, random_source=None):
+             recorder=None, random_source=None, max_difficulty_passes=DIFFICULTY_PASSES):
         """``progress(phase)``, when given, is called as each stage starts: 'timing' (not when ``prepared`` is
-        given), 'rows', 'arrangement', 'export'. ``recorder`` receives graph calls and decode arrays;
+        given), 'rows', 'arrangement', 'export'. ``max_difficulty_passes`` caps the arrangements the difficulty
+        control may run; the default reproduces ``r2-1.0``. ``recorder`` receives graph calls and decode arrays;
         ``random_source`` supplies sampling variates. With neither, the normal sampling path is unchanged.
         Recorded arrays replace the convenience ``arrays.npz`` beside the chart."""
         from .arrange import arrange
@@ -365,7 +369,7 @@ class System:
             if not self.cal['difficulty_fit']['accepted']:
                 raise ValueError('Difficulty map failed its monotonicity gate')
             actions, gap, trace, difficulty = difficulty_passes(run, head_ms, song_ms, self.cal, band, q,
-                                                                float(np.exp(pred['log_r'])))
+                                                                float(np.exp(pred['log_r'])), max_difficulty_passes)
             difficulty['default'] = difficulty_q == 'default'
             multiplier = difficulty['m_final']
         seconds['r2'] = time.monotonic() - t

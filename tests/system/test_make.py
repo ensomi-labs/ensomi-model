@@ -8,8 +8,8 @@ import pytest
 
 from ensomi_model.osu_core.hitobjects import parse_mania_hit_objects
 from ensomi_model.system.copy import CopyConfig, CopyPath
-from ensomi_model.system.make import (System, clean_heads, difficulty_passes, file_sha, parse_scope, resolve_requests,
-                                     song_metadata, whole_ms_releases)
+from ensomi_model.system.make import (DIFFICULTY_PASSES, System, clean_heads, difficulty_passes, file_sha, parse_scope,
+                                     resolve_requests, song_metadata, whole_ms_releases)
 from ensomi_model.system.prior import Prior, fit_band
 
 from .helpers import calibration, grid, skeleton, tiny_r2
@@ -66,9 +66,27 @@ def test_difficulty_passes_map_clamp_and_correct():
     values = cal['difficulty']['3']['values']
     assert np.isclose(info['target_r'], np.quantile(values, 0.9))
     assert info['domain'] == [0.8, 1.2] and 0.8 <= info['m_final'] <= 1.2
-    assert len(info['passes']) == len(calls) <= 2
+    assert len(info['passes']) == len(calls) <= DIFFICULTY_PASSES
     assert info['clamped'] == (info['m_requested'] > 1.2 or info['m_requested'] < 0.8)
     assert info['base_r_source'] == 'prior' and info['above_tested_band']
+
+
+def test_one_difficulty_pass_keeps_a_miss(monkeypatch):
+    import ensomi_model.system.make as make
+    monkeypatch.setattr(make, 'song_r', lambda head, song, a, g: 1.0)       # below every target r of the band
+    cal = calibration()
+    calls = []
+
+    def run(m):
+        calls.append(m)
+        return 'a', 'g', dict(fallback_count=0)
+
+    difficulty_passes(run, None, None, cal, 3, 0.1, base_r=1.2)
+    assert len(calls) > 1                                                   # by default the miss is arranged again
+    calls.clear()
+    a, g, tr, info = difficulty_passes(run, None, None, cal, 3, 0.1, base_r=1.2, max_passes=1)
+    assert len(calls) == len(info['passes']) == 1 and not info['within_seed_sd']
+    assert info['m_final'] == calls[0]
 
 
 class StubRows:
@@ -120,6 +138,27 @@ def test_make_writes_a_playable_osz_and_its_receipt(tmp_path):
     assert text.count('[Metadata]') == 1 and 'Title:A Song\n' in text and 'Artist:Someone\n' in text
     timing = text.split('[TimingPoints]\n')[1].split('\n')[0]
     assert timing.startswith('0,500') and saved['metadata'] == dict(title='A Song', artist='Someone')
+
+
+def test_make_takes_the_number_of_difficulty_passes(tmp_path, monkeypatch):
+    import ensomi_model.system.make as make
+    monkeypatch.setattr(make, 'song_r', lambda head, song, a, g: 1.0)
+    rng = np.random.default_rng(5)
+    head, song = skeleton(rng, 120)
+    g = grid()
+    X = rng.normal(size=(50, 4))
+    Y = np.column_stack((np.full(50, 0.1), np.full(50, 1.4), np.full(50, 0.03), np.full(50, 0.01), np.full(50, 0.25)))
+    prior = Prior(dict(method='median', bands={str(b): fit_band(X, Y) for b in range(2, 6)}))
+    audio = tmp_path / 'song.mp3'
+    audio.write_bytes(b'x')
+    prepared = dict(audio=audio, song=SimpleNamespace(features=np.zeros((int(song / 10) + 10, 130), np.float16)),
+                    grid=g, song_ms=song)
+    config = dict(default_q={str(b): 0.1 for b in range(2, 6)}, copy=dict(default='off'))
+    system = System(config, StubRows(head, song, g), tiny_r2(), calibration(), prior, None, scopes=scopes(rng))
+    one = system.make(str(audio), 3.4, tmp_path / 'one.osz', prepared=prepared, max_difficulty_passes=1)
+    default = system.make(str(audio), 3.4, tmp_path / 'default.osz', prepared=prepared)
+    assert len(one['controls']['difficulty']['passes']) == 1 and not one['controls']['difficulty']['within_seed_sd']
+    assert len(default['controls']['difficulty']['passes']) > 1
 
 
 def test_whole_ms_releases_stay_between_their_rows():
