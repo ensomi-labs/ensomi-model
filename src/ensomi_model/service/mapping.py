@@ -14,6 +14,7 @@ from ..export.package import MODEL_NAME, MODEL_VERSION
 from ..osu_core.hitobjects import ManiaHitObjectKind, parse_mania_hit_objects
 
 MIN_STAR, MAX_STAR_EXCLUSIVE = 2.0, 6.0
+MIN_SECTION_MS, MAX_SECTION_MS = 8000, 32000            # the runtime refuses sections outside it too
 
 LONG_NOTES = {chart_pb2.LONG_NOTE_AMOUNT_UNSPECIFIED: 'natural', chart_pb2.LONG_NOTE_AMOUNT_TAP_ONLY: 'tap',
               chart_pb2.LONG_NOTE_AMOUNT_HALF: 'half', chart_pb2.LONG_NOTE_AMOUNT_NATURAL: 'natural'}
@@ -61,8 +62,9 @@ def make_arguments(request, cache_dir):
     check_star(request.star)
     sections, stream, jack = [], [], []
     for s in request.controls.sections:
-        if not s.start_ms < s.end_ms:
-            raise RequestError('unsupported_control', f'section {s.start_ms}-{s.end_ms} ms is empty')
+        if not MIN_SECTION_MS <= s.end_ms - s.start_ms <= MAX_SECTION_MS:
+            raise RequestError('unsupported_control', f'section {s.start_ms}-{s.end_ms} ms: sections must be '
+                                                      f'{MIN_SECTION_MS // 1000}–{MAX_SECTION_MS // 1000} seconds')
         if s.WhichOneof('target') == 'star':
             check_star(s.star, 'section star')
             sections.append(dict(start_ms=s.start_ms, end_ms=s.end_ms, star=s.star))

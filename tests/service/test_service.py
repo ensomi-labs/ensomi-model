@@ -7,7 +7,8 @@ import pytest
 from ensomi.protocol.v1 import chart_pb2, envelope_pb2, inference_pb2
 
 from ensomi_model.service import mapping
-from ensomi_model.service.mapping import RequestError, capabilities, chart_from_osu, make_arguments
+from ensomi_model.service.mapping import (MAX_SECTION_MS, MIN_SECTION_MS, RequestError, capabilities,
+                                         chart_from_osu, make_arguments)
 from ensomi_model.service.server import Service
 
 HEADER = 'osu file format v14\n[General]\nMode:3\n[Difficulty]\nCircleSize:4\n[HitObjects]\n'
@@ -87,6 +88,18 @@ def test_bad_requests_are_refused(audio, tmp_path):
                 chart_pb2.SectionRequest(start_ms=0, end_ms=9000)):
         with pytest.raises(RequestError):
             make_arguments(request(audio, controls=chart_pb2.ChartControls(sections=[bad])), tmp_path)
+
+
+def test_star_sections_outside_the_length_bounds_are_refused(audio, tmp_path):
+    def arguments(length):
+        controls = chart_pb2.ChartControls(sections=[section(10000, 10000 + length, star=4.0)])
+        return make_arguments(request(audio, controls=controls), tmp_path)
+    for length in (MIN_SECTION_MS, MAX_SECTION_MS):
+        assert arguments(length)['sections'] == [dict(start_ms=10000, end_ms=10000 + length, star=4.0)]
+    for length in (MIN_SECTION_MS - 1, MAX_SECTION_MS + 1):
+        with pytest.raises(RequestError) as error:
+            arguments(length)
+        assert error.value.code == 'unsupported_control'
 
 
 def test_chart_conversion_orders_objects_and_marks_holds(tmp_path):
