@@ -20,7 +20,9 @@ defined and what a change affects.
    release or upload before the repositories that take it.
 2. **Point rather than copy.** A document links to a value's source; where it
    must restate the value, it names the source. A reference to another
-   repository pins a tag, a commit or an exact version, never `main`.
+   repository's code, files or packages pins a tag, a commit or an exact
+   version, except a link to a document meant to stay current, such as the R2
+   report, which may follow `main`.
 3. **Claim only what is checked.** Resolve a dependency change from what is
    declared (`uv lock`, a fresh environment or CI), not from an environment
    changed by hand. State a size, speed or compatibility only with the check
