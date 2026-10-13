@@ -217,8 +217,10 @@ Tests run with `uv run --python 3.10 --extra mps --group dev pytest`.
 | 2026-09-23 to 2026-09-29 | audio-conditioned joint model | tag `audio-joint-2026-09` |
 | 2026-10 | R2, the timing system and the rows model; the end-to-end system | this branch, tags `r2-1.0`, `timing-1.0`, `rows-1.0` |
 
-`legacy/v2` is this branch as it stood before the cleanup. The Ensomi client's
-websocket endpoint is served from there. [`docs/research/README.md`](docs/research/README.md)
+`legacy/v2` is this branch as it stood before the cleanup. The Ensomi app's
+chart server is this branch's model service (`ensomi_model.service`); the app's
+older inference client talks to the websocket endpoint on `legacy/v2`. Both
+listen on port 8765 by default. [`docs/research/README.md`](docs/research/README.md)
 lists the archived branches.
 
 ## License
@@ -226,5 +228,9 @@ lists the archived branches.
 Ensomi Model is licensed under the GNU Affero General Public License v3.0 only
 (`AGPL-3.0-only`). See [`LICENSE`](LICENSE). The released weights, prior,
 calibration and previews on Hugging Face are licensed separately: Ensomi R2's
-under CC BY-NC-SA 4.0 (no commercial use) and R1's under `AGPL-3.0-only`.
-BeatThis, which the timing system downloads, is MIT licensed.
+under CC BY-NC-SA 4.0 (no commercial use), except BeatThis's ONNX export and
+front-end arrays in `onnx/`, which keep BeatThis's MIT licence
+(`onnx/BeatThis-LICENSE.txt`), and R1's under `AGPL-3.0-only`. BeatThis itself,
+which the Python timing system downloads from its authors, is MIT licensed.
+[`docs/ecosystem.md`](docs/ecosystem.md) lists the facts this repository shares
+with the other Ensomi repositories.
