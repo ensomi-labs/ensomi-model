@@ -80,6 +80,9 @@ runtime restates some of R2's values, so these rules are written in more than
 one program: the model identity, the controls with their statuses and the star
 range in ensomi-model's model service and in the runtime; section rules in
 ensomi-model's system, its model service and the runtime; the `.osz` layout in
-the Python system and in the runtime's Rust and JavaScript. Whether those
+the Python system and in the runtime's Rust and JavaScript; the star's
+calculator (osu!mania, version 20241007; R2's `properties.CALCULATOR`) in
+ensomi-model's `osu_core/difficulty.py` and in the site's `site/star.ts`, which
+shows a generated chart's star beside the star requested. Whether those
 values move into the package, and whether a package carries its model's host
 code, are decided once the next model's architecture is known.
