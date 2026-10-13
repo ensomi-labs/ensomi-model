@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ideas and questions
+    url: https://github.com/orgs/ensomi-labs/discussions
+    about: What ensomi should build next, questions, and charts you made with it. Any language.
+  - name: Mapping and developer tools
+    url: https://github.com/ensomi-labs/beatmap-lens/issues/new?template=tooling-feedback.yml
+    about: The Inspector, the renderer, the npm package or the annotation tools; feedback goes to beatmap-lens.
+  - name: The published pattern dataset
+    url: https://github.com/ensomi-labs/beatmap-lens/issues/new?template=dataset-feedback.yml
+    about: A label that reads wrong to you, a Foundation concept, or another problem in the dataset; feedback goes to beatmap-lens.

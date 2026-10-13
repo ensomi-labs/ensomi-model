@@ -1,0 +1,38 @@
+name: Bug report
+description: The code fails or misbehaves, for example installation, the generate command, the model service or the exporter.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A chart that plays badly goes in **Chart feedback** instead. Problems with ensomi.app go
+        to [ensomi-web](https://github.com/ensomi-labs/ensomi-web/issues), with the app to
+        [ensomi](https://github.com/ensomi-labs/ensomi/issues), and with the Inspector or the
+        renderer to [beatmap-lens](https://github.com/ensomi-labs/beatmap-lens/issues/new?template=tooling-feedback.yml).
+        Only the first box is required.
+
+  - type: textarea
+    id: result
+    attributes:
+      label: What happened, and what you expected
+      description: Paste the error output in full if there is one.
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: What you ran (optional)
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: Version (optional)
+      description: The tag or commit you ran, for example `r2-1.0`.
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment (optional)
+      description: Operating system and chip or GPU, Python version, and the extra you installed (`mps` or `cuda`).
