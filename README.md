@@ -82,9 +82,12 @@ development. `python -m ensomi_model.system.make --help` lists the controls.
 
 What mappers and players tell us decides what the next model gets better at
 and what we build next. Report a generated chart with the
-[chart feedback form](https://github.com/ensomi-labs/ensomi-model/issues/new?template=chart-feedback.yml):
-osu! editor timestamps, what a mapper would do instead, and what worked. Post
+[chart feedback form](https://github.com/ensomi-labs/ensomi-model/issues/new?template=chart-feedback.yml).
+One sentence is enough; a screenshot or time range, the `.osu`, the song and
+the model help. Please attach no audio: songs are copyrighted. Post
 ideas and questions in [Discussions](https://github.com/orgs/ensomi-labs/discussions).
+Feedback on mapping and developer tools and on the published pattern dataset
+goes to [beatmap-lens](https://github.com/ensomi-labs/beatmap-lens).
 [`CONTRIBUTING.md`](CONTRIBUTING.md) says what happens to a report and how to
 contribute code.
 
@@ -193,11 +196,12 @@ qualified as playable. That code is not on this branch. The line that followed
 split the problem: the timing system, the rows model and R2 are trained
 separately and released together as [Ensomi R2](#released-model-ensomi-r2).
 
-The next system, R3, is in progress: a larger model built for mappers rather
-than for generation speed. It aims to place notes more precisely on the audio,
-to read the music when it arranges lanes and long notes, and to give finer
-control, difficulty first. Charts reported on R2 are among the cases it will be
-checked against.
+Two lines of work follow R2. R3, its successor, works on placing head rows
+more precisely on the audio, reading the music when it arranges lanes and long
+notes, and better difficulty control. Alongside it, a bigger model is being
+built for mappers: better timing and music understanding and more precise
+control, optimized for chart quality rather than generation speed. Charts
+reported on R2 are among the cases both will be checked against.
 
 - Research questions, human decisions and outcomes:
   [`RESEARCH.md` on the `relay-notes` branch](https://github.com/ensomi-labs/ensomi-model/blob/relay-notes/RESEARCH.md).
