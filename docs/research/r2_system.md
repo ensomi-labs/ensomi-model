@@ -335,7 +335,7 @@ uv run --python 3.10 --extra mps python -m ensomi_model.system.make \
 
 `--model-dir` reads `system.json` from the directory and resolves every path
 in it there, so the command runs from any working directory. The first run
-downloads BeatThis's `final0` checkpoint (77 MB) from its authors. Decoding
+downloads BeatThis's `final0` checkpoint (81 MB) from its authors. Decoding
 audio other than WAV needs ffmpeg. Requests, for example:
 
 ```sh
@@ -426,10 +426,13 @@ optimizer state, and the example receipts record the training checkpoint's
 hash. The `.pt` files are PyTorch pickles, loaded by this repository's code.
 
 Everything in the Hugging Face repository (weights, prior, calibration, scope
-table, examples, previews and model card) is licensed CC BY-NC-SA 4.0: free to
-use, share and adapt with credit, not for commercial use, and adaptations under
-the same terms. The code is AGPL-3.0-only. BeatThis (code and weights, MIT) is
-not redistributed; the `beat_this` package downloads it.
+table, ONNX graphs, examples, previews and model card) is licensed CC BY-NC-SA
+4.0: free to use, share and adapt with credit, not for commercial use, and
+adaptations under the same terms. The exception is `onnx/beatthis.onnx`, an ONNX
+export of BeatThis `final0`, which keeps BeatThis's MIT licence
+(`onnx/LICENSE-beat_this`). The code is AGPL-3.0-only. The Python system reads
+nothing in `onnx/`: the `beat_this` package downloads BeatThis (code and
+weights, MIT) from its authors.
 
 The training charts are osu! community beatmaps. Neither they nor their audio
 are distributed. The prior, the calibration and the scope table hold numbers
