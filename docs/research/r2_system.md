@@ -356,13 +356,16 @@ versions were not tried.
 Once the model is installed, the Ensomi macOS app makes charts by default on
 the device that plays them. The iOS target shares that path and has so far been
 built only for the simulator. Since 2026-10-12 the app generates through the
-shared [Ensomi runtime](https://github.com/ensomi-labs/runtime) 0.2.0, a
-Rust core whose generator runs the released networks with ONNX Runtime as the
-ONNX step graphs that `python -m ensomi_model.export.onnx` writes
+shared [Ensomi runtime](https://github.com/ensomi-labs/runtime), a Rust core
+whose generator runs the released networks with ONNX Runtime as the ONNX step
+graphs that `python -m ensomi_model.export.onnx` writes
 (`src/ensomi_model/export/`). They are published as the `onnx/` directory of
-the Hugging Face repository, which the app downloads or reads from a folder;
-nothing is sent to a server. The same core, built for WebAssembly, runs the
-in-browser generator at [ensomi.app](https://ensomi.app).
+the Hugging Face repository. The app downloads the files that directory's
+`ensomi-package.json` lists and checks each one's SHA-256, or reads the package
+from a folder; nothing is sent to a server. The same core, built for
+WebAssembly, runs the in-browser generator at [ensomi.app](https://ensomi.app).
+The app pins the runtime's exact version in its `project.yml`, the site in its
+`package.json`.
 
 The runtime arranges a song once. `r2-1.0` arranges it a second time when the
 first arrangement misses the star's difficulty target by more than the
