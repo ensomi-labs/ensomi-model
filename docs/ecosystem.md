@@ -64,15 +64,16 @@ developed, in ensomi-model's Python system, and change there freely. The model
 service serves the current Python system to the app; it does not have to
 refuse what the runtime refuses. The runtime runs released models for users
 and is where strictness belongs: package checks, request validation and
-conformance. Its model-specific behaviour comes from a released Python system;
-it defines none of its own.
+conformance. Its pipeline for a released model is ported from that model's
+Python system, with differences of its own, such as R2's single arrangement
+pass and its own random numbers.
 
 The Python system and the runtime are reconciled only when a model is
 released: ensomi-model's exporter writes the package from the Python system,
-and the runtime's generator replay parity (step 5 of its `RELEASING.md`) shows
-that its pipeline reproduces the Python system's decisions on recorded draws.
-Between releases they are not kept in step, and a change to a model in
-development needs no Rust or Wasm build.
+and the runtime's generator replay parity, which its `RELEASING.md` runs
+before every release, shows that its pipeline reproduces the Python system's
+decisions on recorded draws. Between releases they are not kept in step, and a
+change to a model in development needs no Rust or Wasm build.
 
 R2's host code is compiled into the runtime as its built-in pipeline, and the
 runtime restates some of R2's values, so these rules are written in more than
