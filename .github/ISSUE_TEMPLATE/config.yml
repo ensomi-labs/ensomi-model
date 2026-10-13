@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ideas and questions
+    url: https://github.com/orgs/ensomi-labs/discussions
+    about: What ensomi should build next, questions, and charts you made with it. Any language.
+  - name: A pattern label in the beatmap-lens dataset
+    url: https://github.com/ensomi-labs/beatmap-lens/issues/new?template=label-feedback.yml
+    about: A label in the mania pattern annotations does not match how you read the section.
