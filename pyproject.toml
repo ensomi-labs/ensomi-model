@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ensomi-model"
 version = "0.1.0"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.13"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE"]
 dependencies = [
@@ -41,8 +41,8 @@ cuda = [
 
 service = [
     "websockets==15.0.1",
-    "protobuf==5.29.6",
-    "ensomi-protocol @ git+https://github.com/ensomi-labs/protocol.git@c79ffbe5ac97ed3dbce92b92ef006325a4cddf3b",
+    "protobuf==7.36.2",
+    "ensomi-protocol @ git+https://github.com/ensomi-labs/protocol.git@2a85c32eee6ab2d5a5301c6783fc97e667aaa0e6",
 ]
 
 [dependency-groups]
