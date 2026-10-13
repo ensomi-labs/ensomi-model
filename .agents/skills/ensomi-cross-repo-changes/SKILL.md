@@ -34,7 +34,9 @@ every repository's own checks pass.
    ```
 
    Fix every hit in the same round, or list it in the pull request with the
-   repository that will fix it.
+   repository that will fix it. A listed hit is still fixed in the same round.
+   Whoever coordinates the round collects the hits listed in its pull requests
+   and opens the pull requests that fix them before calling the round done.
 4. **Follow the order in `docs/ecosystem.md`.** One pull request per
    repository, each linking the others and stating the merge order. A release
    or an upload comes before the repositories that take it.
