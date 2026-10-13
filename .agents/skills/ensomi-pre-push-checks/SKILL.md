@@ -46,6 +46,7 @@ Every behavior change needs a focused check that would fail on its regression. U
 
 - **Skills and agent instructions:** run `scripts/quick_validate.py` from the installed `skill-creator` skill for each changed skill, inspect linked resources and UI metadata, then run `git diff --check`. If the validator or its runtime is unavailable, check frontmatter, naming, links, and YAML syntax separately and report the missing canonical validation rather than treating the fallback as equivalent.
 - **Packaging or packaged resources:** run `tests/test_package_layout.py` and inspect `pyproject.toml` package-data rules.
+- **Dependencies or Python range in `pyproject.toml`:** run `uv lock` before pushing. It resolves all extras together for every supported platform and Python version; `uv.lock` is ignored and per machine, and a test run with `uv run --no-sync` uses an environment that already exists, so neither can show an unsatisfiable resolution.
 - **Hydra configuration or projection:** run the owning inference or training Hydra test; add `--help`, `--cfg job`, or the documented training dry-run when the operator path changes.
 - **Models, data windows, vocabulary, grammar, replay, loss, or training:** run the exact owners under `tests/models/`, `tests/data/`, and `tests/training/` that consume the changed contract.
 - **Inference runtime, bundles, streaming, protocol, or export:** run the owning `tests/inference/` files and add `tests/events/` or `tests/osu_core/` when those contracts change.
