@@ -35,7 +35,7 @@ licence.
 | A runtime or protocol version, and who pins it | that package's own metadata; each consumer pins an exact version in its own manifest (the app's project file, the site's `package.json`, the extras in ensomi-model's `pyproject.toml`) |
 | Python and dependency ranges | ensomi-model's `pyproject.toml`; the protocol's `pyproject.toml` for the range its Python package accepts |
 | Messages, error codes and phases | the protocol's `.proto` files |
-| Generation behaviour: star range, controls and their statuses, section rules, arrangement passes, random numbers | the runtime's generator for the clients; ensomi-model's system and model service for Python; the R2 report for the evidence behind each control's status |
+| Generation behaviour: star range, controls and their statuses, section rules, arrangement passes, random numbers, the decode loop | for a model in development, ensomi-model's Python system, which the model service serves to the app; for a released model, its package and the runtime's pipeline for it; the R2 report for the evidence behind each control's status |
 | Licences | the Hugging Face card and the manifest for the model's files; each repository's `LICENSE` for its code; the runtime's `licenses/` for the third-party notices it ships |
 | A speed, size or compatibility claim | the measurement or check that backs it, which the claim names |
 | Research decisions and their reasons | ensomi-model's `relay-notes` branch |
@@ -51,16 +51,35 @@ upload comes before the repositories that take it.
 | The package format or the package config | the runtime, which owns the format, and its release; ensomi-model's exporter; a new package on Hugging Face; the clients take the runtime release and the new revision |
 | A protocol message, error code or phase | the protocol's release; the runtime's mirror of the messages, and its release; ensomi-model's model service and its pin; the app; the site |
 | The runtime's API or generation behaviour | the runtime's release; the app and the site take it; the report, the card and client text wherever they describe the behaviour |
-| A generation rule or a control's status | every program that defines it (below); the protocol, if a message documents it; the report and the card; client checks and text |
+| A generation rule or a control's status | for a model in development, nothing outside ensomi-model; for a released model, a release of that model: its package, the runtime's pipeline if the behaviour changes, the protocol if a message documents the rule, then the report, the card, client checks and text |
 | A licence, or the files a licence covers | the card and the manifest; every README and client screen that states it; the files the clients download |
 | A dependency range | the owner's metadata; every consumer's pin; a fresh resolution in each consumer |
 | A measured claim (size, speed) | the measurement first; then every place that states it |
 
-## Rules defined in more than one program
+## Where a model's rules live
 
-Until they come from the package, some rules are written in more than one
-program: the model identity, the controls with their statuses and the star
-range in both ensomi-model's model service and the runtime; section rules in
-ensomi-model's system and in the runtime; the `.osz` layout in the Python
-system and in the runtime's Rust and JavaScript. A change to one of them edits
-the others in the same round.
+A model's rules (its star range, controls and their statuses, section rules,
+arrangement passes, seed handling and decode loop) are written while it is
+developed, in ensomi-model's Python system, and change there freely. The model
+service serves the current Python system to the app; it does not have to
+refuse what the runtime refuses. The runtime runs released models for users
+and is where strictness belongs: package checks, request validation and
+conformance. Its pipeline for a released model is ported from that model's
+Python system, with differences of its own, such as R2's single arrangement
+pass and its own random numbers.
+
+The Python system and the runtime are reconciled only when a model is
+released: ensomi-model's exporter writes the package from the Python system,
+and the runtime's generator replay parity, which its `RELEASING.md` runs
+before every release, shows that its pipeline reproduces the Python system's
+decisions on recorded draws. Between releases they are not kept in step, and a
+change to a model in development needs no Rust or Wasm build.
+
+R2's host code is compiled into the runtime as its built-in pipeline, and the
+runtime restates some of R2's values, so these rules are written in more than
+one program: the model identity, the controls with their statuses and the star
+range in ensomi-model's model service and in the runtime; section rules in
+ensomi-model's system, its model service and the runtime; the `.osz` layout in
+the Python system and in the runtime's Rust and JavaScript. Whether those
+values move into the package, and whether a package carries its model's host
+code, are decided once the next model's architecture is known.
