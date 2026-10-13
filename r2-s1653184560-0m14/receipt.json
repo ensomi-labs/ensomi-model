@@ -1,0 +1,150 @@
+{
+  "runtime": {
+    "name": "ensomi-runtime",
+    "version": "0.1.0",
+    "random_algorithm": "mulberry32-u53-v1",
+    "seed32": 1653184560,
+    "r2_seed32": 1653185514
+  },
+  "audio": {
+    "asset_id": "1569079416.ogg"
+  },
+  "star": 5.1,
+  "band": 5,
+  "seed": 1653184560,
+  "setting": "r2",
+  "metadata": {
+    "title": "1569079416",
+    "artist": "Unknown"
+  },
+  "rows": {
+    "request": 3.168856225717253,
+    "sections": [],
+    "K": 1517,
+    "dropped_close_heads": 0,
+    "segments": [
+      [
+        -13.990496431755865,
+        468.75,
+        4
+      ]
+    ]
+  },
+  "prior": {
+    "method": "knn",
+    "features": {
+      "log_rows_s": 2.2007117810904107,
+      "log_gap_ms": 4.762173934797756,
+      "log_wh_s": 3.031249731770088,
+      "log_bpm": 4.852030263919617
+    },
+    "predicted": {
+      "held": 0.051845264562027565,
+      "heads": 1.6957914353879484,
+      "busy_free": 0.023043674859027558,
+      "quad": 0.006084728554253276,
+      "log_r": 0.5261293261754644
+    }
+  },
+  "controls": {
+    "ln": {
+      "mode": "natural",
+      "fraction": 1,
+      "natural_held_share": 0.051845264562027565,
+      "target_held_share": 0.051845264562027565,
+      "achieved_held_share": 0.0476268951878708,
+      "ln_heads": 199
+    },
+    "difficulty": {
+      "q": 0.467,
+      "target_r": 1.4894840346691853,
+      "band": [
+        1.1873852300787295,
+        2.297916320995421
+      ],
+      "map_band": 5,
+      "base_r": 1.6923690061977088,
+      "base_r_source": "prior",
+      "fit": {
+        "alpha": -0.13175960333706038,
+        "beta": 0.6814987181766188,
+        "gamma": 1.4005481853131598,
+        "observations": 40,
+        "charts": 4,
+        "log_r_rmse": 0.04649105214937038,
+        "log_r_r2": 0.896667944295124,
+        "r_rmse": 0.06492942036014188,
+        "seed_sd": 0.010712337767186067,
+        "noise_pairs": 4
+      },
+      "m_requested": 0.7383975574253123,
+      "domain": [
+        0.8,
+        1.2
+      ],
+      "clamped": true,
+      "m_final": 0.8518217205036325,
+      "achieved_r": 1.4618901198790644,
+      "error": -0.027593914790120966,
+      "within_seed_sd": false,
+      "passes": [
+        {
+          "multiplier": 0.8,
+          "achieved": 1.427115318324512,
+          "fallback_count": 0,
+          "wall_seconds": 5.47939999999851
+        },
+        {
+          "multiplier": 0.8518217205036325,
+          "achieved": 1.4618901198790644,
+          "fallback_count": 0,
+          "wall_seconds": 5.497
+        }
+      ],
+      "tested_band_q": [
+        0.1,
+        0.75
+      ],
+      "above_tested_band": false,
+      "default": true
+    },
+    "sections": []
+  },
+  "targets": [
+    0.051845264562027565,
+    1.4445119781074867,
+    0.028226778804909165
+  ],
+  "achieved": {
+    "held_share": 0.0476268951878708,
+    "heads_per_row": 1.4607778510217535,
+    "busy_share": 0.015820698747528016,
+    "r": 1.4618901198790644
+  },
+  "fallback_count": 0,
+  "fallbacks": [],
+  "mask_firings_total": {
+    "reattack": 438,
+    "quad": 2,
+    "jack": 438
+  },
+  "export": {
+    "legal": true,
+    "head_rows_equal": true,
+    "replay_finalized": true,
+    "objects": 2216,
+    "bookmarks_ms": []
+  },
+  "seconds": {
+    "pcm": 0,
+    "spectrogram": 0.2763999999985099,
+    "beatthis": 36.94169999999553,
+    "mel": 0.8528000000044703,
+    "grid": 0.4872999999970198,
+    "rows": 0.5068999999985099,
+    "prior": 0.00029999999701976776,
+    "arrangement": 10.9765,
+    "export": 0.0018999999985098838,
+    "total": 50.04429999999702
+  }
+}

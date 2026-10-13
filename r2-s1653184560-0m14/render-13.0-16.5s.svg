@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 1300" width="360" height="1300" role="img" aria-label="Unknown - 1569079416 - Ensomi r2 s1653184560 4K mania chart - page 1 of 1">
+  <title>Unknown - 1569079416 - Ensomi r2 s1653184560 4K mania chart - page 1 of 1</title>
+  <rect data-layer="page-background" x="0" y="0" width="360" height="1300" fill="#101820"/>
+  <defs>
+    <clipPath id="panel-0000-clip" clipPathUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="300" height="1168"/>
+    </clipPath>
+    <clipPath id="panel-0000-axis-clip" clipPathUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="32" height="1168"/>
+    </clipPath>
+  </defs>
+  <g data-panel-index="0" data-time-scale="linear" transform="translate(24 108)" clip-path="url(#panel-0000-clip)">
+    <g data-layer="scene" transform="translate(32 0)">
+      <g data-layer="lanes">
+        <rect data-column="0" x="16" y="24" width="56" height="1120" fill="#18232f" stroke="#314254"/>
+        <rect data-column="1" x="76" y="24" width="56" height="1120" fill="#1f2d3a" stroke="#314254"/>
+        <rect data-column="2" x="136" y="24" width="56" height="1120" fill="#18232f" stroke="#314254"/>
+        <rect data-column="3" x="196" y="24" width="56" height="1120" fill="#1f2d3a" stroke="#314254"/>
+      </g>
+      <g data-layer="notes">
+        <rect id="panel-0000-note-0106" data-note-id="note-0106" data-kind="normal" data-source-kind="normal" data-column="0" data-start-ms="13111" data-end-ms="13111" data-source-line="123" x="21" y="1104.48" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0107" data-note-id="note-0107" data-kind="normal" data-source-kind="normal" data-column="1" data-start-ms="13111" data-end-ms="13111" data-source-line="124" x="81" y="1104.48" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0108" data-note-id="note-0108" data-kind="normal" data-source-kind="normal" data-column="0" data-start-ms="13345" data-end-ms="13345" data-source-line="125" x="21" y="1029.6" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0109" data-note-id="note-0109" data-kind="normal" data-source-kind="normal" data-column="3" data-start-ms="13345" data-end-ms="13345" data-source-line="126" x="201" y="1029.6" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0110" data-note-id="note-0110" data-kind="normal" data-source-kind="normal" data-column="2" data-start-ms="13580" data-end-ms="13580" data-source-line="127" x="141" y="954.4" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0111" data-note-id="note-0111" data-kind="normal" data-source-kind="normal" data-column="1" data-start-ms="13814" data-end-ms="13814" data-source-line="128" x="81" y="879.52" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0112" data-note-id="note-0112" data-kind="normal" data-source-kind="normal" data-column="3" data-start-ms="13814" data-end-ms="13814" data-source-line="129" x="201" y="879.52" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0113" data-note-id="note-0113" data-kind="normal" data-source-kind="normal" data-column="0" data-start-ms="14049" data-end-ms="14049" data-source-line="130" x="21" y="804.3199999999999" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0114" data-note-id="note-0114" data-kind="normal" data-source-kind="normal" data-column="1" data-start-ms="14049" data-end-ms="14049" data-source-line="131" x="81" y="804.3199999999999" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0115" data-note-id="note-0115" data-kind="normal" data-source-kind="normal" data-column="0" data-start-ms="14283" data-end-ms="14283" data-source-line="132" x="21" y="729.44" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0116" data-note-id="note-0116" data-kind="normal" data-source-kind="normal" data-column="2" data-start-ms="14283" data-end-ms="14283" data-source-line="133" x="141" y="729.44" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0117" data-note-id="note-0117" data-kind="normal" data-source-kind="normal" data-column="2" data-start-ms="14517" data-end-ms="14517" data-source-line="134" x="141" y="654.56" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0118" data-note-id="note-0118" data-kind="normal" data-source-kind="normal" data-column="3" data-start-ms="14517" data-end-ms="14517" data-source-line="135" x="201" y="654.56" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0119" data-note-id="note-0119" data-kind="normal" data-source-kind="normal" data-column="1" data-start-ms="14595" data-end-ms="14595" data-source-line="136" x="81" y="629.6" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0120" data-note-id="note-0120" data-kind="normal" data-source-kind="normal" data-column="3" data-start-ms="14674" data-end-ms="14674" data-source-line="137" x="201" y="604.32" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0121" data-note-id="note-0121" data-kind="normal" data-source-kind="normal" data-column="3" data-start-ms="14752" data-end-ms="14752" data-source-line="138" x="201" y="579.36" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0122" data-note-id="note-0122" data-kind="normal" data-source-kind="normal" data-column="2" data-start-ms="14830" data-end-ms="14830" data-source-line="139" x="141" y="554.4" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0123" data-note-id="note-0123" data-kind="normal" data-source-kind="normal" data-column="1" data-start-ms="14908" data-end-ms="14908" data-source-line="140" x="81" y="529.44" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0124" data-note-id="note-0124" data-kind="normal" data-source-kind="normal" data-column="0" data-start-ms="14986" data-end-ms="14986" data-source-line="141" x="21" y="504.48" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0125" data-note-id="note-0125" data-kind="normal" data-source-kind="normal" data-column="3" data-start-ms="14986" data-end-ms="14986" data-source-line="142" x="201" y="504.48" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0126" data-note-id="note-0126" data-kind="long" data-source-kind="hold" data-column="2" data-start-ms="15103" data-end-ms="15161" data-source-line="143" x="141" y="455.67999999999995" width="46" height="15.360000000000014" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0127" data-note-id="note-0127" data-kind="normal" data-source-kind="normal" data-column="3" data-start-ms="15220" data-end-ms="15220" data-source-line="145" x="201" y="429.6" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0128" data-note-id="note-0128" data-kind="long" data-source-kind="hold" data-column="1" data-start-ms="15220" data-end-ms="15299" data-source-line="144" x="81" y="411.52" width="46" height="22.08000000000004" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0129" data-note-id="note-0129" data-kind="long" data-source-kind="hold" data-column="0" data-start-ms="15338" data-end-ms="15377" data-source-line="146" x="21" y="386.55999999999995" width="46" height="9.280000000000086" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0130" data-note-id="note-0130" data-kind="normal" data-source-kind="normal" data-column="2" data-start-ms="15455" data-end-ms="15455" data-source-line="148" x="141" y="354.4" width="46" height="8" rx="2" fill="#f2c14e" stroke="#916f1d"/>
+        <rect id="panel-0000-note-0131" data-note-id="note-0131" data-kind="long" data-source-kind="hold" data-column="0" data-start-ms="15455" data-end-ms="15533" data-source-line="147" x="21" y="336.64" width="46" height="21.75999999999999" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0132" data-note-id="note-0132" data-kind="long" data-source-kind="hold" data-column="3" data-start-ms="15572" data-end-ms="15630" data-source-line="149" x="201" y="305.6" width="46" height="15.360000000000014" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0133" data-note-id="note-0133" data-kind="long" data-source-kind="hold" data-column="1" data-start-ms="15689" data-end-ms="15747" data-source-line="150" x="81" y="268.15999999999997" width="46" height="15.360000000000014" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0134" data-note-id="note-0134" data-kind="long" data-source-kind="hold" data-column="3" data-start-ms="15806" data-end-ms="15865" data-source-line="151" x="201" y="230.39999999999998" width="46" height="15.680000000000064" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0135" data-note-id="note-0135" data-kind="long" data-source-kind="hold" data-column="2" data-start-ms="15924" data-end-ms="16041" data-source-line="152" x="141" y="174.08000000000004" width="46" height="34.24000000000001" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0136" data-note-id="note-0136" data-kind="long" data-source-kind="hold" data-column="3" data-start-ms="16041" data-end-ms="16129" data-source-line="154" x="201" y="145.91999999999996" width="46" height="24.960000000000036" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0137" data-note-id="note-0137" data-kind="long" data-source-kind="hold" data-column="0" data-start-ms="16041" data-end-ms="16143" data-source-line="153" x="21" y="141.44000000000005" width="46" height="29.43999999999994" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0138" data-note-id="note-0138" data-kind="long" data-source-kind="hold" data-column="0" data-start-ms="16158" data-end-ms="16334" data-source-line="155" x="21" y="80.31999999999994" width="46" height="53.12000000000012" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0139" data-note-id="note-0139" data-kind="long" data-source-kind="hold" data-column="1" data-start-ms="16392" data-end-ms="16861" data-continues-after="true" data-source-line="156" x="81" y="24" width="46" height="34.559999999999945" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+        <rect id="panel-0000-note-0140" data-note-id="note-0140" data-kind="long" data-source-kind="hold" data-column="3" data-start-ms="16392" data-end-ms="16861" data-continues-after="true" data-source-line="157" x="201" y="24" width="46" height="34.559999999999945" rx="2" fill="#4ecdc4" stroke="#257a78"/>
+      </g>
+    </g>
+    <g data-layer="time-axis" data-side="left" transform="translate(0 0)" clip-path="url(#panel-0000-axis-clip)">
+      <line data-kind="rail" x1="32" y1="24" x2="32" y2="1144" stroke="#627386" stroke-width="1"/>
+      <line data-kind="start" data-time-ms="13000" x1="32" y1="1144" x2="28" y2="1144" stroke="#627386" stroke-width="1"/>
+      <text data-kind="start" data-time-ms="13000" x="14" y="1144" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:13.0</text>
+      <line data-kind="major" data-time-ms="13200" x1="32" y1="1080" x2="28" y2="1080" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="13200" x="14" y="1080" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:13.2</text>
+      <line data-kind="major" data-time-ms="13400" x1="32" y1="1016" x2="28" y2="1016" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="13400" x="14" y="1016" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:13.4</text>
+      <line data-kind="major" data-time-ms="13600" x1="32" y1="952" x2="28" y2="952" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="13600" x="14" y="952" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:13.6</text>
+      <line data-kind="major" data-time-ms="13800" x1="32" y1="888" x2="28" y2="888" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="13800" x="14" y="888" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:13.8</text>
+      <line data-kind="major" data-time-ms="14000" x1="32" y1="824" x2="28" y2="824" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="14000" x="14" y="824" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:14.0</text>
+      <line data-kind="major" data-time-ms="14200" x1="32" y1="760" x2="28" y2="760" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="14200" x="14" y="760" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:14.2</text>
+      <line data-kind="major" data-time-ms="14400" x1="32" y1="696" x2="28" y2="696" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="14400" x="14" y="696" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:14.4</text>
+      <line data-kind="major" data-time-ms="14600" x1="32" y1="632" x2="28" y2="632" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="14600" x="14" y="632" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:14.6</text>
+      <line data-kind="major" data-time-ms="14800" x1="32" y1="568" x2="28" y2="568" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="14800" x="14" y="568" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:14.8</text>
+      <line data-kind="major" data-time-ms="15000" x1="32" y1="504" x2="28" y2="504" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="15000" x="14" y="504" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:15.0</text>
+      <line data-kind="major" data-time-ms="15200" x1="32" y1="440" x2="28" y2="440" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="15200" x="14" y="440" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:15.2</text>
+      <line data-kind="major" data-time-ms="15400" x1="32" y1="376" x2="28" y2="376" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="15400" x="14" y="376" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:15.4</text>
+      <line data-kind="major" data-time-ms="15600" x1="32" y1="312" x2="28" y2="312" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="15600" x="14" y="312" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:15.6</text>
+      <line data-kind="major" data-time-ms="15800" x1="32" y1="248" x2="28" y2="248" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="15800" x="14" y="248" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:15.8</text>
+      <line data-kind="major" data-time-ms="16000" x1="32" y1="184" x2="28" y2="184" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="16000" x="14" y="184" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:16.0</text>
+      <line data-kind="major" data-time-ms="16200" x1="32" y1="120" x2="28" y2="120" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="16200" x="14" y="120" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:16.2</text>
+      <line data-kind="major" data-time-ms="16400" x1="32" y1="56" x2="28" y2="56" stroke="#627386" stroke-width="1"/>
+      <text data-kind="major" data-time-ms="16400" x="14" y="56" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:16.4</text>
+      <line data-kind="end" data-time-ms="16500" x1="32" y1="24" x2="28" y2="24" stroke="#627386" stroke-width="1"/>
+      <text data-kind="end" data-time-ms="16500" x="14" y="24" fill="#9aabbc" font-family="monospace" font-size="7" text-anchor="middle" dominant-baseline="middle">0:16.5</text>
+    </g>
+  </g>
+</svg>
