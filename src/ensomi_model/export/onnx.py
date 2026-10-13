@@ -60,7 +60,9 @@ def graph_schema(path, known_shapes=None):
                 inputs=[spec(v) for v in graph.graph.input], outputs=[spec(v) for v in graph.graph.output])
 
 
-def manifest(system, out):
+def manifest(system, out, files):
+    """The runtime config for the graphs in ``out``. Writes the arrays and notice it names into ``out`` and
+    appends their paths to ``files``."""
     from ..audio_rows import decoder
     from ..audio_rows.figures import NPOS
     from ..audio_rows.fitter.config import GridFitterConfig
@@ -82,6 +84,7 @@ def manifest(system, out):
         values = array(table[name].to_numpy())
         filename = f'scopes-{name}.bin'
         (out / filename).write_bytes(values.tobytes())
+        files.append(filename)
         scope_table['columns'].append(dict(name=name, file=filename, dtype=values.dtype.str,
                                           shape=list(values.shape), nbytes=values.nbytes))
     state = {}
@@ -89,7 +92,11 @@ def manifest(system, out):
         a = array(value)
         path = out / f'r2_initial_{key}.bin'
         path.write_bytes(a.tobytes())
+        files.append(path.name)
         state[key] = dict(file=path.name, dtype=a.dtype.str, shape=list(value.shape))
+    arrays = write_frontend_arrays(system.rows.listener.frames, out)
+    files += [arrays[side][name]['path'] for side in ('beatthis', 'rows') for name in ('mel_filter', 'hann_window')]
+    files.append(arrays['beatthis_license'])
     record = system.rows.record
     cfg = system.rows.model.cfg
     shapes = dict(beatthis={name: [1, 'time'] for name in ('beat_logits', 'downbeat_logits')},
@@ -102,7 +109,7 @@ def manifest(system, out):
                    rows_hidden_shape=[1, 1, system.rows.model.cfg.hidden], rows_initial_previous=system.rows.model.cfg.vocab,
                    rows_copy_history='newest lag first; unavailable figure IDs -1; recurrent hidden initially zero'),
         beatthis_frontend=beatthis_frontend_constants(system.rows.listener.frames),
-        frontend_arrays=write_frontend_arrays(system.rows.listener.frames, out),
+        frontend_arrays=arrays,
         grid_fitter=json_value(GridFitterConfig()),
         mp3=dict(lead_samples=decoder.LEAD_SAMPLES, ffmpeg_encoders=decoder._FFMPEG_ENCODERS,
                  bitrates_v1=decoder._BITRATES_V1, bitrates_v2=decoder._BITRATES_V2,
@@ -166,16 +173,19 @@ def manifest(system, out):
 def export(model_dir, out, opset=17):
     from ..system.make import System
     from .beatthis_graph import export_beatthis_graph
+    from .package import CONFIG, write_manifest
     from .r2_graph import export_graphs
     from .rows_graph import export_rows_graphs
     model_dir, out = Path(model_dir), Path(out)
     system = System.load(json.loads((model_dir / 'system.json').read_text()), model_dir)
     out.mkdir(parents=True, exist_ok=True)
-    export_beatthis_graph(system.rows.listener.frames.model, out / 'beatthis.onnx', opset)
-    export_rows_graphs(system.rows.model, out, opset)
-    export_graphs(system.r2, out, opset_version=opset)
-    result = manifest(system, out)
-    (out / 'runtime.json').write_text(json.dumps(result, separators=(',', ':'), allow_nan=False) + '\n')
+    graphs = [export_beatthis_graph(system.rows.listener.frames.model, out / 'beatthis.onnx', opset),
+              *export_rows_graphs(system.rows.model, out, opset).values(),
+              *(Path(g['path']) for g in export_graphs(system.r2, out, opset_version=opset).values())]
+    files = [CONFIG, *(p.name for p in graphs)]
+    result = manifest(system, out, files)
+    (out / CONFIG).write_text(json.dumps(result, separators=(',', ':'), allow_nan=False) + '\n')
+    write_manifest(out, files, notices=[result['frontend_arrays']['beatthis_license']])
     return result
 
 

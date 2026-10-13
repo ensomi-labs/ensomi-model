@@ -10,10 +10,9 @@ import uuid
 import numpy as np
 from ensomi.protocol.v1 import chart_pb2
 
+from ..export.package import MODEL_NAME, MODEL_VERSION
 from ..osu_core.hitobjects import ManiaHitObjectKind, parse_mania_hit_objects
 
-MODEL_NAME = 'Ensomi R2'
-MODEL_VERSION = 'r2-1.0'
 MIN_STAR, MAX_STAR_EXCLUSIVE = 2.0, 6.0
 
 LONG_NOTES = {chart_pb2.LONG_NOTE_AMOUNT_UNSPECIFIED: 'natural', chart_pb2.LONG_NOTE_AMOUNT_TAP_ONLY: 'tap',

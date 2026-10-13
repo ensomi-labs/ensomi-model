@@ -68,6 +68,23 @@ All referenced binary files are contiguous, row-major and little-endian.
 Paths are relative to the manifest directory. The prior and calibration
 remain data interpreted by the decode code, not learned network graphs.
 
+## `ensomi-package.json`
+
+The exporter also writes the package manifest `ensomi-package.json` beside
+`runtime.json`. The Ensomi runtime owns its format, `ensomi-package/1`, and
+reads it from runtime 0.3.0. The package manifest names the model, its licence
+and notices, the decode pipeline, the oldest runtime that runs the package and
+the runtime config. It lists every file the package needs except itself, with
+byte size and SHA-256. The exporter lists the files it wrote. For a package
+exported earlier, this command derives the files from `runtime.json` by the
+runtime's rule and writes the package manifest; it needs neither torch nor
+onnx:
+
+```sh
+PYTHONPATH=src .venv/bin/python -m ensomi_model.export.package \
+  artifacts/release-r2/bulk/hf/ensomi-r2/onnx
+```
+
 ## Reference recordings
 
 The reference command runs `System.make` on the four release examples. It
