@@ -19,7 +19,7 @@ Use task-specific guidance only when its scope matches the work.
 | ML research direction, analogue search, hypothesis branching, bounded experiment design, or result evaluation | `.agents/skills/research-triage/SKILL.md` |
 | Planning, briefing, launching or reading an experiment, training run, evaluation or design round; choosing a measure, baseline or decision rule | `.agents/skills/ensomi-research-guardrails/SKILL.md` |
 | Root-cause analyses, performance investigations, or postmortems | `docs/guides/technical_analysis_writing.md` |
-| A change to anything another Ensomi repository also states (the released model's files, revision or manifest, licences, versions and pins, generation rules, the model service), or a release, tag or Hugging Face upload | `.agents/skills/ensomi-cross-repo-changes/SKILL.md`, with the map in `docs/ecosystem.md` |
+| A change to something other Ensomi repositories also state or depend on (the released model's files, revision, manifest or licence; versions and pins; protocol messages; generation rules), or a release, tag or Hugging Face upload | `.agents/skills/ensomi-cross-repo-changes/SKILL.md`, with `docs/ecosystem.md` |
 
 ## Repository context
 
@@ -28,8 +28,8 @@ Use task-specific guidance only when its scope matches the work.
   formulation and the R1 lineage. Mapper v2/v2.1, the earlier timing stack,
   Control V3 and the older websocket inference endpoint are on the `legacy/v2`
   branch. `docs/research/README.md` maps earlier work to its refs.
-- Facts that other Ensomi repositories also state each have one owner, listed
-  in `docs/ecosystem.md`.
+- `docs/ecosystem.md` says where facts the Ensomi repositories share are
+  defined and what a change affects in the others.
 - Research questions, human decisions and outcomes are recorded on the
   `relay-notes` branch, entry point `RESEARCH.md`. The `agent-notes` branch is
   archived read-only at `refs/archive/heads/agent-notes`; do not recreate it or

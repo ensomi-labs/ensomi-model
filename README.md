@@ -232,5 +232,5 @@ under CC BY-NC-SA 4.0 (no commercial use), except BeatThis's ONNX export and
 front-end arrays in `onnx/`, which keep BeatThis's MIT licence
 (`onnx/BeatThis-LICENSE.txt`), and R1's under `AGPL-3.0-only`. BeatThis itself,
 which the Python timing system downloads from its authors, is MIT licensed.
-[`docs/ecosystem.md`](docs/ecosystem.md) lists the facts this repository shares
-with the other Ensomi repositories.
+[`docs/ecosystem.md`](docs/ecosystem.md) says where facts the Ensomi
+repositories share are defined and what a change affects in the others.
