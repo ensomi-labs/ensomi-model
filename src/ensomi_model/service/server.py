@@ -109,7 +109,7 @@ class Service:
                 await connection.send(request, chart_result=result)
         except mapping.RequestError as error:
             await connection.error(request, error.code, str(error))
-        except ValueError as error:                     # System.make refuses a request, for example a span too short
+        except ValueError as error:                     # System.make refuses a request, such as a span past the song
             await connection.error(request, 'unsupported_control', str(error))
         except Exception as error:
             traceback.print_exc()

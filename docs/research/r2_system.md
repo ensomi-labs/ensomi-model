@@ -402,9 +402,11 @@ The app connects to `ws://localhost:8765` unless `ENSOMI_SERVICE_URL` or its
 - `StopSessionRequest` for that session to give up: the result is discarded and
   the service answers with a stopped `StatusEvent`.
 
-Failures arrive as `ErrorEvent` with the code `star_out_of_range`,
-`audio_unreadable`, `unsupported_control` (a request the model refuses, for
-example a pattern span outside 8 to 32 seconds) or `generation_failed`. One
+Failures arrive as `ErrorEvent` with the code `protocol_error` (a frame the
+service cannot parse or handle, or one that breaks the session flow, such as a
+request without a `session_id`), `star_out_of_range`, `audio_unreadable`,
+`unsupported_control` (a request the model refuses, for example a section
+shorter than 8 or longer than 32 seconds) or `generation_failed`. One
 chart is generated at a time and further requests wait. A stopped generation
 still runs to its end, so the next one starts after it.
 
