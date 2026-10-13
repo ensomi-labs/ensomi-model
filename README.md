@@ -65,7 +65,7 @@ git clone https://github.com/ensomi-labs/ensomi-model.git
 cd ensomi-model
 git checkout --detach r2-1.0
 uv sync --python 3.10 --extra mps
-hf download sed-i/ensomi-r2 --local-dir artifacts/hf-r2
+hf download sed-i/ensomi-r2 --revision r2-1.0 --local-dir artifacts/hf-r2
 
 uv run --python 3.10 --extra mps python -m ensomi_model.system.make \
   --model-dir artifacts/hf-r2 --audio /path/to/song.mp3 --star 3.5 \
