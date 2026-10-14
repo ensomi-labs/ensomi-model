@@ -21,7 +21,8 @@ The guardrails support judgment; they are not a form to fill. Apply each one who
    - Trigger: a comparison between arms, checkpoints, seeds or recipes.
    - Do: measure the seed spread and the neighbouring-checkpoint spread of the decision statistic. Run the statistic on a null: seed against seed, source against source.
    - Never use a selected checkpoint as the only baseline.
-   - Seen: round 1 set a 0.15 G margin against a checkpoint SD of 0.24-0.29, with the selected 56M as the only baseline (10-07).
+   - A margin on a pooled statistic cannot see a rule that harms a small stratum. Judge a rounding, merging or snapping rule on the stratum it changes.
+   - Seen: round 1 set a 0.15 G margin against a checkpoint SD of 0.24-0.29, with the selected 56M as the only baseline (10-07). Integer-BPM rounding was kept on pooled chart-weighted statistics (10-09); it drifts rate-edited songs by up to about 230 ms, on 19 of 965 single-tempo dev charts (found 10-14).
 3. **Show that a new input is used before training on it.**
    - Trigger: a new conditioning input, reader, latent or memory path.
    - Do: run a teacher-forced ablation on trained weights and report ΔNLL. Initialisation-time tests show only that the path is connected.
@@ -61,6 +62,11 @@ The guardrails support judgment; they are not a form to fill. Apply each one who
    - Trigger: cutting in-run evaluation, mini-panels or kill checks to fit wall-clock.
    - Do: keep at least one kill rule that can fire, with a reference scale.
    - Seen: round 1 dropped its mid-run panels, and B3 trained to the end with an unused reader (10-07).
+10. **Check an invariant between modules on an input that can break it.**
+    - Trigger: a claim that a property holds because of how the code is built ("by construction", "on the grid") in a design, review or brief; code that reuses another module's coordinate or constant; a port or rewrite checked only by parity or A/B comparison.
+    - Do: name the invariant and test it on a fixture that can violate it: several segments, a fractional boundary, a non-integer tempo, the song's end.
+    - Prefer an absolute check, whose expected value is fixed (zero heads off the chart's own snaps), to a relative one. Parity and A/B show that two sides agree, not that either is right.
+    - Seen: the rows decoder reused R2's continuous beat coordinate as beat lines (10-08). Rows sat off their own grid after fractional segment boundaries on about a sixth of dev audio, and every check was relative or used one-segment fixtures (ensomi-model #34, found 10-14). The fix borrowed R2's 2 ms legality floor as the rows' spacing and its test asserted the floor; a review found heads 2 ms apart (10-14).
 
 A review that checks code against its brief cannot catch what the brief left out. Pre-launch reviews passed the signed G and the per-resample interval, and an external review caught them (10-07). Apply the guardrails in the plan itself; a review step is no substitute.
 
