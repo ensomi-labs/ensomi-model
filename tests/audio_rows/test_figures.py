@@ -140,7 +140,9 @@ def test_whole_beats_start_every_segment_on_a_whole_beat_and_leave_one_segment_a
 
 def test_a_beat_cut_short_keeps_its_positions_a_sixteenth_of_a_beat_before_the_next_segment():
     song_ms = 12_000.0
-    for g in (two_segments(8.95).whole_beats(), grid()):
+    seg = np.array([[100.0, 500.0, 4], [4575.0, 430.0, 4], [4704.0, 600.0, 4]])     # a middle segment of 0.3 beat
+    tiny = GridArrays.from_grid(grid_from_arrays(seg, seg[:, [0, 2]])).whole_beats()
+    for g in (two_segments(8.95).whole_beats(), tiny, grid()):
         b0, nb = beat_range(g, song_ms)
         edges = g.time_of_beat(b0 + np.arange(nb + 1))
         pos = g.time_of_beat(b0 + np.arange(nb)[:, None] + FG.POSITIONS[None] / 48.0)
@@ -150,7 +152,7 @@ def test_a_beat_cut_short_keeps_its_positions_a_sixteenth_of_a_beat_before_the_n
             assert np.array_equal(ok, inside)
             continue
         cut = 8 - b0                    # the boundary cuts beat 8 at 475 ms; its 11/12 and 15/16 lie 17 and 6 ms before
-        assert edges[cut + 1] == g.offsets[1]
+        assert edges[cut + 1] == g.offsets[-1]
         assert ok[cut].tolist() == (FG.POSITIONS <= 42).tolist()
         assert np.array_equal(np.delete(ok, cut, 0), np.delete(inside, cut, 0))
 

@@ -91,9 +91,13 @@ def song_inputs(grid, song_ms: float, record, request: float, sections=()):
 
 def available_positions(grid, edges, pos_ms, song_ms: float) -> np.ndarray:
     """[nb, 24] positions a figure may use: inside [0, T - 2 ms], and at least a sixteenth of its segment's beat
-    before the next beat starts. A whole beat's last position (15/16) is exactly that far from the next beat, so
-    only a beat cut short by the next segment loses positions, and none lands nearer that segment's first one."""
-    end = edges[1:] - grid.lengths[grid.segment(edges[:-1])] / 16 + 1e-6       # 1e-6 ms: float error at 15/16
+    before the next beat or the next segment starts, whichever is first. A whole beat's last position (15/16) is
+    exactly that far from the next beat, so only a beat cut short by the next segment loses positions, and none
+    lands nearer that segment's first one. A segment under half a beat long has no beat of its own; the beat before
+    it stops before it all the same."""
+    s = grid.segment(edges[:-1])
+    next_offset = np.append(grid.offsets[1:], np.inf)[s]
+    end = np.minimum(edges[1:], next_offset) - grid.lengths[s] / 16 + 1e-6      # 1e-6 ms: float error at 15/16
     return (pos_ms >= 0) & (pos_ms <= song_ms - MIN_GAP_MS) & (pos_ms <= end[:, None])
 
 
