@@ -21,7 +21,7 @@ CONFIG = 'runtime.json'
 MODEL_ID = 'ensomi-r2'
 MODEL_NAME = 'Ensomi R2'
 MODEL_VERSION = 'r2-1.0'
-LICENSE = 'CC-BY-NC-SA-4.0 AND MIT'
+LICENSE = 'MIT'
 PIPELINE = dict(id='r2', version=1)
 MIN_RUNTIME = '0.3.0'
 

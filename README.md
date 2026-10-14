@@ -33,7 +33,7 @@ songs with their generated `.osu` files.
 
 | | |
 | --- | --- |
-| Weights, prior, calibration | [`sed-i/ensomi-r2`](https://huggingface.co/sed-i/ensomi-r2) on Hugging Face, licensed CC BY-NC-SA 4.0 (no commercial use) |
+| Weights, prior, calibration | [`sed-i/ensomi-r2`](https://huggingface.co/sed-i/ensomi-r2) on Hugging Face, licensed MIT |
 | Release tags | `rows-1.0`, `timing-1.0`, `r2-1.0`, all on one commit |
 | Report | [`docs/research/r2_system.md`](docs/research/r2_system.md) |
 | Inputs | complete audio, a star request in [2, 6), optional controls |
@@ -248,8 +248,8 @@ lists the archived branches.
 Ensomi Model is licensed under the GNU Affero General Public License v3.0 only
 (`AGPL-3.0-only`). See [`LICENSE`](LICENSE). The released weights, prior,
 calibration and previews on Hugging Face are licensed separately: Ensomi R2's
-under CC BY-NC-SA 4.0 (no commercial use), except BeatThis's ONNX export and
-front-end arrays in `onnx/`, which keep BeatThis's MIT licence
+under MIT, as its [card](https://huggingface.co/sed-i/ensomi-r2) states, with
+BeatThis's own MIT notice for its ONNX export and front-end arrays in `onnx/`
 (`onnx/BeatThis-LICENSE.txt`), and R1's under `AGPL-3.0-only`. BeatThis itself,
 which the Python timing system downloads from its authors, is MIT licensed.
 [`docs/ecosystem.md`](docs/ecosystem.md) says where facts the Ensomi

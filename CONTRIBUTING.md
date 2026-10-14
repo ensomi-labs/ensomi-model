@@ -111,4 +111,4 @@ released weights; the [README](README.md#generate-a-chart) has the download.
 
 Code contributions are made under the repository's licence, `AGPL-3.0-only`.
 The released weights on Hugging Face are licensed separately, Ensomi R2's under
-CC BY-NC-SA 4.0; see the [README](README.md#license).
+MIT; see the [README](README.md#license).

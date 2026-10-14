@@ -12,7 +12,7 @@ it can and cannot do yet.
 
 | | |
 | --- | --- |
-| Weights | [`sed-i/ensomi-r2`](https://huggingface.co/sed-i/ensomi-r2) on Hugging Face, CC BY-NC-SA 4.0 |
+| Weights | [`sed-i/ensomi-r2`](https://huggingface.co/sed-i/ensomi-r2) on Hugging Face, MIT |
 | Code | tags `timing-1.0`, `rows-1.0` and `r2-1.0`, all on one release commit; AGPL-3.0-only |
 | Components | a timing system (no trained weights of its own), a rows model (2.1M parameters) and R2 (2.4M parameters) |
 | Input | an audio file, a star rating from 2 up to 6, optional requests |
@@ -431,13 +431,11 @@ optimizer state, and the example receipts record the training checkpoint's
 hash. The `.pt` files are PyTorch pickles, loaded by this repository's code.
 
 Everything in the Hugging Face repository (weights, prior, calibration, scope
-table, ONNX graphs, examples, previews and model card) is licensed CC BY-NC-SA
-4.0: free to use, share and adapt with credit, not for commercial use, and
-adaptations under the same terms. The exception is BeatThis: `onnx/beatthis.onnx`,
-an ONNX export of its `final0` checkpoint, and its front-end arrays
-`onnx/beatthis-mel-filter.bin` and `onnx/beatthis-hann-window.bin` keep
-BeatThis's MIT licence (`onnx/BeatThis-LICENSE.txt`, which `runtime.json`
-names). The code is AGPL-3.0-only. The Python system reads nothing in `onnx/`:
+table, ONNX graphs, examples, previews and model card) is licensed MIT. BeatThis's
+parts, `onnx/beatthis.onnx`, an ONNX export of its `final0` checkpoint, and its
+front-end arrays `onnx/beatthis-mel-filter.bin` and `onnx/beatthis-hann-window.bin`,
+are MIT under BeatThis's own copyright notice (`onnx/BeatThis-LICENSE.txt`, which
+`runtime.json` names). The code is AGPL-3.0-only. The Python system reads nothing in `onnx/`:
 the `beat_this` package downloads BeatThis (code and weights, MIT) from its
 authors.
 
