@@ -102,8 +102,7 @@ released weights; the [README](README.md#generate-a-chart) has the download.
 
 ### Pull requests
 
-- One piece of work per pull request, with tests for the behaviour it changes
-  and the documentation it affects.
+- One change per pull request, with tests for the behaviour it changes.
 - Match the style of the surrounding code and documentation. A claim about
   charts or speed names the check or measurement behind it.
 - Say whether the change alters generated charts, and how you checked.
