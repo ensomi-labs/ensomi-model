@@ -2,8 +2,16 @@
 
 ``decode`` encodes the song's audio once, then per beat runs one GRU step, mixes the generator
 and the copy heads (``net``), removes figures with a position outside [0, T - 2 ms] (R2 needs T at
-least 2 ms after the last head), and samples a figure. The generator's logits are divided by
-``temperature``; the copy heads are not. Heads sit exactly on the figure positions.
+least 2 ms after the last head) or less than 2 ms before the next beat, and samples a figure. The
+generator's logits are divided by ``temperature``; the copy heads are not. Heads sit exactly on the
+figure positions.
+
+Beats are those of the grid's whole-beat frame (``GridArrays.whole_beats``), so every position lies
+on its own segment's beat lines; on the grid's continuous beats, positions after a boundary at a
+fractional beat would sit that fraction of a beat off them. A leftover under half a beat before a
+boundary gets no positions; a longer one is a beat that the boundary cuts short, of which only the
+positions at least 2 ms before the boundary are available. R2 reads the continuous beats, the
+coordinate it was trained on.
 
 The copy heads never attend to empty beats while decoding, whatever the training recipe
 (``copy_rests`` turns that off for diagnostics). With copied rests, emptiness reinforced itself in
@@ -102,6 +110,7 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
     module docstring). ``quiet_rests`` u lets the copy heads attend to empty beats on beats whose
     ``quiet_rank`` is below u, so rests copy where the music is quiet (default ``QUIET_RESTS``; 0: never)."""
     cfg = model.cfg
+    grid = grid.whole_beats()
     b0, edges, pos_ms, extra = song_inputs(grid, song_ms, record, request, sections)
     nb = len(extra)
     beat_ms = np.clip(edges, 0.0, song_ms)
@@ -117,7 +126,7 @@ def decode(model: FigureNet, record, mel, grid, song_ms: float, request: float, 
     pos_frames = np.clip((pos_ms / HOP_MS).astype(np.int64), 0, nf - 1)
     bf = np.clip((edges / HOP_MS).astype(np.int64), 0, nf)
     beat_frames = np.stack((bf[:-1], np.maximum(bf[1:], bf[:-1] + 1)), 1).clip(0, nf)
-    available = (pos_ms >= 0) & (pos_ms <= song_ms - MIN_GAP_MS)
+    available = (pos_ms >= 0) & (pos_ms <= song_ms - MIN_GAP_MS) & (pos_ms <= edges[1:, None] - MIN_GAP_MS)
     members = model.members.bool().numpy()
     allowed = torch.from_numpy(~(members[None] & ~available[:, None]).any(-1))          # [nb, V]
     t = lambda x: torch.from_numpy(np.asarray(x))[None]

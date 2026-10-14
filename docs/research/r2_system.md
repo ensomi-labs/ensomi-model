@@ -187,6 +187,12 @@ figures already chosen. Four copy heads look 1 to 64 beats back, keyed by how
 alike the audio sounds. The star rating maps to a workload the model is asked
 to produce.
 
+Beats are counted from the start of each tempo segment of the grid, so a
+figure's positions lie on its own segment's beat lines. Where a segment ends
+partway through a beat, a remainder under half a beat gets no positions; a
+longer one is a beat cut short, whose positions count only up to 2 ms before
+the next segment starts.
+
 The model uses every input: shifting the spectrogram, removing the
 per-position audio or the copy heads, or giving it another chart's request all
 cost likelihood in teacher-forced tests. On 96 held-out songs, with two
@@ -200,6 +206,14 @@ These measures describe the output; none has been validated against a player.
 | rows repeating where the audio repeats | .19 | .05 | .234 |
 | head F1 against human charts at 20 ms | .74 | .66 | .868 (two humans) |
 | same figure on comparable beats | .71 | .61 | .978 (two humans) |
+
+These measures, and the blind pairs in
+[What has been checked](#what-has-been-checked), were taken with beats
+numbered continuously across segments, as `r2-1.0` numbers them: after a
+segment boundary at a fractional beat, positions sat off that segment's beat
+lines by the fraction
+([#34](https://github.com/ensomi-labs/ensomi-model/issues/34)). A grid of one
+segment gives the same chart either way.
 
 Two decode-time rules keep long songs alive. Left free, the copy heads copied
 rests, rests reinforced themselves, and long songs thinned out toward the end.
