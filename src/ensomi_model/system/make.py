@@ -296,7 +296,7 @@ class System:
              recorder=None, random_source=None, max_difficulty_passes=DIFFICULTY_PASSES):
         """``progress(phase)``, when given, is called as each stage starts: 'timing' (not when ``prepared`` is
         given), 'rows', 'arrangement', 'export'. ``max_difficulty_passes`` caps the arrangements the difficulty
-        control may run; the default reproduces ``r2-1.0``. ``recorder`` receives graph calls and decode arrays;
+        control may run; the default reproduces ``r2-1.0.1``. ``recorder`` receives graph calls and decode arrays;
         ``random_source`` supplies sampling variates. With neither, the normal sampling path is unchanged.
         Recorded arrays replace the convenience ``arrays.npz`` beside the chart."""
         from .arrange import arrange

@@ -29,7 +29,7 @@ body:
     id: version
     attributes:
       label: Version (optional)
-      description: The tag or commit you ran, for example `r2-1.0`.
+      description: The tag or commit you ran, for example `r2-1.0.1`.
 
   - type: input
     id: environment

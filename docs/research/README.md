@@ -49,8 +49,10 @@ Each stage of the R1 lineage ended at a commit on this branch's history.
 ## Ensomi R2 training commits
 
 The released checkpoints were trained from these commits, which are on `main`.
-The tags `rows-1.0`, `timing-1.0` and `r2-1.0` mark the release commit, which
-holds the code that runs the released system.
+The tags `rows-1.0`, `timing-1.0` and `r2-1.0` mark the release commit;
+`r2-1.0.1` and `rows-1.0.1` mark the commit that puts each tempo segment's rows
+on its own beats ([#34](https://github.com/ensomi-labs/ensomi-model/issues/34)),
+which holds the code that runs the released system.
 
 | Commit | Component |
 | --- | --- |

@@ -34,7 +34,7 @@ songs with their generated `.osu` files.
 | | |
 | --- | --- |
 | Weights, prior, calibration | [`sed-i/ensomi-r2`](https://huggingface.co/sed-i/ensomi-r2) on Hugging Face, licensed MIT |
-| Release tags | `rows-1.0`, `timing-1.0`, `r2-1.0`, all on one commit |
+| Release tags | `r2-1.0.1` and `rows-1.0.1` (each tempo segment's rows on its own beats, [#34](https://github.com/ensomi-labs/ensomi-model/issues/34)) with `timing-1.0`; `r2-1.0` and `rows-1.0` mark the first release |
 | Report | [`docs/research/r2_system.md`](docs/research/r2_system.md) |
 | Inputs | complete audio, a star request in [2, 6), optional controls |
 | Outputs | `.osz` with whole-millisecond times, and `receipt.json` |
@@ -63,9 +63,9 @@ arm64 with the CPU has been checked.
 ```sh
 git clone https://github.com/ensomi-labs/ensomi-model.git
 cd ensomi-model
-git checkout --detach r2-1.0
+git checkout --detach r2-1.0.1
 uv sync --python 3.10 --extra mps
-hf download sed-i/ensomi-r2 --revision r2-1.0 --local-dir artifacts/hf-r2
+hf download sed-i/ensomi-r2 --revision r2-1.0.1 --local-dir artifacts/hf-r2
 
 uv run --python 3.10 --extra mps python -m ensomi_model.system.make \
   --model-dir artifacts/hf-r2 --audio /path/to/song.mp3 --star 3.5 \
@@ -235,7 +235,7 @@ Tests run with `uv run --python 3.10 --extra mps --group dev pytest`.
 | 2026-09-13 to 2026-09-15 | scoped style probes, source-action modeling | branch `legacy/v2` |
 | 2026-09-15 to 2026-09-21 | oracle-time continuation, R1 stages and release | this branch, tag `r1-restored-6.75m` |
 | 2026-09-23 to 2026-09-29 | audio-conditioned joint model | tag `audio-joint-2026-09` |
-| 2026-10 | R2, the timing system and the rows model; the end-to-end system | this branch, tags `r2-1.0`, `timing-1.0`, `rows-1.0` |
+| 2026-10 | R2, the timing system and the rows model; the end-to-end system | this branch, tags `r2-1.0`, `timing-1.0`, `rows-1.0`, `r2-1.0.1`, `rows-1.0.1` |
 
 `legacy/v2` is this branch as it stood before the cleanup. The Ensomi app's
 chart server is this branch's model service (`ensomi_model.service`); the app's

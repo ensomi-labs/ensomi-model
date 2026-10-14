@@ -13,7 +13,7 @@ it can and cannot do yet.
 | | |
 | --- | --- |
 | Weights | [`sed-i/ensomi-r2`](https://huggingface.co/sed-i/ensomi-r2) on Hugging Face, MIT |
-| Code | tags `timing-1.0`, `rows-1.0` and `r2-1.0`, all on one release commit; AGPL-3.0-only |
+| Code | tags `r2-1.0.1` and `rows-1.0.1`, with `timing-1.0`; `r2-1.0` and `rows-1.0` mark the first release commit; AGPL-3.0-only |
 | Components | a timing system (no trained weights of its own), a rows model (2.1M parameters) and R2 (2.4M parameters) |
 | Input | an audio file, a star rating from 2 up to 6, optional requests |
 | Output | a legal osu!mania 4K `.osz` with the audio, and a receipt of every setting used |
@@ -284,7 +284,12 @@ At generation time three things act on R2's choices:
 
 **Mechanically, every time.** Every chart passes the replay and legality
 checks, every time in the `.osu` is a whole millisecond, and the export is
-parsed back and replayed.
+parsed back and replayed. At each release, every head and release of the four
+example charts lies on a 1/1 to 1/16, 1/3, 1/6 or 1/12 line of its own red line,
+and no two head rows are nearer than a sixteenth of a beat
+(`python -m ensomi_model.evaluation.self_snap`); the runtime's release checks
+run the same check on its own charts. `r2-1.0` failed it on Catch the Moment
+([#34](https://github.com/ensomi-labs/ensomi-model/issues/34)).
 
 **By ear.** The project's lead judged blind pairs in Beatmap Lens Compare.
 Each pair is one listener and one generation seed per side. In the two pairs
@@ -304,7 +309,8 @@ listener still picked a side, so one pair's preference is weak evidence.
 
 **Reproduction.** Generated from the published files, from outside the
 repository and with BeatThis freshly downloaded, the four example charts come
-out with every note identical.
+out with every note identical. For `r2-1.0.1`, Catch the Moment's example was
+regenerated with its code; the other three come out identical with it.
 
 ## What it does not do yet
 
@@ -339,9 +345,9 @@ The release was checked on macOS arm64 (Apple M5, Python 3.10.20, torch
 ```sh
 git clone https://github.com/ensomi-labs/ensomi-model.git
 cd ensomi-model
-git checkout --detach r2-1.0
+git checkout --detach r2-1.0.1
 uv sync --python 3.10 --extra mps
-hf download sed-i/ensomi-r2 --revision r2-1.0 --local-dir artifacts/hf-r2
+hf download sed-i/ensomi-r2 --revision r2-1.0.1 --local-dir artifacts/hf-r2
 
 uv run --python 3.10 --extra mps python -m ensomi_model.system.make \
   --model-dir artifacts/hf-r2 --audio /path/to/song.mp3 --star 3.5 \
@@ -382,7 +388,7 @@ WebAssembly, runs the in-browser generator at [ensomi.app](https://ensomi.app).
 The app pins the runtime's exact version in its `project.yml`, the site in its
 `package.json`.
 
-The runtime arranges a song once. `r2-1.0` arranges it a second time when the
+The runtime arranges a song once. `r2-1.0.1` arranges it a second time when the
 first arrangement misses the star's difficulty target by more than the
 difficulty fit's seed spread, and for such a song the runtime's chart differs
 from the release's. Two of the four example charts, SaiGetsu and Catch the
@@ -442,8 +448,10 @@ still runs to its end, so the next one starts after it.
 `SHA256SUMS` in the Hugging Face repository lists every file, including the
 four example charts with their receipts and the previews. `r2/model.pt` holds
 only R2's weights and model configuration; the training checkpoint also held
-optimizer state, and the example receipts record the training checkpoint's
-hash. The `.pt` files are PyTorch pickles, loaded by this repository's code.
+optimizer state. The example receipts of Hesitation Snow, SaiGetsu and
+Adventure record the training checkpoint's hash; Catch the Moment's,
+regenerated for `r2-1.0.1` from the published files, records `r2/model.pt`'s.
+The `.pt` files are PyTorch pickles, loaded by this repository's code.
 
 Everything in the Hugging Face repository (weights, prior, calibration, scope
 table, ONNX graphs, examples, previews and model card) is licensed MIT. BeatThis's
@@ -464,8 +472,10 @@ charts carry their songs' titles and artists, without audio.
 | Component | Trained from | Released at |
 | --- | --- | --- |
 | Timing system | no training | `timing-1.0` |
-| Rows model | commit `cf753aa`, 5,000 steps; the run's recorded settings, not the defaults of a later checkout, are authoritative | `rows-1.0` |
-| R2 | commit `3954031`, 64M decisions without conditions; checkpoint at 56,000,574 | `r2-1.0` |
+| Rows model | commit `cf753aa`, 5,000 steps; the run's recorded settings, not the defaults of a later checkout, are authoritative | `rows-1.0`; decoder `rows-1.0.1` |
+| R2 | commit `3954031`, 64M decisions without conditions; checkpoint at 56,000,574 | `r2-1.0`; system `r2-1.0.1` |
 
-The three tags mark one release commit, which holds the code that runs the
-released files. The training commits are earlier commits on `main`.
+`timing-1.0`, `rows-1.0` and `r2-1.0` mark the first release commit.
+`rows-1.0.1` and `r2-1.0.1` mark the commit whose rows decoder places each
+segment's rows on its own beats, with the same files; it holds the code that
+runs them. The training commits are earlier commits on `main`.
