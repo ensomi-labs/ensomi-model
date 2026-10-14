@@ -3,12 +3,12 @@ import torch
 
 from ensomi_model.audio_rows import figures as FG
 from ensomi_model.audio_rows.beatdata import EXTRA_DIM
-from ensomi_model.audio_rows.lattice import snap
+from ensomi_model.audio_rows.lattice import beat_range, snap
 from ensomi_model.audio_rows.net import FigureNet, NetConfig, nll
 from ensomi_model.audio_rows.rowmeasures import copy_readiness, locked
 from ensomi_model.audio_rows.audio import Song
-from ensomi_model.audio_rows.rowsgen import Rows, decode, quiet_rank
-from ensomi_model.r2.common import GridArrays, grid_from_arrays
+from ensomi_model.audio_rows.rowsgen import Rows, available_positions, decode, quiet_rank
+from ensomi_model.r2.common import MIN_GAP_MS, GridArrays, grid_from_arrays
 
 
 def grid(offset_ms=100.0, beat_ms=500.0):
@@ -121,6 +121,76 @@ def test_quiet_rests_keep_the_current_rule_at_zero_and_the_trained_heads_on_ever
         assert np.array_equal(run(seed), heads)                         # the default is .40
         assert np.all(np.diff(heads) > 0) and heads.max() <= song_ms - 2.0
     assert differs
+
+
+def two_segments(beats):
+    """Beats of 500 ms from 100 ms, then of 430 ms from ``beats`` beats later; the two segments' lines differ."""
+    seg = np.array([[100.0, 500.0, 4], [100.0 + 500.0 * beats, 430.0, 4]])
+    return GridArrays.from_grid(grid_from_arrays(seg, seg[:, [0, 2]]))
+
+
+def test_whole_beats_start_every_segment_on_a_whole_beat_and_leave_one_segment_alone():
+    for beats, whole in ((8.3, 8.0), (8.5, 9.0), (8.7, 9.0)):
+        g = two_segments(beats).whole_beats()
+        assert g.origins.tolist() == [0.0, whole] and g.time_of_beat(whole) == g.offsets[1]
+    one = grid()
+    for key in ('offsets', 'lengths', 'origins', 'meters'):
+        assert np.array_equal(getattr(one.whole_beats(), key), getattr(one, key))
+
+
+def test_a_beat_cut_short_keeps_its_positions_a_sixteenth_of_a_beat_before_the_next_segment():
+    song_ms = 12_000.0
+    seg = np.array([[100.0, 500.0, 4], [4575.0, 430.0, 4], [4704.0, 600.0, 4]])     # a middle segment of 0.3 beat
+    tiny = GridArrays.from_grid(grid_from_arrays(seg, seg[:, [0, 2]])).whole_beats()
+    for g in (two_segments(8.95).whole_beats(), tiny, grid()):
+        b0, nb = beat_range(g, song_ms)
+        edges = g.time_of_beat(b0 + np.arange(nb + 1))
+        pos = g.time_of_beat(b0 + np.arange(nb)[:, None] + FG.POSITIONS[None] / 48.0)
+        ok = available_positions(g, edges, pos, song_ms)
+        inside = (pos >= 0) & (pos <= song_ms - MIN_GAP_MS)
+        if len(g.offsets) == 1:
+            assert np.array_equal(ok, inside)
+            continue
+        cut = 8 - b0                    # the boundary cuts beat 8 at 475 ms; its 11/12 and 15/16 lie 17 and 6 ms before
+        assert edges[cut + 1] == g.offsets[-1]
+        assert ok[cut].tolist() == (FG.POSITIONS <= 42).tolist()
+        assert np.array_equal(np.delete(ok, cut, 0), np.delete(inside, cut, 0))
+
+
+def test_decode_puts_every_head_on_its_own_segments_lines_and_before_the_next_segment():
+    vocab = [0, 1, 1 << 18, 1 | (1 << 6) | (1 << 12) | (1 << 18), 1 << 23]          # {}, 0, 3/4, quarters, 15/16
+    torch.manual_seed(0)
+    model = FigureNet(NetConfig(vocab=5, enc=8, ctx=16, ctx_heads=2, window=8, hidden=16, fig=8, heads=2, lags=8,
+                                key=4), FG.members(np.array(vocab))).eval()
+    record = dict(RECORD, vocab=vocab)
+    song_ms = 12_000.0
+    mel = np.random.default_rng(1).normal(size=(1200, 128)).astype(np.float32)
+    for beats in (8.3, 8.7, 8.95):  # 0.3 beat left before the boundary gets no positions; 0.7 and 0.95 are cut short
+        g = two_segments(beats)
+        boundary = g.offsets[1]
+        for seed in range(4):
+            heads, rec = decode(model, record, mel, g, song_ms, 3.0, seed=seed)
+            s = g.segment(heads)
+            lines = (heads - g.offsets[s]) / g.lengths[s] * 48
+            assert np.abs((lines - np.round(lines)) * g.lengths[s] / 48).max() < 1e-3
+            assert np.isin(np.round(lines) % 48, FG.POSITIONS).all() and (s == 1).any()
+            assert boundary in rec['edges']
+            for k in np.flatnonzero(rec['figures']):
+                start = rec['edges'][k]
+                times = start + FG.POSITIONS[FG.members(rec['figures'][k:k + 1])[0]] / 48 * g.lengths[g.segment(start)]
+                assert times.max() <= rec['edges'][k + 1] - g.lengths[g.segment(start)] / 16 + 1e-6
+            assert np.diff(heads).min() >= g.lengths.min() / 16 - 1e-3   # head times are rounded to 0.001 ms
+            if beats < 8.5:
+                assert not ((heads >= 100.0 + 500.0 * 8) & (heads < boundary)).any()
+
+
+def test_decode_keeps_the_continuous_beats_on_one_segment():
+    model = tiny_net().eval()
+    g = grid()
+    mel = np.random.default_rng(1).normal(size=(621, 128)).astype(np.float32)
+    heads, rec = decode(model, RECORD, mel, g, 6_210.0, 2.5, seed=3)
+    assert np.array_equal(rec['edges'], g.time_of_beat(rec['b0'] + np.arange(rec['nb'] + 1)))
+    assert np.array_equal(heads, np.unique(FG.head_times(g, rec['b0'], rec['figures'])))
 
 
 def test_rows_gives_heads_on_the_listener_grid_for_a_star_request():

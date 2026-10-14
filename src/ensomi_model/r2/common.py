@@ -68,7 +68,12 @@ def band_of(star: float) -> int:
 
 @dataclass(frozen=True)
 class GridArrays:
-    """Vectorised canonical coordinates of a BeatGrid (segments only; bars are not used)."""
+    """Vectorised canonical coordinates of a BeatGrid (segments only; bars are not used).
+
+    ``from_grid`` numbers beats continuously: a segment's origin is the previous origin plus the previous segment's
+    length in beats, usually fractional. R2 and the training data read this coordinate. The rows model places heads
+    on ``whole_beats()``, where every segment starts on a whole beat.
+    """
     offsets: np.ndarray        # [S]
     lengths: np.ndarray        # canonical beat length per segment, ms
     origins: np.ndarray        # global beat at each segment offset
@@ -81,6 +86,16 @@ class GridArrays:
         origins = np.concatenate([[0.0], np.cumsum(np.diff(offsets) / lengths[:-1])])
         meters = np.array([s.meter for s in grid.segments], dtype=np.float64)
         return cls(offsets, lengths, origins, meters)
+
+    def whole_beats(self) -> 'GridArrays':
+        """The same segments, each starting on a whole beat: a segment's length in beats is rounded, half up.
+
+        Whole beats then lie on their own segment's beat lines. A leftover under half a beat before a boundary gets
+        no beat; one of half a beat or more is a beat that the next segment's offset cuts short, and ``time_of_beat``
+        continues that beat past the offset. One segment gives the same grid.
+        """
+        beats = np.floor(np.diff(self.offsets) / self.lengths[:-1] + 0.5)
+        return GridArrays(self.offsets, self.lengths, np.concatenate([[0.0], np.cumsum(beats)]), self.meters)
 
     def segment(self, times) -> np.ndarray:
         return np.clip(np.searchsorted(self.offsets, times, side='right') - 1, 0, len(self.offsets) - 1)
