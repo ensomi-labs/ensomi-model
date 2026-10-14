@@ -27,9 +27,7 @@ They record implementations and measurements. The
 Experiments on one problem are usually spread over many commits, so tags mark
 only the end of a line of work. The tag `audio-joint-2026-09` points at a commit
 whose parents are all three branch tips of that period, and its message lists
-the phases with their commit ranges. The index by research question, with the
-human decisions that steered it, is
-[`RESEARCH.md` on `relay-notes`](https://github.com/ensomi-labs/ensomi-model/blob/relay-notes/RESEARCH.md).
+the phases with their commit ranges.
 
 ## R1 stage commits
 

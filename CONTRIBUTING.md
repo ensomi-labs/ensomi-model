@@ -2,8 +2,8 @@
 
 ensomi grew out of the osu!mania community: its models learn from charts that
 mappers made, and it gives back open weights, open code, open datasets and
-open research. Results, decisions and working notes are public on the
-[`relay-notes` branch](https://github.com/ensomi-labs/ensomi-model/blob/relay-notes/RESEARCH.md).
+open research. Our reports, such as the
+[R2 report](docs/research/r2_system.md), are public.
 What mappers and players tell us decides two things: what our models are
 optimized to do better, and what we choose to build. The most useful
 contribution today needs no code.
@@ -76,9 +76,8 @@ Pull requests for these are welcome without asking first:
   system's charts stay the same.
 
 Open an issue or a discussion before changing a model, its training, its
-evaluation or a generation rule. Research here follows recorded decisions (the
-[`relay-notes` branch](https://github.com/ensomi-labs/ensomi-model/blob/relay-notes/RESEARCH.md))
-and the guardrails in
+evaluation or a generation rule. Research here follows recorded decisions and
+the guardrails in
 [`ensomi-research-guardrails`](.agents/skills/ensomi-research-guardrails/SKILL.md):
 a measure decides only after it is shown to agree with human judgments, and a
 change is judged against the variation between seeds and checkpoints. A short

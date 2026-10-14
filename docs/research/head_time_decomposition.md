@@ -20,8 +20,8 @@ songs; the small sample gives direction only.
 ## Evidence and its location
 
 The measurements were made on the R2 line, branch `r2/train`, against the
-corpus cache of that line, on 2026-10-08. The notes, with the scripts' outputs
-condensed, are on the `relay-notes` branch under `artifacts/`:
+corpus cache of that line, on 2026-10-08. The scripts' outputs, condensed, are
+in these research notes under `artifacts/`:
 
 - `r2-represent-skeleton-20261008.md`: the tables and sections cited below as
   the skeleton measurements;

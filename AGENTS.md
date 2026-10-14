@@ -30,8 +30,11 @@ Use task-specific guidance only when its scope matches the work.
   branch. `docs/research/README.md` maps earlier work to its refs.
 - `docs/ecosystem.md` says where facts the Ensomi repositories share are
   defined and what a change affects in the others.
-- Research questions, human decisions and outcomes are recorded on the
-  `relay-notes` branch, entry point `RESEARCH.md`. The `agent-notes` branch is
+- Research questions, human decisions and outcomes are recorded in notes that
+  members keep in the private repository `ensomi-labs/commons`, branch
+  `s3d-i/relay-notes`, entry point `RESEARCH.md`. This repository's
+  `relay-notes` branch is an unmaintained snapshot of 2026-10-08. Outside
+  contributors have the reports in `docs/research/`. The `agent-notes` branch is
   archived read-only at `refs/archive/heads/agent-notes`; do not recreate it or
   write new Agent Notes.
 - `artifacts/` and `dataset/` are ignored. Generated evaluations, caches,

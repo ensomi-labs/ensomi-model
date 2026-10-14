@@ -41,7 +41,7 @@ licence.
 | Licences | the Hugging Face card and the manifest for the model's files; each repository's `LICENSE` for its code; the runtime's `licenses/` for the third-party notices it ships |
 | A speed, size or compatibility claim | the measurement or check that backs it, which the claim names |
 | How the Hub counts a model's downloads | huggingface.js's `ensomi` entry, matched against the files a download fetches |
-| Research decisions and their reasons | ensomi-model's `relay-notes` branch |
+| Research decisions and their reasons | the research notes members keep in a private repository; for published results, ensomi-model's reports in `docs/research/` |
 
 ## What a change affects
 

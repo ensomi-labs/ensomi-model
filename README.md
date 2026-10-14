@@ -203,8 +203,8 @@ built for mappers: better timing and music understanding and more precise
 control, optimized for chart quality rather than generation speed. Charts
 reported on R2 are among the cases both will be checked against.
 
-- Research questions, human decisions and outcomes:
-  [`RESEARCH.md` on the `relay-notes` branch](https://github.com/ensomi-labs/ensomi-model/blob/relay-notes/RESEARCH.md).
+- Research reports, and where earlier work lives:
+  [`docs/research/`](docs/research/README.md).
 - The code and documents of that period:
   tag [`audio-joint-2026-09`](https://github.com/ensomi-labs/ensomi-model/tree/audio-joint-2026-09).
 

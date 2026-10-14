@@ -72,4 +72,4 @@ Name this skill in every brief for a subagent or Astra, and say which guardrails
 
 When a failure recurs, add the instance to the guardrail it belongs to. Add a guardrail only for a pattern none of these covers. Keep the list short enough to apply.
 
-The evidence behind each instance is in the research notes on the `relay-notes` branch: `artifacts/agent-failure-modes.md` (2026-10-02), `artifacts/r2-round1-agent-failures-20261008.md` and `artifacts/r2-represent-history-20261008.md`.
+The evidence behind each instance is in the research notes (`AGENTS.md` says where): `artifacts/agent-failure-modes.md` (2026-10-02), `artifacts/r2-round1-agent-failures-20261008.md` and `artifacts/r2-represent-history-20261008.md`.
