@@ -15,9 +15,11 @@ defined and what a change affects.
    bindings, lock files) with their own commands. Sweep ensomi-model,
    ensomi-runtime, ensomi-protocol, ensomi, ensomi-web and beatmap-lens
    (`git -C ../<repo> grep -n -i '<old>'`) and the Hub card's raw `README.md`
-   for the old value and wording, and fix every hit in the same round. Open
-   one pull request per repository, in the order `docs/ecosystem.md` gives: a
-   release or upload before the repositories that take it.
+   for the old value and wording, and fix every hit in the same round, in the
+   order `docs/ecosystem.md` gives: a release or upload before the repositories
+   that take it. Open a pull request only in the repositories where the round
+   does work; pointers, docs and pins moved to a released version are committed
+   straight to the default branch.
 2. **Point rather than copy.** A document links to a value's source; where it
    must restate the value, it names the source. A reference to another
    repository's code, files or packages pins a tag, a commit or an exact
@@ -31,4 +33,4 @@ defined and what a change affects.
    repositories, appears, moves or goes.
 
 Each pull request names its sweep, what it found and the round's other pull
-requests.
+requests and direct commits.
