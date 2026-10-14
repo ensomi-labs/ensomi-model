@@ -190,8 +190,9 @@ to produce.
 Beats are counted from the start of each tempo segment of the grid, so a
 figure's positions lie on its own segment's beat lines. Where a segment ends
 partway through a beat, a remainder under half a beat gets no positions; a
-longer one is a beat cut short, whose positions count only up to 2 ms before
-the next segment starts.
+longer one is a beat cut short, whose positions count only up to a sixteenth of
+a beat before the next segment starts, the space a whole beat leaves after its
+last position.
 
 The model uses every input: shifting the spectrogram, removing the
 per-position audio or the copy heads, or giving it another chart's request all
