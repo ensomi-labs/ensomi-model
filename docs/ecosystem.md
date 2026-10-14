@@ -1,6 +1,7 @@
 # The Ensomi repositories: where shared facts live and what a change affects
 
-Ensomi is six repositories and a model repository on Hugging Face. Some facts
+Ensomi is six repositories and a model repository on Hugging Face, and Hugging
+Face's huggingface.js lists Ensomi as a model library. Some facts
 are stated in several of them: the released model's identity, files and
 licence, versions, the messages programs exchange, the rules of generation.
 This page says where each kind of fact is defined, so that its current value
@@ -21,6 +22,7 @@ says how to make such a change.
 | ensomi-web | the site and its in-browser generator | the runtime; the model package on Hugging Face |
 | beatmap-lens | the chart renderer and the annotation tools | ensomi-model, whose code some of its tools run |
 | the model repository on Hugging Face | the released model's files, its package manifest and its card | ensomi-model's exporter and release step write it |
+| huggingface.js (Hugging Face's) | the `ensomi` entry in its model-library list (`packages/tasks/src/model-libraries.ts`): the library's link and the query that decides which fetched files the Hub counts as downloads | the card's `library_name`; the file names its query matches |
 
 Each repository's README and `LICENSE` give its URL, default branch and
 licence.
@@ -38,6 +40,7 @@ licence.
 | Generation behaviour: star range, controls and their statuses, section rules, arrangement passes, random numbers, the decode loop | for a model in development, ensomi-model's Python system, which the model service serves to the app; for a released model, its package and the runtime's pipeline for it; the R2 report for the evidence behind each control's status |
 | Licences | the Hugging Face card and the manifest for the model's files; each repository's `LICENSE` for its code; the runtime's `licenses/` for the third-party notices it ships |
 | A speed, size or compatibility claim | the measurement or check that backs it, which the claim names |
+| How the Hub counts a model's downloads | huggingface.js's `ensomi` entry, matched against the files a download fetches |
 | Research decisions and their reasons | ensomi-model's `relay-notes` branch |
 
 ## What a change affects
@@ -55,6 +58,7 @@ upload comes before the repositories that take it.
 | A licence, or the files a licence covers | the card and the manifest; every README and client screen that states it; the files the clients download |
 | A dependency range | the owner's metadata; every consumer's pin; a fresh resolution in each consumer |
 | A measured claim (size, speed) | the measurement first; then every place that states it |
+| The manifest's file name, the card's `library_name`, or which files a download fetches | huggingface.js's `ensomi` entry, through a pull request there; until it is merged and released, the Hub may count no downloads |
 
 ## Where a model's rules live
 
