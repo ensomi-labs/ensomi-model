@@ -1,4 +1,4 @@
-"""The corpus of R2: every usable 4K osu!mania chart under ``dataset/``.
+"""The corpus of R2: every usable 4K osu!mania chart in ``dataset/0`` and ``dataset/supplemental``.
 
 Charts are filtered in two layers. Whole files are filtered here, once, when
 the corpus is built: a file is left out when it is not 4K osu!mania, or when
@@ -11,9 +11,18 @@ out of its grid.
 One row per kept chart: identity and hashes, the acquisition it came from,
 header fields and osu! API metadata, the computed star rating, and a summary
 of the chart on its musical grid. Files are joined into song groups, over every
-file including those left out, and each group gets an evaluation split. The
-Parquet output is committed so that every machine, model and operator reads the
-same corpus.
+scanned file including those left out, and each group gets an evaluation split.
+The Parquet output is committed so that every machine, model and operator reads
+the same corpus.
+
+Only ``.osu`` files under the corpus's roots (``ROOTS``) are scanned. Other
+data under ``dataset/``, such as standard or taiko sets, is not read: its files
+would join song groups, rename them (a group is named by its smallest file
+SHA-256) and move songs between splits. Acquisition records are read from
+``dataset/metadata/acquisitions/*.json``. The record of sets stored outside
+``ROOTS`` goes in a subdirectory there named by their root, such as
+``std-taiko/``, which is not read: a record that lists a set id also in
+``dataset/0`` would set that set's origin.
 
 Run from the repository root on the machine that holds ``dataset/``::
 
@@ -49,6 +58,7 @@ SPLIT_SALT = 'ensomi-eval-split-v1:'
 HELDOUT_PERCENT, CALIBRATION_PERCENT = 15, 15
 DEFAULT_OUTPUT = 'data/r2-corpus.parquet'
 ERROR_SEPARATOR = ' | '
+ROOTS = ('0', 'supplemental')
 
 _SIZE_MARKERS = ('tv size', 'tv ver', 'tv version', 'short ver', 'short version', 'cut ver', 'cut version',
                  'game ver', 'game version', 'game size', 'full ver', 'full version', 'extended ver',
@@ -314,7 +324,8 @@ def build_corpus(repo_root: Path, dataset: str = 'dataset', *, r1_catalog: Path 
                     workers: int = 1) -> tuple[pa.Table, dict]:
     repo_root = repo_root.resolve()
     dataset_root = repo_root / dataset
-    files = sorted(str(p.relative_to(repo_root)) for p in dataset_root.rglob('*.osu') if p.is_file())
+    files = sorted(str(p.relative_to(repo_root)) for root in ROOTS for p in (dataset_root / root).rglob('*.osu')
+                   if p.is_file())
     with ProcessPoolExecutor(max_workers=max(1, workers)) as pool:
         rows = list(pool.map(inspect_file, [(str(repo_root), f) for f in files], chunksize=16))
         audio = sorted({str(Path(r['set_dir']) / r['audio_filename']) for r in rows if r.get('audio_filename')})

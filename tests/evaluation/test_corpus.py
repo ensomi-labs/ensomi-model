@@ -10,8 +10,8 @@ LANE_X = (64, 192, 320, 448)
 
 
 def osu_text(*, title, artist='Artist', version='Hard', beatmap_id=0, set_id=0, audio='audio.mp3',
-             timing=('0,500,4,2,0,80,1,0',), objects=(), keys=4):
-    lines = ['osu file format v14', '', '[General]', f'AudioFilename: {audio}', 'Mode: 3', '',
+             timing=('0,500,4,2,0,80,1,0',), objects=(), keys=4, mode=3):
+    lines = ['osu file format v14', '', '[General]', f'AudioFilename: {audio}', f'Mode: {mode}', '',
              '[Metadata]', f'Title:{title}', f'Artist:{artist}', 'Creator:mapper', f'Version:{version}',
              f'BeatmapID:{beatmap_id}', f'BeatmapSetID:{set_id}', '', '[Difficulty]', f'CircleSize:{keys}',
              'OverallDifficulty:8', '', '[TimingPoints]', *timing, '', '[HitObjects]']
@@ -120,6 +120,37 @@ class InventoryTests(unittest.TestCase):
             self.assertEqual(g['expressive_reasons'], 'implausible:1')
             self.assertEqual((g['head_on_grid'], g['n_bar_starts'], g['renotation_invariant']), (1.0, 1, True))
             self.assertEqual(summary['r1_trained_in_heldout'], 0)
+
+    def test_other_data_under_dataset_leaves_the_corpus_unchanged(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            dataset = root / 'dataset'
+            mania = osu_text(title='Song', beatmap_id=11, set_id=111, objects=ON_GRID)
+            (dataset / '0' / '111').mkdir(parents=True)
+            (dataset / '0' / '111' / 'a.osu').write_text(mania)
+            (dataset / '0' / '111' / 'audio.mp3').write_bytes(b'song')
+            acquisitions = dataset / 'metadata' / 'acquisitions'
+            acquisitions.mkdir(parents=True)
+            (acquisitions / 'mania.json').write_text(json.dumps(dict(acquisitionId='acq-mania',
+                                                                     sets=[dict(beatmapSetId=111)])))
+            before = build_corpus(root, workers=1)[0].to_pylist()
+
+            # A standard chart of the same set and audio, with a smaller SHA-256 than the 4K chart, would
+            # rename the song group if scanned; its record, in its root's subdirectory, lists the same set.
+            mania_sha = hashlib.sha256(mania.encode()).hexdigest()
+            candidates = (osu_text(title='Song', version=f'Normal {i}', beatmap_id=12, set_id=111, mode=0)
+                          for i in range(256))
+            standard = next(text for text in candidates if hashlib.sha256(text.encode()).hexdigest() < mania_sha)
+            (dataset / 'std-taiko' / '111').mkdir(parents=True)
+            (dataset / 'std-taiko' / '111' / 'b.osu').write_text(standard)
+            (dataset / 'std-taiko' / '111' / 'audio.mp3').write_bytes(b'song')
+            (acquisitions / 'std-taiko').mkdir()
+            (acquisitions / 'std-taiko' / 'std-taiko-test.json').write_text(json.dumps(dict(
+                acquisitionId='std-taiko-test', sets=[dict(beatmapSetId=111)])))
+            after = build_corpus(root, workers=1)[0].to_pylist()
+
+            self.assertEqual([(r['group_id'], r['origin']) for r in before], [(mania_sha, 'acq-mania')])
+            self.assertEqual(after, before)
 
 
 if __name__ == '__main__':
