@@ -29,7 +29,7 @@ from typing import Sequence
 import numpy as np
 
 from ..mapformat import MusicMap
-from ..timing import MERGE_MS, Lines, Reference, Timing, canonical_beat_ms
+from ..timing import MERGE_MS, Reference, Timing, canonical_beat_ms
 
 TAUS = (20.0, 10.0, 5.0)
 DECIDING_TAU = 20.0

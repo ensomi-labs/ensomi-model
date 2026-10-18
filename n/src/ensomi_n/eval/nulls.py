@@ -10,9 +10,9 @@ own counterpart can fall within τ < B / 2). At τ = 20 ms that is 0.053 at
 for a deciding statistic.
 
 `check` runs the real scorer on synthetic grids and compares: the reference
-against itself (1), shifts of half and a third of a beat (0), the mean over
-equally spaced whole-grid shifts and one draw of independent per-beat phases
-(each within 0.01 of ``2τ / B``).
+against itself (1), shifts of half and a third of a beat (0), the mean over N
+equally spaced whole-grid shifts (within 1/N of ``2τ / B``, the most N
+points can miss by) and one draw of independent per-beat phases (within 0.01).
 """
 from __future__ import annotations
 
@@ -75,7 +75,7 @@ def check(bpm: float, *, phases: int = 1000, n_beats: int = 64, phase_beats: int
     out['pass'] = bool(
         all(fixed['self'][k] == 1.0 and fixed['half_beat'][k] == 0.0 and fixed['third_beat'][k] == 0.0
             for k in exp)
-        and all(abs(out['whole_shift'][k] - exp[k]) <= TOLERANCE for k in exp)
+        and all(abs(out['whole_shift'][k] - exp[k]) <= 1.0 / phases + 1e-12 for k in exp)
         and all(abs(out['beat_phase'][k] - exp[k]) <= TOLERANCE for k in exp))
     return out
 

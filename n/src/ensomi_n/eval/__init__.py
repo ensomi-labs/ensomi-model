@@ -15,7 +15,7 @@ from __future__ import annotations
 from typing import Sequence
 
 from ..mapformat import MusicMap
-from ..timing import Reference, Segment, Timing
+from ..timing import Reference, Segment
 from .measures import DECIDING_TAU, TAUS, SetScore, score
 from .nulls import chance, check as check_nulls, table as null_table
 from .report import aggregate, build_strata, read_strata

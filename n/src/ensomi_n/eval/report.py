@@ -19,8 +19,7 @@ from typing import Iterable, Sequence
 
 import numpy as np
 
-from .measures import (AUC_LEVELS, ECE_BINS, EDIT_TYPES, LEVEL_CLASSES, SUBDIVISION_CLASSES, TAUS, SetScore,
-                       auc_from_hist, ece_from_bins, kappa)
+from .measures import EDIT_TYPES, LEVEL_CLASSES, TAUS, SetScore, auc_from_hist, ece_from_bins, kappa
 
 S_BL_THRESHOLD = 0.9
 RESET_UNION_MS = 20.0
