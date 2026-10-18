@@ -189,18 +189,26 @@ e_b is the signed distance from reference canonical line b to the nearest
 predicted canonical line (prediction minus reference); an exact tie goes to
 the earlier line.
 
+No measure removes the set offset o unless its name ends in `_o`. Bars and
+resets are matched within 20 ms of the reference, as BL-20 is, so a
+whole-grid shift that fails BL-20 fails them too. Under a uniform whole-grid
+shift, a bar start or a reset passes with chance 40 ms over the bar's length.
+With o removed, any shift under half a beat would pass, and the bar-start
+chance would be 1 / meter (0.25 in 4/4), above the 0.15 bound for a
+deciding statistic. The `_o` variants therefore only characterise.
+
 | Measure | Definition | Role |
 | --- | --- | --- |
 | BL-τ (`bl20`, `bl10`, `bl5`) | Head-weighted share of reference lines with \|e_b\| ≤ τ. No offset is fitted or subtracted | BL-20 decides, by the human's rule; no measure is validated against listening yet |
 | BL per beat (`bl20_beat`, ...) | The same, every line in range weighing 1 | Characterises |
-| BL with o removed (`bl10_o`, `bl5_o`) | BL-10 and BL-5 on e_b − o | Characterises |
+| With o removed (`bl10_o`, `bl5_o`, `bars_start_o`, `bars_same_o`, `bars_precision_o`, `reset_recall_o`) | BL-10 and BL-5 on e_b − o; bars and reset recall with the predicted bar starts and segment starts moved by −o | Characterise how the timing is shaped apart from its phase; never decide |
 | Chance (`chance20`, ...) | Head-weighted 2τ / B over the reference lines: BL-τ of a random-phase prediction at the reference tempo | Characterises |
 | S-BL20 (`s_bl20`) | Share of recordings with BL-20 ≥ 0.9 | Characterises |
-| Set offset o (`offset_ms`) | Head-weighted median of e_b over the whole range (the midpoint where weight splits exactly). Across recordings: median, robust SD (1.4826 × MAD), shares with \|o\| ≤ 5, 10, 20 ms | Its own term; never enters BL |
+| Set offset o (`offset_ms`) | Head-weighted median of e_b over the whole range (the midpoint where weight splits exactly). Across recordings: median, robust SD (1.4826 × MAD), shares with \|o\| ≤ 5, 10, 20 ms | Its own term; never removed from BL, bars, resets or any other measure without the `_o` suffix |
 | Level (`level`, `level_<class>`) | Per reference segment, r = predicted over reference notated beat length (the predicted step at the segment's middle, or for a bare beat list the median interval of its beats inside the segment): correct \|r − 1\| ≤ 0.5 %, octave (2^k), family (3/2, 4/3, 5/4 and inverses), other, missing. Duration-weighted share correct | Characterises |
-| Bars (`bars_start`, `bars_same`, `bars_precision`) | Share of reference bar starts with a predicted one within 20 ms after o; share of reference bars whose start and end both match with no predicted bar start inside (scored only when both ends lie in range); share of predicted bar starts matching a reference one | Characterises |
+| Bars (`bars_start`, `bars_same`, `bars_precision`) | Share of reference bar starts with a predicted one within 20 ms, no offset removed; share of reference bars whose start and end both match with no predicted bar start inside (scored only when both ends lie in range); share of predicted bar starts matching a reference one | Characterises |
 | Boundaries (`boundary_recall`, `boundary_precision`) | Tempo runs end where a step leaves the run's first step by more than 0.5 % (1 % for beat lists). A long change sits between two runs of 8 s or more whose tempi differ by more than 1 %, at the earlier run's end. Matched within one reference canonical beat | Characterises |
-| Reset recall (`reset_recall`) | Same-tempo red lines off the previous segment's grid by more than 2 ms, matched by a predicted segment start or downbeat within 20 ms after o; against the union of a recording's sets | Characterises |
+| Reset recall (`reset_recall`) | Same-tempo red lines off the previous segment's grid by more than 2 ms, matched by a predicted segment start or downbeat within 20 ms, no offset removed; against the union of a recording's sets | Characterises |
 | Subdivision (`subdivision_kappa`, `subdivision_accuracy`) | Per reference notated beat with two or more heads: each head snaps to the smallest d in 1, 2, 3, 4, 6, 8, 12, 16 within 2 ms; the beat's divisor is their lcm. Plain (1, 2), duple (power of two ≥ 4), triple (3 divides, 4 not), mixed (3 and 4 divide), finer (a head off every d). Compared with the predicted class at the beat's middle | Characterises |
 | Calibration (`ece`, `auc`, `confident_fail`) | Over scored lines with a confidence (the nearest predicted line's, the lower of its two beats for an inserted line): ECE over 10 bins; AUC of low confidence for failing lines (p to 0.001); failure rate among lines with p ≥ 0.9 beside the rate p predicts | Characterises |
 | Mapper work (`edits_*`, `edits_per_min`, `check_load_s_per_min`, `hidden_per_min`, `hidden_share`, `redo_s_per_min`) | Windows are reference bars (4 s without bars); a window fails when a scored line in it fails BL-20 and is flagged when one has p below `--flag-below`. Edits per audio minute: one offset edit when \|o\| > 10 ms; one re-time per reference segment with a failing line; one deletion per predicted red line more than one beat from every reference red line; one level edit per run of segments at the wrong level; one meter edit per scored bar not matched. Redo: duration of segments where under half the lines pass | Characterise until validated against mapper case studies |

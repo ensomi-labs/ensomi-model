@@ -29,13 +29,16 @@ MEAN_MEASURES = (
     [f'bl{t:g}' for t in TAUS] + [f'bl{t:g}_beat' for t in TAUS] + [f'bl{t:g}_o' for t in TAUS if t != 20.0]
     + [f'chance{t:g}' for t in TAUS]
     + ['level'] + [f'level_{c}' for c in LEVEL_CLASSES]
-    + ['bars_start', 'bars_same', 'bars_precision', 'check_load_s_per_min', 'hidden_per_min', 'edits_per_min']
+    + ['bars_start', 'bars_same', 'bars_precision', 'bars_start_o', 'bars_same_o', 'bars_precision_o']
+    + ['check_load_s_per_min', 'hidden_per_min', 'edits_per_min']
     + [f'edits_{k}' for k in EDIT_TYPES] + ['redo_s_per_min']
 )
 
 ROLES = {
     'bl20': 'decides, by the human rule (d-bl20-no-offset); no measure is validated against listening yet',
-    'offset': 'reported on its own term; never subtracted from BL-20',
+    'offset': 'reported on its own term; never subtracted from BL-20 or any other measure without the _o suffix',
+    '*_o': 'the same measure with the set offset removed (bl10_o, bl5_o, bars_*_o, reset_recall_o); characterises '
+           'only and never decides, since the offset absorbs a whole-grid phase shift',
 }
 CHARACTERISES = 'characterises'
 
@@ -63,7 +66,7 @@ def _recording_table(entries: Sequence[tuple[SetScore, str]]):
     values = {name: np.full(R, np.nan) for name in MEAN_MEASURES + ['offset_ms']}
     pooled_keys = ('ece_bins', 'auc_hist', 'confident', 'kappa', 'boundaries', 'windows')
     pooled = {}
-    resets = np.zeros((R, 2))
+    resets = np.zeros((R, 3))
     counts = dict(n_sets=np.zeros(R), heads=np.zeros(R), minutes=np.zeros(R), n_scored=np.zeros(R))
     for r, rec in enumerate(order):
         sets = groups[rec]
@@ -78,14 +81,17 @@ def _recording_table(entries: Sequence[tuple[SetScore, str]]):
         # Reset recall against the union of the recording's sets.
         t = np.concatenate([s.resets['t'] for s in sets]) if sets else np.zeros(0)
         ok = np.concatenate([s.resets['ok'] for s in sets]) if sets else np.zeros(0, dtype=bool)
+        ok_o = np.concatenate([s.resets['ok_o'] for s in sets]) if sets else np.zeros(0, dtype=bool)
         if len(t):
             order_t = np.argsort(t)
-            t, ok = t[order_t], ok[order_t]
+            t, ok, ok_o = t[order_t], ok[order_t], ok_o[order_t]
             group = np.concatenate([[0], np.cumsum(np.diff(t) > RESET_UNION_MS)])
             n_groups = int(group[-1]) + 1
             hit = np.zeros(n_groups, dtype=bool)
             np.logical_or.at(hit, group, ok)
-            resets[r] = (n_groups, hit.sum())
+            hit_o = np.zeros(n_groups, dtype=bool)
+            np.logical_or.at(hit_o, group, ok_o)
+            resets[r] = (n_groups, hit.sum(), hit_o.sum())
         counts['n_sets'][r] = len(sets)
         counts['heads'][r] = np.nansum([s.heads for s in sets]) / len(sets)
         counts['minutes'][r] = np.mean([s.minutes for s in sets])
@@ -143,6 +149,7 @@ def _statistics(M: np.ndarray, values: dict, pooled: dict) -> dict[str, np.ndarr
     out['boundary_precision'] = np.where(b[:, 2] > 0, b[:, 3] / np.where(b[:, 2] > 0, b[:, 2], 1), np.nan)
     rs = sums['resets']
     out['reset_recall'] = np.where(rs[:, 0] > 0, rs[:, 1] / np.where(rs[:, 0] > 0, rs[:, 0], 1), np.nan)
+    out['reset_recall_o'] = np.where(rs[:, 0] > 0, rs[:, 2] / np.where(rs[:, 0] > 0, rs[:, 0], 1), np.nan)
     wn = sums['windows']
     out['hidden_share'] = np.where(wn[:, 0] > 0, wn[:, 1] / np.where(wn[:, 0] > 0, wn[:, 0], 1), np.nan)
     return out

@@ -13,7 +13,14 @@ In brief:
 - The set offset o is the head-weighted median of e_b over the whole scored
   range, reported on its own.
 - Level, bars, boundaries, resets, subdivision class, calibration and the
-  mapper-work proxies characterise.
+  mapper-work proxies characterise. None of them removes o: bars and resets
+  match within 20 ms of the reference, as BL-20 does, so a whole-grid phase
+  shift fails them where it fails BL-20. Removing o would let any shift under
+  half a beat pass, which puts the chance of the bar-start share at 1/meter.
+- The ``_o`` variants (``bl10_o``, ``bl5_o``, ``bars_*_o``,
+  ``reset_recall_o``) are the same measures with o removed. They
+  characterise how the timing is shaped apart from its phase, and never
+  decide.
 
 Every share is computed on the reference's scored range: from the last
 canonical line at or before the first head to the first at or after the
@@ -264,10 +271,14 @@ class SetScore:
     bars_start: float
     bars_same: float
     bars_precision: float
+    bars_start_o: float
+    bars_same_o: float
+    bars_precision_o: float
     pred_has_bars: bool
     boundary_recall: float
     boundary_precision: float
     reset_recall: float
+    reset_recall_o: float
     subdivision_kappa: float
     subdivision_accuracy: float
     ece: float
@@ -310,8 +321,9 @@ class SetScore:
             out[f'chance{t}'] = self.chance[tau]
         for tau, v in self.bl_o.items():
             out[f'bl{tau:g}_o'] = v
-        for name in ('offset_ms', 'level', 'bars_start', 'bars_same', 'bars_precision', 'pred_has_bars',
-                     'boundary_recall', 'boundary_precision', 'reset_recall', 'subdivision_kappa',
+        for name in ('offset_ms', 'level', 'bars_start', 'bars_same', 'bars_precision', 'bars_start_o',
+                     'bars_same_o', 'bars_precision_o', 'pred_has_bars', 'boundary_recall',
+                     'boundary_precision', 'reset_recall', 'reset_recall_o', 'subdivision_kappa',
                      'subdivision_accuracy', 'ece', 'auc', 'confident_fail', 'confident_predicted_fail',
                      'check_load_s_per_min', 'hidden_per_min', 'hidden_share', 'edits_per_min',
                      'redo_s_per_min', 'minutes', 'heads', 'n_lines', 'n_scored'):
@@ -431,10 +443,10 @@ def score(ref: Reference, pred: MusicMap | Timing | Sequence[float] | None, *, s
     level = level_dur['correct'] / total_dur if total_dur > 0 else math.nan
     level_classes = {c: (v / total_dur if total_dur > 0 else math.nan) for c, v in level_dur.items()}
 
-    # Bars.
+    # Bars, matched with no offset removed; the _o variants characterise only.
     ref_bars = ref.timing.bar_starts()
     pred_bars = p.timing.bar_starts() + 0.0
-    bars_start = bars_same = bars_precision = math.nan
+    bars = bars_o = (math.nan, math.nan, math.nan)
     bar_rows = []
     bar_windows = []
     if ref.timing.has_bars and len(ref_bars):
@@ -444,24 +456,9 @@ def score(ref: Reference, pred: MusicMap | Timing | Sequence[float] | None, *, s
         keep = region.overlap(ref_bars, np.where(np.isfinite(ends), ends, ref_bars)) > 0
         start_keep = region.contains(ref_bars)
         same_keep = start_keep & region.contains(ends)
-        starts_ok = _within(ref_bars + o, pred_bars, DECIDING_TAU)
-        ends_ok = _within(ends + o, pred_bars, DECIDING_TAU) & np.isfinite(ends)
-        inside = np.zeros(len(ref_bars), dtype=bool)
-        if len(pred_bars):
-            a_idx = np.searchsorted(pred_bars, ref_bars + o + DECIDING_TAU + 1e-9, side='right')
-            b_idx = np.searchsorted(pred_bars, np.nan_to_num(ends, nan=np.inf) + o - DECIDING_TAU - 1e-9,
-                                    side='left')
-            inside = b_idx > a_idx
-        same = starts_ok & ends_ok & ~inside
-        if start_keep.any():
-            bars_start = float(starts_ok[start_keep].mean())
-        if same_keep.any():
-            bars_same = float(same[same_keep].mean())
         pb_in = pred_bars[region.contains(pred_bars)]
-        if len(pb_in):
-            bars_precision = float(_within(pb_in - o, ref_bars, DECIDING_TAU).mean())
-        elif start_keep.any():
-            bars_precision = 0.0 if len(pred_bars) else math.nan
+        same, bars = _bar_terms(ref_bars, ends, pred_bars, pb_in, start_keep, same_keep)
+        _, bars_o = _bar_terms(ref_bars, ends, pred_bars - o, pb_in - o, start_keep, same_keep)
         bar_rows = [(float(a), float(b), bool(s)) for a, b, s, k in zip(ref_bars, ends, same, same_keep) if k]
         bar_windows = [(float(a), float(b) if math.isfinite(b) else hi) for a, b, k in zip(ref_bars, ends, keep) if k]
 
@@ -483,8 +480,10 @@ def score(ref: Reference, pred: MusicMap | Timing | Sequence[float] | None, *, s
     reset_t = _resets(ref)
     reset_t = reset_t[region.contains(reset_t)]
     pred_marks = np.union1d(p.timing.beats[p.timing.seg_start], pred_bars)
-    reset_ok = _within(reset_t + o, pred_marks, DECIDING_TAU)
+    reset_ok = _within(reset_t, pred_marks, DECIDING_TAU)
+    reset_ok_o = _within(reset_t + o, pred_marks, DECIDING_TAU)
     reset_recall = float(reset_ok.mean()) if len(reset_t) else math.nan
+    reset_recall_o = float(reset_ok_o.mean()) if len(reset_t) else math.nan
 
     # Subdivision class.
     confusion = np.zeros((len(SUBDIVISION_CLASSES), len(SUBDIVISION_CLASSES)))
@@ -576,14 +575,16 @@ def score(ref: Reference, pred: MusicMap | Timing | Sequence[float] | None, *, s
         ece_bins=bins, auc_hist=hist, confident=conf_counts, kappa=confusion,
         boundaries=np.array([len(ref_changes), matched_ref.sum(), len(pred_changes), matched_pred.sum()],
                             dtype=np.float64),
-        resets=np.array([len(reset_t), reset_ok.sum()], dtype=np.float64),
+        resets=np.array([len(reset_t), reset_ok.sum(), reset_ok_o.sum()], dtype=np.float64),
         windows=np.array([win_fail, hidden], dtype=np.float64),
     )
     return SetScore(
         key=ref.key, bl=bl, bl_beat=bl_beat, bl_o=bl_o, chance=chance, offset_ms=offset, level=level,
-        level_classes=level_classes, bars_start=bars_start, bars_same=bars_same, bars_precision=bars_precision,
+        level_classes=level_classes, bars_start=bars[0], bars_same=bars[1], bars_precision=bars[2],
+        bars_start_o=bars_o[0], bars_same_o=bars_o[1], bars_precision_o=bars_o[2],
         pred_has_bars=bool(p.timing.has_bars and len(pred_bars)), boundary_recall=boundary_recall,
-        boundary_precision=boundary_precision, reset_recall=reset_recall, subdivision_kappa=subdivision_kappa,
+        boundary_precision=boundary_precision, reset_recall=reset_recall, reset_recall_o=reset_recall_o,
+        subdivision_kappa=subdivision_kappa,
         subdivision_accuracy=subdivision_accuracy, ece=ece, auc=auc, confident_fail=confident_fail,
         confident_predicted_fail=confident_predicted_fail, check_load_s_per_min=check_load,
         hidden_per_min=hidden_per_min, hidden_share=hidden_share, edits=edits, edits_per_min=edits_per_min,
@@ -591,7 +592,7 @@ def score(ref: Reference, pred: MusicMap | Timing | Sequence[float] | None, *, s
         heads=float(w.sum()) if ref.heads is not None else math.nan, n_lines=int(len(lines)),
         n_scored=int(scored.sum()),
         beats=dict(t=lines.t, e=e, w=w, p=pb, scored=scored), suff=pooled,
-        resets=dict(t=reset_t, ok=reset_ok))
+        resets=dict(t=reset_t, ok=reset_ok, ok_o=reset_ok_o))
 
 
 def _pred_beat_length(timing: Timing, a: float, b: float) -> float:
@@ -616,6 +617,36 @@ def _pred_beat_length(timing: Timing, a: float, b: float) -> float:
     if 0 <= k < len(beats) - 1:
         return float(beats[k + 1] - beats[k])
     return math.nan
+
+
+def _bar_terms(ref_bars: np.ndarray, ends: np.ndarray, pred_bars: np.ndarray, pred_in: np.ndarray,
+               start_keep: np.ndarray, same_keep: np.ndarray) -> tuple[np.ndarray, tuple[float, float, float]]:
+    """Bar matches within 20 ms: each reference bar's 'same' flag, and the start, same and precision shares.
+
+    A bar start matches a predicted one within 20 ms. A bar is the same when
+    its start and end both match and no predicted bar start lies between.
+    Precision is the share of ``pred_in`` (the predicted bar starts in the
+    range) matching a reference bar start. Shares are NaN where nothing is
+    scored. The caller passes the predicted bars as they are for the
+    reported values, or moved by -o for the ``_o`` variants.
+    """
+    starts_ok = _within(ref_bars, pred_bars, DECIDING_TAU)
+    ends_ok = _within(ends, pred_bars, DECIDING_TAU) & np.isfinite(ends)
+    inside = np.zeros(len(ref_bars), dtype=bool)
+    if len(pred_bars):
+        a_idx = np.searchsorted(pred_bars, ref_bars + DECIDING_TAU + 1e-9, side='right')
+        b_idx = np.searchsorted(pred_bars, np.nan_to_num(ends, nan=np.inf) - DECIDING_TAU - 1e-9, side='left')
+        inside = b_idx > a_idx
+    same = starts_ok & ends_ok & ~inside
+    start_share = float(starts_ok[start_keep].mean()) if start_keep.any() else math.nan
+    same_share = float(same[same_keep].mean()) if same_keep.any() else math.nan
+    if len(pred_in):
+        precision = float(_within(pred_in, ref_bars, DECIDING_TAU).mean())
+    elif start_keep.any():
+        precision = 0.0 if len(pred_bars) else math.nan
+    else:
+        precision = math.nan
+    return same, (start_share, same_share, precision)
 
 
 def _within(times: np.ndarray, targets: np.ndarray, tol) -> np.ndarray:

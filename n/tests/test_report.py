@@ -57,6 +57,20 @@ def test_offset_distribution_over_recordings():
     assert out['offset_robust_sd']['value'] == pytest.approx(14.826)
 
 
+def test_bar_and_reset_terms_pool_without_the_offset():
+    heads = [k * 1750.0 + j * 250.0 for k in range(8) for j in range(7)]
+    seven_eight = Reference.from_segments([Segment(k * 1750.0, 500.0, 4) for k in range(8)], heads)
+
+    def resets(ms):
+        return MusicMap(segments=tuple(Segment(k * 1750.0 + ms, 500.0, 4) for k in range(8)))
+    exact, late = score(seven_eight, resets(0.0)), score(seven_eight, resets(30.0))
+    out = aggregate([exact, late, late], ['A', 'A', 'B'], bootstrap=0)
+    # A's resets are hit by its exact set (the union), B's by none: 7 of 14.
+    assert out['reset_recall']['value'] == 0.5 and out['reset_recall_o']['value'] == 1.0
+    # Bar starts: A's two sets average 0.5, B scores 0.
+    assert out['bars_start']['value'] == 0.25 and out['bars_start_o']['value'] == 1.0
+
+
 def test_pooled_calibration_matches_one_set():
     beats = np.concatenate([np.arange(16) * B, np.arange(16, 32) * B + 100.0])
     m = MusicMap(beats=beats, confidence=np.r_[np.ones(16), np.zeros(16)])

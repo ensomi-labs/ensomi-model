@@ -82,3 +82,10 @@ def test_nulls_command(tmp_path):
     assert main(['nulls', '--phases', '50', '--out', str(out)]) == 0
     data = json.loads(out.read_text())
     assert data['pass'] is True and len(data['checks']) == 5
+    # Seeded and exact: any change to how the scorer computes BL shows here.
+    checks = {c['bpm']: c for c in data['checks']}
+    assert checks[80.0]['whole_shift'] == {'bl20': 0.04, 'bl10': 0.04, 'bl5': 0.0}
+    assert checks[159.0]['whole_shift'] == {'bl20': 0.12, 'bl10': 0.04, 'bl5': 0.04}
+    assert checks[80.0]['beat_phase'] == {'bl20': 0.05245, 'bl10': 0.02665, 'bl5': 0.0122}
+    assert checks[120.0]['beat_phase'] == {'bl20': 0.07945, 'bl10': 0.0398, 'bl5': 0.01845}
+    assert checks[159.0]['beat_phase'] == {'bl20': 0.1081, 'bl10': 0.0522, 'bl5': 0.02625}

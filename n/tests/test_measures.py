@@ -23,12 +23,39 @@ def red(*segments) -> MusicMap:
     return MusicMap(segments=tuple(Segment(*s) for s in segments))
 
 
+SEVEN_EIGHT_HEADS = [k * 1750.0 + j * 250.0 for k in range(8) for j in range(7)]
+
+
+def seven_eight(notation: str, shift: float = 0.0, late_from: int = 0) -> list[tuple]:
+    """Red lines of F2's fixture, 8 bars of 7/8 at quarter = 120, in one of three notations.
+
+    ``resets``: 4/4 at 120 BPM with a reset on every downbeat, 1750 ms apart;
+    ``meter7``: 240 BPM with meter 7; ``alternating``: 240 BPM with meters 4
+    and 3 in turn, which notates bars of 4/8 and 3/8. Lines from index
+    ``late_from`` on are moved by ``shift`` ms.
+    """
+    if notation == 'resets':
+        lines = [(k * 1750.0, 500.0, 4) for k in range(8)]
+    elif notation == 'meter7':
+        lines = [(0.0, 250.0, 7)]
+    else:
+        lines = [((k // 2) * 1750.0 + (k % 2) * 1000.0, 250.0, 4 if k % 2 == 0 else 3) for k in range(16)]
+    return [(t + (shift if k >= late_from else 0.0), beat, meter) for k, (t, beat, meter) in enumerate(lines)]
+
+
+@pytest.fixture
+def seven_eight_ref(osu_writer) -> Reference:
+    return read_set([osu_writer('ref.osu', seven_eight('resets'), heads=SEVEN_EIGHT_HEADS)])
+
+
 def test_reference_against_itself_scores_perfectly():
     s = score(grid(), red((0.0, B, 4)))
     assert s.bl == {20.0: 1.0, 10.0: 1.0, 5.0: 1.0}
     assert s.bl_beat == {20.0: 1.0, 10.0: 1.0, 5.0: 1.0}
     assert s.offset_ms == 0.0 and s.level == 1.0
     assert (s.bars_start, s.bars_same, s.bars_precision) == (1.0, 1.0, 1.0)
+    assert (s.bars_start_o, s.bars_same_o, s.bars_precision_o) == (1.0, 1.0, 1.0)
+    assert math.isnan(s.reset_recall) and math.isnan(s.reset_recall_o)
     assert s.edits == {'offset': 0.0, 'retime': 0.0, 'delete': 0.0, 'level': 0.0, 'meter': 0.0}
     assert s.edits_per_min == 0.0 and s.redo_s_per_min == 0.0 and s.hidden_per_min == 0.0
     assert s.n_lines == 32 and s.heads == 32.0
@@ -98,22 +125,76 @@ def test_several_segments_fractional_boundary_scores_one(osu_writer):
     assert score(ref, MusicMap(beats=beats, segments=ref.segments)).bl20 == 1.0
 
 
-def test_seven_eight_notations_score_each_other(osu_writer):
-    heads = [k * 1750 + j * 250 for k in range(8) for j in range(7)]
-    resets = read_set([osu_writer('a.osu', [(k * 1750, 500.0, 4) for k in range(8)], heads=heads)])
-    meter7 = MusicMap.from_osu(osu_writer('b.osu', [(0, 250.0, 7)]))
-    s = score(resets, meter7)
-    assert s.bl20 == 1.0 and s.bars_start == 1.0 and s.bars_same == 1.0 and s.reset_recall == 1.0
-    lines, t = [], 0
-    for k in range(16):
-        meter = 4 if k % 2 == 0 else 3
-        lines.append((t, 250.0, meter))
-        t += meter * 250
-    alternating = MusicMap.from_osu(osu_writer('c.osu', lines))
-    s = score(resets, alternating)
-    assert s.bl20 == 1.0 and s.bars_start == 1.0 and s.bars_same == 0.0
-    flat = score(resets, red((0.0, 500.0, 4)))
+@pytest.mark.parametrize('notation', ['resets', 'meter7', 'alternating'])
+def test_seven_eight_notations_score_each_other(osu_writer, seven_eight_ref, notation):
+    # 'resets' is the reference's own notation: a perfect prediction scores bars and resets at 1.
+    s = score(seven_eight_ref, MusicMap.from_osu(osu_writer('pred.osu', seven_eight(notation))))
+    assert s.offset_ms == 0.0 and s.bl == {20.0: 1.0, 10.0: 1.0, 5.0: 1.0}
+    assert s.bars_start == 1.0 and s.reset_recall == 1.0
+    if notation == 'alternating':
+        # Bars of 4/8 and 3/8: a predicted bar start lies inside every 7/8 bar, and half are extra.
+        assert (s.bars_same, s.bars_precision, s.edits['meter']) == (0.0, 0.5, 7.0)
+    else:
+        assert (s.bars_same, s.bars_precision, s.edits['meter']) == (1.0, 1.0, 0.0)
+    # With o = 0, the _o variants equal the reported values.
+    assert (s.bars_start_o, s.bars_same_o, s.bars_precision_o, s.reset_recall_o) == (
+        s.bars_start, s.bars_same, s.bars_precision, s.reset_recall)
+
+
+def test_seven_eight_without_resets_misses_them(seven_eight_ref):
+    flat = score(seven_eight_ref, red((0.0, 500.0, 4)))
     assert flat.reset_recall == 0.0 and flat.bl20 < 1.0
+
+
+@pytest.mark.parametrize('notation', ['resets', 'meter7', 'alternating'])
+@pytest.mark.parametrize('shift', [21.0, 30.0, -30.0, 100.0])
+def test_whole_grid_shift_fails_bars_and_resets_with_bl20(osu_writer, seven_eight_ref, notation, shift):
+    # No offset is removed (d-bl20-no-offset). The set offset absorbs the whole shift, but a shift
+    # past 20 ms fails every beat line, so it fails every bar and every reset too. Only the _o
+    # variants, which characterise, still pass.
+    s = score(seven_eight_ref, MusicMap.from_osu(osu_writer('pred.osu', seven_eight(notation, shift))))
+    assert s.offset_ms == pytest.approx(shift)
+    assert s.bl == {20.0: 0.0, 10.0: 0.0, 5.0: 0.0}
+    assert (s.bars_start, s.bars_same, s.bars_precision, s.reset_recall) == (0.0, 0.0, 0.0, 0.0)
+    assert s.edits['meter'] == 7.0
+    assert s.bl_o == {10.0: 1.0, 5.0: 1.0} and s.bars_start_o == 1.0 and s.reset_recall_o == 1.0
+
+
+@pytest.mark.parametrize('shift', [15.0, 20.0, -20.0])
+def test_shift_within_twenty_ms_keeps_bars_and_resets(osu_writer, seven_eight_ref, shift):
+    s = score(seven_eight_ref, MusicMap.from_osu(osu_writer('pred.osu', seven_eight('resets', shift))))
+    assert s.bl20 == 1.0
+    assert (s.bars_start, s.bars_same, s.bars_precision, s.reset_recall) == (1.0, 1.0, 1.0, 1.0)
+
+
+def test_bars_and_resets_fail_where_bl20_fails(osu_writer, seven_eight_ref):
+    # The last four bars 30 ms late. Their lines carry half the head weight, so o = 15 ms, and every
+    # bar start and reset lies within 20 ms of the reference plus o. With no offset removed, only
+    # the first half passes, as with BL-20.
+    late = seven_eight('resets', 30.0, late_from=4)
+    s = score(seven_eight_ref, MusicMap.from_osu(osu_writer('pred.osu', late)))
+    assert s.offset_ms == 15.0 and s.bl20 == 0.5
+    assert s.bars_start == 0.5                      # 0, 1750, 3500 and 5250 of eight bar starts
+    assert s.bars_same == pytest.approx(3 / 7)      # the fourth bar ends late; the eighth ends past the last head
+    assert s.bars_precision == 0.5
+    assert s.reset_recall == pytest.approx(3 / 7)   # 1750, 3500 and 5250 of seven resets
+    assert s.edits['meter'] == 4.0
+    assert (s.bars_start_o, s.bars_same_o, s.bars_precision_o, s.reset_recall_o) == (1.0, 1.0, 1.0, 1.0)
+
+
+def test_bar_and_reset_chance_under_whole_grid_shifts():
+    # Guardrail 2. With no offset removed, a uniform whole-grid shift passes a bar start or a reset
+    # with chance 40 ms over the bar's length, as BL-20's is 40 ms over the beat's. With o removed,
+    # every shift under half a beat passes and the bar-start chance is 1 / meter, above the 0.15
+    # rule; so the _o variants never decide.
+    n = 400
+    shifted = [score(grid(), red(((k + 0.5) / n * 4 * B, B, 4))) for k in range(n)]
+    assert np.mean([s.bars_start for s in shifted]) == pytest.approx(40.0 / (4 * B), abs=1 / n)
+    assert np.mean([s.bars_start_o for s in shifted]) == pytest.approx(1 / 4, abs=1 / n)
+    n = 350
+    ref = Reference.from_segments([Segment(k * 1750.0, 500.0, 4) for k in range(8)], SEVEN_EIGHT_HEADS)
+    shifted = [score(ref, red(*seven_eight('resets', (j + 0.5) / n * 1750.0))) for j in range(n)]
+    assert np.mean([s.reset_recall for s in shifted]) == pytest.approx(40.0 / 1750.0, abs=1 / n)
 
 
 def test_ramp_of_red_lines():
