@@ -38,7 +38,7 @@ licence.
 | Python and dependency ranges | ensomi-model's `pyproject.toml`; the protocol's `pyproject.toml` for the range its Python package accepts |
 | Messages, error codes and phases | the protocol's `.proto` files |
 | Generation behaviour: star range, controls and their statuses, section rules, arrangement passes, random numbers, the decode loop | for a model in development, ensomi-model's Python system, which the model service serves to the app; for a released model, its package and the runtime's pipeline for it; the R2 report for the evidence behind each control's status |
-| Licences | the Hugging Face card and the manifest for the model's files; each repository's `LICENSE` for its code; the runtime's `licenses/` for the third-party notices it ships |
+| Licences | the Hugging Face card and the manifest for the model's files; each repository's `LICENSE` for its code, and ensomi-model's `n/LICENSE` (MIT) for the N line in `n/`, which the root `LICENSE` (AGPL) does not cover; the runtime's `licenses/` for the third-party notices it ships |
 | A speed, size or compatibility claim | the measurement or check that backs it, which the claim names |
 | How the Hub counts a model's downloads | huggingface.js's `ensomi` entry, matched against the files a download fetches |
 | Research decisions and their reasons | the research notes members keep in a private repository; for published results, ensomi-model's reports in `docs/research/` |

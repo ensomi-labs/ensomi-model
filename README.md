@@ -224,8 +224,10 @@ reported on R2 are among the cases both will be checked against.
 | `src/ensomi_model/osu_core/`, `features/` | osu! parsing and difficulty, audio loading and log-Mel features |
 | `experiments/vacation_rebuild/` | input preparation and the recorded six-stage recipe |
 | `scripts/` | macOS launchers for the two training workers |
+| [`n/`](n/README.md) | the N line, a separate MIT distribution (`ensomi-n`): N's `.osu` timing reader, the music map and N1's timing evaluation |
 
-Tests run with `uv run --python 3.10 --extra mps --group dev pytest`.
+Tests run with `uv run --python 3.10 --extra mps --group dev pytest`; the N
+line's run on their own with `cd n && pytest`.
 
 ## History
 
@@ -246,7 +248,9 @@ lists the archived branches.
 ## License
 
 Ensomi Model is licensed under the GNU Affero General Public License v3.0 only
-(`AGPL-3.0-only`). See [`LICENSE`](LICENSE). The released weights, prior,
+(`AGPL-3.0-only`). See [`LICENSE`](LICENSE). The N line in [`n/`](n/README.md)
+is a separate distribution, `ensomi-n`, licensed MIT ([`n/LICENSE`](n/LICENSE));
+it never imports the AGPL code. The released weights, prior,
 calibration and previews on Hugging Face are licensed separately: Ensomi R2's
 under MIT, as its [card](https://huggingface.co/sed-i/ensomi-r2) states, with
 BeatThis's own MIT notice for its ONNX export and front-end arrays in `onnx/`
