@@ -40,8 +40,10 @@ def _rows_to_table(rows) -> dict:
     return {(r['panel'], r['item']): r for r in rows if not r.get('missing')}
 
 
-def _items(table: dict, panel: str, stratum: str | None) -> list:
-    return sorted(k for k, r in table.items() if k[0] == panel and (stratum is None or stratum in r['strata']))
+def _items(table: dict, panel: str, stratum: str | None, exclude_flagged: bool = True) -> list:
+    """Items of a panel and stratum; reader-flagged items left out unless asked (pre-registration item 24)."""
+    return sorted(k for k, r in table.items() if k[0] == panel and (stratum is None or stratum in r['strata'])
+                  and not (exclude_flagged and r.get('reader_flags')))
 
 
 def _vals(table, keys, measure) -> np.ndarray:
@@ -80,7 +82,8 @@ def _history_gain(run: Path, arm: str) -> float | None:
     return float(np.mean(gains)) if gains else None
 
 
-def verdict(run: Path, r0: Path, panel: str = 'panel') -> dict:
+def verdict(run: Path, r0: Path, panel: str = 'panel', exclude_flagged: bool = True, write: bool = True) -> dict:
+    """The reading on unflagged items (the rule), with the same computed on all items under ``with_flagged``."""
     arms, ctrl = _load(run)
     tables, decision = {}, {}
     rec_of = {}
@@ -97,7 +100,7 @@ def verdict(run: Path, r0: Path, panel: str = 'panel') -> dict:
             base = ctrl.get('bt-final0', {})
         for s in (None,) + ALL_STRATA:
             name = s or 'all'
-            keys = _items(base, pnl, s) if base else []
+            keys = _items(base, pnl, s, exclude_flagged) if base else []
             if not keys:
                 continue
             recs = [rec_of[k] for k in keys]
@@ -205,9 +208,18 @@ def verdict(run: Path, r0: Path, panel: str = 'panel') -> dict:
                O4='R1b: the better arm, seed 0, 40 minutes, the same rule',
                unmatched='No row of the pre-set table matches; the build-order consequence is for the coordinator',
                incomplete='Incomplete').get(overall)
+    flagged = {pnl: sorted({k[1] for t in [base] for k, r in t.items() if k[0] == pnl and r.get('reader_flags')})
+               for pnl in ('panel', 'val_hard', 'val_random', 'reset')} if (arms or ctrl) else {}
     res = dict(reading=overall, per_arm=readings, a2_vs_a1=a2a1, next=nxt, decision_panel=panel,
-               better_arm=better, mean_rule_delta=means,
+               better_arm=better, mean_rule_delta=means, exclude_reader_flagged=exclude_flagged,
+               reader_flagged_items={k: len(v) for k, v in flagged.items()},
                decision=decision, tables=tables, interim_strata=True,
-               note='Strata are interim recording-level flags (ensomi_n.data.strata); decision panel is fit_dev 322')
-    (run / 'verdict.json').write_text(json.dumps(res, indent=1, default=float))
+               note='Strata are interim recording-level flags (ensomi_n.data.strata); decision panel is fit_dev 322 '
+                    'without reader-flagged items (pre-registration item 24)')
+    if exclude_flagged:
+        alt = verdict(run, r0, panel, exclude_flagged=False, write=False)
+        res['with_flagged'] = {k: alt[k] for k in ('reading', 'per_arm', 'a2_vs_a1', 'better_arm', 'mean_rule_delta',
+                                                   'decision', 'tables')}
+    if write:
+        (run / 'verdict.json').write_text(json.dumps(res, indent=1, default=float))
     return res

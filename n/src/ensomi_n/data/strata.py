@@ -123,3 +123,46 @@ def flags(ref) -> dict:
     return dict(flags=f, strata=strata, hard=any(f[k] for k in HARD), n_musical=len(plaus),
                 n_red=len(ref.segments or ()), mixed_share=round(n_mixed / in_beats, 5) if in_beats else 0.0,
                 n_opened=len(opened))
+
+
+def reader_flags(ref) -> list[str]:
+    """Reasons the N reader's canonical lines may differ from R's on this reference (E2/E3 census).
+
+    The census found N's reader restarting its fast-beat count where R continues from the musical
+    line; R1 reads its rule without such references (pre-registration item 24). Reasons, over the
+    red lines that reach the scored range:
+
+    - ``redundant``: a line after the first with the previous plausible line's beat length whose
+      start is on that line's grid (within ``MERGE_MS``), whatever its meter or barline flag;
+    - ``fast_odd_bar``: a plausible line notated at twice the canonical tempo or more whose meter is
+      not a whole number of canonical beats;
+    - ``fast_tempo_line``: a plausible line after the first, notated at twice the canonical tempo or
+      more, with a beat length other than the previous plausible line's;
+    - ``implausible``: an implausible line.
+
+    Same-tempo resets (off the previous grid) are not reasons.
+    """
+    from ..timing import fold_of
+    segs = list(ref.segments or ())
+    lo, hi = ref.lo_ms, ref.hi_ms
+    ends = [segs[k + 1].start_ms if k + 1 < len(segs) else math.inf for k in range(len(segs))]
+    out = set()
+    prev = None
+    for k, s in enumerate(segs):
+        in_range = ends[k] > lo and s.start_ms <= hi
+        if not s.plausible:
+            if in_range:
+                out.add('implausible')
+            continue
+        factor = 2.0 ** (-int(fold_of(s.beat_ms)[0]))
+        if in_range and factor >= 2.0:
+            if (s.meter / factor) != int(s.meter / factor):
+                out.add('fast_odd_bar')
+            if prev is not None and abs(s.beat_ms / prev.beat_ms - 1.0) > 1e-6:
+                out.add('fast_tempo_line')
+        if in_range and prev is not None and abs(s.beat_ms / prev.beat_ms - 1.0) <= 1e-6:
+            n = (s.start_ms - prev.start_ms) / prev.beat_ms
+            if abs(n - round(n)) * prev.beat_ms <= MERGE_MS:
+                out.add('redundant')
+        prev = s
+    return sorted(out)

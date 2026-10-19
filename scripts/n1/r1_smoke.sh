@@ -2,7 +2,8 @@
 # N1 rung 1 torch smoke on the mac, before any long training job (about 15 minutes).
 # Usage, from the project root: bash <src>/scripts/n1/r1_smoke.sh <scratch-r1-run> <r0-run> <src>
 #   1. retry the Mel cache's failed files (present files are skipped);
-#   2. rung 0 group a again: only stages without a marker run (the throughput probe, MPS, alone);
+#   2. rung 0 group a again: only stages without a marker run (the throughput probe, MPS, alone), then
+#      NE-M throughput at smaller batches and 30 s crops;
 #   3. r1 refs, then r1 train with a 1-minute budget per arm (seed 0), then r1 score of the last
 #      checkpoint on val-n1's random half, all into the scratch run.
 set -uo pipefail
@@ -22,6 +23,12 @@ stage() {
 export N1_CODE_COMMIT=$(basename "$SRC")
 stage cache_retry env PYTHONPATH="$SRC/n/src" $PY -m ensomi_n.run.r0 cache --run "$R0" --processes 2
 stage r0a_rest bash "$SRC/scripts/n1/r0.sh" a "$R0" "$SRC"
+# NE-M did not fit at 60 s crops and batch 8 under the 17.8 GB cap: measure smaller batches and crops.
+WM="PYTORCH_MPS_HIGH_WATERMARK_RATIO=1.0 PYTORCH_MPS_LOW_WATERMARK_RATIO=1.0"
+stage throughput_nem_60s env $WM PYTHONPATH="$SRC/n/src" $PY -m ensomi_n.run.throughput --only NE-M --batches 1,2,4 \
+    --out "$R0/throughput-nem-60s.json"
+stage throughput_nem_30s env $WM PYTHONPATH="$SRC/n/src" $PY -m ensomi_n.run.throughput --only NE-M --frames 3000 \
+    --batches 2,4,8 --out "$R0/throughput-nem-30s.json"
 stage refs env PYTHONPATH="$SRC/n/src" $PY -m ensomi_n.run.r1 refs --run "$RUN" --r0 "$R0" || exit 1
 stage train env PYTHONPATH="$SRC/n/src" $PY -m ensomi_n.run.r1 train --run "$RUN" --r0 "$R0" --seed 0 --arms A1,A2 --budget-min 1 || exit 1
 stage score env PYTHONPATH="$SRC/n/src" $PY -m ensomi_n.run.r1 score --run "$RUN" --r0 "$R0" --seed 0 --arms A1,A2 --last 1 --panels val_random
