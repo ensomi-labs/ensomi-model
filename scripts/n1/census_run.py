@@ -268,12 +268,17 @@ def main(argv=None) -> int:
     p.add_argument('--commit', required=True)
     p.add_argument('--seed', type=int, default=census.DRAW_SEED)
     p.add_argument('--preflight-only', action='store_true')
+    p.add_argument('--holdout-sha256', help='rerun against an existing seal (its membership sha256) instead of '
+                                            'drawing; the seal is checked and never changed')
     args = p.parse_args(argv)
     root = Path(args.root)
     out = root / args.census_out
     hold = root / args.holdout_out
-    if (hold / census.MEMBERSHIP).exists():
+    if (hold / census.MEMBERSHIP).exists() and not args.holdout_sha256:
         print(f'{hold / census.MEMBERSHIP} exists: the holdout is never redrawn; stopping', file=sys.stderr)
+        return 2
+    if args.holdout_sha256 and not (hold / census.MEMBERSHIP).exists():
+        print('--holdout-sha256 needs an existing seal', file=sys.stderr)
         return 2
     report: dict = dict(commit=args.commit, started=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()))
     t0 = time.time()
@@ -305,11 +310,17 @@ def main(argv=None) -> int:
     results = census.compute(units, root, progress=progress, on_set=on_set)
     report['t_compute_s'] = round(time.time() - t1, 1)
 
-    drawn = census.draw(results, pool='std-taiko', seed=args.seed)
-    sha = census.seal(drawn, hold, root, commit=args.commit, name=hold.name,
-                      date=time.strftime('%Y-%m-%d', time.gmtime()))
-    hard_keys = census.load_exclusion(hold, sha)['keys']
-    report['holdout'] = dict(path=str(args.holdout_out), membership_sha256=sha, rule=drawn['rule'])
+    if args.holdout_sha256:
+        sha = args.holdout_sha256
+        hard_keys = census.load_exclusion(hold, sha)['keys']
+        report['holdout'] = dict(path=str(args.holdout_out), membership_sha256=sha, reused=True,
+                                 rule=json.loads((hold / 'rule.json').read_text()))
+    else:
+        drawn = census.draw(results, pool='std-taiko', seed=args.seed)
+        sha = census.seal(drawn, hold, root, commit=args.commit, name=hold.name,
+                          date=time.strftime('%Y-%m-%d', time.gmtime()))
+        hard_keys = census.load_exclusion(hold, sha)['keys']
+        report['holdout'] = dict(path=str(args.holdout_out), membership_sha256=sha, rule=drawn['rule'])
 
     def split_of(r):
         if r.unit.key in hard_keys:

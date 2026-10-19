@@ -130,6 +130,8 @@ def compute(units: Sequence[Unit], root: str | os.PathLike = '.', *,
     for i, u in enumerate(units):
         try:
             paths = sorted(root / f for f in u.files)
+            gone = [p for p in paths if not p.is_file()]
+            paths = [p for p in paths if p.is_file()]
             charts = [read_osu(p) for p in paths]
             headers = [read_header(p) for p in paths]
             ref = reference_from_charts(charts, u.key)
@@ -142,6 +144,8 @@ def compute(units: Sequence[Unit], root: str | os.PathLike = '.', *,
                     extra = on_set(u, ref, charts, paths) or {}
                 except Exception as exc:  # noqa: BLE001 - recorded, never fatal for the census
                     extra = dict(error=f'{type(exc).__name__}: {exc}')
+            if gone:
+                extra['missing_files'] = len(gone)
             out.append(SetResult(u, st, '', creators, tuple(ref.segments or ()), ref.meta.get('audio', ''), extra))
         except Exception as exc:  # noqa: BLE001 - one unreadable set is counted, never fatal for the census
             out.append(SetResult(u, None, f'{type(exc).__name__}: {exc}'))
