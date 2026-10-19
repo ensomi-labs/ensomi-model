@@ -209,18 +209,25 @@ def item_record(x: dict, arm_maps: dict) -> dict:
     ref, st = x['ref'], x['st']
     lo, hi = ref.lo_ms, ref.hi_ms
     heads = ref.heads
-    r_t = rc.r_lines(ref.meta['timing_chart'], lo, hi)[0]
-    neutral, n_changed, excl = neutral_heads(ref, r_t)
-    rref, mismatch = r_reference(ref, r_t)
+    r_error = ''
+    try:
+        r_t = rc.r_lines(ref.meta['timing_chart'], lo, hi)[0]
+        neutral, n_changed, excl = neutral_heads(ref, r_t)
+        rref, mismatch = r_reference(ref, r_t)
+    except Exception as exc:  # noqa: BLE001  (R's side failing leaves N's reference scored)
+        r_error = f'{type(exc).__name__}: {exc}'
+        r_t, neutral, n_changed, excl, rref, mismatch = np.zeros(0), None, -1, [], None, -2
     masks = {'all': np.ones(len(heads), dtype=bool)}
     for name, spans in x['strata'].items():
         masks[name] = _Region(lo, hi, spans).contains(heads)
-    masks_n = {k: v & neutral for k, v in masks.items()}
+    masks_n = {k: v & neutral for k, v in masks.items()} if neutral is not None else {}
     seg_starts = np.array(sorted(line.start_ms for line in st.lines if line.kind != 'same'))
     arms = {}
     for arm, mmap in arm_maps.items():
         p = _prediction(mmap, lo, hi, None)
-        res = {'N': scores_for(ref, p.timing, masks, seg_starts), 'Nn': scores_for(ref, p.timing, masks_n, seg_starts)}
+        res = {'N': scores_for(ref, p.timing, masks, seg_starts)}
+        if masks_n:
+            res['Nn'] = scores_for(ref, p.timing, masks_n, seg_starts)
         if rref is not None:
             res['R'] = scores_for(rref, p.timing, masks, seg_starts)
             res['Rn'] = scores_for(rref, p.timing, masks_n, seg_starts)
@@ -228,7 +235,7 @@ def item_record(x: dict, arm_maps: dict) -> dict:
     inside = (heads >= lo) & (heads <= hi)
     return dict(key=x['key'], rec=x['rec'], item=x['item'], literal=x['literal'], fast57=x['fast57'],
                 strata=sorted(x['strata']), heads=int(inside.sum()), changed=n_changed,
-                neutral=int(neutral.sum()), excluded_ms=round(sum(b - a for a, b in excl), 1),
+                neutral=int(neutral.sum()) if neutral is not None else -1, r_error=r_error, excluded_ms=round(sum(b - a for a, b in excl), 1),
                 r_lines=int(len(r_t)), r_mismatch=mismatch, n_segments=int(len(seg_starts)), arms=arms)
 
 
