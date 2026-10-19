@@ -106,3 +106,4 @@ def test_eval_main_end_to_end(tmp_path, monkeypatch):
     mod.main(a)
     tune = json.loads((out / 'tune.json').read_text())
     assert set(tune['results']) == {'base', 'reset7'}
+    assert E.pick_settings(out) in ({}, {'reset_penalty': 7.0})

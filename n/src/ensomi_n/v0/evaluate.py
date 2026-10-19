@@ -330,6 +330,17 @@ TUNE_GRID = {
 }
 
 
+def pick_settings(out: Path) -> dict:
+    """The decoder setting with the highest BL-20 over all cal recordings in ``tune.json`` (rule fixed
+    before the sweep ran); the defaults when no sweep exists."""
+    p = out / 'tune.json'
+    if not p.exists():
+        return {}
+    res = json.loads(p.read_text())['results']
+    best = max(res, key=lambda k: res[k]['all']['bl20'] if res[k].get('all', {}).get('bl20') is not None else -1)
+    return dict(res[best]['kw'])
+
+
 def tune(a, split, index, out: Path) -> None:
     """Decoder settings on the cal subset with v0's last checkpoint: BL-20 per stratum for each setting."""
     import multiprocessing as mp
@@ -395,10 +406,10 @@ def main(a) -> None:
     split = with_cal(json.load(open(Path(a.r0) / 'split.json')), data, Path(a.r0))
     index = json.load(open(bulk / 'song-index-v0.json'))
     arms = a.arms.split(',')
+    log = open(out / 'log.txt', 'a')
     if a.tune:
         return tune(a, split, index, out)
-    cfg_kw = json.loads(a.decode_kw) if a.decode_kw else {}
-    log = open(out / 'log.txt', 'a')
+    cfg_kw = pick_settings(out) if a.decode_kw == 'auto' else (json.loads(a.decode_kw) if a.decode_kw else {})
 
     def say(msg):
         log.write(f'{time.strftime("%H:%M:%S")} {msg}\n')
