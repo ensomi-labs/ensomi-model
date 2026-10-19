@@ -48,7 +48,7 @@ def primitives(item: dict, a: float, b: float) -> list[tuple]:
         y = rows[name]
         for t in item['lines'][name]:
             if a <= t <= b:
-                out.append(('vline', sec(t), y + 0.15, y + 0.85, SERIES[name], 1.4))
+                out.append(('vline', sec(t), y + 0.1, y + 0.9, SERIES[name], 2.0))
     y = rows['heads']
     changed = set(np.round(item['changed_t'], 3).tolist())
     for t in item['heads']:
@@ -59,11 +59,11 @@ def primitives(item: dict, a: float, b: float) -> list[tuple]:
     shown = [line for line in item['red_lines'] if a <= line['start_ms'] <= b]
     crowded = len(shown) > 16      # label only the lines that are not redundant when many are drawn
     for k, line in enumerate(shown):
-        out.append(('vline', sec(line['start_ms']), y + 0.1, len(ROWS) - 0.05, INK2, 0.6))
+        out.append(('vline', sec(line['start_ms']), y + 0.05, y + 0.95, INK2, 1.0))
         if crowded and line['kind'] == 'same':
             continue
         label = f"{line['bpm']:g} BPM m{line['meter']} {line['kind']} / R {line['r_role'].split(':')[-1]}"
-        out.append(('text', sec(line['start_ms']) + 0.02, y + 0.35 + 0.3 * (k % 2), label, 7.5, INK))
+        out.append(('text', sec(line['start_ms']) + 0.02, y - 0.25 + 0.3 * (k % 2), label, 7.5, INK))
     return out
 
 
@@ -103,7 +103,8 @@ def _svg(item: dict, prims: list[tuple], a: float, b: float, path: Path) -> None
                  f'<text x="{sx(s):.1f}" y="{base + 16:.1f}" font-size="10" text-anchor="middle" '
                  f'fill="{INK2}">{s}</text>')
     e.append(f'<text x="{w - right}" y="{base + 32:.1f}" font-size="10" text-anchor="end" fill="{INK2}">'
-             f'time (s); shaded: free spans (N); dark tall heads: lines around them differ from R after the fix'
+             f'time (s); shaded: free spans (N); dark tall heads: a line around them has no line of the other '
+             f'reader within 20 ms (N after the fix against R)'
              f'</text></svg>')
     path.write_text('\n'.join(e) + '\n', encoding='utf-8')
 
@@ -133,7 +134,8 @@ def _png(item: dict, prims: list[tuple], a: float, b: float, path: Path) -> None
     for k, (name, _) in enumerate(ROWS):
         if name in SERIES:
             ax.get_yticklabels()[k].set_color(SERIES[name])
-    ax.set_xlabel('time (s); shaded: free spans (N); dark tall heads: lines around them differ from R after the fix',
+    ax.set_xlabel('time (s); shaded: free spans (N); dark tall heads: a line around them has no line of the other '
+                  'reader within 20 ms (N after the fix against R)',
                   fontsize=7, color=INK2)
     for side in ('top', 'right', 'left'):
         ax.spines[side].set_visible(False)
@@ -151,7 +153,7 @@ def chart_item(ref, st, timing_chart: str, e0_lines: np.ndarray, meta: dict, row
     r_t, _, roles = rc.r_lines(timing_chart, lo, hi, red)
     lines = ref.lines()
     heads = ref.heads[(ref.heads >= lo) & (ref.heads <= hi)]
-    changed = rc.changed_mask(heads, lines.t, r_t)
+    changed = rc.changed_matched(heads, lines.t, r_t)
     f = lines.factor
     spans, k = [], 0
     while k < len(f) - 1:
@@ -171,22 +173,31 @@ def chart_item(ref, st, timing_chart: str, e0_lines: np.ndarray, meta: dict, row
         red_rows.append(dict(start_ms=line.start_ms, bpm=round(60000.0 / line.beat_ms, 2), meter=line.meter,
                              kind=line.kind, r_role=role))
     changed_t = heads[changed]
-    a, b = _window(changed_t, lo, hi)
+    first_t = changed_t
+    if row.get('window_by') == 'refined':   # start at the first head BL-20 can see changed
+        from ensomi_n.eval.measures import compared_lines
+        end = float(ref.timing.beats[-1]) if len(ref.timing) else -math.inf
+        n_c, r_c, _ = compared_lines(lines, rc._r_as_lines(r_t), True, False, ref_all=ref.timing.canonical(),
+                                     ref_end=end, pred_end=float(r_t[-1]) if len(r_t) else -math.inf)
+        refined = heads[rc.changed_matched(heads, n_c.t, r_c.t)]
+        first_t = refined if len(refined) else changed_t
+    a, b = _window(first_t, lo, hi)
     title = f"{row['key']} ({row['split']}): {meta.get('artist', '')} - {meta.get('title', '')} [{meta.get('version', '')}]"
-    sub = (f"{row['changed_heads']} of {row['heads']} heads changed after the fix "
+    sub = (f"{row['changed_heads']} of {row['heads']} heads changed after the fix (matched rule) "
            f"({row['changed_share']:.3f}; {row['changed_free']} in free spans, {row['changed_refined']} still "
            f"changed refined); before: {row['changed_e0']}; window {a / 1000:.1f}-{b / 1000:.1f} s")
     return dict(title=title, subtitle=sub, free_spans=spans, heads=heads, changed_t=changed_t,
                 lines=dict(n=lines.t, e0=e0_lines, r=r_t), red_lines=red_rows, window=(a, b))
 
 
-def render(items: list[tuple[dict, dict]], out: Path, strict: list[str] | None = None) -> dict:
+def render(items: list[tuple[dict, dict]], out: Path, first: list[str] | None = None) -> dict:
     """Write one SVG (and a PNG when matplotlib imports) per ``(row, item)``, and ``index.md``.
 
-    ``strict`` lists the keys of the top 10 by changed share; the other items are the top by the share
-    still changed when free spans are compared refined, listed apart.
+    ``first`` lists the keys of the top 10 by the share of heads still changed when free spans are
+    compared refined (what BL-20 can see); the other items are the rest of the top 10 by changed share,
+    listed apart.
     """
-    strict = set(strict if strict is not None else [row['key'] for row, _ in items])
+    strict = set(first if first is not None else [row['key'] for row, _ in items])
     out.mkdir(parents=True, exist_ok=True)
     try:
         import matplotlib  # noqa: F401
@@ -209,13 +220,15 @@ def render(items: list[tuple[dict, dict]], out: Path, strict: list[str] | None =
         rows.append(dict(row, svg=f'{stem}.svg', png=png, window_s=[round(a / 1000, 1), round(b / 1000, 1)]))
     lines = ['# Reader top 10 after the fix (unsealed splits, one chart per recording)', '',
              f'Backend: {backend}. Rows: the chart\'s red lines (BPM, meter, N\'s kind, R\'s role), N\'s lines '
-             'after the reader fix, E0\'s lines before it, R\'s lines, and the heads (dark and tall where the lines '
-             'around a head differ between N after the fix and R by more than 20 ms). Shaded: free spans. Each '
-             'window starts 1.5 s before the first changed head and runs 10 s.', '']
+             'after the reader fix, E0\'s lines before it, R\'s lines, and the heads (dark and tall where a line '
+             'around a head has no line of the other reader within 20 ms, N after the fix against R). Shaded: free '
+             'spans. Each '
+             'window starts 1.5 s before the first changed head (in the first list, the first still changed with '
+             'free spans refined) and runs 10 s.', '']
     head = ['| # | Set | Artist | Title | Split | Window (s) | Changed heads | Reason | File |',
             '| --- | --- | --- | --- | --- | --- | --- | --- | --- |']
-    for title, keep in (('By share of changed heads', True),
-                        ('Also in the top 10 by share still changed with free spans refined', False)):
+    for title, keep in (('By share of heads still changed with free spans compared refined', True),
+                        ('Also in the top 10 by share of changed heads (free spans compared as lines)', False)):
         part = [(n, r) for n, r in enumerate(rows, 1) if (r['key'] in strict) == keep]
         if not part:
             continue

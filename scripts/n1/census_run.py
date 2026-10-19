@@ -37,8 +37,8 @@ E3 runs twice in the same pass on the same strata: with E0's canonical lines
 against R's reader. Outputs besides the census tables: ``reader-census.json``
 (E3 before and after per stratum, free spans and BL-20's exact chance per split
 and stratum, leading causes, the top lists, the normal-tempo ``same``-set test),
-``e3.md`` (the same as tables), ``e3-sets.jsonl`` and ``same-normal.jsonl``
-(per set, unsealed splits only) and, with ``--top10-out``, the renders
+``e3.md`` (the same as tables), ``e3-sets.jsonl`` (per changed set) and
+``same-normal.jsonl`` (per set, unsealed splits only) and, with ``--top10-out``, the renders
 (``reader_top10``). ``--e3-only`` skips the census tables.
 """
 from __future__ import annotations
@@ -348,16 +348,18 @@ def same_summary(results, split_of) -> dict:
     Counts pool every split; the per-set reading (``rows``) and its tallies are unsealed only.
     """
     import reader_census
-    total = sealed_n = still = 0
+    total = sealed_n = still = matched_e0 = 0
     still_lead: dict[str, int] = {}
     rows = []
     tally = dict(cascade=0, stale=0, dropped_between=0, still_changed=0, still_changed_refined=0,
-                 prior={}, between={}, cascade_still_changed=0)
+                 prior={}, between={}, cascade_still_changed=0, h_changed_matched=0, e0_lines_within_20ms_of_r=0,
+                 changed_matched_e0=0)
     for r in results:
         res = r.extra.get('e3')
-        if not res or not res['old']['changed_heads'] or reader_census.lead(res['old']['causes']) != 'same':
+        if not res or not res['old']['changed_heads_pair'] or reader_census.lead(res['old']['causes_pair']) != 'same':
             continue
         total += 1
+        matched_e0 += int(res['old']['changed_heads'] > 0)
         if res['new']['changed_heads']:
             still += 1
             name = reader_census.lead(res['new']['causes'])
@@ -369,8 +371,12 @@ def same_summary(results, split_of) -> dict:
         if d is None:
             continue
         rows.append(dict(key=r.unit.key, split=split_of(r), changed_after=res['new']['changed_heads'],
+                         changed_e0_matched=res['old']['changed_heads'], changed_e0_pair=res['old']['changed_heads_pair'],
                          changed_refined_after=res['new']['changed_refined'], **d))
         tally['cascade'] += int(d['cascade'])
+        tally['h_changed_matched'] += int(d['h_changed_matched'])
+        tally['e0_lines_within_20ms_of_r'] += int(all(g <= 20.0 for g in d['e0_to_r_ms']))
+        tally['changed_matched_e0'] += int(res['old']['changed_heads'] > 0)
         tally['stale'] += int(d['stale'])
         tally['still_changed'] += int(res['new']['changed_heads'] > 0)
         tally['still_changed_refined'] += int(res['new']['changed_refined'] > 0)
@@ -382,7 +388,8 @@ def same_summary(results, split_of) -> dict:
         tally['dropped_between'] += int(all(x.startswith('expressive') for x in d['between']))
     tally['prior'] = _desc(tally['prior'])
     tally['between'] = _desc(tally['between'])
-    return dict(sets=total, sealed=sealed_n, unsealed_read=len(rows), still_changed_after=still,
+    return dict(sets=total, sealed=sealed_n, unsealed_read=len(rows), changed_matched_e0=matched_e0,
+                still_changed_after=still,
                 still_changed_lead=_desc(still_lead), tally=tally, rows=rows)
 
 
@@ -393,6 +400,7 @@ def _num(x) -> str:
 def e3_markdown(reader: dict, report: dict) -> str:
     """E3 before and after, free spans and the §4 test, as tables."""
     out = ['# E3 before and after the reader fix', '', f"commit {report.get('commit')}, mode {report.get('mode')}", '',
+           'Matched rule (a line around a head, on either side, has no line of the other reader within 20 ms):', '',
            '| Stratum | Recordings | Changed before (E0) | Share | Changed after | Share | Refined after | Share | '
            'Outside free spans | > 1 % heads after | R failed |',
            '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
@@ -401,12 +409,20 @@ def e3_markdown(reader: dict, report: dict) -> str:
                    f"{v['reader_changed']} | {v['share']:.4f} | {v['reader_changed_refined']} | "
                    f"{v['share_refined']:.4f} | {v['reader_changed_outside_free']} | {v['reader_changed>1%heads']} | "
                    f"{v['reader_r_failed']} |")
+    out += ['', "Pair rule (census-v2's: N's two surrounding lines against R's two):", '',
+            '| Stratum | Recordings | Changed before (E0) | Share | Changed after | Share |',
+            '| --- | ---: | ---: | ---: | ---: | ---: |']
+    for s, v in reader['strata'].items():
+        out.append(f"| {s} | {v['recordings']} | {v['reader_changed_e0_pair']} | {v['share_e0_pair']:.4f} | "
+                   f"{v['reader_changed_pair']} | {v['share_pair']:.4f} |")
     out += ['', f"Triggered after: {', '.join(reader['triggered']) or 'none'}; before: "
                 f"{', '.join(reader['triggered_e0']) or 'none'}", '',
             f"Leading cause per changed set, after: {reader['leading_cause_sets']}", '',
             f"Leading cause per changed set, before: {reader['leading_cause_sets_e0']}", '',
             f"Changed heads by governing N line, after: {reader['cause_heads']}", '',
-            f"Changed heads by governing N line, before: {reader['cause_heads_e0']}", '']
+            f"Changed heads by governing N line, before: {reader['cause_heads_e0']}", '',
+            f"Pair rule, leading cause per changed set, after: {reader['leading_cause_sets_pair']}", '',
+            f"Pair rule, leading cause per changed set, before: {reader['leading_cause_sets_e0_pair']}", '']
     for split, cells in reader['free'].items():
         if split not in ('all-data', 'holdout2', 'hard-holdout'):
             continue
@@ -421,10 +437,11 @@ def e3_markdown(reader: dict, report: dict) -> str:
         out.append('')
     d = reader['same_normal']
     out += ['## Normal-tempo `same` sets (§4)', '',
-            f"{d['sets']} sets lead with `same` before the fix ({d['sealed']} in sealed splits, counted only); "
+            f"{d['sets']} sets lead with `same` before the fix by the pair rule ({d['sealed']} in sealed splits, "
+            f"counted only); {d['changed_matched_e0']} of them changed before by the matched rule; "
             f"{d['unsealed_read']} unsealed read; still changed after the fix: {d['still_changed_after']} "
             f"(leading after: {d['still_changed_lead']}).", '', f"Tally (unsealed): {d['tally']}", '']
-    for name in ('top10', 'top10_refined'):
+    for name in ('top10_refined', 'top10'):
         out += [f'## {name}', '', '| Set | Split | Strata | Changed | Refined | Free | Before | Reason |',
                 '| --- | --- | --- | ---: | ---: | ---: | ---: | --- |']
         for c in reader[name]:
@@ -536,6 +553,8 @@ def main(argv=None) -> int:
             new, old = e3['new'], e3['old']
             flags[r.unit.key] = {'reader_changed': new['changed_heads'] > 0,
                                  'reader_changed_e0': old['changed_heads'] > 0,
+                                 'reader_changed_pair': new['changed_heads_pair'] > 0,
+                                 'reader_changed_e0_pair': old['changed_heads_pair'] > 0,
                                  'reader_changed_refined': new['changed_refined'] > 0,
                                  'reader_changed_outside_free': new['changed_heads'] > new['changed_free'],
                                  'reader_changed>1%heads': new['changed_share'] > 0.01,
@@ -558,12 +577,15 @@ def main(argv=None) -> int:
         fl = v['flags']
         n_rec = v['recordings']
         row = dict(recordings=n_rec)
-        for name in ('reader_changed', 'reader_changed_e0', 'reader_changed_refined', 'reader_changed_outside_free',
+        for name in ('reader_changed', 'reader_changed_e0', 'reader_changed_pair', 'reader_changed_e0_pair',
+                     'reader_changed_refined', 'reader_changed_outside_free',
                      'reader_changed>1%heads', 'reader_changed_e0>1%heads', 'reader_bars_differ', 'reader_r_failed'):
             row[name] = fl.get(name, 0)
         row['share'] = row['reader_changed'] / n_rec if n_rec else 0.0
         row['share_e0'] = row['reader_changed_e0'] / n_rec if n_rec else 0.0
         row['share_refined'] = row['reader_changed_refined'] / n_rec if n_rec else 0.0
+        row['share_pair'] = row['reader_changed_pair'] / n_rec if n_rec else 0.0
+        row['share_e0_pair'] = row['reader_changed_e0_pair'] / n_rec if n_rec else 0.0
         row['by_split'] = {n: dict(recordings=t[s]['recordings'], changed=t[s]['flags'].get('reader_changed', 0),
                                    changed_e0=t[s]['flags'].get('reader_changed_e0', 0))
                            for n, t in table['splits'].items() if '|' not in n}
@@ -592,6 +614,7 @@ def main(argv=None) -> int:
                    changed_share=round(new['changed_share'], 4), changed_free=new['changed_free'],
                    changed_refined=new['changed_refined'], free_heads=new['free_heads'],
                    changed_e0=old['changed_heads'], changed_share_e0=round(old['changed_share'], 4),
+                   changed_pair=new['changed_heads_pair'], changed_e0_pair=old['changed_heads_pair'],
                    lead_e0=reader_census.lead(old['causes']) if old['changed_heads'] else '',
                    lead=reader_census.lead(new['causes']) if new['changed_heads'] else '',
                    causes=new['causes'], causes_e0=old['causes'], n_only=new['n_only'], r_only=new['r_only'],
@@ -611,24 +634,29 @@ def main(argv=None) -> int:
                 out_rows.append(c)
         return out_rows
 
-    top_strict = top('changed_share')[:10]
+    # The human's list: what BL-20 can see (free spans refined); then the strict list's other charts.
     top_refined = [c for c in top('refined_share')[:10] if c['changed_refined']]
+    top_strict = top('changed_share')[:10]
+    for c in top_refined:
+        c['window_by'] = 'refined'
 
-    def leads(which):
+    def leads(which, rule=''):
         sets: dict[str, int] = {}
         heads: dict[str, int] = {}
         for r in results:
             res = r.extra.get('e3')
-            if res and res[which]['changed_heads']:
-                name = reader_census.lead(res[which]['causes'])
+            if res and res[which]['changed_heads' + rule]:
+                name = reader_census.lead(res[which]['causes' + rule])
                 sets[name] = sets.get(name, 0) + 1
-                for k, n in res[which]['causes'].items():
+                for k, n in res[which]['causes' + rule].items():
                     base = k.split(' meter', 1)[0]
                     heads[base] = heads.get(base, 0) + n
         return _desc(sets), _desc(heads)
 
     lead_sets_e0, cause_heads_e0 = leads('old')
     lead_sets, cause_heads = leads('new')
+    lead_sets_e0_pair, _ = leads('old', '_pair')
+    lead_sets_pair, _ = leads('new', '_pair')
     same_diag = same_summary(results, split_of)
     same_rows = same_diag.pop('rows')
 
@@ -637,7 +665,9 @@ def main(argv=None) -> int:
                   tolerance_ms=reader_census.TOL_MS, strata=e3, triggered=triggered, triggered_e0=triggered_e0,
                   free=free, top10=top_strict, top10_refined=top_refined,
                   leading_cause_sets=lead_sets, cause_heads=cause_heads,
-                  leading_cause_sets_e0=lead_sets_e0, cause_heads_e0=cause_heads_e0, same_normal=same_diag)
+                  leading_cause_sets_e0=lead_sets_e0, cause_heads_e0=cause_heads_e0,
+                  leading_cause_sets_pair=lead_sets_pair, leading_cause_sets_e0_pair=lead_sets_e0_pair,
+                  same_normal=same_diag)
 
     if args.top10_out:
         try:
@@ -646,7 +676,7 @@ def main(argv=None) -> int:
             from ensomi_n.labels import read_osu, reference_from_charts
             by_key = {u.key: u for u in units}
             picked, seen = [], set()
-            for c in top_strict + top_refined:
+            for c in top_refined + top_strict:
                 if c['key'] not in seen:
                     seen.add(c['key'])
                     picked.append(c)
@@ -660,7 +690,7 @@ def main(argv=None) -> int:
                 items.append((c, reader_top10.chart_item(ref, st, ref.meta['timing_chart'],
                                                          e0_canonical.reference_lines(ref), c, c)))
             rendered = reader_top10.render(items, root / args.top10_out,
-                                           strict=[c['key'] for c in top_strict])
+                                           first=[c['key'] for c in top_refined])
             reader['renders'] = dict(dir=str(args.top10_out), backend=rendered['backend'],
                                      files=[r_['png'] or r_['svg'] for r_ in rendered['rows']],
                                      errors=rendered['errors'])
@@ -678,8 +708,9 @@ def main(argv=None) -> int:
     (out / 'reader-census.json').write_text(json.dumps(census._jsonable(reader), indent=1) + '\n')
     (out / 'run.json').write_text(json.dumps(census._jsonable(report), indent=1) + '\n')
     with (out / 'e3-sets.jsonl').open('w', encoding='utf-8') as f:
-        for row in rows_out:
-            f.write(json.dumps(census._jsonable(row)) + '\n')
+        for row in rows_out:   # sets changed before or after, by either rule; R's roles are in `reason`
+            if row['changed_heads'] or row['changed_e0'] or row['changed_pair'] or row['changed_e0_pair']:
+                f.write(json.dumps(census._jsonable({k: v for k, v in row.items() if k != 'roles'})) + '\n')
     with (out / 'same-normal.jsonl').open('w', encoding='utf-8') as f:
         for row in same_rows:
             f.write(json.dumps(census._jsonable(row)) + '\n')

@@ -202,9 +202,15 @@ def lead(cause: dict) -> str:
 
 
 def _r_as_lines(r_t: np.ndarray):
+    """R's lines as `Lines`, each with the median of the five line intervals around it as its beat length,
+    so that refining splits a whole canonical beat and a short interval at R's re-phasing is not split."""
     from ensomi_n.timing import Lines
     gap = np.diff(r_t)
-    beat = np.append(gap, gap[-1:]) if len(gap) else np.zeros(len(r_t))
+    if len(gap):
+        padded = np.concatenate([np.full(2, np.nan), gap, np.full(3, np.nan)])
+        beat = np.nanmedian(np.lib.stride_tricks.sliding_window_view(padded, 5)[:len(r_t)], axis=1)
+    else:
+        beat = np.zeros(len(r_t))
     idx = np.arange(len(r_t))
     return Lines(r_t, beat, idx, idx)
 
@@ -238,15 +244,64 @@ def free_sums(ref, lines_c, span_sets: dict) -> dict:
     return out
 
 
+def _near(x: np.ndarray, lines: np.ndarray) -> np.ndarray:
+    """Distance from each ``x`` to the nearest of ``lines`` (inf without lines, NaN where ``x`` is NaN)."""
+    if not len(lines):
+        return np.where(np.isnan(x), np.nan, np.inf)
+    xs = np.nan_to_num(x, nan=0.0)
+    i = np.clip(np.searchsorted(lines, xs), 0, len(lines) - 1)
+    d = np.minimum(np.abs(lines[i] - xs), np.abs(lines[np.maximum(i - 1, 0)] - xs))
+    return np.where(np.isnan(x), np.nan, d)
+
+
+def changed_matched(heads: np.ndarray, n_lines: np.ndarray, r_t: np.ndarray) -> np.ndarray:
+    """Per head: one of the two lines around it, on either reader's side, has no line of the other reader
+    within 20 ms.
+
+    `changed_mask` (census-v2's rule) compares N's pair of surrounding lines with R's pair, so a head
+    within a few ms of a line both readers place, but on different sides of it (integer red-line offsets
+    against a grid accumulated from an earlier line), counts as changed although every line matches.
+    This rule matches lines instead: it is invariant to that, and a head counts only where a line around
+    it is missing or moved by more than 20 ms on one side. A line outside the span of the other reader's
+    lines (R's margin past N's scored range) is not matched; a gap inside it (an implausible span) is.
+    """
+    n_prev, n_next = _around(n_lines, heads)
+    r_prev, r_next = _around(r_t, heads)
+    bad = np.zeros(len(heads), dtype=bool)
+    with np.errstate(invalid='ignore'):
+        for x, other in ((n_prev, r_t), (n_next, r_t), (r_prev, n_lines), (r_next, n_lines)):
+            valid = ~np.isnan(x)
+            if len(other):
+                valid &= (x >= other[0] - TOL_MS) & (x <= other[-1] + TOL_MS)
+            bad |= valid & (_near(x, other) > TOL_MS)
+    return bad
+
+
+def _rules(res: dict, heads: np.ndarray, n_t: np.ndarray, r_t: np.ndarray, lines) -> np.ndarray:
+    """Put census-v2's pair rule under ``*_pair`` and the matched rule in ``changed_heads`` /
+    ``changed_share`` / ``causes``; return the matched rule's mask."""
+    pair_t = res.pop('changed_t')
+    res['changed_heads_pair'] = res['changed_heads']
+    res['changed_share_pair'] = res['changed_share']
+    res['causes_pair'] = causes(pair_t, lines)
+    m = changed_matched(heads, n_t, r_t)
+    res['changed_heads'] = int(m.sum())
+    res['changed_share'] = float(m.mean()) if len(heads) else 0.0
+    res['causes'] = causes(heads[m], lines)
+    return m
+
+
 def e3_set(ref, timing_chart, st, e0_lines: np.ndarray, with_detail: bool) -> dict:
     """E3 for one set with E0's lines and with N's current lines, against R's, in one pass.
 
-    ``old`` and ``new`` are `compare` results (``changed_t`` dropped) with their causes. ``new`` also
-    gives ``changed_free`` (changed heads inside free spans, `ensomi_n.timing`), ``changed_refined``
-    (heads still changed when free spans are compared at the refined level on both sides, as BL-20
-    compares them), and ``free_heads`` (heads in free spans). ``free`` holds `free_sums` for the whole
-    set (``whole``), each stratum's spans and S4's spans. With ``with_detail`` (unsealed sets only),
-    ``same_diag`` holds `same_diagnostic` for a set whose E0 changes lead with ``same`` at normal tempo.
+    ``old`` and ``new`` are `compare` results with both rules: ``changed_heads``, ``changed_share`` and
+    ``causes`` by `changed_matched`, the ``*_pair`` fields by `changed_mask` (census-v2's rule). ``new``
+    also gives, by the matched rule, ``changed_free`` (changed heads inside free spans,
+    `ensomi_n.timing`) and ``changed_refined`` (heads still changed when free spans are compared at the
+    refined level on both sides, as BL-20 compares them), and ``free_heads`` (heads in free spans).
+    ``free`` holds `free_sums` for the whole set (``whole``), each stratum's spans and S4's spans. With
+    ``with_detail`` (unsealed sets only), ``same_diag`` holds `same_diagnostic` for a set whose E0 changes
+    lead with ``same`` at normal tempo by the pair rule.
     """
     from ensomi_n.eval.measures import compared_lines
     lo, hi = ref.lo_ms, ref.hi_ms
@@ -255,26 +310,27 @@ def e3_set(ref, timing_chart, st, e0_lines: np.ndarray, with_detail: bool) -> di
     r_t = r_side[0]
     heads = ref.heads[(ref.heads >= lo) & (ref.heads <= hi)]
     old = compare(ref, timing_chart, e0_lines, r_side)
-    old_t = old.pop('changed_t')
-    old['causes'] = causes(old_t, st.lines)
+    old_pair_t = heads[changed_mask(heads, e0_lines, r_t)]
+    old_m = _rules(old, heads, e0_lines, r_t, st.lines)
     lines = ref.lines()
     new = compare(ref, timing_chart, lines.t, r_side)
-    new_t = new.pop('changed_t')
-    new['causes'] = causes(new_t, st.lines)
-    changed = changed_mask(heads, lines.t, r_t)
+    changed = _rules(new, heads, lines.t, r_t, st.lines)
     in_free = lines.factor_at(heads) > 1
     end = float(ref.timing.beats[-1]) if len(ref.timing) else -math.inf
     n_c, r_c, _ = compared_lines(lines, _r_as_lines(r_t), True, False, ref_all=ref.timing.canonical(),
                                  ref_end=end, pred_end=float(r_t[-1]) if len(r_t) else -math.inf)
-    refined = changed_mask(heads, n_c.t, r_c.t) if len(r_t) else changed
+    refined = changed_matched(heads, n_c.t, r_c.t) if len(r_t) else changed
     new.update(changed_free=int((changed & in_free).sum()), changed_refined=int(refined.sum()),
                free_heads=int(in_free.sum()))
     own_c, _ = lines.refine(lines.factor, True, end)
     spans = {'whole': None, 'S4spans': st.s4_spans or []}
     spans.update({k: v for k, v in st.members.items() if v is not None})
     out = dict(old=old, new=new, free=free_sums(ref, own_c, spans))
-    if with_detail and old['changed_heads'] and lead(old['causes']) == 'same':
-        out['same_diag'] = same_diagnostic(ref, st, red, r_side[2], old_t, e0_lines, lines.t, r_t)
+    if with_detail and old['changed_heads_pair'] and lead(old['causes_pair']) == 'same':
+        d = same_diagnostic(ref, st, red, r_side[2], old_pair_t, e0_lines, lines.t, r_t)
+        hk = int(np.searchsorted(heads, d['h_ms']))
+        d['h_changed_matched'] = bool(hk < len(heads) and old_m[hk])
+        out['same_diag'] = d
     return out
 
 
@@ -330,8 +386,11 @@ def same_diagnostic(ref, st, red, roles, old_t, e0_lines, n_t, r_t) -> dict:
     n_prev, n_next = _around(n_t, np.array([h]))
     r_prev, r_next = _around(r_t, np.array([h]))
     e_prev, e_next = _around(e0_lines, np.array([h]))
+    # How far E0's lines around h are from R's nearest lines: under 20 ms on both sides means the pair
+    # rule's change at h comes from a head between two lines that match.
+    gaps = [float(x) for x in np.concatenate([_near(e_prev, r_t), _near(e_next, r_t)])]
     return dict(h_ms=round(h, 3), changed=int(len(old_t)), prior=line_row(prior), prior_index=p, line_index=g,
                 governing=line_row(lines[g]), next=line_row(lines[g + 1]) if g + 1 < len(lines) else None,
-                between=between, r_grid_ms=r_grid, stale=stale, cascade=bool(cascade),
+                between=between, r_grid_ms=r_grid, stale=stale, cascade=bool(cascade), e0_to_r_ms=gaps,
                 around=dict(e0=[float(e_prev[0]), float(e_next[0])], n=[float(n_prev[0]), float(n_next[0])],
                             r=[float(r_prev[0]), float(r_next[0])]))
