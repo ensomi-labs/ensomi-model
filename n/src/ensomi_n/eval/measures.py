@@ -5,11 +5,17 @@
 In brief:
 
 - e_b is the signed distance from each reference canonical line b to the
-  nearest predicted canonical line, prediction minus reference.
+  nearest predicted canonical line, prediction minus reference. Where either
+  side's bars fix no canonical phase (free bars, `ensomi_n.timing`), both
+  sides are compared at the level that fits the bar (`compared_lines`), so
+  either canonical phase passes there.
 - BL-τ is the head-weighted share of reference lines with ``|e_b| <= τ``.
   No offset is fitted or subtracted. τ = 20 ms is the deciding measure by
   the human's rule; 10 and 5 ms characterise and are also given with the set
-  offset removed.
+  offset removed. Its chance is 2τ over the spacing each line is compared
+  at, computed per line (`chance`); ``free_share`` is the head share
+  compared at a refined level, and ``free_share_pred`` the part refined only
+  because of the prediction's own bars.
 - The set offset o is the head-weighted median of e_b over the whole scored
   range, reported on its own.
 - Level, bars, boundaries, resets, subdivision class, calibration and the
@@ -36,11 +42,17 @@ from typing import Sequence
 import numpy as np
 
 from ..mapformat import MusicMap
-from ..timing import MERGE_MS, Reference, Timing, canonical_beat_ms
+from ..timing import MERGE_MS, Lines, Reference, Timing, canonical_beat_ms
 
 TAUS = (20.0, 10.0, 5.0)
 DECIDING_TAU = 20.0
 LEVEL_TOLERANCE = 0.005
+#: A beat list's beat length is read over at least this many intervals, centred on the reference run.
+LEVEL_MIN_INTERVALS = 12
+#: Intervals further than this from their median (missed or extra beats) break a chain of beats.
+LEVEL_CHAIN_TOLERANCE = 0.25
+#: Consecutive reference runs form one tempo trend while each step moves the tempo the same way by under this.
+LEVEL_TREND_STEP = 0.05
 LEVEL_FAMILY = (3 / 2, 2 / 3, 4 / 3, 3 / 4, 5 / 4, 4 / 5)
 LEVEL_CLASSES = ('correct', 'octave', 'family', 'other', 'missing')
 SAME_TEMPO = 0.005
@@ -54,6 +66,35 @@ ECE_BINS = 10
 AUC_LEVELS = 1001
 PRED_MARGIN_MS = 6000.0
 EDIT_TYPES = ('offset', 'retime', 'delete', 'level', 'meter')
+
+
+def compared_lines(ref_lines: Lines, pred_lines: Lines, ref_exact: bool, pred_exact: bool, *,
+                   ref_all: Lines | None = None, ref_end: float = -math.inf,
+                   pred_end: float = -math.inf) -> tuple[Lines, Lines, np.ndarray]:
+    """The reference and predicted lines at the level they are compared at.
+
+    Each line interval is refined (`Lines.refine`) by the larger of its own
+    free factor and that of the other side's interval holding its middle, so
+    a free bar on either side is compared at the level that fits it, and
+    everywhere else nothing changes. The middle, not the start, is looked up:
+    a prediction shifted by a few ms then still meets the same intervals. ``ref_all`` (the reference's lines
+    beyond the scored range) gives the reference's factor at predicted lines
+    outside ``ref_lines``; ``ref_end`` and ``pred_end`` are each side's last
+    notated beat (`Lines.refine`). Returns both refined line sets and, per refined
+    reference line, whether it was refined only because of the prediction.
+    """
+    ref_all = ref_lines if ref_all is None else ref_all
+
+    def mids(lines: Lines) -> np.ndarray:
+        return np.append((lines.t[:-1] + lines.t[1:]) / 2.0, lines.t[-1:]) if len(lines) else lines.t
+
+    own_r, own_p = ref_lines.factor, pred_lines.factor
+    f_r = np.maximum(own_r, pred_lines.factor_at(mids(ref_lines))) if len(ref_lines) else own_r
+    f_p = np.maximum(own_p, ref_all.factor_at(mids(pred_lines))) if len(pred_lines) else own_p
+    ref_c, parent = ref_lines.refine(f_r, ref_exact, ref_end)
+    pred_c, _ = pred_lines.refine(f_p, pred_exact, pred_end)
+    by_pred = (f_r > own_r)[parent] if len(parent) else np.zeros(0, dtype=bool)
+    return ref_c, pred_c, by_pred
 
 
 def nearest(ref_t: np.ndarray, pred_t: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -274,6 +315,8 @@ class SetScore:
     bars_start_o: float
     bars_same_o: float
     bars_precision_o: float
+    free_share: float
+    free_share_pred: float
     pred_has_bars: bool
     boundary_recall: float
     boundary_precision: float
@@ -322,7 +365,8 @@ class SetScore:
         for tau, v in self.bl_o.items():
             out[f'bl{tau:g}_o'] = v
         for name in ('offset_ms', 'level', 'bars_start', 'bars_same', 'bars_precision', 'bars_start_o',
-                     'bars_same_o', 'bars_precision_o', 'pred_has_bars', 'boundary_recall',
+                     'bars_same_o', 'bars_precision_o', 'free_share', 'free_share_pred', 'pred_has_bars',
+                     'boundary_recall',
                      'boundary_precision', 'reset_recall', 'reset_recall_o', 'subdivision_kappa',
                      'subdivision_accuracy', 'ece', 'auc', 'confident_fail', 'confident_predicted_fail',
                      'check_load_s_per_min', 'hidden_per_min', 'hidden_share', 'edits_per_min',
@@ -386,8 +430,10 @@ def score(ref: Reference, pred: MusicMap | Timing | Sequence[float] | None, *, s
     lo, hi = ref.lo_ms, ref.hi_ms
     region = _Region(lo, hi, spans)
     p = _prediction(pred, lo, hi, decoded_to_osu_ms)
-    lines = ref.lines()
-    pred_lines = p.timing.canonical()
+    lines, pred_lines, by_pred = compared_lines(ref.lines(), p.timing.canonical(), ref.timing.exact_steps,
+                                                p.timing.exact_steps, ref_all=ref.timing.canonical(),
+                                                ref_end=float(ref.timing.beats[-1]) if len(ref.timing) else -math.inf,
+                                                pred_end=float(p.timing.beats[-1]) if len(p.timing) else -math.inf)
     e, j = nearest(lines.t, pred_lines.t)
     w_all = ref.weights(lines)
 
@@ -417,6 +463,9 @@ def score(ref: Reference, pred: MusicMap | Timing | Sequence[float] | None, *, s
     bl_o = {tau: share(finite & (np.abs(e - o) <= tau + 1e-9), w) for tau in TAUS if tau != DECIDING_TAU}
     chance = {tau: float((w * np.minimum(1.0, 2 * tau / lines.beat_ms)).sum() / w.sum()) if w.sum() > 0
               else math.nan for tau in TAUS}
+    refined = lines.factor > 1
+    free_share = share(refined, w)
+    free_share_pred = share(by_pred, w)
     passing = finite & (err <= DECIDING_TAU + 1e-9)
 
     # Confidence of the predicted line nearest each reference line.
@@ -428,14 +477,23 @@ def score(ref: Reference, pred: MusicMap | Timing | Sequence[float] | None, *, s
         both_nan = ok & ~np.isfinite(pb)
         pb[both_nan] = np.nan
 
-    # Level, per reference segment.
+    # Level, per reference segment; a beat list's beat length is read over each run at one tempo.
     ref_segments = _ref_segments(ref)
     level_dur = {c: 0.0 for c in LEVEL_CLASSES}
     seg_class = []
-    for a, b, step in ref_segments:
+    run_step: dict[int, float] = {}
+    runs = _level_runs(ref_segments)
+    for run, ((ra, rb), (ga, gb)) in enumerate(zip(runs, _trend_spans(ref_segments))):
+        a_c, b_c = max(ra, lo), min(rb, hi)
+        run_step[run] = _pred_beat_length(p.timing, a_c, b_c, ga, gb) if b_c > a_c else math.nan
+    runs_of = _run_index(ref_segments)
+    for (a, b, step), run in zip(ref_segments, runs_of):
         a_c, b_c = max(a, lo), min(b, hi)
         dur = float(region.overlap(a_c, b_c)) if b_c > a_c else 0.0
-        pstep = _pred_beat_length(p.timing, a_c, b_c) if b_c > a_c else math.nan
+        if p.timing.exact_steps:
+            pstep = _pred_beat_length(p.timing, a_c, b_c) if b_c > a_c else math.nan
+        else:
+            pstep = run_step[run]
         cls = level_class(step / pstep) if math.isfinite(pstep) and pstep > 0 else 'missing'
         seg_class.append((a, b, cls, dur))
         level_dur[cls] += dur
@@ -582,7 +640,7 @@ def score(ref: Reference, pred: MusicMap | Timing | Sequence[float] | None, *, s
         key=ref.key, bl=bl, bl_beat=bl_beat, bl_o=bl_o, chance=chance, offset_ms=offset, level=level,
         level_classes=level_classes, bars_start=bars[0], bars_same=bars[1], bars_precision=bars[2],
         bars_start_o=bars_o[0], bars_same_o=bars_o[1], bars_precision_o=bars_o[2],
-        pred_has_bars=bool(p.timing.has_bars and len(pred_bars)), boundary_recall=boundary_recall,
+        free_share=free_share, free_share_pred=free_share_pred, pred_has_bars=bool(p.timing.has_bars and len(pred_bars)), boundary_recall=boundary_recall,
         boundary_precision=boundary_precision, reset_recall=reset_recall, reset_recall_o=reset_recall_o,
         subdivision_kappa=subdivision_kappa,
         subdivision_accuracy=subdivision_accuracy, ece=ece, auc=auc, confident_fail=confident_fail,
@@ -595,28 +653,145 @@ def score(ref: Reference, pred: MusicMap | Timing | Sequence[float] | None, *, s
         resets=dict(t=reset_t, ok=reset_ok, ok_o=reset_ok_o))
 
 
-def _pred_beat_length(timing: Timing, a: float, b: float) -> float:
-    """The predicted notated beat length over the reference segment ``[a, b)``.
+def _run_index(segments: Sequence[tuple[float, float, float]]) -> list[int]:
+    """Run number of each reference segment: consecutive segments within 0.5 % of one tempo share a run."""
+    out, run, ref_step = [], -1, math.nan
+    for _, _, step in segments:
+        if not (math.isfinite(ref_step) and abs(step / ref_step - 1.0) <= LEVEL_TOLERANCE):
+            run, ref_step = run + 1, step
+        out.append(run)
+    return out
 
-    With exact steps, the step in force at the segment's middle. For a bare
-    beat list, the median interval of the predicted beats that start inside
-    the segment, or, when none does, the interval holding its middle; so a
-    one-beat segment of a ramp reads its own interval, and a long segment
-    reads through tracker jitter.
+
+def _level_runs(segments: Sequence[tuple[float, float, float]]) -> list[tuple[float, float]]:
+    """``(start, end)`` of each run of reference segments at one tempo (resets and redundant lines join)."""
+    runs: list[list[float]] = []
+    for (a, b, _), run in zip(segments, _run_index(segments)):
+        if run == len(runs):
+            runs.append([a, b])
+        else:
+            runs[run][1] = b
+    return [(a, b) for a, b in runs]
+
+
+def _trend_spans(segments: Sequence[tuple[float, float, float]]) -> list[tuple[float, float]]:
+    """For each run (`_level_runs`), the span of the runs around it that continue one tempo trend.
+
+    Going outwards from a run, each next run must move the tempo the same
+    way as the step before it, by under ``LEVEL_TREND_STEP``, and hold fewer
+    than ``LEVEL_MIN_INTERVALS`` beats (a long run at one tempo ends a
+    ramp); the first step on each side sets that side's way, and at a
+    turning point only the left side is kept.
+    """
+    steps = [segments[i][2] for i in [_run_index(segments).index(r) for r in range(len(_level_runs(segments)))]]
+    runs = _level_runs(segments)
+    out = []
+    for r in range(len(runs)):
+        def extend(direction: int) -> tuple[int, int]:
+            k, way = r, 0
+            while 0 <= k + direction < len(runs):
+                change = steps[k + direction] / steps[k] - 1.0
+                sign = 1 if change > 0 else -1
+                a, b = runs[k + direction]
+                long_run = (b - a) / steps[k + direction] >= LEVEL_MIN_INTERVALS
+                if abs(change) >= LEVEL_TREND_STEP or (way and sign != way) or long_run:
+                    break
+                way, k = sign, k + direction
+            return k, way
+        left, way_l = extend(-1)
+        right, way_r = extend(1)
+        if way_l and way_r and way_l == way_r:
+            right = r      # going right from a turning point reverses the trend seen going left
+        out.append((runs[left][0], runs[right][1]))
+    return out
+
+
+def chain_beat_length(beats: np.ndarray, at: float | None = None) -> float:
+    """The beat length of a beat list at beat number ``at``, robust to frame grids and missed or extra beats.
+
+    Intervals within 25 % of their median link beats into chains; a missed
+    or an extra beat breaks a chain. In each chain the beat times are fitted
+    against beat number by least squares, with a quadratic term when the
+    chain has four or more beats, and the slope is read at ``at`` (beat
+    number from ``beats[0]``; default the middle). A frame grid moves this
+    far less than any one interval or the median of them: at 123 BPM on
+    20 ms frames the intervals are 480 and 500 ms, the median 1.6 % off. On a
+    window centred on ``at`` the quadratic term drops out, so the slope is
+    the linear one; off centre (at a list's ends) it keeps a ramp unbiased.
+    Chains are pooled with weights n (n^2 - 1) / 12 for n beats. NaN with
+    fewer than two beats.
+    """
+    x = np.asarray(beats, dtype=np.float64)
+    if len(x) < 2:
+        return math.nan
+    d = np.diff(x)
+    med = float(np.median(d))
+    if not med > 0:
+        return math.nan
+    at = (len(x) - 1) / 2.0 if at is None else float(at)
+    ok = np.abs(d / med - 1.0) <= LEVEL_CHAIN_TOLERANCE
+    num = den = 0.0
+    k = 0
+    while k < len(d):
+        if not ok[k]:
+            k += 1
+            continue
+        j = k
+        while j < len(d) and ok[j]:
+            j += 1
+        y = x[k:j + 1]
+        n = len(y)
+        i = np.arange(n, dtype=np.float64) - (at - k)
+        if n >= 4:
+            coef = np.polyfit(i, y, 2)
+            slope = float(coef[1])
+        else:
+            slope = float(np.polyfit(i, y, 1)[0])
+        weight = n * (n * n - 1) / 12.0
+        num += weight * slope
+        den += weight
+        k = j
+    return num / den if den > 0 else med
+
+
+def _pred_beat_length(timing: Timing, a: float, b: float, ga: float = -math.inf, gb: float = math.inf) -> float:
+    """The predicted notated beat length over the reference span ``[a, b)``.
+
+    With exact steps, the step in force at the span's middle. For a bare beat
+    list, `chain_beat_length` over the predicted intervals that start inside
+    the span (or the interval holding its middle when none does), read at
+    the span's centre. When those are fewer than ``LEVEL_MIN_INTERVALS``,
+    the window is widened evenly on both sides to that many, but never past
+    ``[ga, gb)``, the reference's monotone tempo trend around the span
+    (`_trend_spans`); where it is clipped it extends the other way. So a
+    frame grid averages out, a one-beat segment of a ramp reads its own
+    tempo, and no window reaches across a kink in the reference's tempo.
     """
     mid = (a + b) / 2.0
     if timing.exact_steps or len(timing) < 2:
         return float(timing.step_at(mid)[0])
     beats = timing.beats
-    i0 = int(np.searchsorted(beats, a - MERGE_MS, side='left'))
-    i1 = int(np.searchsorted(beats, b - MERGE_MS, side='left'))
-    i1 = min(i1, len(beats) - 1)
-    if i1 > i0:
-        return float(np.median(np.diff(beats[i0:i1 + 1])[:i1 - i0]))
-    k = int(np.searchsorted(beats, mid, side='right')) - 1
-    if 0 <= k < len(beats) - 1:
-        return float(beats[k + 1] - beats[k])
-    return math.nan
+    n_int = len(beats) - 1
+    j0 = int(np.searchsorted(beats, a - MERGE_MS, side='left'))
+    j1 = min(int(np.searchsorted(beats, b - MERGE_MS, side='left')), n_int)
+    if j1 <= j0:
+        k = int(np.searchsorted(beats, mid, side='right')) - 1
+        if not 0 <= k < n_int:
+            return math.nan
+        j0, j1 = k, k + 1
+    centre = (j0 + j1) / 2.0
+    need = LEVEL_MIN_INTERVALS - (j1 - j0)
+    lo_j = int(np.searchsorted(beats, ga - MERGE_MS, side='left'))
+    hi_j = max(min(int(np.searchsorted(beats, gb - MERGE_MS, side='left')), n_int), j1)
+    lo_j = min(lo_j, j0)
+    if need > 0:
+        e = (need + 1) // 2
+        j0, j1 = j0 - e, j1 + e
+        if j0 < lo_j:
+            j0, j1 = lo_j, min(hi_j, j1 + (lo_j - j0))
+        if j1 > hi_j:
+            j0, j1 = max(lo_j, j0 - (j1 - hi_j)), hi_j
+    return chain_beat_length(beats[j0:j1 + 1], centre - j0)
 
 
 def _bar_terms(ref_bars: np.ndarray, ends: np.ndarray, pred_bars: np.ndarray, pred_in: np.ndarray,

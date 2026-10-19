@@ -96,11 +96,13 @@ def test_bar_shorter_than_a_canonical_beat_does_not_restart():
     np.testing.assert_array_equal(inside, np.arange(9) * 500.0)
 
 
-def test_triple_meter_at_fast_notation_keeps_downbeats():
-    # 3/4 at 200 BPM: every downbeat is a line, so bars give lines 600 and 300 ms apart.
-    lines = Timing.from_segments([Segment(0.0, 300.0, 3)], 0.0, 3600.0).canonical().t
-    inside = lines[(lines >= 0) & (lines <= 3600.0)]
-    np.testing.assert_array_equal(inside, [0, 600, 900, 1500, 1800, 2400, 2700, 3300, 3600])
+def test_triple_meter_at_fast_notation_runs_on_and_is_free():
+    # 3/4 at 200 BPM (reader fix, 2026-10-19): a 1.5-beat bar fixes no canonical phase, so the count
+    # runs on from the red line, as R reads it, and the lines are marked free (refined when scored).
+    c = Timing.from_segments([Segment(0.0, 300.0, 3)], 0.0, 3600.0).canonical()
+    inside = (c.t >= 0) & (c.t <= 3600.0)
+    np.testing.assert_array_equal(c.t[inside], [0, 600, 1200, 1800, 2400, 3000, 3600])
+    assert np.all(c.factor[inside] == 2)
 
 
 def test_backward_extension_keeps_the_anchor():

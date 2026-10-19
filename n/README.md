@@ -124,13 +124,22 @@ half or double the tempo gives the same lines.
 
 - A beat slower than 80 BPM keeps its line and gains lines one canonical
   beat apart after it, up to the next beat.
-- A beat at 160 BPM or faster is a line only when its count since the last
-  anchor is a multiple of `2**-fold`. Anchors are the first beat, every
-  segment start, every change of fold, and every downbeat whose bar holds at
-  least one canonical beat. So a downbeat is always a line: 7/8 notated as
-  240 BPM with meter 7, as 4/4 at 120 BPM with a reset on every bar, or as
-  alternating meters 4 and 3 at 240 BPM all give the same lines. A meter of
-  1 at 240 BPM (a meter set for visual effect) does not restart the count.
+- A beat at 160 BPM or faster is a line only when its count since the phase
+  was last set is a multiple of p = `2**-fold`. The phase is set at the
+  first beat, at a change of fold, at a red line that changes the tempo or
+  resets the grid, and at a downbeat whose bar holds exactly one canonical
+  beat or at least two. So 7/8 notated as 240 BPM with meter 7, as 4/4 at
+  120 BPM with a reset on every bar, or as alternating meters 4 and 3 at
+  240 BPM all give the same lines.
+- A redundant red line (same tempo, on the grid) sets nothing by itself, and
+  one that starts no complete bar (barline art, kiai lines) is ignored. A
+  meter of 1 at 240 BPM (a meter set for visual effect) is ignored too.
+- A bar of more than one and fewer than two canonical beats, as 3/4 at a
+  notated 160-320 BPM, fixes no canonical phase. Its lines run on from the
+  phase set before (3/4 at 200 BPM keeps one phase from its red line) and
+  are marked free (`Lines.unfold` > 1). The measures compare free spans, on
+  either side, at the level that fits the bar (`Lines.refine`), so either
+  canonical phase passes there and a shift of half the refined step fails.
 - Where a prediction gives neither segment starts nor downbeats, its first
   beat fixes the phase: a double-time beat list that starts on an off-beat
   has its canonical lines on the off-beats and scores 0.
@@ -202,10 +211,11 @@ deciding statistic. The `_o` variants therefore only characterise.
 | BL-τ (`bl20`, `bl10`, `bl5`) | Head-weighted share of reference lines with \|e_b\| ≤ τ. No offset is fitted or subtracted | BL-20 decides, by the human's rule; no measure is validated against listening yet |
 | BL per beat (`bl20_beat`, ...) | The same, every line in range weighing 1 | Characterises |
 | With o removed (`bl10_o`, `bl5_o`, `bars_start_o`, `bars_same_o`, `bars_precision_o`, `reset_recall_o`) | BL-10 and BL-5 on e_b − o; bars and reset recall with the predicted bar starts and segment starts moved by −o | Characterise how the timing is shaped apart from its phase; never decide |
-| Chance (`chance20`, ...) | Head-weighted 2τ / B over the reference lines: BL-τ of a random-phase prediction at the reference tempo | Characterises |
+| Chance (`chance20`, ...) | Head-weighted 2τ / s over the reference lines, s the spacing each is compared at: the canonical beat length, or in free spans the refined one (2τ / 300 ms = 0.133 for 3/4 at a notated 200 BPM) | Characterises |
+| Free shares (`free_share`, `free_share_pred`) | Head share compared at a refined level, and the part refined only because of the prediction's own bars | Characterises; shows when a prediction's bars widen what passes |
 | S-BL20 (`s_bl20`) | Share of recordings with BL-20 ≥ 0.9 | Characterises |
 | Set offset o (`offset_ms`) | Head-weighted median of e_b over the whole range (the midpoint where weight splits exactly). Across recordings: median, robust SD (1.4826 × MAD), shares with \|o\| ≤ 5, 10, 20 ms | Its own term; never removed from BL, bars, resets or any other measure without the `_o` suffix |
-| Level (`level`, `level_<class>`) | Per reference segment, r = predicted over reference notated beat length (the predicted step at the segment's middle, or for a bare beat list the median interval of its beats inside the segment): correct \|r − 1\| ≤ 0.5 %, octave (2^k), family (3/2, 4/3, 5/4 and inverses), other, missing. Duration-weighted share correct | Characterises |
+| Level (`level`, `level_<class>`) | Per reference segment, r = predicted over reference notated beat length (the predicted step at the segment's middle; for a bare beat list, a least-squares slope of beat times on beat number over chains of intervals within 25 % of their median, read over the run of segments at one tempo and widened to 12 intervals within the reference's tempo trend, so a 20 ms frame grid reads within the tolerance): correct \|r − 1\| ≤ 0.5 %, octave (2^k), family (3/2, 4/3, 5/4 and inverses), other, missing. Duration-weighted share correct | Characterises |
 | Bars (`bars_start`, `bars_same`, `bars_precision`) | Share of reference bar starts with a predicted one within 20 ms, no offset removed; share of reference bars whose start and end both match with no predicted bar start inside (scored only when both ends lie in range); share of predicted bar starts matching a reference one | Characterises |
 | Boundaries (`boundary_recall`, `boundary_precision`) | Tempo runs end where a step leaves the run's first step by more than 0.5 % (1 % for beat lists). A long change sits between two runs of 8 s or more whose tempi differ by more than 1 %, at the earlier run's end. Matched within one reference canonical beat | Characterises |
 | Reset recall (`reset_recall`) | Same-tempo red lines off the previous segment's grid by more than 2 ms, matched by a predicted segment start or downbeat within 20 ms, no offset removed; against the union of a recording's sets | Characterises |
