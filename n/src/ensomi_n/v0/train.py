@@ -13,8 +13,10 @@ learning-rate curve (cosine over the total budget in training seconds, after a l
   20 ms, `ensomi_n.probe`) of the beat activation on its S0 and hard items.
 - Kill rules (guardrail 9; reference scale from `refs`): a non-finite loss twice; probe S0 M1 under
   twice chance from minute 12, or under half of BeatThis final0's M1 on the same items from minute 24;
-  a stalled probe: the probe loss not under its best for 5 probes in a row while the learning rate is
-  above 30 % of its peak, or more than 10 % above its best for 3 probes in a row; the resource guard
+  a stalled probe: the running mean of 3 probe losses not under its best for 6 probes in a row while the
+  learning rate is above half its peak (`stalled`; it replaced, at minute 50 of seed 0, a single-probe rule
+  with patience 5 that probe noise at peak learning rate could fire), or the probe loss more than 10 %
+  above its best for 3 probes in a row; the resource guard
   (allocated MPS tensors over 14 GB or driver memory over 17 GB, or throughput under half of this run's
   first rate for 3 minutes). Memory inputs are padded to 40 s buckets and the MPS cache is emptied every
   100 steps: the first job's guard fired at minute 3 on driver memory (over 15 GB, cache included) while
@@ -94,6 +96,19 @@ class Prefetch:
                 self.q.get_nowait()
         except queue.Empty:
             pass
+
+
+def stalled(losses, window: int = 3, patience: int = 6) -> bool:
+    """The mean of the last ``window`` probe losses has not gone below its best for ``patience`` probes.
+
+    A single probe at high learning rate moves by about 0.1 on the fixed crops (seed 0, minutes 36-48:
+    1.68, 1.65, 1.49, 1.63), so the rule reads a running mean, not single probes.
+    """
+    if len(losses) < window + patience:
+        return False
+    sm = np.convolve(np.asarray(losses, dtype=np.float64), np.ones(window) / window, mode='valid')
+    best_before = sm[:-patience].min()
+    return bool(sm[-patience:].min() >= best_before)
 
 
 def probe_loss(model, crops, songs, pos_weight, device, *, memory: str = 'song', other=None, batch: int = 16):
@@ -274,7 +289,8 @@ def train(*, songs, probe_crops, probe_songs, probe_items, refs: dict, run: Path
                     st['kill_checked'].append('final0')
                     if not s0 >= 0.5 * refs['probe_s0_final0']:
                         verdict = 'killed:s0_m1_below_half_final0_at_24min'
-                if verdict is None and st['since_best'] >= 5 and lr_at(st['step'], st['elapsed'], total_s) > 0.3 * PEAK_LR:
+                if verdict is None and stalled([x['probe_loss'] for x in st['history']]) and \
+                        lr_at(st['step'], st['elapsed'], total_s) > 0.5 * PEAK_LR:
                     verdict = 'killed:probe_stalled'
                 if verdict is None and st['above'] >= 3:
                     verdict = 'killed:probe_diverging'
