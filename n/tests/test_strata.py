@@ -217,3 +217,16 @@ def test_a_differently_timed_difficulty_puts_no_heads_off_the_grid(osu_writer):
     assert s.detail['S9']['off_lattice_heads'] == 0 and s.detail['S0']['timing_inconsistent'] == 1
     # Without the charts, the union is judged and the guest's heads are off the grid.
     assert set_strata(ref).detail['S9']['off_lattice_heads'] == 32
+
+
+def test_barline_art_adds_no_irregular_bars(osu_writer):
+    # 4/4 at 120 BPM with barline art (same tempo, on the grid, less than a bar each, one with
+    # omit-first-barline): S2 counts the grid's bars only, all regular, as for the single line.
+    heads = [k * B for k in range(64)]
+    red = [(0, B, 4), (9 * B, B, 4), (10 * B, B, 4), (13 * B, B, 4, True), (15 * B, B, 7), (20 * B, B, 4),
+           (26 * B, B, 4), (28 * B, B, 4)]
+    art = strata(osu_writer, 'art.osu', red, heads)
+    plain = strata(osu_writer, 'plain.osu', [(0, B, 4)], heads)
+    assert art.detail['S2']['irregular_bars'] == 0 == plain.detail['S2']['irregular_bars']
+    assert art.detail['S2']['counted_bars'] == plain.detail['S2']['counted_bars'] == 15
+    assert 'S2' not in art.members

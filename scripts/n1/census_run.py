@@ -28,7 +28,18 @@ Sealed (counts only, no per-set row anywhere): ``holdout1``, ``holdout2``,
 ``r2-heldout``, ``std-taiko-linked-sealed``, ``hard-holdout``.
 
 Preflight checks every input before anything is written, and the holdout is
-never redrawn: an existing membership stops the run.
+never redrawn: an existing membership stops the run, unless
+``--holdout-sha256`` names its digest, which is checked before anything is
+computed; the run then recounts against the seal.
+
+E3 runs twice in the same pass on the same strata: with E0's canonical lines
+(``e0_canonical``, frozen from ``be69bf9``) and with N's current lines, each
+against R's reader. Outputs besides the census tables: ``reader-census.json``
+(E3 before and after per stratum, free spans and BL-20's exact chance per split
+and stratum, leading causes, the top lists, the normal-tempo ``same``-set test),
+``e3.md`` (the same as tables), ``e3-sets.jsonl`` and ``same-normal.jsonl``
+(per set, unsealed splits only) and, with ``--top10-out``, the renders
+(``reader_top10``). ``--e3-only`` skips the census tables.
 """
 from __future__ import annotations
 
@@ -44,7 +55,7 @@ import time
 import numpy as np
 
 from ensomi_n.eval import census
-from ensomi_n.eval.strata import HARD, STRATA, NAMES
+from ensomi_n.eval.strata import HARD, NAMES, STRATA, recording_strata
 
 SEALED = ('holdout1', 'holdout2', 'r2-heldout', 'std-taiko-linked-sealed', 'hard-holdout')
 ORDER_4K = ('holdout2', 'holdout1', 'r2-heldout', 'cal', 'fit_dev', 'fit_train')
@@ -269,6 +280,163 @@ def build_units(args, report: dict) -> list[census.Unit]:
     return list(units.values())
 
 
+
+def _desc(d: dict) -> dict:
+    return dict(sorted(d.items(), key=lambda kv: -kv[1]))
+
+
+def after_reason(new: dict, roles_why: str) -> str:
+    """One line on a changed set after the fix: where its changed heads lie and what R drops."""
+    if not new['changed_heads']:
+        return 'unchanged'
+    top = next(iter(new['causes']), '')
+    base = top.split('@', 1)[0]
+    where = f"{new['causes'][top]} under N's {base} lines" if top else 'no governing line'
+    if '@fast' in top:
+        where += f" at a notated tempo of 160 BPM or more ({top.split('@fast ', 1)[1]})"
+    return (f"{new['changed_heads']} heads changed ({new['changed_free']} in free spans, {new['changed_refined']} "
+            f"still changed refined); most: {where}; {roles_why}")
+
+
+def free_table(results, split_of) -> dict:
+    """``free_share`` and BL-20's exact chance per split and stratum, from each set's `free_sums`.
+
+    Per cell: ``w`` (head weight in the stratum's spans: each scorable head weighs 1, split between the
+    lines around it), ``wf`` (the part on free lines), ``free_share`` = wf / w, ``chance_free`` (the
+    weighted mean chance of BL-20 on free lines, at the spacing they are compared at), ``chance_set`` (on
+    the other lines), ``chance_all``, and ``recordings`` / ``recordings_free`` (those with any weight on
+    free lines). ``all-data`` pools every split; sealed splits appear only as these counts.
+    """
+    groups: dict[tuple[str, str], list] = {}
+    for r in results:
+        if r.strata is None or 'free' not in r.extra.get('e3', {}):
+            continue
+        for split in (split_of(r), 'all-data'):
+            groups.setdefault((split, r.unit.recording), []).append(r)
+    zero = dict(w=0.0, wf=0.0, c=0.0, cf=0.0)
+    cells: dict[str, dict] = {}
+    for (split, rec), sets in groups.items():
+        member = recording_strata([r.strata for r in sets])
+        member['all'] = {r.unit.key: None for r in sets}
+        by_key = {r.unit.key: r for r in sets}
+        for stratum, spans_by_set in member.items():
+            acc = dict(zero)
+            for key, spans in spans_by_set.items():
+                fs = by_key[key].extra['e3']['free']
+                name = 'whole' if spans is None else ('S4spans' if stratum == 'S4' else stratum)
+                for k, v in fs.get(name, zero).items():
+                    acc[k] += v
+            cell = cells.setdefault(split, {}).setdefault(stratum, dict(zero, recordings=0, recordings_free=0))
+            for k, v in acc.items():
+                cell[k] += v
+            cell['recordings'] += 1
+            cell['recordings_free'] += int(acc['wf'] > 0)
+    for split in cells.values():
+        for cell in split.values():
+            w, wf, c, cf = cell['w'], cell['wf'], cell['c'], cell['cf']
+            cell['free_share'] = wf / w if w > 0 else None
+            cell['chance_free'] = cf / wf if wf > 0 else None
+            cell['chance_set'] = (c - cf) / (w - wf) if w - wf > 0 else None
+            cell['chance_all'] = c / w if w > 0 else None
+    order = ['all-data'] + sorted(k for k in cells if k != 'all-data')
+    return {k: {s: cells[k][s] for s in ('all',) + STRATA if s in cells[k]} for k in order if k in cells}
+
+
+def same_summary(results, split_of) -> dict:
+    """§4's test on the sets whose E0 changes lead with redundant lines at normal tempo (``same``).
+
+    Counts pool every split; the per-set reading (``rows``) and its tallies are unsealed only.
+    """
+    import reader_census
+    total = sealed_n = still = 0
+    still_lead: dict[str, int] = {}
+    rows = []
+    tally = dict(cascade=0, stale=0, dropped_between=0, still_changed=0, still_changed_refined=0,
+                 prior={}, between={}, cascade_still_changed=0)
+    for r in results:
+        res = r.extra.get('e3')
+        if not res or not res['old']['changed_heads'] or reader_census.lead(res['old']['causes']) != 'same':
+            continue
+        total += 1
+        if res['new']['changed_heads']:
+            still += 1
+            name = reader_census.lead(res['new']['causes'])
+            still_lead[name] = still_lead.get(name, 0) + 1
+        if split_of(r) in SEALED:
+            sealed_n += 1
+            continue
+        d = res.get('same_diag')
+        if d is None:
+            continue
+        rows.append(dict(key=r.unit.key, split=split_of(r), changed_after=res['new']['changed_heads'],
+                         changed_refined_after=res['new']['changed_refined'], **d))
+        tally['cascade'] += int(d['cascade'])
+        tally['stale'] += int(d['stale'])
+        tally['still_changed'] += int(res['new']['changed_heads'] > 0)
+        tally['still_changed_refined'] += int(res['new']['changed_refined'] > 0)
+        tally['cascade_still_changed'] += int(d['cascade'] and res['new']['changed_heads'] > 0)
+        k = f"{d['prior']['kind']} / R {d['prior']['r_role']}" + (' / R grid stale' if d['stale'] else '')
+        tally['prior'][k] = tally['prior'].get(k, 0) + 1
+        for name, n in d['between'].items():
+            tally['between'][name] = tally['between'].get(name, 0) + n
+        tally['dropped_between'] += int(all(x.startswith('expressive') for x in d['between']))
+    tally['prior'] = _desc(tally['prior'])
+    tally['between'] = _desc(tally['between'])
+    return dict(sets=total, sealed=sealed_n, unsealed_read=len(rows), still_changed_after=still,
+                still_changed_lead=_desc(still_lead), tally=tally, rows=rows)
+
+
+def _num(x) -> str:
+    return '' if x is None else f'{x:.4f}'
+
+
+def e3_markdown(reader: dict, report: dict) -> str:
+    """E3 before and after, free spans and the §4 test, as tables."""
+    out = ['# E3 before and after the reader fix', '', f"commit {report.get('commit')}, mode {report.get('mode')}", '',
+           '| Stratum | Recordings | Changed before (E0) | Share | Changed after | Share | Refined after | Share | '
+           'Outside free spans | > 1 % heads after | R failed |',
+           '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
+    for s, v in reader['strata'].items():
+        out.append(f"| {s} | {v['recordings']} | {v['reader_changed_e0']} | {v['share_e0']:.4f} | "
+                   f"{v['reader_changed']} | {v['share']:.4f} | {v['reader_changed_refined']} | "
+                   f"{v['share_refined']:.4f} | {v['reader_changed_outside_free']} | {v['reader_changed>1%heads']} | "
+                   f"{v['reader_r_failed']} |")
+    out += ['', f"Triggered after: {', '.join(reader['triggered']) or 'none'}; before: "
+                f"{', '.join(reader['triggered_e0']) or 'none'}", '',
+            f"Leading cause per changed set, after: {reader['leading_cause_sets']}", '',
+            f"Leading cause per changed set, before: {reader['leading_cause_sets_e0']}", '',
+            f"Changed heads by governing N line, after: {reader['cause_heads']}", '',
+            f"Changed heads by governing N line, before: {reader['cause_heads_e0']}", '']
+    for split, cells in reader['free'].items():
+        if split not in ('all-data', 'holdout2', 'hard-holdout'):
+            continue
+        out += [f'## Free spans: {split}', '',
+                '| Stratum | Recordings | With free spans | Head weight | On free lines | free_share | '
+                'BL-20 chance, free | chance, phase set | chance, all |',
+                '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
+        for s, c in cells.items():
+            out.append(f"| {s} | {c['recordings']} | {c['recordings_free']} | {c['w']:.0f} | {c['wf']:.0f} | "
+                       f"{_num(c['free_share'])} | {_num(c['chance_free'])} | {_num(c['chance_set'])} | "
+                       f"{_num(c['chance_all'])} |")
+        out.append('')
+    d = reader['same_normal']
+    out += ['## Normal-tempo `same` sets (§4)', '',
+            f"{d['sets']} sets lead with `same` before the fix ({d['sealed']} in sealed splits, counted only); "
+            f"{d['unsealed_read']} unsealed read; still changed after the fix: {d['still_changed_after']} "
+            f"(leading after: {d['still_changed_lead']}).", '', f"Tally (unsealed): {d['tally']}", '']
+    for name in ('top10', 'top10_refined'):
+        out += [f'## {name}', '', '| Set | Split | Strata | Changed | Refined | Free | Before | Reason |',
+                '| --- | --- | --- | ---: | ---: | ---: | ---: | --- |']
+        for c in reader[name]:
+            out.append(f"| `{c['key']}` | {c['split']} | {' '.join(c['strata'])} | {c['changed_heads']} of "
+                       f"{c['heads']} | {c['changed_refined']} | {c['changed_free']} | {c['changed_e0']} | "
+                       f"{c['reason']} |")
+        out.append('')
+    if 'renders' in reader:
+        out += [f"Renders: {reader['renders']}", '']
+    return '\n'.join(out) + '\n'
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
     p.add_argument('--root', default='.')
@@ -284,6 +452,10 @@ def main(argv=None) -> int:
     p.add_argument('--preflight-only', action='store_true')
     p.add_argument('--holdout-sha256', help='rerun against an existing seal (its membership sha256) instead of '
                                             'drawing; the seal is checked and never changed')
+    p.add_argument('--e3-only', action='store_true',
+                   help='with --holdout-sha256: E3 before and after the reader fix, free spans and the '
+                        'normal-tempo same-set test only; no census tables')
+    p.add_argument('--top10-out', help='render the top lists after the fix into this directory (unsealed only)')
     args = p.parse_args(argv)
     root = Path(args.root)
     out = root / args.census_out
@@ -293,6 +465,9 @@ def main(argv=None) -> int:
         return 2
     if args.holdout_sha256 and not (hold / census.MEMBERSHIP).exists():
         print('--holdout-sha256 needs an existing seal', file=sys.stderr)
+        return 2
+    if args.e3_only and not args.holdout_sha256:
+        print('--e3-only reuses the seal: give --holdout-sha256', file=sys.stderr)
         return 2
     report: dict = dict(commit=args.commit, started=time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()))
     t0 = time.time()
@@ -308,11 +483,24 @@ def main(argv=None) -> int:
     log = (out / 'log.txt').open('a', encoding='utf-8')
 
     from ensomi_model.evaluation.redlines import musical_grid  # noqa: F401 - fail early if the R line is missing
+    import e0_canonical
     import reader_census
 
+    # A rerun checks the seal before anything is computed, so no sealed set ever gets per-set detail.
+    hard_keys: set[str] = set()
+    if args.holdout_sha256:
+        hard_keys = census.load_exclusion(hold, args.holdout_sha256)['keys']
+
+    def sealed_unit(u) -> bool:
+        return u.split in SEALED or u.key in hard_keys or (not args.holdout_sha256 and u.split == 'std-taiko')
+
     def on_set(unit, ref, charts, paths, st):
-        res = reader_census.compare(ref, ref.meta.get('timing_chart'))
-        res['causes'] = reader_census.causes(res.pop('changed_t'), st.lines)
+        sealed = sealed_unit(unit)
+        res = reader_census.e3_set(ref, ref.meta.get('timing_chart'), st, e0_canonical.reference_lines(ref),
+                                   with_detail=not sealed)
+        if not sealed:
+            h = census.read_header(ref.meta.get('timing_chart'))
+            res['meta'] = dict(artist=h.get('Artist', ''), title=h.get('Title', ''), version=h.get('Version', ''))
         return dict(e3=res)
 
     def progress(i, n):
@@ -326,7 +514,6 @@ def main(argv=None) -> int:
 
     if args.holdout_sha256:
         sha = args.holdout_sha256
-        hard_keys = census.load_exclusion(hold, sha)['keys']
         report['holdout'] = dict(path=str(args.holdout_out), membership_sha256=sha, reused=True,
                                  rule=json.loads((hold / 'rule.json').read_text()))
     else:
@@ -342,93 +529,166 @@ def main(argv=None) -> int:
         return 'std-taiko-design' if r.unit.split == 'std-taiko' else r.unit.split
 
     flags = {}
+    e3_errors: dict[str, int] = {}
     for r in results:
         e3 = r.extra.get('e3')
         if e3 is not None:
-            flags[r.unit.key] = {'reader_changed': e3['changed_heads'] > 0,
-                                 'reader_changed>1%heads': e3['changed_share'] > 0.01,
-                                 'reader_bars_differ': e3['bars_unmatched'] > 0}
+            new, old = e3['new'], e3['old']
+            flags[r.unit.key] = {'reader_changed': new['changed_heads'] > 0,
+                                 'reader_changed_e0': old['changed_heads'] > 0,
+                                 'reader_changed_refined': new['changed_refined'] > 0,
+                                 'reader_changed_outside_free': new['changed_heads'] > new['changed_free'],
+                                 'reader_changed>1%heads': new['changed_share'] > 0.01,
+                                 'reader_changed_e0>1%heads': old['changed_share'] > 0.01,
+                                 'reader_bars_differ': new['bars_unmatched'] > 0}
         elif r.strata is not None:
             flags[r.unit.key] = {'reader_r_failed': True}
+            err = str(r.extra.get('error', 'no result')).split(':', 1)[0]
+            e3_errors[err] = e3_errors.get(err, 0) + 1
+    report['e3_errors'] = e3_errors
     table = census.tabulate(results, split_of=split_of, set_flags=flags)
     pooled = census.tabulate(results, split_of=lambda r: 'all-data', set_flags=flags)
-    status = census.e2_status(table, holdout='holdout2', hard='hard-holdout',
-                              floors=('fit_dev', 'std-taiko-design'))
-    rows = census.strata_rows(results, sealed=lambda r: split_of(r) in SEALED, split_of=split_of)
 
-    # E3: per hard stratum, the share of recordings whose beat lines change, and the top 10 (unsealed only).
+    # E3 per stratum, before (E0's lines) and after (N's current lines), on the same strata.
     e3 = {}
     allv = pooled['splits']['all-data']
-    triggered = []
+    triggered, triggered_e0 = [], []
     for s in ('all',) + STRATA:
         v = allv[s]
-        n_changed = v['flags'].get('reader_changed', 0)
-        share = n_changed / v['recordings'] if v['recordings'] else 0.0
-        e3[s] = dict(recordings=v['recordings'], changed=n_changed, share=share,
-                     changed_over_1pct_heads=v['flags'].get('reader_changed>1%heads', 0),
-                     bars_differ=v['flags'].get('reader_bars_differ', 0), r_failed=v['flags'].get('reader_r_failed', 0),
-                     by_split={n: dict(recordings=t[s]['recordings'], changed=t[s]['flags'].get('reader_changed', 0))
-                               for n, t in table['splits'].items() if '|' not in n})
-        if s in HARD and share > TRIGGER_SHARE:
+        fl = v['flags']
+        n_rec = v['recordings']
+        row = dict(recordings=n_rec)
+        for name in ('reader_changed', 'reader_changed_e0', 'reader_changed_refined', 'reader_changed_outside_free',
+                     'reader_changed>1%heads', 'reader_changed_e0>1%heads', 'reader_bars_differ', 'reader_r_failed'):
+            row[name] = fl.get(name, 0)
+        row['share'] = row['reader_changed'] / n_rec if n_rec else 0.0
+        row['share_e0'] = row['reader_changed_e0'] / n_rec if n_rec else 0.0
+        row['share_refined'] = row['reader_changed_refined'] / n_rec if n_rec else 0.0
+        row['by_split'] = {n: dict(recordings=t[s]['recordings'], changed=t[s]['flags'].get('reader_changed', 0),
+                                   changed_e0=t[s]['flags'].get('reader_changed_e0', 0))
+                           for n, t in table['splits'].items() if '|' not in n}
+        e3[s] = row
+        if s in HARD and row['share'] > TRIGGER_SHARE:
             triggered.append(s)
-    cands = []
+        if s in HARD and row['share_e0'] > TRIGGER_SHARE:
+            triggered_e0.append(s)
+
+    free = free_table(results, split_of)
+
+    # Per-set rows (unsealed only), top lists after the fix, leading causes before and after.
+    def member_strata(r):
+        return sorted(set(r.strata.members) | ({'S4'} if r.strata.s4_spans and not r.strata.s3 else set()),
+                      key=STRATA.index)
+
+    rows_out, cands = [], []
     for r in results:
         if r.strata is None or split_of(r) in SEALED or 'e3' not in r.extra:
             continue
         res = r.extra['e3']
-        if res['changed_heads'] == 0:
-            continue
-        member = sorted(set(r.strata.members) | ({'S4'} if r.strata.s4_spans and not r.strata.s3 else set()),
-                        key=STRATA.index)
-        hit = [s for s in member if s in triggered]
-        if not hit:
-            continue
-        kinds = {}
-        for line in r.strata.lines:
-            kinds[line.kind] = kinds.get(line.kind, 0) + 1
-        cands.append(dict(key=r.unit.key, set_id=r.unit.set_id, split=split_of(r), strata=member,
-                          recording=r.unit.recording, changed_share=round(res['changed_share'], 4),
-                          changed_heads=res['changed_heads'], heads=res['heads'], n_only=res['n_only'],
-                          r_only=res['r_only'], causes=res['causes'],
-                          why=reader_census.why(res, kinds, res['causes'])))
-    cands.sort(key=lambda c: (-c['changed_share'], -c['changed_heads'], c['key']))
-    seen, top = set(), []
-    for c in cands:  # one chart per recording
-        if c['recording'] not in seen:
-            seen.add(c['recording'])
-            top.append(c)
-    cause_heads: dict[str, int] = {}
-    cause_sets: dict[str, int] = {}
-    for r in results:
-        res = r.extra.get('e3')
-        if res and res['changed_heads']:
-            lead = next(iter(res['causes']), 'none').split('@', 1)[0] + ('@fast' if '@fast' in
-                                                                        next(iter(res['causes']), '') else '')
-            cause_sets[lead] = cause_sets.get(lead, 0) + 1
-            for k, n in res['causes'].items():
-                base = k.split(' meter', 1)[0]
-                cause_heads[base] = cause_heads.get(base, 0) + n
+        new, old = res['new'], res['old']
+        roles_why = reader_census._why_roles(new, {})
+        row = dict(key=r.unit.key, set_id=r.unit.set_id, split=split_of(r), recording=r.unit.recording,
+                   strata=member_strata(r), heads=new['heads'], changed_heads=new['changed_heads'],
+                   changed_share=round(new['changed_share'], 4), changed_free=new['changed_free'],
+                   changed_refined=new['changed_refined'], free_heads=new['free_heads'],
+                   changed_e0=old['changed_heads'], changed_share_e0=round(old['changed_share'], 4),
+                   lead_e0=reader_census.lead(old['causes']) if old['changed_heads'] else '',
+                   lead=reader_census.lead(new['causes']) if new['changed_heads'] else '',
+                   causes=new['causes'], causes_e0=old['causes'], n_only=new['n_only'], r_only=new['r_only'],
+                   roles=new['roles'], reason=after_reason(new, roles_why),
+                   artist='', title='', version='')
+        row.update(res.get('meta', {}))
+        row['refined_share'] = round(row['changed_refined'] / row['heads'], 4) if row['heads'] else 0.0
+        rows_out.append(row)
+        if new['changed_heads'] and any(s in triggered for s in row['strata']):
+            cands.append(row)
+
+    def top(key):
+        seen, out_rows = set(), []
+        for c in sorted(cands, key=lambda c: (-c[key], -c['changed_heads'], c['key'])):
+            if c['recording'] not in seen:
+                seen.add(c['recording'])
+                out_rows.append(c)
+        return out_rows
+
+    top_strict = top('changed_share')[:10]
+    top_refined = [c for c in top('refined_share')[:10] if c['changed_refined']]
+
+    def leads(which):
+        sets: dict[str, int] = {}
+        heads: dict[str, int] = {}
+        for r in results:
+            res = r.extra.get('e3')
+            if res and res[which]['changed_heads']:
+                name = reader_census.lead(res[which]['causes'])
+                sets[name] = sets.get(name, 0) + 1
+                for k, n in res[which]['causes'].items():
+                    base = k.split(' meter', 1)[0]
+                    heads[base] = heads.get(base, 0) + n
+        return _desc(sets), _desc(heads)
+
+    lead_sets_e0, cause_heads_e0 = leads('old')
+    lead_sets, cause_heads = leads('new')
+    same_diag = same_summary(results, split_of)
+    same_rows = same_diag.pop('rows')
+
     reader = dict(rule='E3: if N changes the beat lines of more than 1 % of a hard stratum\'s recordings, the 10 '
                        'most-changed charts go to the human before E4 uses N\'s reader',
-                  tolerance_ms=reader_census.TOL_MS, strata=e3, triggered=triggered, top10=top[:10],
-                  leading_cause_sets=dict(sorted(cause_sets.items(), key=lambda kv: -kv[1])),
-                  cause_heads=dict(sorted(cause_heads.items(), key=lambda kv: -kv[1])),
-                  top_by_stratum={s: [c for c in top if s in c['strata']][:5] for s in triggered})
+                  tolerance_ms=reader_census.TOL_MS, strata=e3, triggered=triggered, triggered_e0=triggered_e0,
+                  free=free, top10=top_strict, top10_refined=top_refined,
+                  leading_cause_sets=lead_sets, cause_heads=cause_heads,
+                  leading_cause_sets_e0=lead_sets_e0, cause_heads_e0=cause_heads_e0, same_normal=same_diag)
+
+    if args.top10_out:
+        try:
+            import reader_top10
+            from ensomi_n.eval.strata import set_strata
+            from ensomi_n.labels import read_osu, reference_from_charts
+            by_key = {u.key: u for u in units}
+            picked, seen = [], set()
+            for c in top_strict + top_refined:
+                if c['key'] not in seen:
+                    seen.add(c['key'])
+                    picked.append(c)
+            items = []
+            for c in picked:
+                u = by_key[c['key']]
+                paths = sorted(root / f for f in u.files if (root / f).is_file())
+                charts = [read_osu(p_) for p_ in paths]
+                ref = reference_from_charts(charts, u.key)
+                st = set_strata(ref, charts, tags=u.tags, tags_known=u.tags_known, key=u.key)
+                items.append((c, reader_top10.chart_item(ref, st, ref.meta['timing_chart'],
+                                                         e0_canonical.reference_lines(ref), c, c)))
+            rendered = reader_top10.render(items, root / args.top10_out,
+                                           strict=[c['key'] for c in top_strict])
+            reader['renders'] = dict(dir=str(args.top10_out), backend=rendered['backend'],
+                                     files=[r_['png'] or r_['svg'] for r_ in rendered['rows']],
+                                     errors=rendered['errors'])
+        except Exception as exc:  # noqa: BLE001 - the counts stand without the renders
+            reader['renders'] = dict(error=f'{type(exc).__name__}: {exc}')
+
     report['t_total_s'] = round(time.time() - t0, 1)
     report['errors'] = table['errors']
-    census.write_census(out, table, status, rows, meta=dict(run=report, sealed=list(SEALED)))
+    report['mode'] = 'e3-only' if args.e3_only else 'census+e3'
+    if not args.e3_only:
+        status = census.e2_status(table, holdout='holdout2', hard='hard-holdout',
+                                  floors=('fit_dev', 'std-taiko-design'))
+        srows = census.strata_rows(results, sealed=lambda r: split_of(r) in SEALED, split_of=split_of)
+        census.write_census(out, table, status, srows, meta=dict(run=report, sealed=list(SEALED)))
     (out / 'reader-census.json').write_text(json.dumps(census._jsonable(reader), indent=1) + '\n')
     (out / 'run.json').write_text(json.dumps(census._jsonable(report), indent=1) + '\n')
-    with (out / 'census.md').open('a') as f:
-        f.write('\n## E3\n\n| Stratum | Recordings | N changes beat lines | Share | Bars differ |\n'
-                '| --- | ---: | ---: | ---: | ---: |\n')
-        for s, v in e3.items():
-            f.write(f"| {s} | {v['recordings']} | {v['changed']} | {v['share']:.4f} | {v['bars_differ']} |\n")
-        f.write(f'\nTriggered hard strata: {", ".join(triggered) or "none"}\n')
-    print(f'done: membership sha256 {sha}; {len(results)} sets; {table["errors"]} unreadable', flush=True)
+    with (out / 'e3-sets.jsonl').open('w', encoding='utf-8') as f:
+        for row in rows_out:
+            f.write(json.dumps(census._jsonable(row)) + '\n')
+    with (out / 'same-normal.jsonl').open('w', encoding='utf-8') as f:
+        for row in same_rows:
+            f.write(json.dumps(census._jsonable(row)) + '\n')
+    (out / 'e3.md').write_text(e3_markdown(reader, report), encoding='utf-8')
+    print(f'done: membership sha256 {sha}; {len(results)} sets; {table["errors"]} unreadable; E3 '
+          f"{e3['all']['reader_changed']}/{e3['all']['recordings']} after, "
+          f"{e3['all']['reader_changed_e0']}/{e3['all']['recordings']} before", flush=True)
     log.close()
     return 0
-
 
 if __name__ == '__main__':
     sys.path.insert(0, str(Path(__file__).resolve().parent))
