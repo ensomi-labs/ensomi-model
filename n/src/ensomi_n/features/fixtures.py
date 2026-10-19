@@ -73,8 +73,8 @@ def _write_wav(path: Path, x: np.ndarray, rate: int) -> None:
     soundfile.write(str(path), x, rate, subtype='PCM_16')
 
 
-def _lame_extension_offset(data: bytes) -> tuple[int, int]:
-    """(offset of the LAME extension's encoder string, sample rate) in an MP3's bytes."""
+def _lame_extension_offset(data: bytes) -> tuple[int, int, int]:
+    """(offset of the LAME extension's encoder string, sample rate, offset of the Info frame) in an MP3's bytes."""
     start = clock._skip_id3(data[:10])
     buf = data[start:start + (1 << 16)]
     for i in range(len(buf) - 4):
@@ -86,8 +86,27 @@ def _lame_extension_offset(data: bytes) -> tuple[int, int]:
             raise ValueError('no Xing/Info frame')
         flags = int.from_bytes(buf[x + 4:x + 8], 'big')
         p = x + 8 + 4 * bool(flags & 1) + 4 * bool(flags & 2) + 100 * bool(flags & 4) + 4 * bool(flags & 8)
-        return start + p, frame[0]
+        return start + p, frame[0], start + i
     raise ValueError('no MPEG frame')
+
+
+def _crc16_arc(data: bytes) -> int:
+    """CRC-16/ARC (reflected polynomial 0xA001, initial 0), as LAME computes its Info tag CRC."""
+    crc = 0
+    for byte in data:
+        crc ^= byte
+        for _ in range(8):
+            crc = (crc >> 1) ^ 0xA001 if crc & 1 else crc >> 1
+    return crc
+
+
+def _tag_crc_ok(data: bytes, ext: int, frame: int) -> bool:
+    """Whether the LAME tag CRC (the extension's last 2 bytes) matches the frame bytes before it."""
+    return _crc16_arc(data[frame:ext + 34]) == int.from_bytes(data[ext + 34:ext + 36], 'big')
+
+
+def _restamp_crc(data: bytearray, ext: int, frame: int) -> None:
+    data[ext + 34:ext + 36] = _crc16_arc(bytes(data[frame:ext + 34])).to_bytes(2, 'big')
 
 
 def make_files(out: Path) -> dict:
@@ -102,12 +121,17 @@ def make_files(out: Path) -> dict:
     lame = out / 'lame.mp3'
     run('-i', str(wav), '-c:a', 'libmp3lame', '-b:a', '192k', str(lame))
     data = bytearray(lame.read_bytes())
-    p, _ = _lame_extension_offset(bytes(data))
+    p, _, f0 = _lame_extension_offset(bytes(data))
     delay = (data[p + 21] << 4) | (data[p + 22] >> 4)
     files['lame'] = (lame, 0)
+    # The edited file keeps a valid tag CRC when the encoder's own CRC is reproduced (a decoder may
+    # ignore a tag whose CRC fails, which would test the edit rather than the class).
+    crc_ok = _tag_crc_ok(bytes(data), p, f0)
     d0 = bytearray(data)
     d0[p + 21] = 0
     d0[p + 22] &= 0x0F
+    if crc_ok:
+        _restamp_crc(d0, p, f0)
     (out / 'lame-delay0.mp3').write_bytes(bytes(d0))
     files['lame-delay0'] = (out / 'lame-delay0.mp3', delay + clock.DECODER_DELAY)
     xg = bytearray(data)
@@ -125,6 +149,7 @@ def make_files(out: Path) -> dict:
         soundfile.write(str(ogg), click_track(), SOURCE_RATE, format='OGG', subtype='VORBIS')
     files['ogg'] = (ogg, 0)
     files['_encoder_delay'] = delay
+    files['_tag_crc_reproduced'] = crc_ok
     return files
 
 
@@ -133,6 +158,7 @@ def run(out_dir: str | Path) -> dict:
     out = Path(out_dir)
     files = make_files(out)
     delay = files.pop('_encoder_delay', None)
+    crc_ok = files.pop('_tag_crc_reproduced', None)
     cases = []
     for name, (path, late) in files.items():
         start = clock.read_mp3_start(path) if path.suffix == '.mp3' else None
@@ -159,6 +185,7 @@ def run(out_dir: str | Path) -> dict:
                               errors_ms=[round(float(e), 3) for e in err],
                               passed=bool(np.max(np.abs(err)) <= TOLERANCE_MS)))
     report = dict(rule=clock.LEAD_RULE, mel=DEFAULT.key(), tolerance_ms=TOLERANCE_MS, encoder_delay=delay,
+                  tag_crc_reproduced=crc_ok,
                   cases=cases, passed=bool(cases) and all(c['passed'] for c in cases),
                   classes_covered=sorted({c['case'] for c in cases}))
     (out / 'clock-report.json').write_text(json.dumps(report, indent=1))

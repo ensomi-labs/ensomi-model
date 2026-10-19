@@ -13,6 +13,11 @@ PY=.venv/bin/python
 BULK=artifacts/bulk/n1-cache
 export PYTHONPATH="$SRC/src:$SRC/n/src"
 mkdir -p "$RUN"
+# A heartbeat line in <run>/progress.jsonl every 60 s for the job's life: other workers on the mac use
+# the GPU only when no runs/*/progress.jsonl was written in the last 3 minutes.
+( while kill -0 $$ 2>/dev/null; do echo "{\"t\": $(date +%s), \"event\": \"heartbeat\", \"group\": \"$GROUP\"}" >> "$RUN/progress.jsonl"; sleep 60; done ) &
+HB=$!
+trap 'kill $HB 2>/dev/null' EXIT
 note() { echo "{\"t\": $(date +%s), \"group\": \"$GROUP\", \"event\": \"$1\"}" >> "$RUN/stages.jsonl"; echo "[$(date -u +%H:%M:%S)] $1"; }
 stage() {
   local name=$1; shift
@@ -30,7 +35,9 @@ if [ "$GROUP" = a ]; then
   else
     note "pytest not importable in .venv; N tests not run here"
   fi
-  stage throughput $PY -m ensomi_n.run.throughput --out "$RUN/throughput.json"
+  # The watermark caps MPS allocations at the recommended working set, so an oversized batch raises
+  # (recorded as an error row) instead of swapping.
+  stage throughput env PYTORCH_MPS_HIGH_WATERMARK_RATIO=1.0 $PY -m ensomi_n.run.throughput --out "$RUN/throughput.json"
   stage bt_map_fitdev $PY "$SRC/scripts/n1/bt_logits.py" map --stored fitdev --ckpt final0 --split "$RUN/split.json" \
       --subset panel --out "$RUN/bt-map-fitdev.json"
   stage bt_map_reset $PY "$SRC/scripts/n1/bt_logits.py" map --stored reset --ckpt final0 --split "$RUN/split.json" \
