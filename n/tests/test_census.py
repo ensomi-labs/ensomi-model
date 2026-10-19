@@ -26,7 +26,8 @@ def make(tmp_path, osu_writer, spec):
         path.write_text(text)
         (path.parent / 'audio.mp3').write_bytes(key.encode())
         rows.append(dict(file=f'data/{key}/a.osu', key=key, source=split.split('-')[0], recording=rec, split=split,
-                         status='ranked', mode=mode, set_id=key.split('/')[-1], tags='', tags_known='0'))
+                         status='ranked', mode=mode, set_id=key.split('/')[-1], tags='', tags_known='0',
+                         audio_sha256=AUDIO.get(key, key)))
     units = tmp_path / 'units.csv'
     with units.open('w', newline='') as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]))
@@ -35,10 +36,12 @@ def make(tmp_path, osu_writer, spec):
     return units
 
 
+AUDIO = {'d/0': 'A0', 'd/9': 'A0', 'd/1': 'A1', 'd/8': 'A1', 'd/2': 'A2', 'd/7': 'other cut'}
 SPEC = (
     [(f'd/{i}', 'fit_dev', f'r{i}', CONTROL, f'm{i}', 'mania4k') for i in range(3)]
     + [('d/9', 'fit_dev', 'r0', RESETS, 'other', 'mania4k')]  # a second mapper for r0, timing differs
     + [('d/8', 'fit_dev', 'r1', CONTROL, 'copier', 'mania4k')]  # a copy for r1
+    + [('d/7', 'fit_dev', 'r2', RESETS, 'cutter', 'mania4k')]  # r2 on another audio file: never a pair
     + [(f'h/{i}', 'holdout2', f'h{i}', RESETS, f'm{i}', 'mania4k') for i in range(2)]
     + [(f's/{i}', 'std-taiko', f's{i}', RESETS if i % 2 else CONTROL, f'x{i}', 'taiko') for i in range(30)]
     + [('s/linked', 'std-taiko', 'r2', RESETS, 'x', 'std')]  # shares a recording with fit_dev: never drawn
@@ -51,11 +54,12 @@ def test_tabulate_counts_strata_pairs_and_criteria(tmp_path, osu_writer):
     assert all(r.strata is not None for r in results)
     t = census.tabulate(results)['splits']
     fd = t['fit_dev']
-    assert fd['all']['recordings'] == 3 and fd['all']['sets'] == 5
-    # r0 holds a control set and a reset set: S0 needs every set, so r0 leaves S0; r1 and r2 stay.
-    assert fd['S0']['recordings'] == 2 and fd['S4']['recordings'] == 1 and fd['S2']['recordings'] == 1
+    assert fd['all']['recordings'] == 3 and fd['all']['sets'] == 6
+    # r0 and r2 hold a control set and a reset set: S0 needs every set, so only r1 stays.
+    assert fd['S0']['recordings'] == 1 and fd['S4']['recordings'] == 2 and fd['S2']['recordings'] == 2
     assert fd['all']['pairs_differing'] == 1 and fd['all']['pairs_copies'] == 1
-    assert fd['S4']['pairs_differing'] == 1 and fd['S4']['criteria']['S4.reset'] == 1
+    assert fd['all']['recordings_with_pair'] == 1
+    assert fd['S4']['pairs_differing'] == 1 and fd['S4']['criteria']['S4.reset'] == 2
     assert t['holdout2']['S4']['recordings'] == 2 and t['holdout2']['S4']['span_heads'] > 0
     assert t['std-taiko|taiko']['all']['recordings'] == 30
     status = census.e2_status(census.tabulate(results), floors=('fit_dev',))

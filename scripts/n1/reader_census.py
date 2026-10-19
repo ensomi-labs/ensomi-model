@@ -120,14 +120,56 @@ def compare(ref, timing_chart) -> dict:
         if role.role == MUSICAL:
             name = f'musical:{role.reason}'
         counts[name] = counts.get(name, 0) + 1
-    return dict(heads=int(len(heads)), changed_heads=int(changed.sum()),
+    return dict(heads=int(len(heads)), changed_heads=int(changed.sum()), changed_t=heads[changed],
                 changed_share=float(changed.mean()) if len(heads) else 0.0,
                 n_only=_unmatched(in_n, in_r), r_only=_unmatched(in_r, in_n), n_lines=int(len(in_n)),
                 r_lines=int(len(in_r)), n_bars=int(len(n_bars)), bars_unmatched=_unmatched(n_bars, r_bars),
                 roles=counts)
 
 
-def why(result: dict, kinds: dict) -> str:
+def causes(changed_t: np.ndarray, lines) -> dict[str, int]:
+    """Changed heads by the kind of N's red line governing them (`ensomi_n.eval.strata.Line`), with the
+    notated meter and tempo of that line for ``first``, ``same`` and ``tempo`` lines at 160 BPM or more."""
+    out: dict[str, int] = {}
+    if not len(changed_t) or not lines:
+        return out
+    starts = np.array([line.start_ms for line in lines])
+    k = np.clip(np.searchsorted(starts, changed_t + MERGE_MS, side='right') - 1, 0, len(lines) - 1)
+    for i, n in zip(*np.unique(k, return_counts=True)):
+        line = lines[int(i)]
+        name = line.kind
+        if name in ('first', 'same', 'tempo') and 60000.0 / line.beat_ms >= 160.0 - 1e-9:
+            name = f'{name}@fast meter {line.meter}'
+        out[name] = out.get(name, 0) + int(n)
+    return dict(sorted(out.items(), key=lambda kv: -kv[1]))
+
+
+LABELS = {
+    'reset': 'resets kept by N (R drops them as short bars)',
+    'detour': 'a detour run kept by N (R keeps the grid in force)',
+    'implausible': 'a stop or spike line: N places no beats in its span',
+    'same': 'redundant red lines restart N\'s canonical count where R continues',
+    'tempo': 'tempo lines R drops or reads otherwise',
+    'first': 'the first line\'s grid',
+}
+
+
+def why(result: dict, kinds: dict, cause: dict | None = None) -> str:
+    """A short reason for a changed set: the leading cause by changed heads, then R's dropped lines."""
+    parts = []
+    if cause:
+        top = next(iter(cause))
+        base = top.split('@', 1)[0]
+        if '@fast' in top:
+            parts.append(f"{cause[top]} heads under {base} lines at a notated tempo of 160 BPM or more with "
+                         f"{top.split('@fast ', 1)[1]}: N re-anchors the fast-beat count at downbeats and segment "
+                         f"starts, R at musical lines only")
+        else:
+            parts.append(f'{cause[top]} heads: {LABELS.get(base, base)}')
+    return '; '.join(parts + [_why_roles(result, kinds)])
+
+
+def _why_roles(result: dict, kinds: dict) -> str:
     """A short reason for a changed set: what R drops that N keeps, from R's roles and N's line kinds."""
     roles = result['roles']
     parts = []
@@ -140,6 +182,5 @@ def why(result: dict, kinds: dict) -> str:
         parts.append(f"R reads {roles['musical:phase']} phase lines")
     n_kinds = ', '.join(f'{k} {v}' for k, v in sorted(kinds.items()) if k != 'first')
     if not parts:
-        parts.append('no line dropped by R: canonical fold anchoring differs (N restarts the fast-beat count at '
-                     'downbeats, R at red lines only)')
+        parts.append('no line dropped by R')
     return '; '.join(parts) + (f' (N line kinds: {n_kinds})' if n_kinds else '')

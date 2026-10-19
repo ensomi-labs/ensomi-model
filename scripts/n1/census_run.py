@@ -237,12 +237,26 @@ def build_units(args, report: dict) -> list[census.Unit]:
         if x is None:
             units[r['key']] = census.Unit(r['key'], [r['file']], r['source'], 'rec:' + rec, split, r['status'],
                                           r['mode'], r['set_id'], [t for t in r['tags'].split(';') if t],
-                                          r['tags_known'] == '1')
+                                          r['tags_known'] == '1', r.get('sha', ''))
         else:
             x.files.append(r['file'])
             x.tags = sorted(set(x.tags) | {t for t in r['tags'].split(';') if t})
             if not x.status and r['status']:
                 x.status = r['status']
+    # std-taiko audio is hashed only where a pair is possible: recordings with sets of several set ids.
+    by_rec: dict[str, set] = {}
+    for x in units.values():
+        by_rec.setdefault(x.recording, set()).add(x.set_id or x.key)
+    hashed = 0
+    audio_of = {r['key']: r['audio'] for r in st_rows}
+    for x in units.values():
+        if x.source == 'std-taiko' and len(by_rec[x.recording]) > 1:
+            audio = audio_of.get(x.key, '')
+            path = census._audio_path(root, x.files, audio) if audio else None
+            if path is not None:
+                x.audio_sha256 = sha256_file(path)
+                hashed += 1
+    report['std_taiko']['audio_hashed_for_pairs'] = hashed
     shas_4k = {r['sha'] for r in rows}
     report['inputs'] = dict(
         corpus_rows=len(corpus), corpus_ranked_loved=len(kept), tag_names=len(tag_names),
@@ -296,9 +310,9 @@ def main(argv=None) -> int:
     from ensomi_model.evaluation.redlines import musical_grid  # noqa: F401 - fail early if the R line is missing
     import reader_census
 
-    def on_set(unit, ref, charts, paths):
-        timing_chart = ref.meta.get('timing_chart')
-        res = reader_census.compare(ref, timing_chart)
+    def on_set(unit, ref, charts, paths, st):
+        res = reader_census.compare(ref, ref.meta.get('timing_chart'))
+        res['causes'] = reader_census.causes(res.pop('changed_t'), st.lines)
         return dict(e3=res)
 
     def progress(i, n):
@@ -373,14 +387,33 @@ def main(argv=None) -> int:
         for line in r.strata.lines:
             kinds[line.kind] = kinds.get(line.kind, 0) + 1
         cands.append(dict(key=r.unit.key, set_id=r.unit.set_id, split=split_of(r), strata=member,
-                          changed_share=round(res['changed_share'], 4), changed_heads=res['changed_heads'],
-                          heads=res['heads'], n_only=res['n_only'], r_only=res['r_only'],
-                          why=reader_census.why(res, kinds)))
+                          recording=r.unit.recording, changed_share=round(res['changed_share'], 4),
+                          changed_heads=res['changed_heads'], heads=res['heads'], n_only=res['n_only'],
+                          r_only=res['r_only'], causes=res['causes'],
+                          why=reader_census.why(res, kinds, res['causes'])))
     cands.sort(key=lambda c: (-c['changed_share'], -c['changed_heads'], c['key']))
+    seen, top = set(), []
+    for c in cands:  # one chart per recording
+        if c['recording'] not in seen:
+            seen.add(c['recording'])
+            top.append(c)
+    cause_heads: dict[str, int] = {}
+    cause_sets: dict[str, int] = {}
+    for r in results:
+        res = r.extra.get('e3')
+        if res and res['changed_heads']:
+            lead = next(iter(res['causes']), 'none').split('@', 1)[0] + ('@fast' if '@fast' in
+                                                                        next(iter(res['causes']), '') else '')
+            cause_sets[lead] = cause_sets.get(lead, 0) + 1
+            for k, n in res['causes'].items():
+                base = k.split(' meter', 1)[0]
+                cause_heads[base] = cause_heads.get(base, 0) + n
     reader = dict(rule='E3: if N changes the beat lines of more than 1 % of a hard stratum\'s recordings, the 10 '
                        'most-changed charts go to the human before E4 uses N\'s reader',
-                  tolerance_ms=reader_census.TOL_MS, strata=e3, triggered=triggered, top10=cands[:10],
-                  top_by_stratum={s: [c for c in cands if s in c['strata']][:5] for s in triggered})
+                  tolerance_ms=reader_census.TOL_MS, strata=e3, triggered=triggered, top10=top[:10],
+                  leading_cause_sets=dict(sorted(cause_sets.items(), key=lambda kv: -kv[1])),
+                  cause_heads=dict(sorted(cause_heads.items(), key=lambda kv: -kv[1])),
+                  top_by_stratum={s: [c for c in top if s in c['strata']][:5] for s in triggered})
     report['t_total_s'] = round(time.time() - t0, 1)
     report['errors'] = table['errors']
     census.write_census(out, table, status, rows, meta=dict(run=report, sealed=list(SEALED)))

@@ -8,7 +8,8 @@ and what the census needs to know about it:
 recording, dedup groups merged, shares it), ``split`` (``fit_dev``,
 ``holdout2``, ``std-taiko``, ...), ``status`` (``ranked``, ``loved``),
 ``mode`` (``mania4k``, ``std``, ``taiko``), ``set_id``, ``tags`` (voted tags,
-``;``-separated) and ``tags_known`` (1 when the voted tags were looked up).
+``;``-separated), ``tags_known`` (1 when the voted tags were looked up) and
+``audio_sha256`` (second-mapper pairs need one audio file).
 
 `compute` reads every set's charts once and computes its strata
 (`ensomi_n.eval.strata`). `tabulate` counts, per split and stratum, the
@@ -59,6 +60,7 @@ class Unit:
     set_id: str = ''
     tags: list[str] = field(default_factory=list)
     tags_known: bool = False
+    audio_sha256: str = ''
 
 
 @dataclass
@@ -89,7 +91,8 @@ def read_units(path: str | os.PathLike) -> list[Unit]:
                 units[key] = Unit(key, [row['file']], (row.get('source') or '').strip(), row['recording'].strip(),
                                   row['split'].strip(), (row.get('status') or '').strip(),
                                   (row.get('mode') or '').strip(), (row.get('set_id') or '').strip(), tags,
-                                  (row.get('tags_known') or '0').strip() in ('1', 'true', 'True'))
+                                  (row.get('tags_known') or '0').strip() in ('1', 'true', 'True'),
+                                  (row.get('audio_sha256') or '').strip())
                 continue
             for name in ('recording', 'split', 'source'):
                 if (row.get(name) or '').strip() != getattr(u, name):
@@ -121,7 +124,7 @@ def compute(units: Sequence[Unit], root: str | os.PathLike = '.', *,
             on_set: Callable | None = None) -> list[SetResult]:
     """Read each unit's charts once and compute its strata. A set that cannot be read is kept with its error.
 
-    ``on_set(unit, ref, charts, paths)``, when given, runs on every readable set
+    ``on_set(unit, ref, charts, paths, strata)``, when given, runs on every readable set
     in the same pass; its dict is kept as ``SetResult.extra`` (an exception in
     it is recorded there as ``{'error': ...}``).
     """
@@ -141,7 +144,7 @@ def compute(units: Sequence[Unit], root: str | os.PathLike = '.', *,
             extra = {}
             if on_set is not None:
                 try:
-                    extra = on_set(u, ref, charts, paths) or {}
+                    extra = on_set(u, ref, charts, paths, st) or {}
                 except Exception as exc:  # noqa: BLE001 - recorded, never fatal for the census
                     extra = dict(error=f'{type(exc).__name__}: {exc}')
             if gone:
@@ -175,6 +178,7 @@ def criteria(s: SetStrata) -> dict[str, bool]:
         'S9.off_lattice>=4heads': d['S9']['off_lattice_heads'] >= 4,
         'S9.sub_beat_segment': d['S9']['sub_beat_segments'] > 0,
         'S0.tags_unchecked': not d['S0']['tags_checked'],
+        'timing_inconsistent': d['S0'].get('timing_inconsistent', 0) > 0,
     }
 
 
@@ -188,12 +192,15 @@ def _group(results: Iterable[SetResult], split_of: Callable[[SetResult], str]):
 
 
 def _pairs(sets: Sequence[SetResult]) -> tuple[int, int]:
-    """Differing and copied second-mapper pairs among one recording's sets: different set ids, no shared creator."""
+    """Differing and copied second-mapper pairs among one recording's sets: one audio file (same sha256),
+    different set ids, no shared creator. Sets of one song on other audio (cuts, rate edits) never pair."""
     diff = copies = 0
     for i in range(len(sets)):
         for j in range(i + 1, len(sets)):
             a, b = sets[i], sets[j]
             if a.unit.set_id and a.unit.set_id == b.unit.set_id:
+                continue
+            if not a.unit.audio_sha256 or a.unit.audio_sha256 != b.unit.audio_sha256:
                 continue
             if not a.creators or not b.creators or a.creators & b.creators:
                 continue
@@ -248,8 +255,8 @@ def tabulate(results: Sequence[SetResult], *, split_of: Callable[[SetResult], st
 
 
 def _empty() -> dict:
-    return dict(recordings=0, sets=0, heads=0, span_heads=0, pairs_differing=0, pairs_copies=0, criteria={},
-                flags={})
+    return dict(recordings=0, sets=0, heads=0, span_heads=0, pairs_differing=0, pairs_copies=0,
+                recordings_with_pair=0, criteria={}, flags={})
 
 
 def _add(v: dict, stratum: str, rows: Sequence[SetResult], spans_by_set, diff: int, copies: int,
@@ -267,6 +274,7 @@ def _add(v: dict, stratum: str, rows: Sequence[SetResult], spans_by_set, diff: i
             v['span_heads'] += r.strata.span_heads.get(stratum, 0)
     v['pairs_differing'] += diff
     v['pairs_copies'] += copies
+    v['recordings_with_pair'] += diff > 0
     for name in {k for c in crit for k, ok in c.items() if ok}:
         v['criteria'][name] = v['criteria'].get(name, 0) + 1
     flags = {k for r in rows for k, ok in set_flags.get(r.unit.key, {}).items() if ok}
@@ -298,9 +306,13 @@ def e2_status(table: dict, *, holdout: str = 'holdout2', hard: str = 'hard-holdo
             decided = f'decided on {hard}'
         else:
             decided = 'characterises only (the human\'s listening judges)'
-        pairs = {name: splits.get(name, {}).get(s, {}).get('pairs_differing', 0) for name in (holdout, hard, *floors)}
+        names = (holdout, hard, *floors)
+        pairs = {name: splits.get(name, {}).get(s, {}).get('pairs_differing', 0) for name in names}
+        recs = {name: splits.get(name, {}).get(s, {}).get('recordings_with_pair', 0) for name in names}
         out[s] = dict(name=NAMES[s], holdout_recordings=n_h, hard_recordings=n_x, status=decided,
-                      differing_pairs=pairs, floor={k: v >= min_pairs for k, v in pairs.items()})
+                      differing_pairs=pairs, recordings_with_pair=recs,
+                      floor={k: v >= min_pairs for k, v in pairs.items()},
+                      floor_by_recordings={k: v >= min_pairs for k, v in recs.items()})
     out['S10'] = dict(name=NAMES['S10'], status='not computed: needs BeatThis logits; characterises only by design')
     return out
 

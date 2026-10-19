@@ -88,6 +88,10 @@ of its own segment, rounded to 1/4 beat. A bar ending at, or holding, a
   divisor up to 1/16 of the notated beat; a segment shorter than one
   canonical beat holding heads.
 
+S1, S7, S8 and S9's off-lattice heads read only the difficulties timed like
+the timing chart (N's reader takes the timing from the fullest difficulty), so
+a guest difficulty with other red lines cannot put heads off the grid.
+
 Rate edits are not folded here; the recording table decides which sets form
 one recording.
 """
@@ -402,7 +406,14 @@ def set_strata(ref: Reference, charts: Sequence = (), *, tags: Iterable[str] = (
     tags = {t.strip().lower() for t in tags if t and t.strip()}
     lo, hi = ref.lo_ms, ref.hi_ms
     heads = ref.heads if ref.heads is not None else np.zeros(0)
-    scorable = heads[ref.scorable(heads)]
+    # Heads judged against the timing's own grid (S1, S7, S9 off-lattice, S8) come from the difficulties
+    # timed like the timing chart; a difficulty with other red lines would put its heads off this grid.
+    timing_path = str(ref.meta.get('timing_chart', ''))
+    timing_chart = next((c for c in charts if str(c.path) == timing_path), None)
+    same = [c for c in charts if timing_chart is None or same_timing(c.segments(), timing_chart.segments())]
+    inconsistent = len(charts) - len(same)
+    grid_heads = np.unique(np.concatenate([c.heads for c in same])) if same and charts else heads
+    scorable = grid_heads[ref.scorable(grid_heads)]
     timing = ref.timing
     segs = ref.segments or ()
     lines = classify_lines(segs, heads, lo, hi)
@@ -611,7 +622,7 @@ def set_strata(ref: Reference, charts: Sequence = (), *, tags: Iterable[str] = (
 
     # S8: polyrhythm runs, per difficulty.
     poly = []
-    head_sets = [c.heads for c in charts] if charts else [heads]
+    head_sets = [c.heads for c in same] if charts else [heads]
     for hs in head_sets:
         hs = np.asarray(hs, dtype=np.float64)
         hs = hs[ref.scorable(hs)]
@@ -683,7 +694,7 @@ def set_strata(ref: Reference, charts: Sequence = (), *, tags: Iterable[str] = (
     if rate_edit:
         fails.append('rate_edit')
     s0 = not fails
-    detail['S0'] = dict(fails=fails, tags_checked=bool(tags_known))
+    detail['S0'] = dict(fails=fails, tags_checked=bool(tags_known), timing_inconsistent=inconsistent)
     if s0:
         members['S0'] = None
 

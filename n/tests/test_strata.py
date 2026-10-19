@@ -206,3 +206,14 @@ def test_flags_interface_for_the_training_side(osu_writer):
     assert f['flags']['S0'] is False and json.loads(json.dumps(f)) == f
     control = flags(read_set([osu_writer('fc.osu', [(0, B, 4)], heads=[k * B for k in range(64)])]))
     assert control['strata'] == ['S0'] and control['hard'] is False
+
+
+def test_a_differently_timed_difficulty_puts_no_heads_off_the_grid(osu_writer):
+    hard = osu_writer('g/hard.osu', [(0, B, 4)], heads=[k * B for k in range(64)])
+    guest = osu_writer('g/guest.osu', [(10, B, 4)], heads=[10 + k * B for k in range(0, 64, 2)], version='Guest')
+    ref = read_set([hard, guest], key='g')
+    assert ref.meta['timing_consistent'] is False
+    s = set_strata(ref, [read_osu(hard), read_osu(guest)])
+    assert s.detail['S9']['off_lattice_heads'] == 0 and s.detail['S0']['timing_inconsistent'] == 1
+    # Without the charts, the union is judged and the guest's heads are off the grid.
+    assert set_strata(ref).detail['S9']['off_lattice_heads'] == 32
