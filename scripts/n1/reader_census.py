@@ -57,9 +57,9 @@ def r_events(path) -> np.ndarray:
     return np.sort(np.asarray(out, dtype=np.float64))
 
 
-def r_lines(path, lo: float, hi: float):
+def r_lines(path, lo: float, hi: float, red=None):
     """R's canonical beat lines and bar starts over ``[lo, hi]`` (one line of margin), and its roles."""
-    red = read_red_lines(path)
+    red = read_red_lines(path) if red is None else red
     grid, roles = musical_grid(red, r_events(path))
     segs = grid.segments
     lines = []
@@ -97,19 +97,26 @@ def _unmatched(a: np.ndarray, b: np.ndarray) -> int:
     return int((d > TOL_MS).sum())
 
 
-def compare(ref, timing_chart) -> dict:
-    """E3's comparison for one set (module docstring). ``ref`` is the set's N `Reference`."""
-    lo, hi = ref.lo_ms, ref.hi_ms
-    n_lines = ref.lines().t
-    r_t, r_bars, roles = r_lines(timing_chart, lo, hi)
-    heads = ref.heads[(ref.heads >= lo) & (ref.heads <= hi)]
+def changed_mask(heads: np.ndarray, n_lines: np.ndarray, r_t: np.ndarray) -> np.ndarray:
+    """Per head: the two lines around it differ between the readers by more than 20 ms, or a reader has
+    none on one side (a head on one of N's lines needs only the line before it to agree)."""
     n_prev, n_next = _around(n_lines, heads)
     r_prev, r_next = _around(r_t, heads)
     on_n = np.isin(np.round(heads, 6), np.round(n_lines, 6))
     with np.errstate(invalid='ignore'):
         same_prev = np.abs(n_prev - r_prev) <= TOL_MS
         same_next = np.abs(n_next - r_next) <= TOL_MS
-    changed = ~(same_prev & (same_next | on_n))
+    return ~(same_prev & (same_next | on_n))
+
+
+def compare(ref, timing_chart, n_lines: np.ndarray | None = None, r_side=None) -> dict:
+    """E3's comparison for one set (module docstring). ``ref`` is the set's N `Reference`; ``n_lines``
+    replaces N's scored lines (E0's, for the before count); ``r_side`` is `r_lines`'s result, reused."""
+    lo, hi = ref.lo_ms, ref.hi_ms
+    n_lines = ref.lines().t if n_lines is None else n_lines
+    r_t, r_bars, roles = r_lines(timing_chart, lo, hi) if r_side is None else r_side
+    heads = ref.heads[(ref.heads >= lo) & (ref.heads <= hi)]
+    changed = changed_mask(heads, n_lines, r_t)
     in_n = n_lines[(n_lines >= lo - MERGE_MS) & (n_lines <= hi + MERGE_MS)]
     in_r = r_t[(r_t >= lo - MERGE_MS) & (r_t <= hi + MERGE_MS)]
     n_bars = ref.timing.bar_starts()
@@ -184,3 +191,206 @@ def _why_roles(result: dict, kinds: dict) -> str:
     if not parts:
         parts.append('no line dropped by R')
     return '; '.join(parts) + (f' (N line kinds: {n_kinds})' if n_kinds else '')
+
+
+# ---------------------------------------------------------------- before and after the reader fix
+
+def lead(cause: dict) -> str:
+    """The leading cause of a changed set as the census names it: ``same``, ``same@fast``, ``reset``, ..."""
+    top = next(iter(cause), 'none')
+    return top.split('@', 1)[0] + ('@fast' if '@fast' in top else '')
+
+
+def _r_as_lines(r_t: np.ndarray):
+    """R's lines as `Lines`, each with the median of the five line intervals around it as its beat length,
+    so that refining splits a whole canonical beat and a short interval at R's re-phasing is not split."""
+    from ensomi_n.timing import Lines
+    gap = np.diff(r_t)
+    if len(gap):
+        padded = np.concatenate([np.full(2, np.nan), gap, np.full(3, np.nan)])
+        beat = np.nanmedian(np.lib.stride_tricks.sliding_window_view(padded, 5)[:len(r_t)], axis=1)
+    else:
+        beat = np.zeros(len(r_t))
+    idx = np.arange(len(r_t))
+    return Lines(r_t, beat, idx, idx)
+
+
+def span_mask(t: np.ndarray, spans) -> np.ndarray:
+    if spans is None:
+        return np.ones(len(t), dtype=bool)
+    ok = np.zeros(len(t), dtype=bool)
+    for a, b in spans:
+        ok |= (t >= a) & (t < b)
+    return ok
+
+
+def free_sums(ref, lines_c, span_sets: dict) -> dict:
+    """Per span set: head weight ``w``, weight on free lines ``wf``, and chance-weighted sums ``c``, ``cf``.
+
+    ``lines_c`` are N's scored lines refined by their own free factors, the lines BL-20 compares at
+    against a prediction with no free bars of its own; a line's chance is ``min(1, 40 ms / spacing)``.
+    Weights are `Reference.weights` of the heads inside each span set (None: all heads).
+    """
+    import dataclasses
+    chance = np.minimum(1.0, 2.0 * TOL_MS / lines_c.beat_ms)
+    free = lines_c.factor > 1
+    heads = ref.heads if ref.heads is not None else np.zeros(0)
+    out = {}
+    for name, spans in span_sets.items():
+        sub = dataclasses.replace(ref, heads=heads[span_mask(heads, spans)])
+        w = sub.weights(lines_c)
+        out[name] = dict(w=float(w.sum()), wf=float(w[free].sum()), c=float((w * chance).sum()),
+                         cf=float((w * chance)[free].sum()))
+    return out
+
+
+def _near(x: np.ndarray, lines: np.ndarray) -> np.ndarray:
+    """Distance from each ``x`` to the nearest of ``lines`` (inf without lines, NaN where ``x`` is NaN)."""
+    if not len(lines):
+        return np.where(np.isnan(x), np.nan, np.inf)
+    xs = np.nan_to_num(x, nan=0.0)
+    i = np.clip(np.searchsorted(lines, xs), 0, len(lines) - 1)
+    d = np.minimum(np.abs(lines[i] - xs), np.abs(lines[np.maximum(i - 1, 0)] - xs))
+    return np.where(np.isnan(x), np.nan, d)
+
+
+def changed_matched(heads: np.ndarray, n_lines: np.ndarray, r_t: np.ndarray) -> np.ndarray:
+    """Per head: one of the two lines around it, on either reader's side, has no line of the other reader
+    within 20 ms.
+
+    `changed_mask` (census-v2's rule) compares N's pair of surrounding lines with R's pair, so a head
+    within a few ms of a line both readers place, but on different sides of it (integer red-line offsets
+    against a grid accumulated from an earlier line), counts as changed although every line matches.
+    This rule matches lines instead: it is invariant to that, and a head counts only where a line around
+    it is missing or moved by more than 20 ms on one side. A line outside the span of the other reader's
+    lines (R's margin past N's scored range) is not matched; a gap inside it (an implausible span) is.
+    """
+    n_prev, n_next = _around(n_lines, heads)
+    r_prev, r_next = _around(r_t, heads)
+    bad = np.zeros(len(heads), dtype=bool)
+    with np.errstate(invalid='ignore'):
+        for x, other in ((n_prev, r_t), (n_next, r_t), (r_prev, n_lines), (r_next, n_lines)):
+            valid = ~np.isnan(x)
+            if len(other):
+                valid &= (x >= other[0] - TOL_MS) & (x <= other[-1] + TOL_MS)
+            bad |= valid & (_near(x, other) > TOL_MS)
+    return bad
+
+
+def _rules(res: dict, heads: np.ndarray, n_t: np.ndarray, r_t: np.ndarray, lines) -> np.ndarray:
+    """Put census-v2's pair rule under ``*_pair`` and the matched rule in ``changed_heads`` /
+    ``changed_share`` / ``causes``; return the matched rule's mask."""
+    pair_t = res.pop('changed_t')
+    res['changed_heads_pair'] = res['changed_heads']
+    res['changed_share_pair'] = res['changed_share']
+    res['causes_pair'] = causes(pair_t, lines)
+    m = changed_matched(heads, n_t, r_t)
+    res['changed_heads'] = int(m.sum())
+    res['changed_share'] = float(m.mean()) if len(heads) else 0.0
+    res['causes'] = causes(heads[m], lines)
+    return m
+
+
+def e3_set(ref, timing_chart, st, e0_lines: np.ndarray, with_detail: bool) -> dict:
+    """E3 for one set with E0's lines and with N's current lines, against R's, in one pass.
+
+    ``old`` and ``new`` are `compare` results with both rules: ``changed_heads``, ``changed_share`` and
+    ``causes`` by `changed_matched`, the ``*_pair`` fields by `changed_mask` (census-v2's rule). ``new``
+    also gives, by the matched rule, ``changed_free`` (changed heads inside free spans,
+    `ensomi_n.timing`) and ``changed_refined`` (heads still changed when free spans are compared at the
+    refined level on both sides, as BL-20 compares them), and ``free_heads`` (heads in free spans).
+    ``free`` holds `free_sums` for the whole set (``whole``), each stratum's spans and S4's spans. With
+    ``with_detail`` (unsealed sets only), ``same_diag`` holds `same_diagnostic` for a set whose E0 changes
+    lead with ``same`` at normal tempo by the pair rule.
+    """
+    from ensomi_n.eval.measures import compared_lines
+    lo, hi = ref.lo_ms, ref.hi_ms
+    red = read_red_lines(timing_chart)
+    r_side = r_lines(timing_chart, lo, hi, red)
+    r_t = r_side[0]
+    heads = ref.heads[(ref.heads >= lo) & (ref.heads <= hi)]
+    old = compare(ref, timing_chart, e0_lines, r_side)
+    old_pair_t = heads[changed_mask(heads, e0_lines, r_t)]
+    old_m = _rules(old, heads, e0_lines, r_t, st.lines)
+    lines = ref.lines()
+    new = compare(ref, timing_chart, lines.t, r_side)
+    changed = _rules(new, heads, lines.t, r_t, st.lines)
+    in_free = lines.factor_at(heads) > 1
+    end = float(ref.timing.beats[-1]) if len(ref.timing) else -math.inf
+    n_c, r_c, _ = compared_lines(lines, _r_as_lines(r_t), True, False, ref_all=ref.timing.canonical(),
+                                 ref_end=end, pred_end=float(r_t[-1]) if len(r_t) else -math.inf)
+    refined = changed_matched(heads, n_c.t, r_c.t) if len(r_t) else changed
+    new.update(changed_free=int((changed & in_free).sum()), changed_refined=int(refined.sum()),
+               free_heads=int(in_free.sum()))
+    own_c, _ = lines.refine(lines.factor, True, end)
+    spans = {'whole': None, 'S4spans': st.s4_spans or []}
+    spans.update({k: v for k, v in st.members.items() if v is not None})
+    out = dict(old=old, new=new, free=free_sums(ref, own_c, spans))
+    if with_detail and old['changed_heads_pair'] and lead(old['causes_pair']) == 'same':
+        d = same_diagnostic(ref, st, red, r_side[2], old_pair_t, e0_lines, lines.t, r_t)
+        hk = int(np.searchsorted(heads, d['h_ms']))
+        d['h_changed_matched'] = bool(hk < len(heads) and old_m[hk])
+        out['same_diag'] = d
+    return out
+
+
+def _role_name(role) -> str:
+    if role.role == EXPRESSIVE:
+        return f'expressive:{role.reason}'
+    if role.role == MUSICAL:
+        return f'musical:{role.reason}'
+    return role.role
+
+
+def same_diagnostic(ref, st, red, roles, old_t, e0_lines, n_t, r_t) -> dict:
+    """The §4 reading of a set whose E0 changes lead with redundant lines at normal tempo, at h, its first
+    changed head under one of N's ``same`` lines.
+
+    ``prior`` is the nearest of N's red lines before h's line that is not ``same``, with N's kind and R's
+    role; ``between`` counts R's roles of N's ``same`` lines from there to h's line; ``r_grid_ms`` is the
+    offset of R's musical line in force at h, and ``stale`` says whether it lies before ``prior`` (R keeps
+    a grid from before it). ``cascade`` holds when ``prior`` is a reset R drops as ``short_bar``, every
+    line between is dropped by R too, and R's grid is stale: §4's reading.
+    """
+    lines = st.lines
+    starts = np.array([line.start_ms for line in lines])
+    gov = np.clip(np.searchsorted(starts, old_t + MERGE_MS, side='right') - 1, 0, len(lines) - 1)
+    under_same = [k for k, g_ in enumerate(gov) if lines[int(g_)].kind == 'same']
+    first = under_same[0] if under_same else 0
+    h, g = float(old_t[first]), int(gov[first])
+    p = g
+    while p > 0 and lines[p].kind == 'same':
+        p -= 1
+    r_off = np.array([r.offset_ms for r in red])
+
+    def r_role(t: float) -> str:
+        k = np.flatnonzero(np.abs(r_off - t) <= 0.5)
+        return _role_name(roles[int(k[-1])]) if len(k) else 'none'
+
+    musical = [r.offset_ms for r, role in zip(red, roles) if role.role == MUSICAL and r.offset_ms <= h + MERGE_MS]
+    r_grid = musical[-1] if musical else math.nan
+    between: dict[str, int] = {}
+    for line in lines[p + 1:g + 1]:
+        name = r_role(line.start_ms)
+        between[name] = between.get(name, 0) + 1
+    prior = lines[p]
+    prior_role = r_role(prior.start_ms)
+    stale = bool(math.isfinite(r_grid) and r_grid < prior.start_ms - MERGE_MS)
+    dropped = all(k.startswith('expressive') for k in between) if between else True
+    cascade = prior.kind == 'reset' and prior_role == 'expressive:short_bar' and dropped and stale
+
+    def line_row(line) -> dict:
+        return dict(start_ms=round(line.start_ms, 3), bpm=round(60000.0 / line.beat_ms, 3), meter=line.meter,
+                    kind=line.kind, r_role=r_role(line.start_ms))
+
+    n_prev, n_next = _around(n_t, np.array([h]))
+    r_prev, r_next = _around(r_t, np.array([h]))
+    e_prev, e_next = _around(e0_lines, np.array([h]))
+    # How far E0's lines around h are from R's nearest lines: under 20 ms on both sides means the pair
+    # rule's change at h comes from a head between two lines that match.
+    gaps = [float(x) for x in np.concatenate([_near(e_prev, r_t), _near(e_next, r_t)])]
+    return dict(h_ms=round(h, 3), changed=int(len(old_t)), prior=line_row(prior), prior_index=p, line_index=g,
+                governing=line_row(lines[g]), next=line_row(lines[g + 1]) if g + 1 < len(lines) else None,
+                between=between, r_grid_ms=r_grid, stale=stale, cascade=bool(cascade), e0_to_r_ms=gaps,
+                around=dict(e0=[float(e_prev[0]), float(e_next[0])], n=[float(n_prev[0]), float(n_next[0])],
+                            r=[float(r_prev[0]), float(r_next[0])]))
