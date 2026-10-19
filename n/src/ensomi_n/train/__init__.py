@@ -101,8 +101,14 @@ def val_m1(model, val: list[dict], device: str) -> float:
 
 def train_arm(*, arm: str, seed: int, songs, val_s0: list[dict], refs: dict, out_dir, budget_s: float,
               device: str = 'mps', resume: bool = True, r0_crops_per_s: float | None = None, log=print) -> dict:
+    import gc
     import torch
     from ..models import NES, Model
+    # Release the previous arm's cached MPS blocks: the guard reads driver memory, which includes the
+    # cache, and the first mac smoke stopped A2 at 18 GB after A1 had run in the same process.
+    gc.collect()
+    if device == 'mps':
+        torch.mps.empty_cache()
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     ck_dir = Path(refs['bulk_run']) / f'{arm}-s{seed}'
@@ -214,6 +220,11 @@ def train_arm(*, arm: str, seed: int, songs, val_s0: list[dict], refs: dict, out
     if not (ck_dir / f'ckpt-{int(round(elapsed)):05d}.pt').exists():
         save(elapsed)
     status.update(verdict=verdict, step=step, elapsed_s=round(elapsed, 1), history=history,
-                  checkpoints=[p.name for p in sorted(ck_dir.glob('ckpt-*.pt'))], ckpt_dir=str(ck_dir))
+                  checkpoints=[p.name for p in sorted(ck_dir.glob('ckpt-*.pt'))], ckpt_dir=str(ck_dir),
+                  mps_gb_end=round(_mps_gb(), 2))
     (out / 'status.json').write_text(json.dumps(status, indent=1))
+    del model, opt, pre
+    gc.collect()
+    if device == 'mps':
+        torch.mps.empty_cache()
     return status
