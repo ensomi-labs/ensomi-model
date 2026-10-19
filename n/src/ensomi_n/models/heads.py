@@ -62,8 +62,31 @@ class FrameHeads(nn.Module):
         return dict(beat=p[..., 0], half=p[..., 1], down=p[..., 2], beat_off=out['offset'][..., 0])
 
 
-def _log_i0(kappa):
-    return torch.log(torch.special.i0e(kappa)) + kappa
+_I0_SMALL = (1.0, 3.5156229, 3.0899424, 1.2067492, 0.2659732, 0.0360768, 0.0045813)
+_I0_LARGE = (0.39894228, 0.01328592, 0.00225319, -0.00157565, 0.00916281, -0.02057706, 0.02635537,
+             -0.01647633, 0.00392377)
+
+
+def _poly(x, coeffs):
+    out = coeffs[-1] + 0.0 * x
+    for c in reversed(coeffs[:-1]):
+        out = out * x + c
+    return out
+
+
+def _log_i0(kappa, xp=None):
+    """log I0(kappa) for kappa >= 0 from Abramowitz and Stegun 9.8.1/9.8.2 (relative error < 2e-7).
+
+    Elementwise arithmetic only, so it runs on any torch device (``torch.special.i0e`` may lack an MPS
+    kernel); ``xp`` = numpy evaluates the same formula for the tests.
+    """
+    xp = torch if xp is None else xp
+    small = kappa <= 3.75
+    k_lo = xp.where(small, kappa, 3.75)
+    k_hi = xp.where(small, 3.75, kappa)
+    lo = xp.log(_poly((k_lo / 3.75) ** 2, _I0_SMALL))
+    hi = k_hi - 0.5 * xp.log(k_hi) + xp.log(_poly(3.75 / k_hi, _I0_LARGE))
+    return xp.where(small, lo, hi)
 
 
 def _vm_logpdf(x, c, s, kappa):

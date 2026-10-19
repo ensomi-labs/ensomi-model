@@ -136,7 +136,8 @@ def cmd_train(a) -> None:
                r0=str(r0), split_sha256=json.load(open(r0 / 'labels-result.json'))['split_sha256'],
                code=os.environ.get('N1_CODE_COMMIT', ''), encoder='NE-S', batch=32, crop_s=20, lr=2e-3, warmup=300,
                augment=dict(stretch=[0.88, 1.12], gain=0.5, tilt=0.5), hard_weight=3.0,
-               bt_ckpt_sha256=None, load_s=round(time.time() - t0, 1))
+               bt_ckpt_sha256=None, load_s=round(time.time() - t0, 1),
+               guard_reference_crops_per_s=a.guard_rate or refs.get('r0_ne_s_b32_crops_per_s'))
     (run / f'config-s{a.seed}.json').write_text(json.dumps(cfg, indent=1))
     for arm in a.arms.split(','):
         out = run / f'{arm}-s{a.seed}'
@@ -146,7 +147,7 @@ def cmd_train(a) -> None:
             continue
         st = train_arm(arm=arm, seed=a.seed, songs=songs, val_s0=val, refs=refs, out_dir=out,
                        budget_s=60.0 * a.budget_min, device=a.device, resume=True,
-                       r0_crops_per_s=refs.get('r0_ne_s_b32_crops_per_s'))
+                       r0_crops_per_s=a.guard_rate or refs.get('r0_ne_s_b32_crops_per_s'))
         print(json.dumps({k: v for k, v in st.items() if k != 'history'}))
 
 
@@ -161,8 +162,11 @@ def cmd_score(a) -> None:
     from ..train import infer_song
     run, r0, bulk = Path(a.run), Path(a.r0), Path(a.bulk)
     split = _split(r0)
-    items = _score_items(split, a.panels.split(','))
-    refs = _refs_for([it for _, it in items], a.root)
+    # The newest checkpoint is scored on --panels; the earlier ones (which give only the checkpoint
+    # spread) on --panels-early, by default the same.
+    early = a.panels_early or a.panels
+    items_all = _score_items(split, sorted(set(a.panels.split(',')) | set(early.split(',')), key=PANELS.index))
+    refs = _refs_for([it for _, it in items_all], a.root)
     for arm in a.arms.split(','):
         st = json.load(open(run / f'{arm}-s{a.seed}' / 'status.json'))
         ck_dir = Path(st['ckpt_dir'])
@@ -171,6 +175,7 @@ def cmd_score(a) -> None:
             out_path = run / f'scores-{arm}-s{a.seed}-{ck.stem}.json'
             if out_path.exists():
                 continue
+            items = _score_items(split, (a.panels if ck == ckpts[-1] else early).split(','))
             model = Model(NES(), arm).to(a.device)
             model.load_state_dict(torch.load(ck, map_location=a.device, weights_only=False)['model'])
             model.eval()
@@ -256,6 +261,9 @@ def main(argv=None) -> None:
     p.add_argument('--device', default='mps')
     p.add_argument('--last', type=int, default=3)
     p.add_argument('--panels', default=','.join(PANELS))
+    p.add_argument('--guard-rate', type=float, default=0.0,
+                   help='train: crops/s the throughput guard compares with (default: rung 0 NE-S batch 32)')
+    p.add_argument('--panels-early', default='', help='score: panels for all but the newest checkpoint')
     a = p.parse_args(argv)
     dict(refs=cmd_refs, train=cmd_train, score=cmd_score, controls=cmd_controls, verdict=cmd_verdict)[a.cmd](a)
 
