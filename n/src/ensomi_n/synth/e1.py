@@ -137,10 +137,17 @@ def _beat_length_fit(beats: np.ndarray, a: float, b: float) -> float:
 
 def level_fit(ref: Reference, pred_beats: np.ndarray, spans) -> float:
     """Duration-weighted share of reference tempo runs whose predicted beat length (mean of the intervals within
-    25 % of their median) is within 0.5 % of the notated one."""
+    25 % of their median) is within 0.5 % of the notated one. Consecutive reference segments at one tempo
+    (resets) form one run."""
     from ..eval.measures import _ref_segments
-    ok = tot = 0.0
+    runs = []
     for a, b, step in _ref_segments(ref):
+        if runs and abs(step / runs[-1][2] - 1.0) <= LEVEL_TOL:      # a reset keeps the tempo: one run
+            runs[-1] = (runs[-1][0], b, runs[-1][2])
+        else:
+            runs.append((a, b, step))
+    ok = tot = 0.0
+    for a, b, step in runs:
         a, b = max(a, ref.lo_ms), min(b, ref.hi_ms)
         if b <= a:
             continue
@@ -319,3 +326,160 @@ def rule(scores: dict, rows: list[dict], measure: str, family: str, ckpts=('fina
                        checkpoint_spread=ck_spread, seed_deltas=per_seed, seed_spread=seed_spread, margin=margin,
                        fails=fails, n_control=int(np.isfinite(x).sum()), n_stratum=int(np.isfinite(y).sum()))
     return out
+
+
+TABLE_MEASURES = ('bl20', 'bl10', 'bl5', 'offset_ms', 'bars_start', 'bars_same', 'level', 'level_fit', 'reset_recall',
+                  'no_pulse_rate')
+RULE_MEASURES = ('bl20', 'bars_start', 'bars_same', 'level_fit')
+NO_LEVEL = ('S3r', 'S3p')
+
+
+def run(truth_dir, preds_dir, c_ms: float | None = None, a_priori_ms: float = -20.0) -> dict:
+    """Everything E1 reports: the clock, per-clip scores, stratum tables, the gate and the rule."""
+    maps, rows = load_truth(truth_dir)
+    arms = load_preds(preds_dir, list(maps))
+    control = [r['id'] for r in rows if r['stratum'] == 'S0']
+    clock = measure_clock(maps, arms, control)
+    c = clock['c_ms'] if c_ms is None else c_ms
+    out = dict(c_ms=c, clock=clock, a_priori_ms=a_priori_ms, arms=sorted(arms),
+               n_clips={a: len(v) for a, v in arms.items()})
+    for label, cc in (('measured', c), ('a_priori', a_priori_ms)):
+        scores = score_all(maps, arms, cc)
+        bts = [a for a in scores if a.startswith('bt-')]
+        if bts:
+            common = set.intersection(*(set(scores[a]) for a in bts))
+            scores['bt-mean'] = {c: {m: float(np.nanmean([scores[a][c][m] for a in bts]))
+                                     if np.isfinite([scores[a][c][m] for a in bts]).any() else math.nan
+                                     for m in MEASURES} for c in common}
+        tables = {m: table(scores, rows, m) for m in TABLE_MEASURES}
+        rules = {}
+        for fam, main in (('bt', None), ('r2x', 'final0'), ('r2f', 'final0')):
+            for m in RULE_MEASURES:
+                r = rule({a: v for a, v in scores.items() if a != 'bt-mean'}, rows, m, fam, main=main)
+                if m.startswith('level'):
+                    r = {k: v for k, v in r.items() if k not in NO_LEVEL}
+                rules.setdefault(fam, {})[m] = r
+        gate = tables['bl20'].get('r2x-final0', {}).get('S0', {})
+        out[label] = dict(c_ms=cc, scores=scores, tables=tables, rules=rules,
+                          gate=dict(value=gate.get('value'), lo=gate.get('lo'), hi=gate.get('hi'),
+                                    passes=bool(gate.get('value', 0) >= 0.95)))
+    return out
+
+
+def _fmt(v, d=3):
+    return '—' if v is None or (isinstance(v, float) and not math.isfinite(v)) else f'{v:.{d}f}'
+
+
+def markdown(res: dict, label: str = 'measured') -> str:
+    """Stratum tables and the rule's verdicts as Markdown."""
+    r = res[label]
+    lines = [f'Clock constant c = {r["c_ms"]:+.1f} ms ({label}).', '']
+    arms = [a for a in res['arms']]
+    strata = sorted({st for a in r['tables']['bl20'].values() for st in a})
+    for m in ('bl20', 'bars_start', 'bars_same', 'level_fit', 'offset_ms'):
+        lines += [f'**{m}** (mean over clips [95 % clip bootstrap]; seed spread)', '',
+                  '| stratum | ' + ' | '.join(arms) + ' |', '| --- |' + ' --- |' * len(arms)]
+        for st in strata:
+            cells = []
+            for a in arms:
+                x = r['tables'][m].get(a, {}).get(st)
+                if not x or x['n'] == 0:
+                    cells.append('—')
+                else:
+                    d = 1 if m == 'offset_ms' else 3
+                    cells.append(f"{_fmt(x['value'], d)} [{_fmt(x['lo'], d)}, {_fmt(x['hi'], d)}]; "
+                                 f"{_fmt(x['seed_spread'], d)}")
+            lines.append(f'| {st} | ' + ' | '.join(cells) + ' |')
+        lines.append('')
+    lines += ['**Rule** (Δ = control − stratum; margin = max(checkpoint, seed spread); fails when Δ > margin and '
+              'the interval excludes 0)', '']
+    for fam, per in r['rules'].items():
+        for m, rr in per.items():
+            fails = [st for st, v in rr.items() if v['fails']]
+            lines.append(f'- {fam} {m}: fails by construction in {", ".join(fails) if fails else "none"}')
+    return '\n'.join(lines) + '\n'
+
+
+def compact(res: dict, label: str = 'measured', strata_order=None) -> str:
+    """Report tables: per measure, BeatThis (mean of checkpoints) and R2 (final0) per stratum with intervals,
+    checkpoint ranges and seed spreads; then the rule per family."""
+    r = res[label]
+    T = r['tables']
+    strata = strata_order or sorted({st for a in T['bl20'].values() for st in a})
+
+    def cell(m, arm, st, d=3):
+        x = T[m].get(arm, {}).get(st)
+        if not x or not x['n']:
+            return '—'
+        return f"{_fmt(x['value'], d)} [{_fmt(x['lo'], d)}, {_fmt(x['hi'], d)}]"
+
+    def ck_range(m, fam, st, d=3):
+        v = [T[m].get(f'{fam}-{c}', {}).get(st, {}).get('value') for c in ('final0', 'final1', 'final2')]
+        v = [x for x in v if x is not None and math.isfinite(x)]
+        return _fmt(max(v) - min(v), d) if len(v) > 1 else '—'
+
+    def seed(m, arm, st, d=3):
+        x = T[m].get(arm, {}).get(st)
+        return _fmt(x['seed_spread'], d) if x else '—'
+
+    out = []
+    for m, d in (('bl20', 3), ('bars_start', 3), ('bars_same', 3), ('level_fit', 3), ('level', 3), ('offset_ms', 1),
+                 ('bl10', 3), ('reset_recall', 3), ('no_pulse_rate', 2)):
+        out += [f'**{m}**: mean over clips [95 % bootstrap over clips]; ck = range over final0/1/2; sd = seed spread', '',
+                '| stratum | n | BeatThis (mean of ckpts) | ck | sd | R2 exported (final0) | ck | sd | R2 fitted (final0) | ck | sd |',
+                '| --- | ---: | --- | ---: | ---: | --- | ---: | ---: | --- | ---: | ---: |']
+        for st in strata:
+            n = T[m].get('r2x-final0', {}).get(st, {}).get('n', T[m].get('bt-mean', {}).get(st, {}).get('n', 0))
+            out.append(f'| {st} | {n} | {cell(m, "bt-mean", st, d)} | {ck_range(m, "bt", st, d)} | '
+                       f'{seed(m, "bt-mean", st, d)} | {cell(m, "r2x-final0", st, d)} | {ck_range(m, "r2x", st, d)} | '
+                       f'{seed(m, "r2x-final0", st, d)} | {cell(m, "r2f-final0", st, d)} | {ck_range(m, "r2f", st, d)} | '
+                       f'{seed(m, "r2f-final0", st, d)} |')
+        out.append('')
+    for m in RULE_MEASURES:
+        out += [f'**Rule on {m}**: Δ = control − stratum [95 % interval]; margin = max(checkpoint, seed spread); '
+                '**FAILS** when Δ > margin and the interval excludes 0', '',
+                '| stratum | BeatThis Δ | margin | R2 exported Δ | margin | R2 fitted Δ | margin |',
+                '| --- | --- | ---: | --- | ---: | --- | ---: |']
+        for st in strata:
+            cells = []
+            for fam in ('bt', 'r2x', 'r2f'):
+                v = r['rules'].get(fam, {}).get(m, {}).get(st)
+                if not v:
+                    cells += ['—', '—']
+                    continue
+                tag = ' **FAILS**' if v['fails'] else ''
+                cells += [f"{_fmt(v['delta'])} [{_fmt(v['lo'])}, {_fmt(v['hi'])}]{tag}", _fmt(v['margin'])]
+            if any(c != '—' for c in cells):
+                out.append(f'| {st} | ' + ' | '.join(cells) + ' |')
+        out.append('')
+    return '\n'.join(out) + '\n'
+
+
+def main(argv=None) -> int:
+    import argparse
+    p = argparse.ArgumentParser(prog='python -m ensomi_n.synth.e1')
+    p.add_argument('--truth', required=True)
+    p.add_argument('--preds', required=True)
+    p.add_argument('--out', required=True)
+    p.add_argument('--c-ms', type=float, default=None)
+    a = p.parse_args(argv)
+    res = run(a.truth, a.preds, a.c_ms)
+
+    def clean(x):
+        if isinstance(x, dict):
+            return {str(k): clean(v) for k, v in x.items()}
+        if isinstance(x, (list, tuple)):
+            return [clean(v) for v in x]
+        if isinstance(x, (np.floating, float)):
+            return None if not math.isfinite(float(x)) else float(x)
+        if isinstance(x, np.integer):
+            return int(x)
+        return x
+    Path(a.out).write_text(json.dumps(clean(res), indent=1))
+    Path(a.out).with_suffix('.md').write_text(compact(res) + '\n' + compact(res, 'a_priori'))
+    print(compact(res))
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
