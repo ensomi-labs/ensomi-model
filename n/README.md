@@ -7,7 +7,9 @@ evaluation harness every N1 candidate is scored by:
 - `ensomi_n.labels`: N's own `.osu` timing reader;
 - `ensomi_n.mapformat`: the music map, the file an N model writes;
 - `ensomi_n.timing`: notated beats, segments and canonical beat lines;
-- `ensomi_n.eval`: the measures, nulls, aggregation and the command line.
+- `ensomi_n.eval`: the measures, nulls, aggregation and the command line;
+- `ensomi_n.synth`: synthetic music with exact timing ground truth (suite
+  v0, for evaluation E1), rendered in numpy from (setting, seed).
 
 It is MIT licensed ([`LICENSE`](LICENSE)), apart from the rest of
 ensomi-model, which is `AGPL-3.0-only`. It never imports the R line
@@ -254,3 +256,25 @@ mean over 1,000 equally spaced whole-grid shifts lies within 0.001 of
 - The decoded-to-osu clock constant is not measured here.
 - Without play counts, a recording's reference set is the one the table
   marks; otherwise its sets are averaged.
+
+## Synthetic suite
+
+```sh
+python -m ensomi_n.synth list
+python -m ensomi_n.synth render --audio DIR --truth DIR [--settings a,b] [--seeds 0,1] [--commit SHA]
+```
+
+Each setting is a symbolic program for one hard-timing stratum (steady 4/4
+controls, mixed subdivision, odd and changing meters, tempo steps, ramps,
+rubato, edits, polyrhythm, beatless and sparse spans, syncopation, swing,
+80/160 BPM). A clip is 60 s of 24 kHz mono 16-bit WAV; its voices are
+computed in numpy, so nothing is downloaded. The ground truth is on the
+decoded-audio clock: `<id>/map.json` (a music map, clock `decoded`, with the
+rest of the truth under `truth`), `<id>/onsets.json` (every layer's onsets)
+and `<id>/truth.osu`. `manifest.jsonl` records each clip's seed, commit and
+WAV sha256. Charts are on osu!'s clock, about 20 ms earlier: scoring
+converts with one constant (`decoded_to_osu_ms`), never per clip.
+
+`ensomi_n.synth.e1` scores baseline predictions on the suite. Synthetic
+results say where a timing system fails on audio of known structure, not
+how it does on real music.
