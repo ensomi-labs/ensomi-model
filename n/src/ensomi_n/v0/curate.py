@@ -26,9 +26,11 @@ Quality filter on training candidates (reasons recorded, every failing reason ke
 - ``inconsistent``: difficulties with different red lines;
 - ``expressive``: an implausible (scroll-art) line, or a segment shorter than a beat holding no
   heads (barline art);
-- ``reader``: `ensomi_n.data.strata.reader_flags` (redundant lines, fast odd bars, fast tempo
-  lines), interim until the reader fix lands. The coordinator's literal rule (any segment notated
-  at 160 BPM or more, or a redundant line) is recorded as ``literal`` for the counts.
+- ``reader`` flags (`ensomi_n.data.strata.reader_flags`: redundant lines, fast odd bars, fast tempo
+  lines) and the coordinator's literal interim rule (any segment notated at 160 BPM or more, or a
+  redundant line) are recorded, not excluded: the reader fix (`n1/eval-harness` `cb41e0f`, merged)
+  reads those charts' canonical phase from what states one, and labels are read with it. Scores
+  are reported with and without the literal-rule sets until the E3 recount confirms the fix.
 
 Weights: hard strata (census `ensomi_n.eval.strata.flags`) up: 1 for S0 or none, 1.5 when only S1
 or S6 hold, 3 when any of S2, S3, S4, S5, S7, S8, S9 holds; times 1.5 when a second mapper's set on
@@ -292,8 +294,6 @@ def build(*, root: Path, src_root: Path, r0: Path, run: Path, labels_dir: Path, 
                 why.append('inconsistent')
             if r['expressive']['implausible'] or r['expressive']['tiny']:
                 why.append('expressive')
-            if r['reader_flags']:
-                why.append('reader')
             if r.get('rate_edit'):
                 why.append('rate_edit')
             if r.get('seal_audio'):

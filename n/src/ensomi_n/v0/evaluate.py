@@ -13,10 +13,12 @@ Arms (each a music map per item, scored by `ensomi_n.eval.score` against the ite
 - ``oracle``: the reference's own canonical lines, bar starts, level and boundaries rendered as evidence
   through the decoder (the decoder's ceiling; it reads the reference, so it never competes).
 
-Items whose reference `ensomi_n.data.strata.reader_flags` flags (redundant lines, fast odd bars, fast tempo
-lines, implausible lines) are left out of scoring until the reader fix lands; their count is reported.
-``literal`` marks the coordinator's literal rule (any segment at 160 BPM or more, or a redundant line) for
-a secondary breakdown. Strata are the census's (`ensomi_n.eval.strata.set_strata` with the corpus's voted
+Every readable item is scored with the fixed reader (`n1/eval-harness` `cb41e0f`). Until the E3 recount
+confirms the fix on the corpus, every table is also given without the coordinator's literal-rule sets (any
+segment notated at 160 BPM or more, or a redundant same-tempo line): ``<arm>|literal-safe``. BL-20 is
+split into non-free lines (the main number, ``bl20_nonfree``) and the lines of free bars (``bl20_free``,
+bars that hold between one and two canonical beats, compared at the refined level), with their weight
+share; whether BL-20 decides in free spans is open for the human. Strata are the census's (`ensomi_n.eval.strata.set_strata` with the corpus's voted
 tags, combined per recording by `recording_strata`), with their spans.
 
 Outputs under ``--out`` (default ``<run>/eval``): ``tables-<panel>.json`` (per arm, per stratum and per
@@ -150,12 +152,73 @@ def r2_map(path: Path):
 
 # ------------------------------------------------------------------ scoring
 
+def free_split(ref, mmap, spans=None, tau: float = 20.0) -> dict:
+    """BL-20 on non-free and on free (refined) reference lines, and the free weight share.
+
+    Recomputes the comparison of `ensomi_n.eval.measures.score` (``compared_lines``, ``nearest`` and the
+    head weights, restricted to ``spans`` as ``score`` does) to keep the per-line refinement factor that
+    ``SetScore`` does not carry. A line is free when either side's bar refines it.
+    """
+    from ..eval.measures import _Region, _prediction, compared_lines, nearest, share
+    from ..timing import Reference
+    p = _prediction(mmap, ref.lo_ms, ref.hi_ms, None)
+    lines, pred_lines, _ = compared_lines(ref.lines(), p.timing.canonical(), ref.timing.exact_steps,
+                                          p.timing.exact_steps, ref_all=ref.timing.canonical(),
+                                          ref_end=float(ref.timing.beats[-1]) if len(ref.timing) else -math.inf,
+                                          pred_end=float(p.timing.beats[-1]) if len(p.timing) else -math.inf)
+    e, _ = nearest(lines.t, pred_lines.t)
+    region = _Region(ref.lo_ms, ref.hi_ms, spans)
+    if region.whole:
+        w = ref.weights(lines)
+    else:
+        h = ref.heads
+        sub = Reference(ref.timing, ref.lo_ms, ref.hi_ms, None if h is None else h[region.contains(h)], ref.segments,
+                        ref.unscorable, ref.key)
+        w = sub.weights(lines)
+        if h is None:
+            w = w * region.contains(lines.t)
+    ok = np.isfinite(e) & (np.abs(e) <= tau + 1e-9)
+    free = lines.factor > 1
+    return dict(bl20_nonfree=share(ok[~free], w[~free]) if (w[~free] > 0).any() else math.nan,
+                bl20_free=share(ok[free], w[free]) if (w[free] > 0).any() else math.nan,
+                free_w=float(share(free, w)) if w.sum() > 0 else math.nan)
+
+
 def score_item(ref, strata: dict, mmap):
-    """{'all': SetScore, stratum: SetScore (on its spans)}."""
+    """{'all': SetScore, stratum: SetScore (on its spans), 'free': {name: free_split}}."""
     from ..eval import score
     out = {'all': score(ref, mmap)}
+    fr = {'all': free_split(ref, mmap)}
     for name, spans in strata.items():
         out[name] = out['all'] if spans is None else score(ref, mmap, spans=spans)
+        fr[name] = fr['all'] if spans is None else free_split(ref, mmap, spans)
+    out['free'] = fr
+    return out
+
+
+def free_table(items: list[dict], scores: dict, n: int = BOOT, seed: int = 0) -> dict:
+    """Per stratum: recording means of bl20_nonfree and bl20_free with recording-bootstrap intervals."""
+    rng = np.random.default_rng(seed)
+    names = sorted({k for x in items for k in x['strata']} | {'all'})
+    out = {}
+    for name in names:
+        row = {}
+        for m in ('bl20_nonfree', 'bl20_free', 'free_w'):
+            per = {}
+            for x in items:
+                s = scores.get(x['key'])
+                if s is None or (name != 'all' and name not in x['strata']):
+                    continue
+                v = s['free'][name][m]
+                if math.isfinite(v):
+                    per.setdefault(x['rec'], []).append(v)
+            if not per:
+                continue
+            d = np.array([np.mean(v) for v in per.values()])
+            boot = d[rng.integers(0, len(d), (n, len(d)))].mean(axis=1)
+            row[m] = dict(value=float(d.mean()), lo=float(np.percentile(boot, 2.5)), hi=float(np.percentile(boot, 97.5)),
+                          n=len(d))
+        out[name] = row
     return out
 
 
@@ -194,7 +257,10 @@ def paired(items: list[dict], a: dict, b: dict, measure: str = 'bl20', n: int = 
         for x in items:
             if x['key'] not in a or x['key'] not in b or (name != 'all' and name not in x['strata']):
                 continue
-            va, vb = a[x['key']][name].summary()[measure], b[x['key']][name].summary()[measure]
+            if measure.startswith('bl20_') :
+                va, vb = a[x['key']]['free'][name][measure], b[x['key']]['free'][name][measure]
+            else:
+                va, vb = a[x['key']][name].summary()[measure], b[x['key']][name].summary()[measure]
             if va is None or vb is None or not (math.isfinite(va) and math.isfinite(vb)):
                 continue
             per.setdefault(x['rec'], []).append(va - vb)
@@ -247,7 +313,7 @@ def tune(a, split, index, out: Path) -> None:
     import multiprocessing as mp
     from .infer import song_outputs
     run, bulk, root = Path(a.run), Path(a.bulk), Path(a.root)
-    items = [x for x in eval_items(split, ['cal'], root) if 'error' not in x and not x['reader_flags']]
+    items = [x for x in eval_items(split, ['cal'], root) if 'error' not in x]
     items = [x for x in items if x['item'] in index and 'error' not in index[x['item']]]
     if a.limit:
         items = items[:a.limit]
@@ -322,8 +388,8 @@ def main(a) -> None:
         if a.limit:
             items = items[:a.limit]
         bad = [x for x in items if 'error' in x]
-        scored = [x for x in items if 'error' not in x and not x['reader_flags']]
-        say(f'{panel}: {len(items)} items, {len(bad)} unreadable, {len(items) - len(bad) - len(scored)} reader-flagged')
+        scored = [x for x in items if 'error' not in x]
+        say(f'{panel}: {len(items)} items, {len(bad)} unreadable, {sum(1 for x in scored if x["literal"])} literal-rule')
         songs = {x['item']: inference_song(x['item'], index, bulk) for x in scored if x['item'] in index
                  and 'error' not in index[x['item']]}
         ck_dir = Path(a.bulk_runs) / run.name
@@ -404,22 +470,26 @@ def main(a) -> None:
             tables[arm + '|literal-safe'] = aggregate_arm(lit, sc)
             compact_tables[arm] = compact(tables[arm])
             compact_tables[arm + '|literal-safe'] = compact(tables[arm + '|literal-safe'])
+            for nm, sub in ((arm, scored), (arm + '|literal-safe', lit)):
+                for st, row in free_table(sub, sc).items():
+                    compact_tables[nm].setdefault(st, {}).update(row)
         v0_arms = [k for k in scores if k.startswith('v0@')]
         pair = {}
         for va in v0_arms + [k for k in scores if k.startswith('v0f1@')] + [k for k in ('v0zero', 'v0other') if k in scores]:
             for other in ('r2', 'final0', 'final1', 'final2', 'oracle') + tuple(v0_arms[-1:]):
                 if other in scores and other != va:
-                    for m in ('bl20', 'level', 'bars_start', 'reset_recall'):
+                    for m in ('bl20_nonfree', 'bl20', 'level', 'bars_start', 'reset_recall'):
                         pair[f'{va}-{other}:{m}'] = paired(scored, scores[va], scores[other], m)
         with open(out / f'items-{panel}.jsonl', 'w') as f:
             for arm, sc in scores.items():
                 for k, s in sc.items():
                     x = by_key[k]
                     f.write(json.dumps(dict(arm=arm, key=k, rec=x['rec'], strata=sorted(x['strata']), literal=x['literal'],
-                                            **{m: s['all'].summary().get(m) for m in MEASURES + ('offset_ms',)},
+                                            **{m: s['all'].summary().get(m) for m in MEASURES + ('offset_ms', 'free_share')},
+                                            **s['free']['all'],
                                             diag=diags.get(arm, {}).get(k)), default=float) + '\n')
         meta = dict(panel=panel, n_items=len(items), unreadable=len(bad),
-                    reader_flagged=len(items) - len(bad) - len(scored), scored=len(scored),
+                    reader_flagged=sum(1 for x in scored if x['reader_flags']), scored=len(scored),
                     literal_safe=sum(1 for x in scored if not x['literal']),
                     recordings=len({x['rec'] for x in scored}), checkpoints=[c.name for c in cks], decode_kw=cfg_kw,
                     errors=errors[:20], n_errors=len(errors),
@@ -438,14 +508,13 @@ def ablation(a, out: Path, say) -> None:
     from .data import fixed_crops, load_songs
     from .train import probe_loss
     data, run, bulk = Path(a.data), Path(a.run), Path(a.bulk)
-    rows = [r for r in json.load(open(data / 'curated.json')) if r['role'] in ('val_hard', 'val_random')
-            and r.get('ok') and not r.get('reader_flags')]
+    rows = [r for r in json.load(open(data / 'curated.json')) if r['role'] in ('val_hard', 'val_random') and r.get('ok')]
     seen, uniq = set(), []
     for r in sorted(rows, key=lambda r: r['item']):
         if r['item'] not in seen:
             seen.add(r['item'])
             uniq.append(r)
-    songs = load_songs(uniq, json.load(open(bulk / 'song-index-v0.json')), bulk, bulk / 'labels-v0')
+    songs = load_songs(uniq, json.load(open(bulk / 'song-index-v0.json')), bulk, bulk / 'labels-v0b')
     crops = fixed_crops(songs, per_song=2)
     refs = json.load(open(run / 'refs.json'))
     ck = _checkpoints(Path(a.bulk_runs) / run.name, 'last1')[0]

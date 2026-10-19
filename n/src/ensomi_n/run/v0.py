@@ -21,7 +21,7 @@ import time
 
 import numpy as np
 
-LABELS = 'labels-v0'
+LABELS = 'labels-v0b'
 
 
 def _progress(path: Path):
@@ -78,7 +78,7 @@ def _probe_sets(data: Path, bulk: Path, root: str, n_crop_songs: int = 150, n_m1
     from ..labels import read_set
     from .. import probe
     from ..v0.data import fixed_crops, load_songs
-    rows = [r for r in _rows(data) if r['role'] == 'val_random' and r.get('ok') and not r.get('reader_flags')]
+    rows = [r for r in _rows(data) if r['role'] == 'val_random' and r.get('ok')]
     rows.sort(key=lambda r: r['item'])
     songs = load_songs(rows, _index(bulk), bulk, bulk / LABELS)
     by_item = {r['item']: r for r in rows}
