@@ -4,7 +4,8 @@ A `Timing` is a list of notated beats: the beats as a chart or a model writes
 them, at its own tempo level. Each beat carries:
 
 - ``downbeat``: whether it starts a bar;
-- ``seg_start``: whether it starts a segment (a red line);
+- ``seg_start``: whether it starts a segment (a red line the timing reads;
+  barline art is not one, below);
 - ``step_ms``: the notated beat length in force at it. When segments are
   known this is the segment's beat length, exactly; for a bare beat list it is
   the median of the five beat intervals around the beat, so that tracker
@@ -35,7 +36,10 @@ The phase is set only where the timing states one:
 
 A red line that keeps the tempo and the grid (a redundant line) sets nothing
 by itself: its start is an ordinary downbeat, and when it starts no complete
-bar of its own meter (barline art, kiai lines) it is ignored. Downbeats of
+bar of its own meter (barline art, kiai lines) it is ignored altogether. It
+is then no segment start and no bar start: the bars of the last other red
+line run on through it, so its start is a downbeat only where that grid puts
+one (`Timing.from_segments`). Downbeats of
 bars shorter than one canonical beat (a meter set for visual effect) are
 ignored. Elsewhere the count runs on, so 3/4 notated at 200 BPM keeps one
 continuous phase from its red line.
@@ -224,6 +228,61 @@ def _running_median_step(beats: np.ndarray) -> np.ndarray:
     return np.nanmedian(windows[:n], axis=1)
 
 
+
+def _redundant_starts(beats: np.ndarray, seg_start: np.ndarray, step: np.ndarray, meter: np.ndarray | None,
+                      f: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Segment starts that keep the tempo and the notated grid in force, and those of them that start
+    no complete bar of their own meter (barline art). Exact steps only."""
+    n = len(beats)
+    cont = np.zeros(n, dtype=bool)
+    art = np.zeros(n, dtype=bool)
+    starts = np.flatnonzero(seg_start)
+    if not len(starts):
+        return cont, art
+    ends = np.append(starts[1:], n)
+    for i, end in zip(starts, ends):
+        if i == 0 or f[i] != f[i - 1] or not (math.isfinite(step[i]) and math.isfinite(step[i - 1])):
+            continue
+        on_grid = abs(beats[i] - beats[i - 1] - step[i - 1]) <= MERGE_MS
+        same = abs(step[i] - step[i - 1]) * (end - i) <= MERGE_MS
+        if on_grid and same:
+            cont[i] = True
+            if meter is not None and end < n and end - i < int(meter[i]):
+                art[i] = True
+    return cont, art
+
+
+def _ignore_barline_art(beats: np.ndarray, down: np.ndarray, seg_start: np.ndarray, step: np.ndarray,
+                        meter: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Bars, segment starts and meters with barline art ignored altogether.
+
+    A barline-art line (`_redundant_starts`) is no segment start and no bar
+    start: its beats keep the bar grid of the last segment start before it
+    that is not barline art (downbeats every ``meter`` notated beats from that
+    start, the meter in force carried over), as if the line were not written.
+    Beats and steps do not change. A start with no such segment before it (the
+    first red line) is kept.
+    """
+    _, art = _redundant_starts(beats, seg_start, step, meter, fold_of(step))
+    if not art.any():
+        return down, seg_start, meter
+    down, seg_start, meter = down.copy(), seg_start.copy(), meter.copy()
+    starts = np.flatnonzero(seg_start)
+    ends = np.append(starts[1:], len(beats))
+    grid = None
+    for i, end in zip(starts, ends):
+        if not art[i] or grid is None:
+            grid = i
+            continue
+        m = max(int(meter[grid]), 1)
+        k = np.arange(i, end)
+        j = np.round((beats[k] - beats[grid]) / step[grid]).astype(np.int64)
+        down[k] = j % m == 0
+        meter[k] = m
+        seg_start[i] = False
+    return down, seg_start, meter
+
+
 @dataclass(frozen=True)
 class Timing:
     """Notated beats with their bar starts, segment starts and steps.
@@ -277,6 +336,8 @@ class Timing:
         (a multiple of ``lcm(meter, 8)`` beats), so the range never moves the
         canonical phase. A segment's beats stop more than ``MERGE_MS`` before
         the next segment's start. Implausible segments place no beats.
+        Barline art (module docstring) starts no segment and no bar; the bar
+        grid in force runs on through it.
         """
         starts = [s.start_ms for s in segments]
         if any(b <= a for a, b in zip(starts, starts[1:])):
@@ -302,7 +363,9 @@ class Timing:
         if not parts:
             return cls.empty()
         cat = [np.concatenate([p[i] for p in parts]) for i in range(5)]
-        return cls(cat[0].astype(np.float64), cat[1], cat[2], cat[3], True, True, cat[4].astype(np.int64))
+        beats, step = cat[0].astype(np.float64), cat[3]
+        down, seg_start, meter = _ignore_barline_art(beats, cat[1], cat[2], step, cat[4].astype(np.int64))
+        return cls(beats, down, seg_start, step, True, True, meter)
 
     @classmethod
     def from_beats(cls, beats, downbeats=None, segments: Sequence[Segment] | None = None) -> 'Timing':
@@ -353,6 +416,7 @@ class Timing:
                     on = (np.abs(pos - j) * s.beat_ms <= MERGE_MS) & (j % max(int(s.meter), 1) == 0)
                     on &= ~((j == 0) & (not s.bar_at_start)) & (j >= 0 if k > 0 else True)
                     down[np.flatnonzero(inside)[on]] = True
+                down, seg_start, meter = _ignore_barline_art(b, down, seg_start, step, meter)
             exact = True
         else:
             step = _running_median_step(b)
@@ -409,25 +473,12 @@ class Timing:
 
     def _redundant(self, f: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Segment starts that keep the tempo and the notated grid in force, and those of them that start
-        no complete bar of their own meter (ignored: barline art)."""
+        no complete bar of their own meter (barline art). Timings built from segments hold no barline art
+        (`_ignore_barline_art`); a beat list with its own downbeats may."""
         n = len(self.beats)
-        cont = np.zeros(n, dtype=bool)
-        art = np.zeros(n, dtype=bool)
-        starts = np.flatnonzero(self.seg_start)
-        if not self.exact_steps or not len(starts):
-            return cont, art
-        ends = np.append(starts[1:], n)
-        b, step = self.beats, self.step_ms
-        for i, end in zip(starts, ends):
-            if i == 0 or f[i] != f[i - 1] or not (math.isfinite(step[i]) and math.isfinite(step[i - 1])):
-                continue
-            on_grid = abs(b[i] - b[i - 1] - step[i - 1]) <= MERGE_MS
-            same = abs(step[i] - step[i - 1]) * (end - i) <= MERGE_MS
-            if on_grid and same:
-                cont[i] = True
-                if self.meter is not None and end < n and end - i < int(self.meter[i]):
-                    art[i] = True
-        return cont, art
+        if not self.exact_steps:
+            return np.zeros(n, dtype=bool), np.zeros(n, dtype=bool)
+        return _redundant_starts(self.beats, self.seg_start, self.step_ms, self.meter, f)
 
     def _phase(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Where the phase is set, each beat's count since then, and each beat's free factor. Cached."""

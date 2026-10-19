@@ -105,6 +105,12 @@ report = aggregate([s, quick], ['rec-1', 'rec-2'])  # recording means, 95 % inte
 - bars restart at every red line and repeat every `meter` notated beats; a
   line with omit-first-barline is no downbeat itself, and its first bar line
   falls `meter` beats later, as osu! draws it;
+- barline art is ignored: a red line that keeps the tempo and the notated
+  grid in force and starts no complete bar of its own meter (the next red
+  line comes sooner) starts no bar, and the bars of the red line before it
+  run on through it. Lines that reset the grid or change the tempo, and lines
+  that hold a complete bar of their own meter (meter changes, re-barring at
+  an odd beat, a meter of 1), still start bars;
 - a red line outside [20, 1000] BPM places no beats, and heads inside it
   weigh nothing;
 - the first red line also governs times before it, as osu! applies it.
@@ -132,7 +138,8 @@ half or double the tempo gives the same lines.
   120 BPM with a reset on every bar, or as alternating meters 4 and 3 at
   240 BPM all give the same lines.
 - A redundant red line (same tempo, on the grid) sets nothing by itself, and
-  one that starts no complete bar (barline art, kiai lines) is ignored. A
+  one that starts no complete bar (barline art, kiai lines) is ignored, for
+  bars as well as for the phase. A
   meter of 1 at 240 BPM (a meter set for visual effect) is ignored too.
 - A bar of more than one and fewer than two canonical beats, as 3/4 at a
   notated 160-320 BPM, fixes no canonical phase. Its lines run on from the
