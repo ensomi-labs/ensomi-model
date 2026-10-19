@@ -213,6 +213,7 @@ def main(argv=None) -> None:
             s.add_argument('--decode-kw', default='')
             s.add_argument('--ablation', action='store_true')
             s.add_argument('--limit', type=int, default=0)
+            s.add_argument('--tune', action='store_true')
     a = p.parse_args(argv)
     if a.cmd == 'eval':
         from ..v0 import evaluate
