@@ -22,7 +22,9 @@ Quality filter on training candidates (reasons recorded, every failing reason ke
 - ``grid``: 0.95 or more of heads within 2 ms of the standard subdivisions (``checks.on_grid``).
   Rung 0 found 13 % of 4K sets under 0.99, mostly technical charts whose off-grid heads sit a
   median 4.3 ms from the grid in one difficulty; under 0.95 the misses grow to a fifth to a half
-  of the heads across difficulties, which is red lines not explaining the notes;
+  of the heads across difficulties, which is red lines not explaining the notes. The ±2 ms grid
+  covers 26-51 % of a beat by chance, so 0.95 is 0.90 or more chance-corrected
+  ((share - chance) / (1 - chance));
 - ``inconsistent``: difficulties with different red lines;
 - ``expressive``: an implausible (scroll-art) line, or a segment shorter than a beat holding no
   heads (barline art);

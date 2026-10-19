@@ -243,6 +243,8 @@ def train(*, songs, probe_crops, probe_songs, probe_items, refs: dict, run: Path
                 te = time.time()
                 lv, _, pv = probe_loss(model, probe_crops, probe_songs, pos_weight, device)
                 m1 = probe_m1(model, probe_items, device)
+                if device == 'mps':
+                    torch.mps.empty_cache()     # probe buffers must not count against the memory guard
                 minute = st['elapsed'] / 60.0
                 h = dict(step=st['step'], minute=round(minute, 2), probe_loss=round(lv, 5),
                          probe_parts={k: round(float(v.mean()), 4) for k, v in pv.items()},
