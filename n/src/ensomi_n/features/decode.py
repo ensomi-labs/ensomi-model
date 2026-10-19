@@ -39,7 +39,7 @@ def _ffmpeg_rate(path) -> int:
     out = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'a:0', '-show_entries',
                           'stream=sample_rate', '-of', 'csv=p=0', str(path)],
                          capture_output=True, text=True, check=True)
-    return int(out.stdout.strip().splitlines()[0])
+    return int(out.stdout.strip().splitlines()[0].split(',')[0])     # ffprobe may add a trailing field separator
 
 
 def _ffmpeg(path) -> tuple[np.ndarray, int]:

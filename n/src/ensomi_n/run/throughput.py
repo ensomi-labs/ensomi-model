@@ -104,7 +104,7 @@ def machine(device: str) -> dict:
             out['mps_recommended_max_gb'] = round(torch.mps.recommended_max_memory() / 2 ** 30, 2)
         except Exception as exc:
             out['mps_recommended_max_error'] = str(exc)[:200]
-    out['mps_high_watermark_ratio'] = os.environ.get('PYTORCH_MPS_HIGH_WATERMARK_RATIO')
+    out['mps_watermark_ratios'] = [os.environ.get('PYTORCH_MPS_HIGH_WATERMARK_RATIO'), os.environ.get('PYTORCH_MPS_LOW_WATERMARK_RATIO')]
     return out
 
 

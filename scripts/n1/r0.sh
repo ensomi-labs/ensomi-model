@@ -36,8 +36,8 @@ if [ "$GROUP" = a ]; then
     note "pytest not importable in .venv; N tests not run here"
   fi
   # The watermark caps MPS allocations at the recommended working set, so an oversized batch raises
-  # (recorded as an error row) instead of swapping.
-  stage throughput env PYTORCH_MPS_HIGH_WATERMARK_RATIO=1.0 $PY -m ensomi_n.run.throughput --out "$RUN/throughput.json"
+  # (recorded as an error row) instead of swapping; the low watermark must not exceed it (default 1.4).
+  stage throughput env PYTORCH_MPS_HIGH_WATERMARK_RATIO=1.0 PYTORCH_MPS_LOW_WATERMARK_RATIO=1.0 $PY -m ensomi_n.run.throughput --out "$RUN/throughput.json"
   stage bt_map_fitdev $PY "$SRC/scripts/n1/bt_logits.py" map --stored fitdev --ckpt final0 --split "$RUN/split.json" \
       --subset panel --out "$RUN/bt-map-fitdev.json"
   stage bt_map_reset $PY "$SRC/scripts/n1/bt_logits.py" map --stored reset --ckpt final0 --split "$RUN/split.json" \
