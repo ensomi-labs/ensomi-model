@@ -483,6 +483,113 @@ def cmd_agg(a) -> None:
     print(f'written {a.out_json}')
 
 
+# ---------------------------------------------------------------- markdown tables and margins (control plane)
+
+STRATA_ORDER = ['all'] + [f'S{k}' for k in range(10)]
+
+
+def _f(x, nd=3):
+    return '' if x is None or (isinstance(x, float) and not math.isfinite(x)) else f'{x:.{nd}f}'
+
+
+def _d(d):
+    if not d:
+        return ''
+    return f"{d['delta']:+.3f} [{d['lo']:+.3f}, {d['hi']:+.3f}]"
+
+
+def margin_rows(aggs: list[dict], panel: str, group: str, test: str, field: str) -> dict:
+    """Per stratum: per seed v0, R2, delta, checkpoint spread; seed spread, m_s, mean delta and the class
+    (1.6 of the analysis rules). With one seed, m is that seed's checkpoint spread (provisional)."""
+    out = {}
+    for st in STRATA_ORDER:
+        rows = [a[panel]['tables'][group][test].get(st, {}).get(field) for a in aggs]
+        if any(r is None for r in rows):
+            continue
+        sigma = abs(rows[0]['v0'] - rows[1]['v0']) if len(rows) > 1 else math.nan
+        c = [r['spread'] for r in rows]
+        m = max([x for x in [sigma] + c if math.isfinite(x)])
+        deltas = [r['delta'] for r in rows]
+        dbar = float(np.mean([d['delta'] for d in deltas]))
+        n = min(r['n'] for r in rows)
+        if n < 10:
+            cls = 'n<10'
+        elif dbar > m and all(d['lo'] > 0 for d in deltas):
+            cls = 'v0 ahead'
+        elif dbar < -m and all(d['hi'] < 0 for d in deltas):
+            cls = 'R2 ahead'
+        elif abs(dbar) <= m:
+            cls = 'level'
+        else:
+            cls = 'unresolved'
+        out[st] = dict(n=n, r2=rows[0]['r2'], v0=[r['v0'] for r in rows], deltas=deltas, c=c, sigma=sigma, m=m,
+                       dbar=dbar, cls=cls if len(rows) > 1 else cls + ' (provisional)')
+    return out
+
+
+def md_tables(aggs: list[dict], panel: str) -> str:
+    seeds = len(aggs)
+    lines = []
+    for test, title in (('N', 'N reference, full spans (the v0 report\'s number)'),
+                        ('Nn', 'Test 1b: N reference on reader-neutral heads'),
+                        ('N1a', 'Test 1a: recordings with no changed head'),
+                        ('R', 'Test 2: R\'s canonical lines as the reference')):
+        for field, fname in (('bl', 'BL-20 non-free'), ('pt', 'phase-tolerant BL-20')):
+            for group in ('all', 'fast', 'notfast'):
+                rows = margin_rows(aggs, panel, group, test, field)
+                if not rows:
+                    continue
+                head = f'**{title}; {fname}; {group}** ({panel})'
+                cols = ['Stratum', 'n', 'R2', 'v0 s0'] + (['v0 s1'] if seeds > 1 else []) + ['Δ s0 [95 %]'] + \
+                       (['Δ s1 [95 %]', 'Δ̄'] if seeds > 1 else []) + ['c s0'] + (['c s1', 'σ seed'] if seeds > 1 else []) + \
+                       ['m', 'class']
+                extra = []
+                if test in ('Nn',):
+                    cols[2:2] = ['kept']
+                if field == 'bl':
+                    cols += ['chance']
+                elif field == 'pt':
+                    cols += ['chance', 'shift≠0 R2 / v0']
+                if test == 'Nn':
+                    cols += ['Δ full, same rec.', 'shrink [95 %]']
+                if test == 'N1a':
+                    cols += ['Δ other rec.']
+                lines += [head, '', '| ' + ' | '.join(cols) + ' |', '|' + ' --- |' * len(cols)]
+                for st, r in rows.items():
+                    src = aggs[0][panel]['tables'][group][test][st]
+                    f0 = src[field]
+                    cells = [st, str(r['n'])]
+                    if test == 'Nn':
+                        cells.append(_f(src.get('weight_kept'), 2))
+                    cells += [_f(r['r2']), _f(r['v0'][0])] + ([_f(r['v0'][1])] if seeds > 1 else [])
+                    cells += [_d(r['deltas'][0])] + ([_d(r['deltas'][1]), f"{r['dbar']:+.3f}"] if seeds > 1 else [])
+                    cells += [_f(r['c'][0])] + ([_f(r['c'][1]), _f(r['sigma'])] if seeds > 1 else [])
+                    cells += [_f(r['m']), r['cls']]
+                    if field == 'bl':
+                        cells.append(_f(src.get('chance')))
+                    else:
+                        nz = src.get('nonzero_shift', {})
+                        cells += [_f(src.get('chance_pt')), ' / '.join(_f(v, 2) for v in nz.values())]
+                    if test == 'Nn':
+                        cells += [_d(f0.get('matched_full')), _d(f0.get('shrink'))]
+                    if test == 'N1a':
+                        cells.append(_d(f0.get('others')))
+                    lines.append('| ' + ' | '.join(cells) + ' |')
+                lines.append('')
+    return '\n'.join(lines)
+
+
+def cmd_md(a) -> None:
+    aggs = [json.loads(Path(p).read_text()) for p in a.agg]
+    text = []
+    for panel in a.panels.split(','):
+        meta = [g[panel]['meta'] for g in aggs]
+        text.append(f'### {panel}\n\n' + '; '.join(json.dumps(m) for m in meta) + '\n')
+        text.append(md_tables(aggs, panel))
+    Path(a.out_md).write_text('\n'.join(text))
+    print(f'written {a.out_md}')
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     sub = ap.add_subparsers(dest='cmd', required=True)
@@ -509,8 +616,12 @@ def main(argv=None) -> None:
     s.add_argument('--items', required=True)
     s.add_argument('--panels', default='panel,val_hard')
     s.add_argument('--out-json', required=True)
+    s = sub.add_parser('md')
+    s.add_argument('--agg', action='append', required=True, help='agg JSON per seed, seed 0 first')
+    s.add_argument('--panels', default='panel,val_hard')
+    s.add_argument('--out-md', required=True)
     a = ap.parse_args(argv)
-    dict(maps=cmd_maps, items=cmd_items, agg=cmd_agg)[a.cmd](a)
+    dict(maps=cmd_maps, items=cmd_items, agg=cmd_agg, md=cmd_md)[a.cmd](a)
 
 
 if __name__ == '__main__':
