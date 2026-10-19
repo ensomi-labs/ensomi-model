@@ -17,15 +17,36 @@ notated at half or double the tempo give the same lines:
 - a beat slower than 80 BPM keeps its line and gains ``2**fold - 1`` lines
   after it, one canonical beat apart, up to the next beat (with exact steps)
   or evenly between it and the next beat (for a bare beat list);
-- a beat at 160 BPM or faster is a line only when its count since the last
-  anchor is a multiple of ``2**-fold``. Anchors are the first beat, every
-  segment start, every change of fold, and every downbeat whose bar holds at
-  least ``2**-fold`` notated beats.
+- a beat at 160 BPM or faster is a line only when its count since the phase
+  was last set is a multiple of p = ``2**-fold``. Which beats those are is the
+  canonical phase (`Timing.anchors`).
 
-So a downbeat is always a line, unless its bar is shorter than one canonical
-beat (a meter set for visual effect). 7/8 notated at 240 BPM with meter 7 gives
-the same lines as 7/8 at 120 BPM with a reset on every bar. Where neither
-segment starts nor downbeats are given, the first beat fixes the phase.
+The phase is set only where the timing states one:
+
+- at the first beat, at a change of fold, and at a red line that changes the
+  timing: a tempo change (its step drifts more than ``MERGE_MS`` from the
+  grid in force over its own segment), a reset (off the notated grid in force
+  by more than ``MERGE_MS``), or a line after a span with no beats;
+- at a downbeat the running count has off the phase, when its bar holds
+  exactly one canonical beat or at least two (bar length L = p or L >= 2p
+  notated beats; L is the segment's meter, or for a beat list the distance to
+  the next downbeat). 7/8 notated at 240 BPM with meter 7 therefore gives the
+  same lines as 7/8 at 120 BPM with a reset on every bar.
+
+A red line that keeps the tempo and the grid (a redundant line) sets nothing
+by itself: its start is an ordinary downbeat, and when it starts no complete
+bar of its own meter (barline art, kiai lines) it is ignored. Downbeats of
+bars shorter than one canonical beat (a meter set for visual effect) are
+ignored. Elsewhere the count runs on, so 3/4 notated at 200 BPM keeps one
+continuous phase from its red line.
+
+A bar of more than one and fewer than two canonical beats (p < L < 2p, as 3/4
+at 160-320 BPM) holds no canonical pulse: restarting at its downbeat would
+make the canonical level a long-short rhythm, and running on puts every other
+downbeat between lines. Its lines keep the running count but are marked free:
+`Lines.unfold` is p / gcd(p, L, count) there, the factor by which the lines
+must be refined to reach a level that fits the bar. The measures compare free
+spans at that level (`Lines.refine`), so either canonical phase passes there.
 
 Times are milliseconds on one clock. Nothing here rounds a time.
 """
@@ -98,18 +119,98 @@ class Lines:
 
     ``beat_ms`` is the canonical beat length at each line. ``src_lo`` and
     ``src_hi`` index the notated beats a line comes from: the same beat for a
-    kept beat, the beats on either side for an inserted line.
+    kept beat, the beats on either side for an inserted line. ``unfold`` is
+    1 where the canonical phase is set, and above 1 from a line in a free bar
+    (module docstring) to the next line; None means 1 everywhere.
     """
     t: np.ndarray
     beat_ms: np.ndarray
     src_lo: np.ndarray
     src_hi: np.ndarray
+    unfold: np.ndarray | None = None
 
     def __len__(self) -> int:
         return len(self.t)
 
+    @property
+    def factor(self) -> np.ndarray:
+        """``unfold`` as an integer array, ones where it is None."""
+        if self.unfold is None:
+            return np.ones(len(self.t), dtype=np.int64)
+        return np.asarray(self.unfold, dtype=np.int64)
+
     def take(self, sl) -> 'Lines':
-        return Lines(self.t[sl], self.beat_ms[sl], self.src_lo[sl], self.src_hi[sl])
+        return Lines(self.t[sl], self.beat_ms[sl], self.src_lo[sl], self.src_hi[sl],
+                     None if self.unfold is None else self.unfold[sl])
+
+    def factor_at(self, times) -> np.ndarray:
+        """The ``unfold`` of the line interval holding each time; 1 outside the lines."""
+        t = np.atleast_1d(np.asarray(times, dtype=np.float64))
+        out = np.ones(t.shape, dtype=np.int64)
+        if len(self.t) < 2 or self.unfold is None:
+            return out
+        k = np.searchsorted(self.t, t, side='right') - 1
+        inside = (k >= 0) & (k < len(self.t) - 1)
+        out[inside] = self.factor[k[inside]]
+        return out
+
+    def refine(self, factor, exact: bool, end_ms: float = -math.inf) -> tuple['Lines', np.ndarray]:
+        """These lines with ``factor[i] - 1`` lines inserted after line i, up to line i + 1.
+
+        With ``exact`` steps an inserted line sits ``beat_ms[i] / factor[i]``
+        after the one before it, as a red line places its beats, and stops
+        more than ``MERGE_MS`` before the next line, so a short interval at a
+        restart or a reset gains only the lines its own step places. Otherwise
+        the interval is split evenly into ``round(gap * factor / beat_ms)``
+        parts. After the last line, lines go on at its refined step up to
+        ``end_ms`` (the last notated beat), so beats past the last canonical
+        line stay covered. Every line of the result has the beat length it is compared at
+        (``beat_ms / factor``) and its factor as ``unfold``. Returns the lines
+        and, for each, the index of the line it was refined from.
+        """
+        factor = np.asarray(factor, dtype=np.int64)
+        n = len(self.t)
+        if n == 0 or not np.any(factor > 1):
+            return (Lines(self.t, self.beat_ms / np.maximum(factor, 1), self.src_lo, self.src_hi,
+                          np.maximum(factor, 1)), np.arange(n))
+        t, length, lo, hi, unf, parent = ([self.t], [self.beat_ms / np.maximum(factor, 1)], [self.src_lo],
+                                          [self.src_hi], [np.maximum(factor, 1)], [np.arange(n)])
+        for i in np.flatnonzero(factor > 1):
+            u, a = int(factor[i]), float(self.t[i])
+            if i == n - 1:
+                sub = self.beat_ms[i] / u
+                pos = a + np.arange(1, u) * sub
+                pos = pos[pos <= end_ms + MERGE_MS]
+                if len(pos):
+                    t.append(pos)
+                    length.append(np.full(len(pos), sub))
+                    lo.append(np.full(len(pos), self.src_lo[i]))
+                    hi.append(np.full(len(pos), self.src_hi[i]))
+                    unf.append(np.full(len(pos), u))
+                    parent.append(np.full(len(pos), i))
+                continue
+            b = float(self.t[i + 1])
+            if exact:
+                sub = self.beat_ms[i] / u
+                pos = a + np.arange(1, u) * sub
+                pos = pos[pos < b - MERGE_MS]
+            else:
+                parts = max(1, int(round((b - a) * u / self.beat_ms[i]))) if self.beat_ms[i] > 0 else 1
+                sub = (b - a) / parts
+                pos = a + np.arange(1, parts) * sub
+            if not len(pos):
+                continue
+            t.append(pos)
+            length.append(np.full(len(pos), sub))
+            lo.append(np.full(len(pos), self.src_lo[i]))
+            hi.append(np.full(len(pos), self.src_hi[i + 1]))
+            unf.append(np.full(len(pos), u))
+            parent.append(np.full(len(pos), i))
+        t_all = np.concatenate(t)
+        order = np.argsort(t_all, kind='stable')
+        cat = [np.concatenate(x)[order] for x in (length, lo, hi, unf, parent)]
+        return (Lines(t_all[order], cat[0], cat[1].astype(np.int64), cat[2].astype(np.int64),
+                      cat[3].astype(np.int64)), cat[4].astype(np.int64))
 
 
 def _running_median_step(beats: np.ndarray) -> np.ndarray:
@@ -131,6 +232,9 @@ class Timing:
     when steps come from segments; inserted canonical lines then sit one
     canonical beat apart from the beat before them, as a red line places them.
     ``has_bars`` is False when the source gave no bar information.
+    ``meter`` is the meter in force at each beat, the bar length in notated
+    beats, when segments give it; None for a beat list without segments,
+    whose bars are the distances between its downbeats.
     """
     beats: np.ndarray
     downbeat: np.ndarray
@@ -138,7 +242,8 @@ class Timing:
     step_ms: np.ndarray
     exact_steps: bool = True
     has_bars: bool = True
-    _lines: list = field(default_factory=list, repr=False, compare=False)
+    meter: np.ndarray | None = None
+    _cache: dict = field(default_factory=dict, repr=False, compare=False)
 
     def __post_init__(self):
         b = self.beats
@@ -151,6 +256,8 @@ class Timing:
         for name in ('downbeat', 'seg_start', 'step_ms'):
             if len(getattr(self, name)) != len(b):
                 raise ValueError(f'{name} needs one entry per beat')
+        if self.meter is not None and len(self.meter) != len(b):
+            raise ValueError('meter needs one entry per beat')
 
     def __len__(self) -> int:
         return len(self.beats)
@@ -191,11 +298,11 @@ class Timing:
             j = np.arange(j_lo, j_hi + 1, dtype=np.int64)
             meter = max(int(s.meter), 1)
             down = (j % meter == 0) & ~((j == 0) & (not s.bar_at_start))
-            parts.append((s.start_ms + j * step, down, j == 0, np.full(len(j), step)))
+            parts.append((s.start_ms + j * step, down, j == 0, np.full(len(j), step), np.full(len(j), meter)))
         if not parts:
             return cls.empty()
-        cat = [np.concatenate([p[i] for p in parts]) for i in range(4)]
-        return cls(cat[0].astype(np.float64), cat[1], cat[2], cat[3], True, True)
+        cat = [np.concatenate([p[i] for p in parts]) for i in range(5)]
+        return cls(cat[0].astype(np.float64), cat[1], cat[2], cat[3], True, True, cat[4].astype(np.int64))
 
     @classmethod
     def from_beats(cls, beats, downbeats=None, segments: Sequence[Segment] | None = None) -> 'Timing':
@@ -225,10 +332,12 @@ class Timing:
                     raise ValueError('Downbeat indices must index the beats')
                 down[idx] = True
         segs = [s for s in (segments or ()) if s.plausible]
+        meter = None
         if segs:
             starts = np.array([s.start_ms for s in segs])
             which = np.clip(np.searchsorted(starts, b + MERGE_MS, side='right') - 1, 0, len(segs) - 1)
             step = np.array([segs[k].beat_ms for k in which], dtype=np.float64)
+            meter = np.array([max(int(segs[k].meter), 1) for k in which], dtype=np.int64)
             if n:
                 near = np.searchsorted(b, starts - MERGE_MS, side='left')
                 for k, i in enumerate(near):
@@ -248,12 +357,12 @@ class Timing:
         else:
             step = _running_median_step(b)
             exact = False
-        return cls(b, down, seg_start, step, exact, has_bars)
+        return cls(b, down, seg_start, step, exact, has_bars, meter)
 
     def scaled(self, factor: float, shift_ms: float = 0.0) -> 'Timing':
         """The same timing played at ``1 / factor`` the speed: times and steps times ``factor``."""
         return Timing(self.beats * factor + shift_ms, self.downbeat, self.seg_start, self.step_ms * factor,
-                      self.exact_steps, self.has_bars)
+                      self.exact_steps, self.has_bars, self.meter)
 
     def shifted(self, shift_ms: float) -> 'Timing':
         return self.scaled(1.0, shift_ms)
@@ -276,43 +385,112 @@ class Timing:
         return fold_of(self.step_ms) if len(self.beats) else np.zeros(0, dtype=np.int64)
 
     def anchors(self) -> np.ndarray:
-        """Boolean mask of the beats that restart the fast-beat count (module docstring)."""
+        """Boolean mask of the beats where the canonical phase is set (module docstring)."""
+        return self._phase()[0]
+
+    def free(self) -> np.ndarray:
+        """Per beat, the factor its canonical lines must be refined by: 1 where the phase is set."""
+        return self._phase()[2]
+
+    def _bar_beats(self) -> np.ndarray:
+        """Bar length in notated beats at each beat: the meter, or the distance to the next downbeat."""
+        n = len(self.beats)
+        if self.meter is not None:
+            return np.maximum(np.asarray(self.meter, dtype=np.int64), 1)
+        down = np.flatnonzero(self.downbeat)
+        out = np.full(n, np.iinfo(np.int64).max, dtype=np.int64)
+        if len(down) >= 2:
+            gaps = np.diff(down)
+            out[down[:-1]] = gaps
+            out[down[-1]] = gaps[-1]
+        elif len(down) == 1:
+            out[down[0]] = n - down[0]
+        return out
+
+    def _redundant(self, f: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        """Segment starts that keep the tempo and the notated grid in force, and those of them that start
+        no complete bar of their own meter (ignored: barline art)."""
+        n = len(self.beats)
+        cont = np.zeros(n, dtype=bool)
+        art = np.zeros(n, dtype=bool)
+        starts = np.flatnonzero(self.seg_start)
+        if not self.exact_steps or not len(starts):
+            return cont, art
+        ends = np.append(starts[1:], n)
+        b, step = self.beats, self.step_ms
+        for i, end in zip(starts, ends):
+            if i == 0 or f[i] != f[i - 1] or not (math.isfinite(step[i]) and math.isfinite(step[i - 1])):
+                continue
+            on_grid = abs(b[i] - b[i - 1] - step[i - 1]) <= MERGE_MS
+            same = abs(step[i] - step[i - 1]) * (end - i) <= MERGE_MS
+            if on_grid and same:
+                cont[i] = True
+                if self.meter is not None and end < n and end - i < int(self.meter[i]):
+                    art[i] = True
+        return cont, art
+
+    def _phase(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Where the phase is set, each beat's count since then, and each beat's free factor. Cached."""
+        if 'phase' in self._cache:
+            return self._cache['phase']
         n = len(self.beats)
         if not n:
-            return np.zeros(0, dtype=bool)
-        f = self.folds()
-        idx = np.arange(n)
-        restart = (idx == 0) | self.seg_start
-        restart[1:] |= f[1:] != f[:-1]
-        if self.has_bars and self.downbeat.any():
-            bounds = np.flatnonzero(self.downbeat | self.seg_start)
-            nxt = bounds[np.minimum(np.searchsorted(bounds, idx, side='right'), len(bounds) - 1)]
-            has_next = np.searchsorted(bounds, idx, side='right') < len(bounds)
-            bar_beats = np.where(has_next & (nxt > idx), nxt - idx, np.iinfo(np.int64).max)
-            restart |= self.downbeat & ((f >= 0) | (bar_beats >= np.exp2(-np.minimum(f, 0))))
-        return restart
+            z = np.zeros(0, dtype=np.int64)
+            out = (z.astype(bool), z, z)
+        else:
+            f = self.folds()
+            p = np.exp2(-np.minimum(f, 0)).astype(np.int64)
+            idx = np.arange(n)
+            cont, art = self._redundant(f)
+            hard = (idx == 0) | (self.seg_start & ~cont)
+            hard[1:] |= f[1:] != f[:-1]
+            bar = self._bar_beats()
+            counted = (self.downbeat & ~art & (bar >= p)) if self.has_bars else np.zeros(n, dtype=bool)
+            events = np.flatnonzero(hard | counted)
+            set_at = np.zeros(n, dtype=bool)
+            base = np.zeros(n, dtype=np.int64)
+            free = np.ones(n, dtype=np.int64)
+            current = 0
+            for k, e in enumerate(events):
+                stop = events[k + 1] if k + 1 < len(events) else n
+                if hard[e]:
+                    current = e
+                    set_at[e] = True
+                else:
+                    c, pe, length = e - current, int(p[e]), int(bar[e])
+                    if c % pe and (length == pe or length >= 2 * pe):
+                        current = e
+                        set_at[e] = True
+                    if pe < length < 2 * pe:
+                        free[e:stop] = pe // math.gcd(pe, length, (e - current) % pe)
+                base[e:stop] = current
+            out = (set_at, idx - base, free)
+        self._cache['phase'] = out
+        return out
 
     def canonical(self) -> Lines:
         """The canonical beat lines (module docstring). Cached."""
-        if self._lines:
-            return self._lines[0]
+        if 'lines' in self._cache:
+            return self._cache['lines']
         n = len(self.beats)
         if not n:
             z = np.zeros(0)
-            lines = Lines(z, z, z.astype(np.int64), z.astype(np.int64))
-            self._lines.append(lines)
+            lines = Lines(z, z, z.astype(np.int64), z.astype(np.int64), z.astype(np.int64))
+            self._cache['lines'] = lines
             return lines
         f = self.folds()
         idx = np.arange(n)
-        last_anchor = np.maximum.accumulate(np.where(self.anchors(), idx, 0))
-        count = idx - last_anchor
+        _, count, free = self._phase()
         period = np.exp2(-np.minimum(f, 0)).astype(np.int64)
         keep = (f >= 0) | (count % period == 0)
+        kept = idx[keep]
         step = np.where(np.isfinite(self.step_ms), self.step_ms, 0.0)
         t = [self.beats[keep]]
         length = [np.where(np.isfinite(self.step_ms[keep]), step[keep] / np.exp2(f[keep]), np.nan)]
-        lo = [idx[keep]]
-        hi = [idx[keep]]
+        lo = [kept]
+        hi = [kept]
+        # A kept line's factor is the largest over the notated beats up to the next kept line.
+        unfold = [np.maximum.reduceat(free, kept) if len(kept) else np.zeros(0, dtype=np.int64)]
         for fold in np.unique(f[f > 0]):
             m = int(2 ** fold)
             i = idx[(f == fold) & (idx < n - 1)]
@@ -332,11 +510,12 @@ class Timing:
             length.append(beat[ok])
             lo.append(np.broadcast_to(i[:, None], pos.shape)[ok])
             hi.append(np.broadcast_to(i[:, None] + 1, pos.shape)[ok])
+            unfold.append(np.ones(int(ok.sum()), dtype=np.int64))
         t_all = np.concatenate(t)
         order = np.argsort(t_all, kind='stable')
         lines = Lines(t_all[order], np.concatenate(length)[order], np.concatenate(lo)[order].astype(np.int64),
-                      np.concatenate(hi)[order].astype(np.int64))
-        self._lines.append(lines)
+                      np.concatenate(hi)[order].astype(np.int64), np.concatenate(unfold)[order].astype(np.int64))
+        self._cache['lines'] = lines
         return lines
 
 
