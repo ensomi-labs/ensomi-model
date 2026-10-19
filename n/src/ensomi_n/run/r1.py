@@ -172,10 +172,19 @@ def cmd_score(a) -> None:
         ck_dir = Path(st['ckpt_dir'])
         ckpts = sorted(ck_dir.glob('ckpt-*.pt'))[-a.last:]
         for ck in ckpts:
-            out_path = run / f'scores-{arm}-s{a.seed}-{ck.stem}.json'
+            # The null (--null rotate) reads each item's activation from the next item's audio on the
+            # same panel, so the measure meets activations with no relation to the reference.
+            out_path = run / (f'scores-null-{arm}-s{a.seed}-{ck.stem}.json' if a.null else
+                              f'scores-{arm}-s{a.seed}-{ck.stem}.json')
             if out_path.exists():
                 continue
             items = _score_items(split, (a.panels if ck == ckpts[-1] else early).split(','))
+            audio = {}
+            if a.null == 'rotate':
+                for pnl in {pn for pn, _ in items}:
+                    lst = [it for pn, it in items if pn == pnl]
+                    for k, it in enumerate(lst):
+                        audio[(pnl, it['item'])] = lst[(k + 1) % len(lst)]['audio_sha256']
             model = Model(NES(), arm).to(a.device)
             model.load_state_dict(torch.load(ck, map_location=a.device, weights_only=False)['model'])
             model.eval()
@@ -183,7 +192,7 @@ def cmd_score(a) -> None:
             t0 = time.time()
             for panel, it in items:
                 w = refs[it['item']]
-                p = mel_path(bulk / 'mel', it['audio_sha256'])
+                p = mel_path(bulk / 'mel', audio.get((panel, it['item']), it['audio_sha256']))
                 if 'error' in w or not w['beat'] or not p.exists():
                     rows.append(dict(item=it['item'], panel=panel, missing=True))
                     continue
@@ -200,6 +209,7 @@ def cmd_score(a) -> None:
                 rows.append(dict(item=it['item'], panel=panel, rec=it['rec'], strata=it.get('strata', []),
                                  **_measures(beat, down, w, pk, per)))
             out_path.write_text(json.dumps(dict(arm=arm, seed=a.seed, ckpt=ck.name, rows=rows, interim_strata=True,
+                                                null=a.null or None,
                                                 wall_s=round(time.time() - t0, 1))))
             print(arm, a.seed, ck.name, round(time.time() - t0, 1), 's')
 
@@ -261,6 +271,8 @@ def main(argv=None) -> None:
     p.add_argument('--device', default='mps')
     p.add_argument('--last', type=int, default=3)
     p.add_argument('--panels', default=','.join(PANELS))
+    p.add_argument('--null', choices=('', 'rotate'), default='',
+                   help="score: 'rotate' reads each item's activation from the next item's audio")
     p.add_argument('--guard-rate', type=float, default=0.0,
                    help='train: crops/s the throughput guard compares with (default: rung 0 NE-S batch 32)')
     p.add_argument('--panels-early', default='', help='score: panels for all but the newest checkpoint')
