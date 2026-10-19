@@ -63,6 +63,17 @@ def _tag_lookup(root: Path, corpus: str, tags: str):
     return {r['path']: ([names.get(int(t), str(t)) for t in (r['api_tag_ids'] or [])], r['api_status']) for r in rows}, bool(names)
 
 
+def fast_57(ref) -> bool:
+    """A plausible segment in range notated at 160 BPM or more with meter 5 or 7: a reading difference
+    between N and R left to the human, reported as its own group."""
+    segs = list(ref.segments or ())
+    for k, s in enumerate(segs):
+        end = segs[k + 1].start_ms if k + 1 < len(segs) else math.inf
+        if s.plausible and end > ref.lo_ms and s.start_ms <= ref.hi_ms and s.bpm >= 160.0 - 1e-9 and s.meter in (5, 7):
+            return True
+    return False
+
+
 def eval_items(split: dict, panels, root: Path, corpus='data/r2-corpus.parquet',
                tags='artifacts/n1-inventory-20261014/tags.json') -> list[dict]:
     """Items of the named panels with reference, strata spans per recording, flags and status."""
@@ -85,7 +96,7 @@ def eval_items(split: dict, panels, root: Path, corpus='data/r2-corpus.parquet',
                 rate = is_rate_edit(*[read_header(p).get('Version', '') for p in paths], ref.meta.get('audio', ''))
                 st = set_strata(ref, charts, tags=tg, tags_known=known, rate_edit=rate, key=key)
                 items.append(dict(key=key, panel=name, item=it['audio_sha256'], rec=it['rec'], ref=ref, st=st,
-                                  reader_flags=reader_flags(ref), literal=bool(literal_flag(ref)),
+                                  reader_flags=reader_flags(ref), literal=bool(literal_flag(ref)), fast57=fast_57(ref),
                                   source='loved' if status == ['loved'] else 'ranked', charts=it['charts'],
                                   bt_key=it.get('bt_key')))
             except Exception as exc:  # noqa: BLE001
@@ -505,7 +516,13 @@ def main(a) -> None:
             tables[arm + '|literal-safe'] = aggregate_arm(lit, sc)
             compact_tables[arm] = compact(tables[arm])
             compact_tables[arm + '|literal-safe'] = compact(tables[arm + '|literal-safe'])
-            for nm, sub in ((arm, scored), (arm + '|literal-safe', lit)):
+            f57 = [x for x in scored if x['fast57']]
+            groups = [(arm, scored), (arm + '|literal-safe', lit)]
+            if f57:
+                tables[arm + '|fast-5-7'] = aggregate_arm(f57, sc)
+                compact_tables[arm + '|fast-5-7'] = compact(tables[arm + '|fast-5-7'])
+                groups.append((arm + '|fast-5-7', f57))
+            for nm, sub in groups:
                 for st, row in free_table(sub, sc).items():
                     compact_tables[nm].setdefault(st, {}).update(row)
         v0_arms = [k for k in scores if k.startswith('v0@')]
@@ -520,12 +537,14 @@ def main(a) -> None:
                 for k, s in sc.items():
                     x = by_key[k]
                     f.write(json.dumps(dict(arm=arm, key=k, rec=x['rec'], strata=sorted(x['strata']), literal=x['literal'],
+                                            fast57=x['fast57'],
                                             **{m: s['all'].summary().get(m) for m in MEASURES + ('offset_ms', 'free_share')},
                                             **s['free']['all'],
                                             diag=diags.get(arm, {}).get(k)), default=float) + '\n')
         meta = dict(panel=panel, n_items=len(items), unreadable=len(bad),
                     reader_flagged=sum(1 for x in scored if x['reader_flags']), scored=len(scored),
                     literal_safe=sum(1 for x in scored if not x['literal']),
+                    fast_5_7=sum(1 for x in scored if x['fast57']),
                     recordings=len({x['rec'] for x in scored}), checkpoints=[c.name for c in cks], decode_kw=cfg_kw,
                     errors=errors[:20], n_errors=len(errors),
                     strata_items={s: sum(1 for x in scored if s in x['strata']) for s in
