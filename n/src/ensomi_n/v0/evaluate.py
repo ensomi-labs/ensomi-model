@@ -409,7 +409,10 @@ def main(a) -> None:
     log = open(out / 'log.txt', 'a')
     if a.tune:
         return tune(a, split, index, out)
-    cfg_kw = pick_settings(out) if a.decode_kw == 'auto' else (json.loads(a.decode_kw) if a.decode_kw else {})
+    if a.decode_kw.startswith('auto'):          # 'auto' (this run's sweep) or 'auto:<dir holding tune.json>'
+        cfg_kw = pick_settings(Path(a.decode_kw[5:]) if a.decode_kw.startswith('auto:') else out)
+    else:
+        cfg_kw = json.loads(a.decode_kw) if a.decode_kw else {}
 
     def say(msg):
         log.write(f'{time.strftime("%H:%M:%S")} {msg}\n')
