@@ -29,7 +29,8 @@ import numpy as np
 
 from ..timing import Reference, Segment
 
-__all__ = ['RedLine', 'Chart', 'read_osu', 'segments_from_red_lines', 'read_set', 'find_sets']
+__all__ = ['RedLine', 'Chart', 'read_osu', 'segments_from_red_lines', 'read_set', 'reference_from_charts',
+           'find_sets']
 
 
 @dataclass(frozen=True)
@@ -179,6 +180,12 @@ def read_set(paths: str | os.PathLike | Iterable[str | os.PathLike], key: str = 
             paths = sorted(folder.glob('*.osu'))
             key = key or folder.name
     charts = [read_osu(p) for p in sorted(Path(p) for p in paths)]
+    return reference_from_charts(charts, key)
+
+
+def reference_from_charts(charts: Sequence[Chart], key: str = '') -> Reference:
+    """`read_set` on charts already read, in the order given (`read_set` sorts them by path)."""
+    charts = list(charts)
     if not charts:
         raise ValueError(f'No .osu file for set {key!r}')
     timed = [c for c in charts if c.red_lines]

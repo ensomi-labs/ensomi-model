@@ -244,13 +244,37 @@ against itself scores 1, shifts of half and a third of a beat score 0, the
 mean over 1,000 equally spaced whole-grid shifts lies within 0.001 of
 2τ / B, and one draw of per-beat phases over 20,000 beats within 0.01.
 
+## Strata and the census
+
+`ensomi_n.eval.strata` computes the hard-timing strata S0 to S9 of the
+evaluation design from labels alone: `set_strata(ref, charts)` for one set,
+`recording_strata(sets)` for the recording, and `flags(ref)` as plain values
+for a training manifest. S10 (music where BeatThis fails) needs BeatThis
+logits and is not computed. The module docstring states every rule and where
+it reads the design.
+
+`python -m ensomi_n.eval census --units UNITS.csv --root ROOT --out DIR`
+counts, per split and stratum, the recordings, sets, heads in the stratum's
+spans and differing second-mapper pairs, applies E2's rule, and writes
+`census.json`, `census.md` and a strata table (the `--strata` format) per
+unsealed split. `--sealed SPLIT` keeps a split to counts.
+
+`python -m ensomi_n.eval draw --units UNITS.csv --root ROOT --pool SPLIT --out DIR`
+draws the hard-strata holdout from the pool's labels (40 recordings per
+stratum where 50 or more exist, else half; rarest stratum first; seeded) and
+seals it: `membership.json` with set ids and audio sha256, its sha256,
+`rule.json` and a README saying who may open it. It refuses to redraw over an
+existing membership. A training or design manifest leaves the holdout out
+with `ensomi_n.eval.census.load_exclusion(dir, sha256)`, which refuses a
+membership whose sha256 has changed.
+
 ## Not built yet
 
 - The legacy S1-20 and H-20 columns: their exact definitions are in scripts
   outside this repository.
 - Anchored BL needs a model's re-detection runs; score each anchor count as
   its own prediction directory.
-- No strata census: strata and spans come from the table.
+- Rate edits are not folded into their source recording automatically.
 - The decoded-to-osu clock constant is not measured here.
 - Without play counts, a recording's reference set is the one the table
   marks; otherwise its sets are averaged.

@@ -12,6 +12,17 @@ recordings; ``--skip-missing`` leaves such sets out instead.
 ``python -m ensomi_n.eval nulls [--out NULLS.json]`` prints the exact BL-τ
 chance per canonical tempo and checks the scorer against every null.
 
+``python -m ensomi_n.eval census --units UNITS.csv --root ROOT --out DIR``
+computes every set's label-only strata (`ensomi_n.eval.strata`) and writes the
+E2 census (`census.json`, `census.md`, and a strata table per unsealed split).
+``--sealed SPLIT`` keeps a split to counts only; ``--holdout DIR --holdout-sha256 X``
+moves the sets of a sealed hard holdout into the split ``hard-holdout``.
+
+``python -m ensomi_n.eval draw --units UNITS.csv --root ROOT --pool SPLIT --out DIR``
+draws the hard-strata holdout from the pool's labels and seals it
+(`ensomi_n.eval.census.draw` and `seal`); it prints only the membership's sha256
+and counts.
+
 Exit status: 0 on success; 1 when ``nulls`` finds a null the scorer misses;
 2 on bad arguments or unreadable input.
 """
@@ -127,6 +138,46 @@ def run_nulls(args) -> dict:
                           checks=checks, **{'pass': all(c['pass'] for c in checks)}))
 
 
+def _census_units(args):
+    from . import census
+    units = census.read_units(args.units)
+    return census, units
+
+
+def run_census(args) -> dict:
+    census, units = _census_units(args)
+    results = census.compute(units, args.root)
+    hard_keys: set[str] = set()
+    if args.holdout:
+        hard_keys = census.load_exclusion(args.holdout, args.holdout_sha256)['keys']
+    sealed = set(args.sealed or ()) | {'hard-holdout'}
+
+    def split_of(r):
+        return 'hard-holdout' if r.unit.key in hard_keys else (
+            f'{r.unit.split}-design' if args.holdout and r.unit.split == args.pool else r.unit.split)
+
+    table = census.tabulate(results, split_of=split_of)
+    status = census.e2_status(table, holdout=args.decision_holdout)
+    rows = census.strata_rows(results, sealed=lambda r: split_of(r) in sealed, split_of=split_of)
+    census.write_census(args.out, table, status, rows,
+                        meta=dict(harness=dict(package='ensomi-n', version=__version__), units=str(args.units),
+                                  sealed=sorted(sealed), holdout=args.holdout, holdout_sha256=args.holdout_sha256))
+    return table
+
+
+def run_draw(args) -> tuple[str, dict]:
+    census, units = _census_units(args)
+    results = census.compute([u for u in units if u.split == args.pool] + [u for u in units if u.split != args.pool
+                                                                          and u.recording in
+                                                                          {v.recording for v in units
+                                                                           if v.split == args.pool}],
+                             args.root)
+    drawn = census.draw(results, pool=args.pool, per_stratum=args.per_stratum, keep_design=args.keep_design,
+                        seed=args.seed)
+    sha = census.seal(drawn, args.out, args.root, commit=args.commit, name=Path(args.out).name, date=args.date)
+    return sha, drawn['rule']
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog='python -m ensomi_n.eval', description=__doc__.split('\n\n')[0])
     sub = parser.add_subparsers(dest='command', required=True)
@@ -147,8 +198,38 @@ def main(argv=None) -> int:
     q = sub.add_parser('nulls', help='exact chance values and a check of the scorer against them')
     q.add_argument('--out', help='write the check as JSON')
     q.add_argument('--phases', type=int, default=1000)
+    c = sub.add_parser('census', help='label-only strata census (E2)')
+    c.add_argument('--units', required=True, help='units table (CSV, one row per .osu file)')
+    c.add_argument('--root', default='.', help='directory the units\' file paths are relative to')
+    c.add_argument('--out', required=True, help='output directory')
+    c.add_argument('--sealed', nargs='*', default=[], help='splits written as counts only')
+    c.add_argument('--holdout', help='a sealed hard holdout (directory) whose sets form the split hard-holdout')
+    c.add_argument('--holdout-sha256', help="the hard holdout's membership sha256")
+    c.add_argument('--pool', default='std-taiko', help='the split the hard holdout was drawn from')
+    c.add_argument('--decision-holdout', default='holdout2', help="the split of N1's decision look")
+    d = sub.add_parser('draw', help='draw and seal the hard-strata holdout')
+    d.add_argument('--units', required=True)
+    d.add_argument('--root', default='.')
+    d.add_argument('--pool', default='std-taiko')
+    d.add_argument('--out', required=True, help='holdout directory; refused when it already holds a membership')
+    d.add_argument('--per-stratum', type=int, default=40)
+    d.add_argument('--keep-design', type=int, default=10)
+    d.add_argument('--seed', type=int, default=20261018)
+    d.add_argument('--commit', default='', help='the code commit, recorded in rule.json')
+    d.add_argument('--date', default='')
     args = parser.parse_args(argv)
     try:
+        if args.command == 'census':
+            if args.holdout and not args.holdout_sha256:
+                raise ValueError('--holdout needs --holdout-sha256')
+            table = run_census(args)
+            print(f"census: {len(table['splits'])} split rows, {table['errors']} unreadable sets; {args.out}")
+            return 0
+        if args.command == 'draw':
+            sha, rule = run_draw(args)
+            print(f"sealed {rule['drawn_recordings']} recordings; membership sha256 {sha}")
+            print('held per stratum: ' + ', '.join(f'{k} {v}' for k, v in rule['held_recordings'].items()))
+            return 0
         if args.command == 'score':
             report = run_score(args)
             Path(args.out).write_text(json.dumps(report, indent=1) + '\n', encoding='utf-8')
