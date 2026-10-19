@@ -32,14 +32,14 @@ def _mem(device) -> float:
     return float('nan')
 
 
-def measure(name: str, batch: int, device: str, steps: int, max_s: float) -> dict:
+def measure(name: str, batch: int, device: str, steps: int, max_s: float, frames: int | None = None) -> dict:
     import torch
     from ..models import NEM, NES, Model, n_params
     torch.manual_seed(0)
     enc = NES() if name == 'NE-S' else NEM()
     model = Model(enc, 'A1').to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=1e-3)
-    frames = 2000 if name == 'NE-S' else 6000
+    frames = frames or (2000 if name == 'NE-S' else 6000)
     mel = torch.randn(batch, frames, 128, device=device)
     song = torch.randn(batch, 1500, 128, device=device) if name == 'NE-M' else None
     peak = 0.0
@@ -115,6 +115,8 @@ def main(argv=None) -> None:
     p.add_argument('--steps', type=int, default=15)
     p.add_argument('--max-s', type=float, default=45.0)
     p.add_argument('--batches', default='8,16,32')
+    p.add_argument('--only', default='', help="'NE-S' or 'NE-M': measure that encoder only (no inference timing)")
+    p.add_argument('--frames', type=int, default=0, help='crop frames (default 2000 for NE-S, 6000 for NE-M)')
     a = p.parse_args(argv)
     import torch
     res = dict(device=a.device, torch=torch.__version__, machine=machine(a.device), rows=[], inference=None)
@@ -128,17 +130,20 @@ def main(argv=None) -> None:
     # NE-S first (rung 1 needs it), then the whole-song inference, then NE-M, the largest, last; the
     # file is rewritten after each measurement so a failure late keeps what was measured.
     batches = [int(x) for x in a.batches.split(',')]
-    for b in batches:
-        res['rows'].append(measure('NE-S', b, a.device, a.steps, a.max_s))
-        print(json.dumps(res['rows'][-1]), flush=True)
+    if a.only != 'NE-M':
+        for b in batches:
+            res['rows'].append(measure('NE-S', b, a.device, a.steps, a.max_s, a.frames or None))
+            print(json.dumps(res['rows'][-1]), flush=True)
+            write()
+    if not a.only:
+        res['inference'] = inference(a.device)
+        print(json.dumps(res['inference']), flush=True)
         write()
-    res['inference'] = inference(a.device)
-    print(json.dumps(res['inference']), flush=True)
-    write()
-    for b in batches:
-        res['rows'].append(measure('NE-M', b, a.device, a.steps, a.max_s))
-        print(json.dumps(res['rows'][-1]), flush=True)
-        write()
+    if a.only != 'NE-S':
+        for b in batches:
+            res['rows'].append(measure('NE-M', b, a.device, a.steps, a.max_s, a.frames or None))
+            print(json.dumps(res['rows'][-1]), flush=True)
+            write()
 
 
 if __name__ == '__main__':

@@ -40,12 +40,14 @@ def _labels_dir(r0) -> Path:
 
 
 def _refs_for(items: list[dict], root: str) -> dict:
+    from ..data.strata import reader_flags
     from ..labels import read_set
     out = {}
     for it in items:
         try:
             ref = read_set([os.path.join(root, c) for c in it['charts']], key=it['item'])
-            out[it['item']] = dict(ref=ref, beat=probe.beat_windows(ref), bar=probe.bar_windows(ref))
+            out[it['item']] = dict(ref=ref, beat=probe.beat_windows(ref), bar=probe.bar_windows(ref),
+                                   flags=reader_flags(ref))
         except Exception as exc:
             out[it['item']] = dict(error=str(exc))
     return out
@@ -64,7 +66,7 @@ def _bt_acts(path: Path, shift_ms: float) -> tuple[probe.Activation, probe.Activ
 
 def _measures(beat_act, down_act, w: dict, peaks_ms, period=None) -> dict:
     ref = w['ref']
-    return dict(m1=probe.m1(beat_act, w['beat']), m1_bar=probe.m1(down_act, w['bar']) if w['bar'] else float('nan'),
+    return dict(reader_flags=w['flags'], m1=probe.m1(beat_act, w['beat']), m1_bar=probe.m1(down_act, w['bar']) if w['bar'] else float('nan'),
                 m2=probe.m2(beat_act, w['beat'], period=period), m3=probe.m3(peaks_ms, ref),
                 chance=probe.chance(w['beat']), chance_bar=probe.chance(w['bar']) if w['bar'] else float('nan'),
                 weight=float(sum(x['weight'] for x in w['beat'])))
@@ -79,9 +81,10 @@ def cmd_refs(a) -> None:
     refs = _refs_for(val, a.root)
     f0 = _bt_dir(bulk, 'final0')
     chance, m1s, used = [], [], 0
+    flagged_val = sorted(it['item'] for it in val if refs[it['item']].get('flags'))
     for it in val:
         w = refs[it['item']]
-        if 'error' in w or not w['beat']:
+        if 'error' in w or not w['beat'] or w['flags']:      # reader-flagged: pre-registration item 24
             continue
         chance.append(probe.chance(w['beat']))
         p = f0 / f"{it['audio_sha256']}.npz" if f0 else None
@@ -100,7 +103,16 @@ def cmd_refs(a) -> None:
     thr = json.load(open(r0 / 'throughput.json')) if (r0 / 'throughput.json').exists() else {}
     r0_rate = next((r['crops_per_s'] for r in thr.get('rows', []) if r.get('encoder') == 'NE-S' and r.get('batch') == 32
                     and 'crops_per_s' in r), None)
-    out = dict(val_s0_items=len(val), val_s0_scored=len(chance), val_s0_chance=float(np.mean(chance)),
+    from collections import Counter
+    train_refs = _refs_for(split['train'], a.root) if a.train_flags else {}
+    train_flags = dict(n=len(train_refs), flagged=sum(bool(w.get('flags')) for w in train_refs.values()),
+                       errors=sum('error' in w for w in train_refs.values()),
+                       by_reason=dict(Counter(x for w in train_refs.values() for x in w.get('flags', []))),
+                       hard_flagged=sum(bool(train_refs[it['item']].get('flags')) for it in split['train']
+                                        if it.get('hard') and it['item'] in train_refs),
+                       hard=sum(bool(it.get('hard')) for it in split['train'])) if train_refs else None
+    out = dict(val_s0_items=len(val), val_s0_reader_flagged=flagged_val, train_reader_flags=train_flags,
+               val_s0_scored=len(chance), val_s0_chance=float(np.mean(chance)),
                val_s0_final0=float(np.mean(m1s)) if m1s else float('nan'), val_s0_final0_n=used,
                label_rates={k: float(np.mean(v)) for k, v in rates.items()}, pos_weight=pos,
                r0_ne_s_b32_crops_per_s=r0_rate, bulk_run=str(Path(a.bulk_runs) / run.name), interim_strata=True,
@@ -117,9 +129,9 @@ def _val_s0(split, root, bulk) -> list[dict]:
     for it in items:
         w = refs[it['item']]
         p = mel_path(bulk / 'mel', it['audio_sha256'])
-        if 'error' in w or not w['beat'] or not p.exists():
+        if 'error' in w or not w['beat'] or not p.exists() or w['flags']:   # flagged: pre-registration item 24
             continue
-        out.append(dict(item=it['item'], mel=np.load(p, mmap_mode='r'), windows=w['beat']))
+        out.append(dict(item=it['item'], mel=np.load(p), windows=w['beat']))     # in memory: no file descriptor held
     return out
 
 
@@ -255,9 +267,23 @@ def cmd_verdict(a) -> None:
     from .verdict import verdict
     res = verdict(Path(a.run), Path(a.r0))
     print(json.dumps({k: res[k] for k in ('reading', 'a2_vs_a1', 'next')}, indent=1))
+    print('with reader-flagged items:', res['with_flagged']['reading'])
+
+
+def _raise_open_files(target: int = 8192) -> None:
+    """Lift the soft open-file limit (macOS defaults to 256) towards ``target``, within the hard limit."""
+    try:
+        import resource
+        soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+        want = target if hard == resource.RLIM_INFINITY else min(target, hard)
+        if soft != resource.RLIM_INFINITY and soft < want:
+            resource.setrlimit(resource.RLIMIT_NOFILE, (want, hard))
+    except (ImportError, ValueError, OSError):
+        pass
 
 
 def main(argv=None) -> None:
+    _raise_open_files()
     p = argparse.ArgumentParser(prog='python -m ensomi_n.run.r1')
     p.add_argument('cmd', choices=('refs', 'train', 'score', 'controls', 'verdict'))
     p.add_argument('--run', required=True)
@@ -271,6 +297,7 @@ def main(argv=None) -> None:
     p.add_argument('--device', default='mps')
     p.add_argument('--last', type=int, default=3)
     p.add_argument('--panels', default=','.join(PANELS))
+    p.add_argument('--train-flags', type=int, default=1, help='refs: count reader flags over R1-train (1/0)')
     p.add_argument('--null', choices=('', 'rotate'), default='',
                    help="score: 'rotate' reads each item's activation from the next item's audio")
     p.add_argument('--guard-rate', type=float, default=0.0,

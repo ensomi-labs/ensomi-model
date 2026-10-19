@@ -120,3 +120,21 @@ def test_random_draws_are_independent_of_the_hard_draw():
     rest = sel['train'][len(sel['train_hard']):]
     assert 150 <= sum(hard[k] for k in rest) <= 450     # hard ones remain in the random rest
     assert len(set(sel['train'])) == 1600 and not set(sel['train']) & (set(sel['val_hard']) | set(sel['val_random']))
+
+
+def test_reader_flags_mark_the_census_causes_and_spare_resets(osu_writer):
+    """Pre-registration item 24: redundant lines, odd bars and tempo lines at fast notation, scroll art."""
+    from ensomi_n.data.strata import reader_flags
+    heads = list(np.arange(1000.0, 30000.0, 250.0))
+    cases = {
+        'clean': ([(0.0, 500.0)], []),
+        'fast_even': ([(0.0, 333.333)], []),
+        'fast_odd': ([(0.0, 333.333, 3)], ['fast_odd_bar']),
+        'redundant': ([(0.0, 500.0), (10000.0, 500.0, 3)], ['redundant']),
+        'reset': ([(0.0, 500.0), (10120.0, 500.0)], []),
+        'tempo_fast': ([(0.0, 500.0), (10000.0, 333.333)], ['fast_tempo_line']),
+        'tempo_slow': ([(0.0, 500.0), (10000.0, 450.0)], []),
+    }
+    for name, (red, want) in cases.items():
+        ref = read_set([osu_writer(f'{name}.osu', red, heads)])
+        assert reader_flags(ref) == want, name

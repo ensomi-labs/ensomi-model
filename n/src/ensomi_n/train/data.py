@@ -24,11 +24,20 @@ KEYS_B = ('beat_offmask', 'half_offmask', 'down_offmask', 'mask', 'phase_mask', 
 @dataclass
 class Song:
     item: str
-    mel: np.ndarray
+    path: str
     mean: float
     std: float
     labels: RecLabels
     hard: bool
+
+    @property
+    def mel(self) -> np.ndarray:
+        """The cached log-Mel, memory-mapped on each access and released with the array.
+
+        A memory map holds a file descriptor, and macOS allows 256 per process by default, so 1,600
+        songs cannot all stay mapped (the first mac smoke failed with "Too many open files").
+        """
+        return np.load(self.path, mmap_mode='r')
 
 
 def open_songs(items: list[dict], mel_root, labels_dir) -> list[Song]:
@@ -38,12 +47,12 @@ def open_songs(items: list[dict], mel_root, labels_dir) -> list[Song]:
         lp = Path(labels_dir) / it['item'][:2] / f"{it['item']}.json"
         if not p.exists() or not lp.exists():
             continue
-        mel = np.load(p, mmap_mode='r')
-        full = np.asarray(mel, dtype=np.float32)
         lab = RecLabels.from_json(json.loads(lp.read_text()))
         if len(lab.lines) < 4:
             continue
-        songs.append(Song(it['item'], mel, float(full.mean()), float(full.std() + 1e-6), lab, bool(it.get('hard'))))
+        full = np.load(p).astype(np.float32)
+        songs.append(Song(it['item'], str(p), float(full.mean()), float(full.std() + 1e-6), lab, bool(it.get('hard'))))
+        del full
     return songs
 
 
@@ -64,7 +73,9 @@ class Sampler:
         self.rng.bit_generator.state = st
 
     def crop(self, song: Song, rate: float, start_ms: float) -> tuple[np.ndarray, dict]:
-        x = stretch_crop(song.mel, start_ms, self.n, rate)
+        mel = song.mel
+        x = stretch_crop(mel, start_ms, self.n, rate)
+        del mel
         x = (x - song.mean) / song.std
         return x, dense(song.labels, start_ms, self.n, rate=rate)
 
