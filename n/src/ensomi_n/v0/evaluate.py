@@ -223,12 +223,29 @@ def free_table(items: list[dict], scores: dict, n: int = BOOT, seed: int = 0) ->
 
 
 def _decode_job(args):
-    arm, key, ev, cfg_kw = args
+    """Decode (unless given a map) and, with a reference, score in the worker: (arm, key, result, diag, error).
+
+    The result is the map when no reference is given, else `score_item`'s dict with the per-line arrays
+    dropped (the aggregation reads only summaries and pooled counts).
+    """
+    arm, key, ev, cfg_kw = args[:4]
+    ref, strata = (args[4], args[5]) if len(args) > 5 else (None, None)
+    from ..mapformat import MusicMap
     from .decode import DecodeConfig, decode
     try:
         t0 = time.perf_counter()
-        mmap, diag = decode(ev, DecodeConfig(**cfg_kw), model=arm)
-        return arm, key, mmap, dict(diag, decode_s=round(time.perf_counter() - t0, 3)), None
+        if isinstance(ev, MusicMap):
+            mmap, diag = ev, {}
+        else:
+            mmap, diag = decode(ev, DecodeConfig(**cfg_kw), model=arm)
+            diag = dict(diag, decode_s=round(time.perf_counter() - t0, 3))
+        if ref is None:
+            return arm, key, mmap, diag, None
+        sc = score_item(ref, strata, mmap)
+        for k, v in sc.items():
+            if k != 'free':
+                v.beats = {}
+        return arm, key, sc, diag, None
     except Exception as exc:  # noqa: BLE001
         return arm, key, None, None, f'{type(exc).__name__}: {exc} {traceback.format_exc()[-300:]}'
 
@@ -289,6 +306,11 @@ def compact(table: dict, measures=MEASURES) -> dict:
 
 # ------------------------------------------------------------------ main
 
+def _paths(a) -> dict:
+    return dict(corpus=getattr(a, 'corpus', None) or 'data/r2-corpus.parquet',
+                tags=getattr(a, 'tags', None) or 'artifacts/n1-inventory-20261014/tags.json')
+
+
 def with_cal(split: dict, data: Path, r0: Path) -> dict:
     """Add the curated cal subset (charts from rung 0's manifest) as split ``cal``."""
     recs = {r['rec']: r for r in json.load(open(r0 / 'recordings.json'))}
@@ -313,7 +335,7 @@ def tune(a, split, index, out: Path) -> None:
     import multiprocessing as mp
     from .infer import song_outputs
     run, bulk, root = Path(a.run), Path(a.bulk), Path(a.root)
-    items = [x for x in eval_items(split, ['cal'], root) if 'error' not in x]
+    items = [x for x in eval_items(split, ['cal'], root, **_paths(a)) if 'error' not in x]
     items = [x for x in items if x['item'] in index and 'error' not in index[x['item']]]
     if a.limit:
         items = items[:a.limit]
@@ -326,11 +348,11 @@ def tune(a, split, index, out: Path) -> None:
     by_key = {x['key']: x for x in items}
     with mp.get_context('spawn').Pool(a.processes) as pool:
         for name, kw in grid.items():
-            jobs = [(name, k, e, kw) for k, e in ev.items()]
+            jobs = [(name, k, e, kw, by_key[k]['ref'], by_key[k]['strata']) for k, e in ev.items()]
             sc = {}
-            for arm, key, mmap, diag, err in pool.imap_unordered(_decode_job, jobs, chunksize=2):
-                if mmap is not None:
-                    sc[key] = score_item(by_key[key]['ref'], by_key[key]['strata'], mmap)
+            for arm, key, res_k, diag, err in pool.imap_unordered(_decode_job, jobs, chunksize=2):
+                if res_k is not None:
+                    sc[key] = res_k
             t = aggregate_arm(items, sc, bootstrap=0)
             res[name] = dict(kw=kw, **{s: dict(bl20=t[s]['bl20']['value'], n=t[s]['n_recordings'],
                                                  level=t[s]['level']['value'], bars=t[s]['bars_start']['value'])
@@ -384,7 +406,7 @@ def main(a) -> None:
         print(msg, flush=True)
 
     for panel in a.panels.split(','):
-        items = eval_items(split, [panel], root)
+        items = eval_items(split, [panel], root, **_paths(a))
         if a.limit:
             items = items[:a.limit]
         bad = [x for x in items if 'error' in x]
@@ -402,22 +424,27 @@ def main(a) -> None:
                     for x in scored:
                         p = d[0] / f"{x['item']}.npz" if d else None
                         if p is not None and p.exists() and n_frames[x['key']]:
-                            yield (arm, x['key'], bt_evidence(p, BT_SHIFT_MS[arm], n_frames[x['key']]), cfg_kw)
+                            yield (arm, x['key'], bt_evidence(p, BT_SHIFT_MS[arm], n_frames[x['key']]), cfg_kw, x['ref'], x['strata'])
                 elif arm == 'oracle':
                     for x in scored:
                         if n_frames[x['key']]:
-                            yield (arm, x['key'], oracle_evidence(x['ref'], n_frames[x['key']]), cfg_kw)
+                            yield (arm, x['key'], oracle_evidence(x['ref'], n_frames[x['key']]), cfg_kw, x['ref'], x['strata'])
+                elif arm == 'r2':
+                    for x in scored:
+                        p = bulk / 'r2-export' / f"{x['item']}.json"
+                        if p.exists():
+                            yield ('r2', x['key'], r2_map(p), cfg_kw, x['ref'], x['strata'])
 
         maps: dict[str, dict] = {}
         diags: dict[str, dict] = {}
         errors = []
 
         def collect(res):
-            arm, key, mmap, diag, err = res
+            arm, key, sc, diag, err = res
             if err:
                 errors.append(dict(arm=arm, key=key, error=err))
                 return
-            maps.setdefault(arm, {})[key] = mmap
+            maps.setdefault(arm, {})[key] = sc
             diags.setdefault(arm, {})[key] = diag
 
         with mp.get_context('spawn').Pool(a.processes) as pool:
@@ -440,29 +467,23 @@ def main(a) -> None:
                     for i, x in enumerate(keys):
                         s = songs[x['item']]
                         acts = song_outputs(model, s, device)
-                        submit((f'v0@{tag}', x['key'], v0_evidence(acts), cfg_kw))
+                        submit((f'v0@{tag}', x['key'], v0_evidence(acts), cfg_kw, x['ref'], x['strata']))
                         if ck == cks[-1]:
                             if 'v0f1' in arms:
-                                submit((f'v0f1@{tag}', x['key'], v0_evidence(acts, f1_only=True), cfg_kw))
+                                submit((f'v0f1@{tag}', x['key'], v0_evidence(acts, f1_only=True), cfg_kw, x['ref'], x['strata']))
                             if 'v0zero' in arms:
-                                submit(('v0zero', x['key'], v0_evidence(song_outputs(model, s, device, memory='zero')), cfg_kw))
+                                submit(('v0zero', x['key'], v0_evidence(song_outputs(model, s, device, memory='zero')), cfg_kw, x['ref'], x['strata']))
                             if 'v0other' in arms:
                                 o = songs[keys[(i + 7) % len(keys)]['item']]
                                 submit(('v0other', x['key'], v0_evidence(song_outputs(model, s, device, memory='other',
-                                                                                     other_song=o)), cfg_kw))
+                                                                                     other_song=o)), cfg_kw, x['ref'], x['strata']))
                     del model
                     say(f'{panel}: evidence from {ck.name} done')
             while pending:
                 collect(pending.pop(0).get())
-        if 'r2' in arms:
-            for x in scored:
-                p = bulk / 'r2-export' / f"{x['item']}.json"
-                if p.exists():
-                    maps.setdefault('r2', {})[x['key']] = r2_map(p)
-        say(f'{panel}: scoring {sum(len(v) for v in maps.values())} maps; {len(errors)} decode errors')
+        say(f'{panel}: {sum(len(v) for v in maps.values())} maps scored; {len(errors)} errors')
         by_key = {x['key']: x for x in scored}
-        scores = {arm: {k: score_item(by_key[k]['ref'], by_key[k]['strata'], m) for k, m in mm.items()}
-                  for arm, mm in maps.items()}
+        scores = maps
         tables, compact_tables = {}, {}
         for arm, sc in sorted(scores.items()):
             tables[arm] = aggregate_arm(scored, sc)
