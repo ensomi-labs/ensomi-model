@@ -15,7 +15,10 @@ learning-rate curve (cosine over the total budget in training seconds, after a l
   twice chance from minute 12, or under half of BeatThis final0's M1 on the same items from minute 24;
   a stalled probe: the probe loss not under its best for 5 probes in a row while the learning rate is
   above 30 % of its peak, or more than 10 % above its best for 3 probes in a row; the resource guard
-  (MPS driver memory over 15 GB, or throughput under half of this run's first-probe rate for 3 minutes).
+  (allocated MPS tensors over 14 GB or driver memory over 17 GB, or throughput under half of this run's
+  first rate for 3 minutes). Memory inputs are padded to 40 s buckets and the MPS cache is emptied every
+  100 steps: the first job's guard fired at minute 3 on driver memory (over 15 GB, cache included) while
+  per-batch memory shapes varied.
 
 Records (synced): ``<run>/progress.jsonl``, ``<run>/jobs.jsonl``, ``<run>/status.json`` and, when the
 budget is done or a rule fires, ``<run>/verdict.json``.
@@ -40,7 +43,9 @@ CKPT_EVERY_MIN = 10.0
 PROBE_EVERY_MIN = 4.0
 PROGRESS_EVERY_S = 60.0
 KEEP = 8
-MEM_LIMIT_GB = 15.0
+MEM_LIMIT_GB = 14.0           # tensors allocated (current_allocated_memory)
+DRIVER_LIMIT_GB = 17.0        # driver memory, cache included (the MPS limit is 17.76 GB)
+EMPTY_CACHE_EVERY = 100
 SPREAD_MIN = 30.0
 
 
@@ -51,11 +56,12 @@ def lr_at(step: int, elapsed_s: float, total_s: float) -> float:
     return PEAK_LR * (FINAL_LR_FRAC + (1 - FINAL_LR_FRAC) * 0.5 * (1.0 + math.cos(math.pi * frac)))
 
 
-def _mps_gb() -> float:
+def _mps_gb() -> tuple[float, float]:
+    """(driver memory, allocated tensors) in GB on MPS; NaN elsewhere."""
     import torch
     if torch.backends.mps.is_available():
-        return torch.mps.driver_allocated_memory() / 2 ** 30
-    return float('nan')
+        return torch.mps.driver_allocated_memory() / 2 ** 30, torch.mps.current_allocated_memory() / 2 ** 30
+    return float('nan'), float('nan')
 
 
 class Prefetch:
@@ -210,6 +216,8 @@ def train(*, songs, probe_crops, probe_songs, probe_items, refs: dict, run: Path
             if device == 'mps':
                 torch.mps.synchronize()
             st['step'] += 1
+            if device == 'mps' and st['step'] % EMPTY_CACHE_EVERY == 0:
+                torch.mps.empty_cache()
             st['elapsed'] += time.time() - t0
             win_n += x.shape[0]
             losses.append(float(loss.detach()))
@@ -218,13 +226,14 @@ def train(*, songs, probe_crops, probe_songs, probe_items, refs: dict, run: Path
             now = time.time()
             if now - last_prog >= PROGRESS_EVERY_S:
                 rate = win_n / (now - win_t)
-                mem_gb = _mps_gb()
+                mem_gb, alloc_gb = _mps_gb()
                 rec = dict(step=st['step'], elapsed_s=round(st['elapsed'], 1), crops_per_s=round(rate, 2),
                            loss=round(float(np.mean(losses)), 5), parts={k: round(float(np.mean(v)), 4) for k, v in parts.items()},
-                           lr=round(lr_at(st['step'], st['elapsed'], total_s), 7), mps_gb=round(mem_gb, 2))
+                           lr=round(lr_at(st['step'], st['elapsed'], total_s), 7), mps_gb=round(mem_gb, 2),
+                           mps_alloc_gb=round(alloc_gb, 2))
                 write('progress.jsonl', rec)
                 win_t, win_n, losses, parts, last_prog = now, 0, [], {}, now
-                if mem_gb > MEM_LIMIT_GB:
+                if alloc_gb > MEM_LIMIT_GB or mem_gb > DRIVER_LIMIT_GB:
                     verdict = 'guard:mps_memory'
                     break
                 if st['ref_rate'] is None and st['step'] > 200:

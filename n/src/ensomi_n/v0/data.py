@@ -22,6 +22,7 @@ from .songs import MEMO_HOP, memo_path
 
 CROP = 2000
 MAX_MEMO_S = 480.0
+MEMO_BUCKET = 1000      # memory inputs are padded to a multiple of this many frames (40 s): few shapes on MPS
 KEYS_F = ('beat', 'half', 'down', 'beat_off', 'half_off', 'down_off', 'weight', 'phase', 'logp', 'bar_phase', 'bound')
 KEYS_B = ('beat_offmask', 'half_offmask', 'down_offmask', 'mask', 'phase_mask', 'bar_mask')
 
@@ -79,7 +80,7 @@ def memo_input(song: Song, rate: float = 1.0, centre_ms: float | None = None) ->
 
 def pad_memos(memos: list[np.ndarray]) -> tuple[np.ndarray, np.ndarray]:
     s = max(len(m) for m in memos)
-    s += (-s) % 2
+    s += (-s) % MEMO_BUCKET
     out = np.zeros((len(memos), s, memos[0].shape[1]), dtype=np.float32)
     mask = np.zeros((len(memos), s), dtype=bool)
     for i, m in enumerate(memos):
