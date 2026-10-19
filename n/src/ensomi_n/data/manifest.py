@@ -146,25 +146,33 @@ def build_recordings(rows: list[dict], *, groups: list | None = None, holdout_sh
 
 
 def select(recs: list[dict], hard: dict[str, bool], *, excluded: set[str] = frozenset(), n_val_hard: int = 150,
-           n_val_random: int = 150, n_train: int = 1600, n_train_hard: int = 800, salt: str = 'n1-r1-v1') -> dict:
+           n_val_random: int = 150, n_train: int = 1600, n_train_hard: int = 800, salt: str = 'n1-r1-v1',
+           version: str = 'n1-r1-v2') -> dict:
     """val-n1 (hard then random) and R1-train (up to ``n_train_hard`` hard, the rest random) from ``n_train``.
 
     ``hard`` maps recording id to its interim hard flag; recordings without
-    labels or in ``excluded`` (failed label checks) are not drawn.
+    labels or in ``excluded`` (failed label checks) are not drawn. The hard
+    draws and each random draw use their own salted order: drawn in one order,
+    the first recordings not taken by the hard draw are exactly the non-hard
+    ones, so a "random" half would hold no hard recording (version
+    ``n1-r1-v1`` did this). Version ``n1-r1-v2`` keeps v1's order (``salt``)
+    for the hard draws and orders each random draw by ``version``.
     """
+    order = lambda tag: (lambda k: _order(f'{version}:{tag}', k))
     pool = sorted((r['rec'] for r in recs if r['role'] == 'n_train' and r['rec'] in hard and r['rec'] not in excluded),
                   key=lambda k: _order(salt + ':order', k))
     hard_pool = [k for k in pool if hard[k]]
     val_hard = hard_pool[:n_val_hard]
     taken = set(val_hard)
-    val_random = [k for k in pool if k not in taken][:n_val_random]
+    val_random = [k for k in sorted(pool, key=order('val_random')) if k not in taken][:n_val_random]
     taken |= set(val_random)
     rest = [k for k in pool if k not in taken]
     train_hard = [k for k in rest if hard[k]][:n_train_hard]
     chosen = set(train_hard)
-    train_rest = [k for k in rest if k not in chosen][:max(n_train - len(train_hard), 0)]
+    train_rest = [k for k in sorted(rest, key=order('train_random')) if k not in chosen][:max(n_train - len(train_hard), 0)]
     return dict(val_hard=val_hard, val_random=val_random, train=train_hard + train_rest, train_hard=train_hard,
-                pool=len(pool), pool_hard=len(hard_pool), salt=salt)
+                pool=len(pool), pool_hard=len(hard_pool), salt=salt, version=version,
+                val_random_hard=sum(hard[k] for k in val_random), train_rest_hard=sum(hard[k] for k in train_rest))
 
 
 def write_json(obj, path) -> str:

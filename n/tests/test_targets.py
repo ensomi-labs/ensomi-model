@@ -106,3 +106,17 @@ def test_interim_strata(osu_writer):
     assert strata.flags(_ref(osu_writer, red2, heads, 'red.osu'))['strata'] == ['S0']
     lv = strata.flags(_ref(osu_writer, [(1000.0, 60000 / 80.5)], heads, 'lv.osu'))
     assert 'S5' in lv['strata']
+
+
+def test_random_draws_are_independent_of_the_hard_draw():
+    """val-n1's random half and R1-train's rest hold hard recordings in about the pool's share."""
+    from ensomi_n.data.manifest import select
+    recs = [dict(rec=f'r{i:04d}', role='n_train') for i in range(3000)]
+    hard = {r['rec']: (i % 2 == 0) for i, r in enumerate(recs)}
+    sel = select(recs, hard)
+    assert len(sel['val_hard']) == 150 and all(hard[k] for k in sel['val_hard'])
+    assert 50 <= sel['val_random_hard'] <= 100          # about half of 150, not 0
+    assert not set(sel['val_random']) & set(sel['val_hard'])
+    rest = sel['train'][len(sel['train_hard']):]
+    assert 150 <= sum(hard[k] for k in rest) <= 450     # hard ones remain in the random rest
+    assert len(set(sel['train'])) == 1600 and not set(sel['train']) & (set(sel['val_hard']) | set(sel['val_random']))

@@ -101,11 +101,13 @@ def cmd_labels(a) -> None:
                         sets_with_implausible=int(sum(s['expressive']['implausible'] > 0 for s in ok)),
                         tiny_segments=int(sum(s['expressive']['tiny'] for s in ok))),
         timing_inconsistent_sets=int(sum(not s['timing_consistent'] for s in ok)),
-        flags_pool={k: int(sum(s[k] for s in train_rows if k in s)) for k in
-                    ('multi_tempo', 'reset', 'short', 'meter', 'tempo_mapped', 'mixed', 'level', 'glitch', 'hard')},
+        flags_pool=dict({k: int(sum(bool(s['flags'].get(k)) for s in train_rows)) for k in
+                         ('multi_tempo', 'reset', 'short', 'meter', 'tempo_mapped', 'mixed', 'level', 'glitch')},
+                        hard=int(sum(bool(s['hard']) for s in train_rows))),
         selection=dict(pool=sel['pool'], pool_hard=sel['pool_hard'], train=len(sel['train']),
                        train_hard=len(sel['train_hard']), val_hard=len(sel['val_hard']),
-                       val_random=len(sel['val_random']), salt=sel['salt']),
+                       val_random=len(sel['val_random']), salt=sel['salt'], version=sel['version'], val_random_hard=sel['val_random_hard'],
+                       train_rest_hard=sel['train_rest_hard']),
         strata_interim=strata_counts, interim_strata=True)
     _dump(result, run / 'labels-result.json')
     progress(dict(step='labels_done', ok=n_ok, gate_labels=result['gate_labels']))
