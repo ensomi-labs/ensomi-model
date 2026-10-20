@@ -597,6 +597,84 @@ def cmd_md(a) -> None:
     print(f'written {a.out_md}')
 
 
+def _ci(d):
+    return f"{d['delta']:+.3f} [{d['lo']:+.3f}, {d['hi']:+.3f}]" if d else ''
+
+
+def doc_tables(aggs: list[dict], panel: str) -> str:
+    """The compact tables of the analysis note: tests 1b, 1a, 2 and 3 per stratum with both seeds' deltas,
+    m_s and the class, and test 4 (fast / not fast) as two-seed mean deltas with classes."""
+    seeds = len(aggs)
+    out = []
+
+    def rows(group, test, field):
+        return margin_rows(aggs, panel, group, test, field)
+
+    def v0s(r):
+        return ' / '.join(_f(v) for v in r['v0'])
+
+    def dcols(r):
+        return [_ci(d) for d in r['deltas']] + ([f"{r['dbar']:+.3f}"] if seeds > 1 else [])
+
+    dh = [f'Δ s{k} [95 %]' for k in range(seeds)] + (['Δ̄'] if seeds > 1 else [])
+    # Test 1b
+    out += [f'**Test 1b, reader-neutral heads, BL-20 non-free ({panel})**', '',
+            '| Stratum | n | kept | R2 | v0 ' + '/'.join(f's{k}' for k in range(seeds)) + ' | ' + ' | '.join(dh) +
+            ' | m_s | class | shrink s0 [95 %] |', '|' + ' --- |' * (8 + len(dh))]
+    for st, r in rows('all', 'Nn', 'bl').items():
+        src = aggs[0][panel]['tables']['all']['Nn'][st]
+        out.append('| ' + ' | '.join([st, str(r['n']), _f(src.get('weight_kept'), 3), _f(r['r2']), v0s(r)] + dcols(r) +
+                                     [_f(r['m']), r['cls'], _ci(src['bl'].get('shrink'))]) + ' |')
+    # Test 1a
+    out += ['', f'**Test 1a, recordings with no changed head, BL-20 non-free ({panel})**', '',
+            '| Stratum | n | R2 | v0 ' + '/'.join(f's{k}' for k in range(seeds)) + ' | ' + ' | '.join(dh) +
+            ' | m_s | class | other recordings: Δ s0 (n) |', '|' + ' --- |' * (7 + len(dh))]
+    for st, r in rows('all', 'N1a', 'bl').items():
+        o = aggs[0][panel]['tables']['all']['N1a'][st]['bl'].get('others')
+        out.append('| ' + ' | '.join([st, str(r['n']), _f(r['r2']), v0s(r)] + dcols(r) + [_f(r['m']), r['cls'],
+                                     (f"{_ci(o)} ({o['n']})" if o else '')]) + ' |')
+    # Test 2
+    out += ['', f"**Test 2, R's canonical lines as the reference, BL-20 non-free ({panel})**", '',
+            '| Stratum | n | R2 | v0 ' + '/'.join(f's{k}' for k in range(seeds)) + ' | ' + ' | '.join(dh) + ' | m_s | class |',
+            '|' + ' --- |' * (6 + len(dh))]
+    for st, r in rows('all', 'R', 'bl').items():
+        out.append('| ' + ' | '.join([st, str(r['n']), _f(r['r2']), v0s(r)] + dcols(r) + [_f(r['m']), r['cls']]) + ' |')
+    # Test 3
+    for test, name in (('N', "N's reference"), ('R', "R's reference")):
+        out += ['', f'**Test 3, phase-tolerant BL-20 non-free, {name} ({panel})**', '',
+                '| Stratum | n | R2 | v0 ' + '/'.join(f's{k}' for k in range(seeds)) + ' | ' + ' | '.join(dh) +
+                ' | m_s | class | chance (BL-20 / tolerant) | shift ≠ 0: R2 / v0 |', '|' + ' --- |' * (8 + len(dh))]
+        for st, r in rows('all', test, 'pt').items():
+            src = aggs[0][panel]['tables']['all'][test][st]
+            nz = src.get('nonzero_shift', {})
+            out.append('| ' + ' | '.join([st, str(r['n']), _f(r['r2']), v0s(r)] + dcols(r) + [
+                _f(r['m']), r['cls'], f"{_f(src.get('chance'))} / {_f(src.get('chance_pt'))}",
+                ' / '.join(_f(v, 2) for v in nz.values())]) + ' |')
+    # Test 4
+    out += ['', f'**Test 4, fast (literal rule) and not fast: Δ̄ v0 − R2 per test, m_s, class of 1b ({panel})**', '',
+            '| Stratum | fast n | N | 1b | R | tolerant (N) | m_s (1b) | class (1b) | not fast n | N | 1b | R | tolerant (N) | m_s (1b) | class (1b) |',
+            '|' + ' --- |' * 15]
+    for st in STRATA_ORDER:
+        cells = [st]
+        for group in ('fast', 'notfast'):
+            rs = {k: rows(group, t, f).get(st) for k, (t, f) in
+                  dict(N=('N', 'bl'), Nn=('Nn', 'bl'), R=('R', 'bl'), pt=('N', 'pt')).items()}
+            if rs['Nn'] is None:
+                cells += [''] * 7
+                continue
+            cells += [str(rs['Nn']['n'])] + [f"{rs[k]['dbar']:+.3f}" if rs[k] else '' for k in ('N', 'Nn', 'R', 'pt')] + \
+                     [_f(rs['Nn']['m']), rs['Nn']['cls']]
+        if any(cells[1:]):
+            out.append('| ' + ' | '.join(cells) + ' |')
+    return '\n'.join(out) + '\n'
+
+
+def cmd_doc(a) -> None:
+    aggs = [json.loads(Path(p).read_text()) for p in a.agg]
+    Path(a.out_md).write_text('\n'.join(doc_tables(aggs, panel) for panel in a.panels.split(',')))
+    print(f'written {a.out_md}')
+
+
 def main(argv=None) -> None:
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     sub = ap.add_subparsers(dest='cmd', required=True)
@@ -627,8 +705,12 @@ def main(argv=None) -> None:
     s.add_argument('--agg', action='append', required=True, help='agg JSON per seed, seed 0 first')
     s.add_argument('--panels', default='panel,val_hard')
     s.add_argument('--out-md', required=True)
+    s = sub.add_parser('doc')
+    s.add_argument('--agg', action='append', required=True, help='agg JSON per seed, seed 0 first')
+    s.add_argument('--panels', default='panel,val_hard')
+    s.add_argument('--out-md', required=True)
     a = ap.parse_args(argv)
-    dict(maps=cmd_maps, items=cmd_items, agg=cmd_agg, md=cmd_md)[a.cmd](a)
+    dict(maps=cmd_maps, items=cmd_items, agg=cmd_agg, md=cmd_md, doc=cmd_doc)[a.cmd](a)
 
 
 if __name__ == '__main__':
