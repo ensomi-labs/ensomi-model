@@ -587,9 +587,12 @@ def score_span(ref, mmap, spans) -> dict:
     return m
 
 
-def canonical_in(mmap, lo: float, hi: float) -> np.ndarray:
+def canonical_in(mmap, lo: float, hi: float, ref_lo: float, ref_hi: float) -> np.ndarray:
+    """The map's canonical lines in ``[lo, hi]``, from its timing over the reference's scored range, as `score`
+    builds it. A map of red lines alone places no beats in a window that ends before its first red line
+    (`Timing.from_segments`), so the window must not be the span alone."""
     from ensomi_n.eval.measures import PRED_MARGIN_MS
-    tm = mmap.timing(lo - PRED_MARGIN_MS, hi + PRED_MARGIN_MS)
+    tm = mmap.timing(min(lo, ref_lo) - PRED_MARGIN_MS, max(hi, ref_hi) + PRED_MARGIN_MS)
     t = tm.canonical().t if len(tm) else np.zeros(0)
     return t[(t >= lo) & (t <= hi)]
 
@@ -751,11 +754,11 @@ def cmd_score(a) -> None:
         a0, b0 = hard if hard else (lo, hi)
         t_ref = ref.lines().t
         for cname in CLOCK_CONSTANTS:
-            lines = {f'st-{mode}': canonical_in(arms[f'st-{mode}@{cname}'][x['item']], a0, b0) for mode in MODES}
+            lines = {f'st-{mode}': canonical_in(arms[f'st-{mode}@{cname}'][x['item']], a0, b0, lo, hi) for mode in MODES}
             for seed, arm in last.items():
-                lines[f'v0{seed}'] = canonical_in(arms[arm][x['item']], a0, b0)
+                lines[f'v0{seed}'] = canonical_in(arms[arm][x['item']], a0, b0, lo, hi)
             if x['item'] in arms['r2']:
-                lines['r2'] = canonical_in(arms['r2'][x['item']], a0, b0)
+                lines['r2'] = canonical_in(arms['r2'][x['item']], a0, b0, lo, hi)
             lines['mapper'] = t_ref[(t_ref >= a0) & (t_ref <= b0)]
             row.setdefault('agreement', {})[cname] = agreement(lines)
         if s['tier'] == 'B':
@@ -1107,6 +1110,20 @@ def markdown(rep) -> str:
                  f"{_f(g('st-variable@c20'))} / {_f(g('st-variable@c287'))} | {_f(g(last.get('s0', '')))} / "
                  f"{_f(g(last.get('s1', '')))} | {_f(g('r2'))} | {g('st-constant@c20', 'attribution') or '–'}; "
                  f"{g('st-variable@c20', 'attribution') or '–'} |")
+    L += ['', '### Per song: offset term, BL-10 and level', '',
+          'The offset term o (ms, whole song; the prediction minus the chart) and, on the hard span (tier B: the whole '
+          'song), BL-10 and the level share at the chart\'s notated level. Smart Tempo at clock `c20`; add -8.7 ms '
+          'to its offsets for `c287`.', '',
+          '| Song | o: ST const / var / v0 s0 / R2 | BL-10: ST const / var / v0 s0 / R2 | level: ST const / var / v0 s0 / R2 |',
+          '| --- | --- | --- | --- |']
+    for s in rep['songs']:
+        span = 'whole' if s['tier'] == 'B' else 'hard'
+        arms4 = ('st-constant@c20', 'st-variable@c20', last.get('s0', ''), 'r2')
+
+        def row(k, sp, nd):
+            V = s['values'].get(sp, {})
+            return ' / '.join(_f((V.get(arm) or {}).get(k), nd) for arm in arms4)
+        L.append(f"| {s['list_id']} | {row('offset_ms', 'whole', 1)} | {row('bl10', span, 3)} | {row('level', span, 2)} |")
     L += ['', '## Who agrees on each hard span (canonical lines, 20 ms)', '',
           f"Two arms agree when each has at least {rep['rules']['agree']} of its canonical lines in the span matched "
           'by the other within 20 ms. Groups join arms that agree, directly or through another arm.', '']

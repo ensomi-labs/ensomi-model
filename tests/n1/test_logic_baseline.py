@@ -107,6 +107,14 @@ def test_agreement_groups_and_the_four_readings():
     assert s2['all_disagree'] and s2['chart_alone']
 
 
+def test_canonical_lines_of_a_red_line_map_before_its_first_line():
+    """R2 extends its first red line backwards; a span that ends before that line still holds its lines."""
+    m = MusicMap(segments=(Segment(60000.0, 500.0, 4),), model={'name': 'r2'})
+    t = lb.canonical_in(m, 10000.0, 20000.0, 1000.0, 100000.0)
+    assert len(t) == 21 and t[0] == pytest.approx(10000.0) and t[-1] == pytest.approx(20000.0)
+    assert len(m.timing(10000.0 - 6000.0, 20000.0 + 6000.0)) == 0     # the narrow window alone places nothing
+
+
 def test_tier_b_pulse_reads_continuous_and_restarting_arms(tmp_path):
     """5/4 notated at 220 BPM: N restarts canonical lines each bar (notated beats 0, 2, 4), R runs on every 2."""
     nb = 60000.0 / 220.0
