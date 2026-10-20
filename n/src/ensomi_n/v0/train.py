@@ -11,16 +11,20 @@ learning-rate curve (cosine over the total budget in training seconds, after a l
 - Probes every ``PROBE_EVERY_MIN`` training minutes (outside the budget) on val-n1's random half,
   never on the panels: the loss on fixed crops (no augmentation), and M1 (window phase recovery at
   20 ms, `ensomi_n.probe`) of the beat activation on its S0 and hard items.
-- Kill rules (guardrail 9; reference scale from `refs`): a non-finite loss twice; probe S0 M1 under
-  twice chance from minute 12, or under half of BeatThis final0's M1 on the same items from minute 24;
-  a stalled probe: the running mean of 3 probe losses not under its best for 6 probes in a row while the
-  learning rate is above half its peak (`stalled`; it replaced, at minute 50 of seed 0, a single-probe rule
-  with patience 5 that probe noise at peak learning rate could fire), or the probe loss more than 10 %
-  above its best for 3 probes in a row; the resource guard
-  (allocated MPS tensors over 14 GB or driver memory over 17 GB, or throughput under half of this run's
-  first rate for 3 minutes). Memory inputs are padded to 40 s buckets and the MPS cache is emptied every
-  100 steps: the first job's guard fired at minute 3 on driver memory (over 15 GB, cache included) while
-  per-batch memory shapes varied.
+- Kill rules (guardrail 9; reference scale from `refs`), evaluated at every probe by `kill_verdict`
+  from the probe history alone, so a resumed job reaches the same verdict:
+  - a non-finite training loss twice, or a non-finite probe;
+  - probe S0 M1 under twice chance at minute 12, or under half of BeatThis final0's M1 on the same
+    items at minute 24 or, as a running mean of 3 probes, at any probe after it;
+  - a stalled probe: the running mean of 3 probe losses not under its best for 6 probes in a row while
+    the learning rate is above half its peak (`stalled`);
+  - a diverging probe (`diverging`): see its docstring. In v0 this rule was "the probe loss more than
+    10 % above its best for 3 probes in a row"; it stopped both v0 seeds (minutes 104 and 80 of 150)
+    on swings of the level and phase terms while M1 held, before their anneal.
+- Resource guard: allocated MPS tensors over 14 GB or driver memory over 17 GB, or throughput under
+  half of this run's first rate for 3 minutes. Memory inputs are padded to 40 s buckets and the MPS
+  cache is emptied every 100 steps: the first job's guard fired at minute 3 on driver memory (over
+  15 GB, cache included) while per-batch memory shapes varied.
 
 Records (synced): ``<run>/progress.jsonl``, ``<run>/jobs.jsonl``, ``<run>/status.json`` and, when the
 budget is done or a rule fires, ``<run>/verdict.json``.
@@ -111,6 +115,119 @@ def stalled(losses, window: int = 3, patience: int = 6) -> bool:
     return bool(sm[-patience:].min() >= best_before)
 
 
+WINDOW = 3            # probes in a running mean
+PATIENCE = 3          # consecutive probes a divergence condition must hold
+SPREAD_PROBES = 9     # probes over which a probe's own spread is read
+SPREAD_K = 3.0        # a rise or a drop must exceed this many spreads
+RANGE_FRAC = 0.10     # ... and this share of the loss's learning range
+M1_FLOOR = 0.02       # ... and, for M1, this much (chance 0.07, BeatThis final0 0.77-0.85 on the probe)
+GROSS_RANGE_FRAC = 0.5
+GROSS_M1_DROP = 0.10
+
+
+def running_mean(x, window: int = WINDOW) -> np.ndarray:
+    return np.convolve(np.asarray(x, dtype=np.float64), np.ones(window) / window, mode='valid')
+
+
+def spread(x) -> float:
+    """Robust SD of single probes about their centred 3-probe mean (NaN under 3 probes).
+
+    A centred mean removes a linear trend, so a steady rise does not widen the spread it is read
+    against; the residual of one probe about it has SD sqrt(2/3) of the probe's, hence the factor.
+    """
+    x = np.asarray(x, dtype=np.float64)
+    if len(x) < 3:
+        return float('nan')
+    r = x[1:-1] - (x[:-2] + x[1:-1] + x[2:]) / 3.0
+    return float(1.4826 * np.median(np.abs(r - np.median(r))) / math.sqrt(2.0 / 3.0))
+
+
+def m1_mean(h: dict) -> float:
+    m = h.get('m1') or {}
+    vals = [m[g] for g in ('S0', 'hard') if g in m]
+    return float(np.mean(vals)) if vals else float('nan')
+
+
+def divergence_state(history) -> dict | None:
+    """The divergence statistics after the last probe of ``history`` (None before ``WINDOW`` probes).
+
+    ``L`` is the running mean of probe losses, ``M`` that of probe M1 (S0 and hard averaged). The loss
+    has risen when ``L`` is above its best by more than ``tau_l`` = max(``SPREAD_K`` x the probe
+    loss's spread, ``RANGE_FRAC`` x the learning range, first probe minus best ``L``); M1 has fallen
+    when ``M`` is under its best by more than ``tau_m`` = max(``SPREAD_K`` x M1's spread,
+    ``M1_FLOOR``). Spreads are read over the last ``SPREAD_PROBES`` probes. Losses are compared by
+    difference, not ratio, since the phase and period NLLs make the total free to cross zero.
+    """
+    if len(history) < WINDOW:
+        return None
+    loss = [h['probe_loss'] for h in history]
+    m1 = [m1_mean(h) for h in history]
+    lb, mb = running_mean(loss), running_mean(m1)
+    best_l, best_m = float(lb.min()), float(np.nanmax(mb)) if np.isfinite(mb).any() else float('nan')
+    rng = max(loss[0] - best_l, 0.0)
+    recent = slice(max(0, len(history) - SPREAD_PROBES), len(history))
+    sl, sm = spread(loss[recent]), spread(m1[recent])
+    tau_l = max(SPREAD_K * (sl if np.isfinite(sl) else 0.0), RANGE_FRAC * rng)
+    tau_m = max(SPREAD_K * (sm if np.isfinite(sm) else 0.0), M1_FLOOR)
+    rise, drop = float(lb[-1] - best_l), float(best_m - mb[-1])
+    return dict(L=float(lb[-1]), best_L=best_l, rise=rise, tau_l=tau_l, range=rng, M=float(mb[-1]), best_M=best_m,
+                drop=drop, tau_m=tau_m, loss_up=rise > tau_l, m1_down=drop > tau_m,
+                loss_gross=rise > GROSS_RANGE_FRAC * rng > 0.0, m1_gross=drop > GROSS_M1_DROP)
+
+
+def diverging(history) -> str | None:
+    """Real divergence, read on running means and against the probe's own spread.
+
+    Fires when, for ``PATIENCE`` probes in a row, one of these holds (`divergence_state`):
+    - the probe loss has risen and M1 has fallen (``loss_up_m1_down``);
+    - the probe loss has given back more than half its learning range (``loss_gross``), whatever M1;
+    - M1 has fallen by more than ``GROSS_M1_DROP`` (``m1_gross``), whatever the loss.
+
+    A swing of single probes moves neither running mean by its threshold for three probes, and a rise
+    of the level and phase terms with M1 holding is not divergence. On v0's two seeds, whose v0 rule
+    fired at minutes 104 and 80, none of these fires; the loss condition alone holds at one probe
+    (seed 0, minute 104) and M1's never (`n/tests/test_v0_killrule.py`).
+    """
+    if len(history) < WINDOW + PATIENCE - 1:
+        return None
+    states = [divergence_state(history[:len(history) - k]) for k in range(PATIENCE)]
+    for name, keys in (('loss_up_m1_down', ('loss_up', 'm1_down')), ('loss_gross', ('loss_gross',)),
+                       ('m1_gross', ('m1_gross',))):
+        if all(s is not None and all(s[k] for k in keys) for s in states):
+            return name
+    return None
+
+
+def kill_verdict(history, refs: dict, lr_frac: float) -> str | None:
+    """The kill rules read at a probe, from the probe history (the last entry is the current probe).
+
+    ``lr_frac`` is the current learning rate over its peak; ``refs`` carries the probe's chance and
+    BeatThis final0 M1 (`ensomi_n.run.v0` refs).
+    """
+    h = history[-1]
+    vals = [h['probe_loss']] + [v for v in (h.get('m1') or {}).values()]
+    if not all(np.isfinite(v) for v in vals):
+        return 'killed:probe_nonfinite'
+    minute = h['minute']
+    first = lambda m: next(i for i, x in enumerate(history) if x['minute'] >= m)
+    s0 = (h.get('m1') or {}).get('S0', float('nan'))
+    if minute >= 12 and first(12) == len(history) - 1 and not s0 >= 2.0 * refs['probe_s0_chance']:
+        return 'killed:s0_m1_below_2x_chance_at_12min'
+    if minute >= 24:
+        half_f0 = 0.5 * refs['probe_s0_final0']
+        if first(24) == len(history) - 1 and not s0 >= half_f0:
+            return 'killed:s0_m1_below_half_final0_at_24min'
+        s0s = [x.get('m1', {}).get('S0', float('nan')) for x in history[first(24):]]
+        if len(s0s) >= WINDOW and not running_mean(s0s)[-1] >= half_f0:
+            return 'killed:s0_m1_below_half_final0'
+    if stalled([x['probe_loss'] for x in history]) and lr_frac > 0.5:
+        return 'killed:probe_stalled'
+    d = diverging(history)
+    if d is not None:
+        return f'killed:probe_diverging:{d}'
+    return None
+
+
 def probe_loss(model, crops, songs, pos_weight, device, *, memory: str = 'song', other=None, batch: int = 16):
     """Mean loss over fixed crops, and per-crop totals (memory: song, zero or other)."""
     import torch
@@ -167,7 +284,7 @@ def train(*, songs, probe_crops, probe_songs, probe_items, refs: dict, run: Path
     model = V0(**(model_kw or {})).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=PEAK_LR, weight_decay=0.01)
     sampler = Sampler(songs, seed=1000 + seed, crops_per_song=CROPS_PER_SONG)
-    st = dict(step=0, elapsed=0.0, history=[], ref_rate=None, best_loss=None, since_best=0, above=0, kill_checked=[])
+    st = dict(step=0, elapsed=0.0, history=[], ref_rate=None, best_loss=None, since_best=0)
     ckpts = sorted(ck_dir.glob('ckpt-*.pt'))
     if ckpts:
         saved = torch.load(ckpts[-1], map_location=device, weights_only=False)
@@ -274,26 +391,14 @@ def train(*, songs, probe_crops, probe_songs, probe_items, refs: dict, run: Path
                          probe_parts={k: round(float(v.mean()), 4) for k, v in pv.items()},
                          m1={g: round(v, 4) for g, v in m1.items()}, probe_s=round(time.time() - te, 1))
                 st['history'].append(h)
-                write('progress.jsonl', dict(event='probe', **h))
                 if st['best_loss'] is None or lv < st['best_loss']:
                     st['best_loss'], st['since_best'] = lv, 0
                 else:
                     st['since_best'] += 1
-                st['above'] = st['above'] + 1 if lv > 1.10 * st['best_loss'] else 0
-                s0 = m1.get('S0', float('nan'))
-                if minute >= 12 and 'chance' not in st['kill_checked']:
-                    st['kill_checked'].append('chance')
-                    if not s0 >= 2.0 * refs['probe_s0_chance']:
-                        verdict = 'killed:s0_m1_below_2x_chance_at_12min'
-                if minute >= 24 and 'final0' not in st['kill_checked'] and verdict is None:
-                    st['kill_checked'].append('final0')
-                    if not s0 >= 0.5 * refs['probe_s0_final0']:
-                        verdict = 'killed:s0_m1_below_half_final0_at_24min'
-                if verdict is None and stalled([x['probe_loss'] for x in st['history']]) and \
-                        lr_at(st['step'], st['elapsed'], total_s) > 0.5 * PEAK_LR:
-                    verdict = 'killed:probe_stalled'
-                if verdict is None and st['above'] >= 3:
-                    verdict = 'killed:probe_diverging'
+                ds = divergence_state(st['history'])
+                rule = None if ds is None else {k: (round(v, 5) if isinstance(v, float) else v) for k, v in ds.items()}
+                verdict = kill_verdict(st['history'], refs, lr_at(st['step'], st['elapsed'], total_s) / PEAK_LR)
+                write('progress.jsonl', dict(event='probe', **h, rule=rule, verdict=verdict))
                 if verdict is not None:
                     break
             k_ck = st['elapsed'] // (60 * CKPT_EVERY_MIN)
