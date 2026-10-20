@@ -6,8 +6,9 @@ learning-rate curve (cosine over the total budget in training seconds, after a l
 
 - Batch: 8 songs x 2 crops of 20 s (`data.Sampler`), AdamW, peak lr 1e-3, weight decay 0.01,
   gradient clip 1.0.
-- Checkpoints every ``CKPT_EVERY_MIN`` training minutes in the bulk run directory (the last 8 kept,
-  plus every checkpoint of the last 30 minutes of the budget for the checkpoint spread).
+- Checkpoints every ``CKPT_EVERY_MIN`` training minutes in the bulk run directory (the last 24 kept,
+  so a 150-minute run keeps all of them for checkpoints before the anneal's end, plus every
+  checkpoint of the last 30 minutes of the budget for the checkpoint spread).
 - Probes every ``PROBE_EVERY_MIN`` training minutes (outside the budget) on val-n1's random half,
   never on the panels: the loss on fixed crops (no augmentation), and M1 (window phase recovery at
   20 ms, `ensomi_n.probe`) of the beat activation on its S0 and hard items.
@@ -48,7 +49,7 @@ CROPS_PER_SONG = 2
 CKPT_EVERY_MIN = 10.0
 PROBE_EVERY_MIN = 4.0
 PROGRESS_EVERY_S = 60.0
-KEEP = 8
+KEEP = 24
 MEM_LIMIT_GB = 14.0           # tensors allocated (current_allocated_memory)
 DRIVER_LIMIT_GB = 17.0        # driver memory, cache included (the MPS limit is 17.76 GB)
 EMPTY_CACHE_EVERY = 100
