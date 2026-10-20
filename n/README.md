@@ -5,7 +5,8 @@ timing. This distribution, `ensomi-n` (package `ensomi_n`), holds the
 evaluation harness every N1 candidate is scored by:
 
 - `ensomi_n.labels`: N's own `.osu` timing reader;
-- `ensomi_n.mapformat`: the music map, the file an N model writes;
+- `ensomi_n.mapformat`: the music map, the file an N model writes, and a
+  reader for Logic Pro Smart Tempo maps (`ensomi_n.mapformat.logic`);
 - `ensomi_n.timing`: notated beats, segments and canonical beat lines;
 - `ensomi_n.eval`: the measures, nulls, aggregation and the command line.
 
@@ -198,6 +199,26 @@ One JSON file per song, version 1. The full contract is in the
 - `clock`: `osu` (osu!'s convention, the charts' clock) or `decoded`. A
   decoded map is scored only with `decoded_to_osu_ms`, one constant measured
   once; the harness never fits it per song.
+
+### Logic Pro Smart Tempo maps
+
+`ensomi_n.mapformat.logic.read_logic_map(path, lead_ms=...)` reads a Smart
+Tempo analysis saved as a normalized JSON map (schema
+`logic-smart-tempo-native-v1`, written by the capture procedure in
+`docs/guides/logic_tempo_baseline.md`) as a music map on the `decoded` clock:
+
+- its native beat markers are the beats, in seconds from sample zero of the
+  canonical FFmpeg decode of the source, plus `lead_ms`, the lead N's osu!
+  clock rule gives that decode (`ensomi_n.features.clock.file_lead(audio,
+  'ffmpeg')`);
+- its bars count from the native downbeat anchor: the anchor beat starts
+  bar 1, beats before it are a pickup, and each bar holds the numerator's
+  count of beats of the signature in force at its first beat. Only `n/4`
+  signatures are read. `ax_check` compares this reading with the editor's
+  own bar labels where the map carries them.
+
+Scoring it against charts needs the one decoded-to-osu constant, as for any
+decoded map.
 
 ## Measures
 
