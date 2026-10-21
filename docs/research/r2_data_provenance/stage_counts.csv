@@ -1,0 +1,39 @@
+stage,population,description,charts,groups,audio_hashes,creator_labels,artist_labels,source_records,source_record_unit,positive_beatmap_set_ids,missing_or_nonpositive_beatmap_id,missing_or_nonpositive_beatmap_set_id,missing_creator,missing_artist,missing_audio_hash,charts_fit_train,charts_fit_dev,charts_outside_fit
+frozen_corpus_inventory,core,Frozen corpus: every chart in the inventory; not a training population,22066,6222,8049,1398,3384,22066,corpus row,6881,113,110,0,0,35,11368,1163,9535
+r2_cache_fit_train,core,R2: eligible weight-training charts,11368,4167,5026,1129,2445,11368,cache index row,4540,19,6,0,0,0,11368,0,0
+r2_cache_fit_dev,core,R2: development pool,1163,424,497,318,363,1163,cache index row,464,0,4,0,0,0,0,1163,0
+rows_fit_train,core,Rows model: eligible weight-training charts,11368,4167,5026,1129,2445,11368,rows index row,4540,19,6,0,0,0,11368,0,0
+rows_fit_dev,core,Rows model: development pool,1163,424,497,318,363,1163,rows index row,464,0,4,0,0,0,0,1163,0
+prior_fit_train,core,Corpus prior: charts with a numerical row in the published prior,11368,4167,5026,1129,2445,11368,cache index row,4540,19,6,0,0,0,11368,0,0
+prior_fit_dev,core,Corpus prior: charts used to select the prediction method,1163,424,497,318,363,1163,cache index row,464,0,4,0,0,0,0,1163,0
+calibration_song_population,core,Calibration: training charts with at least 256 head rows,11118,4086,4942,1111,2388,11118,calibration chart-table row,4451,19,6,0,0,0,11118,0,0
+calibration_scope_population,core,"Calibration: charts of the 132,053 admitted scopes",11117,4086,4941,1111,2388,132053,scope window,4451,19,6,0,0,0,11117,0,0
+lens_D_measured,core,Lens D: charts of measured sections with machine labels,817,803,811,552,654,2086,Lens section,817,0,0,0,0,0,817,0,0
+lens_V2_measured,core,Lens V2: charts of measured sections with human validation labels,140,116,135,113,97,568,Lens section,140,0,0,0,0,0,130,10,0
+calibration_lens_stream_grades,core,Calibration: Lens D sections with a positive stream grade,625,616,622,462,516,793,Lens section,625,0,0,0,0,0,625,0,0
+calibration_lens_jack_grades,core,Calibration: Lens D sections with a positive jack grade,510,502,506,381,430,618,Lens section,510,0,0,0,0,0,510,0,0
+calibration_lens_jumpstream,core,Calibration: Lens D jumpstream references,313,309,310,246,260,366,Lens section,313,0,0,0,0,0,313,0,0
+calibration_lens_chordstream,core,Calibration: Lens D chordstream references,177,176,177,162,160,202,Lens section,177,0,0,0,0,0,177,0,0
+calibration_lens_chordjack,core,Calibration: Lens D chordjack references,208,207,207,184,192,240,Lens section,208,0,0,0,0,0,208,0,0
+calibration_difficulty_pilot,core,Calibration: difficulty response pilot on supplied source head rows,16,16,16,16,15,16,pilot selection entry,16,0,0,0,0,0,0,16,0
+timing_tuning_observed,core,Timing system: observed tuning charts,2254,845,962,458,666,2254,"timing record, per chart and arm",887,4,4,0,0,0,2254,0,0
+timing_dev_observed,core,Timing system: observed development charts,806,262,316,215,233,2418,"timing record, per chart and arm",286,0,0,0,0,0,0,806,0
+timing_holdout_successful,core,"Timing system: evaluated charts of the final holdout, all inside R2 fit_train",519,277,289,208,237,2076,"timing record, per chart and arm",292,0,0,0,0,0,519,0,0
+r2_selected56M_guard_evaluation,core,R2: corrected checkpoint guard panel of the selected checkpoint,16,16,16,15,16,96,"guard evaluation record, per chart, seed and start",16,0,0,0,0,0,0,16,0
+rows_evaluation_panel96,core,Rows model: final evaluation panel over 96 audio hashes,231,96,96,83,93,231,panel chart entry,97,0,4,0,0,0,0,231,0
+system_evaluation_panel,core,End-to-end system: evaluation panel,48,48,48,46,47,48,panel entry,47,0,1,0,0,0,0,48,0
+early_listening_selection,core,Early listening: selected source charts; selection is not proof of playback,6,6,6,6,6,6,listening slot,6,0,0,0,0,0,0,6,0
+final_listening_selection,core,Final listening: selected source charts; selection is not proof of playback,29,29,29,27,29,29,listening slot,29,0,0,0,0,0,0,29,0
+release_preview_source_selection,core,Release previews: source chart selections,4,4,4,4,4,4,play slot,4,0,0,0,0,0,0,4,0
+kappa_comparison_panel,supplemental,Restoring force: gain comparison panel,48,48,48,44,46,48,panel entry,,,,,,,0,48,0
+kappa_original_mean_donors,supplemental,Restoring force: original nearest-32 mean-target donors,1341,951,1021,476,690,1536,"donor-list entry, 32 per panel chart",,,,,,,1341,0,0
+kappa_original_human_null,supplemental,Restoring force: original human-pair null references,3157,1314,1344,530,947,4316,"pair member, two per pair",,,,,,,2899,258,0
+kappa_original_pair_draws,supplemental,Restoring force: drawn pair-difference target sources,186,93,93,79,90,192,"pair member in a target draw, two per draw",,,,,,,166,20,0
+kappa_followup_x0_sources,supplemental,Restoring force follow-up: diagnostic sources outside the comparison panel,8,8,8,8,8,8,draw record,,,,,,,0,8,0
+kappa_followup_lookup_candidates,supplemental,Restoring force follow-up: nearest-32 candidate donors,1505,1045,1127,510,744,1792,"candidate-list entry, 32 per lookup",,,,,,,1505,0,0
+kappa_followup_drawn_donors,supplemental,Restoring force follow-up: drawn joint-target donors,102,100,101,89,91,104,draw record,,,,,,,102,0,0
+kappa_followup_human_drift_null,supplemental,Restoring force follow-up: admitted human-drift null references,3010,1253,1281,522,911,4104,"pair member, two per admitted pair",,,,,,,2756,254,0
+rows_quiet_rests_calibration,supplemental,"Rows decoding: quiet-rest default selection, first chart of each panel audio item",96,96,96,83,93,96,panel audio item,,,,,,,0,96,0
+system_default_q_calibration,supplemental,"End-to-end system: default difficulty-quantile selection, reconstructed from the controls subset",24,24,24,24,23,24,panel entry with controls,,,,,,,0,24,0
+natural_nll_validation,supplemental,R2 run: natural-NLL validation manifest,64,64,64,60,63,64,manifest window,,,,,,,0,64,0
+run_freerun_manifest,supplemental,R2 run: free-generation manifest,4,4,4,4,4,4,manifest entry,,,,,,,0,4,0

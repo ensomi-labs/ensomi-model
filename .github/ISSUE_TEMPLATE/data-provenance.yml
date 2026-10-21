@@ -1,0 +1,60 @@
+name: Data provenance
+description: Correct an attribution, ask how a chart or song was used for Ensomi R2, or say you are interested in enrollment or opt-out.
+title: "[Data] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is about the data behind Ensomi R2 1.0 and 1.0.1, as the
+        [data provenance](https://github.com/ensomi-labs/ensomi-model/blob/main/docs/research/r2_data_provenance.md)
+        report records it; English, 日本語 and 中文 are welcome.
+
+        **Issues are public:** include no personal data and no audio or `.osz` file; a beatmap link
+        or ID, or a label as the tables show it, is enough.
+
+        Submitting this form does not by itself remove anything from a released model. Enrollment
+        (opt-in) and opt-out, including a convenient way to verify that a request comes from the
+        rights holder, are only being explored; no such process is in place.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is it about?
+      options:
+        - "Attribution: a label, a credit or a chart in the report or tables is wrong or missing"
+        - "Use: how a chart or a song was used"
+        - "Enrollment or opt-out: interest in the process being explored"
+        - Something else about the data
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: >-
+        What is wrong, or what you would like to know. For a correction, say what the report or the
+        tables show and what they should show.
+      placeholder: |
+        The Creator label "Example Mapper" in r2_cache_fit_train is my old name; my current name is "Example".
+    validations:
+      required: true
+
+  - type: textarea
+    id: charts
+    attributes:
+      label: Charts, labels or songs (optional)
+      description: >-
+        osu! beatmap links or IDs, a `stage` and `raw_label` from the tables, or an artist and title.
+        No audio files, please.
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: You are (optional)
+      options:
+        - The mapper of a chart concerned
+        - An artist, composer or performer of the music concerned
+        - Acting for a rights holder
+        - A player, mapper or reader with a question
+        - Other

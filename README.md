@@ -91,6 +91,16 @@ goes to [beatmap-lens](https://github.com/ensomi-labs/beatmap-lens).
 [`CONTRIBUTING.md`](CONTRIBUTING.md) says what happens to a report and how to
 contribute code.
 
+### Data provenance
+
+The rows model and R2 were trained on 11,368 eligible ranked and loved
+osu!mania 4K charts, which are not distributed here. R2 is not built to
+imitate any particular mapper or artist
+([evidence](docs/research/r2_data_provenance.md#mapper-and-artist-style)).
+The [data provenance](docs/research/r2_data_provenance.md) report records each
+stage's charts and labels as attribution, not rights clearance, and how to ask
+for a correction.
+
 ## Earlier released model: R1
 
 R1 continues a chart. Given a short playable seed and the times at which events
