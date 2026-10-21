@@ -331,7 +331,7 @@ def cmd_ardour(a) -> None:
         for old in prefix.parent.glob(f"{job['id']}__*.raw.json"):
             old.unlink()
         bpbs = ','.join(str(k) for k in job['bpbs'])
-        cmd = [a.ardour_lua, str(HERE / 'ardour_vamp.lua'), job['wav'], str(job['rate']), str(sess), str(prefix), bpbs]
+        cmd = [a.ardour_lua, str(HERE / 'ardour_vamp.lua'), str(Path(job['wav']).resolve()), str(job['rate']), str(sess), str(prefix), bpbs]
         res = _run(cmd, a.timeout, prefix.with_suffix('.log'))
         outs = {}
         for tag in [f'qm-bbt-bpb{k}' for k in job['bpbs']] + ['qm-tempo']:
