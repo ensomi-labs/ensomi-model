@@ -12,6 +12,8 @@ root with ``n/src`` of one code commit on ``PYTHONPATH``::
 Units and splits come from the census driver (`census_run.build_units`, the
 same inputs and defaults). Sealing:
 
+- std-taiko is left out unless ``--with-std-taiko``: its directories are passed
+  over by name before any file in them is opened;
 - the hard holdout's membership is checked against ``--holdout-sha256`` first
   (`census.load_exclusion`), and its std-taiko set directories are passed over
   before any of their files is opened;
@@ -67,6 +69,9 @@ def main(argv=None) -> int:
     p.add_argument('--bootstrap', type=int, default=2000)
     p.add_argument('--seed', type=int, default=20261021)
     p.add_argument('--preflight-only', action='store_true')
+    p.add_argument('--with-std-taiko', action='store_true',
+                   help='also read std-taiko sets; off by default, since splitting off std-taiko-linked-sealed reads '
+                        'their headers (the census found 1 differing std-taiko pair)')
     args = p.parse_args(argv)
     root = Path(args.root)
     out = root / args.out
@@ -75,6 +80,9 @@ def main(argv=None) -> int:
                         sealed=list(census_run.SEALED), holdout=args.holdout, holdout_sha256=args.holdout_sha256)
     exclusion = census.load_exclusion(root / args.holdout, args.holdout_sha256)
     skip = std_dirs(exclusion)
+    if not args.with_std_taiko:
+        base = root / 'dataset' / 'std-taiko'
+        skip |= {d.name for d in base.iterdir() if d.is_dir()} if base.is_dir() else set()
     report['hard_holdout'] = dict(sets=len(exclusion['keys']), std_dirs_skipped=len(skip))
     units = census_run.build_units(args, report, skip_std=skip,
                                    hash_if=lambda u: u.split not in census_run.SEALED)
