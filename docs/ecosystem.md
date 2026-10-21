@@ -39,6 +39,7 @@ licence.
 | Messages, error codes and phases | the protocol's `.proto` files |
 | Generation behaviour: star range, controls and their statuses, section rules, arrangement passes, random numbers, the decode loop | for a model in development, ensomi-model's Python system, which the model service serves to the app; for a released model, its package and the runtime's pipeline for it; the R2 report for the evidence behind each control's status |
 | Licences | the Hugging Face card and the manifest for the model's files; each repository's `LICENSE` for its code; the runtime's `licenses/` for the third-party notices it ships |
+| Which data a released model used, its counts, and the data policy for releases | that model's data provenance report in ensomi-model's `docs/research/` and its tables beside it (for R2, `r2_data_provenance.md` and `r2_data_provenance/`) |
 | A speed, size or compatibility claim | the measurement or check that backs it, which the claim names |
 | How the Hub counts a model's downloads | huggingface.js's `ensomi` entry, matched against the files a download fetches |
 | Research decisions and their reasons | the research notes members keep in a private repository; for published results, ensomi-model's reports in `docs/research/` |
@@ -58,6 +59,7 @@ upload comes before the repositories that take it.
 | A licence, or the files a licence covers | the card and the manifest; every README and client screen that states it; the files the clients download |
 | A dependency range | the owner's metadata; every consumer's pin; a fresh resolution in each consumer |
 | A measured claim (size, speed) | the measurement first; then every place that states it |
+| A data provenance count, date or the release data policy | the report and its tables; then ensomi-web's `/data-provenance/` page in all three languages, the card's training-data paragraph, the R2 report's training sentence and ensomi-model's README notice |
 | The manifest's file name, the card's `library_name`, or which files a download fetches | huggingface.js's `ensomi` entry, through a pull request there; until it is merged and released, the Hub may count no downloads |
 
 ## Where a model's rules live
