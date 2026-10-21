@@ -94,17 +94,16 @@ contribute code.
 ### Data provenance
 
 The rows model and R2 were trained on 11,368 eligible ranked and loved
-osu!mania 4K charts, which are not distributed. The
-[data provenance report](docs/research/r2_data_provenance.md) and its
-[tables](docs/research/r2_data_provenance/README.md) say which charts,
-`Creator` and `Artist` labels and recorded audio hashes each stage of R2 1.0
-and 1.0.1 used, and what remains private. They record attribution as the
-charts' metadata states it, which is not a rights clearance and does not
-establish permission. To correct an attribution, to ask how a chart or song
-was used, or to say you are interested in the enrollment and opt-out process
-being explored, use the
-[data provenance form](https://github.com/ensomi-labs/ensomi-model/issues/new?template=data-provenance.yml);
-issues are public.
+osu!mania 4K charts, not distributed here, in 4,167 data-partition groups with
+5,026 recorded audio-file hashes, neither of which counts songs. R2 is not
+built to imitate any particular mapper or artist: its models receive no mapper
+or artist names or IDs, were trained from scratch on the training charts as
+one pool, and no training draw, fine-tune, playability limit or evaluation
+measure is set per mapper or artist
+([evidence](docs/research/r2_data_provenance.md#mapper-and-artist-style)). The
+[data provenance](docs/research/r2_data_provenance.md) report records each
+stage's charts and labels for R2 1.0 and 1.0.1, as attribution rather than
+rights clearance, and how to ask for a correction in a public issue.
 
 ## Earlier released model: R1
 

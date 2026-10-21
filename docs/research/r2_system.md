@@ -248,12 +248,11 @@ places each gap release. Mirror symmetry between the hands is built into the
 model.
 
 It was trained on osu!'s ranked and loved 4K charts from 2 to 6 stars: 11,368
-eligible training charts in 4,167 groups used to keep related sources within
-the same data partition, associated with 5,026 recorded audio-file hashes.
-Another 1,163 charts, in 424 other groups, were held out for development, and
-the corpus's reference parts were never opened. Neither groups nor hashes
-count unique songs; the [data provenance report](r2_data_provenance.md) gives
-each stage's charts, groups, audio hashes and metadata labels. Training was
+eligible charts in 4,167 data-partition groups with 5,026 recorded audio-file
+hashes, neither of which counts songs
+([data provenance](r2_data_provenance.md)). Another 1,163 charts, in 424 other
+groups, were held out for development, and the corpus's reference parts were
+never opened. Training was
 teacher-forced cross-entropy for 64 million head-row decisions, about 4.4
 passes. The released checkpoint is the one at 56 million. Development loss
 was flat from 40 million (2.075 nats per decision at 56 million), and among the

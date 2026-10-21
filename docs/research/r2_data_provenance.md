@@ -1,38 +1,30 @@
 # R2 data provenance: charts, mappers and music
 
-Evidence snapshot: **2026-10-17**. This report traces source attribution and
-data-use roles for **Ensomi R2 1.0 and 1.0.1**: timing, rows, arrangement,
-corpus prior, calibration, selection, evaluation and previews. It does not
-audit R1 or any other historical Ensomi model. It establishes attribution and
-stage membership. It is not a rights clearance or a complete review of how the
-source charts and music were acquired, and it does not establish permission to
-use them. The
+Evidence snapshot: **2026-10-17**. This report traces which source charts,
+metadata labels and audio each stage of **Ensomi R2 1.0 and 1.0.1** used:
+timing, rows, arrangement, corpus prior, calibration, selection, evaluation and
+previews. It does not audit R1 or any earlier Ensomi model. It establishes
+attribution and stage membership, not rights clearance, permission to use the
+sources or a complete review of how they were acquired. The
 [R2 system report](r2_system.md#code-and-training-lineage) identifies the
-releases and their training lineage; its
-[file inventory](r2_system.md#files-and-licences) lists the published files and
-licence statements. The [published tables](r2_data_provenance/README.md) give
-the counts behind this report for every stage.
+releases, their training lineage and their
+[published files](r2_system.md#files-and-licences); the
+[tables](r2_data_provenance/README.md) give every stage's counts.
 
-The released rows and arrangement models were trained from scratch, with the
-same **11,368 eligible training charts**, carrying **1,129 distinct `Creator`
-labels, 2,445 distinct `Artist` labels and 5,026 recorded exact audio-byte
-hashes**. These charts fall into **4,167 leakage-control groups**, groups used
-to keep related sources within the same data partition. Neither the groups nor
-the audio hashes are a count of songs. The rows model learns from music
-features and mapper-supplied timing and head positions. R2 learns arrangements
-from chart rows and actions, without audio features. The same corpus also
-supplies numerical priors, decoder calibration, timing references and
-evaluation material. The published prior retains one row of numerical features
-and targets for each training chart, and the published calibration and scope
-table are also derived from the charts. BeatThis `final0` contributes separate
-externally pretrained weights, with their own upstream provenance and an
-incomplete record of the musicians behind them.
+The released rows and arrangement models were trained from scratch on the same
+**11,368 eligible training charts**, with **1,129 distinct `Creator` labels,
+2,445 distinct `Artist` labels and 5,026 recorded audio-file hashes**, in
+**4,167 groups** used to keep related sources within the same data partition;
+neither groups nor audio hashes count songs. The same charts supply the corpus
+prior, whose published file keeps one row of numbers for each training chart,
+the published calibration and scope table, timing references and evaluation
+material. BeatThis `final0` adds externally pretrained weights whose upstream
+record of musicians is incomplete.
 
-The complete frozen inventory contains 22,066 charts, 1,398 `Creator` labels
-and 3,384 `Artist` labels. That inventory is not the weight-training corpus.
-Counts below identify eligible or observed source membership; they do not
-measure each source's sampled training exposure or contribution to an output.
-Metadata labels identify neither verified people nor verified rights holders.
+The frozen inventory of 22,066 charts, with 1,398 `Creator` and 3,384 `Artist`
+labels, is not the training corpus. Counts give eligible or observed
+membership, not a source's sampled exposure or contribution to an output, and
+labels identify neither verified people nor verified rights holders.
 
 ## Permissions and release policy — 2026-10-21
 
@@ -43,30 +35,29 @@ intended training and release uses. The data review for such a release
 considers, as applicable, inherited weights, upstream components such as
 pretrained beat trackers, distillation from earlier models, and derived data
 such as priors and calibration tables, not only the training charts. This
-policy is separate from the 2026-10-17 evidence snapshot; the audit does not
-establish that the existing corpus meets that requirement.
+policy is separate from the 2026-10-17 evidence snapshot, which does not
+establish that the existing corpus meets it.
 
 Ensomi is exploring contributor enrollment (opt-in) and opt-out requests,
 including a convenient way to verify that a decision comes from the relevant
-chart or music rights holder. The process and its effect on existing models
-have not been established. No retroactive removal of a source's learned
-influence is claimed.
+chart or music rights holder. Neither the process nor its effect on existing
+models has been established, and no removal of a source's learned influence is
+claimed.
 
 ## Corrections and requests
 
-To correct an attribution, to ask how a chart or song was used, or to say that
-you are interested in the enrollment and opt-out process being explored, open a
+To correct an attribution, ask how a chart or song was used, or say that you
+are interested in enrollment or opt-out, open a
 [data provenance issue](https://github.com/ensomi-labs/ensomi-model/issues/new?template=data-provenance.yml).
 Issues are public: include no personal data and no audio. Opening an issue
 does not by itself remove anything from a released model.
 
 ## Attribution labels
 
-These are the ten most frequent exact metadata labels in the shared eligible
-training population. Every chart count has the same denominator: **11,368
-charts**. Ordering by chart count gives extra weight to music with several
-mapped difficulties; the audio-hash column shows the corresponding number of
-distinct recorded byte hashes for each artist label.
+These are the ten most frequent exact labels among the eligible training
+charts; every chart count is out of **11,368**. Ordering by charts favours
+music with several mapped difficulties; the audio-hash column gives each artist
+label's distinct recorded audio hashes.
 
 | `Creator` label | Charts / 11,368 |
 | --- | ---: |
@@ -94,67 +85,77 @@ distinct recorded byte hashes for each artist label.
 | Kobaryo | 51 | 14 |
 | USAO | 51 | 18 |
 
-[`stage_counts.csv`](r2_data_provenance/stage_counts.csv) gives the chart,
-group, audio-hash and label counts of all 38 core and supplemental roles. Two
-label tables, one for `Creator` and one for `Artist`, list every exact label in
-each role with that role's chart denominator and the label's chart, audio-hash
-and group counts; the
-[tables' README](r2_data_provenance/README.md#label-tables) records them as
-pending. The per-chart records behind these counts, which place each chart in
-its stages, remain private ([What remains private](#what-remains-private)).
+Two label tables of every exact label in each stage, with its chart,
+audio-hash and group counts and the stage's chart denominator, are
+[pending](r2_data_provenance/README.md#label-tables); the per-chart records
+behind them [remain private](#what-remains-private). `Creator` and `Artist`
+are source-header claims: no aliases were merged or collaboration strings
+split, `Creator` may omit a guest difficulty's author, `Artist` does not
+enumerate composers, performers, remixers, sampled musicians or rights
+holders, and “Various Artists” is one label. They count labels, not people.
 
-`Creator` and `Artist` are source-header claims, not verified identities.
-No aliases were merged or collaboration strings split. `Creator` may omit a
-guest difficulty's author; `Artist` does not enumerate composers, performers,
-remixers, sampled musicians or rights holders. “Various Artists” remains one
-literal label. The columns therefore count labels, not people, and imply no
-ownership or permission finding.
+## Mapper and artist style
+
+R2 has no purpose of reproducing any particular mapper's or artist's style. In
+the open code at release `r2-1.0.1` and at the two models' training commits,
+neither model receives a mapper or artist name, ID or embedding: the rows model
+reads log-Mel features, beat positions, bar phase, song progress, BPM, the
+requested workload and section requests, and its own earlier figures
+([inputs][style-rows-inputs]); R2 reads head times, the beat grid, the song
+length and its own earlier decisions ([inputs][style-r2-inputs]). Both were
+trained from scratch, not fine-tuned ([R2's trainer][style-r2-init],
+[rows][rows-fit]), the rows trainer drawing training charts uniformly and R2 a
+group uniformly, then a chart within it ([draw][style-r2-draw]), with no
+weight, cap, stratum or filter keyed on a mapper or artist; artist and title
+are read only to group charts of the same song, which keeps related sources in
+one data partition and forms R2's draw unit, and `Creator` is not read for
+grouping ([grouping][style-groups]). The released calibration is keyed by star
+band and pattern subtype and the scope table by band, length, median gap and
+chord, hand and jump shares, with no names, IDs or paths, though the scripts
+that built them are not in this repository; the corpus prior takes the median
+target of the 64 training charts nearest in four numeric features within a
+star band ([prior][style-prior]), with no cap on one mapper's share, which was
+not measured. No code evaluates, reports or stratifies results by mapper or
+artist, but some panels, the listening selections and the four preview songs
+were chosen outside the open code. Code shows the absence of a mechanism, not
+intent, and a mapper with many eligible charts weighs more: by those charts in
+the rows model's draws, and by their share of each group in R2's.
 
 ## Source collection, admission and identity
 
 The audit starts from a local collection of osu!mania charts and records of
-their associated audio. The [corpus builder][corpus-source] reads charts from
-two roots of that collection, associates the acquisition records available for
-them, and freezes the inventory in [`data/r2-corpus.parquet`][corpus]. This
-establishes the local inputs and their recorded origins; it does not
-reconstruct a complete acquisition history or verify permission from chart and
-music rights holders.
+their audio. The [corpus builder][corpus-source] reads two roots of it, with
+the acquisition records available for them, and freezes the inventory in
+[`data/r2-corpus.parquet`][corpus]; this records origins, not a complete
+acquisition history.
 
-The [R2 admission rule][split-source] requires `eval_split == 'fit'`, ranked or
-loved API status, and computed star rating **2 <= star <= 6**. Ranked/loved
-status is a corpus-selection criterion, not evidence of training permission.
-This training boundary differs from the released request interval documented
-in the [system report](r2_system.md#what-you-can-ask-for).
+The [R2 admission rule][split-source] requires `eval_split == 'fit'`, ranked
+or loved API status (a selection criterion, not evidence of permission) and
+computed star rating **2 <= star <= 6**, a boundary that differs from the
+released [request interval](r2_system.md#what-you-can-ask-for). Of 12,551
+candidates, 12,531 were retained: 15 lacked audio, four failed chart-legality
+checks (`illegal_source`) and one had a collision when nearby head rows were
+merged, all technical exclusions. The cache has 11,368 `fit_train` and 1,163
+`fit_dev` charts with disjoint groups; the corpus's own `calibration` and
+`heldout` splits lie outside it and are not the later calibration and holdout
+roles.
 
-Of 12,551 candidates, 12,531 were retained: 15 lacked audio, four failed
-chart-legality checks (`illegal_source`), and one had a collision when nearby
-head rows were merged. These are technical exclusions, not permission
-findings. The retained cache has 11,368
-`fit_train` charts and 1,163 `fit_dev` charts. Their group assignments are
-disjoint. The corpus's separate `calibration` and `heldout` splits are outside
-this cache; their names should not be confused with later calibration and
-holdout roles inside the fit population.
-
-Three identity units remain separate:
+Three identity units stay separate:
 
 - A **chart** is one distinct source `.osu` SHA-256, including its difficulty.
-- An **audio hash** is a recorded SHA-256 of exact file bytes, not a distinct
-  composition or necessarily a distinct recording. This audit did not rehash
+- An **audio hash** is a recorded SHA-256 of exact file bytes, not a
+  composition or necessarily a distinct recording; this audit did not rehash
   audio.
-- A **group** is a leakage-control cluster, which keeps related sources within
-  the same data partition. The builder connects set directories and IDs,
-  beatmap IDs, normalized artist/title, matching audio bytes and older R1 group
-  IDs. The 4,167 training groups and 424 development groups therefore must not
-  be read as counts of unique songs.
+- A **group** keeps related sources within the same data partition. The
+  builder connects set directories and IDs, beatmap IDs, normalized
+  artist/title, matching audio bytes and older R1 group IDs, so the 4,167
+  training and 424 development groups are not counts of songs.
 
 Every attribution join uses chart SHA-256; timing records that store paths
-join those paths to the frozen chart table. At the evidence date, all 22,066
-local `.osu` files matched their frozen hashes and the metadata fields checked
-by the extraction (`Creator`, `Artist`, `Title`, `Version`, `BeatmapID` and
-`BeatmapSetID`), with no UTF-8 decoding replacements. There were no unmatched
-stage records or cache-to-corpus identity mismatches. The private inventory
-retains frozen labels separately from the headers read during the audit and
-their Unicode alternatives.
+join through the frozen chart table. On the evidence date all 22,066 local
+`.osu` files matched their frozen hashes and checked headers (`Creator`,
+`Artist`, `Title`, `Version`, `BeatmapID`, `BeatmapSetID`), with no UTF-8
+replacements, unmatched stage records or cache-to-corpus mismatches.
 
 Metadata ambiguity remains even with exact joins:
 
@@ -164,27 +165,23 @@ Metadata ambiguity remains even with exact joins:
 | `fit_train` | 15 / 5,026 | 287 / 4,287 |
 | `fit_dev` | 1 / 497 | 29 / 433 |
 
-Those observations cannot distinguish spelling differences, aliases,
-collaborations, edits or incorrect metadata. The full inventory has 35 missing
-audio hashes; none occur in the 25 cache-derived stage populations below. Every
-frozen chart has a nonempty `Creator`, `Artist` and `Title`; one frozen
-`Version` is empty. Nineteen training charts lack a positive beatmap ID and six
-lack a positive set ID, limiting lookup by osu! ID without removing their hash
-identity. [`stage_counts.csv`](r2_data_provenance/stage_counts.csv) gives the
-missing-value counts of every core stage; the conflicting strings themselves
-are per-chart records and remain private.
+These cannot tell spelling differences, aliases, collaborations, edits and
+incorrect metadata apart. The inventory has 35 missing audio hashes, none in
+the 25 cache-derived stages below. Every frozen chart has a nonempty
+`Creator`, `Artist` and `Title`; one `Version` is empty. Nineteen training
+charts lack a positive beatmap ID and six a positive set ID, which limits
+lookup by osu! ID but not their hash identity.
 
 ## Stage-by-stage source populations
 
-The numeric columns count distinct source chart hashes, exact nonempty
-metadata labels or recorded audio hashes **within the named stage**.
-Repeated experiment variants, seeds and sections are deduplicated to charts.
-Stages overlap heavily: their totals cannot be added to obtain a count of
-unique charts or contributors. An associated audio hash identifies a chart's
-audio record; it does not mean that a chart-only stage consumed audio.
-[`stage_counts.csv`](r2_data_provenance/stage_counts.csv) adds, under each
-stage id, its groups, its source-record count and unit, beatmap set IDs,
-missing values, and its charts in `fit_train` and `fit_dev`.
+Counts are distinct source chart hashes, exact nonempty labels or recorded
+audio hashes **within the named stage**, with variants, seeds and sections
+deduplicated to charts. Stages overlap heavily, so their totals cannot be
+added, and an audio hash identifies a chart's audio record, not that a
+chart-only stage consumed audio.
+[`stage_counts.csv`](r2_data_provenance/stage_counts.csv) adds each stage's
+groups, source records and their unit, set IDs, missing values, and charts in
+`fit_train` and `fit_dev`.
 
 | Stage and data role | Charts | `Creator` labels | `Artist` labels | Audio hashes | Stage id |
 | --- | ---: | ---: | ---: | ---: | --- |
@@ -217,114 +214,89 @@ missing values, and its charts in `fit_train` and `fit_dev`.
 
 ### What enters the learned models
 
-**Rows (FigureNet).** The released run is `full2-s1/model-5000.pt`, trained
-for 5,000 steps. [FigureNet training][rows-fit] constructs a fresh model and
-optimizer. The `pilot`, `full` and `full2` runs use the same source population
-but are separate initializations, not successive fine-tunes. The earlier rows
-network is a development comparison, not an ancestor of the released weights.
+**Rows (FigureNet).** The released run, `full2-s1/model-5000.pt`, trained for
+5,000 steps from a fresh model and optimizer ([training][rows-fit]); the
+`pilot`, `full` and `full2` runs are separate initializations, not successive
+fine-tunes, and the earlier rows network is a comparison, not an ancestor.
+[Data preparation][rows-data] supplies standardized 128-bin log-Mel features,
+the mapper's beat grid and per-beat figures derived from human head positions
+(where taps or long notes begin). The 8,853-figure vocabulary, workload
+normalization and star-to-workload mapping are fitted on `fit_train`;
+out-of-vocabulary target beats are omitted from loss, every indexed chart
+passes the minimum beat-length filter, and development targets train no
+weights. The [released decoder][rows-decode] reads only the 128 Mel channels,
+so BeatThis shapes the fitted inference grid, not FigureNet's input; trained
+on human grids, the loss cannot measure errors of fitting a grid to audio at
+inference.
 
-[Data preparation][rows-data] supplies standardized 128-bin log-Mel music
-features, the mapper's own beat grid, and per-beat figures derived from human
-head positions (the times at which taps or long notes begin). The
-8,853-figure vocabulary, workload normalization and
-star-to-workload mapping are fitted on `fit_train`. Out-of-vocabulary target
-beats are omitted from loss. All indexed charts pass the loader's minimum
-beat-length filter. Development targets do not train the weights.
+**R2 arrangement.** The selected natural-phase run has `init_from=null`, and
+its trainer constructs a new `R2Model`; the run's frozen copy of that trainer
+is byte-identical to [`r2/train_ce.py` at commit `3954031`][r2-trainer], the
+commit R2 was trained from. It uses supplied head rows and grids, joint lane
+actions, taps, long-note heads and releases. Audio features never enter it,
+though audio availability and duration affect cache eligibility and song-end
+timing; with heads supplied, arrangement-only evaluation cannot test head
+timing from sound. The released checkpoint, at 56,000,574 decisions of the
+64M-decision run, was chosen by the corrected guard selection (the original
+record selected none) among seven checkpoints from 16M to 64M decisions, on a
+16-chart guard set wholly in `fit_dev` with source defect references from
+`fit_train`. Neither released model inherits R1 weights; R1 contributes
+architecture, chart-replay design, corpus grouping and partition ancestry.
+Condition fine-tunes, preference arms and copy-model training are not in the
+released weight path.
 
-The shared listener computes both Mel features and BeatThis probabilities,
-but the [released rows decoder][rows-decode] reads only the first 128 Mel
-channels. BeatThis probabilities influence the fitted inference grid, not
-FigureNet's direct audio inputs. The fixed human training grid means this
-stage learns figures on supplied timing; its training loss cannot measure
-errors caused by fitting a grid from audio at inference.
-
-**R2 arrangement.** The selected natural-phase run has `init_from=null`; its
-trainer constructs a new `R2Model`. The run's frozen copy of that trainer is
-byte-identical to
-[`src/ensomi_model/r2/train_ce.py` at commit `3954031`][r2-trainer], the commit
-R2 was trained from. It uses supplied head rows and grids, joint lane actions,
-taps, long-note heads and releases. Audio features never enter this model,
-although audio availability and duration affect cache eligibility and song-end
-timing. Supplied heads constrain R2 to arrangement; arrangement-only evaluation
-cannot test whether a model found musical head times from sound.
-
-The released checkpoint is at 56,000,574 decisions from the 64M-decision
-run. The corrected guard selection selected it; the original run's selection
-record recorded no selection. The corrected evaluation covers seven checkpoints
-from 16M to 64M decisions, all using the same 16-chart guard set wholly in
-`fit_dev`. Source defect references come from `fit_train`. Neither released
-Ensomi model inherits R1 weights. R1 contributes architecture and chart-replay
-design, plus corpus grouping and partition ancestry; these are separate from
-parameter inheritance. Condition fine-tunes, preference arms and copy-model
-training do not belong to this released weight path.
-
-The indices establish the eligible population, not every optimizer draw.
-Rows training samples chart windows with replacement, and R2 uses its corpus
-sampler. Exact per-chart draw histories are unavailable in the inspected
-evidence, so these counts do not show whether every eligible chart was sampled
-or how often it contributed to training.
+Rows training samples chart windows with replacement and R2 uses its corpus
+sampler; with no per-chart draw history available, the indices show
+eligibility, not whether or how often each chart was drawn.
 
 ### Numerical data, calibration and evaluation
 
 The [corpus prior][prior-source] measures four head-row features and five
-arrangement targets from each training chart. It selects a prediction method
-on `fit_dev`; the released method uses the median of 64 nearby training rows
-within a star band. Its membership is reconstructed from cache roles and
-the prior's recorded failure list, which is empty. The
-[published prior][prior] keeps one row of the four standardized features and
-five targets for each of the 11,368 training charts, grouped by star band.
-Removing names does not remove that dependence on source charts.
+arrangement targets from each training chart, selects its method on `fit_dev`
+and, as released, takes the median of the 64 nearest training rows within a
+star band; its membership is reconstructed from cache roles and its empty
+failure list. The [published prior][prior] keeps the four standardized
+features and five targets of each of the 11,368 training charts, by star band.
 
-Chart-level masks, long-note references, difficulty and quad references use
-11,118 training charts with at least 256 head rows, excluding 250 shorter
-training charts. Scope calibration admits 132,053 local windows from 11,117
-charts: four sampled scopes at each of 8, 16 and 32 seconds, subject to
-length and head-count checks. The scope and whole-chart denominators differ
-by one chart and must remain separate. The published calibration and scope
-table hold numbers derived from these charts; the scope table keeps one row for
-each of the 132,053 scopes, without chart hashes or paths.
+Chart-level masks and long-note, difficulty and quad references use the 11,118
+training charts with at least 256 head rows, excluding 250 shorter ones. Scope
+calibration admits 132,053 windows from 11,117 charts, four sampled scopes at
+each of 8, 16 and 32 seconds after length and head-count checks; the two
+denominators differ by one chart. The published calibration and scope table
+derive from these charts; the scope table keeps one row per scope, without
+chart hashes or paths.
 
-The Lens chart-pattern annotations have separate D and V2 partitions.
 Lens D provides recognized **machine labels** and chart measurements for
-stream/jack grade and subtype calibration. Jumpstream uses positive stream
-labels in headmass tercile 1; chordstream and chordjack use the relevant
-positive label in tercile 2. Lens V2 provides recognized **human labels** for
-validation and does not fit those thresholds. Its 140 source charts include
-130 from R2 `fit_train` and ten from `fit_dev`: it is held apart as a label
-validation partition, not an unseen-chart test of R2. Unrecognized cells are
-not treated as observed negatives. The difficulty pilot also uses supplied
-human head rows, so its response measurements exclude audio-to-head errors.
+stream and jack grade and subtype calibration: jumpstream uses positive stream
+labels in headmass tercile 1, chordstream and chordjack the relevant positive
+label in tercile 2. Lens V2, a separate partition, provides recognized **human
+labels** for validation only; its 140 charts include 130 from `fit_train` and
+ten from `fit_dev`, so it validates labels, not R2 on unseen charts.
+Unrecognized cells are not treated as negatives. The difficulty pilot uses
+supplied human head rows, so its measurements exclude audio-to-head errors.
 
-Timing fitting uses mapper tempo/grid and head placements as references for
-audio-derived beat and onset signals. It fits algorithm choices, not an
-additional Ensomi neural model. Tuning records contain 975 song indices but
-962 audio hashes; development records contain 322 indices but 316 hashes.
-These indices are experiment identifiers, not unique-song counts. The final
-test selected 521 charts over 290 audio items; one audio loader failure left
-519 evaluated charts and 289 hashes. **All 519 belong to R2 `fit_train`.**
-They were held out from that timing experiment, not from the global R2
-training corpus.
+Timing fitting uses mapper tempo, grids and head placements as references for
+audio-derived beat and onset signals, fitting algorithm choices, not a neural
+model. Tuning records contain 975 song indices over 962 audio hashes, and
+development records 322 over 316; the indices are experiment identifiers, not
+song counts. The final test selected 521 charts over 290 audio items; an audio
+loader failure left 519 charts and 289 hashes, **all in R2 `fit_train`**: held
+out from that timing experiment, not from R2's training.
 
-End-to-end panels use music to drive timing and rows, with source charts as
-references. The system panel contains 48 source charts; its control checks
-use a 24-chart subset at two seeds. Listening selections mix generated pairs,
-human-reference pairs and full-song play slots. Membership proves selection
-or measurement as recorded, not that every selected item was listened to.
-Quality conclusions remain in the
+End-to-end panels drive timing and rows from music, with source charts as
+references; the 48-chart system panel's control checks use a 24-chart subset
+at two seeds. Listening selections mix generated pairs, human-reference pairs
+and full-song play slots. Membership, here and in the manifests below, records
+selection or measurement, not every downstream use or that every item was
+heard. Quality conclusions are in the
 [system report](r2_system.md#what-has-been-checked).
 
 ### Additional calibration and selection populations
 
-Twelve additional roles cover the restoring-force experiment and its
-immediate follow-up, later decoder defaults, and run manifests. The
-restoring force steers generated arrangement statistics toward target values;
-its gain controls the strength of that correction. These roles cover 4,532
-distinct charts, all within the eligible training/development union. They add
-data-use roles, not new corpus charts.
-[`stage_counts.csv`](r2_data_provenance/stage_counts.csv) gives their counts,
-their source-record units and their charts in `fit_train` and `fit_dev`; the
-pending label tables cover their labels too. Their per-chart source rows
-remain private.
+Twelve supplemental roles, 4,532 distinct charts all within the training and
+development pools, cover the restoring-force experiment and its follow-up,
+later decoder defaults and run manifests. The restoring force steers generated
+arrangement statistics toward targets, with a gain setting its strength.
 
 | Role | Charts | `Creator` labels | `Artist` labels | Audio hashes | Stage id |
 | --- | ---: | ---: | ---: | ---: | --- |
@@ -341,50 +313,40 @@ remain private.
 | Natural-NLL validation manifest | 64 | 60 | 63 | 64 | `natural_nll_validation` |
 | Run free-generation manifest | 4 | 4 | 4 | 4 | `run_freerun_manifest` |
 
-The gain comparison uses 48 `fit_dev` charts with source heads, grid and song
-end fixed; oracle variants also receive the source's whole-song arrangement
-levels. Donor charts supply target statistics, while human-pair null
-references measure variation between source charts. No audio features enter
-these comparisons. All sixteen difficulty-pilot charts are in this panel.
-Original mean donors and follow-up candidate donors are `fit_train`;
-human-null references mix training and development charts.
-One chart in each candidate-donor set falls outside the 11,118-chart
-chart-level calibration subset. Actual target donors, candidate pools and
-null references have distinct roles and cannot be counted interchangeably.
+The gain comparison fixes source heads, grid and song end on 48 `fit_dev`
+charts, including all sixteen difficulty-pilot charts; oracle variants also
+receive the source's whole-song arrangement levels, and no audio features
+enter. Donors supply target statistics; original mean donors and follow-up
+candidate donors are `fit_train`, each candidate set with one chart outside
+the 11,118-chart calibration subset. Human-pair null references, from both
+pools, measure variation between source charts.
 
-This experiment informs the decode-time restoring-force gain described by the
-[system report](r2_system.md#r2). Its donor-target recipes do not define the
-released prior, and its source-grid results do not evaluate audio timing. The
-released Python system fixes the gains for held-lane share, heads per row and
-all-busy-row share to `(3, 3, 3)`
+The experiment informs the decode-time gain in the
+[system report](r2_system.md#r2); its donor recipes do not define the released
+prior, and its source-grid results do not evaluate audio timing. The released
+Python system fixes the held-lane share, heads-per-row and
+all-busy-row gains at `(3, 3, 3)`
 ([`system/make.py` at `r2-1.0.1`](https://github.com/ensomi-labs/ensomi-model/blob/r2-1.0.1/src/ensomi_model/system/make.py#L54);
-the same tuple at `r2-1.0`), and the arranger disables the heads-per-row gain
-inside stream and subtype scopes. The experiment and its follow-up both applied
-the raw coefficient three, without scaling by a standard deviation. The
-coefficient was not estimated as a continuous optimum.
+the same at `r2-1.0`) and disables the heads-per-row gain inside stream and
+subtype scopes. Both experiments applied the raw coefficient three, unscaled
+by a standard deviation and not estimated as a continuous optimum.
 
-Quiet-rest selection uses one source chart for each of the 96 audio items
-in the broader 231-chart rows panel. It compares source rests and rhythm with
-audio-driven rows at two seeds. The default difficulty-quantile population is
-reconstructed from the 24 control-enabled entries in the 48-chart system
-panel and the controls table; no separate per-quantile source roster was
-recovered. Those quantile measurements used the earlier quiet-rest setting,
-while final end-to-end runs used the adopted setting; the two calibration
-contexts are distinct. These choices change decoding, not the neural weights.
-
-The natural-phase negative-log-likelihood (NLL) validation manifest contains
-64 windows from 64 `fit_dev` charts; the separate run free-generation manifest
-contains four `fit_dev` charts. These manifest populations differ from the
-corrected 16-chart guard panel. As elsewhere, a manifest records membership,
-not proof of every downstream use.
+Quiet-rest selection compares source rests and rhythm with audio-driven rows
+at two seeds, on one source chart for each audio item of the 96-audio,
+231-chart rows panel. The difficulty-quantile population is reconstructed from
+the 24 control-enabled entries of the system panel and the controls table, as
+no per-quantile roster was recovered; it was measured with the earlier
+quiet-rest setting, the final runs with the adopted one. These choices change
+decoding, not weights. The natural-phase negative-log-likelihood (NLL)
+validation manifest holds 64 windows from 64 `fit_dev` charts and the
+free-generation manifest four `fit_dev` charts, both distinct from the guard
+panel.
 
 ## Public preview source identities
 
-The four released previews use the audio associated with these source chart
-selections, all in `fit_dev`. A named source mapper is not thereby the author
-of the generated lane arrangement. The beatmap IDs identify the source
-beatmaps on osu!; their chart and audio hashes are kept in the private
-inventory.
+The four released previews use the audio of these source charts, all in
+`fit_dev`. A named source mapper is not the author of the generated
+arrangement. The beatmap IDs identify the source beatmaps on osu!.
 
 | Preview | Source `Artist` | Source `Title` | Source `Creator` | Source difficulty | Beatmap ID |
 | --- | --- | --- | --- | --- | ---: |
@@ -395,18 +357,17 @@ inventory.
 
 ## External BeatThis training
 
-Ensomi uses pretrained BeatThis `final0` for beat/downbeat inference and
-does not fine-tune it. The
+Ensomi uses pretrained BeatThis `final0` for beat and downbeat inference
+without fine-tuning it; the
 [upstream model description](https://github.com/CPJKU/beat_this/tree/v1.1.0#available-models)
-identifies `final0` as the seed-0 main model trained with the usual training
-and validation partitions, excluding GTZAN. Processing a user's song at
-inference does not establish that the song trained BeatThis.
-
-The [paper, section 4.1](https://arxiv.org/html/2407.21658v1#S4.SS1) reports
-4,556 selected tracks. The pinned
+identifies it as the seed-0 main model trained on the usual training and
+validation partitions, excluding GTZAN. A song processed at inference does not
+thereby become BeatThis training data. The
+[paper, section 4.1](https://arxiv.org/html/2407.21658v1#S4.SS1) reports 4,556
+selected tracks; the pinned
 [annotation release v1.0](https://github.com/CPJKU/beat_this_annotations/tree/c3c47fd37d3074d9f8119f18bbf460f909609f22)
-instead contains 4,557 nominal candidate IDs across 15 `single.split` files,
-one per collection:
+contains 4,557 nominal candidate IDs in 15 `single.split` files, one per
+collection:
 
 | Collection | Nominal IDs |
 | --- | ---: |
@@ -427,76 +388,59 @@ one per collection:
 | TapCorrect | 101 |
 | **Total** | **4,557** |
 
-These count upstream split entries, not musicians, unique compositions,
-training excerpts or examples verified as consumed by `final0`; for `final0`,
-entries of both the train and the validation split are training candidates.
-The one-entry difference remains unresolved. The
+These are upstream split entries, train and validation both being training
+candidates for `final0`, not musicians, compositions, training excerpts or
+examples verified as consumed. The
 [upstream loader](https://github.com/CPJKU/beat_this/blob/v1.1.0/beat_this/dataset/dataset.py)
 can omit candidates with missing augmented spectrograms or unsuitable
-annotation shape; this is a possible explanation, not an established cause.
-Neither count is an independently verified ledger of examples consumed by the
-original run.
-
-The inputs are audio-derived spectrograms with beat/downbeat annotations.
-No osu! mapping corpus is identified in the published source list.
-Harmonix has rhythm-game authoring origins, but that does not establish use
-of released osu! or Rock Band gameplay charts. Joining the Harmonix
+annotation shape, a possible but unestablished cause of the one-entry
+difference; neither count is a verified ledger of what the original run
+consumed. The published source list identifies no osu! mapping corpus.
+Harmonix has rhythm-game authoring origins, which does not establish use of
+released osu! or Rock Band gameplay charts; joining its
 [metadata](https://github.com/urinieto/harmonixset/blob/64abeb509429e73d74559fb98e621dac866efea1/dataset/metadata.csv)
 to its
 [BeatThis split](https://github.com/CPJKU/beat_this_annotations/blob/c3c47fd37d3074d9f8119f18bbf460f909609f22/harmonix/single.split)
 identifies Ciara's “1, 2 Step,” Lil Wayne's “6 Foot 7 Foot” and The Jackson 5's
-“ABC” as nominal Harmonix candidates; these matches do not verify consumption
-by `final0`.
-
-The external musician roster remains incomplete. Completing it requires
-dataset-specific metadata joins, reconciliation of loader exclusions and
-separate attribution for recording artists, performers, composers and
-annotators. An upstream track ID or filename cannot establish all those roles.
+“ABC” as nominal candidates, not as verified consumption. Completing the
+musician roster needs dataset-specific metadata joins, reconciled loader
+exclusions and separate attribution of recording artists, performers,
+composers and annotators, which an upstream track ID or filename cannot give.
 
 ## Evidence scope and remaining gaps
 
-The inventory resolves all chart identities in the 26 core and twelve
-supplemental populations against frozen metadata, the tracked
+The inventory resolves every chart identity in the 26 core and twelve
+supplemental populations against the tracked
 [`data/r2-corpus.parquet`][corpus] (SHA-256
 `49ab9e1bbbdcf7a08bf86ee02181515dfa04bdc9efa3be25fe6bd4b0e6d9ee4b`, the hash the
-R2 cache records). It checks chart bytes and headers as they stood on
-2026-10-17, using recorded source and configuration evidence without loading
-model checkpoints, running inference or opening audio. The extraction recorded
-the SHA-256 of each input file;
-[`export_record.json`](r2_data_provenance/export_record.json) gives those of
-the count tables the published files were built from. Audio hashes are
-recorded corpus values, not independent audio-byte verification by this audit.
+R2 cache records), checking chart bytes and headers as of 2026-10-17 from
+recorded source and configuration evidence, without loading checkpoints,
+running inference or opening audio. The extraction recorded each input's
+SHA-256; [`export_record.json`](r2_data_provenance/export_record.json) gives
+those of the count tables behind the published files. Audio hashes are
+recorded corpus values, not verified by this audit.
 
 This covers the released weight inputs and the enumerated prior, calibration,
-timing and evaluation populations. It is not a complete ledger of every
-historical experiment or design influence. Earlier timing exploration and
-every historical listening screen are not all reduced to one source manifest
-here. Their influence does not establish additional inherited weights. The
-exact optimizer draw history, resolved mapper and musician identities,
-complete BeatThis musician roster, and source permissions also remain outside
-the evidence.
-
-Supplied timing and head rows limit what the models can learn and what their
-evaluations can measure, as described for each stage. Stage membership
-establishes eligibility or observed use as specified; it does not establish
-chart quality, permission, or an individual source's causal contribution to
-model parameters. Independent per-source inspection and reproduction require
-the private records below.
+timing and evaluation populations, not every historical experiment: earlier
+timing exploration and every historical listening screen are not reduced to
+one manifest here, and they add no inherited weights. The optimizer draw
+history, resolved identities, the complete BeatThis roster, source
+permissions, chart quality and any source's causal contribution to model
+parameters remain outside the evidence.
 
 ### What remains private
 
 Per-item records derived from the private dataset are not published: the chart
-inventory that joins each chart's identity to its stage memberships and to the
-headers read during the audit, the per-stage lists of chart hashes, the R2
-training cache and the rows and prior indices, the timing, guard and Lens
-records, the panel and listening selections, the supplemental roles' per-chart
-source rows, and the conflicting strings behind the integrity counts. The
-published tables are aggregates of these records, and repeating the extraction
-needs them and the local chart collection. The frozen corpus table that the
-inventory joins against is tracked in this repository. The BeatThis candidate
-table is not republished: it concatenates the 15 public split files at the
-pinned annotation revision, keeping each entry's dataset, track ID and
-original split.
+inventory joining each chart's identity to its stages and to the headers read
+during the audit, the per-stage chart hash lists, the R2 training cache and
+the rows and prior indices, the timing, guard and Lens records, the panel and
+listening selections, the supplemental roles' per-chart rows, the preview
+sources' chart and audio hashes, and the conflicting strings behind the
+integrity counts. Inspecting a source or repeating the extraction needs them
+and the local chart collection. The frozen corpus table is tracked in this
+repository. The BeatThis candidate table, the 15 public split files at the
+pinned revision with each entry's dataset, track ID and split, is not
+republished.
 
 [corpus-source]: ../../src/ensomi_model/evaluation/corpus.py
 [split-source]: ../../src/ensomi_model/r2/splits.py
@@ -507,3 +451,9 @@ original split.
 [r2-trainer]: https://github.com/ensomi-labs/ensomi-model/blob/39540317be42aa53104939c759e03610d64e6a3e/src/ensomi_model/r2/train_ce.py
 [corpus]: ../../data/r2-corpus.parquet
 [prior]: https://huggingface.co/sed-i/ensomi-r2/blob/r2-1.0.1/prior.json
+[style-rows-inputs]: https://github.com/ensomi-labs/ensomi-model/blob/cf753aafa92530f82915c936b88eecd31ef6535d/src/ensomi_model/audio_rows/beatdata.py#L249-L256
+[style-r2-inputs]: https://github.com/ensomi-labs/ensomi-model/blob/39540317be42aa53104939c759e03610d64e6a3e/src/ensomi_model/r2/features.py#L35-L40
+[style-r2-init]: https://github.com/ensomi-labs/ensomi-model/blob/39540317be42aa53104939c759e03610d64e6a3e/src/ensomi_model/r2/train_ce.py#L188-L191
+[style-r2-draw]: https://github.com/ensomi-labs/ensomi-model/blob/39540317be42aa53104939c759e03610d64e6a3e/src/ensomi_model/r2/data.py#L102-L105
+[style-groups]: https://github.com/ensomi-labs/ensomi-model/blob/39540317be42aa53104939c759e03610d64e6a3e/src/ensomi_model/evaluation/corpus.py#L243-L258
+[style-prior]: https://github.com/ensomi-labs/ensomi-model/blob/9e380a15f7c193476ff2063dfc10043e8484186a/src/ensomi_model/system/prior.py#L32-L35

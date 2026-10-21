@@ -5,19 +5,16 @@ body:
   - type: markdown
     attributes:
       value: |
-        This form is about the data behind Ensomi R2 1.0 and 1.0.1: the charts and metadata labels
-        that the [data provenance report](https://github.com/ensomi-labs/ensomi-model/blob/main/docs/research/r2_data_provenance.md)
-        and its [tables](https://github.com/ensomi-labs/ensomi-model/blob/main/docs/research/r2_data_provenance/README.md)
-        record, and how they were used. Only the first two boxes are required.
-        English, 日本語 and 中文 are all welcome.
+        This form is about the data behind Ensomi R2 1.0 and 1.0.1, as the
+        [data provenance](https://github.com/ensomi-labs/ensomi-model/blob/main/docs/research/r2_data_provenance.md)
+        report records it; English, 日本語 and 中文 are welcome.
 
-        **Issues are public.** Please include no personal data, such as an email address, a phone
-        number or a name you do not want shown, and attach no audio or `.osz` file. A beatmap link
+        **Issues are public:** include no personal data and no audio or `.osz` file; a beatmap link
         or ID, or a label as the tables show it, is enough.
 
         Submitting this form does not by itself remove anything from a released model. Enrollment
-        (opt-in) and opt-out requests are only being explored, including a convenient way to verify
-        that a request comes from the relevant rights holder; no such process is in place.
+        (opt-in) and opt-out, including a convenient way to verify that a request comes from the
+        rights holder, are only being explored; no such process is in place.
 
   - type: dropdown
     id: kind
