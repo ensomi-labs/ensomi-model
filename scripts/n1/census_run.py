@@ -116,13 +116,20 @@ def osu_header(path) -> dict:
     return census.read_header(path)
 
 
-def std_taiko_units(root: Path, tag_names: dict, report: dict) -> list[dict]:
-    """One row per mode-0/1 `.osu` file under dataset/std-taiko, with tags and status from metadata.json."""
+def std_taiko_units(root: Path, tag_names: dict, report: dict, skip: set[str] | None = None) -> list[dict]:
+    """One row per mode-0/1 `.osu` file under dataset/std-taiko, with tags and status from metadata.json.
+
+    Set directories named in ``skip`` (a sealed holdout's) are passed over before any of their files is opened.
+    """
     rows = []
     base = root / 'dataset' / 'std-taiko'
     keys_seen: dict[str, int] = {}
     sets_with_tags = sets_with_meta = 0
+    skipped = 0
     for d in sorted(p for p in base.iterdir() if p.is_dir()):
+        if skip and d.name in skip:
+            skipped += 1
+            continue
         files = sorted(d.glob('*.osu'))
         if not files:
             continue
@@ -171,11 +178,14 @@ def std_taiko_units(root: Path, tag_names: dict, report: dict) -> list[dict]:
                              mode='std' if mode == 0 else 'taiko', set_id=d.name if d.name.isdigit() else '',
                              tags=';'.join(tags), tags_known='1' if known else '0', audio=audio))
     report['std_taiko'] = dict(sets_with_metadata=sets_with_meta, metadata_top_level_keys=keys_seen,
-                               sets_with_voted_tags=sets_with_tags, files=len(rows))
+                               sets_with_voted_tags=sets_with_tags, files=len(rows), skipped_dirs=skipped)
     return rows
 
 
-def build_units(args, report: dict) -> list[census.Unit]:
+def build_units(args, report: dict, skip_std: set[str] | None = None,
+                hash_if=None) -> list[census.Unit]:
+    """The census units. ``skip_std`` passes over std-taiko set directories by name (`std_taiko_units`);
+    ``hash_if(unit)``, when given, limits the std-taiko audio hashing to the units it accepts."""
     import pyarrow.parquet as pq
     root = Path(args.root)
     table = pq.read_table(str(root / args.corpus))
@@ -204,7 +214,7 @@ def build_units(args, report: dict) -> list[census.Unit]:
                          set_id=str(r['beatmap_set_id'] or ''), tags=';'.join(tags),
                          tags_known='1' if tag_names else '0', audio=r['audio_filename'] or '',
                          sha=r['audio_sha256'] or '', group=r['group_id'], eval_split=r['eval_split']))
-    st_rows = std_taiko_units(root, tag_names, report)
+    st_rows = std_taiko_units(root, tag_names, report, skip_std)
     for r in st_rows:
         u.find(r['token'])
     dedup_holdout = set()
@@ -261,7 +271,7 @@ def build_units(args, report: dict) -> list[census.Unit]:
     hashed = 0
     audio_of = {r['key']: r['audio'] for r in st_rows}
     for x in units.values():
-        if x.source == 'std-taiko' and len(by_rec[x.recording]) > 1:
+        if x.source == 'std-taiko' and len(by_rec[x.recording]) > 1 and (hash_if is None or hash_if(x)):
             audio = audio_of.get(x.key, '')
             path = census._audio_path(root, x.files, audio) if audio else None
             if path is not None:
