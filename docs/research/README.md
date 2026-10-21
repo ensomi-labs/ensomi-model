@@ -7,7 +7,7 @@ They record implementations and measurements. The
 | Document | Covers |
 | --- | --- |
 | [Ensomi R2](r2_system.md) | the released end-to-end system: timing system, rows model and R2, decode-time rules, verification, runtime, files and licences |
-| [R2 data provenance](r2_data_provenance.md) | the source charts, metadata labels and audio hashes in each training, calibration, selection and evaluation stage of R2 1.0 and 1.0.1, with [count tables](r2_data_provenance/README.md); attribution and stage membership, not a rights clearance |
+| [R2 data provenance](r2_data_provenance.md) | the source charts, metadata labels and audio hashes in each training, calibration, selection and evaluation stage of R2 1.0 and 1.0.1, with [count and label tables](r2_data_provenance/README.md); attribution and stage membership, not a rights clearance |
 | [Bounded typed continuation](bounded_typed_continuation.md) | the R1 task, model, training stages and generation commands |
 | [Staged R1 restoration](r1_staged_restoration.md) | the six-stage recipe behind the released checkpoint |
 | [Vacation training queue](vacation_training.md) | unattended multi-day queue: audio cache, 35M teacher, stress runs |

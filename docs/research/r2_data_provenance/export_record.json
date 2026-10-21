@@ -22,14 +22,14 @@
       "contents": "every exact Creator label in each of the 38 stages",
       "sha256": "de3d82b01e7e605826bfa81e7a48747a7414e58b313599a41de6a48111cc99f6",
       "rows": 13568,
-      "status": "not available to this export; sha256 is the recorded hash the export requires, and rows the sum of the stages' label counts"
+      "line_endings": "CRLF"
     },
     {
       "name": "artist_all_stages.csv",
       "contents": "every exact Artist label in each of the 38 stages",
       "sha256": "8045d7d123566c817b80542c46cd442dff11f78cdba0ceb8dcd4860977676470",
       "rows": 23949,
-      "status": "not available to this export; sha256 is the recorded hash the export requires, and rows the sum of the stages' label counts"
+      "line_endings": "CRLF"
     }
   ],
   "transformations": [
@@ -114,7 +114,7 @@
         "evidence_group": "population"
       },
       "line_endings": "source line endings replaced by LF",
-      "status": "pending: source table not available to this export"
+      "status": "written"
     },
     {
       "output": "artist_labels_by_stage.csv",
@@ -129,7 +129,7 @@
         "evidence_group": "population"
       },
       "line_endings": "source line endings replaced by LF",
-      "status": "pending: source table not available to this export"
+      "status": "written"
     }
   ],
   "format": "UTF-8 without byte-order mark; comma-separated; RFC 4180 quoting (a field is quoted when it holds a comma, double quote, CR or LF, and inner quotes are doubled); LF line endings",
@@ -141,13 +141,37 @@
     },
     {
       "name": "creator_labels_by_stage.csv",
-      "status": "pending",
-      "expected_rows": 13568
+      "rows": 13568,
+      "sha256": "81b65bd5829a544a6e708534579226be670c860253b95710fd3ac49c9936ec48",
+      "labels_a_reader_may_mishandle": {
+        "rows": {
+          "leading_formula_character": 461,
+          "leading_or_trailing_whitespace": 0,
+          "non_ascii": 0
+        },
+        "distinct_labels": {
+          "leading_formula_character": 49,
+          "leading_or_trailing_whitespace": 0,
+          "non_ascii": 0
+        }
+      }
     },
     {
       "name": "artist_labels_by_stage.csv",
-      "status": "pending",
-      "expected_rows": 23949
+      "rows": 23949,
+      "sha256": "fad81f88e52e31aab4f686c86741b61c37dcfa78d5d4c8f34b0ed8768cfd88b4",
+      "labels_a_reader_may_mishandle": {
+        "rows": {
+          "leading_formula_character": 25,
+          "leading_or_trailing_whitespace": 0,
+          "non_ascii": 1
+        },
+        "distinct_labels": {
+          "leading_formula_character": 3,
+          "leading_or_trailing_whitespace": 0,
+          "non_ascii": 1
+        }
+      }
     }
   ]
 }

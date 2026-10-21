@@ -85,14 +85,17 @@ label's distinct recorded audio hashes.
 | Kobaryo | 51 | 14 |
 | USAO | 51 | 18 |
 
-Two label tables of every exact label in each stage, with its chart,
-audio-hash and group counts and the stage's chart denominator, are
-[pending](r2_data_provenance/README.md#label-tables); the per-chart records
-behind them [remain private](#what-remains-private). `Creator` and `Artist`
-are source-header claims: no aliases were merged or collaboration strings
-split, `Creator` may omit a guest difficulty's author, `Artist` does not
-enumerate composers, performers, remixers, sampled musicians or rights
-holders, and “Various Artists” is one label. They count labels, not people.
+[`creator_labels_by_stage.csv`](r2_data_provenance/creator_labels_by_stage.csv)
+and [`artist_labels_by_stage.csv`](r2_data_provenance/artist_labels_by_stage.csv)
+list every exact label in each stage with its chart, audio-hash and group
+counts and the stage's chart denominator, as
+[their README](r2_data_provenance/README.md#label-tables) describes; the
+per-chart records behind them [remain private](#what-remains-private).
+`Creator` and `Artist` are source-header claims: no aliases were merged or
+collaboration strings split, `Creator` may omit a guest difficulty's author,
+`Artist` does not enumerate composers, performers, remixers, sampled musicians
+or rights holders, and “Various Artists” is one label. They count labels, not
+people.
 
 ## Mapper and artist style
 
@@ -417,8 +420,8 @@ R2 cache records), checking chart bytes and headers as of 2026-10-17 from
 recorded source and configuration evidence, without loading checkpoints,
 running inference or opening audio. The extraction recorded each input's
 SHA-256; [`export_record.json`](r2_data_provenance/export_record.json) gives
-those of the count tables behind the published files. Audio hashes are
-recorded corpus values, not verified by this audit.
+those of the count and label tables behind the published files. Audio hashes
+are recorded corpus values, not verified by this audit.
 
 This covers the released weight inputs and the enumerated prior, calibration,
 timing and evaluation populations, not every historical experiment: earlier

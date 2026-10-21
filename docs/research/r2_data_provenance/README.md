@@ -1,15 +1,15 @@
 # R2 data provenance tables
 
-Count tables for [R2 data provenance](../r2_data_provenance.md), which
-describes each stage and the limits of the evidence. They cover **Ensomi R2
-1.0 and 1.0.1** at the evidence snapshot of **2026-10-17** and record
-attribution, not rights clearance or permission.
+Count and label tables for [R2 data provenance](../r2_data_provenance.md),
+which describes each stage and the limits of the evidence. They cover
+**Ensomi R2 1.0 and 1.0.1** at the evidence snapshot of **2026-10-17** and
+record attribution, not rights clearance or permission.
 
 | File | Contents | Status |
 | --- | --- | --- |
 | [`stage_counts.csv`](stage_counts.csv) | one row for each of the 38 stages | published |
-| `creator_labels_by_stage.csv` | every exact `Creator` label in each stage, 13,568 rows | pending |
-| `artist_labels_by_stage.csv` | every exact `Artist` label in each stage, 23,949 rows | pending |
+| [`creator_labels_by_stage.csv`](creator_labels_by_stage.csv) | every exact `Creator` label in each stage, 13,568 rows | published |
+| [`artist_labels_by_stage.csv`](artist_labels_by_stage.csv) | every exact `Artist` label in each stage, 23,949 rows | published |
 | [`export_record.json`](export_record.json) | sources and their SHA-256, transformations, each output's rows and SHA-256 | published |
 
 ## Method
@@ -65,12 +65,11 @@ columns empty: not recorded, not zero.
 
 ## Label tables
 
-Pending: their source tables were not available to this export, and
-[`export_record.json`](export_record.json) records each source's required
-SHA-256 and expected rows. A row is a label in a stage, not a person, with the
-raw label byte for byte; no row is dropped, merged or normalised. The export
-renames three columns and converts CRLF line endings to LF, as the record
-lists.
+A row of [`creator_labels_by_stage.csv`](creator_labels_by_stage.csv) or
+[`artist_labels_by_stage.csv`](artist_labels_by_stage.csv) is a label in a
+stage, not a person, with the raw label byte for byte; no row is dropped,
+merged or normalised. The export renames three columns and converts CRLF line
+endings to LF, as [`export_record.json`](export_record.json) lists.
 
 | Column | Unit | Meaning |
 | --- | --- | --- |
@@ -90,9 +89,10 @@ part of the name.
 ## File format
 
 UTF-8 without a byte-order mark, comma-separated, a header row, LF line
-endings and RFC 4180 quoting. Labels are verbatim; some begin with `=`, `+`,
-`-` or `@`, or begin or end with spaces, so import every column as text,
-untrimmed. The export record counts such labels.
+endings and RFC 4180 quoting. Labels are verbatim: 49 `Creator` and three
+`Artist` labels begin with `-`, which a spreadsheet may read as a formula, so
+import every column as text; none begins or ends with whitespace. The export
+record counts such labels.
 
 ## Regenerating the tables
 
