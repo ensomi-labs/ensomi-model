@@ -72,6 +72,7 @@ experimental results belong in [research documentation](../research/). A
 particular implementation's reachable charts do not redefine the legal chart
 space.
 
-The [repository README](../../README.md) defines the V3 status and the boundary
-around retained pre-V3 systems. Legacy code and local generated assets are not
-sources of V3 specification.
+The [R2 report](../research/r2_system.md) states what the released system does
+and does not do yet, and the [research index](../research/README.md) maps the
+retained pre-V3 systems and earlier lines of work to their refs. Legacy code
+and local generated assets are not sources of V3 specification.
