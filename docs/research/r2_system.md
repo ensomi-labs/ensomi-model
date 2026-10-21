@@ -197,10 +197,10 @@ last position.
 
 The model uses every input: shifting the spectrogram, removing the
 per-position audio or the copy heads, or giving it another chart's request all
-cost likelihood in teacher-forced tests. On 231 held-out development charts
-(96 recorded audio-file hashes), with two generation seeds, it beats the
-earlier head generator on every rhythm measure by margins two to ten times the
-seed and checkpoint spread, in every star band.
+cost likelihood in teacher-forced tests. On 96 held-out development audio
+files (by recorded hash, with 231 human charts), with two generation seeds, it
+beats the earlier head generator on every rhythm measure by margins two to ten
+times the seed and checkpoint spread, in every star band.
 These measures describe the output; none has been validated against a player.
 
 | Measure | Rows model | Earlier generator | Human charts |
@@ -251,9 +251,9 @@ It was trained on osu!'s ranked and loved 4K charts from 2 to 6 stars: 11,368
 eligible training charts in 4,167 groups used to keep related sources within
 the same data partition, associated with 5,026 recorded audio-file hashes.
 Another 1,163 charts, in 424 other groups, were held out for development, and
-the corpus's reference parts were never opened. Neither groups nor hashes count unique
-songs; the [data provenance report](r2_data_provenance.md) gives each stage's
-charts, groups, audio hashes and metadata labels. Training was
+the corpus's reference parts were never opened. Neither groups nor hashes
+count unique songs; the [data provenance report](r2_data_provenance.md) gives
+each stage's charts, groups, audio hashes and metadata labels. Training was
 teacher-forced cross-entropy for 64 million head-row decisions, about 4.4
 passes. The released checkpoint is the one at 56 million. Development loss
 was flat from 40 million (2.075 nats per decision at 56 million), and among the

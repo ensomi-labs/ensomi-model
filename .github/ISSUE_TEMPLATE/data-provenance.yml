@@ -1,7 +1,6 @@
 name: Data provenance
 description: Correct an attribution, ask how a chart or song was used for Ensomi R2, or say you are interested in enrollment or opt-out.
 title: "[Data] "
-labels: ["data provenance"]
 body:
   - type: markdown
     attributes:
