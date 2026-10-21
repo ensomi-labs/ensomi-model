@@ -33,8 +33,8 @@ more songs; the examples illustrate behavior and are not a quality benchmark.
 
 Install [uv](https://docs.astral.sh/uv/) and the
 [Hugging Face CLI](https://huggingface.co/docs/huggingface_hub/guides/cli).
-Only macOS arm64 on the CPU has been checked; on Linux with NVIDIA, use
-`--extra cuda` instead of `--extra mps`.
+Only macOS arm64 on the CPU has been checked; on Linux with NVIDIA, the
+matching extra is `--extra cuda`, which has not been run.
 
 ```sh
 git clone https://github.com/ensomi-labs/ensomi-model.git
