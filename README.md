@@ -94,16 +94,12 @@ contribute code.
 ### Data provenance
 
 The rows model and R2 were trained on 11,368 eligible ranked and loved
-osu!mania 4K charts, not distributed here, in 4,167 data-partition groups with
-5,026 recorded audio-file hashes, neither of which counts songs. R2 is not
-built to imitate any particular mapper or artist: its models receive no mapper
-or artist names or IDs, were trained from scratch on the training charts as
-one pool, and no training draw, fine-tune, playability limit or evaluation
-measure is set per mapper or artist
-([evidence](docs/research/r2_data_provenance.md#mapper-and-artist-style)). The
-[data provenance](docs/research/r2_data_provenance.md) report records each
-stage's charts and labels for R2 1.0 and 1.0.1, as attribution rather than
-rights clearance, and how to ask for a correction in a public issue.
+osu!mania 4K charts, which are not distributed here. R2 is not built to
+imitate any particular mapper or artist
+([evidence](docs/research/r2_data_provenance.md#mapper-and-artist-style)).
+The [data provenance](docs/research/r2_data_provenance.md) report records each
+stage's charts and labels as attribution, not rights clearance, and how to ask
+for a correction.
 
 ## Earlier released model: R1
 
