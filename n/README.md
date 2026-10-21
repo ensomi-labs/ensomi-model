@@ -5,8 +5,9 @@ timing. This distribution, `ensomi-n` (package `ensomi_n`), holds the
 evaluation harness every N1 candidate is scored by:
 
 - `ensomi_n.labels`: N's own `.osu` timing reader;
-- `ensomi_n.mapformat`: the music map, the file an N model writes, and a
-  reader for Logic Pro Smart Tempo maps (`ensomi_n.mapformat.logic`);
+- `ensomi_n.mapformat`: the music map, the file an N model writes, and
+  readers for Logic Pro Smart Tempo maps (`ensomi_n.mapformat.logic`) and
+  for open-tool outputs (`ensomi_n.mapformat.open_tools`);
 - `ensomi_n.timing`: notated beats, segments and canonical beat lines;
 - `ensomi_n.eval`: the measures, nulls, aggregation and the command line.
 
@@ -219,6 +220,21 @@ Tempo analysis saved as a normalized JSON map (schema
 
 Scoring it against charts needs the one decoded-to-osu constant, as for any
 decoded map.
+
+### Open-tool outputs
+
+`ensomi_n.mapformat.open_tools.read_open_map(path, lead_ms=...)` reads one
+open tool's output on one song (schema `ensomi-open-baseline-v1`, written by
+the converters in `scripts/n1/open_baselines/`) as a music map on the
+`decoded` clock, with the same lead rule as Smart Tempo maps:
+
+- `kind: beats` (a beat tracker) gives its beat times, and bar starts where
+  the tool states them;
+- `kind: tempo` (a tool that states one BPM and no phase) gives one segment
+  at that tempo, laid where the output's `grid` says the host lays it
+  (`anchor_s`, `meter`), never where a chart puts it;
+- `status: empty` (the tool ran and stated nothing) is an empty prediction;
+  `status: failed` raises `OpenRunFailed` and is never scored.
 
 ## Measures
 
