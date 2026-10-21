@@ -1,0 +1,64 @@
+name: Data provenance
+description: Correct an attribution, ask how a chart or song was used for Ensomi R2, or say you are interested in enrollment or opt-out.
+title: "[Data] "
+labels: ["data provenance"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This form is about the data behind Ensomi R2 1.0 and 1.0.1: the charts and metadata labels
+        that the [data provenance report](https://github.com/ensomi-labs/ensomi-model/blob/main/docs/research/r2_data_provenance.md)
+        and its [tables](https://github.com/ensomi-labs/ensomi-model/blob/main/docs/research/r2_data_provenance/README.md)
+        record, and how they were used. Only the first two boxes are required.
+        English, 日本語 and 中文 are all welcome.
+
+        **Issues are public.** Please include no personal data, such as an email address, a phone
+        number or a name you do not want shown, and attach no audio or `.osz` file. A beatmap link
+        or ID, or a label as the tables show it, is enough.
+
+        Submitting this form does not by itself remove anything from a released model. Enrollment
+        (opt-in) and opt-out requests are only being explored, including a convenient way to verify
+        that a request comes from the relevant rights holder; no such process is in place.
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What is it about?
+      options:
+        - "Attribution: a label, a credit or a chart in the report or tables is wrong or missing"
+        - "Use: how a chart or a song was used"
+        - "Enrollment or opt-out: interest in the process being explored"
+        - Something else about the data
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: >-
+        What is wrong, or what you would like to know. For a correction, say what the report or the
+        tables show and what they should show.
+      placeholder: |
+        The Creator label "Example Mapper" in r2_cache_fit_train is my old name; my current name is "Example".
+    validations:
+      required: true
+
+  - type: textarea
+    id: charts
+    attributes:
+      label: Charts, labels or songs (optional)
+      description: >-
+        osu! beatmap links or IDs, a `stage` and `raw_label` from the tables, or an artist and title.
+        No audio files, please.
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: You are (optional)
+      options:
+        - The mapper of a chart concerned
+        - An artist, composer or performer of the music concerned
+        - Acting for a rights holder
+        - A player, mapper or reader with a question
+        - Other

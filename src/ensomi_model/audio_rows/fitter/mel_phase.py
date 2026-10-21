@@ -20,7 +20,7 @@ Chosen on fit_train among 1,440 settings (onset band, search centre and window, 
 song or segment scope) by five-fold cross-fitting, S1-20 first, then H-20, then S1-10; the offset
 is the population-weighted median over fit_train charts of the committed grid's median head
 residual minus the onset median. On fit_dev, against the committed grid on the same BeatThis
-``final0`` logits (806 charts, 322 songs; song-cluster bootstrap):
+``final0`` logits (806 charts, 322 song indices over 316 audio hashes; song-cluster bootstrap):
 
 - charts with 90 % of heads within 20 ms of the 1/4-1/6-1/8 lattice: 0.808 to 0.846, +0.038
   [+0.013, +0.065]; heads within 20 ms 0.920 to 0.943, +0.023 [+0.012, +0.038];
@@ -49,7 +49,7 @@ on fit_dev against ``mel_phase`` alone (same logits and charts): S1-20 0.846 to 
 [+0.002, +0.024]; heads within 20 ms 0.943 to 0.948, +0.005 [+0.002, +0.008]; S1-10 +0.030; no
 segment count or bar phase changed and no whole-grid flip added. On the sealed holdout against
 ``mel_phase`` alone: S1-20 0.840 to 0.850, +0.010 [+0.000, +0.020]; heads within 20 ms 0.928 to
-0.931, +0.003 [+0.002, +0.004]; S1-10 +0.035 [+0.010, +0.063]; 157 of 289 songs refitted, no
+0.931, +0.003 [+0.002, +0.004]; S1-10 +0.035 [+0.010, +0.063]; 157 of 289 audio items refitted, no
 segment count or bar phase changed.
 
 Together, against the committed grid: on fit_dev S1-20 0.808 to 0.859, +0.051 [+0.025, +0.079],

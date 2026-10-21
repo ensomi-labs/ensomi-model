@@ -169,12 +169,13 @@ refitted to the song's own onsets from the log-Mel spectrogram. Within a chart
 those onsets sit about 2.7 ms (robust SD) from the mapper's beats, against 6.5
 ms for the beat tracker's peaks.
 
-On a sealed holdout of 519 human charts of 289 songs, 85 % of charts have 90 %
-of their heads within 20 ms of the fitted grid (78 % before the refit), and
-93 % of all heads fall within 20 ms. The grid costs about 1.5 s per minute of
-audio. Without a chart to read, some things stay out of reach: an offset of
-about 10 ms that all charts of one mapset share, short tempo sections and phase
-resets. No one has yet screened the grids by ear.
+On a sealed holdout of 519 human charts with 289 recorded audio-file hashes,
+held out from the timing system's tuning but among R2's training charts, 85 %
+of charts have 90 % of their heads within 20 ms of the fitted grid (78 % before
+the refit), and 93 % of all heads fall within 20 ms. The grid costs about 1.5 s
+per minute of audio. Without a chart to read, some things stay out of reach: an
+offset of about 10 ms that all charts of one mapset share, short tempo sections
+and phase resets. No one has yet screened the grids by ear.
 
 ### Rows model
 
@@ -196,9 +197,10 @@ last position.
 
 The model uses every input: shifting the spectrogram, removing the
 per-position audio or the copy heads, or giving it another chart's request all
-cost likelihood in teacher-forced tests. On 96 held-out songs, with two
-generation seeds, it beats the earlier head generator on every rhythm measure
-by margins two to ten times the seed and checkpoint spread, in every star band.
+cost likelihood in teacher-forced tests. On 231 held-out development charts
+(96 recorded audio-file hashes), with two generation seeds, it beats the
+earlier head generator on every rhythm measure by margins two to ten times the
+seed and checkpoint spread, in every star band.
 These measures describe the output; none has been validated against a player.
 
 | Measure | Rows model | Earlier generator | Human charts |
@@ -246,8 +248,12 @@ places each gap release. Mirror symmetry between the hands is built into the
 model.
 
 It was trained on osu!'s ranked and loved 4K charts from 2 to 6 stars: 11,368
-charts of 4,167 songs, with 1,163 charts of other songs held out for
-development and the corpus's reference parts never opened. Training was
+eligible training charts in 4,167 groups used to keep related sources within
+the same data partition, associated with 5,026 recorded audio-file hashes.
+Another 1,163 charts, in 424 other groups, were held out for development, and
+the corpus's reference parts were never opened. Neither groups nor hashes count unique
+songs; the [data provenance report](r2_data_provenance.md) gives each stage's
+charts, groups, audio hashes and metadata labels. Training was
 teacher-forced cross-entropy for 64 million head-row decisions, about 4.4
 passes. The released checkpoint is the one at 56 million. Development loss
 was flat from 40 million (2.075 nats per decision at 56 million), and among the

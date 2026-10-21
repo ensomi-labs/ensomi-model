@@ -1,0 +1,153 @@
+{
+  "package": "Ensomi R2 data provenance tables",
+  "evidence_date": "2026-10-17",
+  "export_script": "scripts/provenance/r2_tables.py",
+  "sources": [
+    {
+      "name": "stage_counts.csv",
+      "contents": "counts for each of the 26 core stages",
+      "sha256": "82c888ece56985d5ad3bd71d3974b77721b9f53852fd48a627f8d302f279c969",
+      "rows": 26,
+      "line_endings": "CRLF"
+    },
+    {
+      "name": "calibration_lineage_counts.csv",
+      "contents": "counts for each of the 12 supplemental roles",
+      "sha256": "883a19c09daa46ba3921d22dc936a8ba62e0fb0ce57fea70a3083447c53470d1",
+      "rows": 12,
+      "line_endings": "CRLF"
+    },
+    {
+      "name": "mapper_all_stages.csv",
+      "contents": "every exact Creator label in each of the 38 stages",
+      "sha256": "de3d82b01e7e605826bfa81e7a48747a7414e58b313599a41de6a48111cc99f6",
+      "rows": 13568,
+      "status": "not available to this export; sha256 is the recorded hash the export requires, and rows the sum of the stages' label counts"
+    },
+    {
+      "name": "artist_all_stages.csv",
+      "contents": "every exact Artist label in each of the 38 stages",
+      "sha256": "8045d7d123566c817b80542c46cd442dff11f78cdba0ceb8dcd4860977676470",
+      "rows": 23949,
+      "status": "not available to this export; sha256 is the recorded hash the export requires, and rows the sum of the stages' label counts"
+    }
+  ],
+  "transformations": [
+    {
+      "output": "stage_counts.csv",
+      "from": [
+        "stage_counts.csv",
+        "calibration_lineage_counts.csv"
+      ],
+      "rows": "one per stage: the 26 core stages, then the 12 supplemental roles, each in source order; stage ids unchanged",
+      "added": {
+        "population": "'core' for rows of the core table, 'supplemental' for the other",
+        "description": "written for this export",
+        "source_record_unit": "written for this export"
+      },
+      "core_columns": {
+        "charts": "distinct_charts",
+        "groups": "distinct_groups",
+        "audio_hashes": "distinct_audio_hashes",
+        "creator_labels": "distinct_creator_labels",
+        "artist_labels": "distinct_artist_labels",
+        "source_records": "source_records",
+        "positive_beatmap_set_ids": "distinct_positive_beatmap_set_ids",
+        "missing_or_nonpositive_beatmap_id": "missing_or_nonpositive_beatmap_id",
+        "missing_or_nonpositive_beatmap_set_id": "missing_or_nonpositive_beatmap_set_id",
+        "missing_creator": "missing_creator",
+        "missing_artist": "missing_artist",
+        "missing_audio_hash": "missing_audio_hash",
+        "charts_fit_train": "cache_roles[\"fit_train\"], 0 when absent",
+        "charts_fit_dev": "cache_roles[\"fit_dev\"], 0 when absent",
+        "charts_outside_fit": "cache_roles[\"not_in_cache\"], 0 when absent"
+      },
+      "supplemental_columns": {
+        "charts": "charts",
+        "groups": "groups",
+        "audio_hashes": "audio_hashes",
+        "creator_labels": "raw_creator_labels",
+        "artist_labels": "raw_artist_labels",
+        "source_records": "record_occurrences",
+        "charts_fit_train": "cache_fit_train",
+        "charts_fit_dev": "cache_fit_dev",
+        "charts_outside_fit": "charts - cache_fit_train - cache_fit_dev; the two cache roles are disjoint by chart",
+        "positive_beatmap_set_ids": "empty: not recorded for supplemental roles",
+        "missing_or_nonpositive_beatmap_id": "empty: not recorded for supplemental roles",
+        "missing_or_nonpositive_beatmap_set_id": "empty: not recorded for supplemental roles",
+        "missing_creator": "empty: not recorded for supplemental roles",
+        "missing_artist": "empty: not recorded for supplemental roles",
+        "missing_audio_hash": "empty: not recorded for supplemental roles"
+      },
+      "dropped": {
+        "core": [
+          "unmatched_charts (checked to be 0)",
+          "unmatched_source_rows (checked to be 0)",
+          "cache_roles (split into the three charts_ columns)",
+          "corpus_eval_splits",
+          "source (local paths)",
+          "rule (internal extraction rule)"
+        ],
+        "supplemental": [
+          "unmatched (checked to be 0)",
+          "outside_existing_measured_eligible_union",
+          "calibration_song_population",
+          "difficulty_pilot",
+          "rows_panel96",
+          "evidence_path (local paths)"
+        ]
+      },
+      "notes": [
+        "Supplemental label counts count distinct values including an empty one; core label counts count nonempty labels. Every supplemental chart lies in fit_train or fit_dev, and neither has an empty Creator or Artist, so the two definitions give the same counts here."
+      ]
+    },
+    {
+      "output": "creator_labels_by_stage.csv",
+      "from": [
+        "mapper_all_stages.csv"
+      ],
+      "rows": "every source row, in source order; no row dropped, merged or added",
+      "values": "unchanged, raw_label byte for byte",
+      "header_renamed": {
+        "distinct_audio_hashes": "audio_hashes",
+        "distinct_groups": "groups",
+        "evidence_group": "population"
+      },
+      "line_endings": "source line endings replaced by LF",
+      "status": "pending: source table not available to this export"
+    },
+    {
+      "output": "artist_labels_by_stage.csv",
+      "from": [
+        "artist_all_stages.csv"
+      ],
+      "rows": "every source row, in source order; no row dropped, merged or added",
+      "values": "unchanged, raw_label byte for byte",
+      "header_renamed": {
+        "distinct_audio_hashes": "audio_hashes",
+        "distinct_groups": "groups",
+        "evidence_group": "population"
+      },
+      "line_endings": "source line endings replaced by LF",
+      "status": "pending: source table not available to this export"
+    }
+  ],
+  "format": "UTF-8 without byte-order mark; comma-separated; RFC 4180 quoting (a field is quoted when it holds a comma, double quote, CR or LF, and inner quotes are doubled); LF line endings",
+  "outputs": [
+    {
+      "name": "stage_counts.csv",
+      "rows": 38,
+      "sha256": "0e8b4bea79d015d7228cc77928e148c3802162e951319fc75137e1acb4aac492"
+    },
+    {
+      "name": "creator_labels_by_stage.csv",
+      "status": "pending",
+      "expected_rows": 13568
+    },
+    {
+      "name": "artist_labels_by_stage.csv",
+      "status": "pending",
+      "expected_rows": 23949
+    }
+  ]
+}
