@@ -963,7 +963,7 @@ remain interpretable without those files. No annotation or human gold was change
 
 The learning-check entrypoint is
 `python -m ensomi_model.research.bounded_typed_continuation.smoke_hydra`.
-Use explicit `mps` dependencies on this Mac. Pin `interval_manifest`/`interval_sha256`,
+Use explicit `mps` dependencies on Apple Silicon. Pin `interval_manifest`/`interval_sha256`,
 `catalog_path`/`catalog_sha256`, `split_manifest`/`split_sha256`, `source_cache_dir`
 and a fresh `output_dir` through Hydra overrides. Select `model.arm=R0`, `R1` or
 `O1`; packaged defaults select O1. The runner requires clean committed source,

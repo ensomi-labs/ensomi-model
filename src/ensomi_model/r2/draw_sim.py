@@ -12,7 +12,7 @@ occupancy, and reports
 
 The result's ``n_bar_key`` must equal the trainer's (``n_bar_key``) for the stored N_bar to be
 used. Each phase has its own draw (plan v5): phase N's natural draw has N_bar_ln = N_bar_star = 0,
-and the two phase-C configs share one draw. Run on the mac::
+and the two phase-C configs share one draw. Run from the repository root::
 
     .venv/bin/python -m ensomi_model.r2.draw_sim --config src/ensomi_model/r2/configs/ce_v2_n.json \
         --draws 2000 --out artifacts/r2-stage0/draw-sim/n.json

@@ -6,7 +6,7 @@ when T >= 30 s. Each value is Difficulty_nu of the cache representation (the obj
 cached decisions expand to), so a label equals the readout of the same chart. An undefined
 readout (no object in the cell, a nonpositive seam cut) is stored as ``null`` and never used.
 
-Build on the mac after the cache (writes ``labels/star-v2.json.gz``, ``labels/star-v2_summary.json``
+Build after the cache (writes ``labels/star-v2.json.gz``, ``labels/star-v2_summary.json``
 and ``labels/receipt-star-v2.json``; the v1 file ``labels/star.json.gz`` is kept and never written)::
 
     .venv/bin/python -m ensomi_model.r2.labels --cache artifacts/r2-cache/v1 --workers 4

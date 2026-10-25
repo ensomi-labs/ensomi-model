@@ -3,7 +3,7 @@
 osu! decodes with BASS under a flag (config 68) that trims the encoder delay plus 529 samples
 only when a LAME tag carries a non-zero delay field, and trims nothing otherwise. Our two
 decoders differ from it on two header classes (measured 2026-10-09 against the WAV source and on
-corpus files, `~/ensomi/.sync/cp/scratch/timing/step3/report-step3.md`, E0):
+corpus files):
 
 - libsndfile/mpg123 (BeatThis's loader) trims 529 samples whenever a Xing/Info header carries a
   frame count, so it is 529 samples early on Xing-only files and on LAME tags with a zero delay;

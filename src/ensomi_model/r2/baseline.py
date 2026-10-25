@@ -12,7 +12,7 @@ chord size / 4, same-lane repeat rate, LN share; the hold-length proxy, held-lan
 is kept out) to the residual Difficulty_nu - b(S), fitted on the same cells. The stage-2
 relaxed-proxy term and its F3 calibration read it.
 
-Fit on the mac after the relabel (writes ``labels/baseline-v1.npz`` and ``labels/baseline-v1.json``)::
+Fit after the relabel (writes ``labels/baseline-v1.npz`` and ``labels/baseline-v1.json``)::
 
     .venv/bin/python -m ensomi_model.r2.baseline --cache artifacts/r2-cache/v1
 """

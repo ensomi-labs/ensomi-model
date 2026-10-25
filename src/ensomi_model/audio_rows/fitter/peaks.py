@@ -157,7 +157,7 @@ def downbeat_phase(segments: Sequence[TimingSegment], beat_logits, downbeat_logi
     chart's on 46 % of charts with the legacy's offset, 50 % with this rule, 43 % with ties going
     earlier and 21 % with the offset moved back to the first peak. The first offset sits in the
     chart's bar on 615 of 812 single-tempo fit_train charts with this rule and on 530 with the
-    legacy's downbeat (2026-10-09, ``~/ensomi/.sync/cp/scratch/timing/bar/report-bar.md``).
+    legacy's downbeat (2026-10-09).
     With no downbeat logits, no peaks or fewer beats than one bar, the segments are returned unchanged.
     """
     segments = tuple(segments)

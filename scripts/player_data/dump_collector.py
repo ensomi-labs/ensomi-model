@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Collect osu!mania player data from the monthly data.ppy.sh performance dumps.
 
-Runs on bings-mac from the repository root (paths below are relative to it). Idempotent: each
+Runs from the repository root (paths below are relative to it). Idempotent: each
 run fetches the data.ppy.sh listing once, finds mania `random_10000` dumps that are not yet
 collected, and for each one, oldest first:
 
@@ -22,8 +22,8 @@ osu_scores_mania_high, osu_user_beatmap_playcount (all rows), osu_beatmaps (mani
 osu_beatmap_failtimes (mania beatmaps). The difficulty and attribute tables are not extracted;
 they stay in the kept tarball.
 
-Only data.ppy.sh is contacted. Per-player data stays in Parquet on the mac; JSON, Markdown and
-log outputs (which mirror to the control plane) carry aggregates only.
+Only data.ppy.sh is contacted. Per-player data stays in Parquet on the collecting machine; JSON,
+Markdown and log outputs carry aggregates only.
 
 Usage: .venv/bin/python scripts/player_data/dump_collector.py [--dry-run] [--include-top]
        [--only YYYY-MM-DD ...] [--no-panel] [--retry-blocked] [--job-id ID]

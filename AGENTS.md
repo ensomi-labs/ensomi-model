@@ -61,7 +61,7 @@ whose trigger holds. The core:
   supplied head rows, warm start, panel and scope.
 - Before a launch, put the human's contradicting evidence to the human. If the
   human cannot be reached, run only measurements.
-- Briefs for subagents and Astra name the skill instead of copying the rules.
+- Briefs for subagents and Codex agents name the skill instead of copying the rules.
 
 ## Verification
 

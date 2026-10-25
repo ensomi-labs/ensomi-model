@@ -10,7 +10,7 @@ target's readout under nu and its deviation (undefined kept undefined), co-activ
 with their deviations, holds headed in a scope and closed at or after its end, and the free-run
 defect counts. Readouts are computed from the generated objects, never copied from a request.
 
-Request CLI (mac, repository root)::
+Request CLI (repository root)::
 
     .venv/bin/python -m ensomi_model.r2.generate --checkpoint <ckpt.pt> --sha <fit_dev chart sha256> \
         --requests requests.json [--seed-decisions N | --continue <previous record.json>] \

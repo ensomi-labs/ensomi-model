@@ -6,9 +6,9 @@ actions) together with the gap releases of the lanes it closes; a headless EOS c
 remaining holds. The specification is the "Runnable v1 spec" of the R2 design review in the
 relay notes; departures are listed in [DEVIATIONS.md](DEVIATIONS.md).
 
-All commands run on the mac from the `ensomi-model` repository root. From the control plane,
-wrap each one in `ens run ensomi-model --name <slug> -- bash -c '<command>'` (tmux and
-caffeinate come with `ens run`).
+All commands run on an Apple Silicon Mac from the `ensomi-model` repository root. Run long
+jobs inside tmux under `caffeinate -is`, so that they outlive the session and the Mac does not
+sleep.
 
 ## Modules
 
@@ -237,8 +237,8 @@ One run per phase; phase C names the selected phase-N checkpoint in `init_from` 
 in the config, or `--set init_from='"<path>"'`):
 
 ```
-ens run ensomi-model --name r2-ce-<run-id> -- bash -c 'PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.launch \
-  --run-id <run-id> --config src/ensomi_model/r2/configs/ce_v2_n.json --set device=cpu --set threads=4'
+PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.launch \
+  --run-id <run-id> --config src/ensomi_model/r2/configs/ce_v2_n.json --set device=cpu --set threads=4
 ```
 
 The launcher copies `src/ensomi_model` to `artifacts/r2-runs/<run-id>/code/`, writes
@@ -249,14 +249,13 @@ the NaN-limit stop it resumes from the latest checkpoint after 30 s, at most fiv
 ## Resume
 
 ```
-ens run ensomi-model --name r2-ce-<run-id>-resume -- bash -c 'PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.launch \
-  --run-id <run-id> --resume'
+PYTHONPATH=src .venv/bin/python -m ensomi_model.r2.launch \
+  --run-id <run-id> --resume
 ```
 
 ## Reading the logs
 
-Everything is in `artifacts/r2-runs/<run-id>/` (JSON and JSONL files are mirrored to the
-control plane; checkpoints and `.osu` files are not):
+Everything is in `artifacts/r2-runs/<run-id>/`:
 
 | File | Content |
 | --- | --- |

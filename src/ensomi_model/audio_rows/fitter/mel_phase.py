@@ -55,8 +55,7 @@ segment count or bar phase changed.
 Together, against the committed grid: on fit_dev S1-20 0.808 to 0.859, +0.051 [+0.025, +0.079],
 heads within 20 ms 0.920 to 0.948, +0.028 [+0.016, +0.043]; on the holdout S1-20 0.784 to 0.850,
 +0.066 [+0.033, +0.101], heads within 20 ms 0.897 to 0.931, +0.034 [+0.018, +0.055]. Both add
-0.003 s per audio-minute to the Listener's 1.50 s (CPU, two threads, the mac at load 1.5).
-Details: ``~/ensomi/.sync/cp/scratch/timing/opt/report-opt.md`` (2026-10-09).
+0.003 s per audio-minute to the Listener's 1.50 s (CPU, two threads, an Apple Silicon Mac at load 1.5).
 """
 from __future__ import annotations
 

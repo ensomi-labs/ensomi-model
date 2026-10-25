@@ -18,7 +18,7 @@ in ``tests/r2/dpo_synthetic.py``: they exist to test the DPO mechanism with a kn
 direction and are not a preference source. ``LNShareLabeller``'s fixed target ignores the
 state's condition track and would reward ignoring the condition.
 
-CLI (mac, repository root; a CE checkpoint is the initial policy and the frozen reference):
+CLI (repository root; a CE checkpoint is the initial policy and the frozen reference):
 
     python -m ensomi_model.r2.train_dpo --checkpoint <ce.pt> --run-dir artifacts/r2-dpo/<id> \
         --set pairs_file='"<pairs.pt>"' [--set key=value ...] [--resume]

@@ -7,7 +7,7 @@ lc, ll: R2's log count marginal and log lanes-given-count at row k; V_t one-hot 
 mirror, lane overlap with it, and same head count; a_{h,k,.} a softmax over the allowed earlier rows j and a null
 slot of an MLP of the relation between rows k and j; the gate w and the null logit read R2's mask distribution.
 
-The relation (``CopyPath.scores``), from the 2026-10-09 path (``.sync/cp/scratch/r2-copy/copypath.py``) with three
+The relation (``CopyPath.scores``), from the 2026-10-09 path with three
 changes for rows that come from audio:
 
 - **Rhythm context with tolerance.** The 9-entry key (the 8 inter-onset intervals around the row in 1/48 beat and

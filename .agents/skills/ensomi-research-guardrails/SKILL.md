@@ -1,6 +1,6 @@
 ---
 name: ensomi-research-guardrails
-description: Recurring failure patterns of agents in Ensomi research, each with the guardrail that answers it. Use when planning, briefing, launching or reading an experiment, training run, evaluation or design round; when choosing a measure, baseline, checkpoint or decision rule; when writing a claim others will cite; and when writing a brief for a subagent or Astra.
+description: Recurring failure patterns of agents in Ensomi research, each with the guardrail that answers it. Use when planning, briefing, launching or reading an experiment, training run, evaluation or design round; when choosing a measure, baseline, checkpoint or decision rule; when writing a claim others will cite; and when writing a brief for a subagent or a Codex agent.
 ---
 
 # Ensomi research guardrails
@@ -72,7 +72,7 @@ A review that checks code against its brief cannot catch what the brief left out
 
 ## In briefs
 
-Name this skill in every brief for a subagent or Astra, and say which guardrails apply to the task. Do not copy the list into the brief.
+Name this skill in every brief for a subagent or a Codex agent, and say which guardrails apply to the task. Do not copy the list into the brief.
 
 ## Keeping it current
 

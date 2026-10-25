@@ -1,6 +1,6 @@
 """Training data from the R2 cache: per audio file the generator's inputs, per chart its per-beat targets.
 
-Build on the mac (reads the R2 cache, the corpus parquet and the audio; runs BeatThis and the
+Build from the repository root (reads the R2 cache, the corpus parquet and the audio; runs BeatThis and the
 fitter once per audio file)::
 
     python -m ensomi_model.audio_rows.data --out <dir> --beatthis <beat_this-final0.ckpt>

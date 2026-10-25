@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# End-to-end R2 smoke on the real cache (mac, repo root): launch through the frozen-code
+# End-to-end R2 smoke on the real cache (repo root): launch through the frozen-code
 # supervisor, kill the trainer after its first non-initial checkpoint, let the supervisor
 # resume it, and finish with per-checkpoint fit_dev CE and free-run reports.
 # Usage: scripts/r2/smoke.sh <run-id> [device] [total_exposures] [checkpoint_every]

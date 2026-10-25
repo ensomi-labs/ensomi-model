@@ -1,5 +1,5 @@
 #!/bin/sh
-# Manage the launchd user agent that runs dump_collector.py once a day on bings-mac.
+# Manage the launchd user agent that runs dump_collector.py once a day on a Mac.
 #
 #   scripts/player_data/launchd.sh install [HOUR MINUTE]   write the plist, load it (default 21:15 local)
 #   scripts/player_data/launchd.sh status                  launchctl list / print for the label
@@ -8,7 +8,7 @@
 #   scripts/player_data/launchd.sh print-plist [HOUR MINUTE]
 #
 # The plist holds absolute paths, so it is generated here at install time and written only to
-# ~/Library/LaunchAgents, which is not synced. Logs go to artifacts/player-data-dumps/log/.
+# ~/Library/LaunchAgents. Logs go to artifacts/player-data-dumps/log/.
 set -eu
 
 LABEL=com.ensomi.player-dump-collector

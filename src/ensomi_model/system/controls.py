@@ -1,7 +1,7 @@
 """The R2 demo's control semantics: transitions, scope statistics, class-preserving tilts, playability masks
 and the band lookups that turn a request quantile into a target.
 
-Ported unchanged in behaviour from the demo build of 2026-10-09 (``.sync/cp/scratch/r2-demo/build/controls.py``).
+Ported unchanged in behaviour from the demo build of 2026-10-09.
 
 - Jack J: a row shares a lane with the row before. S': disjoint motion, excluding avoidable exact returns.
 - A scope owns its destination rows; earlier rows give transition context (``scope_statistics``).

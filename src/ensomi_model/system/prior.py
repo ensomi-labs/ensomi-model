@@ -13,7 +13,7 @@ Three predictors, fitted per band on fit_train (``fit``): the band median, a per
 the features, and the median of the 64 nearest fit_train charts of the band (standardised features). The fit
 scores each on fit_dev by mean absolute error with a song-group bootstrap and keeps the plainest whose error on
 every target is not worse than the best's (paired interval of the difference covers zero or favours it).
-Run on the mac::
+Run from the repository root::
 
     python -m ensomi_model.system.prior --cache artifacts/r2-cache/v1 --out <dir> --workers 8
 """

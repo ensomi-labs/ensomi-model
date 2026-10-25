@@ -8,7 +8,7 @@ require T >= t_last + 2 ms and T > the last source release. Source LN releases
 become labels: a release on a head row is code 1; one inside a gap is snapped
 to the nearest candidate of that gap (ties earlier) with the error recorded.
 
-Run on the mac from the repository root::
+Run from the repository root::
 
     .venv/bin/python -m ensomi_model.r2.cache --out artifacts/r2-cache/v1 --workers 6
 """

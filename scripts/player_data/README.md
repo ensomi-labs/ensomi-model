@@ -3,7 +3,7 @@
 `dump_collector.py` keeps a local, growing copy of the monthly osu!mania `random_10000`
 performance dumps published at <https://data.ppy.sh>. `dump_panel.py` measures whether
 consecutive dumps hold the same players and what their differences say about attempts and skill
-over time. Both run on bings-mac; the control plane launches them with `ens run`.
+over time. Both run from the repository root on the machine that keeps the dumps.
 
 ## Rules the code enforces
 
@@ -15,9 +15,8 @@ over time. Both run on bings-mac; the control plane launches them with `ens run`
   tarball with the text recorded with the first dump (SHA-256 `b5c69b6c…6daa`). A different
   text stops the run before anything is parsed (exit 3). The 2026-09-01 tarball holds no licence
   file, so the site file is the licence of record; each manifest says which applied.
-- **Privacy.** Per-player tables (user ids, usernames) are Parquet files on the mac. The meta
-  mirror never copies Parquet or tarballs. The JSON, Markdown and log outputs, which do mirror
-  to the control plane, hold aggregates only.
+- **Privacy.** Per-player tables (user ids, usernames) are Parquet files that stay on the
+  collecting machine. The JSON, Markdown and log outputs hold aggregates only.
 - **Politeness and disk.** One download at a time, resumable (`.part` file, `Range` with
   `If-Range`), size checked against HEAD, at most 5 attempts per run. A dump that keeps failing
   stops the run. A dump is not started if free disk would fall below 50 GB (`--min-free-gb`).
@@ -27,13 +26,13 @@ over time. Both run on bings-mac; the control plane launches them with `ens run`
 
 ## Running it
 
-From the control plane:
+From the repository root:
 
 ```sh
-ens run ensomi-model -- .venv/bin/python scripts/player_data/dump_collector.py            # collect new dumps
-ens run ensomi-model -- .venv/bin/python scripts/player_data/dump_collector.py --dry-run  # plan only
-ens run ensomi-model -- .venv/bin/python scripts/player_data/dump_panel.py                # rebuild the report
-ens run ensomi-model -- .venv/bin/python -m pytest -q tests/player_data
+.venv/bin/python scripts/player_data/dump_collector.py            # collect new dumps
+.venv/bin/python scripts/player_data/dump_collector.py --dry-run  # plan only
+.venv/bin/python scripts/player_data/dump_panel.py                # rebuild the report
+.venv/bin/python -m pytest -q tests/player_data
 ```
 
 Options of `dump_collector.py`: `--only YYYY-MM-DD ...` restricts the dates; `--include-top`
@@ -48,9 +47,9 @@ changed.
 
 ## Outputs
 
-Under `artifacts/player-data-dumps/` on the mac:
+Under `artifacts/player-data-dumps/`:
 
-| Path | Content | Mirrored |
+| Path | Content | Aggregates only |
 | --- | --- | --- |
 | `<date>/<name>.tar.bz2` | The tarball as published | no |
 | `<date>/<table>.parquet` | The seven tables below, zstd | no |
@@ -87,22 +86,22 @@ blocks the dump. Other column differences from the 2026-09-01 schema are recorde
 ## Scheduled run (launchd)
 
 `launchd.sh` writes `~/Library/LaunchAgents/com.ensomi.player-dump-collector.plist` with the
-mac's absolute paths (the plist is never synced) and loads it. The agent runs the collector
+Mac's absolute paths and loads it. The agent runs the collector
 daily at 21:15 local time (Asia/Shanghai, 13:15 UTC); data.ppy.sh posts dumps around 12:00 UTC
-on the first of the month. A run missed while the mac sleeps happens at the next wake.
+on the first of the month. A run missed while the Mac sleeps happens at the next wake.
 
-Install, check, start one run, or remove, on the mac or through `ens run`:
+Install, check, start one run, or remove, on the Mac from the repository root:
 
 ```sh
-ens run ensomi-model -- sh scripts/player_data/launchd.sh install     # optional: install HOUR MINUTE
-ens run ensomi-model -- sh scripts/player_data/launchd.sh status
-ens run ensomi-model -- sh scripts/player_data/launchd.sh kick
-ens run ensomi-model -- sh scripts/player_data/launchd.sh uninstall
+sh scripts/player_data/launchd.sh install     # optional: install HOUR MINUTE
+sh scripts/player_data/launchd.sh status
+sh scripts/player_data/launchd.sh kick
+sh scripts/player_data/launchd.sh uninstall
 ```
 
 `install` tries `launchctl bootstrap gui/<uid>` and falls back to `launchctl load -w`. If both
 fail from a remote session, run `sh scripts/player_data/launchd.sh install` in a Terminal on
-the mac. Uninstalling removes only the plist; collected data stays.
+the Mac. Uninstalling removes only the plist; collected data stays.
 
 ## Tests
 

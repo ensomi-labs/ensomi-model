@@ -3,7 +3,7 @@
 Run on the machine that holds ``dataset/``, from the repository root::
 
     python -m ensomi_model.evaluation.harness.run --out artifacts/eval-harness-v0-20261003/<run> \\
-        --provenance ../.sync/cp/jobs/<job id>/provenance.json
+        --provenance <provenance.json>
 
 Order: fit pass (values, descriptions) on the fit split; the model fitted, its
 bandwidth chosen by cross-fitted log-likelihood and written to ``model.json``

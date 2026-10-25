@@ -1,6 +1,6 @@
 """Train and score the re-keyed copy path on frozen R2's cached mask marginals (human charts, R2's targets).
 
-Inputs on the mac, from the 2026-10-09 copy study and the rows build of 2026-10-10:
+Inputs, from the 2026-10-09 copy study and the rows build of 2026-10-10:
 - ``--tf``: per chart ``<sha[:16]>.npz`` with lp [n, 15] (frozen 56M log mask marginal, teacher forced on the
   human arrangement), h [n] (head masks), b [n + 8] (head beats), n = min(K, 2,048);
 - ``--panels``: ``panels.json`` (train 1,600 fit_train charts; V, P, TR, Q held-out panels);

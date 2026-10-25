@@ -1,7 +1,7 @@
 """Training data for the figure generator: per chart its beat figures on the chart's own grid (G1),
 per audio file its standardised log-Mel.
 
-Build on the mac (reads the R2 cache, the corpus parquet and an earlier full-corpus Mel build)::
+Build from the repository root (reads the R2 cache, the corpus parquet and an earlier full-corpus Mel build)::
 
     python -m ensomi_model.audio_rows.beatdata --out <dir> --features <dir> --workers 9
 

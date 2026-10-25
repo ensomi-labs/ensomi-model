@@ -5,7 +5,7 @@ The spec is section "Runnable v1 spec" of the R2 design review (relay notes,
 for the parts it keeps and the main-thread overrides of 2026-10-03. Each entry gives the
 nearest faithful version that was built and the reason.
 
-1. **Song length from `soundfile.info`, not ffprobe (main-thread override).** The mac has
+1. **Song length from `soundfile.info`, not ffprobe (main-thread override).** The Mac used has
    no ffprobe. T is the container duration read by libsndfile; missing or unreadable audio
    excludes the chart with its reason. No API length or hit-object-derived length is used.
 
@@ -55,7 +55,7 @@ nearest faithful version that was built and the reason.
 
 9. **Checkpoint cadence versus measured throughput (not changed, flagged).** The spec's
    250k-exposure checkpoint and per-checkpoint evaluation assume a few hundred decisions per
-   second. Measured on the mac (FiLM, landmarks, 8 levels, 4 threads): about 3,700 head
+   second. Measured on a Mac (FiLM, landmarks, 8 levels, 4 threads): about 3,700 head
    decisions/s on CPU and about 700 on MPS (job `20261003-182254-r2-pilot-both`, 48 windows).
    At the CPU rate a 250k checkpoint comes every ~70 s; each one costs ~19 s of evaluation
    (fit_dev manifest ~2 s, twelve free-runs ~16 s) and 28 MB of disk, i.e. about 25 %

@@ -1,6 +1,6 @@
 """R2 cross-entropy trainer: checkpoints, exact resume, NaN recovery, logs, pilot and free-run modes.
 
-Modes (run on the mac from the repository root, or from a frozen code copy):
+Modes (run from the repository root, or from a frozen code copy):
 
     train     python -m ensomi_model.r2.train_ce --config <run>/config.json [--resume]
     pilot     python -m ensomi_model.r2.train_ce --config <cfg> --pilot 200 --device cpu
