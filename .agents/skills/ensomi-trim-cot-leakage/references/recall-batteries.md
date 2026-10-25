@@ -9,7 +9,6 @@ Use these searches as probes for the taxonomy in `../SKILL.md`. Every hit requir
 - Place exclusion globs after inclusion globs so a later include cannot re-admit them.
 - Remove an exclusion when its path is the exact target named by the task.
 - For a product scope, exclude `.venv/**`, `artifacts/**`, `ref-proj/**`, `**/__pycache__/**`, `.pytest_cache/**`, `*.egg-info/**`, and this skill's own directory unless the user explicitly targets one.
-- For an Agent Note scope, use the separate Agent Note tail below. Exclude `artifacts/agent-notes/archived/**` unless the task names an archived note exactly.
 - Exclude `ensomi-prose-standard/references/examples.md` during a broad skill audit because it intentionally quotes bad prose for calibration.
 - Do not broadly scan generated datasets, checkpoints, run snapshots, recorded outputs, or notebook outputs. Narrow to authored Markdown or source cells when a notebook is explicitly in scope.
 - Use case-insensitive matching for natural-language probes, but keep identifier probes case-sensitive where capitalization reduces noise.
@@ -27,13 +26,6 @@ A reusable product-scope exclusion tail is:
 --glob '!*.egg-info/**' \
 --glob '!.agents/skills/ensomi-trim-cot-leakage/**' \
 --glob '!.agents/skills/ensomi-prose-standard/references/examples.md'
-```
-
-For a scope on the `agent-notes` branch, use:
-
-```sh
---glob '!.git/**' \
---glob '!artifacts/agent-notes/archived/**'
 ```
 
 ## Session-citation battery
@@ -85,7 +77,7 @@ Research-triage templates legitimately contain planning labels. Finished analyse
 rg -n --hidden -i 'terminal output above|result above|chat above|local run|notebook cell [0-9]+|/tmp/|artifacts/[^ )]+' <scope> <exclusions>
 ```
 
-An exact artifact path can be valid in an Agent Note result log on `agent-notes`. In curated product docs, preserve the claim's evidence and provenance without making the product commit depend on that branch or unretained state.
+In curated product docs, preserve the claim's evidence and provenance without making the product commit depend on unretained state.
 
 ## Mixed-language and scaffolding battery
 

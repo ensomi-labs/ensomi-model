@@ -16,12 +16,11 @@ Read `AGENTS.md`, `README.md`, the canonical-source table, and the nearest tests
 - Use [`hydra-conventions`](../hydra-conventions/SKILL.md) for packaged configs, mapper presets, inference profiles, config adapters, and Hydra entrypoints.
 - Use [`research-triage`](../research-triage/SKILL.md) when the apparent simplification changes an open ML hypothesis or research direction rather than established architecture.
 - Use [`ensomi-prose-standard`](../ensomi-prose-standard/SKILL.md) when simplifying comments or documentation.
-- Use [`ensomi-archive-agent-notes`](../ensomi-archive-agent-notes/SKILL.md) only when lifecycle-managed decision records are actually in scope.
 - Use [`technical_analysis_writing.md`](../../../docs/guides/technical_analysis_writing.md) when the requested output is a root-cause analysis, performance investigation, or postmortem.
 
 Respect repository boundaries throughout discovery:
 
-- Do not scan `artifacts/` broadly. Inspect a named generated artifact only when the user puts it in scope, and treat it as local evidence rather than authority. Read Agent Notes from their separate branch only when their decision scope is named; they own note history, not product behavior.
+- Do not scan `artifacts/` broadly. Inspect a named generated artifact only when the user puts it in scope, and treat it as local evidence rather than authority.
 - Exclude `ref-proj/` unless comparison work is explicit. A reference project can suggest a question but cannot establish what Ensomi should remove.
 - Treat generated evaluations, caches, checkpoints, datasets, and run snapshots as derivative. Trace a finding back to committed source, config, tests, or curated docs.
 - Treat README research-focus items as hypotheses, not committed architecture.
@@ -120,7 +119,7 @@ Record rejected candidates during a broad audit so repeated searches do not turn
 
 Audit decision records when the user requests consolidation or when an implemented simplification makes a scoped owner obsolete. Do not expand every code survey into a repository-wide documentation cleanup.
 
-Use `ensomi-archive-agent-notes` for records under `artifacts/agent-notes/` on the separate notes branch. For full supersession, read each predecessor before the change and prove that the final successor preserves every unique rationale, alternative, consequence, verification fact, negative guarantee, and reintroduction condition before repairing links or recommending archival. An add-then-delete diff or shared title is not proof. Keep partial supersessions cross-linked.
+For full supersession, read each predecessor before the change and prove that the final successor preserves every unique rationale, alternative, consequence, verification fact, negative guarantee, and reintroduction condition before repairing links or recommending archival. An add-then-delete diff or shared title is not proof. Keep partial supersessions cross-linked.
 
 ## Write the result at the right scale
 
@@ -136,7 +135,7 @@ For each durable candidate, report:
 - smallest verification that could falsify the proposal;
 - risk, confidence, and any evidence gap.
 
-Prefer a compact user-facing audit unless the user requests files. When a tracked working decision record is requested, use the Agent Note lifecycle on `agent-notes`; do not add it to the product branch. Put a repository-wide durable conclusion in an existing curated `docs/` location only when it is self-contained and the request authorizes documentation changes.
+Prefer a compact user-facing audit unless the user requests files. Put a repository-wide durable conclusion in an existing curated `docs/` location only when it is self-contained and the request authorizes documentation changes.
 
 Use inline `TODO`/`FIXME`/`XXX` only for a small local cleanup with a clear action. Include a stable tag and the reason it is safe to revisit, for example `TODO(config-owner): remove the fallback after the legacy entrypoint is deleted`. Do not leave speculative complaints or hide a design decision in a TODO.
 

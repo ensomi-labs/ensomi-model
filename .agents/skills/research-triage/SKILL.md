@@ -91,7 +91,7 @@ A run with no accepted Card or existing owner is exploratory: record it in a pro
 
 Persist every proposed or accepted card, executed run, direction-changing result, or cross-turn research task in one owning Agent Note. Exploration-only brainstorming may remain ephemeral unless the user asks to retain it. Store raw run outputs in their artifact owner and link stable identifiers from the note. If required note storage is unavailable, return the proposed content and report the persistence blocker; never write an ignored fallback, claim card acceptance, or issue a final `SUPPORTED` recommendation before the required record is committed.
 
-Use [`ensomi-archive-agent-notes`](../ensomi-archive-agent-notes/SKILL.md) for note storage and lifecycle on the separate `agent-notes` branch. Research recommendations never change note lifecycle by themselves. Publish reusable conclusions through the repository prose workflow.
+Research recommendations never change note lifecycle by themselves. Publish reusable conclusions through the repository prose workflow.
 
 ## Output resources
 
