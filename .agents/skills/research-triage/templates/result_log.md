@@ -1,9 +1,9 @@
+<a id="result-<result-log-id>"></a>
 ### Result Log: <result-log-id>
 
 #### Experiment and Reproduction
 
-- Owning Agent Note ID and accepted revision (`none` if exploratory):
-- Experiment Card ID and revision (`none` if no Card):
+- Experiment Card ID and accepted revision (`none` if exploratory or no Card):
 - Baseline source revision and worktree state:
 - Intervention source revision and worktree state:
 - Baseline run or evidence IDs:

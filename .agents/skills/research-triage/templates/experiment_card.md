@@ -1,12 +1,13 @@
+<a id="card-<card-id>"></a>
 ### Experiment Card: <card-id>
 
 #### Identity and Authority
 
-- Owning Agent Note ID:
 - Card ID:
 - Revision:
+- Status: proposed | accepted (link the accepting decision)
 
-The owning Note's lifecycle is authoritative. Any protected-field edit increments the card revision and returns the owning Note to `proposed`.
+Only a human's explicit acceptance of this exact revision makes it `accepted`. Any protected-field edit increments the revision and returns the card to `proposed`.
 
 #### Question and Hypothesis
 
