@@ -12,12 +12,13 @@ Only a human's explicit acceptance of this exact revision makes it `accepted`. A
 #### Question and Hypothesis
 
 - Research question:
-- Selected hypothesis and mechanism:
+- Selected hypothesis, claim kind, and mechanism:
+- Problem property and out-of-metric prediction, for a research claim:
 - Decision the result should change:
 
 #### Analogues and Branch Selection
 
-- Closest analogues and sources:
+- Domain and technique analogues, with sources:
 - Shared mechanism:
 - Remaining difference:
 - Alternative branches rejected:
@@ -28,7 +29,7 @@ Only a human's explicit acceptance of this exact revision makes it `accepted`. A
 - Baseline product source revision (full clean OID):
 - Dataset slice and identity:
 - Baseline config and checkpoint identities:
-- Baseline run or evidence identity:
+- Baseline run or evidence identity (a matched baseline for a research claim):
 - Baseline metric value, aggregation, sample count, and uncertainty:
 - One causal intervention:
 - Behavior-neutral instrumentation:
@@ -38,17 +39,17 @@ Only a human's explicit acceptance of this exact revision makes it `accepted`. A
 #### Evidence and Decision Rule
 
 - Primary metric definition and direction:
-- Decision threshold:
+- Decision threshold (for a research claim, also on the out-of-metric prediction):
 - Regression guard and bound:
 - Qualitative check:
 - Positive result:
-- Negative result:
+- Negative or null result, given a passed sensitivity check:
 - Ambiguous result:
 
 #### Reproduction and Bounds
 
 - Exact command or procedure:
-- Comparison pairing or independence:
+- Comparison design: pairing or independence, matched baseline, and the sensitivity check's controls (mechanism ablation, null control or known-effect control, noise estimate and strata):
 - Seeds:
 - Environment, dependencies, and hardware:
 - Runtime, compute, storage, and network bounds:

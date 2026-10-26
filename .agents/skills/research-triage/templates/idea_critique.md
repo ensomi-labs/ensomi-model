@@ -7,24 +7,23 @@
 - Target improvement:
 - Decision this evidence should change:
 
-#### Closest Analogues
+#### Analogues
 
-- Analogue and evidence source:
+- Technique analogue and evidence source:
+- Domain analogue and evidence source, for a research claim:
 - Shared mechanism:
-- Material difference:
-- Novelty layer, if any:
+- Remaining difference:
 - Provisional novelty assessment:
 
 #### Hypothesis Branches
 
 For each live branch:
 
-- Claim and mechanism:
-- Closest analogue:
-- Expected supporting signal:
-- Expected falsifying signal:
+- Hypothesis, claim kind, and mechanism (for a research claim, the problem property):
+- Domain and technique analogues:
+- Expected supporting and falsifying signals (for a research claim, the out-of-metric prediction):
 - Smallest discriminating probe:
-- Cost, confounders, and likely failure mode:
+- Cost, confounders, likely failure mode, and sensitivity check:
 
 #### Comparison
 

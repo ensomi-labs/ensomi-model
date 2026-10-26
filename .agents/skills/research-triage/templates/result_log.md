@@ -24,10 +24,10 @@
 
 - Baseline primary-metric value, aggregation, sample count, and uncertainty:
 - Intervention primary-metric value, aggregation, sample count, and uncertainty:
-- Decision threshold result:
+- Decision threshold result, including the out-of-metric prediction for a research claim:
 - Regression guard value and bound:
 - Qualitative observations:
-- Failures or missing evidence:
+- Sensitivity check result (passed | failed | not run), failures, and missing evidence:
 
 #### Plan Conformance
 
@@ -41,9 +41,9 @@ Leave this section pending for a run-only request. Fill or revise it during Eval
 
 - Observation:
 - Interpretation:
-- Strongest alternative explanation:
+- Strongest alternative explanation (for a research claim, whether the matched baseline rules out the explanation without the problem property):
 - Confounders:
-- Scope of the conclusion:
+- Conclusion scope and claim kind supported (research | engineering | none):
 
 #### Decision
 
@@ -54,4 +54,4 @@ Leave this section pending for a run-only request. Fill or revise it during Eval
 - Revised question or next discriminating test:
 - Human direction still required:
 
-Without an accepted card and identifiable baseline and guard, or after a material protected-field deviation, do not recommend `SUPPORTED`.
+Without an accepted card and identifiable baseline and guard, or after a material protected-field deviation, do not recommend `SUPPORTED`. Do not recommend `DROP`, or call a change harmless, on a negative or null result whose sensitivity check has not passed.
