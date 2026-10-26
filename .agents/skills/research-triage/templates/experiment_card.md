@@ -49,14 +49,14 @@ Only a human's explicit acceptance of this exact revision makes it `accepted`. A
 #### Reproduction and Bounds
 
 - Exact command or procedure:
-- Comparison pairing or independence:
+- Comparison design: pairing or independence, matched baseline, and the sensitivity check's controls (mechanism ablation, null control or known-effect control, noise estimate and strata):
 - Seeds:
 - Environment, dependencies, and hardware:
 - Runtime, compute, storage, and network bounds:
 - Fresh output destination:
 - Overwrite and resume policy:
 - Early-stop or kill condition:
-- Sensitivity check and expected failure modes:
+- Expected failure modes:
 - Confounders:
 - Conclusion scope:
 
