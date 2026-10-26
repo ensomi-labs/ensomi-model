@@ -27,7 +27,7 @@
 - Decision threshold result, including the out-of-metric prediction for a research claim:
 - Regression guard value and bound:
 - Qualitative observations:
-- Mechanism check result, failures, and missing evidence:
+- Sensitivity check result (passed | failed | not run), failures, and missing evidence:
 
 #### Plan Conformance
 
@@ -54,4 +54,4 @@ Leave this section pending for a run-only request. Fill or revise it during Eval
 - Revised question or next discriminating test:
 - Human direction still required:
 
-Without an accepted card and identifiable baseline and guard, or after a material protected-field deviation, do not recommend `SUPPORTED`. Do not recommend `DROP` on a negative result whose mechanism check has not passed.
+Without an accepted card and identifiable baseline and guard, or after a material protected-field deviation, do not recommend `SUPPORTED`. Do not recommend `DROP` on a negative or null result whose sensitivity check has not passed.

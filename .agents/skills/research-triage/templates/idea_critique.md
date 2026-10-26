@@ -19,13 +19,11 @@
 
 For each live branch:
 
-- Hypothesis, claim kind, and mechanism:
-- Problem property and out-of-metric prediction, for a research claim:
+- Hypothesis, claim kind, and mechanism (for a research claim, the problem property):
 - Domain and technique analogues:
-- Expected supporting signal:
-- Expected falsifying signal:
+- Expected supporting and falsifying signals (for a research claim, the out-of-metric prediction):
 - Smallest discriminating probe:
-- Cost, confounders, likely failure mode, and mechanism check:
+- Cost, confounders, likely failure mode, and sensitivity check:
 
 #### Comparison
 

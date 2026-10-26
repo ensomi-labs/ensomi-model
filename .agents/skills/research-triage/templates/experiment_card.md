@@ -43,7 +43,7 @@ Only a human's explicit acceptance of this exact revision makes it `accepted`. A
 - Regression guard and bound:
 - Qualitative check:
 - Positive result:
-- Negative result, given a passed mechanism check:
+- Negative or null result, given a passed sensitivity check:
 - Ambiguous result:
 
 #### Reproduction and Bounds
@@ -56,7 +56,7 @@ Only a human's explicit acceptance of this exact revision makes it `accepted`. A
 - Fresh output destination:
 - Overwrite and resume policy:
 - Early-stop or kill condition:
-- Mechanism check and expected failure modes:
+- Sensitivity check and expected failure modes:
 - Confounders:
 - Conclusion scope:
 
