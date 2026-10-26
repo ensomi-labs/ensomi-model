@@ -28,8 +28,8 @@ Only a human's explicit acceptance of this exact revision makes it `accepted`. A
 
 - Baseline product source revision (full clean OID):
 - Dataset slice and identity:
-- Baseline config and checkpoint identities (a matched baseline for a research claim):
-- Baseline run or evidence identity:
+- Baseline config and checkpoint identities:
+- Baseline run or evidence identity (a matched baseline for a research claim):
 - Baseline metric value, aggregation, sample count, and uncertainty:
 - One causal intervention:
 - Behavior-neutral instrumentation:

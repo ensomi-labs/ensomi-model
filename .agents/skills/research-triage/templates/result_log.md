@@ -41,7 +41,7 @@ Leave this section pending for a run-only request. Fill or revise it during Eval
 
 - Observation:
 - Interpretation:
-- Strongest alternative explanation (for a research claim, whether the matched baseline rules out the generic explanation):
+- Strongest alternative explanation (for a research claim, whether the matched baseline rules out the explanation without the problem property):
 - Confounders:
 - Conclusion scope and claim kind supported (research | engineering | none):
 
@@ -54,4 +54,4 @@ Leave this section pending for a run-only request. Fill or revise it during Eval
 - Revised question or next discriminating test:
 - Human direction still required:
 
-Without an accepted card and identifiable baseline and guard, or after a material protected-field deviation, do not recommend `SUPPORTED`. Do not recommend `DROP` on a negative or null result whose sensitivity check has not passed.
+Without an accepted card and identifiable baseline and guard, or after a material protected-field deviation, do not recommend `SUPPORTED`. Do not recommend `DROP`, or call a change harmless, on a negative or null result whose sensitivity check has not passed.
