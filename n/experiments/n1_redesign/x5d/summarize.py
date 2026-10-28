@@ -172,6 +172,7 @@ def summarize(seeds):
         evaluation={seed:json.loads((OUT / seed / 'evaluation-identity.json').read_text()) for seed in seeds},
         ambiguous_targets=ambiguities, fp16_reconstruction=reconstruction,
         failures=json.loads((OUT / 'failures.json').read_text()) if (OUT / 'failures.json').exists() else [],
+        observations=json.loads((OUT / 'observations.json').read_text()) if (OUT / 'observations.json').exists() else [],
         deviations=json.loads((OUT / 'deviations.json').read_text()) if (OUT / 'deviations.json').exists() else [])
     dump(OUT / 'recording-scores.json',rows)
     dump(OUT / 'panel-inputs.json',list(dict(seed=s,**r) for (s,_),r in sorted(input_rows.items())))
@@ -190,6 +191,7 @@ def write_report(r):
         f"Preregistration SHA256 `{r['prereg']['sha256']}`, frozen {r['prereg']['utc']}.",
         'CPU measurement only; no decoder or model change is adopted. Primary decision cell: fit_dev/all.', '',
         primary_summary+'.', '',
+        *r.get('observations',[]), '',
         *r['deviations'], '',
         f"Completed seeds: {', '.join(r['seeds'])}. Baseline/own-D2/oracle-D2 reproduced exactly: "
         f"{r['controls']['maps']['compared_maps']} maps before fitting, {r['controls']['checked_scores']} scored control values after evaluation.", '',
