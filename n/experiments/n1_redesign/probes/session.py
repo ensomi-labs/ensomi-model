@@ -97,10 +97,15 @@ def replay(seed):
             # Test the between-only intervention separately from other marks in
             # the same passage; otherwise their legitimate updates confound it.
             bp, _, bd = update(s, [], arm, configs[arm], models.get(arm))
+            source = sorted(set(source))
+            before_ternary = s.p[source] > .5
+            after_ternary = p[source] > .5
             entry['arms'][arm] = dict(pulse_unchanged=s.hash == pulse_hash(s.z),
-                ternary_source_beats=len(set(source)),
-                ternary_after=float(np.mean(p[source] > .5)) if source else None,
-                triplets_pass=bool(source and np.all(p[source] > .5)),
+                ternary_source_beats=len(source),
+                ternary_before=float(before_ternary.mean()) if source else None,
+                ternary_after=float(after_ternary.mean()) if source else None,
+                newly_ternary_source_beats=int(np.sum(after_ternary & ~before_ternary)),
+                triplets_pass=bool(source and np.any(~before_ternary) and np.all(after_ternary)),
                 between_marks=len(between), between_only_unchanged=not len(bd),
                 U_expectation='unassessed: U probe not fitted', outside_regions=regions_outside,
                 declared_beats=len(declared), map_changes=int(np.sum((p > .5) != (s.p > .5))))
@@ -123,8 +128,12 @@ def replay(seed):
             if pid not in results:
                 return 'unassessed: missing input'
             return 'pass' if test(results[pid]['arms'][arm]) else 'fail'
+        def triplets_result(pid):
+            if pid in results and results[pid]['arms'][arm]['ternary_before'] == 1.:
+                return 'unassessed: source cells were already ternary'
+            return result(pid, lambda r: r['triplets_pass'])
         expectations[arm] = dict(
-            triplets={pid: result(pid, lambda r: r['triplets_pass']) for pid in cfg['expectations']['triplets']},
+            triplets={pid: triplets_result(pid) for pid in cfg['expectations']['triplets']},
             layers={pid: result(pid, lambda r: r['pulse_unchanged']) for pid in cfg['expectations']['layers']},
             between={pid: result(pid, lambda r: r['between_marks'] > 0 and r['between_only_unchanged'])
                      for pid in cfg['expectations']['between']},
