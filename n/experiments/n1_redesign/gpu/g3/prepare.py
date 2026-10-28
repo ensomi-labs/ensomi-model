@@ -101,7 +101,8 @@ This comparison changes initialization, memory, losses, learning rate and traini
         source_sha256={str(p.resolve()):digest(p) for p in frozen},
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip())
     dump(OUT/'prereg-lock.json',lock)
-    log('preregistered',**lock)
+    log('preregistered',prereg_sha256=lock['sha256'],prereg_utc=lock['utc'],
+        source_sha256=lock['source_sha256'],code_commit=lock['code_commit'])
 
 
 if __name__=='__main__':
