@@ -100,3 +100,21 @@ def test_zero_recovery_can_retire_only_with_power_and_known_margin():
     assert within_margin(comparison)['holds_both_seeds']
     comparison['seeds']['1']['margin'] = None
     assert not within_margin(comparison)['holds_both_seeds']
+
+
+def test_resource_receipt_includes_report_process_without_changing_measurements(tmp_path):
+    import json
+    from n1_redesign.probes.p7m_guard import finalize_resources
+    original = dict(prereg={'sha256': 'fixture'}, verdict='inconclusive', seeds={'0': {'M3i': .2}})
+    (tmp_path / 'results.json').write_text(json.dumps(original))
+    (tmp_path / 'report.md').write_text('Measurements\n\nResource records: `[]`.\n\nUnfinished: none\n')
+    rows = [dict(command=['seed'], peak_process_tree_rss_bytes=100, stopped=None),
+            dict(command=['report'], peak_process_tree_rss_bytes=200, stopped=None)]
+    (tmp_path / 'resources.jsonl').write_text(''.join(json.dumps(row) + '\n' for row in rows))
+    finalize_resources(tmp_path)
+    actual = json.loads((tmp_path / 'results.json').read_text())
+    assert all(actual[k] == v for k, v in original.items())
+    assert actual['resources'] == rows
+    assert actual['resource_totals']['peak_process_tree_rss_bytes'] == 200
+    assert 'Measurements' in (tmp_path / 'report.md').read_text()
+    assert '"report"' in (tmp_path / 'report.md').read_text()

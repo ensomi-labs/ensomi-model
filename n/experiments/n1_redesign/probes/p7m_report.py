@@ -365,6 +365,9 @@ def build():
               'PCA and M0 were fitted on probe-fit; those recordings were already seen by the trunk. '
               'Graph selection uses probe-dev only, and panels remain design read sets. Both feature '
               'seeds use the same selected checkpoint; neighboring-checkpoint noise is unavailable.', '',
+              'The Mel graph uses P7’s three-beat contexts. P5a’s bar retrieval used four-beat bar tokens; '
+              'its retrieval advantage does not establish an advantage for this beat-context update rule. '
+              'This run does not screen every possible Mel bar-graph design.', '',
               'The low-dimensional frozen cell probe, fixed chart grid, exact-repeat eligibility, run cap, '
               'small or negative mark LLRs, and M0 confidence can each constrain recovery. This comparison '
               'does not isolate the cell model alone. No new training or owner listening validation occurred.', '',

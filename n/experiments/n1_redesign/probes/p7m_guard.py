@@ -26,6 +26,29 @@ def disk_size(path):
     return sum(p.stat().st_size for p in path.rglob('*') if p.is_file())
 
 
+def finalize_resources(out):
+    """Attach the completed report process receipt without recomputing statistics."""
+    result_path, report_path = out / 'results.json', out / 'report.md'
+    if not result_path.exists() or not report_path.exists():
+        return
+    rows = [json.loads(line) for line in (out / 'resources.jsonl').read_text().splitlines()]
+    result = json.loads(result_path.read_text())
+    lines = report_path.read_text().splitlines()
+    indices = [i for i, line in enumerate(lines) if line.startswith('Resource records: ')]
+    assert len(indices) == 1, 'Expected one resource receipt section'
+    result['resources'] = rows
+    result['resource_totals'] = dict(
+        peak_process_tree_rss_bytes=max((r['peak_process_tree_rss_bytes'] for r in rows), default=0),
+        disk_bytes=disk_size(out), stopped=[r['stopped'] for r in rows if r['stopped']])
+    lines[indices[0]] = f'Resource records: `{json.dumps(rows)}`.'
+    temporary = result_path.with_suffix('.json.tmp')
+    temporary.write_text(json.dumps(result, indent=2, allow_nan=False) + '\n')
+    temporary.replace(result_path)
+    temporary = report_path.with_suffix('.md.tmp')
+    temporary.write_text('\n'.join(lines) + '\n')
+    temporary.replace(report_path)
+
+
 def run_child(command, out, deadline):
     name = '-'.join(command).replace('--', '')
     start = time.time()
@@ -84,6 +107,7 @@ def main():
             failed = True
             break
     code = run_child(['report'], args.out, deadline.timestamp())
+    finalize_resources(args.out)
     raise SystemExit(code or int(failed))
 
 
