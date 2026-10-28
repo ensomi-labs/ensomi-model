@@ -148,7 +148,8 @@ def prepare(seed=0):
                           audio=x['input']['audio_rel'], cohort=x['panel']) for x in by_sha[sha]]
         else:
             specs = [dict(key=sha + ':' + str(i), rec=m.get('rec', sha), charts=m['charts'],
-                          audio=m['audio_rel'], cohort=cohort) for i, m in enumerate(r['memberships'])]
+                          audio=m['audio_rel'], cohort=(m['ext'] + '_extension') if m.get('ext') else cohort)
+                     for i, m in enumerate(r['memberships'])]
         for s in specs:
             u = dict(s, sha=sha, id=f'{stable_seed(s["key"]):08x}', cache_split=r['split'])
             try:

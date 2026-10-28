@@ -106,3 +106,34 @@ def test_event_features_interpolate_on_the_same_clock():
     np.testing.assert_allclose(d['F'], [[10.5, 10.5]])
     np.testing.assert_allclose(d['M'][0, :128], 6.5)
     np.testing.assert_allclose(d['M'][0, -128:], 1)
+
+
+def test_standard_slider_repeat_and_tail_keep_ladder_heads(tmp_path, monkeypatch):
+    from n1_redesign.probes import labels as mod
+    monkeypatch.setattr(mod, 'ROOT', tmp_path)
+    header = '''osu file format v14
+[General]
+AudioFilename: a.wav
+Mode: 0
+[Metadata]
+Version: {version}
+[Difficulty]
+SliderMultiplier: 1.4
+[TimingPoints]
+0,500,4,0,0,100,1,0
+[HitObjects]
+'''
+    objects = [
+        '64,192,0,2,0,B|164:192,2,140,0|8|4,0:0|0:0|0:0,0:0:0:0:\n',
+        ''.join(f'64,192,{t},1,0,0:0:0:0:\n' for t in (0, 1000)),
+        ''.join(f'64,192,{t},1,0,0:0:0:0:\n' for t in (0, 250, 500, 750, 1000))]
+    paths, ranks = [], {}
+    for i, body in enumerate(objects):
+        version = f'difficulty{i}'
+        p = tmp_path / (version + '.osu')
+        p.write_text(header.format(version=version) + body)
+        paths.append(str(p)); ranks['.', version] = (i, i)
+    z = make_labels(paths, ranks)
+    np.testing.assert_allclose(z['retention'], [1, 0, .5, 0, 1])
+    assert any((z['event_t'] == 500) & (z['event_bits'] == 8))
+    assert any((z['event_t'] == 1000) & (z['event_bits'] == 4))

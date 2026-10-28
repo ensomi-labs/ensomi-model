@@ -11,7 +11,7 @@ from .common import OUT, digest, dump, log, utc
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('stage', choices=['labels', 'freeze', 'tokens', 'P1', 'P2', 'P3', 'P4a', 'P4b', 'P5a', 'P5b', 'P5c', 'P6', 'P7', 'P8', 'packet', 'report'])
+    p.add_argument('stage', choices=['labels', 'freeze', 'tokens', 'P1', 'P2', 'P3', 'P4a', 'P4b', 'P5a', 'P5b', 'P5c', 'P5d', 'P6', 'P7', 'P8', 'packet', 'report'])
     p.add_argument('--seed', type=int, choices=[0, 1], default=0)
     p.add_argument('--shifted', action='store_true')
     p.add_argument('--bootstrap', action='store_true')
@@ -65,8 +65,8 @@ def main():
         from .report import build
         build()
     else:
-        from .repeats import retrieval, recurrence, downbeat
-        {'P5a': retrieval, 'P5b': recurrence, 'P5c': downbeat}[a.stage](a.seed)
+        from .repeats import retrieval, recurrence, downbeat, span_evidence
+        {'P5a': retrieval, 'P5b': recurrence, 'P5c': downbeat, 'P5d': span_evidence}[a.stage](a.seed)
     log('stage_done', stage=a.stage, seed=a.seed,
         peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 

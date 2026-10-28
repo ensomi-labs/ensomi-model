@@ -121,7 +121,10 @@ def assert_open(row, e):
 
 def manifests(seed, ready=True):
     dirs = [CACHE / f'v01-s{seed}-009001']
-    if seed == 0 and (CACHE / 'v01-s0-009001-ext/DONE').exists():
+    if seed == 0 and (CACHE / 'v01-s1-009001/DONE').exists():
+        done = json.loads((CACHE / 'v01-s1-009001/DONE').read_text())
+        ext_manifest = CACHE / 'v01-s0-009001-ext/manifest.jsonl'
+        assert len(ext_manifest.read_text().splitlines()) == done['0']['inputs']
         dirs.append(CACHE / 'v01-s0-009001-ext')
     if ready:
         marker = CACHE / 'summary.md' if seed == 0 else dirs[0] / 'DONE'
@@ -143,6 +146,7 @@ def manifests(seed, ready=True):
 
 
 def features(r):
+    assert Path(r['npz']) == Path(r['sha256'][:2]) / (r['sha256'] + '.npz')
     p = Path(r['cache_dir']) / r['npz']
     with np.load(p, allow_pickle=False) as z:
         f, l = z['feat'].astype('float32'), z['logits'].astype('float32')
@@ -150,6 +154,7 @@ def features(r):
     from ensomi_n.features.cache import load_mel
     m = load_mel(ROOT / 'artifacts/bulk/n1-cache/mel', r['sha256'])
     assert f.shape == (len(m), 160) and l.shape == (len(m), 23)
+    assert len(f) == r['frames']
     assert r['t0_ms'] == 0 and r['fps'] == 100
     return f, l, m
 

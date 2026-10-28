@@ -353,7 +353,7 @@ def build():
     results['unfinished'] = [f'{p}-s{s}' for p in expected for s in (0, 1) if read(f'{p}-s{s}.json') is None]
     if read('P6.json') is None:
         results['unfinished'].append('P6')
-    results['unfinished'].append('P5d (stretch)')
+    results['unfinished'] += [f'P5d-s{s} (stretch)' for s in (0, 1) if read(f'P5d-s{s}.json') is None]
     results['experiment_files'] = {p.name: dict(sha256=digest(p), path=str(p)) for p in sorted(OUT.glob('P*.json'))}
     results['runtime_sha256'] = digest(OUT / 'runtime.json')
     dump(OUT / 'results.json', results)

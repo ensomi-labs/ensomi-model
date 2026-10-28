@@ -1,6 +1,6 @@
 """Cell-only hint updates, simulator, learned reach and absolute invariants."""
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import hashlib
 import json
 import math
@@ -166,6 +166,7 @@ class Song:
     exact: np.ndarray
     regions: list
     hash: str
+    metric_cache: dict = field(default_factory=dict)
 
 
 def song(seed, u):
@@ -246,14 +247,21 @@ def measures(s, region, marks, p, local):
         excluded[max(0, i - 1):i + 2] = True
     failing = (z['y'] == 1) & ~base & ~excluded
     numerator = lambda q: float(pred[q].mean()) if q.any() else None
-    other = np.zeros(len(p), bool)
-    for r in s.regions:
-        if not np.any(r & region):
-            other |= r
-    source = np.isin(z['bar_ids'], z['bars'][region])
-    lag = abs(z['bar_ids'][:, None] - z['bar_ids'][None, :])
-    target = np.any(s.exact & source[:, None] & ~source[None, :] & (lag >= 8), axis=0)
-    tier2 = np.isin(z['bars'], z['bar_ids'][target])
+    endpoints = np.flatnonzero(region)
+    key = (int(endpoints[0]), int(endpoints[-1])) if len(endpoints) else (-1, -1)
+    if key not in s.metric_cache:
+        other = np.zeros(len(p), bool)
+        for r in s.regions:
+            if not np.any(r & region):
+                other |= r
+        source = np.isin(z['bar_ids'], z['bars'][region])
+        lag = abs(z['bar_ids'][:, None] - z['bar_ids'][None, :])
+        target = np.any(s.exact & source[:, None] & ~source[None, :] & (lag >= 8), axis=0)
+        tier2 = np.isin(z['bars'], z['bar_ids'][target])
+        dist = np.maximum(0, np.maximum(z['bars'][endpoints[0]] - z['bars'],
+                          z['bars'] - z['bars'][endpoints[-1]])) if len(endpoints) else None
+        s.metric_cache[key] = (other, tier2, dist)
+    other, tier2, dist = s.metric_cache[key]
     outside = ~region
     ch = changed & outside
     labelled = z['y'] >= 0
@@ -273,8 +281,6 @@ def measures(s, region, marks, p, local):
                   M8=float(changed.mean()), changed=int(changed.sum()),
                   tier2_precision=float(np.mean(pred[tier2 & changed & labelled] == z['y'][tier2 & changed & labelled])) if np.any(tier2 & changed & labelled) else None)
     if region.any():
-        bars = z['bars'][region]
-        dist = np.min(abs(z['bars'][:, None] - bars[None, :]), axis=1)
         for name, q in [('0-7', dist < 8), ('8-15', (dist >= 8) & (dist < 16)),
                         ('16-31', (dist >= 16) & (dist < 32)), ('32+', dist >= 32)]:
             result['M3i_lag' + name] = numerator(failing & other & q)

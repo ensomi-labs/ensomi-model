@@ -4,7 +4,7 @@ import json
 
 import numpy as np
 
-from .common import (ROOT, OUT, auc, dump, features, interval, labels, log, manifests,
+from .common import (ROOT, OUT, auc, dump, features, interp, interval, labels, log, manifests,
                      nearest, norm, prereg_check, stable_seed, units)
 from .tokens import bar_tokens, context, token_load
 from .cells import decoded
@@ -213,3 +213,62 @@ def downbeat(seed):
                          raw=auc(z['down'], raw), feature=auc(z['down'], avg),
                          random=auc(z['down'], rand), periodic=auc(z['down'], periodic)))
     dump(OUT / f'P5c-s{seed}.json', dict(summary=aggregate(rows), rows=rows))
+
+
+def span_evidence(seed):
+    """P5d: feature-selected span alignment; never modifies a decoded line."""
+    prereg_check()
+    cache = manifests(seed)
+    by_id = {u['id']: u for u in units()}
+    spans = json.loads((OUT / f'P5b-s{seed}.json').read_text())['B_spans']
+    grouped = defaultdict(list)
+    for span in spans:
+        grouped[span['unit']].append(span)
+    rows = []
+    for uid, members in grouped.items():
+        u = by_id[uid]; z = labels(u)
+        d = decoded(seed, u, z)
+        t = token_load(seed, u)['Fz']
+        _, logits, _ = features(cache[u['sha']])
+        raw = logits[:, 0:1]
+        for span in members:
+            q = np.flatnonzero((z['beats'] >= span['lo_ms']) & (z['beats'] < span['hi_ms']))
+            pred = d['beats'][(d['beats'] - d['offset'] >= span['lo_ms']) &
+                              (d['beats'] - d['offset'] < span['hi_ms'])]
+            if not len(q) or not len(pred):
+                continue
+            width, start = len(q), int(q[0])
+            query = norm(t[q].ravel()[None, :])[0]
+            candidates = []
+            for anchor in np.flatnonzero(z['down']):
+                if abs(anchor - start) < 16:
+                    continue
+                scores = []
+                for shift in range(-2, 3):
+                    at = int(anchor + shift)
+                    if at < 0 or at + width > len(t) or abs(at - start) < 16:
+                        continue
+                    token = norm(t[at:at + width].ravel()[None, :])[0]
+                    scores.append((float(query @ token), at, shift))
+                if scores:
+                    candidates.append(max(scores))
+            candidates.sort(reverse=True)
+            chosen = candidates[:3]
+            own_chart = float(interp(raw, z['beats'][q]).mean())
+            own_pred = float(interp(raw, pred).mean())
+            chart_scores, pred_scores = [own_chart], [own_pred]
+            relative_chart = np.arange(width, dtype=float)
+            relative_pred = np.interp(pred, z['beats'], np.arange(len(t))) - start
+            for _, at, shift in chosen:
+                chart_times = np.interp(at + relative_chart, np.arange(len(t)), z['beats'])
+                pred_times = np.interp(at + relative_pred, np.arange(len(t)), z['beats'])
+                chart_scores.append(float(interp(raw, chart_times).mean()))
+                pred_scores.append(float(interp(raw, pred_times).mean()))
+            rows.append(dict(rec=u['rec'], unit=uid, lo_ms=span['lo_ms'], hi_ms=span['hi_ms'],
+                own_prefers_chart=float(own_chart > own_pred),
+                averaged_prefers_chart=float(np.mean(chart_scores) > np.mean(pred_scores)),
+                own_difference=own_chart - own_pred,
+                averaged_difference=float(np.mean(chart_scores) - np.mean(pred_scores)),
+                similar_spans=len(chosen)))
+    dump(OUT / f'P5d-s{seed}.json', dict(summary=aggregate(rows), rows=rows, characterizes_only=True,
+        alignment='Candidate spans are anchored at chart bar starts; choose offset -2..2 by feature cosine and sample by piecewise-linear notated-beat coordinate.'))
