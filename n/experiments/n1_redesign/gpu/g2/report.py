@@ -1,6 +1,7 @@
 """Render G2's fixed paired comparisons, verdicts and artifact-retention record."""
 from collections import defaultdict
 from datetime import datetime,timezone
+from pathlib import Path
 import json
 import subprocess
 import numpy as np
@@ -83,18 +84,30 @@ def build():
     results['deletions']=load(OUT/'deletions.json') if (OUT/'deletions.json').exists() else []
     results['cleanup_complete']=(OUT/'cleanup-DONE.json').exists()
     results['deleted_bytes']=sum(r['bytes'] for r in results['deletions'] if r['status']=='deleted')
+    results['resources']['retained_plus_deleted_G2_bytes']=results['resources']['new_bytes']+sum(
+        r['bytes'] for r in results['deletions'] if r['status']=='deleted' and Path(r['path']).is_relative_to(OUT))
     dump(OUT/'results.json',results)
     lines=['# G2: absolute tempo band as a training target','',
            f"Prediction: **{results['verdict']['prediction']}**. Retire rule: **{results['verdict']['retire']}**. Nothing adopted.",'',
            f"Preregistered {lock['utc']}; SHA-256 `{lock['sha256']}`. Code `{results['code_commit']}`.",'',
            'G1 completed before G2. The copied X5d D2 implementation reproduced both own-level and frozen-band maps on five items per seed (60 exact field comparisons). F0 inference reproduction errors appear below. All cohort audits passed, including the prior folder/group exclusion. Baseline seed and neighbouring-checkpoint statistics are in prereg-facts.json and results.json.','',
-           '## Runs','',
+           'Level differences below are percentage points; parentheses give the margin. The first two comparisons are F2-band-D2 minus F0-base. The last is F2-band-D2 minus the matched frozen readout.','',
+           '| Seed | fit_dev level Δ (M) | val_hard level Δ (M) | val_hard Δ versus frozen (M) | Prediction clauses |',
+           '|---|---:|---:|---:|---|']
+    for seed,s in results['seeds'].items():
+        values=[s['comparisons_to_F0']['F2-band-D2'][c]['n_level'] for c in ('panel/all','val_hard/all')]
+        values.append(s['matched_readout']['val_hard/all']['n_level'])
+        fields=[f"{100*v['delta']['value']:+.2f} ({100*v['margin']:.2f})" for v in values]
+        failed=[k for k,v in s['decision']['clauses'].items() if not v]
+        lines.append(f"| {seed} | {' | '.join(fields)} | {', '.join(failed) if failed else 'all met'} |")
+    lines += ['','## Runs','',
            '| Run | Status | Steps | Training min | Wall min | Sigma floor | F0 repro max abs |',
            '|---|---|---:|---:|---:|---:|---:|']
     for seed,s in results['seeds'].items():
-        r=s['run'];error=max(x['max_abs'] for x in s['inference']['F0']['reproduction'])
-        lines.append(f"| F2-s{seed} | {r['status']} | {r['steps']} | {r['training_s']/60:.2f} | {r['wall_s']/60:.2f} | {r['sigma_floor']:.10g} | {error:g} |")
-    lines+=['','Only final checkpoints were written. Original four-minute probes, losses, resource guards and kills are retained in runs/F2-s*/progress.jsonl. No scientific kill was rerun. Final component losses:','']
+        error=max(x['max_abs'] for x in s['inference']['F0']['reproduction'])
+        for name,r in [(f'F0-s{seed} (G1)',s['F0_run']),(f'F2-s{seed}',s['run'])]:
+            lines.append(f"| {name} | {r['status']} | {r['steps']} | {r['training_s']/60:.2f} | {r['wall_s']/60:.2f} | {r['sigma_floor']:.10g} | {error:g} |")
+    lines+=['','G2 wrote only a final checkpoint for each F2 run. Original four-minute probes, losses, resource guards and kills are retained in runs/F2-s*/progress.jsonl. No scientific kill was rerun. Final component losses:','']
     for seed,s in results['seeds'].items():
         lines.append(f"- F2-s{seed}: `{json.dumps(s['run']['final_losses'],sort_keys=True)}`.")
     lines+=['','## Panel and structure comparisons','',
@@ -122,15 +135,15 @@ def build():
             'Both F2 heads used the saved same-seed X5d linear fit, folding feature standardisation and its positive calibration temperature into weights and bias. Numerical folding checks and input hashes are retained in initialisers.json. The matched control refit uses h=0/1 fit and h=2 calibration on F0 features; fit curves and inventories are retained.','']
     for seed,s in results['seeds'].items():
         f=s['control_fit'];lines.append(f"- Seed {seed}: selected epoch {f['best_epoch']}, temperature {f['temperature']:.6g}, calibrated NLL {f['calibrated_nll']:.6g}; {f['cohort']['counts']}.")
-    lines+=['','## Deviations and limits','',json.dumps(results['deviations'],indent=2),'']
+    lines+=['','## Deviations and limits','','```json',json.dumps(results['deviations'],indent=2),'```','']
     lines += ['- '+x for x in results['limitations']]
     lines+=['','## Disk retention','',f"Deleted {results['deleted_bytes']/1e9:.3f} GB. Cleanup complete: {results['cleanup_complete']}. Current G2 artifacts: {results['resources']['new_bytes']/1e9:.3f} GB; free disk: {results['resources']['free_bytes']/1e9:.3f} GB.",'',
+            f"Retained plus already deleted G2 artifacts total {results['resources']['retained_plus_deleted_G2_bytes']/1e9:.3f} GB. This accounts for caches removed before the final report; every running disk check also enforced the 6 GB cap and 100 GB free-space floor.",'',
             'The complete per-path deletion ledger (sizes and status) is in deletions.json and results.json. Final checkpoints, numeric probes, scored maps, score tables, fitted readout weights, inventories and reports are retained. G0 caches and other jobs are untouched.','',
             '| Deleted location | Files | GB |','|---|---:|---:|']
     deleted=defaultdict(lambda:[0,0])
     for r in results['deletions']:
         if r['status']!='deleted':continue
-        from pathlib import Path
         p=Path(r['path']);key=str(p.parent) if p.suffix=='.npz' else str(p)
         deleted[key][0]+=r['files'];deleted[key][1]+=r['bytes']
     lines += [f'| {p} | {n} | {b/1e9:.3f} |' for p,(n,b) in sorted(deleted.items())]
