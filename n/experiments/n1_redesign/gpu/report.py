@@ -122,7 +122,7 @@ def render():
             rows=h['rows'];tot=sum(r.get('cell_total',0) for r in rows);unmatched=sum(r.get('cell_unmatched',0) for r in rows)
             coverage[name]=dict(reference_entries=len(rows),qualified={m:sum(r.get(m) is not None for r in rows) for m in HEAD_METRICS},
                                 decoded_unmatched_beats=unmatched,decoded_total_beats=tot,decoded_unmatched_share=unmatched/tot if tot else None)
-    structure={}
+    structure={};structure_values={}
     for name in [f'v01-s{s}-009001' for s in (0,1)]+[f'F{a}-s{s}' for s in (0,1) for a in (0,1)]:
         scores=read(OUT/'scores'/f'{name}.json')
         if scores:
@@ -130,6 +130,14 @@ def render():
             for r in scores['structure']:
                 counts.update(r['counts']);ready[(r['panel'],r['rec'])].append(float(r['ready']))
             structure[name]=dict(first_error_span_counts=dict(counts),recording_ready=interval([np.mean(v) for v in ready.values()]))
+            structure_values[name]={k:float(np.mean(v)) for k,v in ready.items()}
+    structure_comparisons={}
+    for seed in (0,1):
+        names=['v01-s0-009001','v01-s1-009001',f'F0-s{seed}',f'F1-s{seed}']
+        d=comparison(*(structure_values.get(n,{}) for n in names),seed)
+        if d:
+            structure_comparisons[str(seed)]={k:d[k] for k in ('n','v01','F0','F1','F1_minus_F0','margin','seed_spread','paired_half_width')}
+    fits={str(seed):read(OUT/'fits'/f's{seed}.json') for seed in (0,1)}
     code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
     audit_file=read(OUT/'full-input-audit.json',{})
     audit=audit_file.get('cohorts',{})
@@ -142,11 +150,12 @@ def render():
                 extension_drop_reason_counts=dict(drop_reasons),
                 baseline_noise=read(OUT/'baseline-noise.json'),sigma=read(OUT/'sigma-baseline.json'),
                 target_rates=read(OUT/'target-rates.json'),target_head_invariant=read(OUT/'target-head-invariant.json'),
-                runs=runs,pulse=pulse,new_heads=heads,head_coverage=coverage,structure=structure,predictions=predictions,
+                runs=runs,pulse=pulse,new_heads=heads,head_coverage=coverage,structure=structure,
+                structure_comparisons=structure_comparisons,frozen_fits=fits,predictions=predictions,
                 retire_rules=retire,scientific_kills=all_kills,F1_kills=kills,resources=resources,
                 kill_interpretation=('F1 scientific kills are preregistered interference outcomes and were not retried. '
                                      'A matching control kill limits attribution to the auxiliary heads. '
-                                     'Endpoint statistics describe the stopped runs, not completed 40-minute treatments.' if kills else None),
+                                     'Statistics for killed runs describe their stopping checkpoints; completed runs used the full training budget.' if kills else None),
                 queue_deviations=read(OUT/'queue-deviations.json',[]),
                 limitations=['Original checkpoints retain prior influence from the excluded folder/group.',
                              'Frozen initialisers use bounded frame samples and 120 LBFGS iterations; optimiser diagnostics are reported.',
@@ -206,8 +215,18 @@ def render():
         for c,m in primary:
             r=pulse[str(seed)][c][m]
             if r:lines.append(f"| {c}/{m} | {r['n']} | {val(r['v01']['value'])} | {val(r['F0']['value'])} | {val(r['F1']['value'])} | {ci(r['F1_minus_F0'])} | {val(r['margin'])} |")
+    lines += ['', '### Decoder structural scorecard', '',
+              'The copied scorecard characterises structural readiness; it does not add a decision rule.', '',
+              '| Seed | N | v0.1 | F0 | F1 | F1−F0 [95% CI] | Margin |',
+              '| --- | ---: | ---: | ---: | ---: | --- | ---: |']
+    for seed,r in structure_comparisons.items():
+        lines.append(f"| {seed} | {r['n']} | {val(r['v01']['value'])} | {val(r['F0']['value'])} | {val(r['F1']['value'])} | {ci(r['F1_minus_F0'])} | {val(r['margin'])} |")
     lines += ['', '## New heads','', 'AUCs and Spearman are recording means; comparisons use matched finite recordings. '
               'Intervals resample recordings 1,000 times. F0 readouts apply the frozen initialiser to the fine-tuned F0 features.', '']
+    lines += ['| Frozen fit seed | Recordings | Sampled frames | Initial loss | Final loss | Zero fallback |',
+              '| --- | ---: | ---: | ---: | ---: | --- |']
+    for seed,f in fits.items():
+        if f:lines.append(f"| {seed} | {f['recordings']} | {f['frames']} | {val(f.get('initial_loss'))} | {val(f.get('final_loss'))} | {f['zero_initialised']} |")
     for seed in (0,1):
         lines += ['',f'### Seed {seed}', '', '| Statistic | N | Frozen | F0 readout | F1 | F1−frozen [95% CI] | Margin |','| --- | ---: | ---: | ---: | ---: | --- | ---: |']
         for m,r in heads[str(seed)].items():
