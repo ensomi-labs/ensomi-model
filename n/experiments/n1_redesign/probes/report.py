@@ -527,6 +527,9 @@ def build():
     results['design_checks'] = dict(simulator=read('P6.json'), session={str(s):
         {k: v for k, v in (read(f'P8-s{s}.json') or {}).items() if k in
          ('expectation_results', 'missing', 'attack_marks', 'design_only')} for s in (0, 1)})
+    results['episode_coverage'] = {str(s): {k: v for k, v in (read(f'P7-s{s}.json') or {}).items()
+        if k in ('regions', 'failing_units', 'nonfailing_units', 'skipped_mark_draws', 'invariant_checks')}
+        for s in (0, 1)}
     results['limitations'] = [
         'Charts screen mapper agreement; none of these measures has been validated against the ear.',
         'The probe-fit and probe-dev songs trained the frozen trunk; this is in-sample representation evidence.',
@@ -618,6 +621,8 @@ def build():
         lines.append('')
     lines += ['## P7 arm readings', '',
               'All entries are recording-balanced. The per-seed files also contain lag, tempo, mark-position, single/run and confirming-count strata.', '',
+              'Episode coverage (units are reference sets; metric denominators below are original recordings):', '',
+              '```json', json.dumps(results['episode_coverage'], indent=2), '```', '',
               '| Arm | Seed | Metric | Mean | 95% CI | Recordings |', '| --- | --- | --- | --- | --- | --- |']
     for arm in ('mark', 'local', 'graph', 'learned0', 'learned1', 'repeat', 'bias', 'random', 'mel', 'periodic', 'everywhere'):
         for seed in (0, 1):
