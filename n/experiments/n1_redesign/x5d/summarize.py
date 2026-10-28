@@ -171,9 +171,15 @@ def summarize(seeds):
 
 def write_report(r):
     verdict = r['verdicts']['panel']['all']['verdict']
+    primary = r['comparisons']['panel']['all']
+    primary_summary = '; '.join(f"{seed}: linear level Δ {fmt(primary['band_d2']['n_level']['seeds'][seed]['delta'])} pp, "
+        f"bars Δ {fmt(primary['band_d2']['n_bars_same']['seeds'][seed]['delta'])} pp"
+        for seed in r['seeds'])
     lines = [f'# X5d: {verdict}', '',
         f"Preregistration SHA256 `{r['prereg']['sha256']}`, frozen {r['prereg']['utc']}.",
         'CPU measurement only; no decoder or model change is adopted. Primary decision cell: fit_dev/all.', '',
+        primary_summary+'.', '',
+        *r['deviations'], '',
         f"Completed seeds: {', '.join(r['seeds'])}. Baseline/own-D2/oracle-D2 reproduced exactly: "
         f"{r['controls']['maps']['compared_maps']} maps before fitting, {r['controls']['checked_scores']} scored control values after evaluation.", '',
         f"The band is floor(log2(notated BPM / 80)), b=-2..4. Fit uses {r['cohorts']['fit']:,} training recordings (hash buckets 0/1); "
