@@ -31,6 +31,7 @@ def decoded(seed, u, z):
 
 def inputs(seed, u, rows, grid='chart'):
     z = labels(u)
+    f = None
     if grid == 'chart':
         t = token_load(seed, u)
         result = dict(T24=t['F'], Mel24=t['M'], T24shift=t['Fshift'], Mel24shift=t['Mshift'])
@@ -44,7 +45,8 @@ def inputs(seed, u, rows, grid='chart'):
             with np.load(OUT / 'tokens' / f'pca-s{seed}-{kind}.npz') as pca:
                 result[name] = pca_transform(beat_tokens(xx, g), pca)
                 result[name + 'shift'] = pca_transform(beat_tokens(xx, g, 1 / 32), pca)
-    f, _, _ = features(rows[u['sha']])
+    if f is None:
+        f, _, _ = features(rows[u['sha']])
     attack = Predictor(load(attack_path(seed, 'mlp', 'F')))
     b, step = g['beats'], g['length']
     for suffix, shift in [('', 0.), ('shift', 1 / 32)]:

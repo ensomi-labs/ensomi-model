@@ -73,7 +73,9 @@ def simulate(z, p, region, c, *, simulator, position, run_length, confirming,
             candidates = candidates[p[z['head_beat'][candidates]] >= .5]
             if not len(candidates):
                 return None
-        if position == 3:
+        if training and null is None:
+            pick = int(rng.integers(len(candidates)))
+        elif position == 3:
             mean = norm(c[region].mean(axis=0, keepdims=True))[0]
             pick = int(np.argmin(c[z['head_beat'][candidates]] @ mean))
         else:
@@ -338,6 +340,7 @@ def train_learned(seed, train_seed):
             opt.zero_grad(set_to_none=True); loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), 2.)
             opt.step(); used += 1
+            assert pulse_hash(s.z) == s.hash, 'Training episode changed the pulse'
         model.eval()
         losses, no_marks, shuffled = [], [], []
         with torch.no_grad():
@@ -358,9 +361,13 @@ def train_learned(seed, train_seed):
                 no_marks.append(float(nn.functional.binary_cross_entropy_with_logits(base[q], target)))
                 shuffled_marks = [dict(m, beat=(m['beat'] + len(base) // 2) % len(base)) for m in marks]
                 shuffled.append(float(nn.functional.binary_cross_entropy_with_logits((base + model(c, base, shuffled_marks))[q], target)))
+                assert pulse_hash(s.z) == s.hash, 'Development episode changed the pulse'
         val = float(np.mean(losses)) if losses else float('inf')
         history.append(dict(epoch=epoch, dev_bce=val, no_mark_bce=float(np.mean(no_marks)),
-                            shuffled_bce=float(np.mean(shuffled)), train_episodes=used))
+                            shuffled_bce=float(np.mean(shuffled)), train_episodes=used,
+                            dev_recordings=len(losses),
+                            mark_delta_nll=float(np.mean(no_marks)) - val,
+                            shuffled_delta_nll=float(np.mean(shuffled)) - val))
         log('P7_learned_epoch', seed=seed, train_seed=train_seed, **history[-1])
         if val < best - 1e-5:
             best, stale = val, 0

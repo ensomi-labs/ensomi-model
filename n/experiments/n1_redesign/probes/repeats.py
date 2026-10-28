@@ -165,6 +165,7 @@ def recurrence(seed):
         spans = [r for r in b_spans if r['rec'] == rec]
         repeated = [r for r in spans if r['repeat']]
         br.append(dict(rec=rec, B_repeat=np.mean([r['repeat'] for r in spans]),
+                       B_tracked_any=np.mean([r['tracked_repeat'] for r in spans]),
                        B_tracked_repeat=np.mean([r['tracked_repeat'] for r in repeated]) if repeated else None))
     dump(OUT / f'P5b-s{seed}.json', dict(summary=aggregate(rows), B_summary=aggregate(br),
                                         rows=rows, B_spans=b_spans))
@@ -186,9 +187,9 @@ def downbeat(seed):
         if same >= .9 and u['rec'] not in extra:
             continue
         _, logits, _ = features(cache[u['sha']])
-        j = np.clip(np.round(z['beats'] / 10).astype(int), 1, len(logits) - 2)
+        j = np.round(z['beats'] / 10).astype(int)
         down_index = cache[u['sha']].get('head_layout', ['beat', 'half', 'down']).index('down')
-        raw = np.max(logits[j[:, None] + np.arange(-1, 2), down_index], axis=1)
+        raw = np.max(logits[np.clip(j[:, None] + np.arange(-1, 2), 0, len(logits) - 1), down_index], axis=1)
         t = norm(context(token_load(seed, u)['Fz'], before=0, after=3))
         s = t @ t.T
         ix = np.arange(len(raw))

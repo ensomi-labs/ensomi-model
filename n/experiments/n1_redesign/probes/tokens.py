@@ -126,6 +126,14 @@ def frame_inputs(f, l, m, idx, z):
                 Pos=position(idx * 10., z), flux=flux.mean(axis=1))
 
 
+def event_inputs(f, l, m, times, z):
+    times = np.asarray(times)
+    mel = interp(m, times[:, None] + np.arange(-4, 5) * 10).reshape(len(times), 9 * m.shape[1])
+    flux = np.maximum(0, interp(m, times) - interp(m, times - 10))
+    return dict(F=interp(f, times), L=interp(l, times),
+                M=np.c_[mel, flux], Pos=position(times, z), flux=flux.mean(axis=1))
+
+
 def attack_sample(seed, shifted=False):
     rows, us = manifests(seed), units()
     directory = OUT / 'frames' / f's{seed}' / ('shift' if shifted else 'real')

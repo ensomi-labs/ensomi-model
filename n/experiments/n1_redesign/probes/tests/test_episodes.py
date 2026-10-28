@@ -6,6 +6,7 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from n1_redesign.probes.episodes import Reach, fixtures, sparsemax, contiguous, kernel
+from n1_redesign.probes import episodes
 
 
 def test_all_arms_preserve_literal_pulse_and_no_marks():
@@ -37,3 +38,14 @@ def test_learned_zero_marks_is_exact_and_trainable_mark_path():
     delta.square().sum().backward()
     assert any(p.grad is not None and torch.any(p.grad != 0) for p in m.parameters())
     assert 5000 <= sum(p.numel() for p in m.parameters()) <= 6500
+
+
+def test_training_draw_is_uniform_over_eligible_heads_not_third_bins(monkeypatch):
+    monkeypatch.setattr(episodes, 'calibration', lambda: dict(
+        offset_mean_ms=0., offset_sd_ms=1., residual_robust_sd_ms=1.))
+    z = dict(beats=np.array([0.]), length=np.array([600.]), heads=np.array([200.]),
+             divisor=np.array([3]), head_beat=np.array([0]))
+    for position in range(3):
+        marks = episodes.simulate(z, np.array([.1]), np.array([True]), np.ones((1, 192)),
+            simulator=0, position=position, run_length=1, confirming=0, identity='fixture', training=True)
+        assert len(marks) == 1 and marks[0]['beat'] == 0

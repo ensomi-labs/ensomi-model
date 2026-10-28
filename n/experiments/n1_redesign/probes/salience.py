@@ -6,7 +6,7 @@ import numpy as np
 from scipy.stats import spearmanr
 
 from .common import OUT, dump, features, interp, interval, labels, log, manifests, prereg_check, stable_seed, units
-from .tokens import frame_inputs
+from .tokens import event_inputs
 
 
 def predictors(u, row):
@@ -23,8 +23,7 @@ def predictors(u, row):
     prev = np.r_[median, np.diff(ht)]; nxt = np.r_[np.diff(ht), median]
     c = np.c_[np.eye(7)[cls], np.log(np.maximum(prev, 1)), np.log(np.maximum(nxt, 1))]
     f, logits, m = features(row)
-    at = np.clip(np.round(ht[q] / 10).astype(int), 0, len(f) - 1)
-    d = frame_inputs(f, logits, m, at, z)
+    d = event_inputs(f, logits, m, ht[q], z)
     x = np.c_[c[q], interp(f, ht[q]), d['M'][:, :1152], z['chord'][q]].astype('float64')
     y = z['retention'][q].astype(float)
     null = y.copy()

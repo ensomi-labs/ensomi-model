@@ -54,9 +54,7 @@ def render(x, sr, lo, hi, clicks):
               click_samples=length, click_rms_ratio_db=-12., silence_samples=round(.5 * sr))
 
 
-def build():
-    import soundfile as sf
-    prereg_check()
+def controls():
     rng = np.random.default_rng(20261028)
     panel = [u for u in units() if u['cohort'] in ('panel', 'val_hard')]
     candidates = {0: [], 1: []}
@@ -86,10 +84,79 @@ def build():
                 break
             recs.add(v['unit']['rec']); selected.append(v)
     assert len(selected) == 16, 'Not enough distinct panel recordings for controls'
-    pass_file = OUT / 'packet-propagation.json'
+    return selected
+
+
+def propagation_examples():
+    """Reservoir-sample actual declared changes only after the both-seed gate."""
+    from .report import propagation_verdict
+    from .episodes import eligible, load_learned, simulate, song, update
+    from .common import stable_seed
+    verdict = propagation_verdict()
+    arms = verdict['packet_eligible_arms']
+    if not arms:
+        return None
+    arm = 'graph' if 'graph' in arms else sorted(arms)[0]
+    cfg = json.loads((OUT / 'P7-config-s0.json').read_text())['configs']
+    model = load_learned(0, int(arm[-1])) if arm.startswith('learned') else None
+    reserved = {v['unit']['rec'] for v in controls()}
+    rng = np.random.default_rng(20261028)
+    reservoir, counts = {arm: [], 'random': []}, {arm: 0, 'random': 0}
+    for u in units():
+        if u['cohort'] not in ('panel', 'val_hard') or u['rec'] in reserved:
+            continue
+        s = song(0, u)
+        regs = [r for r in s.regions if len(eligible(s.z, r))]
+        for ri, r in enumerate(regs):
+            for simulator in (0, 1):
+                for position in range(4):
+                    for run in (1, 3):
+                        for confirming in (0, 8):
+                            marks = simulate(s.z, s.p, r, s.c, simulator=simulator,
+                                position=position, run_length=run, confirming=confirming, identity=(u['id'], ri))
+                            if marks is None:
+                                continue
+                            for target_arm, cap in ((arm, 14), ('random', 10)):
+                                p, loc, declared = update(s, marks, target_arm, cfg[target_arm],
+                                    model if target_arm == arm else None,
+                                    stable_seed((u['id'], ri, simulator, position, confirming)))
+                                changed = declared[~loc[declared] & ~r[declared]]
+                                for beat in changed:
+                                    bar = s.z['bars'][beat]
+                                    ix = int(np.searchsorted(s.z['bar_ids'], bar))
+                                    if ix == len(s.z['bar_ids']) - 1:
+                                        ix -= 1
+                                    if ix < 0 or s.z['bar_ids'][ix + 1] != s.z['bar_ids'][ix] + 1:
+                                        continue
+                                    q = np.flatnonzero(np.isin(s.z['bars'], s.z['bar_ids'][ix:ix + 2]))
+                                    value = dict(unit=u, lo=float(s.z['beats'][q[0]]),
+                                        hi=float(s.z['beats'][q[-1]] + s.z['length'][q[-1]]),
+                                        beats=[int(beat)], truth=int(s.z['y'][beat]), kind=target_arm,
+                                        episode=dict(region=ri, simulator=simulator, position=position, run=run, confirming=confirming))
+                                    counts[target_arm] += 1
+                                    bag = reservoir[target_arm]
+                                    if len(bag) < cap:
+                                        bag.append(value)
+                                    else:
+                                        pick = rng.integers(counts[target_arm])
+                                        if pick < cap:
+                                            bag[pick] = value
+    payload = dict(both_seed_pass=True, arm=arm, gate=verdict['predictions']['graph_over_random'] if arm == 'graph'
+                   else verdict['learned'][arm]['over_random'], candidates=counts,
+                   snippets=reservoir[arm] + reservoir['random'])
+    dump(OUT / 'packet-propagation.json', payload)
+    return payload
+
+
+def build():
+    import soundfile as sf
+    prereg_check()
+    selected = controls()
+    recs = {v['unit']['rec'] for v in selected}
+    rng = np.random.default_rng(20261028)
+    payload = propagation_examples()
     propagation = []
-    if pass_file.exists():
-        payload = json.loads(pass_file.read_text())
+    if payload is not None:
         assert payload['both_seed_pass'] is True
         propagation = [v for v in payload['snippets'] if v['unit']['rec'] not in recs][:24]
         selected.extend(propagation)
@@ -107,8 +174,9 @@ def build():
         keys.append(dict(id=name, audio_sha256=u['sha'], rec=u['rec'], audio=u['audio'],
                          unit=u['id'], lo_ms=v['lo'], hi_ms=v['hi'],
                          target_beats_ms=z['beats'][v['beats']].tolist(),
-                         chart_class='ternary' if v['truth'] == 1 else 'binary-fine',
+                         chart_class={1: 'ternary', 0: 'binary-fine', -1: 'unlabelled'}[v['truth']],
                          kind=v['kind'], decoder=decoder, lead_samples=lead,
+                         episode=v.get('episode'),
                          native_rate=sr, seconds=len(wave) / sr, **stats))
     with (packet / 'answers.csv').open('w', newline='') as f:
         w = csv.writer(f); w.writerow(['id', 'answer', 'note'])
@@ -134,6 +202,7 @@ before replays. Each clip's two plays have exactly the same source audio and gai
 '''
     (packet / 'packet.md').write_text(text)
     dump(keydir / 'key.json', dict(seed=20261028, composition=dict(
-        controls_ternary=8, controls_binary_fine=8, propagation=len(propagation)), snippets=keys))
+        controls_ternary=8, controls_binary_fine=8, propagation=len(propagation),
+        propagation_arms=dict(__import__('collections').Counter(v['kind'] for v in propagation))), snippets=keys))
     log('packet_done', path=str(packet), clips=len(keys), seconds=sum(k['seconds'] for k in keys))
     return keys

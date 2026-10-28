@@ -11,7 +11,7 @@ from .common import OUT, digest, dump, log, utc
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('stage', choices=['labels', 'freeze', 'tokens', 'P1', 'P2', 'P3', 'P4a', 'P4b', 'P5a', 'P5b', 'P5c', 'P6', 'P7', 'P8', 'packet'])
+    p.add_argument('stage', choices=['labels', 'freeze', 'tokens', 'P1', 'P2', 'P3', 'P4a', 'P4b', 'P5a', 'P5b', 'P5c', 'P6', 'P7', 'P8', 'packet', 'report'])
     p.add_argument('--seed', type=int, choices=[0, 1], default=0)
     p.add_argument('--shifted', action='store_true')
     p.add_argument('--bootstrap', action='store_true')
@@ -19,7 +19,8 @@ def main():
     a = p.parse_args()
     source = {str(f.name): digest(f) for f in sorted(Path(__file__).parent.glob('*.py'))}
     commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
-    log('stage_start', stage=a.stage, seed=a.seed, source_commit=commit, source_sha256=source)
+    log('stage_start', stage=a.stage, seed=a.seed, source_commit=commit, source_sha256=source,
+        runtime_sha256=digest(OUT / 'runtime.json') if (OUT / 'runtime.json').exists() else None)
     if a.stage == 'labels':
         from .labels import prepare
         prepare(a.seed)
@@ -60,6 +61,9 @@ def main():
     elif a.stage in ('P4a', 'P4b'):
         from .layers import run
         run(a.seed, keysounds=a.stage == 'P4b')
+    elif a.stage == 'report':
+        from .report import build
+        build()
     else:
         from .repeats import retrieval, recurrence, downbeat
         {'P5a': retrieval, 'P5b': recurrence, 'P5c': downbeat}[a.stage](a.seed)

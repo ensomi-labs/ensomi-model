@@ -7,7 +7,7 @@ from scipy.special import expit
 from .common import (OUT, auc, dump, features, interval, labels, log, manifests,
                      prereg_check, stable_seed, units)
 from .models import Predictor, fit, load, save
-from .tokens import frame_inputs
+from .tokens import event_inputs
 
 
 def target(z, label, stratum=None):
@@ -33,8 +33,7 @@ def matrix(seed, rows, selected, name, label, stratum, cohort):
         if u['cohort'] != cohort:
             continue
         f, l, m = features(rows[u['sha']]); z = labels(u)
-        idx = np.clip(np.round(z['event_t'][use] / 10).astype(int), 0, len(f) - 1)
-        d = frame_inputs(f, l, m, idx, z)
+        d = event_inputs(f, l, m, z['event_t'][use], z)
         xx = np.concatenate([d[k] for k in name.split('+')], axis=1)
         n = len(yy)
         x[offset:offset + n], y[offset:offset + n], rec[offset:offset + n] = xx, yy, i
@@ -82,12 +81,14 @@ def run(seed, keysounds=False):
             x, y, rec, pc = matrix(seed, rows, selected, name, label, st, 'probe-fit')
             xd, yd, rd, pd = matrix(seed, rows, selected, name, label, st, 'probe-dev')
             for null in (False, True):
-                path = OUT / 'models' / f'P4-s{seed}-{label}-{st}-{name}-null{int(null)}.pt'
-                if not path.exists():
-                    yy, yyd = (permute(y, rec, pc), permute(yd, rd, pd)) if null else (y, yd)
-                    log('P4_fit', seed=seed, label=label, stratum=st, inputs=name, null=null, rows=len(y))
-                    save(path, fit(x, yy, rec, xd, yyd, kind='logistic', seed=5400 + seed))
-                predictors[f'{name}:null{int(null)}'] = (name, null, Predictor(load(path)))
+                for refit in ([None] if null else [None, 0, 1, 2, 3, 4]):
+                    suffix = '' if refit is None else f':boot{refit}'
+                    path = OUT / 'models' / f'P4-s{seed}-{label}-{st}-{name}-null{int(null)}{suffix}.pt'
+                    if not path.exists():
+                        yy, yyd = (permute(y, rec, pc), permute(yd, rd, pd)) if null else (y, yd)
+                        log('P4_fit', seed=seed, label=label, stratum=st, inputs=name, null=null, refit=refit, rows=len(y))
+                        save(path, fit(x, yy, rec, xd, yyd, kind='logistic', seed=5400 + seed, bootstrap=refit))
+                    predictors[f'{name}:null{int(null)}' + suffix] = (name, null, Predictor(load(path)))
             del x, xd
         by_rec = defaultdict(list)
         for u, use, yy in selected:
@@ -98,8 +99,7 @@ def run(seed, keysounds=False):
             groups = defaultdict(lambda: defaultdict(list))
             for u, use, yy in members:
                 f, l, m = features(rows[u['sha']]); z = labels(u)
-                idx = np.clip(np.round(z['event_t'][use] / 10).astype(int), 0, len(f) - 1)
-                d = frame_inputs(f, l, m, idx, z)
+                d = event_inputs(f, l, m, z['event_t'][use], z)
                 pc = np.argmax(d['Pos'][:, :24], axis=1) + 24 * np.argmax(d['Pos'][:, 24:], axis=1)
                 yn = permute(yy, np.repeat(stable_seed(rec), len(yy)), pc)
                 cohort = 'panels' if u['cohort'] in ('panel', 'val_hard') else u['cohort']
