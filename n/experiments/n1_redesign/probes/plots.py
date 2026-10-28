@@ -16,6 +16,7 @@ def write():
     files = []
     fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharex=True, sharey=True, layout='constrained')
     found = False
+    max_x = max_y = 0.
     for seed, ax in enumerate(axes):
         data = read(f'P7-s{seed}.json')
         for arm, color in [('graph', '#276FBF'), ('learned0', '#B44E26'), ('learned1', '#6B7C32')]:
@@ -29,6 +30,8 @@ def write():
             points.sort(key=lambda p: p[0])
             if points:
                 found = True
+                max_x = max(max_x, max(p[1]['mean'] for p in points))
+                max_y = max(max_y, max(p[2]['ci95'][1] for p in points))
                 ax.errorbar([p[1]['mean'] for p in points], [p[2]['mean'] for p in points],
                     yerr=[[max(0, p[2]['mean'] - p[2]['ci95'][0]) for p in points],
                           [max(0, p[2]['ci95'][1] - p[2]['mean']) for p in points]],
@@ -37,9 +40,10 @@ def write():
             ax.axvline(x, color='#999999', linestyle=':', linewidth=.8)
         ax.set_title(f'Feature seed {seed}')
         ax.set_xlabel('Away-share outside the marked region')
-        ax.set_xlim(left=0); ax.set_ylim(bottom=0)
         ax.grid(alpha=.15)
     axes[0].set_ylabel('Recovery in other failing ternary regions')
+    axes[0].set_xlim(0, min(1, max(.25, max_x * 1.05)))
+    axes[0].set_ylim(0, min(1, max(.05, max_y * 1.05)))
     if found:
         axes[1].legend(frameon=False)
         fig.suptitle('Single marks, no confirming marks; recording-balanced means and 95% intervals')

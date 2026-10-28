@@ -207,9 +207,12 @@ def probe_verdicts():
     pred = dict(T_recurrence_050=compare(ti, None, threshold=.5),
                 B_repeat_at_most_030=compare(br, None, threshold=.3, direction='below'))
     retire = dict(T_recurrence_below_020=compare(ti, None, threshold=.2, direction='below'))
+    priority = compare(probe_stats('P5b', ['B_summary'], 'B_tracked_any'), None, threshold=.3)
     output['P5b'] = dict(verdict=verdict(pred, retire), predictions=pred, retire=retire,
                          B_tracked_repeat=tracked,
-                         B_worth_building=compare(probe_stats('P5b', ['B_summary'], 'B_tracked_any'), None, threshold=.3))
+                         B_worth_building=priority, priority=dict(B_tracked_repeat_at_least_030=priority),
+                         priority_statement='B propagation by repeats is worth building' if priority['holds_both_seeds'] else 'B priority threshold not established',
+                         posthoc_nontrivial=probe_stats('P5b', ['B_summary'], 'B_tracked_nontrivial'))
     f = probe_stats('P5c', ['summary'], 'feature')
     raw = probe_stats('P5c', ['summary'], 'raw')
     rand = probe_stats('P5c', ['summary'], 'random')
@@ -548,6 +551,10 @@ def build():
     results['posthoc_attack_null_overlap'] = {str(s): read(f'P1-null-overlap-s{s}.json') for s in (0, 1)}
     from .plots import write
     results['figures'] = write()
+    events = [json.loads(line) for line in (OUT / 'job.jsonl').read_text().splitlines()]
+    results['resources'] = dict(peak_recorded_process_rss_bytes=max(e.get('peak_rss_bytes', 0) for e in events),
+        artifact_file_bytes=sum(p.stat().st_size for p in OUT.rglob('*') if p.is_file()),
+        numerical_thread_limit=4, device='cpu', niceness=10)
     dump(OUT / 'results.json', results)
     display = dict(verdicts)
     for arm, item in verdicts['P7']['learned'].items():
@@ -563,7 +570,7 @@ def build():
     for name, v in display.items():
         lines.append(f"| {name} | {v['verdict']} |")
     lines += ['', 'The numbers, recording intervals, paired contrasts, margin components and power checks for every criterion are in results.json. Raw per-seed summaries and strata are in the hashed experiment files listed there. Missing evidence prevents a pass.', '',
-              '![Feature and Mel comparisons](probe-comparison.png)', '',
+              '![Feature and Mel comparisons](probe-comparison.png)' if str(OUT / 'probe-comparison.png') in results['figures'] else 'Probe comparison figure unavailable.', '',
               '## Interpretation limits', '', *['- ' + item for item in results['limitations']], '',
               '## Cohorts and counts', '',
               '| Seed | Cohort | Recordings | Audio | Units | Beats | Heads | Ternary | Binary-fine | Ladder heads | Nontrivial bars | Inconsistent grids | Rank fallback |',
@@ -577,7 +584,7 @@ def build():
     for name, v in display.items():
         lines += [f'### {name}', '', '| Criterion | Seed | Estimate / contrast | 95% CI | Margin | n | Status |',
                   '| --- | --- | --- | --- | --- | --- | --- |']
-        for category in ('predictions', 'retire'):
+        for category in ('predictions', 'retire', 'priority'):
             for criterion, c in v.get(category, {}).items():
                 for s, val in c['seeds'].items():
                     d = val.get('contrast', {})
@@ -599,7 +606,7 @@ def build():
                     lines.append(f"| {arm} | {seed} | M8 {kind} | {number(item['mean'])} | {confidence(item['ci95'])} | {item['n']} |")
     lines.append('')
     lines += ['## P7 invariants and packet', '', '```json', json.dumps(verdicts['P7']['invariants'], indent=2), '```', '',
-              '![Propagation gain curves](P7-curves.png)', '',
+              '![Propagation gain curves](P7-curves.png)' if str(OUT / 'P7-curves.png') in results['figures'] else 'Propagation curves unavailable.', '',
               'Self-label nulls (zero MAP changes expected):', '', '```json', json.dumps(verdicts['P7']['self_label_status'], indent=2), '```', '',
               json.dumps(results['packet'], indent=2) if results['packet'] else 'Packet not yet built.', '',
               '## Private design checks', '',
@@ -611,11 +618,12 @@ def build():
                     lines.append(f'| {seed} | {arm} | {expectation} | {scope} | {status} |')
     simulator = results['design_checks']['simulator']
     if simulator:
+        bounds = simulator['fixed_bands']
         lines += ['', '| Simulator measure | Estimate | Fixed band | Outcome |', '| --- | --- | --- | --- |']
-        for key, value, band in [('robust_sd', 'simulator_residual_robust_sd_ms', '[5, 10] ms'),
-                                 ('beyond15', 'simulator_beyond15_share', '[.05, .15]'),
-                                 ('offpulse', 'offpulse_difference', '[-.15, .15]'),
-                                 ('phase_tv', 'phase_tv', '<= .25')]:
+        for key, value, band in [('robust_sd', 'simulator_residual_robust_sd_ms', str(bounds['robust_sd_ms']) + ' ms'),
+                                 ('beyond15', 'simulator_beyond15_share', str(bounds['tail_share'])),
+                                 ('offpulse', 'offpulse_difference', '+/- ' + str(bounds['offpulse_tolerance'])),
+                                 ('phase_tv', 'phase_tv', '<= ' + str(bounds['phase_tv_max']))]:
             status = 'in band' if simulator['bands'][key] else 'out of band'
             lines.append(f"| {key} | {number(simulator[value])} | {band} | {status} |")
         coverage = simulator['owner_chart_coverage']

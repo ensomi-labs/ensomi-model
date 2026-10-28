@@ -67,6 +67,8 @@ def run(seed, keysounds=False):
             z = labels(u)
             if not keysounds and u['cohort'] in ('panel', 'val_hard') and z['mode'] != 3:
                 continue
+            if not keysounds and u['cohort'] == 'std_extension' and z['mode'] != 0:
+                continue
             use, y = target(z, label, st)
             training = u['cohort'] in ('probe-fit', 'probe-dev')
             if len(y) and (not training or min(sum(y == 0), sum(y == 1)) >= 10):

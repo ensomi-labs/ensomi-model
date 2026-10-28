@@ -153,6 +153,7 @@ def phases(times, z):
 def simulator_bands():
     prereg_check()
     cfg, passages, latest, _ = load_session()
+    bounds = json.loads((OUT / 'runtime.json').read_text())['simulator_bands']
     by_sha = {u['sha']: u for u in units()}
     rng = np.random.default_rng(20261028)
     records, owner_res, sim_res, owner_phase, sim_phase, cover = [], [], [], [], [], []
@@ -186,7 +187,7 @@ def simulator_bands():
         owner_phase.append(phases(corrected, z)); sim_phase.append(phases(simulated - calibration()['offset_mean_ms'], z))
         owner_off = ~pulse_labels(p['proposals'], times)
         simulated_off = ~pulse_labels(p['proposals'], simulated)
-        coverage = abs(nearest(corrected[owner_off], z['heads'])[0]) <= 20
+        coverage = abs(nearest(corrected[owner_off], z['heads'])[0]) <= bounds['chart_coverage_ms']
         cover.extend(coverage)
         def run_lengths(t):
             if not len(t): return []
@@ -200,12 +201,13 @@ def simulator_bands():
             owner_residual_robust_sd_ms=robust_sd(res), simulator_residual_robust_sd_ms=robust_sd(errors)))
     a, b = np.array(owner_res), np.array(sim_res)
     sd = robust_sd(b)
-    tail = float(np.mean(abs(b) > 15))
+    tail = float(np.mean(abs(b) > bounds['tail_threshold_ms']))
     offdelta = float(np.mean([r['simulator_offpulse'] - r['owner_offpulse'] for r in records if r['simulator_offpulse'] is not None]))
     tv = float(np.sum(abs(np.mean(owner_phase, axis=0) - np.mean(sim_phase, axis=0))) / 2)
-    bands = dict(robust_sd=5 <= sd <= 10, beyond15=.05 <= tail <= .15,
-                 offpulse=abs(offdelta) <= .15, phase_tv=tv <= .25)
-    dump(OUT / 'P6.json', dict(records=records, bands=bands, simulator_optimistic=not all(bands.values()),
+    bands = dict(robust_sd=bounds['robust_sd_ms'][0] <= sd <= bounds['robust_sd_ms'][1],
+                 beyond15=bounds['tail_share'][0] <= tail <= bounds['tail_share'][1],
+                 offpulse=abs(offdelta) <= bounds['offpulse_tolerance'], phase_tv=tv <= bounds['phase_tv_max'])
+    dump(OUT / 'P6.json', dict(records=records, bands=bands, fixed_bands=bounds, simulator_optimistic=not all(bands.values()),
         owner_residual_robust_sd_ms=robust_sd(a), simulator_residual_robust_sd_ms=sd,
         simulator_beyond15_share=tail, offpulse_difference=offdelta, phase_tv=tv,
         owner_chart_coverage=dict(n=len(cover), share=float(np.mean(cover)) if cover else None),

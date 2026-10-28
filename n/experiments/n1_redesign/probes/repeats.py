@@ -175,12 +175,17 @@ def recurrence(seed):
             inside = (z['beats'] >= lo) & (z['beats'] < hi)
             source = np.isin(z['bar_ids'], z['bars'][inside])
             target = np.any(exact & source[:, None] & ~source[None, :], axis=0)
-            tracked = []
+            target_nt = np.any(exact & (source & z['nontrivial'])[:, None] & ~source[None, :], axis=0)
+            tracked, tracked_nt = [], []
             for b in z['bar_ids'][target]:
                 chart = z['beats'][z['bars'] == b]
-                tracked.append(bool(np.all(abs(nearest(chart, d['beats'] - d['offset'])[0]) <= 15)))
+                kept = bool(np.all(abs(nearest(chart, d['beats'] - d['offset'])[0]) <= 15))
+                tracked.append(kept)
+                if b in z['bar_ids'][target_nt]:
+                    tracked_nt.append(kept)
             b_spans.append(dict(rec=u['rec'], unit=u['id'], lo_ms=lo, hi_ms=hi,
-                                repeat=bool(target.any()), tracked_repeat=bool(any(tracked))))
+                                repeat=bool(target.any()), tracked_repeat=bool(any(tracked)),
+                                nontrivial_repeat=bool(target_nt.any()), tracked_nontrivial=bool(any(tracked_nt))))
         rows.append(row)
     br = []
     for rec in sorted({r['rec'] for r in b_spans}):
@@ -188,11 +193,14 @@ def recurrence(seed):
         repeated = [r for r in spans if r['repeat']]
         br.append(dict(rec=rec, B_repeat=np.mean([r['repeat'] for r in spans]),
                        B_tracked_any=np.mean([r['tracked_repeat'] for r in spans]),
+                       B_nontrivial_repeat=np.mean([r['nontrivial_repeat'] for r in spans]),
+                       B_tracked_nontrivial=np.mean([r['tracked_nontrivial'] for r in spans]),
                        B_tracked_repeat=np.mean([r['tracked_repeat'] for r in repeated]) if repeated else None))
     summary, bsummary = aggregate(rows), aggregate(br)
     dump(OUT / f'P5b-s{seed}.json', dict(summary=summary, B_summary=bsummary,
                                         by_tempo=by_tempo(summary), B_by_tempo=by_tempo(bsummary),
-                                        rows=rows, B_spans=b_spans))
+                                        rows=rows, B_spans=b_spans,
+                                        posthoc=['B_nontrivial_repeat', 'B_tracked_nontrivial']))
     log('P5b_done', seed=seed, spans=len(b_spans))
 
 
