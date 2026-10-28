@@ -7,6 +7,7 @@ import pytest
 
 from n.experiments.n1_redesign.gpu.audit_inputs import check_rows, probe_bucket
 from n.experiments.n1_redesign.gpu.sealed import build_exclusion
+from n.experiments.n1_redesign.gpu.decision import Decision
 
 
 def empty_exclusion():
@@ -78,3 +79,16 @@ def test_probe_split_uses_recording_sha_and_prefix():
     sha = 'f' * 64
     expected = int.from_bytes(hashlib.sha256(('n1r-probe:' + sha).encode()).digest()[:4], 'big') % 8
     assert probe_bucket(sha) == expected
+
+
+def test_decision_excludes_folder_group_and_aliases_but_keeps_new_seal_visible():
+    d = Decision(dict(folders=['dataset/std-taiko/100'], corpus_groups=['excluded']),
+                 [dict(group_id='excluded', set_dir='dataset/0/200', audio_filename='B.mp3', audio_sha256='b')],
+                 [dict(path='dataset/std-taiko/100/a.mp3', sha256='a')])
+    candidates = [row(), row(audio_rel='dataset/0/200/b.mp3', audio_sha256='b'),
+                  row(audio_rel='dataset/0/300/alias.mp3', audio_sha256='a'),
+                  row(audio_rel='dataset/0/400/other.mp3', audio_sha256='c', groups=['excluded']),
+                  row(audio_rel='dataset/0/500/new.mp3', audio_sha256='new')]
+    kept, removed = d.filter(candidates)
+    assert len(removed) == 4 and kept == candidates[-1:]
+    assert check_rows(kept, empty_exclusion(), {'dataset/0/500'})[0]['reasons'] == ['sealed_folder']

@@ -12,6 +12,7 @@ from ensomi_n.eval.census import load_exclusion
 from ensomi_n.v0.curate import SEAL
 
 from .sealed import build_exclusion
+from .decision import Decision
 
 
 def digest(path):
@@ -52,7 +53,7 @@ def check_rows(rows, exclusion, sealed):
     return blocked
 
 
-def audit(root):
+def context(root):
     import pyarrow.parquet as pq
 
     run = root / 'artifacts/n1-night-20261018/runs'
@@ -68,6 +69,16 @@ def audit(root):
     result = {}
     sealed = build_exclusion(args, root, corpus, result)
     exclusion = load_exclusion(root / SEAL[0], SEAL[1])
+    rule_path = root / 'artifacts/n1-redesign-20261028/gpu/decision-exclusions.json'
+    rule = json.loads(rule_path.read_text())
+    inventory = [json.loads(line) for line in (root / args.inventory).read_text().splitlines() if line.strip()]
+    decision = Decision(rule, corpus, inventory)
+    paths['decision'] = rule_path
+    return paths, args, corpus, result, sealed, exclusion, decision
+
+
+def audit(root):
+    paths, args, corpus, result, sealed, exclusion, decision = context(root)
     curated = json.loads(paths['curated'].read_text())
     split = json.loads(paths['split'].read_text())
     cohorts = dict(training=[r for r in curated if r['role'] == 'train' and r.get('keep')],
@@ -76,6 +87,11 @@ def audit(root):
                    std_extension=[r for r in curated if r['source'] == 'std' and
                                   r['role'] == 'train' and not r.get('keep')])
     cohorts['g0_probe'] = [r for r in cohorts['training'] if probe_bucket(r['audio_sha256']) in (0, 1, 2)]
+    removed = {}
+    for name, rows in cohorts.items():
+        cohorts[name], removed[name] = decision.filter(rows)
+    result['decision_removed'] = {name: [dict(audio_sha256=r['audio_sha256'], audio_rel=r['audio_rel'])
+                                       for r in rows] for name, rows in removed.items()}
     result['cohorts'] = {name: dict(rows=len(rows), audio=len({r['audio_sha256'] for r in rows}),
                                   violations=check_rows(rows, exclusion, sealed))
                          for name, rows in cohorts.items()}
