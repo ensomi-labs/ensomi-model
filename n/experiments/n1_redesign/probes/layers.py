@@ -75,9 +75,17 @@ def run(seed, keysounds=False):
                 selected.append((u, use, y))
         counts = {c: sum(len(y) for u, _, y in selected if u['cohort'] == c)
                   for c in ('probe-fit', 'probe-dev')}
+        label_counts = {}
+        for cohort in ('probe-fit', 'probe-dev', 'panel', 'val_hard', 'std_extension', 'keysound_extension'):
+            members = [(u, y) for u, _, y in selected if u['cohort'] == cohort]
+            label_counts[cohort] = dict(recordings=len({u['rec'] for u, _ in members}),
+                units=len(members), events=sum(len(y) for _, y in members),
+                positive=sum(int(np.sum(y == 1)) for _, y in members),
+                negative=sum(int(np.sum(y == 0)) for _, y in members))
         tag = label + (f':stratum{st}' if st is not None else '')
         if min(counts.values()) == 0 or sum(counts.values()) * 1309 * 2 > 4e9:
-            output[tag] = dict(unassessed='No training/dev examples or matrix would exceed RAM budget', counts=counts)
+            output[tag] = dict(unassessed='No training/dev examples or matrix would exceed RAM budget',
+                               counts=counts, label_counts=label_counts)
             continue
         predictors = {}
         for name in ('Pos', 'Pos+F', 'Pos+M'):
@@ -117,7 +125,8 @@ def run(seed, keysounds=False):
                 for key, pp in g.items():
                     if key not in ('y', 'pc'):
                         scores[cohort][key][rec] = auc(yn if key.endswith('null1') else yy, np.concatenate(pp))
-        output[tag] = dict(counts=counts, summary={cohort: {name: dict(**interval(list(r.values())), recordings=r)
+        output[tag] = dict(counts=counts, label_counts=label_counts,
+                          summary={cohort: {name: dict(**interval(list(r.values())), recordings=r)
                           for name, r in g.items()} for cohort, g in scores.items()})
         output[tag]['by_tempo'] = {cohort: by_tempo(summary) for cohort, summary in output[tag]['summary'].items()}
     dump(OUT / f'P4{"b" if keysounds else "a"}-s{seed}.json', output)

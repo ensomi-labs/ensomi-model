@@ -538,6 +538,9 @@ def build():
     results['episode_coverage'] = {str(s): {k: v for k, v in (read(f'P7-s{s}.json') or {}).items()
         if k in ('regions', 'failing_units', 'nonfailing_units', 'skipped_mark_draws', 'invariant_checks')}
         for s in (0, 1)}
+    results['drum_label_counts'] = {name: {str(s): {tag: value.get('label_counts', {})
+        for tag, value in (read(f'{name}-s{s}.json') or {}).items()} for s in (0, 1)}
+        for name in ('P4a', 'P4b')}
     results['limitations'] = [
         'Charts screen mapper agreement; none of these measures has been validated against the ear.',
         'The probe-fit and probe-dev songs trained the frozen trunk; this is in-sample representation evidence.',
@@ -623,6 +626,7 @@ def build():
     for seed, cohorts in results['cohorts'].items():
         for name, counts in (cohorts or {}).items():
             lines.append('| ' + ' | '.join([seed, name] + [str(counts.get(k, 'unavailable')) for k in count_keys]) + ' |')
+    lines += ['', 'Drum-label counts by target, stratum, cohort and feature seed are in results.json under drum_label_counts; decision tables use the eligible read-recording denominators.', '']
     lines += ['', '## Criterion estimates', '']
     for name, v in display.items():
         lines += [f'### {name}', '', '| Criterion | Seed | Estimate / contrast | 95% CI | Margin | n | Status |',
