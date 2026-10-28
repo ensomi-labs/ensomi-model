@@ -181,6 +181,7 @@ def prepare(seed=0):
         c['audio_inputs'] = len({u['sha'] for u in us if u['cohort'] == k})
     dump(OUT / f'counts-s{seed}.json', dict(counts))
     dump(OUT / f'labels-failures-s{seed}.json', failed)
+    assert len({u['id'] for u in us}) == len(us), 'Reference identifier collision'
     dump(OUT / 'units.json', us)
     ip = OUT / 'inputs.json'
     inputs = json.loads(ip.read_text()) if ip.exists() else {}
@@ -190,6 +191,16 @@ def prepare(seed=0):
         cache_rows=len(rows), labels=len(us), failed=len(failed), clock='osu-lead-v1; t0=0; fps=100')
     for p in (PREV / 'references.pkl', cp, cp.with_name('names.json')):
         inputs[str(p)] = digest(p)
+    from ensomi_n.features.mel import DEFAULT
+    inputs['bulk_mel'] = dict(path=str(ROOT / 'artifacts/bulk/n1-cache/mel'), config_key=DEFAULT.key(),
+        dtype='float16', bands=128, fps=100, t0_ms=0,
+        alignment_check='Every consumed feature/logit/Mel frame count must match exactly')
+    inputs['charts'] = {p: digest(ROOT / p) for p in sorted({p for u in us for p in u['charts']})}
+    inputs[f'decoded_maps_seed{seed}'] = {u['sha']: digest(p) for u in us
+        if u['cohort'] in ('panel', 'val_hard')
+        for p in [PREV / 'e2-maps' / f's{seed}' / '009001' / (u['sha'] + '.json')] if p.exists()}
+    cohort_path = ROOT / 'artifacts/n1-stage0-20261028/events-cohort.json'
+    inputs[str(cohort_path)] = digest(cohort_path)
     dump(ip, inputs)
     log('labels_done', seed=seed, counts=dict(counts), failures=len(failed))
     return us

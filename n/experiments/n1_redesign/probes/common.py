@@ -255,6 +255,28 @@ def units():
     return json.loads((OUT / 'units.json').read_text())
 
 
+@lru_cache(maxsize=1)
+def recording_tempo_bands():
+    from collections import defaultdict
+    lengths = defaultdict(list)
+    for u in units():
+        with np.load(unit_path(u), allow_pickle=False) as z:
+            lengths[u['rec']].append(z['length'])
+    return {r: 'ge160' if np.median(60000 / np.concatenate(v)) >= 160 else 'lt160'
+            for r, v in lengths.items()}
+
+
+def by_tempo(summary):
+    bands = recording_tempo_bands()
+    result = {}
+    for band in ('lt160', 'ge160'):
+        result[band] = {}
+        for name, item in summary.items():
+            values = {r: v for r, v in item['recordings'].items() if bands[r] == band}
+            result[band][name] = dict(**interval(list(values.values())), recordings=values)
+    return result
+
+
 def prereg_check():
     p = OUT / 'prereg.md'
     record = json.loads((OUT / 'prereg-lock.json').read_text())

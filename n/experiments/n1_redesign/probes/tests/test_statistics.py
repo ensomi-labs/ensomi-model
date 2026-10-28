@@ -40,6 +40,24 @@ def test_missing_seed_or_refit_noise_cannot_pass():
     assert not compare({0: a, 1: a}, None, threshold=.7, require_refits=True)['holds_both_seeds']
 
 
+def test_disjoint_strata_use_independent_recording_bootstrap():
+    a = summary({f'a{i}': .1 for i in range(40)})
+    b = summary({f'b{i}': .4 for i in range(40)})
+    assert not compare({0: a, 1: a}, {0: b, 1: b}, threshold=0, direction='below')['holds_both_seeds']
+    result = compare({0: a, 1: a}, {0: b, 1: b}, threshold=0, direction='below', paired_recordings=False)
+    assert result['holds_both_seeds']
+    assert result['seeds']['0']['contrast']['n_left'] == 40
+
+
+def test_missing_experiments_do_not_qualify_packet(monkeypatch):
+    from n1_redesign.probes import report
+    monkeypatch.setattr(report, 'read', lambda _: None)
+    assert report.probe_verdicts()['P1']['verdict'] == 'inconclusive'
+    value = report.propagation_verdict()
+    assert value['packet_eligible_arms'] == []
+    assert value['verdict'] == 'inconclusive'
+
+
 def test_power_floor_and_refit_margin():
     a = summary({str(i): .9 for i in range(39)})
     assert not compare({0: a, 1: a}, None, threshold=.7)['holds_both_seeds']
@@ -65,3 +83,34 @@ def test_curve_follows_adjacent_gains(monkeypatch):
     value = report.curve_read(0, 'graph', .2)
     assert value['gains'] == [0, 1]
     assert abs(value['mean'] - .6) < 1e-6
+
+
+def test_matched_curve_contrast_bootstraps_crossing(monkeypatch):
+    from n1_redesign.probes import report
+    data = {'curves': {}}
+    for arm, scale in [('graph', .2), ('learned0', .8)]:
+        for gain in (0, 1):
+            data['curves'][f'{arm}:{gain}'] = {
+                'M4_away': summary({str(i): gain * .4 for i in range(40)}),
+                'M3i': summary({str(i): gain * scale for i in range(40)})}
+    monkeypatch.setattr(report, 'read', lambda _: data)
+    a = {s: report.curve_read(s, 'learned0', .2) for s in (0, 1)}
+    b = {s: report.curve_read(s, 'graph', .2) for s in (0, 1)}
+    result = compare(a, b, threshold=.05)
+    assert result['holds_both_seeds']
+    assert result['seeds']['0']['contrast']['bootstrap_crossings'] == 1000
+    assert abs(result['seeds']['0']['contrast']['mean'] - .3) < 1e-6
+
+
+def test_bootstrap_scaler_matches_physical_recording_resample(monkeypatch):
+    from n1_redesign.probes import models
+    monkeypatch.setattr(models, 'prereg_check', lambda: None)
+    x = np.arange(24, dtype=np.float32).reshape(12, 2)
+    y, rec = np.tile([0, 1], 6), np.repeat(np.arange(4), 3)
+    sampled = np.random.default_rng(6100).integers(4, size=4)
+    indices = np.concatenate([np.flatnonzero(rec == r) for r in sampled])
+    a = models.fit(x, y, rec, x, y, kind='logistic', seed=1, bootstrap=0, epochs=0)
+    b = models.fit(x[indices], y[indices], np.repeat(np.arange(4), 3), x, y,
+                   kind='logistic', seed=1, epochs=0)
+    np.testing.assert_array_equal(a['mean'], b['mean'])
+    np.testing.assert_array_equal(a['sd'], b['sd'])

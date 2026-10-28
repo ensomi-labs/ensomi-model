@@ -5,7 +5,7 @@ import json
 import numpy as np
 from scipy.stats import spearmanr
 
-from .common import OUT, dump, features, interp, interval, labels, log, manifests, prereg_check, stable_seed, units
+from .common import OUT, by_tempo, dump, features, interp, interval, labels, log, manifests, prereg_check, stable_seed, units
 from .tokens import event_inputs
 
 
@@ -135,5 +135,5 @@ def run(seed):
     np.savez_compressed(OUT / 'models' / f'P2-s{seed}.npz',
         **{key + ':coefficients': beta for key, (idx, beta) in models.items()},
         **{key + ':columns': idx for key, (idx, beta) in models.items()})
-    dump(OUT / f'P2-s{seed}.json', dict(summary=summary, selected=selected, fit_units=nfit, dev_units=ndev))
+    dump(OUT / f'P2-s{seed}.json', dict(summary=summary, by_tempo=by_tempo(summary), selected=selected, fit_units=nfit, dev_units=ndev))
     log('P2_done', seed=seed)

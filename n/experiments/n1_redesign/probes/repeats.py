@@ -4,7 +4,7 @@ import json
 
 import numpy as np
 
-from .common import (ROOT, OUT, auc, dump, features, interp, interval, labels, log, manifests,
+from .common import (ROOT, OUT, auc, by_tempo, dump, features, interp, interval, labels, log, manifests,
                      nearest, norm, prereg_check, stable_seed, units)
 from .tokens import bar_tokens, context, token_load
 from .cells import decoded
@@ -75,6 +75,8 @@ def retrieval(seed):
                   'lag16-31': (lag >= 16) & (lag < 32), 'lag32+': lag >= 32,
                   'kiai': (lag >= 8) & ki[:, None] & ki[None, :],
                   'nonkiai': (lag >= 8) & ~ki[:, None] & ~ki[None, :]}
+        band = 'ge160' if np.median(60000 / z['length']) >= 160 else 'lt160'
+        strata[band] = lag >= 8
         row = dict(rec=u['rec'], unit=u['id'])
         for st, eligible in strata.items():
             for positive, truth in [('exact', exact), ('jaccard80', jac >= .8)]:
@@ -187,7 +189,9 @@ def recurrence(seed):
         br.append(dict(rec=rec, B_repeat=np.mean([r['repeat'] for r in spans]),
                        B_tracked_any=np.mean([r['tracked_repeat'] for r in spans]),
                        B_tracked_repeat=np.mean([r['tracked_repeat'] for r in repeated]) if repeated else None))
-    dump(OUT / f'P5b-s{seed}.json', dict(summary=aggregate(rows), B_summary=aggregate(br),
+    summary, bsummary = aggregate(rows), aggregate(br)
+    dump(OUT / f'P5b-s{seed}.json', dict(summary=summary, B_summary=bsummary,
+                                        by_tempo=by_tempo(summary), B_by_tempo=by_tempo(bsummary),
                                         rows=rows, B_spans=b_spans))
     log('P5b_done', seed=seed, spans=len(b_spans))
 
@@ -240,7 +244,7 @@ def downbeat(seed):
         values = {rec: auc(np.concatenate(g['y']), np.concatenate(g[name])) for rec, g in groups.items()}
         values = {rec: v for rec, v in values.items() if v is not None}
         summary[name] = dict(**interval(list(values.values())), recordings=values)
-    dump(OUT / f'P5c-s{seed}.json', dict(summary=summary, rows=rows))
+    dump(OUT / f'P5c-s{seed}.json', dict(summary=summary, by_tempo=by_tempo(summary), rows=rows))
 
 
 def span_evidence(seed):

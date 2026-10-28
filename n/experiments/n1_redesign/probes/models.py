@@ -50,24 +50,26 @@ def fit(x, y, rec, xd, yd, *, kind, seed, bootstrap=None, epochs=24):
     prereg_check()
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
+    unique, inv, counts = np.unique(rec, return_inverse=True, return_counts=True)
+    copies = np.ones(len(unique))
+    if bootstrap is not None:
+        brng = np.random.default_rng(6100 + bootstrap)
+        copies = np.bincount(brng.integers(len(unique), size=len(unique)), minlength=len(unique))
+    resample_weight = copies[inv]
     sx, ss = np.zeros(x.shape[1], float), np.zeros(x.shape[1], float)
     for start in range(0, len(x), 8192):
         chunk = np.asarray(x[start:start + 8192], np.float64)
-        sx += chunk.sum(axis=0)
-        ss += np.square(chunk).sum(axis=0)
-    mean = (sx / len(x)).astype('float32')
-    sd = np.maximum(np.sqrt(np.maximum(ss / len(x) - np.square(sx / len(x)), 0)), .01).astype('float32')
+        w = resample_weight[start:start + len(chunk), None]
+        sx += (chunk * w).sum(axis=0)
+        ss += (np.square(chunk) * w).sum(axis=0)
+    mass = resample_weight.sum()
+    mean = (sx / mass).astype('float32')
+    sd = np.maximum(np.sqrt(np.maximum(ss / mass - np.square(sx / mass), 0)), .01).astype('float32')
     net = architecture(x.shape[1], kind)
     opt = torch.optim.AdamW(net.parameters(), lr=.002 if kind == 'mlp' else .01, weight_decay=1e-4)
-    weights = np.ones(len(y), np.float32)
-    if bootstrap is not None:
-        brng = np.random.default_rng(6100 + bootstrap)
-        unique, inv = np.unique(rec, return_inverse=True)
-        count = np.bincount(brng.integers(len(unique), size=len(unique)), minlength=len(unique))
-        weights = count[inv].astype('float32')
+    weights = resample_weight.astype('float32')
     # Each recording receives equal total training weight, independent of
     # chart density or the number of reference sets sharing its audio.
-    unique, inv, counts = np.unique(rec, return_inverse=True, return_counts=True)
     weights /= counts[inv]
     weights *= len(weights) / max(weights.sum(), 1)
     target = torch.as_tensor(y, dtype=torch.float32)

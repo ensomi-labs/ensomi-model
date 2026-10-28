@@ -85,6 +85,7 @@ def evaluate(seed, shifted=False, bootstrap=False):
         if u['cohort'] not in ('probe-fit', 'probe-dev') and u['sha'] in rows:
             by_rec[u['rec']].append(u)
     recorded = defaultdict(lambda: defaultdict(dict))
+    overlap = defaultdict(lambda: defaultdict(lambda: np.zeros(2, dtype=np.int64)))
     for i, (rec, members) in enumerate(sorted(by_rec.items())):
         groups = defaultdict(lambda: defaultdict(list))
         for u in members:
@@ -93,6 +94,11 @@ def evaluate(seed, shifted=False, bootstrap=False):
             y = frame_labels(z, len(f), shifted)
             idx = np.flatnonzero(y >= 0)
             off = abs(nearest(idx * 10., z['beats'])[0]) > 30
+            if shifted:
+                original = frame_labels(z, len(f), False)
+                positive = idx[off & (y[idx] == 1)]
+                cohort = 'panels' if u['cohort'] in ('panel', 'val_hard') else u['cohort']
+                overlap[cohort][rec] += [sum(original[positive] == 1), len(positive)]
             pred = {k: [] for k in predictors}
             fluxes = []
             for start in range(0, len(idx), 8192):
@@ -127,4 +133,12 @@ def evaluate(seed, shifted=False, bootstrap=False):
     suffix = '-shift' if shifted else ''
     suffix += '-bootstrap' if bootstrap else ''
     dump(OUT / f'P1-s{seed}{suffix}.json', out)
+    if shifted:
+        diagnostic = {}
+        for cohort, group in overlap.items():
+            values = {rec: float(counts[0] / counts[1]) for rec, counts in group.items() if counts[1]}
+            diagnostic[cohort] = dict(**interval(list(values.values())), recordings=values)
+        dump(OUT / f'P1-null-overlap-s{seed}.json', dict(posthoc=True,
+            definition='Share of shifted-positive off-line frames also positive under the original labels, averaged by recording',
+            summary=diagnostic, decision_use=False))
     log('P1_done', seed=seed, shifted=shifted, bootstrap=bootstrap)

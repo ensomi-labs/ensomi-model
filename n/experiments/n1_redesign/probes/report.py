@@ -1,5 +1,6 @@
 """Paired margins and conservative both-seed screening verdicts."""
 from collections import defaultdict
+from functools import lru_cache
 import json
 import math
 from pathlib import Path
@@ -10,6 +11,7 @@ import numpy as np
 from .common import OUT, digest, dump, interval, paired, prereg_check, utc
 
 
+@lru_cache(maxsize=48)
 def read(name):
     p = OUT / name
     return json.loads(p.read_text()) if p.exists() else None
@@ -52,8 +54,28 @@ def scaled_stats(item, scale):
     return dict(**interval(list(values.values())), recordings=values)
 
 
+def difference_stats(left, right):
+    if left is None or right is None:
+        return None
+    values = {r: left['recordings'][r] - right['recordings'][r]
+              for r in set(left['recordings']) & set(right['recordings'])}
+    return dict(**interval(list(values.values())), recordings=values)
+
+
+def independent_difference(left, right):
+    a, b = np.array(list(left['recordings'].values())), np.array(list(right['recordings'].values()))
+    if not len(a) or not len(b):
+        return dict(n=0, mean=None, ci95=None, halfwidth=None)
+    rng = np.random.default_rng(20261028)
+    samples = [a[rng.integers(len(a), size=len(a))].mean() - b[rng.integers(len(b), size=len(b))].mean()
+               for _ in range(1000)]
+    lo, hi = np.quantile(samples, [.025, .975])
+    return dict(n=min(len(a), len(b)), n_left=len(a), n_right=len(b), mean=float(a.mean() - b.mean()),
+                ci95=[float(lo), float(hi)], halfwidth=float((hi - lo) / 2), paired=False)
+
+
 def compare(a, b, *, threshold, direction='above', refits=None, episode_spreads=None,
-            require_refits=False):
+            require_refits=False, paired_recordings=True):
     """Compare paired recording means; unavailable seeds/noise never pass."""
     results = {}
     base = b if b is not None else a
@@ -69,6 +91,10 @@ def compare(a, b, *, threshold, direction='above', refits=None, episode_spreads=
             results[str(seed)] = dict(status='unassessed', reason='Missing seed/statistic')
             continue
         diff = paired(left['recordings'], right['recordings']) if right is not None else interval(list(left['recordings'].values()))
+        if right is not None and not paired_recordings:
+            diff = independent_difference(left, right)
+        if right is not None and '_curve_points' in left and '_curve_points' in right:
+            diff = curve_contrast(left, right, diff)
         components = dict(seed_spread=spread, bootstrap_halfwidth=diff['halfwidth'])
         if refits is not None:
             vals = refits.get(seed, [])
@@ -131,7 +157,8 @@ def probe_verdicts():
     retire = dict(F_below_070=compare(a, None, threshold=.7, direction='below', refits=ref('mlp-F')),
                   F_no_better_M=compare(a, m, threshold=0, direction='below', refits=ref('mlp-F', 'mlp-M')))
     output['P1'] = dict(verdict=verdict(pred, retire), predictions=pred, retire=retire,
-        shifted_null=probe_stats('P1', ['panels:offline'], 'mlp-F', '-shift'))
+        shifted_null=probe_stats('P1', ['panels:offline'], 'mlp-F', '-shift'),
+        shifted_null_expected_upper=.60)
     path = ['panels:chart:real']
     a = probe_stats('P3', path, 'mlp-T24-real')
     m = probe_stats('P3', path, 'mlp-Mel24-real')
@@ -227,7 +254,7 @@ def probe_verdicts():
                             v.append(paired(aa['recordings'], bb['recordings'])['mean'])
                     vals[seed] = v
                 return vals
-            pred = dict(feature_gain_005=compare(f, base, threshold=.05, refits=refit_layers('Pos+F', 'Pos')))
+            pred = dict(feature_gain_005=compare(f, base, threshold=.05, refits=refit_layers('Pos+F', 'Pos'))) if not tag.endswith('stratum1') else {}
             if experiment == 'P4a':
                 pred['feature_over_Mel_002'] = compare(f, m, threshold=.02, refits=refit_layers('Pos+F', 'Pos+M'))
             retirement = [compare(v, base, threshold=.02, direction='below', refits=refit_layers(name, 'Pos'))
@@ -237,6 +264,37 @@ def probe_verdicts():
         output[experiment] = dict(verdict='characterises; see per-target power and margins', targets=per_target,
             predictions={f'{tag}:{k}': v for tag, row in per_target.items() for k, v in row['predictions'].items()},
             retire={f'{tag}:{k}': v for tag, row in per_target.items() for k, v in row['retire'].items()})
+        if experiment == 'P4b':
+            strata_checks = {}
+            for part in ('kick', 'snare', 'hat'):
+                def gain(seed, stratum, boot=None):
+                    data = read(f'P4b-s{seed}.json')
+                    suffix = '' if boot is None else f':boot{boot}'
+                    def get(name):
+                        return merge_stats([stat(data, f'{part}:stratum{stratum}', 'summary', c, name + ':null0' + suffix)
+                                            for c in ('panels', 'keysound_extension')])
+                    return difference_stats(get('Pos+F'), get('Pos'))
+                refits = {}
+                for seed in (0, 1):
+                    values = []
+                    for b in range(5):
+                        full, kit = gain(seed, 1, b), gain(seed, 0, b)
+                        if full and kit and full['mean'] is not None and kit['mean'] is not None:
+                            values.append(full['mean'] - kit['mean'])
+                    refits[seed] = values
+                strata_checks[part] = compare({s: gain(s, 1) for s in (0, 1)},
+                    {s: gain(s, 0) for s in (0, 1)}, threshold=0, direction='below',
+                    refits=refits, paired_recordings=False)
+            output[experiment]['full_below_kit'] = strata_checks
+            output[experiment]['predictions'].update({part + ':full_below_kit': v for part, v in strata_checks.items()})
+            output[experiment]['retirement_requires'] = 'Both F and Mel gains below .02 in both strata on both feature seeds; each stratum needs 40 recordings'
+            output[experiment]['parts'] = {}
+            for part, strata_check in strata_checks.items():
+                kit, full = per_target[part + ':stratum0'], per_target[part + ':stratum1']
+                retire_all = all(v['holds_both_seeds'] for item in (kit, full) for v in item['retire'].values())
+                passed = strata_check['holds_both_seeds'] and all(v['holds_both_seeds'] for v in kit['predictions'].values())
+                output[experiment]['parts'][part] = dict(verdict='retire under mapper-agreement screen' if retire_all else
+                    'pass under mapper-agreement screen' if passed else 'inconclusive')
     return output
 
 
@@ -280,7 +338,7 @@ def curve_read(seed, arm, away):
             continue
         a, y = metrics.get('M4_away'), metrics.get('M3i')
         if a and y and a['mean'] is not None and y['mean'] is not None:
-            points.append((a['mean'], float(key.split(':')[1]), y))
+            points.append((a['mean'], float(key.split(':')[1]), y, a))
     # Follow the gain sweep in its registered order; sorting by away-share
     # could connect nonadjacent settings and hide a non-monotone curve.
     points.sort(key=lambda p: p[1])
@@ -291,8 +349,51 @@ def curve_read(seed, arm, away):
             values = {r: left[2]['recordings'][r] * (1 - weight) + right[2]['recordings'][r] * weight for r in keys}
             return dict(**interval(list(values.values())), recordings=values,
                         away=away, gains=[left[1], right[1]], interpolation_weight=weight,
-                        method='First crossing between adjacent gains; recording interval conditional on interpolation weight')
+                        method='First crossing between adjacent gains; matched-arm contrast bootstraps crossing and recovery jointly',
+                        _curve_points=points)
     return None
+
+
+def curve_contrast(left, right, fallback):
+    """Bootstrap recording weights, including movement of the curve crossing."""
+    all_points = left['_curve_points'] + right['_curve_points']
+    recs = sorted(set().union(*(set(p[k]['recordings']) for p in all_points for k in (2, 3))))
+    n = len(recs)
+    if not n:
+        return dict(fallback, halfwidth=None, ci95=None, bootstrap_crossings=0)
+    def arrays(points):
+        return [np.array([[p[k]['recordings'].get(r, np.nan) for r in recs] for p in points]) for k in (3, 2)]
+    la, ra = arrays(left['_curve_points']), arrays(right['_curve_points'])
+    def crossing(matrix, weights, target):
+        values = []
+        for x in matrix:
+            valid = np.isfinite(x)
+            denom = valid @ weights
+            values.append(np.divide(np.nan_to_num(x) @ weights, denom,
+                out=np.full(len(x), np.nan), where=denom > 0))
+        xx, yy = values
+        for i in range(len(xx) - 1):
+            if np.isfinite([xx[i], xx[i + 1], yy[i], yy[i + 1]]).all() and min(xx[i:i + 2]) <= target <= max(xx[i:i + 2]) and xx[i] != xx[i + 1]:
+                w = (target - xx[i]) / (xx[i + 1] - xx[i])
+                return yy[i] * (1 - w) + yy[i + 1] * w
+        return None
+    rng = np.random.default_rng(20261028)
+    values = []
+    for _ in range(1000):
+        weights = np.bincount(rng.integers(n, size=n), minlength=n)
+        a, b = crossing(la, weights, left['away']), crossing(ra, weights, right['away'])
+        if a is not None and b is not None:
+            values.append(a - b)
+    # A target that disappears in any bootstrap draw has unsupported crossing
+    # uncertainty. Preserve the point estimate but prevent a verdict.
+    if len(values) != 1000:
+        return dict(fallback, halfwidth=None, ci95=None, bootstrap_crossings=len(values),
+                    limitation='Matched away-share was not crossed in every recording resample')
+    lo, hi = np.quantile(values, [.025, .975])
+    point_left = crossing(la, np.ones(n), left['away'])
+    point_right = crossing(ra, np.ones(n), right['away'])
+    return dict(fallback, mean=float(point_left - point_right), ci95=[float(lo), float(hi)],
+                halfwidth=float((hi - lo) / 2), bootstrap_crossings=1000)
 
 
 def propagation_verdict():
@@ -312,9 +413,14 @@ def propagation_verdict():
                                       episode_spreads=episode_spread('graph', 'M4_away')))
     similarity_no_gain = compare(graph, local, threshold=0, direction='below',
                                   episode_spreads=episode_spread('graph', 'M3i', 'random'))
-    for row in similarity_no_gain['seeds'].values():
+    for seed, row in similarity_no_gain['seeds'].items():
+        noise = pred['graph_over_random']['seeds'][seed]
+        row['margin'] = noise.get('margin')
+        row['margin_components'] = noise.get('margin_components')
         if row.get('power') and row.get('margin') is not None and row['contrast']['mean'] is not None:
             row['status'] = 'holds' if row['contrast']['mean'] <= row['margin'] else 'does_not_hold'
+        else:
+            row['status'] = 'inconclusive'
     similarity_no_gain['holds_both_seeds'] = all(r['status'] == 'holds' for r in similarity_no_gain['seeds'].values())
     similarity_no_gain['rule'] = 'Gain over local is no larger than the random-comparison noise margin.'
     retire['no_gain_over_local'] = similarity_no_gain
@@ -326,7 +432,7 @@ def propagation_verdict():
         for kind, null in nulls.items():
             ratios[kind] = {}
             for seed in (0, 1):
-                if real[seed] and null[seed] and real[seed]['mean'] > 0:
+                if real[seed] and null[seed] and real[seed]['mean'] is not None and real[seed]['mean'] > 0:
                     ratios[kind][str(seed)] = dict(ratio=null[seed]['mean'] / real[seed]['mean'],
                                                   numerator=null[seed]['mean'], denominator=real[seed]['mean'])
                 else:
@@ -362,16 +468,24 @@ def propagation_verdict():
         if pred['graph_over_random']['holds_both_seeds']:
             packet_arms.append('graph')
         packet_arms += [a for a, v in learned.items() if v['over_random']['holds_both_seeds']]
-    positions = {arm: {str(s): {str(k): stat(read(f'P7-s{s}.json'), 'summary', f'{arm}:real:pos{k}', 'M3i')
-                               for k in range(4)} for s in (0, 1)} for arm in ('graph', 'learned0', 'learned1')}
+    positions = {arm: {str(s): {str(k): {metric: stat(read(f'P7-s{s}.json'), 'summary', f'{arm}:real:pos{k}', metric)
+                               for metric in ('M1e', 'M3i')} for k in range(4)} for s in (0, 1)}
+                 for arm in ('graph', 'learned0', 'learned1')}
     self_null = {arm: episode_stats(arm, 'changed', 'self') for arm in ('mark', 'local', 'graph', 'learned0', 'learned1', 'bias', 'random')}
+    self_status = {arm: {str(s): 'unassessed' if not v[s] or not v[s]['n'] else
+                   'pass' if max(v[s]['recordings'].values()) == 0 else 'fail'
+                   for s in (0, 1)} for arm, v in self_null.items()}
+    bias_equivalent = all(row.get('power') and row.get('margin') is not None and
+        abs(row['contrast']['mean']) <= row['margin'] for row in pred['graph_over_bias']['seeds'].values())
     return dict(verdict=verdict(pred, retire), predictions=pred, retire=retire,
                 learned=learned, invariants=invariant, packet_eligible_arms=packet_arms,
-                mark_position_estimates=positions, self_label_null=self_null,
+                mark_position_estimates=positions, self_label_null=self_null, self_label_status=self_status,
+                bias_interpretation='similar = the rest of the song' if bias_equivalent else 'equivalence to per-song bias not established',
                 M10_note='Position spreads are included in the preregistered episode margin. Flatness under that same margin is not an independent equivalence test; report the position estimates directly.')
 
 
 def build():
+    read.cache_clear()
     lock = prereg_check()
     verdicts = probe_verdicts()
     verdicts['P7'] = propagation_verdict()
@@ -381,17 +495,44 @@ def build():
         inputs=read('inputs.json'), cohorts={str(s): read(f'counts-s{s}.json') for s in (0, 1)},
         verdicts=verdicts, packet=read('packet-key/key.json'),
         deviations=read('deviations.json') or [], failed_paths=read('failed-paths.json') or [])
-    # Keep the public-facing report free of identities; the complete private
+    results['design_checks'] = dict(simulator=read('P6.json'), session={str(s):
+        {k: v for k, v in (read(f'P8-s{s}.json') or {}).items() if k in
+         ('expectation_results', 'missing', 'attack_marks', 'design_only')} for s in (0, 1)})
+    results['limitations'] = [
+        'Charts screen mapper agreement; none of these measures has been validated against the ear.',
+        'The probe-fit and probe-dev songs trained the frozen trunk; this is in-sample representation evidence.',
+        'P3 T24 is a 64-dimensional unsupervised PCA projection. Its retirement does not prove that all 4000 raw token dimensions lack thirds.',
+        'Only checkpoint 009001 is available. Seed spread and probe refits do not measure neighboring-checkpoint noise.',
+        'P7 supplies chart timing and changes only cell posteriors; it cannot recover pulse, red lines, bars or between-cell spans.',
+        'The secondary U probe was not fitted. Unbeat-pair class expectations are unassessed.']
+    shifted = verdicts['P1']['shifted_null']
+    if all(shifted[s] and shifted[s]['mean'] is not None and shifted[s]['mean'] > .60 for s in (0, 1)):
+        results['limitations'].append('The refitted +1/32-beat attack-label null exceeds its expected .60 AUC ceiling on both seeds; the proposed null does not separate the attack mechanism.')
+    if results['design_checks']['simulator'] and results['design_checks']['simulator']['simulator_optimistic']:
+        results['limitations'].append('P6 is out of at least one fixed band: label P7 simulator optimistic. Session evidence remains design-only.')
+    # Keep the narrative report free of packet identities; the complete private
     # packet key remains in its own owner and is represented here by composition.
     if results['packet']:
         results['packet'] = dict(path=str(OUT / 'packet'), composition=results['packet']['composition'])
     expected = ['P1', 'P2', 'P3', 'P4a', 'P4b', 'P5a', 'P5b', 'P5c', 'P7', 'P8']
     results['unfinished'] = [f'{p}-s{s}' for p in expected for s in (0, 1) if read(f'{p}-s{s}.json') is None]
+    results['unfinished'] += [f'{p}-s{s}-bootstrap' for p in ('P1', 'P3') for s in (0, 1)
+                              if read(f'{p}-s{s}-bootstrap.json') is None]
+    results['unfinished'] += [f'P1-s{s}-shift' for s in (0, 1) if read(f'P1-s{s}-shift.json') is None]
     if read('P6.json') is None:
         results['unfinished'].append('P6')
     results['unfinished'] += [f'P5d-s{s} (stretch)' for s in (0, 1) if read(f'P5d-s{s}.json') is None]
+    results['unfinished'].append('P7 secondary U class and its P8 class-change expectation')
+    for experiment in ('P4a', 'P4b'):
+        for seed in (0, 1):
+            for tag, item in (read(f'{experiment}-s{seed}.json') or {}).items():
+                if item.get('unassessed'):
+                    results['unfinished'].append(f'{experiment}-s{seed} {tag}: {item["unassessed"]}')
     results['experiment_files'] = {p.name: dict(sha256=digest(p), path=str(p)) for p in sorted(OUT.glob('P*.json'))}
     results['runtime_sha256'] = digest(OUT / 'runtime.json')
+    results['posthoc_attack_null_overlap'] = {str(s): read(f'P1-null-overlap-s{s}.json') for s in (0, 1)}
+    from .plots import write
+    results['figures'] = write()
     dump(OUT / 'results.json', results)
     lines = ['# N1 frozen-feature probes', '', results['evidence'], '',
              f"Preregistration: `{lock['sha256']}`, frozen {lock['utc']}.",
@@ -400,6 +541,8 @@ def build():
     for name, v in verdicts.items():
         lines.append(f"| {name} | {v['verdict']} |")
     lines += ['', 'The numbers, recording intervals, paired contrasts, margin components and power checks for every criterion are in results.json. Raw per-seed summaries and strata are in the hashed experiment files listed there. Missing evidence prevents a pass.', '',
+              '![Feature and Mel comparisons](probe-comparison.png)', '',
+              '## Interpretation limits', '', *['- ' + item for item in results['limitations']], '',
               '## Cohorts and counts', '', '```json', json.dumps(results['cohorts'], indent=2), '```', '',
               '## Criterion estimates', '']
     for name, v in verdicts.items():
@@ -413,7 +556,10 @@ def build():
                     lines.append(f"| {category}: {criterion} | {s} | {mean if mean is not None else 'unavailable'} | {d.get('ci95')} | {val.get('margin')} | {d.get('n', 0)} | {val['status']} |")
         lines.append('')
     lines += ['## P7 invariants and packet', '', '```json', json.dumps(verdicts['P7']['invariants'], indent=2), '```', '',
+              '![Propagation gain curves](P7-curves.png)', '',
+              'Self-label nulls (zero MAP changes expected):', '', '```json', json.dumps(verdicts['P7']['self_label_status'], indent=2), '```', '',
               json.dumps(results['packet'], indent=2) if results['packet'] else 'Packet not yet built.', '',
+              '## Private design checks', '', '```json', json.dumps(results['design_checks'], indent=2), '```', '',
               '## Deviations and failed paths', '', json.dumps(results['deviations'], indent=2), '',
               json.dumps(results['failed_paths'], indent=2), '', '## Unfinished', '',
               ', '.join(results['unfinished']) or 'None.', '']

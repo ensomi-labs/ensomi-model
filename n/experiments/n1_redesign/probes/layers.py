@@ -4,7 +4,7 @@ from collections import defaultdict
 import numpy as np
 from scipy.special import expit
 
-from .common import (OUT, auc, dump, features, interval, labels, log, manifests,
+from .common import (OUT, auc, by_tempo, dump, features, interval, labels, log, manifests,
                      prereg_check, stable_seed, units)
 from .models import Predictor, fit, load, save
 from .tokens import event_inputs
@@ -117,4 +117,5 @@ def run(seed, keysounds=False):
                         scores[cohort][key][rec] = auc(yn if key.endswith('null1') else yy, np.concatenate(pp))
         output[tag] = dict(counts=counts, summary={cohort: {name: dict(**interval(list(r.values())), recordings=r)
                           for name, r in g.items()} for cohort, g in scores.items()})
+        output[tag]['by_tempo'] = {cohort: by_tempo(summary) for cohort, summary in output[tag]['summary'].items()}
     dump(OUT / f'P4{"b" if keysounds else "a"}-s{seed}.json', output)
