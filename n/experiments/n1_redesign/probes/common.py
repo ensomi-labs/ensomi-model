@@ -77,7 +77,7 @@ def split(sha):
 
 
 @lru_cache(maxsize=1)
-def exclusion():
+def exclusion(audit_path=None):
     from ensomi_n.eval.census import load_exclusion
     from ensomi_n.data.manifest import read_csv_shas
     e = load_exclusion(ROOT / 'artifacts/n1-eval/hard-holdout-v1',
@@ -101,7 +101,7 @@ def exclusion():
         'group_id', 'set_dir', 'audio_sha256', 'eval_split']).to_pylist()
     audit = {}
     e['folders'] = build_exclusion(args, ROOT, corpus, audit)
-    dump(OUT / 'exclusion-audit.json', dict(**audit, census_run_sha256=digest(run)))
+    dump(audit_path or OUT / 'exclusion-audit.json', dict(**audit, census_run_sha256=digest(run)))
     return e
 
 
