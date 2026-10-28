@@ -148,6 +148,12 @@ def test_disk_backed_probe_matches_resident_fit(tmp_path, monkeypatch):
         mapped._mmap.close()
 
 
+def test_span_average_does_not_count_a_shared_bar_boundary_twice():
+    from n1_redesign.probes.repeats import distinct_spans
+    candidates = [(0.9, 18, 2), (0.9, 18, -2), (0.8, 26, 0), (0.7, 31, -1)]
+    assert distinct_spans(candidates) == [(0.9, 18, 2), (0.8, 26, 0), (0.7, 31, -1)]
+
+
 def test_attack_buffer_preserves_cohorts_rows_and_recording_ids(tmp_path, monkeypatch):
     from n1_redesign.probes import attacks
     members = [dict(id='b-fit', rec='b', cohort='probe-fit'),

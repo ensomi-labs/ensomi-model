@@ -255,6 +255,16 @@ def downbeat(seed):
     dump(OUT / f'P5c-s{seed}.json', dict(summary=summary, by_tempo=by_tempo(summary), rows=rows))
 
 
+def distinct_spans(candidates, limit=3):
+    """Adjacent bar searches can select the same boundary-aligned span."""
+    by_start = {}
+    for candidate in candidates:
+        at = candidate[1]
+        if at not in by_start or candidate > by_start[at]:
+            by_start[at] = candidate
+    return sorted(by_start.values(), reverse=True)[:limit]
+
+
 def span_evidence(seed):
     """P5d: feature-selected span alignment; never modifies a decoded line."""
     prereg_check()
@@ -292,8 +302,7 @@ def span_evidence(seed):
                     scores.append((float(query @ token), at, shift))
                 if scores:
                     candidates.append(max(scores))
-            candidates.sort(reverse=True)
-            chosen = candidates[:3]
+            chosen = distinct_spans(candidates)
             own_chart = float(interp(raw, z['beats'][q]).mean())
             own_pred = float(interp(raw, pred).mean())
             chart_scores, pred_scores = [own_chart], [own_pred]
