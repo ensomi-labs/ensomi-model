@@ -80,22 +80,28 @@ def variant_key(x):
     return chart_key(cs)
 
 
-def head_rows(name,seed,frozen=False):
-    import torch
-    fit=torch.load(OUT/'fits'/f's{seed}.pt',map_location='cpu',weights_only=True)['head']
-    w,b=fit['weight'].numpy(),fit['bias'].numpy()
-    cache=FEAT/f'v01-s{seed}-009001'
-    manifest={r['sha256']:r for r in map(json.loads,(cache/'manifest.jsonl').read_text().splitlines())}
+def head_rows(name,seed,frozen=False,*,logits_loader=None,output_path=None):
+    """Score seven logits on G1's fixed cohorts; optional loaders share the exact readout."""
+    if logits_loader is None:
+        if frozen:
+            import torch
+            fit=torch.load(OUT/'fits'/f's{seed}.pt',map_location='cpu',weights_only=True)['head']
+            w,b=fit['weight'].numpy(),fit['bias'].numpy()
+            cache=FEAT/f'v01-s{seed}-009001'
+            manifest={r['sha256']:r for r in map(json.loads,(cache/'manifest.jsonl').read_text().splitlines())}
+        def logits_loader(sha):
+            if frozen:
+                with np.load(cache/manifest[sha]['npz'],allow_pickle=False) as z:return z['feat'].astype(np.float32)@w.T+b
+            with np.load(OUT/'eval'/name/f'{sha}.npz',allow_pickle=False) as z:return z['new_logits']
     baseline=json.loads((OUT/'scores'/f'v01-s{seed}-009001.json').read_text())
     offsets={(r['panel'],r['rec']):r['offset_ms'] for r in baseline['recordings'] if r['cell']=='all'}
     rows=[];last_sha=None;y=None
     for x in sorted(panel_items(),key=lambda x:(x['item'],x['key'])):
         sha=x['item']
         if sha!=last_sha:
-            if frozen:
-                with np.load(cache/manifest[sha]['npz'],allow_pickle=False) as z:y=z['feat'].astype(np.float32)@w.T+b
-            else:
-                with np.load(OUT/'eval'/name/f'{sha}.npz',allow_pickle=False) as z:y=z['new_logits']
+            y=logits_loader(sha)
+            if y.ndim!=2 or y.shape[1]!=7 or not np.isfinite(y).all():
+                raise ValueError(f'Invalid event logits: {sha}')
             last_sha=sha
         t=load_target(sha,variant_key(x));tg=dense_new(t,0,len(y));times=10.*np.arange(len(y))
         off=nearest_indices(times,t['lines'])[1]>30.
@@ -128,7 +134,7 @@ def head_rows(name,seed,frozen=False):
             expected=expit(y[ix[valid],4:7]).sum(-1);r=t['retention'][valid]
             if np.ptp(expected)>0 and np.ptp(r)>0:row['salience_spearman']=float(spearmanr(expected,r).statistic)
         rows.append(row)
-    dump(OUT/'heads'/f'{name}.json',dict(name=name,seed=seed,rows=rows))
+    dump(output_path or OUT/'heads'/f'{name}.json',dict(name=name,seed=seed,rows=rows))
     return rows
 
 
