@@ -12,6 +12,16 @@ from n1_redesign.probes.episodes import Reach, fixtures, sparsemax, contiguous, 
 from n1_redesign.probes import episodes
 
 
+def test_nonfailing_cohort_excludes_failure_in_another_reference(monkeypatch):
+    monkeypatch.setattr(episodes, 'stable_seed', lambda value: value)
+    failing = [dict(id='a1', rec='a'), dict(id='a2', rec='a'), dict(id='e1', rec='e')]
+    candidates = [dict(id=identity, rec=identity[0])
+                  for identity in ('a3', 'b1', 'b2', 'c1', 'd1', 'f1')]
+    selected = episodes.choose_nonfailing(failing, candidates, {'a', 'e', 'f'})
+    assert {u['id'] for u in selected} == {'b1', 'b2', 'c1'}
+    assert len({u['rec'] for u in selected}) == 2
+
+
 def test_all_arms_preserve_literal_pulse_and_no_marks():
     r = fixtures()
     assert r['passed'] and r['updates'] == 33

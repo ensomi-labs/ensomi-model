@@ -545,25 +545,39 @@ def fixtures():
                 cases=['multiple red segments', 'fractional boundary', 'meter reset', 'last beat', 'no marks'])
 
 
+def choose_nonfailing(failing, candidates, recordings_with_failure):
+    """Match original recordings, excluding failure in any reference set."""
+    count = len({u['rec'] for u in failing})
+    available = {u['rec'] for u in candidates} - set(recordings_with_failure)
+    selected = set(sorted(available, key=lambda r: stable_seed('panel-nofail:' + r))[:count])
+    return [u for u in candidates if u['rec'] in selected]
+
+
+def panel_partitions(seed):
+    panel = [u for u in units() if u['cohort'] in ('panel', 'val_hard')]
+    failing, nofail, recordings_with_failure = [], [], set()
+    for u in panel:
+        z = labels(u)
+        p = np.load(OUT / 'm0' / f's{seed}' / (u['id'] + '.npy'))
+        rr = regions(z, p)
+        if rr:
+            recordings_with_failure.add(u['rec'])
+        if any(len(eligible(z, r)) for r in rr):
+            failing.append(u)
+        elif not rr:
+            nofail.append(u)
+    return panel, failing, nofail, recordings_with_failure
+
+
 def evaluate(seed, models, configs):
     import gzip
     fixture_result = fixtures()
     dump(OUT / f'P7-invariants-s{seed}.json', dict(fixtures=fixture_result, complete=False))
-    panel = [u for u in units() if u['cohort'] in ('panel', 'val_hard')]
+    panel, failing_ids, nofail_ids, recordings_with_failure = panel_partitions(seed)
     summary = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: [0., 0])))
     checked, skipped, region_count, nofail_count, fail_count = 0, 0, 0, 0, 0
     curves = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: [0., 0])))
-    failing_ids, nofail_ids = [], []
-    for u in panel:
-        z = labels(u)
-        p0 = np.load(OUT / 'm0' / f's{seed}' / (u['id'] + '.npy'))
-        regs = regions(z, p0)
-        if any(len(eligible(z, r)) for r in regs):
-            failing_ids.append(u)
-        elif not regs:
-            nofail_ids.append(u)
-    nofail_ids.sort(key=lambda u: stable_seed('panel-nofail:' + u['id']))
-    chosen_nofail = {u['id'] for u in nofail_ids[:len(failing_ids)]}
+    chosen_nofail = {u['id'] for u in choose_nonfailing(failing_ids, nofail_ids, recordings_with_failure)}
 
     def record(s, arm, kind, position, sim, run_length, k, values):
         band = 'ge160' if np.median(60000 / s.z['length']) >= 160 else 'lt160'
