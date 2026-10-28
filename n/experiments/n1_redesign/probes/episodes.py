@@ -23,6 +23,22 @@ THRESHOLDS = (.2, .4, .6, .8)
 ARMS = ('mark', 'local', 'graph', 'learned0', 'learned1', 'bias', 'random',
         'mel', 'periodic', 'repeat', 'everywhere')
 
+CONDITIONAL_DENOMINATORS = dict(M4_toward='M4_n', M4_away='M4_n',
+                                M4_unlabelled='M4_n', tier2_precision='tier2_n')
+
+
+def add_measure(group, recording, key, value, values):
+    if value is None:
+        return
+    weight = values[CONDITIONAL_DENOMINATORS[key]] if key in CONDITIONAL_DENOMINATORS else 1
+    acc = group[key][recording]
+    acc[0] += value * weight
+    acc[1] += weight
+
+
+def recording_values(group):
+    return {r: float(v[0] / v[1]) for r, v in group.items() if v[1] > 0}
+
 
 def pulse_hash(z):
     h = hashlib.sha256()
@@ -298,6 +314,7 @@ def measures(s, region, marks, p, local):
                   M4_n=int(sum(ch)),
                   M7=float(duration[outside & (changed | (abs(p - s.p) > .1))].sum() / 1000),
                   M8=float(changed.mean()), changed=int(changed.sum()),
+                  tier2_n=int(sum(tier2 & changed & labelled)),
                   tier2_precision=float(np.mean(pred[tier2 & changed & labelled] == z['y'][tier2 & changed & labelled])) if np.any(tier2 & changed & labelled) else None)
     if region.any():
         for name, q in [('0-7', dist < 8), ('8-15', (dist >= 8) & (dist < 16)),
@@ -459,7 +476,7 @@ def tune(seed, models):
             configs = [dict(base, gain=1.)]
         else:
             configs = [dict(base, gain=g) for g in GAINS]
-        observations = [defaultdict(lambda: defaultdict(list)) for _ in configs]
+        observations = [defaultdict(lambda: defaultdict(lambda: [0., 0])) for _ in configs]
         for u in dev:
             s = song(seed, u)
             valid = [r for r in s.regions if len(eligible(s.z, r))]
@@ -476,13 +493,16 @@ def tune(seed, models):
                     p, loc, _ = update(s, marks, arm, cfg, models.get(arm), stable_seed(u['id']))
                     m = measures(s, r, marks, p, loc)
                     for key in (['M8'] if kind == 'confirming' else ['M1e', 'M3i', 'M4_away']):
-                        if m[key] is not None:
-                            observations[i][key][u['rec']].append(m[key])
+                        add_measure(observations[i], u['rec'], key, m[key], m)
         stats = []
         for cfg, ob in zip(configs, observations):
-            means = {k: float(np.mean([np.mean(v) for v in g.values()])) for k, g in ob.items() if g}
-            feasible = means.get('M8', 1) <= .01 and means.get('M4_away', 1) <= .20
-            stats.append(dict(config=cfg, means=means, n={k: len(g) for k, g in ob.items()},
+            recordings = {k: recording_values(g) for k, g in ob.items()}
+            means = {k: float(np.mean(list(g.values()))) for k, g in recordings.items() if g}
+            counts = {k: len(g) for k, g in recordings.items()}
+            power = all(counts.get(k, 0) >= 40 for k in ('M1e', 'M3i', 'M8'))
+            power &= counts.get('M4_away', 0) == 0 or counts['M4_away'] >= 40
+            feasible = power and means.get('M8', 1) <= .01 and means.get('M4_away', 0) <= .20
+            stats.append(dict(config=cfg, means=means, n=counts, power=power,
                               feasible=feasible, objective=means.get('M1e', 0) + means.get('M3i', 0)))
         allowed = [s for s in stats if s['feasible']]
         if allowed:
@@ -553,8 +573,7 @@ def evaluate(seed, models, configs):
         for group in groups:
             for key, v in values.items():
                 if v is not None:
-                    acc = summary[group][key][s.unit['rec']]
-                    acc[0] += v; acc[1] += 1
+                    add_measure(summary[group], s.unit['rec'], key, v, values)
 
     with gzip.open(OUT / f'P7-episodes-s{seed}.jsonl.gz', 'wt') as raw:
         for num, u in enumerate(panel):
@@ -611,8 +630,7 @@ def evaluate(seed, models, configs):
                                                 values = measures(s, r, marks, p, loc)
                                                 for key in ('M3i', 'M4_away'):
                                                     if values[key] is not None:
-                                                        acc = curves[f'{arm}:{gain}'][key][u['rec']]
-                                                        acc[0] += values[key]; acc[1] += 1
+                                                        add_measure(curves[f'{arm}:{gain}'], u['rec'], key, values[key], values)
                                     if kind == 'real':
                                         # Transfer a donor mark's whole-song relative time.
                                         dr = donor_regs[ri % len(donor_regs)] if donor_regs else np.ones(len(donor.p), bool)
@@ -637,8 +655,8 @@ def evaluate(seed, models, configs):
                 log('P7_read', seed=seed, units=num, regions=region_count, checked=checked)
     def finish(groups):
         from .common import interval
-        return {group: {metric: dict(**interval([v[0] / v[1] for v in recs.values()]),
-                       recordings={r: float(v[0] / v[1]) for r, v in recs.items()})
+        return {group: {metric: dict(**interval(list(recording_values(recs).values())),
+                       recordings=recording_values(recs))
                        for metric, recs in metrics.items()} for group, metrics in groups.items()}
     result = dict(summary=finish(summary), curves=finish(curves),
                   regions=region_count, failing_units=fail_count, nonfailing_units=nofail_count,

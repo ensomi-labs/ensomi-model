@@ -1,5 +1,6 @@
 import sys
 import json
+from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
@@ -77,3 +78,15 @@ def test_hint_shuffle_preserves_strength_and_kind(monkeypatch):
     assert [m['kind'] for m in shifted] == [0, 1]
     assert [m['time_ms'] for m in shifted] == [300., 900.]
     assert [m['beat'] for m in shifted] == [0, 3]
+
+
+def test_conditional_harm_uses_changed_beats_without_zero_dilution():
+    group = defaultdict(lambda: defaultdict(lambda: [0., 0]))
+    episodes.add_measure(group, 'a', 'M4_away', 1., {'M4_n': 1})
+    for _ in range(99):
+        episodes.add_measure(group, 'a', 'M4_away', 0., {'M4_n': 0})
+    episodes.add_measure(group, 'b', 'M4_away', 0., {'M4_n': 9})
+    episodes.add_measure(group, 'c', 'M4_away', 0., {'M4_n': 0})
+    values = episodes.recording_values(group['M4_away'])
+    assert values == {'a': 1., 'b': 0.}
+    assert np.mean(list(values.values())) == .5

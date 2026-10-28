@@ -40,6 +40,12 @@ def test_missing_seed_or_refit_noise_cannot_pass():
     assert not compare({0: a, 1: a}, None, threshold=.7, require_refits=True)['holds_both_seeds']
 
 
+def test_identical_zero_recovery_is_not_an_improvement():
+    zero = summary({str(i): 0. for i in range(40)})
+    assert not compare({0: zero, 1: zero}, {0: zero, 1: zero}, threshold=0,
+                       episode_spreads={0: 0., 1: 0.})['holds_both_seeds']
+
+
 def test_disjoint_strata_use_independent_recording_bootstrap():
     a = summary({f'a{i}': .1 for i in range(40)})
     b = summary({f'b{i}': .4 for i in range(40)})

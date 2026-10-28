@@ -115,7 +115,7 @@ def compare(a, b, *, threshold, direction='above', refits=None, episode_spreads=
         margin = max(components.values()) if available else None
         enough = diff['n'] >= 40
         passes = bool(available and enough and diff['mean'] is not None and (
-            diff['mean'] >= threshold + margin if direction == 'above' else diff['mean'] <= threshold - margin))
+            diff['mean'] > threshold + margin if direction == 'above' else diff['mean'] <= threshold - margin))
         results[str(seed)] = dict(status='holds' if passes else 'does_not_hold' if available and enough else 'inconclusive',
             left={k: left[k] for k in ('n', 'mean', 'ci95')},
             right={k: right[k] for k in ('n', 'mean', 'ci95')} if right else None,
