@@ -535,6 +535,9 @@ def build():
     results['design_checks'] = dict(simulator=read('P6.json'), session={str(s):
         {k: v for k, v in (read(f'P8-s{s}.json') or {}).items() if k in
          ('expectation_results', 'missing', 'attack_marks', 'design_only')} for s in (0, 1)})
+    results['characterizations'] = dict(P5d={str(s): {
+        k: v for k, v in (read(f'P5d-s{s}.json') or {}).items()
+        if k in ('summary', 'characterizes_only', 'alignment')} for s in (0, 1)})
     results['episode_coverage'] = {str(s): {k: v for k, v in (read(f'P7-s{s}.json') or {}).items()
         if k in ('regions', 'failing_units', 'nonfailing_units', 'skipped_mark_draws', 'invariant_checks')}
         for s in (0, 1)}
@@ -556,6 +559,18 @@ def build():
         results['limitations'].append('The refitted +1/32-beat attack-label null exceeds its expected .60 AUC ceiling on both seeds; the proposed null does not separate the attack mechanism.')
     if results['design_checks']['simulator'] and results['design_checks']['simulator']['simulator_optimistic']:
         results['limitations'].append('P6 is out of at least one fixed band: label P7 simulator optimistic. Session evidence remains design-only.')
+    simulator = results['design_checks']['simulator']
+    if simulator:
+        unmatched = [r for r in simulator['records'] if r['owner_n'] != r['simulator_n']]
+        results['simulator_count_matching'] = dict(
+            matched_passages=len(simulator['records']) - len(unmatched),
+            total_passages=len(simulator['records']),
+            owner_marks=sum(r['owner_n'] for r in simulator['records']),
+            simulated_marks=sum(r['simulator_n'] for r in simulator['records']))
+        if unmatched:
+            results['limitations'].append(
+                f'P6 could not match the mark count in {len(unmatched)} passages: the unique chart-line or off-line-head pool was too small for its half/half draw. '
+                'The fixed-band readings therefore also have a marking-density mismatch; passage counts are retained in P6.json.')
     # Keep the narrative report free of packet identities; the complete private
     # packet key remains in its own owner and is represented here by composition.
     if results['packet']:
@@ -658,6 +673,15 @@ def build():
                 if item:
                     lines.append(f"| {arm} | {seed} | M8 {kind} | {number(item['mean'])} | {confidence(item['ci95'])} | {item['n']} |")
     lines.append('')
+    lines += ['## P5d span evidence (characterization only)', '',
+              '| Seed | Evidence | Share preferring chart lines | 95% CI | Recordings |',
+              '| --- | --- | --- | --- | --- |']
+    for seed, data in results['characterizations']['P5d'].items():
+        for key in ('own_prefers_chart', 'averaged_prefers_chart'):
+            item = data.get('summary', {}).get(key)
+            if item:
+                lines.append(f"| {seed} | {key} | {number(item['mean'])} | {confidence(item['ci95'])} | {item['n']} |")
+    lines.append('')
     lines += ['## P7 invariants and packet', '', '```json', json.dumps(verdicts['P7']['invariants'], indent=2), '```', '',
               '![Propagation gain curves](P7-curves.png)' if str(OUT / 'P7-curves.png') in results['figures'] else 'Propagation curves unavailable.', '',
               'Matched-away readings require adjacent sampled gains that bracket the requested harm share. Zero-gain harm is undefined because no beats changed; it is not a zero-harm anchor. Unbracketed targets remain unassessed, and fewer than 40 contributing recordings only characterise.', '',
@@ -682,6 +706,8 @@ def build():
             lines.append(f"| {key} | {number(simulator[value])} | {band} | {status} |")
         coverage = simulator['owner_chart_coverage']
         lines += ['', f"Owner off-pulse chart-head coverage: {number(coverage['share'])}, {coverage['n']} marks. Run-length distributions and passage details are in P6.json; reached regions and source-cell posteriors are in P8-s0.json and P8-s1.json."]
+        counts = results['simulator_count_matching']
+        lines += ['', f"Simulator count matching: {counts['matched_passages']}/{counts['total_passages']} passages; {counts['simulated_marks']} simulated marks for {counts['owner_marks']} owner marks."]
     lines += ['', '## Deviations and failed paths', '', json.dumps(results['deviations'], indent=2), '',
               json.dumps(results['failed_paths'], indent=2), '', '## Unfinished', '',
               ', '.join(results['unfinished']) or 'None.', '']
