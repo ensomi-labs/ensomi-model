@@ -89,6 +89,7 @@ def parse_osu(data: bytes) -> dict:
     kv: dict[tuple[str, str], str] = {}
     tps, objs, breaks = [], [], []
     sb_samples = 0
+    sb_files: set[str] = set()
     for raw in text.splitlines():
         s = raw.strip()
         if not s or s.startswith('//'):
@@ -152,6 +153,8 @@ def parse_osu(data: bytes) -> dict:
                     breaks.append((a, b))
             elif p[0].strip() in ('5', 'Sample'):
                 sb_samples += 1
+                if len(p) >= 4:
+                    sb_files.add(p[3].strip().strip('"').replace('\\', '/').casefold())
     g = lambda sec_, k, d='': kv.get((sec_, k), d)
     bookmarks = [_num(x, math.nan) for x in g('Editor', 'Bookmarks').split(',') if x.strip()]
     tps.sort(key=lambda d: (d['t'], 0 if d['red'] else 1))
@@ -166,7 +169,7 @@ def parse_osu(data: bytes) -> dict:
     return dict(mode=_int(g('General', 'Mode', '0')), audio=g('General', 'AudioFilename'),
                 keys=_num(g('Difficulty', 'CircleSize', '0')), sm=_num(g('Difficulty', 'SliderMultiplier', '1.4'), 1.4) or 1.4,
                 version=g('Metadata', 'Version'), creator=g('Metadata', 'Creator'),
-                tps=tps, reds=reds, objs=objs, breaks=breaks, sb_samples=sb_samples,
+                tps=tps, reds=reds, objs=objs, breaks=breaks, sb_samples=sb_samples, sb_files=sb_files,
                 bookmarks=[b for b in bookmarks if math.isfinite(b)])
 
 
@@ -412,8 +415,13 @@ def analyse(p: dict, mode: str) -> dict | None:
     r['n_kat'], r['n_big'], r['n_don'] = int(kat.sum()), int(big.sum()), int(don.sum())
     r['chord2'] = int(np.sum(chord >= 2))
     fnames = [o['fname'] for o in objs if o['fname']]
+    other = [f for f in fnames if not HITSOUND_NAME.match(os.path.basename(f.replace('\\', '/')).casefold())]
     r['ks_obj'] = len(fnames)
     r['ks_files'] = len(set(f.casefold() for f in fnames))
+    r['ks_obj_other'] = len(other)
+    r['ks_files_other'] = len(set(f.casefold() for f in other))
+    r['sb_files'] = len(p['sb_files'])
+    r['sb_files_other'] = sum(1 for f in p['sb_files'] if not HITSOUND_NAME.match(os.path.basename(f)))
     r['obj_idx'] = sum(1 for o in objs if o['idx'] > 0)
     r['tp_sidx_max'] = max((d['sidx'] for d in p['tps']), default=0)
     r['tp_sidx_custom'] = sum(1 for d in p['tps'] if d['sidx'] >= 1)
@@ -422,7 +430,7 @@ def analyse(p: dict, mode: str) -> dict | None:
     r['sb_samples'] = p['sb_samples']
     holds = sum(1 for o in objs if o['typ'] & 128)
     r['holds'] = holds
-    side = dict(grid=g, reds=reds, on_t=on_t, loc=loc, chord=chord, bits=on_bits, kat=kat, big=big, nc=nc,
+    side = dict(grid=g, reds=reds, on_t=on_t, ev_t=np.unique(ev_t), loc=loc, chord=chord, bits=on_bits, kat=kat, big=big, nc=nc,
                 ev=ev, ev_bits=ev_bits, ev_edge=ev_edge, kiai=[(k['a'], k['b']) for k in real],
                 kiai_all=[(k['a'], k['b']) for k in kiai_info], span=(float(starts[0]), end_ms), fnames=fnames)
     return dict(rec=r, side=side)
@@ -922,10 +930,18 @@ def chart_acc(c, A: Acc):
     if r['n_finish'] >= 10:
         A.val(f'finish_db_share|{m}', r['fin_db'] / r['n_finish'])
     ks = r['ks_obj'] / r['n_obj'] if r['n_obj'] else 0.0
+    ko = r['ks_obj_other'] / r['n_obj'] if r['n_obj'] else 0.0
     A.val(f'ks_share|{m}', ks)
-    if ks >= 0.5:
-        A.example(f'keysound|{m}', ks, r['set_dir'], f"{r['version']}: {r['ks_obj']}/{r['n_obj']} objects, {r['ks_files']} files")
+    A.val(f'ks_other_share|{m}', ko)
+    A.add(f'keysound_charts|{m}', ('obj_other>=0.5&files>=10', ko >= 0.5 and r['ks_files_other'] >= 10))
+    A.add(f'keysound_charts|{m}', ('sb_other_files>=10', r['sb_files_other'] >= 10))
+    A.add(f'keysound_charts|{m}', ('either', (ko >= 0.5 and r['ks_files_other'] >= 10) or r['sb_files_other'] >= 10))
+    if ko >= 0.5 and r['ks_files_other'] >= 10:
+        A.example(f'keysound|{m}', ko, r['set_dir'], f"{r['version']}: {r['ks_obj_other']}/{r['n_obj']} objects name {r['ks_files_other']} non-hitsound files")
+    if r['sb_files_other'] >= 10:
+        A.example(f'sb_keysound|{m}', r['sb_files_other'], r['set_dir'], f"{r['version']}: {r['sb_samples']} storyboard samples, {r['sb_files_other']} non-hitsound files")
     A.val(f'sb_samples|{m}', r['sb_samples'])
+    A.val(f'sb_files_other|{m}', r['sb_files_other'])
     A.add(f'custom_idx|{m}', (r['tp_sidx_max'] >= 1, r['tp_sidx_max'] >= 2))
     A.add(f'sample_sets|{m}', len([x for x in r['sample_sets'].split(';') if x and x != '0']))
     # sections
@@ -967,6 +983,8 @@ def ladder(cs: list, mode: str, set_dir: str, A: Acc):
             if adj:
                 A.val(f'contain_adj|{mode}', cont)
                 A.val(f'density_ratio_adj|{mode}', len(e) / max(len(h), 1))
+                if mode == 'std':                                 # slider repeats and tails count as attacks
+                    A.val(f'contain_ev_adj|{mode}', float(np.mean(near(e, cs[j]['side']['ev_t']) <= TOL)) if len(e) else math.nan)
     adjc = [float(np.mean(near(cs[i]['side']['on_t'], cs[i + 1]['side']['on_t']) <= TOL)) for i in range(n - 1)]
     if n >= 4:
         A.example(f'ladder_nested|{mode}', min(adjc), set_dir, f'{n} difficulties, min adjacent containment {min(adjc):.3f}')
@@ -979,14 +997,46 @@ def ladder(cs: list, mode: str, set_dir: str, A: Acc):
         if n >= 3:
             hist(A, f'rank_pos|{mode}', [(const(len(pos), rank), ('easiest', 'middle', 'hardest')), (pos, POS)])
         hist(A, f'star_pos|{mode}', [(const(len(pos), band), [str(k) for k in range(9)] + ['na']), (pos, POS)])
+    # does the next-easier chart keep the same subset of a repeated bar of the hardest one each time?
+    top = cs[-1]['side']
+    kept_next = near(top['on_t'], cs[-2]['side']['ev_t']) <= TOL
+    masks: dict[tuple, list] = defaultdict(list)
+    gb, p48 = top['loc']['gbar'], top['loc']['pos48']
+    order = np.lexsort((p48, gb))
+    bars: dict[int, list] = defaultdict(list)
+    for k in order.tolist():
+        bars[int(gb[k])].append(k)
+    for b, ks in sorted(bars.items()):
+        pat = tuple(int(p48[k]) for k in ks)
+        if len(pat) >= 3:
+            masks[pat].append(tuple(bool(kept_next[k]) for k in ks))
+    same = pairs = 0
+    expected = 0.0                    # identical by chance if each position were kept independently at its rate
+    for pat, ms in masks.items():
+        if len(ms) < 2:
+            continue
+        rate = np.mean(np.array(ms, float), axis=0)
+        p_id, p_kept, p_drop = np.prod(rate ** 2 + (1 - rate) ** 2), np.prod(rate ** 2), np.prod((1 - rate) ** 2)
+        rest = 1.0 - p_kept - p_drop
+        chance = float((p_id - p_kept - p_drop) / rest) if rest > 1e-12 else 1.0   # given a selection was made
+        for a, b in zip(ms, ms[1:]):
+            if all(a) and all(b) or not any(a) and not any(b):
+                continue                                          # count only pairs where a selection was made
+            pairs += 1
+            same += a == b
+            expected += chance
+    if pairs:
+        A.add(f'ladder_repeat_masks|{mode}', 'pairs', pairs)
+        A.add(f'ladder_repeat_masks|{mode}', 'identical', same)
+        A.add(f'ladder_repeat_masks|{mode}', 'expected_independent', round(expected, 2))
+        A.val(f'ladder_repeat_identical|{mode}', same / pairs)
     if n < 3:
         return
-    # retention of the hardest chart's onsets by the easier ones
-    top = cs[-1]['side']
+    # retention of the hardest chart's onsets by the easier ones (as heads or, in standard, slider ends)
     kept = np.zeros(len(top['on_t']))
-    kept_easiest = near(top['on_t'], cs[0]['side']['on_t']) <= TOL
+    kept_easiest = near(top['on_t'], cs[0]['side']['ev_t']) <= TOL
     for c in cs[:-1]:
-        kept += near(top['on_t'], c['side']['on_t']) <= TOL
+        kept += near(top['on_t'], c['side']['ev_t']) <= TOL
     frac = kept / (n - 1)
     pos = top['loc']['pos']
     if mode == 'mania4k':
@@ -1092,9 +1142,12 @@ def summarise(A: Acc) -> dict:
         out[name] = {('|'.join(map(str, k)) if isinstance(k, tuple) else str(k)): v for k, v in sorted(c.items(), key=lambda kv: str(kv[0]))}
     for name, v in sorted(A.lists.items()):
         out['q:' + name] = quant(v)
-    for name in [k for k in A.lists if k.startswith(('n_kiai|', 'n_breaks|', 'n_bookmarks|', 'vol_changes|', 'sb_samples|', 'folder_'))]:
+    for name in [k for k in A.lists if k.startswith(('n_kiai|', 'n_breaks|', 'n_bookmarks|', 'vol_changes|', 'sb_samples|', 'folder_',
+                                                      'sb_files_other|', 'n_red|'))]:
         out['bins:' + name] = bins(A.lists[name], [0, 1, 2, 3, 5, 10, 50])
-    for name in [k for k in A.lists if k.startswith(('hs_share|', 'ks_share|', 'contain', 'tern_bar_share|', 'rep_', 'clap_bb', 'bb_clap', 'finish_db', 'sha_within5', 'kiai_cross', 'kiai_null'))]:
+    for name in [k for k in A.lists if k.startswith(('hs_share|', 'ks_share|', 'ks_other_share|', 'contain', 'tern_bar_share|', 'rep_',
+                                                      'clap_bb', 'bb_clap', 'finish_db', 'sha_within5', 'kiai_cross', 'kiai_null',
+                                                      'ladder_repeat_identical'))]:
         out['bins:' + name] = bins(A.lists[name], [0, 0.05, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99])
     for name in [k for k in A.lists if k.startswith(('sha_agree|', 'multimode_agree|'))]:
         out['bins:' + name] = bins(A.lists[name], [1, 2, 5, 10, 20, 50])
@@ -1106,9 +1159,9 @@ def summarise(A: Acc) -> dict:
         mom[name][k] = dict(n=n, mean=round(s / n, 4), sd=round(math.sqrt(max(s2 / n - (s / n) ** 2, 0.0)), 4))
     out['moments'] = {k: dict(sorted(v.items())) for k, v in sorted(mom.items())}
     # eta squared of retention on metrical position
-    for name in [k for k in out['moments'] if k.startswith('retain|')]:
-        cells = {k: A.mom[(name, k)] for k in POS if (name, k) in A.mom}
-        n, s, s2 = A.mom[(name, '*')]
+    for name in [k for k in out['moments'] if k.startswith(('retain|', 'retain_acc|'))]:
+        cells = {k: v for (nm, k), v in A.mom.items() if nm == name and k != '*'}
+        n, s, s2 = A.mom[('retain|' + name.split('|')[1], '*')]
         mean = s / n
         sst = s2 - n * mean * mean
         ssb = sum(c[0] * (c[1] / c[0] - mean) ** 2 for c in cells.values())
@@ -1133,8 +1186,9 @@ FIELDS = ['source', 'split', 'set_id', 'set_dir', 'mode', 'version', 'star', 'au
           'n_kiai_flash', 'kiai_beats', 'kiai_db', 'kiai_shared_len', 'n_breaks', 'break_s', 'n_bookmarks', 'bookmarks_db',
           'bookmarks_on_beat', 'bookmark_gap_bars', 'vol_changes', 'n_ev', 'n_ev_edge', 'ev_hs', 'n_whistle', 'n_finish',
           'n_clap', 'clap_beat4', 'clap_bb', 'ev_bb', 'ev_bb_clap', 'fin_db', 'ev_db', 'n_nc', 'nc_db', 'n_kat', 'n_big',
-          'n_don', 'chord2', 'holds', 'ks_obj', 'ks_files', 'ks_exist', 'obj_idx', 'tp_sidx_max', 'tp_sidx_custom',
-          'sample_sets', 'sb_samples', 'folder_samples', 'folder_other', 'folder_hs_named',
+          'n_don', 'chord2', 'holds', 'ks_obj', 'ks_files', 'ks_obj_other', 'ks_files_other', 'ks_exist', 'obj_idx',
+          'tp_sidx_max', 'tp_sidx_custom', 'sample_sets', 'sb_samples', 'sb_files', 'sb_files_other', 'folder_samples',
+          'folder_other', 'folder_hs_named',
           'rep_bars_all', 'rep_rec_all', 'rep_rec8_all', 'rep_bars_nontrivial', 'rep_rec_nontrivial', 'rep_rec8_nontrivial',
           'rep_distinct', 'rep_blocks', 'rep_blocks_rec', 'rep_blocks_nt', 'rep_blocks_nt_rec', 'rep_n_kiai', 'rep_rec8_kiai',
           'rep_n_nonkiai', 'rep_rec8_nonkiai', 'rep_kiai_cross', 'rep_kiai_null', 'rep_kiai_pairs']
