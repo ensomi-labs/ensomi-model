@@ -153,6 +153,11 @@ def test_disk_backed_probe_matches_resident_fit(tmp_path, monkeypatch):
             np.testing.assert_array_equal(a[key], c[key])
         for key in a['state']:
             np.testing.assert_array_equal(a['state'][key], c['state'][key])
+        d = models.fit(disk, y, rec, x, y, kind='logistic', seed=3, bootstrap=1, epochs=2)
+        for key in ('mean', 'sd', 'history'):
+            np.testing.assert_array_equal(a[key], d[key])
+        for key in a['state']:
+            np.testing.assert_array_equal(a['state'][key], d['state'][key])
     finally:
         mapped._mmap.close()
 

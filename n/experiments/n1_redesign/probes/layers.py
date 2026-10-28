@@ -62,7 +62,7 @@ def permute(y, rec, position_class):
     return yy
 
 
-def matrix_backing(counts, width, resident_budget=4_000_000_000):
+def matrix_backing(counts, width, resident_budget=3_000_000_000):
     """Prefer resident training rows for random batches; dev reads are sequential."""
     resident, backing = 0, {}
     for cohort in ('probe-fit', 'probe-dev'):
