@@ -111,6 +111,8 @@ def run(seed, keysounds=False):
                     used = sum(p.stat().st_size for p in OUT.rglob('*') if p.is_file())
                     if used + size > 14.9e9:
                         raise RuntimeError('P4 mapped matrix would exceed the artifact disk budget')
+                    log('P4_mapped_storage', seed=seed, label=label, inputs=name,
+                        matrix_bytes=size, projected_artifact_bytes=used + size)
                 with tempfile.TemporaryDirectory(prefix='P4-matrix-', dir=OUT) as temporary:
                     directory = Path(temporary)
                     x, y, rec, pc = matrix(seed, rows, selected, name, label, st, 'probe-fit', directory / 'fit' if mapped else None)
@@ -125,7 +127,7 @@ def run(seed, keysounds=False):
                         for a in (x, xd):
                             if isinstance(a, np.memmap):
                                 a._mmap.close()
-                        del x, xd
+                        del a, x, xd
             for null, refit, suffix, path in jobs:
                 predictors[f'{name}:null{int(null)}' + suffix] = (name, null, Predictor(load(path)))
         by_rec = defaultdict(list)

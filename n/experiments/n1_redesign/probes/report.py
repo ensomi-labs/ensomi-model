@@ -600,6 +600,8 @@ def build():
         numerical_thread_limit=4, device='cpu', niceness=10)
     results['resources']['memory_limit_bytes'] = 6_000_000_000
     results['resources']['memory_budget_met'] = results['resources']['peak_recorded_process_rss_bytes'] <= 6_000_000_000
+    results['resources']['peak_projected_artifact_bytes'] = max(
+        [results['resources']['artifact_file_bytes']] + [e.get('projected_artifact_bytes', 0) for e in events])
     results['memory_mitigation'] = read('memory-validation.json')
     if not results['resources']['memory_budget_met']:
         peak = results['resources']['peak_recorded_process_rss_bytes'] / 1e9
