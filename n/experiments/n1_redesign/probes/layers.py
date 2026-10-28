@@ -1,6 +1,5 @@
 """P4 event-layer labels against metrical-position controls."""
 from collections import defaultdict
-import mmap
 import tempfile
 from pathlib import Path
 
@@ -9,7 +8,7 @@ from scipy.special import expit
 
 from .common import (OUT, auc, by_tempo, dump, features, interval, labels, log, manifests,
                      prereg_check, stable_seed, units)
-from .models import Predictor, fit, load, save
+from .models import DiskMatrix, Predictor, fit, load, save
 from .tokens import event_inputs
 
 
@@ -29,7 +28,7 @@ def target(z, label, stratum=None):
 def matrix(seed, rows, selected, name, label, stratum, cohort, mapped_path=None):
     width = {'Pos': 29, 'Pos+F': 189, 'Pos+M': 1309}[name]
     number = sum(len(y) for u, use, y in selected if u['cohort'] == cohort)
-    x = (np.memmap(mapped_path, dtype=np.float16, mode='w+', shape=(number, width))
+    x = (DiskMatrix(mapped_path, (number, width))
          if mapped_path else np.empty((number, width), np.float16))
     y, rec = np.empty(number, np.int8), np.empty(number, int)
     position_class = np.empty(number, int)
@@ -41,12 +40,13 @@ def matrix(seed, rows, selected, name, label, stratum, cohort, mapped_path=None)
         d = event_inputs(f, l, m, z['event_t'][use], z)
         xx = np.concatenate([d[k] for k in name.split('+')], axis=1)
         n = len(yy)
-        x[offset:offset + n], y[offset:offset + n], rec[offset:offset + n] = xx, yy, i
+        if mapped_path:
+            x.write(offset, xx)
+        else:
+            x[offset:offset + n] = xx
+        y[offset:offset + n], rec[offset:offset + n] = yy, i
         position_class[offset:offset + n] = np.argmax(d['Pos'][:, :24], axis=1) + 24 * np.argmax(d['Pos'][:, 24:], axis=1)
         offset += n
-        if mapped_path:
-            x.flush()
-            x._mmap.madvise(mmap.MADV_DONTNEED)
     return x, y, rec, position_class
 
 

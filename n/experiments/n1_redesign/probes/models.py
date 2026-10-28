@@ -13,8 +13,38 @@ torch.set_num_threads(4)
 torch.set_num_interop_threads(1)
 
 
+class DiskMatrix:
+    """A matrix whose mappings exist only while a batch is copied or written."""
+    def __init__(self, path, shape, dtype=np.float16):
+        self.path, self.shape, self.dtype = path, shape, np.dtype(dtype)
+        with open(path, 'wb') as stream:
+            stream.truncate(int(np.prod(shape)) * self.dtype.itemsize)
+
+    def __len__(self):
+        return self.shape[0]
+
+    def write(self, start, values):
+        mapped = np.memmap(self.path, dtype=self.dtype, mode='r+',
+            offset=start * self.shape[1] * self.dtype.itemsize,
+            shape=(len(values), self.shape[1]))
+        try:
+            mapped[:] = values
+            mapped.flush()
+        finally:
+            mapped._mmap.close()
+
+    def read(self, index, dtype):
+        mapped = np.memmap(self.path, dtype=self.dtype, mode='r', shape=self.shape)
+        try:
+            return np.array(mapped[index], dtype=dtype, copy=True)
+        finally:
+            mapped._mmap.close()
+
+
 def batch_array(x, index, dtype):
     """Copy a batch, then release disk-backed source pages from resident memory."""
+    if isinstance(x, DiskMatrix):
+        return x.read(index, dtype)
     a = np.asarray(x[index], dtype=dtype)
     if isinstance(x, np.memmap):
         if np.shares_memory(a, x):

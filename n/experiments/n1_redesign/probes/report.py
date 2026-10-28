@@ -602,6 +602,16 @@ def build():
     results['resources']['memory_budget_met'] = results['resources']['peak_recorded_process_rss_bytes'] <= 6_000_000_000
     results['resources']['peak_projected_artifact_bytes'] = max(
         [results['resources']['artifact_file_bytes']] + [e.get('projected_artifact_bytes', 0) for e in events])
+    guard_path = OUT / 'clap-queue-status.jsonl'
+    results['memory_guard_runs'] = ([json.loads(line) for line in guard_path.read_text().splitlines()]
+                                   if guard_path.exists() else [])
+    tree_peak = max([0] + [r.get('peak_process_tree_rss_bytes', 0) for r in results['memory_guard_runs']])
+    results['resources']['peak_observed_process_tree_rss_bytes'] = tree_peak
+    if tree_peak > 6_000_000_000:
+        results['resources']['memory_budget_met'] = False
+        results['limitations'].append(
+            f'A P4 attempt also reached sampled process-tree RSS {tree_peak / 1e9:.3f} GB and was stopped by the watchdog. '
+            'Disk batches now close their mappings explicitly; the stopped attempt remains in the resource evidence.')
     results['memory_mitigation'] = read('memory-validation.json')
     if not results['resources']['memory_budget_met']:
         peak = results['resources']['peak_recorded_process_rss_bytes'] / 1e9
