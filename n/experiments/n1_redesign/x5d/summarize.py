@@ -239,8 +239,9 @@ def write_report(r):
             lines.append(f"{seed}/{split}: {a['ambiguous_frames']} of {a['mapped_frames']} mapped frames have conflicting chart bands "
                 f"({100*a['frame_weighted_share']:.3f}% frame-weighted; recording mean {fmt(a['recording_mean'])}%).")
         q=r['fp16_reconstruction'][seed]
+        mean=q['mean_abs']; precise_mean=f"{mean['value']:.6g} [{mean['ci95'][0]:.6g}, {mean['ci95'][1]:.6g}]"
         lines.append(f"{seed} cached fp16 own-head reconstruction vs exact E2: max absolute band-probability difference "
-            f"{q['max_abs']:.6g}, mean {fmt(q['mean_abs'],False)}, argmax disagreement {fmt(q['argmax_disagreement'])}%. "
+            f"{q['max_abs']:.6g}, mean {precise_mean}, argmax disagreement {fmt(q['argmax_disagreement'])}%. "
             'Calibration uses cached logits and evaluation uses exact E2; no panel adjustment was made.')
     lines += ['', '## Structural first-error classes', '',
         'Each eight-bar span receives one first-error class under the corrected X6 whole-song one-to-one matcher. '
@@ -253,7 +254,7 @@ def write_report(r):
                 lines.append(f"| {panel} | {arm} | {alignment} | {fmt(s['ready'])} | {s['spans']} | `{json.dumps(s['classes'],sort_keys=True)}` |")
     lines += ['', '## Deviations, failures and limits', '']
     lines += [f'- {d}' for d in r['deviations']] or ['No preregistered method deviation.']
-    lines += ['', 'Preserved failed paths:']
+    lines += ['', 'Preserved failed paths:', '']
     lines += [f'- {d}' for d in r['failures']] or ['None.']
     lines += ['', 'The fixed audio representation cannot identify mapper intent when charts disagree. These heads use a bounded '
         'frame sample and fixed optimisation settings; a failed readout is not proof that all band information is absent. '
