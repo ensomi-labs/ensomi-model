@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from n1_redesign.probes.common import auc, interval, paired
+from n1_redesign.probes.common import auc, interval, paired, song_auc
 from n1_redesign.probes.report import compare, merge_stats
 
 
@@ -15,6 +15,17 @@ def summary(values):
 def test_auc_ties_are_half_credit():
     assert auc([0, 1], [.5, .5]) == .5
     assert auc([0, 1, 0, 1], [0, 1, 0, 1]) == 1
+    assert auc([], []) is None
+    assert auc([1, 1], [.2, .4]) is None
+
+
+def test_pooled_auc_uses_only_eligible_recordings():
+    y = np.array([0, 0, 1, 1, 0, 1])
+    p = np.array([0, 0, 1, 1, 2, -1])
+    rec = np.array(['a'] * 4 + ['b'] * 2)
+    result = song_auc(y, p, rec, minimum=2)
+    assert result['n'] == 1
+    assert result['pooled_auc'] == 1
 
 
 def test_contrast_uses_shared_recordings_only():

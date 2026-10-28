@@ -68,7 +68,8 @@ def run(seed, keysounds=False):
             if not keysounds and u['cohort'] in ('panel', 'val_hard') and z['mode'] != 3:
                 continue
             use, y = target(z, label, st)
-            if min(sum(y == 0), sum(y == 1)) >= 10:
+            training = u['cohort'] in ('probe-fit', 'probe-dev')
+            if len(y) and (not training or min(sum(y == 0), sum(y == 1)) >= 10):
                 selected.append((u, use, y))
         counts = {c: sum(len(y) for u, _, y in selected if u['cohort'] == c)
                   for c in ('probe-fit', 'probe-dev')}
@@ -108,6 +109,8 @@ def run(seed, keysounds=False):
                     g[key].append(pred(xx))
             for cohort, g in groups.items():
                 yy = np.concatenate(g['y'])
+                if min(sum(yy == 0), sum(yy == 1)) < 10:
+                    continue
                 yn = permute(yy, np.repeat(stable_seed(rec), len(yy)), np.concatenate(g['pc']))
                 for key, pp in g.items():
                     if key not in ('y', 'pc'):

@@ -154,9 +154,9 @@ def evaluate(seed, bootstrap=False):
                 d['y'] = yy
                 unmatched.append(dict(rec=u['rec'], share=float(1 - g['matched'].mean()), beats=len(yy)))
             yy = d['y']
-            if min(np.sum(yy == 0), np.sum(yy == 1)) < 4:
-                continue
             q = yy >= 0
+            if not q.any():
+                continue
             y = yy[q]
             cohort = 'panels' if u['cohort'] in ('panel', 'val_hard') else u['cohort']
             band = 'ge160' if np.median(60000 / labels(u)['length']) >= 160 else 'lt160'

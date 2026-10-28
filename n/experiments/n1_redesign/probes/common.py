@@ -204,7 +204,7 @@ def auc(y, p):
     y, p = np.asarray(y, bool), np.asarray(p)
     n = int(y.sum())
     if n == 0 or n == len(y):
-        return float('nan')
+        return None
     return float((rankdata(p)[y].sum() - n * (n + 1) / 2) / (n * (len(y) - n)))
 
 
@@ -222,13 +222,15 @@ def interval(values, seed=20261028):
 
 def song_auc(y, p, rec, minimum=1):
     rows = {}
+    contributing = np.zeros(len(y), bool)
     for r in np.unique(rec):
         q = rec == r
         yy = y[q]
         if np.sum(yy == 0) >= minimum and np.sum(yy == 1) >= minimum:
             rows[str(r)] = auc(yy, p[q])
+            contributing |= q
     return dict(**interval(list(rows.values())), recordings=rows,
-                pooled_auc=auc(y, p))
+                pooled_auc=auc(y[contributing], p[contributing]))
 
 
 def paired(a, b):

@@ -50,12 +50,14 @@ def aggregate(rows):
 def retrieval(seed):
     prereg_check()
     rows = []
+    pairs_by_recording = defaultdict(lambda: defaultdict(list))
+    queries_by_recording = defaultdict(lambda: defaultdict(list))
     for i, u in enumerate(units()):
         if u['cohort'] not in ('panel', 'val_hard'):
             continue
         z, t = labels(u), token_load(seed, u)
         ix = np.flatnonzero(z['nontrivial'])
-        if len(ix) < 10:
+        if len(ix) < 2:
             continue
         exact, jac = pattern_matrix(z)
         exact, jac = exact[np.ix_(ix, ix)], jac[np.ix_(ix, ix)]
@@ -90,12 +92,16 @@ def retrieval(seed):
                         continue
                     pick = rng.integers(low, high)
                     pos.append((aa, bb)); neg.append((na[pick], nb[pick]))
-                if len(pos) >= 5:
+                if pos:
                     pa, pb = np.array(pos).T
                     na, nb = np.array(neg).T
                     y = np.r_[np.ones(len(pos)), np.zeros(len(neg))]
                     for name, s in score.items():
-                        row[f'{st}:{positive}:auc:{name}'] = auc(y, np.r_[s[pa, pb], s[na, nb]])
+                        key = f'{st}:{positive}:auc:{name}'
+                        values = np.r_[s[pa, pb], s[na, nb]]
+                        pairs_by_recording[key][u['rec']].append((y, values))
+                        if len(pos) >= 5:
+                            row[key] = auc(y, values)
                     row[f'{st}:{positive}:pairs'] = len(pos)
             for name, s in score.items():
                 precision, chance = [], []
@@ -112,10 +118,24 @@ def retrieval(seed):
                 if precision:
                     row[f'{st}:p5:{name}'] = float(np.mean(precision))
                     row[f'{st}:chance'] = float(np.mean(chance))
+                    queries_by_recording[f'{st}:p5:{name}'][u['rec']].extend(precision)
+                    if name == 'F':
+                        queries_by_recording[f'{st}:chance'][u['rec']].extend(chance)
         rows.append(row)
         if i % 50 == 0:
             log('P5a_progress', seed=seed, units=i)
-    dump(OUT / f'P5a-s{seed}.json', dict(summary=aggregate(rows), rows=rows))
+    summary = aggregate(rows)
+    for key, groups in pairs_by_recording.items():
+        values = {}
+        for rec, chunks in groups.items():
+            y = np.concatenate([c[0] for c in chunks])
+            if sum(y == 1) >= 5:
+                values[rec] = auc(y, np.concatenate([c[1] for c in chunks]))
+        summary[key] = dict(**interval(list(values.values())), recordings=values)
+    for key, groups in queries_by_recording.items():
+        values = {rec: float(np.mean(v)) for rec, v in groups.items()}
+        summary[key] = dict(**interval(list(values.values())), recordings=values)
+    dump(OUT / f'P5a-s{seed}.json', dict(summary=summary, rows=rows))
     log('P5a_done', seed=seed, units=len(rows))
 
 
@@ -175,6 +195,7 @@ def recurrence(seed):
 def downbeat(seed):
     prereg_check()
     rows, cache = [], manifests(seed)
+    groups = defaultdict(lambda: defaultdict(list))
     cohort = json.loads((ROOT / 'artifacts/n1-stage0-20261028/events-cohort.json').read_text())
     extra = {r['rec'] for r in cohort['selected']}
     for u in units():
@@ -212,7 +233,14 @@ def downbeat(seed):
         rows.append(dict(rec=u['rec'], unit=u['id'], same_bars=same, stage0_cohort=int(u['rec'] in extra),
                          raw=auc(z['down'], raw), feature=auc(z['down'], avg),
                          random=auc(z['down'], rand), periodic=auc(z['down'], periodic)))
-    dump(OUT / f'P5c-s{seed}.json', dict(summary=aggregate(rows), rows=rows))
+        for name, values in dict(y=z['down'], raw=raw, feature=avg, random=rand, periodic=periodic).items():
+            groups[u['rec']][name].append(values)
+    summary = aggregate(rows)
+    for name in ('raw', 'feature', 'random', 'periodic'):
+        values = {rec: auc(np.concatenate(g['y']), np.concatenate(g[name])) for rec, g in groups.items()}
+        values = {rec: v for rec, v in values.items() if v is not None}
+        summary[name] = dict(**interval(list(values.values())), recordings=values)
+    dump(OUT / f'P5c-s{seed}.json', dict(summary=summary, rows=rows))
 
 
 def span_evidence(seed):

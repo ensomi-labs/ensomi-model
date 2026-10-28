@@ -51,7 +51,30 @@ def render(x, sr, lo, hi, clicks):
     peak = float(np.max(abs(together)))
     gain = min(1., .98 / max(peak, 1e-6))
     return (together * gain).astype('float32'), dict(source_rms=rms, common_gain=gain,
-              click_samples=length, click_rms_ratio_db=-12., silence_samples=round(.5 * sr))
+              click_samples=length, click_rms_ratio_db=-12., silence_samples=round(.5 * sr),
+              plain_samples=len(plain))
+
+
+def validate_packet(packet, keys):
+    import soundfile as sf
+    expected = {'packet.md', 'answers.csv'} | {k['id'] + '.wav' for k in keys}
+    assert {p.name for p in packet.iterdir()} == expected, 'Unexpected or stale packet contents'
+    checks = []
+    for key in keys:
+        wave, sr = sf.read(packet / (key['id'] + '.wav'), dtype='int16')
+        n, gap = key['plain_samples'], key['silence_samples']
+        assert sr == key['native_rate'] and len(wave) == 2 * n + gap
+        assert wave.ndim == 1 and np.all(wave[n:n + gap] == 0)
+        allowed = np.zeros(n, bool)
+        for t in key['click_times_ms']:
+            at = round((t - key['lo_ms']) * sr / 1000)
+            if 0 <= at and at + key['click_samples'] <= n:
+                allowed[at:at + key['click_samples']] = True
+        assert np.array_equal(wave[:n][~allowed], wave[n + gap:][~allowed])
+        assert np.max(np.abs(wave.astype(np.int32))) < 32767
+        checks.append(dict(id=key['id'], frames=len(wave), rate=sr, passed=True))
+    dump(OUT / 'packet-validation.json', dict(passed=True, clips=checks,
+        checks=['native rate', 'two plays', 'silence', 'identical source outside clicks', 'no clipping', 'folder contents']))
 
 
 def controls():
@@ -174,6 +197,7 @@ def build():
         keys.append(dict(id=name, audio_sha256=u['sha'], rec=u['rec'], audio=u['audio'],
                          unit=u['id'], lo_ms=v['lo'], hi_ms=v['hi'],
                          target_beats_ms=z['beats'][v['beats']].tolist(),
+                         click_times_ms=clicks,
                          chart_class={1: 'ternary', 0: 'binary-fine', -1: 'unlabelled'}[v['truth']],
                          kind=v['kind'], decoder=decoder, lead_samples=lead,
                          episode=v.get('episode'),
@@ -204,5 +228,6 @@ before replays. Each clip's two plays have exactly the same source audio and gai
     dump(keydir / 'key.json', dict(seed=20261028, composition=dict(
         controls_ternary=8, controls_binary_fine=8, propagation=len(propagation),
         propagation_arms=dict(__import__('collections').Counter(v['kind'] for v in propagation))), snippets=keys))
+    validate_packet(packet, keys)
     log('packet_done', path=str(packet), clips=len(keys), seconds=sum(k['seconds'] for k in keys))
     return keys

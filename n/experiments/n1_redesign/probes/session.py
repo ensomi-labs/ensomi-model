@@ -117,8 +117,22 @@ def replay(seed):
                                 mean_score=float(a.mean()) if len(a) else None,
                                 mean_shifted=float(b.mean()) if len(b) else None,
                                 mean_difference=float((a - b).mean()) if len(a) else None))
+    expectations = {}
+    for arm in ('local', 'graph', 'learned0', 'learned1'):
+        def result(pid, test):
+            if pid not in results:
+                return 'unassessed: missing input'
+            return 'pass' if test(results[pid]['arms'][arm]) else 'fail'
+        expectations[arm] = dict(
+            triplets={pid: result(pid, lambda r: r['triplets_pass']) for pid in cfg['expectations']['triplets']},
+            layers={pid: result(pid, lambda r: r['pulse_unchanged']) for pid in cfg['expectations']['layers']},
+            between={pid: result(pid, lambda r: r['between_marks'] > 0 and r['between_only_unchanged'])
+                     for pid in cfg['expectations']['between']},
+            unbeat_pair_U='unassessed: separate U probe was not fitted',
+            pulse='pass' if len(results) == len(passages) and all(
+                r['arms'][arm]['pulse_unchanged'] for r in results.values()) else 'unassessed: missing passages')
     dump(OUT / f'P8-s{seed}.json', dict(passages=results, missing=missed, expectations=cfg['expectations'],
-                                    attack_marks=attack_rows, design_only=True))
+                                    expectation_results=expectations, attack_marks=attack_rows, design_only=True))
     log('P8_done', seed=seed, passages=len(results), missing=len(missed))
 
 
