@@ -49,3 +49,17 @@ def test_pool_endpoints_preserve_argmax():
     b=np.array([[.01,.9,.02,.02,.02,.02,.01]])
     assert np.argmax(pooled_probabilities(a,b,1))==2
     assert np.argmax(pooled_probabilities(a,b,0))==1
+
+
+def test_regime_accuracy_keeps_same_band_red_lines_and_fractional_boundary():
+    from evaluate import accuracy
+    ref = Reference.from_segments([Segment(0.,500.,4),Segment(1000.5,600.,3),Segment(2000.5,250.,4)],
+                                  [0.,3000.], lo_ms=0., hi_ms=3000.)
+    times = np.arange(0.,3001.,10.)
+    y, _ = targets([ref], times)
+    p = .001 + .993*y
+    result = accuracy(ref,times,p,{'S5':[(1000.,2500.)]})
+    assert result['all']['regime'].sum() == 3
+    assert result['all']['regime'].trace() == 3
+    assert result['all']['frame'].trace() == len(times)
+    assert result['S5']['regime'].sum() == 3
