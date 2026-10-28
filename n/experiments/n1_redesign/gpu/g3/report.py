@@ -74,6 +74,7 @@ def render():
     lock = check_prereg()
     queue = read(OUT/'queue-DONE.json',{})
     runs = {f'E-s{s}':read(OUT/'runs'/f'E-s{s}'/'result.json',dict(status='missing')) for s in (0,1)}
+    controls = {f'F1-s{s}':read(G1/'runs'/f'F1-s{s}'/'result.json',{}) for s in (0,1)}
     comparisons = {}
     aggregates = {}
     covers = {}
@@ -109,7 +110,7 @@ def render():
                   utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                   code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
                   preregistration=lock,input_audit=read(OUT/'input-audit.json'),
-                  baseline_noise=read(OUT/'baseline-noise.json'),runs=runs,comparisons=comparisons,
+                  baseline_noise=read(OUT/'baseline-noise.json'),runs=runs,G1_F1_runs=controls,comparisons=comparisons,
                   aggregates=aggregates,coverage=covers,mel_fits=fits,verdict=verdict,loss_curves=curves,
                   queue=queue,resources=disk_guard(),cleanup=cleanup,failed_paths=read(OUT/'failed-paths.json',[]),
                   validations=read(OUT/'validation-final.json',read(OUT/'validation-before-training.json')),
@@ -118,6 +119,7 @@ def render():
                     'Original v0.1/G1 comparators retain prior influence from the excluded training recording; G3 is initialized randomly.',
                     'Chart-derived measures characterize; no private human-label validation or adoption is claimed.',
                     'No neighboring-checkpoint noise estimates exist for these new-head metrics.',
+                    'Mel-linear uses the prescribed G1 fit and readout; it does not establish optimal Mel capacity or reproduce other probe methods.',
                     'Decoded-cell scoring intentionally reuses the original v0.1 maps and G1 readout, not an event-only decoder.',
                     'Retirement concerns this architecture and training budget; it cannot exclude other event-training recipes.'])
     dump(OUT/'results.json',result)
@@ -131,7 +133,9 @@ def render():
     for name,r in runs.items():
         p = r.get('final_losses',{})
         lines.append(f"| {name} | {r['status']} | {r.get('steps','—')} | {r.get('training_s',0)/60:.2f} | {r.get('wall_s',0)/60:.2f} | "+' | '.join(fmt(p.get(k)) for k in ['total','attack','snap','salience'])+' |')
-    lines += ['', 'The encoder has no song-memory module and only seven event outputs. AdamW, loss weights, targets and masking follow the frozen preregistration. Sigma floor is inapplicable. Final losses are the last batch; interval means and full loss curves are saved separately.','',
+    for name,r in controls.items():
+        lines.append(f"\nG1 comparator {name}: {r.get('status','missing')}, {r.get('training_s',0)/60:.2f} training minutes, {r.get('steps',0)} steps.")
+    lines += ['', 'The encoder has no song-memory module and only seven event outputs. AdamW, loss weights, targets and masking follow the frozen preregistration. Sigma floor is inapplicable. Final losses are the last batch; interval means and full loss curves are saved separately. Component losses are unweighted; total is 0.5 attack + 0.5 snap + 0.25 salience.','',
               '## Primary chart-cell comparison','',
               '| Seed | E AUC [95% CI] | F1 AUC [95% CI] | Paired gain [95% CI] | Margin | Recordings | Point ≥ .05 | Beyond margin | Retire clause |',
               '|---|---|---|---|---:|---:|---|---|---|']
