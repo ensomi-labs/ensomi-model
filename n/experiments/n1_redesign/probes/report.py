@@ -544,6 +544,7 @@ def build():
     results['limitations'] = [
         'Charts screen mapper agreement; none of these measures has been validated against the ear.',
         'The probe-fit and probe-dev songs trained the frozen trunk; this is in-sample representation evidence.',
+        'Some reference sets have inconsistent timing across difficulties under N\'s reader (see cohort counts). Labels and position controls use the selected timing chart, while union heads and event labels span difficulties.',
         'P3 T24 is a 64-dimensional unsupervised PCA projection. Its retirement does not prove that all 4000 raw token dimensions lack thirds.',
         'Only checkpoint 009001 is available. Seed spread and probe refits do not measure neighboring-checkpoint noise.',
         'P7 supplies chart timing and changes only cell posteriors; it cannot recover pulse, red lines, bars or between-cell spans.',
