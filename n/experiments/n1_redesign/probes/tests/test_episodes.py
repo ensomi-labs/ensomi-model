@@ -64,3 +64,16 @@ def test_training_draw_is_uniform_over_eligible_heads_not_third_bins(monkeypatch
         marks = episodes.simulate(z, np.array([.1]), np.array([True]), np.ones((1, 192)),
             simulator=0, position=position, run_length=1, confirming=0, identity='fixture', training=True)
         assert len(marks) == 1 and marks[0]['beat'] == 0
+
+
+def test_hint_shuffle_preserves_strength_and_kind(monkeypatch):
+    monkeypatch.setattr(episodes, 'calibration', lambda: dict(
+        offset_mean_ms=0., offset_sd_ms=1., residual_robust_sd_ms=1.))
+    source = dict(beats=np.array([0., 500.]), length=np.full(2, 500.))
+    target = dict(beats=np.array([100., 350., 600., 850.]), length=np.full(4, 250.))
+    marks = [dict(time_ms=200., beat=0, L=2.5, kind=0), dict(time_ms=800., beat=1, L=-3., kind=1)]
+    shifted = episodes.transfer_marks(marks, source, target)
+    assert [m['L'] for m in shifted] == [2.5, -3.]
+    assert [m['kind'] for m in shifted] == [0, 1]
+    assert [m['time_ms'] for m in shifted] == [300., 900.]
+    assert [m['beat'] for m in shifted] == [0, 3]

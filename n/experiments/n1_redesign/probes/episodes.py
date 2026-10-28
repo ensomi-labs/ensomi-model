@@ -114,6 +114,21 @@ def contiguous(s, i, theta):
     return mask
 
 
+def transfer_marks(marks, source, target):
+    """Shuffle reach while preserving each donor hint's signed evidence."""
+    source_start = source['beats'][0]
+    source_duration = source['beats'][-1] + source['length'][-1] - source_start
+    target_start = target['beats'][0]
+    target_duration = target['beats'][-1] + target['length'][-1] - target_start
+    result = []
+    for mark in marks:
+        time = target_start + (mark['time_ms'] - source_start) / source_duration * target_duration
+        moved = read_mark(time, target)
+        moved.update(L=mark['L'], kind=mark['kind'])
+        result.append(moved)
+    return result
+
+
 def kernel(s, theta):
     return np.clip((s - theta) / max(1 - theta, 1e-6), 0, 1)
 
@@ -605,11 +620,7 @@ def evaluate(seed, models, configs):
                                             position=position, run_length=run_length, confirming=k,
                                             identity=(donor.unit['id'], ri))
                                         if dm:
-                                            ds = donor.z['beats'][0]
-                                            dd = donor.z['beats'][-1] + donor.z['length'][-1] - ds
-                                            ts = s.z['beats'][0]
-                                            td = s.z['beats'][-1] + s.z['length'][-1] - ts
-                                            shuffled = [read_mark(ts + (m['time_ms'] - ds) / dd * td, s.z) for m in dm]
+                                            shuffled = transfer_marks(dm, donor.z, s.z)
                                             for arm in ('learned0', 'learned1'):
                                                 p, loc, _ = update(s, shuffled, arm, configs[arm], models[arm])
                                                 checked += 1
