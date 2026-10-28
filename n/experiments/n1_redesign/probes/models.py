@@ -1,5 +1,6 @@
 """Small CPU probes with recording bootstrap weights and dev-only stopping."""
 import copy
+import mmap
 import time
 
 import numpy as np
@@ -10,6 +11,16 @@ from .common import OUT, dump, log, prereg_check
 
 torch.set_num_threads(4)
 torch.set_num_interop_threads(1)
+
+
+def batch_array(x, index, dtype):
+    """Copy a batch, then release disk-backed source pages from resident memory."""
+    a = np.asarray(x[index], dtype=dtype)
+    if isinstance(x, np.memmap):
+        if np.shares_memory(a, x):
+            a = a.copy()
+        x._mmap.madvise(mmap.MADV_DONTNEED)
+    return a
 
 
 def architecture(width, kind):
@@ -58,7 +69,7 @@ def fit(x, y, rec, xd, yd, *, kind, seed, bootstrap=None, epochs=24):
     resample_weight = copies[inv]
     sx, ss = np.zeros(x.shape[1], float), np.zeros(x.shape[1], float)
     for start in range(0, len(x), 8192):
-        chunk = np.asarray(x[start:start + 8192], np.float64)
+        chunk = batch_array(x, slice(start, start + 8192), np.float64)
         w = resample_weight[start:start + len(chunk), None]
         sx += (chunk * w).sum(axis=0)
         ss += (np.square(chunk) * w).sum(axis=0)
@@ -80,7 +91,7 @@ def fit(x, y, rec, xd, yd, *, kind, seed, bootstrap=None, epochs=24):
         order = rng.permutation(len(y))
         for start in range(0, len(y), 2048):
             idx = order[start:start + 2048]
-            a = (np.asarray(x[idx], np.float32) - mean) / sd
+            a = (batch_array(x, idx, np.float32) - mean) / sd
             logits = net(torch.from_numpy(a)).flatten()
             loss = nn.functional.binary_cross_entropy_with_logits(logits, target[idx], reduction='none')
             loss = (loss * torch.from_numpy(weights[idx])).mean()
@@ -91,7 +102,7 @@ def fit(x, y, rec, xd, yd, *, kind, seed, bootstrap=None, epochs=24):
         total = 0.
         with torch.no_grad():
             for start in range(0, len(yd), 8192):
-                a = (np.asarray(xd[start:start + 8192], np.float32) - mean) / sd
+                a = (batch_array(xd, slice(start, start + 8192), np.float32) - mean) / sd
                 p = net(torch.from_numpy(a)).flatten()
                 total += float(nn.functional.binary_cross_entropy_with_logits(
                     p, torch.as_tensor(yd[start:start + 8192], dtype=torch.float32), reduction='sum'))

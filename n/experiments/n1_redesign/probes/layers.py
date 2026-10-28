@@ -1,5 +1,8 @@
 """P4 event-layer labels against metrical-position controls."""
 from collections import defaultdict
+import mmap
+import tempfile
+from pathlib import Path
 
 import numpy as np
 from scipy.special import expit
@@ -23,10 +26,12 @@ def target(z, label, stratum=None):
     return use, (z['event_part'][use] == part).astype(np.int8)
 
 
-def matrix(seed, rows, selected, name, label, stratum, cohort):
+def matrix(seed, rows, selected, name, label, stratum, cohort, mapped_path=None):
     width = {'Pos': 29, 'Pos+F': 189, 'Pos+M': 1309}[name]
     number = sum(len(y) for u, use, y in selected if u['cohort'] == cohort)
-    x, y, rec = np.empty((number, width), np.float16), np.empty(number, np.int8), np.empty(number, int)
+    x = (np.memmap(mapped_path, dtype=np.float16, mode='w+', shape=(number, width))
+         if mapped_path else np.empty((number, width), np.float16))
+    y, rec = np.empty(number, np.int8), np.empty(number, int)
     position_class = np.empty(number, int)
     offset = 0
     for i, (u, use, yy) in enumerate(selected):
@@ -39,6 +44,9 @@ def matrix(seed, rows, selected, name, label, stratum, cohort):
         x[offset:offset + n], y[offset:offset + n], rec[offset:offset + n] = xx, yy, i
         position_class[offset:offset + n] = np.argmax(d['Pos'][:, :24], axis=1) + 24 * np.argmax(d['Pos'][:, 24:], axis=1)
         offset += n
+        if mapped_path:
+            x.flush()
+            x._mmap.madvise(mmap.MADV_DONTNEED)
     return x, y, rec, position_class
 
 
@@ -83,24 +91,43 @@ def run(seed, keysounds=False):
                 positive=sum(int(np.sum(y == 1)) for _, y in members),
                 negative=sum(int(np.sum(y == 0)) for _, y in members))
         tag = label + (f':stratum{st}' if st is not None else '')
-        if min(counts.values()) == 0 or sum(counts.values()) * 1309 * 2 > 4e9:
-            output[tag] = dict(unassessed='No training/dev examples or matrix would exceed RAM budget',
+        if min(counts.values()) == 0:
+            output[tag] = dict(unassessed='No training/dev examples',
                                counts=counts, label_counts=label_counts)
             continue
         predictors = {}
         for name in ('Pos', 'Pos+F', 'Pos+M'):
-            x, y, rec, pc = matrix(seed, rows, selected, name, label, st, 'probe-fit')
-            xd, yd, rd, pd = matrix(seed, rows, selected, name, label, st, 'probe-dev')
+            jobs = []
             for null in (False, True):
                 for refit in ([None] if null else [None, 0, 1, 2, 3, 4]):
                     suffix = '' if refit is None else f':boot{refit}'
                     path = OUT / 'models' / f'P4-s{seed}-{label}-{st}-{name}-null{int(null)}{suffix}.pt'
-                    if not path.exists():
-                        yy, yyd = (permute(y, rec, pc), permute(yd, rd, pd)) if null else (y, yd)
-                        log('P4_fit', seed=seed, label=label, stratum=st, inputs=name, null=null, refit=refit, rows=len(y))
-                        save(path, fit(x, yy, rec, xd, yyd, kind='logistic', seed=5400 + seed, bootstrap=refit))
-                    predictors[f'{name}:null{int(null)}' + suffix] = (name, null, Predictor(load(path)))
-            del x, xd
+                    jobs.append((null, refit, suffix, path))
+            if any(not path.exists() for _, _, _, path in jobs):
+                width = {'Pos': 29, 'Pos+F': 189, 'Pos+M': 1309}[name]
+                size = sum(counts.values()) * width * 2
+                mapped = size > 4e9
+                if mapped:
+                    used = sum(p.stat().st_size for p in OUT.rglob('*') if p.is_file())
+                    if used + size > 14.9e9:
+                        raise RuntimeError('P4 mapped matrix would exceed the artifact disk budget')
+                with tempfile.TemporaryDirectory(prefix='P4-matrix-', dir=OUT) as temporary:
+                    directory = Path(temporary)
+                    x, y, rec, pc = matrix(seed, rows, selected, name, label, st, 'probe-fit', directory / 'fit' if mapped else None)
+                    xd, yd, rd, pd = matrix(seed, rows, selected, name, label, st, 'probe-dev', directory / 'dev' if mapped else None)
+                    try:
+                        for null, refit, suffix, path in jobs:
+                            if not path.exists():
+                                yy, yyd = (permute(y, rec, pc), permute(yd, rd, pd)) if null else (y, yd)
+                                log('P4_fit', seed=seed, label=label, stratum=st, inputs=name, null=null, refit=refit, rows=len(y), mapped=mapped)
+                                save(path, fit(x, yy, rec, xd, yyd, kind='logistic', seed=5400 + seed, bootstrap=refit))
+                    finally:
+                        for a in (x, xd):
+                            if isinstance(a, np.memmap):
+                                a._mmap.close()
+                        del x, xd
+            for null, refit, suffix, path in jobs:
+                predictors[f'{name}:null{int(null)}' + suffix] = (name, null, Predictor(load(path)))
         by_rec = defaultdict(list)
         for u, use, yy in selected:
             if u['cohort'] not in ('probe-fit', 'probe-dev'):

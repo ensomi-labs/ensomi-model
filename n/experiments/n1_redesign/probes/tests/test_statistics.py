@@ -126,6 +126,28 @@ def test_bootstrap_scaler_matches_physical_recording_resample(monkeypatch):
     np.testing.assert_array_equal(a['sd'], b['sd'])
 
 
+def test_disk_backed_probe_matches_resident_fit(tmp_path, monkeypatch):
+    from n1_redesign.probes import models
+    monkeypatch.setattr(models, 'prereg_check', lambda: None)
+    rng = np.random.default_rng(19)
+    x = rng.normal(size=(40, 5)).astype(np.float16)
+    y, rec = np.tile([0, 1], 20), np.repeat(np.arange(4), 10)
+    mapped = np.memmap(tmp_path / 'matrix', dtype=x.dtype, mode='w+', shape=x.shape)
+    mapped[:] = x
+    mapped.flush()
+    try:
+        np.testing.assert_array_equal(models.batch_array(mapped, [7, 7, 2], np.float32), x[[7, 7, 2]])
+        a = models.fit(x, y, rec, x, y, kind='logistic', seed=3, bootstrap=1, epochs=2)
+        b = models.fit(mapped, y, rec, mapped, y, kind='logistic', seed=3, bootstrap=1, epochs=2)
+        for key in ('mean', 'sd', 'history'):
+            np.testing.assert_array_equal(a[key], b[key])
+        for key in a['state']:
+            np.testing.assert_array_equal(a['state'][key], b['state'][key])
+        np.testing.assert_array_equal(mapped, x)
+    finally:
+        mapped._mmap.close()
+
+
 def test_attack_buffer_preserves_cohorts_rows_and_recording_ids(tmp_path, monkeypatch):
     from n1_redesign.probes import attacks
     members = [dict(id='b-fit', rec='b', cohort='probe-fit'),
