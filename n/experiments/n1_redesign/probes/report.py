@@ -255,13 +255,15 @@ def probe_verdicts():
                        else verdict(pred, {}), predictions=pred,
                        retire=dict(feature_gain_below_005=retirement[0], Mel_gain_below_005=retirement[1]),
                        retirement_requires='both audio gains below threshold on both seeds')
-    for experiment, tags in [('P4a', ['clap', 'finish']),
+    for experiment, tags in [('P4a', ['clap', 'finish', 'clap:std_extension', 'finish:std_extension']),
                              ('P4b', [f'{part}:stratum{st}' for part in ('kick', 'snare', 'hat') for st in (0, 1)])]:
         per_target = {}
         for tag in tags:
-            cohorts = ['panels', 'keysound_extension'] if experiment == 'P4b' else ['panels']
+            cohorts = (['panels', 'keysound_extension'] if experiment == 'P4b' else
+                       ['std_extension'] if tag.endswith(':std_extension') else ['panels'])
+            data_tag = tag.split(':')[0] if experiment == 'P4a' else tag
             def layer_stat(data, key):
-                return merge_stats([stat(data, tag, 'summary', c, key) for c in cohorts])
+                return merge_stats([stat(data, data_tag, 'summary', c, key) for c in cohorts])
             def layer_seeds(key):
                 return {s: layer_stat(read(f'{experiment}-s{s}.json'), key) for s in (0, 1)}
             base = layer_seeds('Pos:null0')
