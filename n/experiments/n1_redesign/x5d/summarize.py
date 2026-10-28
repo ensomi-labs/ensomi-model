@@ -3,6 +3,7 @@ import argparse
 from collections import defaultdict
 from datetime import datetime, timezone
 import math
+import subprocess
 
 from common import *
 from baseline import recording_rows
@@ -148,8 +149,18 @@ def summarize(seeds):
             ambiguities[seed][split] = dict(recordings=len(inv), ambiguous_frames=ambiguous, mapped_frames=mapped,
                 frame_weighted_share=ambiguous/mapped,
                 recording_mean=interval([r['ambiguous_frames']/r['mapped_frames'] for r in inv]))
+    now = datetime.now(timezone.utc)
+    start = json.loads((OUT / 'start.json').read_text())
+    pipeline = json.loads((OUT / 'seed1-pipeline.json').read_text()) if (OUT / 'seed1-pipeline.json').exists() else {}
+    execution = dict(started_utc=start['utc'], wall_minutes=(now-datetime.fromisoformat(start['utc'])).total_seconds()/60,
+        device='cpu', maximum_workers=2, numerical_threads_per_worker=1, nice=10)
+    if 'producer_done_utc' in pipeline:
+        execution.update(seed1_producer_done_utc=pipeline['producer_done_utc'],
+            minutes_after_seed1_ready=(now-datetime.fromisoformat(pipeline['producer_done_utc'])).total_seconds()/60)
     result = dict(prereg=json.loads((OUT / 'prereg-identity.json').read_text()),
-        generated_utc=datetime.now(timezone.utc).isoformat(), seeds=seeds,
+        code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+        generated_utc=now.isoformat(), seeds=seeds, execution=execution,
+        verification=json.loads((OUT / 'verification.json').read_text()),
         controls=dict(maps=json.loads((OUT / 'control-reproduction.json').read_text()), checked_scores=checked, passed=True),
         cohorts=dict(panel=dict(sets=322,recordings=262), val_hard=dict(sets=150,recordings=150),
             unique_audio=466, fit=len([a for a in training_rows() if bucket(a)<2]),
@@ -273,6 +284,13 @@ def write_report(r):
         'Selected curves, model weights, normalisers, feature/chart hashes, decoded maps and per-recording rows are preserved '
         'under this directory. The frozen margin inventory includes X5’s neighbouring-checkpoint spread. '
         'Public commits contain only experiment code and synthetic tests; production N is unchanged.', '']
+    e=r['execution']
+    lines += [f"Code commit: `{r['code_commit']}`. Selected local checks: {r['verification']['tests']} passed "
+        '(command and scope are in verification.json). CPU only, nice 10, at most two workers and one numerical thread each.', '',
+        f"Total elapsed time including the cache wait: {e['wall_minutes']:.2f} minutes."]
+    if 'minutes_after_seed1_ready' in e:
+        lines += [f"Time after the producer's seed-1 DONE marker: {e['minutes_after_seed1_ready']:.2f} minutes (target ≤90)."]
+    lines += ['']
     (OUT / 'report.md').write_text('\n'.join(lines))
 
 
