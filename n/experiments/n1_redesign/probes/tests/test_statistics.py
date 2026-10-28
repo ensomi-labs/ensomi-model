@@ -176,6 +176,24 @@ def test_matrix_storage_keeps_random_training_reads_within_budget():
         'probe-fit': True, 'probe-dev': False}
 
 
+def test_empty_marks_have_no_phase_distribution():
+    from n1_redesign.probes.session import phases
+    z = {'beats': np.array([0., 1000.]), 'length': np.array([1000., 1000.])}
+    assert phases(np.array([]), z) is None
+    np.testing.assert_allclose(phases(np.array([250., 1000 / 3, 500.]), z), [1 / 3, 1 / 3, 1 / 3, 0])
+
+
+def test_nonfinite_output_cannot_replace_valid_json(tmp_path):
+    import pytest
+    from n1_redesign.probes.common import dump
+    path = tmp_path / 'result.json'
+    dump(path, {'value': None})
+    before = path.read_bytes()
+    with pytest.raises(ValueError):
+        dump(path, {'value': float('nan')})
+    assert path.read_bytes() == before
+
+
 def test_layer_matrix_bounds_event_temporaries_and_preserves_rows(tmp_path, monkeypatch):
     from n1_redesign.probes import layers
     size = 17000

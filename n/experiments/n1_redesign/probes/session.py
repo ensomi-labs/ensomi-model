@@ -150,6 +150,8 @@ def robust_sd(x):
 
 
 def phases(times, z):
+    if not len(times):
+        return None
     i = np.clip(np.searchsorted(z['beats'], times, 'right') - 1, 0, len(z['beats']) - 1)
     phase = (times - z['beats'][i]) / z['length'][i]
     cls = np.full(len(times), 3)
@@ -193,7 +195,9 @@ def simulator_bands():
         res -= np.median(res)
         errors -= np.median(errors)
         owner_res.extend(res); sim_res.extend(errors)
-        owner_phase.append(phases(corrected, z)); sim_phase.append(phases(simulated - calibration()['offset_mean_ms'], z))
+        op, sp = phases(corrected, z), phases(simulated - calibration()['offset_mean_ms'], z)
+        if op is not None and sp is not None:
+            owner_phase.append(op); sim_phase.append(sp)
         owner_off = ~pulse_labels(p['proposals'], times)
         simulated_off = ~pulse_labels(p['proposals'], simulated)
         coverage = abs(nearest(corrected[owner_off], z['heads'])[0]) <= bounds['chart_coverage_ms']
@@ -205,13 +209,15 @@ def simulator_bands():
             cuts = np.flatnonzero(np.diff(t) > 2 * z['length'][ix[:-1]]) + 1
             return [len(v) for v in np.split(t, cuts)]
         records.append(dict(passage=p['id'], owner_n=len(times), simulator_n=len(simulated),
-            owner_offpulse=float(owner_off.mean()), simulator_offpulse=float(simulated_off.mean()) if len(simulated) else None,
+            owner_offpulse=float(owner_off.mean()) if len(owner_off) else None,
+            simulator_offpulse=float(simulated_off.mean()) if len(simulated) else None,
             owner_runs=run_lengths(times), simulator_runs=run_lengths(simulated),
             owner_residual_robust_sd_ms=robust_sd(res), simulator_residual_robust_sd_ms=robust_sd(errors)))
     a, b = np.array(owner_res), np.array(sim_res)
     sd = robust_sd(b)
     tail = float(np.mean(abs(b) > bounds['tail_threshold_ms']))
-    offdelta = float(np.mean([r['simulator_offpulse'] - r['owner_offpulse'] for r in records if r['simulator_offpulse'] is not None]))
+    comparable = [r for r in records if r['simulator_offpulse'] is not None and r['owner_offpulse'] is not None]
+    offdelta = float(np.mean([r['simulator_offpulse'] - r['owner_offpulse'] for r in comparable]))
     tv = float(np.sum(abs(np.mean(owner_phase, axis=0) - np.mean(sim_phase, axis=0))) / 2)
     bands = dict(robust_sd=bounds['robust_sd_ms'][0] <= sd <= bounds['robust_sd_ms'][1],
                  beyond15=bounds['tail_share'][0] <= tail <= bounds['tail_share'][1],
@@ -219,6 +225,7 @@ def simulator_bands():
     dump(OUT / 'P6.json', dict(records=records, bands=bands, fixed_bands=bounds, simulator_optimistic=not all(bands.values()),
         owner_residual_robust_sd_ms=robust_sd(a), simulator_residual_robust_sd_ms=sd,
         simulator_beyond15_share=tail, offpulse_difference=offdelta, phase_tv=tv,
+        comparison_passages=dict(offpulse=len(comparable), phase=len(owner_phase)),
         owner_chart_coverage=dict(n=len(cover), share=float(np.mean(cover)) if cover else None),
         deviation='Residuals are centered per passage; simulated residual uses intended source event, owner residual uses nearest chart line/head. Run lengths use uniform 3..8 target candidates.',
         design_only=True))
