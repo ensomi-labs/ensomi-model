@@ -5,6 +5,7 @@ import datetime
 import json
 import math
 from pathlib import Path
+import shutil
 import subprocess
 import numpy as np
 from .cohorts import ROOT,OUT,FEAT,dump
@@ -99,7 +100,16 @@ def render():
         sufficient.append(all(r and r['gain_below_002'] for r in rs))
     retire=dict(interference='retire' if harms else 'inconclusive',interference_metrics=harms,
                 frozen_probes_suffice='retire' if both(sufficient) else 'inconclusive')
-    kills={name:r.get('kills',[]) for name,r in runs.items() if name.startswith('F1') and r.get('kills')}
+    all_kills={name:r['kills'] for name,r in runs.items() if r.get('kills')}
+    kills={name:k for name,k in all_kills.items() if name.startswith('F1')}
+    storage=[OUT,FEAT/'v01-s1-009001',FEAT/'v01-s0-009001-ext']
+    resources=dict(new_bytes=sum(p.stat().st_size for d in storage if d.exists() for p in d.rglob('*') if p.is_file()),
+                   free_bytes=shutil.disk_usage(OUT).free,budget=read(OUT/'resume-budget.json'),max_driver_gib={})
+    for name in runs:
+        path=OUT/'runs'/name/'progress.jsonl'
+        rows=[json.loads(s) for s in path.read_text().splitlines()] if path.exists() else []
+        values=[r['mps_driver_gb'] for r in rows if 'mps_driver_gb' in r]
+        if values:resources['max_driver_gib'][name]=max(values)
     g0=read(OUT/'g0-results.json');lock=read(OUT/'prereg-lock.json')
     repro=read(OUT/'baseline-reproduction.json',{})
     differences=defaultdict(list)
@@ -127,7 +137,11 @@ def render():
                 baseline_noise=read(OUT/'baseline-noise.json'),sigma=read(OUT/'sigma-baseline.json'),
                 target_rates=read(OUT/'target-rates.json'),target_head_invariant=read(OUT/'target-head-invariant.json'),
                 runs=runs,pulse=pulse,new_heads=heads,head_coverage=coverage,structure=structure,predictions=predictions,
-                retire_rules=retire,F1_kills=kills,queue_deviations=read(OUT/'queue-deviations.json',[]),
+                retire_rules=retire,scientific_kills=all_kills,F1_kills=kills,resources=resources,
+                kill_interpretation=('F1 scientific kills are preregistered interference outcomes and were not retried. '
+                                     'A matching control kill limits attribution to the auxiliary heads. '
+                                     'Endpoint statistics describe the stopped runs, not completed 40-minute treatments.' if kills else None),
+                queue_deviations=read(OUT/'queue-deviations.json',[]),
                 limitations=['Original checkpoints retain prior influence from the excluded folder/group.',
                              'Frozen initialisers use bounded frame samples and 120 LBFGS iterations; optimiser diagnostics are reported.',
                              'Frozen features are fp16; new-run readouts are float32.',
@@ -139,6 +153,7 @@ def render():
     def ci(x):return '—' if not x else f"{x['value']:.4f} [{x['ci95'][0]:.4f}, {x['ci95'][1]:.4f}]"
     lines=['# N1 redesign GPU measurements','',f"Status: {result['status']}. Code commit: `{code_commit}`.",'',
            f"Predictions: {json.dumps(predictions)}.",f"Retire rules: {json.dumps(retire)}.",'',
+           f"Scientific kills: {json.dumps(all_kills)}.",result['kill_interpretation'] or 'No F1 scientific kill was recorded.','',
            'These are preregistered measurement verdicts. The owner decides adoption and perceptual quality.', '',
            '## Preregistration and inputs','',f"Preregistration: `{lock['sha256'] if lock else 'not yet frozen'}`, UTC `{lock['utc'] if lock else 'pending'}`.",
            f"The authorised folder/group decision leaves {audit.get('training',{}).get('audio')} training recordings "
@@ -160,10 +175,14 @@ def render():
                   'Curation drop reasons are retained in extension manifest memberships and `cohorts.json`.',
                   'All 15 session-1 recordings were already in the seed-0 manifest, so none was added. `DONE` was written before G1.', '']
     else:lines+=['G0 is running.','']
-    lines+=['## Runs','', '| Run | Status | Steps | Training min | Wall min | Sigma floor |','| --- | --- | ---: | ---: | ---: | ---: |']
-    for name,r in runs.items():lines.append(f"| {name} | {r['status']} | {r.get('steps','—')} | {r.get('training_s',0)/60:.2f} | {r.get('wall_s',0)/60:.2f} | {val(r.get('sigma_floor'))} |")
+    lines+=['## Runs','', '| Run | Status | Steps | Training min | Wall min | Sigma floor | Final probe loss |','| --- | --- | ---: | ---: | ---: | ---: | ---: |']
+    for name,r in runs.items():
+        last=(r.get('history') or [{}])[-1]
+        lines.append(f"| {name} | {r['status']} | {r.get('steps','—')} | {r.get('training_s',0)/60:.2f} | {r.get('wall_s',0)/60:.2f} | {val(r.get('sigma_floor'))} | {val(last.get('probe_loss'))} |")
     lines+=['','Per-run losses, every probe and kill are in `results.json` and `runs/<run>/`. '
-            'F0-v0.1 drift and paired intervals are included alongside each comparison.','',
+            'F0-v0.1 drift and paired intervals are included alongside each comparison.',
+            f"New job storage: {resources['new_bytes']/1e9:.3f} GB; free disk: {resources['free_bytes']/1e9:.3f} GB. "
+            f"Maximum sampled driver GiB by run: {json.dumps(resources['max_driver_gib'])}.",'',
             '## Baselines and pulse','',f"Baseline reproduction: {reproduction['compared']} comparisons; {json.dumps(reproduction['differences'])}. "
             'All discrepancies are reported rather than hidden by rounding.',
             'Neighbouring-checkpoint ranges and the selected-seed difference are in `baseline-noise.json`. '
