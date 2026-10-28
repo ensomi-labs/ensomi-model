@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-from n1_redesign.probes.packet import render
+from n1_redesign.probes.packet import render, two_bar_window
 
 
 def test_native_rate_two_plays_and_click_rms():
@@ -41,3 +41,15 @@ def test_packet_validation_rejects_changed_source_audio(tmp_path, monkeypatch):
     sf.write(path, raw, sr, subtype='PCM_16')
     with pytest.raises(AssertionError):
         packet.validate_packet(directory, [key])
+
+
+def test_two_bar_clip_stops_at_fractional_reset_and_audio_end():
+    z = dict(beats=np.array([0., 500., 1000., 1500., 2000., 2500., 2750.5]),
+             length=np.full(7, 500.), bars=np.array([0, 0, 0, 0, 1, 1, 2]),
+             bar_ids=np.arange(3), bib=np.array([0, 1, 2, 3, 0, 1, 0]))
+    q, lo, hi = two_bar_window(z, 0, 3000)
+    assert lo == 0 and hi == 2750.5
+    np.testing.assert_array_equal(q, np.arange(6))
+    assert two_bar_window(z, 0, 2700) is None
+    z['bib'][0] = 1
+    assert two_bar_window(z, 0, 3000) is None

@@ -9,16 +9,25 @@ from .common import OUT, by_tempo, dump, features, interp, interval, labels, log
 from .tokens import event_inputs
 
 
+def position_classes(z):
+    from ._census import Grid
+    ht = z['hard_heads']
+    pos = z['hard_pos']
+    cls = np.full(len(ht), 6, int)
+    for v, target in [(0, 0), (1, 1), (2, 1), (3, 1), (5, 2), (6, 3), (9, 4), (10, 5)]:
+        cls[pos == v] = target
+    bib = Grid(z['red'], float(ht[-1])).locate(ht)['bib']
+    cls[(pos == 4) & (bib >= 1) & (bib <= 3)] = 1
+    return cls
+
+
 def predictors(u, row):
     z = labels(u)
     q = np.isfinite(z['retention'])
     if not q.any():
         return None
     ht = z['hard_heads']
-    pos = z['hard_pos']
-    cls = np.full(len(ht), 6, int)
-    for v, target in [(0, 0), (1, 1), (2, 1), (3, 1), (5, 2), (6, 3), (9, 4), (10, 5)]:
-        cls[pos == v] = target
+    cls = position_classes(z)
     median = np.median(np.diff(ht)) if len(ht) > 1 else 1000.
     prev = np.r_[median, np.diff(ht)]; nxt = np.r_[np.diff(ht), median]
     c = np.c_[np.eye(7)[cls], np.log(np.maximum(prev, 1)), np.log(np.maximum(nxt, 1))]
@@ -44,6 +53,7 @@ def run(seed):
     width = 9 + 160 + 1152 + 1
     sets = dict(C=np.arange(9), CF=np.r_[np.arange(9), np.arange(9, 169)],
                 CM=np.r_[np.arange(9), np.arange(169, width - 1)],
+                C_chord=np.r_[np.arange(9), width - 1],
                 CF_chord=np.r_[np.arange(169), width - 1],
                 CM_chord=np.r_[np.arange(9), np.arange(169, width)])
     train_rec = sorted({u['rec'] for u in us if u['cohort'] == 'probe-fit'})

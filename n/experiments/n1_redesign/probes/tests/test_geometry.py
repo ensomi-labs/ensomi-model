@@ -60,6 +60,13 @@ def test_mixed_is_ternary_unsnapped_excluded():
     np.testing.assert_array_equal(n, [3, 2, 2, 1])
 
 
+def test_salience_position_control_keeps_nonfour_meter_beats():
+    from n1_redesign.probes.salience import position_classes
+    z = dict(red=np.array([[0., 500., 3.]]), hard_heads=np.array([0., 500., 1000.]),
+             hard_pos=np.array([0, 4, 4]))
+    np.testing.assert_array_equal(position_classes(z), [0, 1, 1])
+
+
 def test_fractional_reset_last_head_and_plain_stream(tmp_path):
     p = tmp_path / 'fixture.osu'
     p.write_text('''osu file format v14
@@ -156,3 +163,7 @@ SliderMultiplier: 1.4
     np.testing.assert_allclose(z['retention'], [1, 0, .5, 0, 1])
     assert any((z['event_t'] == 500) & (z['event_bits'] == 8))
     assert any((z['event_t'] == 1000) & (z['event_bits'] == 4))
+    missing = {('.', f'difficulty{i}'): (float('nan'), count) for i, count in enumerate((1, 2, 5))}
+    z = make_labels(paths[::-1], missing)
+    np.testing.assert_array_equal(z['hard_heads'], [0, 250, 500, 750, 1000])
+    assert z['hard_rank_fallback']

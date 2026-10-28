@@ -12,6 +12,8 @@ from ._names import part_of
 from .common import (ROOT, OUT, PREV, CACHE, assert_open, digest, dump, exclusion,
                      labels, log, manifests, nearest, split, stable_seed, unit_path)
 
+LABEL_SCHEMA = 2
+
 
 def beat_labels(beats, lengths, heads, divisors):
     # A chart-rounded head up to 2 ms before a line belongs to that line.
@@ -53,6 +55,7 @@ def make_labels(paths, ranks):
     # the census lacks this allowed reference chart.
     rank = [ranks.get((str(Path(p).parent.relative_to(ROOT)), c['version']),
                       (float('-inf'), len(c['objs']))) for p, c in zip(paths, charts)]
+    rank = [(star if np.isfinite(star) else float('-inf'), density) for star, density in rank]
     order = sorted(range(len(charts)), key=lambda i: rank[i])
     hard = charts[order[-1]]
     ht, chord = np.unique([o['t'] for o in hard['objs']], return_counts=True)
@@ -108,7 +111,8 @@ def make_labels(paths, ranks):
                 ev_part.append({'kick': 0, 'snare': 1, 'hat': 2}.get(part, 3))
                 ev_chart.append(j); ev_eligible.append(False); ev_stratum.append(st)
     kiai = np.array(sc.kiai_sections(grid_chart['tps'], ref.hi_ms), float).reshape(-1, 2)
-    return dict(beats=beats, length=length, down=t.downbeat[keep], bars=bars,
+    return dict(schema=np.array(LABEL_SCHEMA), hard_rank_fallback=np.array(not np.isfinite(rank[order[-1]][0])),
+                beats=beats, length=length, down=t.downbeat[keep], bars=bars,
                 bib=bl['bib'], meter=bl['meter'], y=y, count=counts, heads=heads,
                 divisor=loc['cls'], head_beat=bi, bar_ids=ub, patterns=patterns,
                 nontrivial=nontrivial, bar_meter=meters, kiai=kiai,
@@ -136,7 +140,8 @@ def prepare(seed=0):
     cp = ROOT / 'artifacts/n1-redesign-20261028/census/charts.csv'
     with cp.open() as f:
         for r in csv.DictReader(f):
-            ranks[r['set_dir'], r['version']] = (float(r['star'] or '-inf'), int(r['n_on']))
+            star = float(r['star'] or '-inf')
+            ranks[r['set_dir'], r['version']] = (star if np.isfinite(star) else float('-inf'), int(r['n_on']))
     us, failed = [], []
     for sha, r in sorted(rows.items()):
         is_train = r['split'] in ('fit_train', 'train', 'probe-fit', 'probe-dev')
@@ -154,15 +159,25 @@ def prepare(seed=0):
             u = dict(s, sha=sha, id=f'{stable_seed(s["key"]):08x}', cache_split=r['split'])
             try:
                 path = unit_path(u)
-                if not path.exists():
+                old = labels(u) if path.exists() else None
+                if old is None or old.get('schema', 0) != LABEL_SCHEMA:
                     paths = [str(ROOT / p) for p in s['charts']]
                     for p in paths:
                         if Path(p).parent != (ROOT / s['audio']).parent:
                             raise ValueError('Chart outside declared audio folder')
                     z = make_labels(paths, ranks)
+                    if old is not None:
+                        for key in ('beats', 'length', 'down', 'bars', 'bib', 'y', 'count', 'heads', 'divisor', 'head_beat', 'red'):
+                            assert np.array_equal(z[key], old[key]), f'Rank migration changed {key}; dependent probes require invalidation'
+                        if not np.array_equal(z['hard_heads'], old['hard_heads']) or not np.array_equal(z['patterns'], old['patterns']):
+                            log('hardest_chart_rank_corrected', seed=seed, unit=u['id'])
                     path.parent.mkdir(parents=True, exist_ok=True)
-                    np.savez_compressed(path, **z)
+                    tmp = path.with_suffix('.tmp.npz')
+                    np.savez_compressed(tmp, **z)
+                    tmp.replace(path)
                 us.append(u)
+            except AssertionError:
+                raise
             except Exception as exc:
                 failed.append(dict(key=s['key'], error=repr(exc)))
         if len(us) % 100 == 0:
@@ -174,6 +189,7 @@ def prepare(seed=0):
         c.update(units=1, beats=len(z['beats']), heads=len(z['heads']),
                  ternary=int(sum(z['y'] == 1)), binary_fine=int(sum(z['y'] == 0)),
                  laddered_heads=int(np.isfinite(z['retention']).sum()),
+                 hardest_rank_fallback=int(z['hard_rank_fallback']),
                  nontrivial_bars=int(z['nontrivial'].sum()),
                  timing_inconsistent=int(not z['timing_consistent']))
     for k, c in counts.items():

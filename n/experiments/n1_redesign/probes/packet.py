@@ -6,7 +6,7 @@ import subprocess
 
 import numpy as np
 
-from .common import ROOT, OUT, dump, labels, log, prereg_check, units
+from .common import ROOT, OUT, dump, labels, log, manifests, prereg_check, units
 
 
 def native_audio(path):
@@ -77,20 +77,37 @@ def validate_packet(packet, keys):
         checks=['native rate', 'two plays', 'silence', 'identical source outside clicks', 'no clipping', 'folder contents']))
 
 
+def two_bar_window(z, index, duration_ms):
+    if index < 0 or index + 1 >= len(z['bar_ids']):
+        return None
+    a, b = z['bar_ids'][index:index + 2]
+    if b != a + 1:
+        return None
+    q = np.flatnonzero(np.isin(z['bars'], [a, b]))
+    if not len(q) or z['bib'][q[0]] != 0:
+        return None
+    lo = z['beats'][q[0]]
+    hi = z['beats'][q[-1]] + z['length'][q[-1]]
+    after = np.flatnonzero(z['bars'] == b + 1)
+    if len(after):
+        hi = min(hi, z['beats'][after[0]])
+    if lo < 0 or hi > duration_ms:
+        return None
+    return q, float(lo), float(hi)
+
+
 def controls():
     rng = np.random.default_rng(20261028)
     panel = [u for u in units() if u['cohort'] in ('panel', 'val_hard')]
+    cache = manifests(0)
     candidates = {0: [], 1: []}
     for u in panel:
         z = labels(u)
-        for i, bar in enumerate(z['bar_ids'][:-1]):
-            nextbar = z['bar_ids'][i + 1]
-            if nextbar != bar + 1:
+        for i in range(len(z['bar_ids']) - 1):
+            window = two_bar_window(z, i, (cache[u['sha']]['frames'] - 1) * 10)
+            if window is None:
                 continue
-            q = np.flatnonzero(np.isin(z['bars'], [bar, nextbar]))
-            if not len(q):
-                continue
-            lo, hi = z['beats'][q[0]], z['beats'][q[-1]] + z['length'][q[-1]]
+            q, lo, hi = window
             for cls in (0, 1):
                 target = q[z['y'][q] == cls]
                 if len(target):
@@ -123,6 +140,7 @@ def propagation_examples():
     cfg = json.loads((OUT / 'P7-config-s0.json').read_text())['configs']
     model = load_learned(0, int(arm[-1])) if arm.startswith('learned') else None
     reserved = {v['unit']['rec'] for v in controls()}
+    cache = manifests(0)
     rng = np.random.default_rng(20261028)
     reservoir, counts = {arm: [], 'random': []}, {arm: 0, 'random': 0}
     for u in units():
@@ -149,11 +167,11 @@ def propagation_examples():
                                     ix = int(np.searchsorted(s.z['bar_ids'], bar))
                                     if ix == len(s.z['bar_ids']) - 1:
                                         ix -= 1
-                                    if ix < 0 or s.z['bar_ids'][ix + 1] != s.z['bar_ids'][ix] + 1:
+                                    window = two_bar_window(s.z, ix, (cache[u['sha']]['frames'] - 1) * 10)
+                                    if window is None:
                                         continue
-                                    q = np.flatnonzero(np.isin(s.z['bars'], s.z['bar_ids'][ix:ix + 2]))
-                                    value = dict(unit=u, lo=float(s.z['beats'][q[0]]),
-                                        hi=float(s.z['beats'][q[-1]] + s.z['length'][q[-1]]),
+                                    q, lo, hi = window
+                                    value = dict(unit=u, lo=lo, hi=hi,
                                         beats=[int(beat)], truth=int(s.z['y'][beat]), kind=target_arm,
                                         episode=dict(region=ri, simulator=simulator, position=position, run=run, confirming=confirming))
                                     counts[target_arm] += 1
