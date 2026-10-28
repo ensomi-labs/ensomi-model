@@ -128,6 +128,18 @@ def probe_stats(name, path, key, suffix=''):
     return {s: stat(read(f'{name}-s{s}{suffix}.json'), *path, key) for s in (0, 1)}
 
 
+def decoded_unmatched(seed):
+    data = read(f'P3-s{seed}.json')
+    if not data:
+        return None
+    counts = defaultdict(lambda: [0., 0])
+    for row in data['unmatched']:
+        counts[row['rec']][0] += row['share'] * row['beats']
+        counts[row['rec']][1] += row['beats']
+    values = {rec: a / n for rec, (a, n) in counts.items() if n}
+    return dict(**interval(list(values.values())), recordings=values)
+
+
 def bootstrap_values(name, path, a, b=None):
     result = {}
     for s in (0, 1):
@@ -189,7 +201,8 @@ def probe_verdicts():
                 decoded_within_005=compare(decoded, a, threshold=-.05, refits=grid_refits))
     retire = dict(T24_below_070=compare(a, None, threshold=.7, direction='below', refits=ref('mlp-T24-real')),
                   T24_no_more_Mel_001=compare(a, m, threshold=.01, direction='below', refits=ref('mlp-T24-real', 'mlp-Mel24-real')))
-    output['P3'] = dict(verdict=verdict(pred, retire), predictions=pred, retire=retire)
+    output['P3'] = dict(verdict=verdict(pred, retire), predictions=pred, retire=retire,
+                        decoded_unmatched={s: decoded_unmatched(s) for s in (0, 1)})
     f = probe_stats('P5a', ['summary'], 'all:exact:auc:F')
     m = probe_stats('P5a', ['summary'], 'all:exact:auc:M')
     precision = probe_stats('P5a', ['summary'], 'all:p5:F')
@@ -569,6 +582,18 @@ def build():
              '## Screening verdicts', '', '| Experiment | Both-seed verdict |', '| --- | --- |']
     for name, v in display.items():
         lines.append(f"| {name} | {v['verdict']} |")
+    lines += ['', verdicts['P5b']['priority_statement'] + ' (the predefined chart-pattern priority rule).', '']
+    for seed in (0, 1):
+        null = verdicts['P1']['shifted_null'][seed]
+        unmatched = verdicts['P3']['decoded_unmatched'][seed]
+        nontrivial = verdicts['P5b']['posthoc_nontrivial'][seed]
+        if null:
+            lines.append(f"Seed {seed} shifted attack-null AUC: {number(null['mean'])}, 95% CI {confidence(null['ci95'])}; expected ceiling .60.")
+        if unmatched:
+            lines.append(f"Seed {seed} unmatched decoded-beat share: {number(unmatched['mean'])}, 95% CI {confidence(unmatched['ci95'])}. P3 decoded AUC is conditional on matched beats.")
+        if nontrivial:
+            lines.append(f"Seed {seed} correctly tracked non-trivial B-repeat share: {number(nontrivial['mean'])}, 95% CI {confidence(nontrivial['ci95'])} (post-hoc description).")
+        lines.append('')
     lines += ['', 'The numbers, recording intervals, paired contrasts, margin components and power checks for every criterion are in results.json. Raw per-seed summaries and strata are in the hashed experiment files listed there. Missing evidence prevents a pass.', '',
               '![Feature and Mel comparisons](probe-comparison.png)' if str(OUT / 'probe-comparison.png') in results['figures'] else 'Probe comparison figure unavailable.', '',
               '## Interpretation limits', '', *['- ' + item for item in results['limitations']], '',
