@@ -2,7 +2,9 @@
 import datetime
 import json
 from pathlib import Path
+import platform
 import subprocess
+import sys
 import numpy as np
 import torch
 from .common import OUT, G1, check_prereg, dump, digest, disk_guard
@@ -25,6 +27,10 @@ def main():
     expected_frames = sum(songs[s]['frames'] for s in shas)
     result = dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+        environment=dict(platform=platform.platform(),python=sys.version,executable=sys.executable,
+            torch=torch.__version__,mps_available=torch.backends.mps.is_available(),
+            chip=subprocess.check_output(['sysctl','-n','machdep.cpu.brand_string'],text=True).strip(),
+            ram_bytes=int(subprocess.check_output(['sysctl','-n','hw.memsize'],text=True))),
         prereg_sha256=lock['sha256'],unchanged_input_files=len(inputs),
         unchanged_experiment_sources=len(lock['source_sha256']),runs={},
         selected_local_checks=json.loads((OUT/'validation-before-training.json').read_text()))
