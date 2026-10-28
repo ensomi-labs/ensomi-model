@@ -10,7 +10,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from n1_redesign.probes.common import LATTICE, assert_open, interp, split
 from n1_redesign.probes.labels import beat_labels, make_labels
-from n1_redesign.probes.tokens import beat_tokens, frame_labels
+from n1_redesign.probes.tokens import beat_tokens, frame_labels, frame_inputs
 
 
 def test_split_is_specified_hash():
@@ -89,3 +89,11 @@ def test_attack_negatives_require_dense_beat():
     assert y[60] == -1
     assert y[70] == 1
     assert y[73] == -1
+
+
+def test_no_balanced_frames_keeps_feature_widths():
+    z = dict(beats=np.array([0.]), length=np.array([500.]), bib=np.array([0]))
+    d = frame_inputs(np.zeros((10, 160)), np.zeros((10, 23)),
+                     np.zeros((10, 128)), np.array([], int), z)
+    assert {k: v.shape for k, v in d.items()} == {
+        'F': (0, 160), 'L': (0, 23), 'M': (0, 1280), 'Pos': (0, 29), 'flux': (0,)}

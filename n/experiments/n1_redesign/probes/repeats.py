@@ -4,7 +4,7 @@ import json
 
 import numpy as np
 
-from .common import (OUT, auc, dump, features, interval, labels, log, manifests,
+from .common import (ROOT, OUT, auc, dump, features, interval, labels, log, manifests,
                      nearest, norm, prereg_check, stable_seed, units)
 from .tokens import bar_tokens, context, token_load
 from .cells import decoded
@@ -77,13 +77,18 @@ def retrieval(seed):
         for st, eligible in strata.items():
             for positive, truth in [('exact', exact), ('jaccard80', jac >= .8)]:
                 a, b = np.where(np.triu(truth & eligible, 1))
+                na, nb = np.where(np.triu((jac <= .3) & eligible, 1))
+                order = np.argsort(lag[na, nb], kind='stable')
+                na, nb = na[order], nb[order]
+                neg_lag = lag[na, nb]
                 pos, neg = [], []
                 for aa, bb in zip(a, b):
                     ll = lag[aa, bb]
-                    na, nb = np.where(np.triu((jac <= .3) & eligible & (lag >= ll * .9) & (lag <= ll * 1.1), 1))
-                    if not len(na):
+                    low, high = np.searchsorted(neg_lag, [ll * .9, ll * 1.1], side='left')
+                    high = np.searchsorted(neg_lag, ll * 1.1, side='right')
+                    if high <= low:
                         continue
-                    pick = rng.integers(len(na))
+                    pick = rng.integers(low, high)
                     pos.append((aa, bb)); neg.append((na[pick], nb[pick]))
                 if len(pos) >= 5:
                     pa, pb = np.array(pos).T
@@ -169,6 +174,8 @@ def recurrence(seed):
 def downbeat(seed):
     prereg_check()
     rows, cache = [], manifests(seed)
+    cohort = json.loads((ROOT / 'artifacts/n1-stage0-20261028/events-cohort.json').read_text())
+    extra = {r['rec'] for r in cohort['selected']}
     for u in units():
         if u['cohort'] not in ('panel', 'val_hard'):
             continue
@@ -176,11 +183,11 @@ def downbeat(seed):
         d = decoded(seed, u, z)
         pred_down = d['beats'][d['down']] - d['offset']
         same = np.mean(abs(nearest(z['beats'][z['down']], pred_down)[0]) <= 20)
-        if same >= .9:
+        if same >= .9 and u['rec'] not in extra:
             continue
         _, logits, _ = features(cache[u['sha']])
         j = np.clip(np.round(z['beats'] / 10).astype(int), 1, len(logits) - 2)
-        down_index = cache[u['sha']]['head_layout'].index('down')
+        down_index = cache[u['sha']].get('head_layout', ['beat', 'half', 'down']).index('down')
         raw = np.max(logits[j[:, None] + np.arange(-1, 2), down_index], axis=1)
         t = norm(context(token_load(seed, u)['Fz'], before=0, after=3))
         s = t @ t.T
@@ -201,7 +208,7 @@ def downbeat(seed):
             per = i + np.r_[-4 * np.arange(4, 9), 4 * np.arange(4, 9)]
             per = per[(per >= 0) & (per < len(raw))]
             periodic.append(np.mean(raw[np.r_[i, per]]))
-        rows.append(dict(rec=u['rec'], unit=u['id'], same_bars=same,
+        rows.append(dict(rec=u['rec'], unit=u['id'], same_bars=same, stage0_cohort=int(u['rec'] in extra),
                          raw=auc(z['down'], raw), feature=auc(z['down'], avg),
                          random=auc(z['down'], rand), periodic=auc(z['down'], periodic)))
     dump(OUT / f'P5c-s{seed}.json', dict(summary=aggregate(rows), rows=rows))

@@ -66,7 +66,7 @@ def build_data(seed):
             continue
         d, y, g = inputs(seed, u, rows)
         p.parent.mkdir(parents=True, exist_ok=True)
-        np.savez_compressed(p, y=y, **d)
+        np.savez_compressed(p, y=y, **{k: v.astype('float16') for k, v in d.items()})
         if i % 200 == 0:
             log('P3_inputs', seed=seed, units=i)
 
@@ -141,7 +141,7 @@ def evaluate(seed, bootstrap=False):
             np.save(path, p)
         if u['cohort'] in ('probe-fit', 'probe-dev'):
             continue
-        for grid in (['chart'] if bootstrap else ['chart', 'decoded']):
+        for grid in ('chart', 'decoded'):
             if grid == 'decoded':
                 if u['cohort'] not in ('panel', 'val_hard'):
                     continue

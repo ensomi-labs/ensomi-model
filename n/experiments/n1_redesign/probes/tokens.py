@@ -84,7 +84,8 @@ def prepare_tokens(seed):
             out[name + 'z'] = standardize_song(t)
             out[name + 'shift'] = pca_transform(beat_tokens(x, z, 1 / 32), pcas[name]).astype('float32')
         path.parent.mkdir(parents=True, exist_ok=True)
-        np.savez_compressed(path, **out)
+        assert all(np.isfinite(v).all() and np.max(abs(v), initial=0) < 65504 for v in out.values())
+        np.savez_compressed(path, **{k: v.astype('float16') for k, v in out.items()})
         if i % 100 == 0:
             log('tokens_progress', seed=seed, units=i)
     log('tokens_done', seed=seed)
@@ -119,7 +120,7 @@ def position(times, z):
 
 def frame_inputs(f, l, m, idx, z):
     ii = np.clip(idx[:, None] + np.arange(-4, 5), 0, len(m) - 1)
-    mel = np.asarray(m[ii], np.float32).reshape(len(idx), -1)
+    mel = np.asarray(m[ii], np.float32).reshape(len(idx), 9 * m.shape[1])
     flux = np.maximum(0, np.asarray(m[idx], np.float32) - m[np.maximum(idx - 1, 0)])
     return dict(F=f[idx], L=l[idx], M=np.concatenate([mel, flux], axis=1),
                 Pos=position(idx * 10., z), flux=flux.mean(axis=1))

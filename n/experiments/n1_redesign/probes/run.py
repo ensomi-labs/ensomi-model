@@ -2,20 +2,24 @@
 import argparse
 import json
 import resource
+import subprocess
 import time
+from pathlib import Path
 
 from .common import OUT, digest, dump, log, utc
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('stage', choices=['labels', 'freeze', 'tokens', 'P1', 'P3', 'P5a', 'P5b', 'P5c', 'P7'])
+    p.add_argument('stage', choices=['labels', 'freeze', 'tokens', 'P1', 'P2', 'P3', 'P4a', 'P4b', 'P5a', 'P5b', 'P5c', 'P6', 'P7', 'P8', 'packet'])
     p.add_argument('--seed', type=int, choices=[0, 1], default=0)
     p.add_argument('--shifted', action='store_true')
     p.add_argument('--bootstrap', action='store_true')
     p.add_argument('--template', type=str)
     a = p.parse_args()
-    log('stage_start', stage=a.stage, seed=a.seed)
+    source = {str(f.name): digest(f) for f in sorted(Path(__file__).parent.glob('*.py'))}
+    commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+    log('stage_start', stage=a.stage, seed=a.seed, source_commit=commit, source_sha256=source)
     if a.stage == 'labels':
         from .labels import prepare
         prepare(a.seed)
@@ -42,6 +46,21 @@ def main():
     elif a.stage == 'P7':
         from .episodes import run
         run(a.seed)
+    elif a.stage == 'P2':
+        from .salience import run
+        run(a.seed)
+    elif a.stage == 'packet':
+        from .packet import build
+        build()
+    elif a.stage == 'P8':
+        from .session import replay
+        replay(a.seed)
+    elif a.stage == 'P6':
+        from .session import simulator_bands
+        simulator_bands()
+    elif a.stage in ('P4a', 'P4b'):
+        from .layers import run
+        run(a.seed, keysounds=a.stage == 'P4b')
     else:
         from .repeats import retrieval, recurrence, downbeat
         {'P5a': retrieval, 'P5b': recurrence, 'P5c': downbeat}[a.stage](a.seed)
