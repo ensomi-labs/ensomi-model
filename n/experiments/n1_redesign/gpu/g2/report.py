@@ -61,6 +61,8 @@ def build():
         if not (OUT/f'evaluation-s{seed}-DONE.json').exists():raise RuntimeError('Both evaluations required')
     results=dict(status='complete',utc=datetime.now(timezone.utc).isoformat(),preregistration=lock,
                  code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+                 inputs=load(OUT/'inputs.json'),cohort_exclusion_decision=load(G1/'decision-exclusions.json'),
+                 initial_fit_cohort_validation=load(OUT/'readout-cohort-validation.json'),
                  baseline=load(OUT/'prereg-facts.json'),decoder_reproduction=load(OUT/'decoder-reproduction.json'),seeds={})
     for seed in (0,1):
         comp={arm:compare(seed,arm) for arm in ARMS}
@@ -136,6 +138,9 @@ def build():
     for seed,s in results['seeds'].items():
         f=s['control_fit'];lines.append(f"- Seed {seed}: selected epoch {f['best_epoch']}, temperature {f['temperature']:.6g}, calibrated NLL {f['calibrated_nll']:.6g}; {f['cohort']['counts']}.")
     lines+=['','## Deviations and limits','','```json',json.dumps(results['deviations'],indent=2),'```','']
+    cohorts=results['baseline']['audit']['cohorts'];excluded=results['cohort_exclusion_decision']
+    lines += [f"Audited inputs: {cohorts['training']['audio']} training recordings, {cohorts['panels']['audio']} panel audio inputs and {cohorts['panels']['rows']} panel reference sets; {cohorts['probe_fit']['audio']} fit and {cohorts['probe_cal']['audio']} calibration recordings for each matched readout.",'',
+              f"Excluded folders: `{', '.join(excluded['folders'])}`. Excluded corpus groups: `{', '.join(excluded['corpus_groups'])}`. The saved X5d fits' exclusion identity and coverage of these rules were also verified.",'']
     lines += ['- '+x for x in results['limitations']]
     lines+=['','## Disk retention','',f"Deleted {results['deleted_bytes']/1e9:.3f} GB. Cleanup complete: {results['cleanup_complete']}. Current G2 artifacts: {results['resources']['new_bytes']/1e9:.3f} GB; free disk: {results['resources']['free_bytes']/1e9:.3f} GB.",'',
             f"Retained plus already deleted G2 artifacts total {results['resources']['retained_plus_deleted_G2_bytes']/1e9:.3f} GB. This accounts for caches removed before the final report; every running disk check also enforced the 6 GB cap and 100 GB free-space floor.",'',
