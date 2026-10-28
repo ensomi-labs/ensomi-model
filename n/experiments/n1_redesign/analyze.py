@@ -64,7 +64,9 @@ def scorecard(rows):
                 classes=Counter()
                 for r in sub:classes.update(r['counts'])
                 result[panel].setdefault(arm,{})['aligned' if aligned else 'raw']=dict(
-                    ready=interval([r['ready'] for r in sub]),classes=dict(classes),spans=sum(classes.values()))
+                    ready=interval([r['ready'] for r in sub]),classes=dict(classes),spans=sum(classes.values()),
+                    class_intervals={c:cluster_ratio([dict(rec=r['rec'],hit=r['counts'].get(c,0),one=r['spans'])
+                        for r in sub],'hit','one') for c in classes})
     return result
 
 
@@ -72,6 +74,21 @@ def fmt(s,percent=True):
     if not s or s['value'] is None:return 'n/a'
     scale=100 if percent else 1
     return f"{scale*s['value']:.2f} [{scale*s['ci95'][0]:.2f}, {scale*s['ci95'][1]:.2f}]"
+
+
+def map_changes():
+    import gzip
+    counts={}
+    for seed in SEEDS:
+        c=Counter()
+        for path in sorted((OUT/'maps'/seed).glob('*.json.gz')):
+            with gzip.open(path,'rt') as f:maps=json.load(f)['maps']
+            for key,b in maps['baseline'].items():
+                c['sets']+=1
+                for arm in ('d4','own_d2','oracle_d2'):
+                    c[arm+'_changed']+=any(maps[arm][key].get(k)!=b.get(k) for k in ('beats','segments','downbeats'))
+        counts[seed]=dict(c)
+    return counts
 
 
 def main():
@@ -130,11 +147,19 @@ def main():
     human=card['C1']['human:mapper']['aligned']['ready']['value']
     model={s:card['pooled'][s+':baseline']['aligned']['ready']['value'] for s in SEEDS}
     gap={s:human-model[s] for s in SEEDS}
+    human_values=np.array([r['ready'] for r in structures if r['arm']=='human:mapper' and r['aligned']])
+    gap_intervals={}
+    for s in SEEDS:
+        mv=np.array(list(baseline_struct[s].values()))
+        rng=np.random.default_rng(20261028)
+        draws=human_values[rng.integers(0,len(human_values),(2000,len(human_values)))].mean(1)-mv[rng.integers(0,len(mv),(2000,len(mv)))].mean(1)
+        gap_intervals[s]=dict(n_model=len(mv),n_human=len(human_values),value=gap[s],ci95=np.quantile(draws,[.025,.975]).tolist())
     null_pass={a:card['pooled']['reference:'+a]['aligned']['ready']['value']<=.05 for a in ('random_phase','random_level','x2')}
     doubled=card['pooled']['reference:x2']['aligned']
     x2level=doubled['classes'].get('level x2',0)/doubled['spans']
     verdicts['X6']=dict(nulls=null_pass,x2_level_share=x2level,x2_level_pass=x2level>=.95,
-        gap=gap,seed_rate_difference=abs(model['s0']-model['s1']),seed_verdict_disagreement=disagree,
+        gap=gap,gap_intervals=gap_intervals,x2_level=doubled['class_intervals'].get('level x2'),
+        seed_rate_difference=abs(model['s0']-model['s1']),seed_verdict_disagreement=disagree,
         gap_exceeds_disagreement=all(v>disagree['value'] for v in gap.values()))
     verdicts['X6']['retires_ranking']=not(all(null_pass.values()) and x2level>=.95 and verdicts['X6']['gap_exceeds_disagreement'])
     guard={}
@@ -164,7 +189,10 @@ def main():
             n_oracle+=1
             if not np.isclose(q[metric],float(before[metric]),atol=1e-9,rtol=0,equal_nan=True):
                 oracle_differences.append(dict(key=key,metric=metric,before=float(before[metric]),after=q[metric]))
+    cohort_counts={p:{c:comp[p][c]['oracle_d2']['n_level']['seeds']['s0']['baseline']['n']
+        for c in ('all','S0','S5')} for p in PANELS}
     result=dict(preregistration=json.loads((OUT/'prereg-identity.json').read_text()),scorecard_source=args.scorecards or 'panels.jsonl',
+        cohort_recordings=cohort_counts,map_changes=map_changes(),
         baseline=json.loads((OUT/'baseline-reproduction.json').read_text()),X4=x4,X5=comp,
         checkpoint_context=checkpoint_context,original_oracle_reproduction=dict(compared=n_oracle,differences=oracle_differences),
         X6=dict(scorecard=card,guarded=guard,session_coverage={k:v for k,v in session.items() if k not in ('marks','counts')},
@@ -182,17 +210,27 @@ def report(r,mapper):
         f"Preregistration SHA-256: `{pr['sha256']}`; frozen UTC: `{pr['utc']}`.",
         'Baseline source: `b51a9ff`; evidence: both E2 checkpoint-009001 seeds. CPU only, nice 10, two workers.',
         f"Baseline: {r['baseline']['jobs']} recording/seed jobs, {r['baseline']['compared_scores']} score comparisons; exact timing maps and E1 scores reproduced with zero differences.", '',
+        'The fit_dev panel has 322 reference sets in 262 recordings; val-n1 hard has 150 sets in 150 recordings. '
+        'The pooled panel has 472 sets in 412 recordings. All model arms use both seeds at the same checkpoint and the same fixed tracked path. '
+        'The frozen definitions and thresholds are in [prereg.md](prereg.md).', '',
         'Intervals below are recording-bootstrap 95% intervals (2,000 draws); values and differences are percentages / percentage points. '
         'The margin is the larger baseline seed difference or baseline bootstrap half-width. '
         'The 40-song subset is included in fit_dev and is not counted again in the pool.', '',
         '## X4: evidence and decoder', '',
         '| Cohort | Seed | Failing runs | Recordings | Chart evidence right % [95% CI] | Decoded evidence right % [95% CI] |',
         '| --- | --- | ---: | ---: | --- | --- |']
+    lines[lines.index('## X4: evidence and decoder')+1:lines.index('## X4: evidence and decoder')+1]=[
+        '', 'A run contains at least four complete consecutive chart bars with the same notated beat count. '
+        'Same-bars requires each start and end within 20 ms and no intervening predicted bar start. '
+        'On baseline-failing runs, maximise the summed sampled downbeat log odds over meters 2–8 and every phase; '
+        'the true chart meter/phase must be a maximum. The primary share pools runs, with recording bootstrap clusters.']
     for panel,ss in r['X4']['cohorts'].items():
         for s,x in ss.items():lines.append(f"| {panel} | {s} | {x['runs']} | {x['chart']['n']} | {fmt(x['chart'])} | {fmt(x['decoded'])} |")
     lines+=['', 'Chart-evidence noise margins (pp): '+', '.join(f"{p} {100*m:.2f}" for p,m in r['X4']['margins'].items())+'.']
     lines+=['',f"Prediction (>=60% both seeds): **{v['X4a_prediction']}**. Retire decoder repair as main lever (<=40% both): **{v['X4a_retires_main_lever']}**.",
         f"D3 gate: **{r['X4']['d3_gate']}**. X4b status: **{v['X4b']}**.", '',
+        'Neither the >=60% prediction nor the <=40% retirement threshold holds on both seeds. '
+        'D3, its shuffled-emission null and the stage 0c negative control were not run because the preregistered gate failed; D3 itself is untested.', '',
         'The requested unnormalised sum over downbeat log odds is sensitive to candidate meter rate. '
         'This characterises the stated decode-free criterion; it does not prove the head contains no usable bar information.', '',
         '| Cohort | Seed | Failure class | Runs | Share % [95% CI] |','| --- | --- | --- | ---: | --- |']
@@ -201,6 +239,13 @@ def report(r,mapper):
             for c,n in x['failure_classes'].items():lines.append(f"| {panel} | {s} | {c} | {n} | {fmt(x['class_intervals'][c])} |")
     lines+=['','Systematic phase histograms and tie counts are in results.json; classes give grid failures priority while the evidence-right numerator remains independent.', '',
         '## X5: octave bands and parity', '',
+        'D2 integrates the level posterior with the period-head distribution into notated octave-band probabilities, '
+        'then selects a power-of-two multiplier of the fitted tracked pulse. D4 changes only half-level parity from sums to means. '
+        'The original oracle comparator replaces level probabilities without D2.', '',
+        '| Cohort | All recordings | S0 recordings | S5 recordings |', '| --- | ---: | ---: | ---: |']
+    for panel,counts in r['cohort_recordings'].items():
+        lines.append(f"| {panel} | {counts['all']} | {counts['S0']} | {counts['S5']} |")
+    lines += ['',
         '| Cohort/cell | Arm | Metric | Margin pp | s0 baseline % | s0 delta pp [95% CI] | s1 baseline % | s1 delta pp [95% CI] |',
         '| --- | --- | --- | ---: | ---: | --- | ---: | --- |']
     for panel,cells in r['X5'].items():
@@ -214,8 +259,15 @@ def report(r,mapper):
         f"X5c within-noise prediction: `{json.dumps(v['X5c'])}`.",f"Fold diagnosis retirement rule fired: **{v['X5_retires_fold']}**.", '',
         f"Original level-oracle reproduction: {r['original_oracle_reproduction']['compared']} metric comparisons, {len(r['original_oracle_reproduction']['differences'])} differences from stage 0.", '',
         'The oracle replaces only level probabilities; period uncertainty, the tracked path, parity and bar emissions remain model-derived. '
-        'The difference from the original oracle is therefore a decoder diagnostic, not deployable oracle performance.', '',
+        'The difference from the original oracle is therefore a decoder diagnostic, not deployable oracle performance. '
+        'The oracle result supports the fold diagnosis under this intervention. The own-head result rejects this D2 implementation: '
+        'its period/band aggregation may interact with the learned level probabilities, so oracle success does not establish a deployable repair.', '',
+        'D4 changed timing maps: '+', '.join(f"{s} {x['d4_changed']}/{x['sets']}" for s,x in r['map_changes'].items())+'.', '',
         '## X6: structural scorecard', '',
+        'The scorecard uses one-to-one notated matching at 15 ms, partitions the reference into eight-bar spans including final fragments, '
+        'and assigns each span its first structural error. Inserted predictions count. Correct, offset-only and fine spans are structurally acceptable; '
+        'one structural error in any reference set makes its recording unready. The aligned verdict subtracts one head-weighted mutual-nearest '
+        'song offset capped at ±50 ms; raw uses zero. The same offset and 90% R5/P5 guard apply to mapper pairs.', '',
         f"Mapper floor: {mapper['pairs']} C1 same-audio pairs, {mapper['recordings']} recordings. C1 was selected for canonical grid agreement; these are different recordings from the model panels.", '',
         '| Cohort | Arm | Offset | Recordings | Ready % [95% CI] | Spans |','| --- | --- | --- | ---: | --- | ---: |']
     for panel,arms in r['X6']['scorecard'].items():
@@ -223,11 +275,12 @@ def report(r,mapper):
             if arm.split(':')[-1] not in ('baseline','mapper','random_phase','random_level','x2'):continue
             for mode,x in modes.items():lines.append(f"| {panel} | {arm} | {mode} | {x['ready']['n']} | {fmt(x['ready'])} | {x['spans']} |")
     lines+=['','First structural error counts (aligned; all raw and treatment counts are in results.json):','',
-        '| Cohort | Arm | Class | Spans |','| --- | --- | --- | ---: |']
+        '| Cohort | Arm | Class | Spans | Share % [95% CI] |','| --- | --- | --- | ---: | --- |']
     for panel in ('pooled','C1'):
         for arm,modes in r['X6']['scorecard'][panel].items():
             if arm.split(':')[-1] not in ('baseline','mapper','random_phase','random_level','x2'):continue
-            for cls,n in modes['aligned']['classes'].items():lines.append(f'| {panel} | {arm} | {cls} | {n} |')
+            for cls,n in modes['aligned']['classes'].items():
+                lines.append(f"| {panel} | {arm} | {cls} | {n} | {fmt(modes['aligned']['class_intervals'][cls])} |")
     lines+=['','Guarded readiness uses the same one-to-one notated R5 and P5 for models and mapper pairs, each >=90%.','',
         '| Cohort | Arm | R5 % [CI] | P5 % [CI] | Guarded % [CI] | Raw guarded % [CI] |',
         '| --- | --- | --- | --- | --- | --- |']
@@ -235,7 +288,8 @@ def report(r,mapper):
         for arm,x in arms.items():lines.append(f"| {panel} | {arm} | {fmt(x['r5'])} | {fmt(x['p5'])} | {fmt(x['guarded_ready'])} | {fmt(x['raw_guarded_ready'])} |")
     x=v['X6']
     lines+=['',f"Null ready <=5%: `{json.dumps(x['nulls'])}`. Doubled-level spans: {100*x['x2_level_share']:.2f}% (required >=95%).",
-        f"Mapper-minus-model gaps: `{json.dumps(x['gap'])}` (fractions). Seed ready-rate difference: {100*x['seed_rate_difference']:.2f} pp; paired seed verdict disagreement: {fmt(x['seed_verdict_disagreement'])}%.",
+        'Mapper-minus-model gap pp [95% CI]: '+', '.join(f"{s} {fmt(q)}" for s,q in x['gap_intervals'].items())+'. '
+        f"Seed ready-rate difference: {100*x['seed_rate_difference']:.2f} pp; paired seed verdict disagreement: {fmt(x['seed_verdict_disagreement'])}%.",
         f"Retire scorecard for ranking: **{x['retires_ranking']}**. Passing nulls and a selected mapper floor does not validate ranking against independent human structural labels; none are available here.", '',
         '### Session 1 chart coverage', '',
         f"Off-pulse marks within 20 ms of a chart head after subtracting +7.7 ms: {fmt(r['X6']['session_coverage']['coverage'])}%.",
