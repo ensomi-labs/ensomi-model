@@ -610,6 +610,9 @@ def build():
         nontrivial = verdicts['P5b']['posthoc_nontrivial'][seed]
         if null:
             lines.append(f"Seed {seed} shifted attack-null AUC: {number(null['mean'])}, 95% CI {confidence(null['ci95'])}; expected ceiling .60.")
+        overlap = stat(results['posthoc_attack_null_overlap'].get(str(seed)), 'summary', 'panels')
+        if overlap:
+            lines.append(f"Seed {seed} shifted-positive off-line label overlap with original positives: {number(overlap['mean'])}, 95% CI {confidence(overlap['ci95'])} (post-hoc description; not a decision statistic).")
         if unmatched:
             lines.append(f"Seed {seed} unmatched decoded-beat share: {number(unmatched['mean'])}, 95% CI {confidence(unmatched['ci95'])}. P3 decoded AUC is conditional on matched beats.")
         if nontrivial:
