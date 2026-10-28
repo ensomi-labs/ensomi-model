@@ -25,6 +25,21 @@ def main():
     for seed in ('s0','s1'):
         for item in sorted({x['item'] for x in xs}):
             paths += [PREV/'evidence'/seed/'009001'/(item+'.npz'),PREV/'e2-maps'/seed/'009001'/(item+'.json')]
+    from calibration import pair_reference
+    pair_path=ROOT/'artifacts/bulk/mapper-spread-20261021/run/pairs.jsonl'
+    pairs=[json.loads(line) for line in pair_path.read_text().splitlines()]
+    for pair in pairs:
+        if not pair['flags']['c1']:continue
+        if set(pair['split'].split('|'))-{'fit_train','fit_dev','cal'}:
+            raise ValueError('Pair outside allowed open splits')
+        for key in ('a','b'):
+            paths.extend(Path(p) for p in pair_reference(pair[key]).meta['difficulties'])
+    session=ROOT/'artifacts/timing-lens-20261024'
+    identity=session/'private/session-01.identities.json'
+    paths.append(identity)
+    for passage in json.loads(identity.read_text())['passages'].values():
+        paths.extend(ROOT/v['source'] for v in passage.values() if v['kind']=='chart')
+    paths=sorted(set(paths))
     value=dict(stage0_identity_checks=matches,files={str(p):sha(p) for p in paths},
         source_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         code_hashes={p.name:sha(p) for p in HERE.glob('*.py')},python=sys.version,
