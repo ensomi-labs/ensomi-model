@@ -470,6 +470,12 @@ def propagation_verdict():
                                         episode_spreads=episode_spread(arm, 'M3i', 'graph'))
             retiring[str(away)] = compare(aa, bb, threshold=0, direction='below',
                                         episode_spreads=episode_spread(arm, 'M3i', 'graph'))
+            for seed in (0, 1):
+                missing = [name for name, value in ((arm, aa[seed]), ('graph', bb[seed])) if value is None]
+                if missing and read(f'P7-s{seed}.json'):
+                    for comparison in (comparisons[str(away)], retiring[str(away)]):
+                        comparison['seeds'][str(seed)]['reason'] = (
+                            f'No adjacent sampled gains bracket away-share {away} for: ' + ', '.join(missing))
         null_checks = {kind: compare(null, {s: scaled_stats(real[s], .2) for s in (0, 1)},
             threshold=0, direction='below', episode_spreads=episode_spread(
                 arm, 'M3i', arm, kind=kind, other_scale=.2)) for kind, null in nulls.items()}
@@ -637,6 +643,7 @@ def build():
     lines.append('')
     lines += ['## P7 invariants and packet', '', '```json', json.dumps(verdicts['P7']['invariants'], indent=2), '```', '',
               '![Propagation gain curves](P7-curves.png)' if str(OUT / 'P7-curves.png') in results['figures'] else 'Propagation curves unavailable.', '',
+              'Matched-away readings require adjacent sampled gains that bracket the requested harm share. Zero-gain harm is undefined because no beats changed; it is not a zero-harm anchor. Unbracketed targets remain unassessed, and fewer than 40 contributing recordings only characterise.', '',
               'Self-label nulls (zero MAP changes expected):', '', '```json', json.dumps(verdicts['P7']['self_label_status'], indent=2), '```', '',
               json.dumps(results['packet'], indent=2) if results['packet'] else 'Packet not yet built.', '',
               '## Private design checks', '',
