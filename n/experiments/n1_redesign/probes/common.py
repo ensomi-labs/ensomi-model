@@ -145,14 +145,38 @@ def manifests(seed, ready=True):
     return rows
 
 
+@lru_cache(maxsize=1)
+def extension_mel_index():
+    path = ROOT / 'artifacts/n1-redesign-20261028/gpu/inference-songs.json'
+    index = json.loads(path.read_text())
+    inputs_path = OUT / 'inputs.json'
+    inputs = json.loads(inputs_path.read_text())
+    inputs['extension_mel_index'] = dict(path=str(path), sha256=digest(path),
+        use='Read-only fallback for manifest-listed extension recordings missing from the bulk Mel cache')
+    dump(inputs_path, inputs)
+    return index
+
+
+def mel_for(r):
+    from ensomi_n.features.cache import mel_path
+    path = mel_path(ROOT / 'artifacts/bulk/n1-cache/mel', r['sha256'])
+    if not path.exists():
+        assert r.get('ext'), 'A non-extension input is missing its bulk Mel cache'
+        entry = extension_mel_index()[r['sha256']]
+        expected = mel_path(ROOT / 'artifacts/n1-redesign-20261028/gpu/input-cache/mel', r['sha256'])
+        assert Path(entry['mel']) == expected and entry['item'] == r['sha256']
+        assert entry['frames'] == r['frames']
+        path = expected
+    return np.load(path, mmap_mode='r', allow_pickle=False)
+
+
 def features(r):
     assert Path(r['npz']) == Path(r['sha256'][:2]) / (r['sha256'] + '.npz')
     p = Path(r['cache_dir']) / r['npz']
     with np.load(p, allow_pickle=False) as z:
         f, l = z['feat'].astype('float32'), z['logits'].astype('float32')
         assert float(z['t0_ms']) == 0 and float(z['fps']) == 100
-    from ensomi_n.features.cache import load_mel
-    m = load_mel(ROOT / 'artifacts/bulk/n1-cache/mel', r['sha256'])
+    m = mel_for(r)
     assert f.shape == (len(m), 160) and l.shape == (len(m), 23)
     assert len(f) == r['frames']
     assert r['t0_ms'] == 0 and r['fps'] == 100

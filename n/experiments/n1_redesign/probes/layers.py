@@ -101,16 +101,16 @@ def run(seed, keysounds=False):
                 f, l, m = features(rows[u['sha']]); z = labels(u)
                 d = event_inputs(f, l, m, z['event_t'][use], z)
                 pc = np.argmax(d['Pos'][:, :24], axis=1) + 24 * np.argmax(d['Pos'][:, 24:], axis=1)
-                yn = permute(yy, np.repeat(stable_seed(rec), len(yy)), pc)
                 cohort = 'panels' if u['cohort'] in ('panel', 'val_hard') else u['cohort']
-                g = groups[cohort]; g['y'].append(yy); g['null_y'].append(yn)
+                g = groups[cohort]; g['y'].append(yy); g['pc'].append(pc)
                 for key, (name, null, pred) in predictors.items():
                     xx = np.concatenate([d[k] for k in name.split('+')], axis=1)
                     g[key].append(pred(xx))
             for cohort, g in groups.items():
-                yy, yn = np.concatenate(g['y']), np.concatenate(g['null_y'])
+                yy = np.concatenate(g['y'])
+                yn = permute(yy, np.repeat(stable_seed(rec), len(yy)), np.concatenate(g['pc']))
                 for key, pp in g.items():
-                    if key not in ('y', 'null_y'):
+                    if key not in ('y', 'pc'):
                         scores[cohort][key][rec] = auc(yn if key.endswith('null1') else yy, np.concatenate(pp))
         output[tag] = dict(counts=counts, summary={cohort: {name: dict(**interval(list(r.values())), recordings=r)
                           for name, r in g.items()} for cohort, g in scores.items()})

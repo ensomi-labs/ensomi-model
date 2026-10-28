@@ -32,6 +32,26 @@ def average_stats(stats):
     return dict(**interval(list(values.values())), recordings=values)
 
 
+def merge_stats(stats):
+    """Join read cohorts while keeping one contribution per recording."""
+    grouped = defaultdict(list)
+    for item in stats:
+        if item:
+            for rec, value in item['recordings'].items():
+                grouped[rec].append(value)
+    if not grouped:
+        return None
+    values = {rec: float(np.mean(v)) for rec, v in grouped.items()}
+    return dict(**interval(list(values.values())), recordings=values)
+
+
+def scaled_stats(item, scale):
+    if item is None:
+        return None
+    values = {rec: value * scale for rec, value in item['recordings'].items()}
+    return dict(**interval(list(values.values())), recordings=values)
+
+
 def compare(a, b, *, threshold, direction='above', refits=None, episode_spreads=None,
             require_refits=False):
     """Compare paired recording means; unavailable seeds/noise never pass."""
@@ -188,17 +208,21 @@ def probe_verdicts():
                              ('P4b', [f'{part}:stratum{st}' for part in ('kick', 'snare', 'hat') for st in (0, 1)])]:
         per_target = {}
         for tag in tags:
-            path = [tag, 'summary', 'panels']
-            base = probe_stats(experiment, path, 'Pos:null0')
-            f = probe_stats(experiment, path, 'Pos+F:null0')
-            m = probe_stats(experiment, path, 'Pos+M:null0')
+            cohorts = ['panels', 'keysound_extension'] if experiment == 'P4b' else ['panels']
+            def layer_stat(data, key):
+                return merge_stats([stat(data, tag, 'summary', c, key) for c in cohorts])
+            def layer_seeds(key):
+                return {s: layer_stat(read(f'{experiment}-s{s}.json'), key) for s in (0, 1)}
+            base = layer_seeds('Pos:null0')
+            f = layer_seeds('Pos+F:null0')
+            m = layer_seeds('Pos+M:null0')
             def refit_layers(left, right):
                 vals = {}
                 for seed in (0, 1):
                     data = read(f'{experiment}-s{seed}.json'); v = []
                     for b in range(5):
-                        aa = stat(data, *path, f'{left}:null0:boot{b}')
-                        bb = stat(data, *path, f'{right}:null0:boot{b}')
+                        aa = layer_stat(data, f'{left}:null0:boot{b}')
+                        bb = layer_stat(data, f'{right}:null0:boot{b}')
                         if aa and bb:
                             v.append(paired(aa['recordings'], bb['recordings'])['mean'])
                     vals[seed] = v
@@ -208,7 +232,7 @@ def probe_verdicts():
                 pred['feature_over_Mel_002'] = compare(f, m, threshold=.02, refits=refit_layers('Pos+F', 'Pos+M'))
             retirement = [compare(v, base, threshold=.02, direction='below', refits=refit_layers(name, 'Pos'))
                           for v, name in ((f, 'Pos+F'), (m, 'Pos+M'))]
-            per_target[tag] = dict(predictions=pred, retire=dict(feature_gain_below_002=retirement[0], Mel_gain_below_002=retirement[1]),
+            per_target[tag] = dict(read_cohorts=cohorts, predictions=pred, retire=dict(feature_gain_below_002=retirement[0], Mel_gain_below_002=retirement[1]),
                 verdict='retire under mapper-agreement screen' if all(v['holds_both_seeds'] for v in retirement) else verdict(pred, {}))
         output[experiment] = dict(verdict='characterises; see per-target power and margins', targets=per_target,
             predictions={f'{tag}:{k}': v for tag, row in per_target.items() for k, v in row['predictions'].items()},
@@ -220,26 +244,29 @@ def episode_stats(arm, metric, kind='real', cell='all'):
     return {s: stat(read(f'P7-s{s}.json'), 'summary', f'{arm}:{kind}:{cell}', metric) for s in (0, 1)}
 
 
-def episode_spread(arm, metric, other=None):
+def episode_spread(arm, metric, other=None, kind='real', other_kind='real', other_scale=1.):
     result = {}
     for seed in (0, 1):
         data = read(f'P7-s{seed}.json')
         spreads = []
-        for cells in (['sim0', 'sim1'], ['pos0', 'pos1', 'pos2']):
+        strata = [['sim0', 'sim1']]
+        if not kind.startswith('confirming-'):
+            strata.append(['pos0', 'pos1', 'pos2'])
+        for cells in strata:
             values = []
             for cell in cells:
-                a = stat(data, 'summary', f'{arm}:real:{cell}', metric)
-                b = stat(data, 'summary', f'{other}:real:{cell}', metric) if other else None
+                a = stat(data, 'summary', f'{arm}:{kind}:{cell}', metric)
+                b = scaled_stats(stat(data, 'summary', f'{other}:{other_kind}:{cell}', metric), other_scale) if other else None
                 if a and (not other or b):
                     value = paired(a['recordings'], b['recordings'])['mean'] if b else a['mean']
                     if value is not None:
                         values.append(value)
             if len(values) == len(cells):
                 spreads.append(max(values) - min(values))
-        learners = [stat(data, 'summary', f'learned{k}:real:all', metric) for k in (0, 1)]
-        if all(learners):
+        learners = [stat(data, 'summary', f'learned{k}:{kind}:all', metric) for k in (0, 1)]
+        if all(x and x['mean'] is not None for x in learners):
             spreads.append(abs(learners[0]['mean'] - learners[1]['mean']))
-        result[seed] = max(spreads) if len(spreads) == 3 else None
+        result[seed] = max(spreads) if len(spreads) == len(strata) + 1 else None
     return result
 
 
@@ -254,14 +281,17 @@ def curve_read(seed, arm, away):
         a, y = metrics.get('M4_away'), metrics.get('M3i')
         if a and y and a['mean'] is not None and y['mean'] is not None:
             points.append((a['mean'], float(key.split(':')[1]), y))
-    points.sort(key=lambda p: (p[0], p[1]))
+    # Follow the gain sweep in its registered order; sorting by away-share
+    # could connect nonadjacent settings and hide a non-monotone curve.
+    points.sort(key=lambda p: p[1])
     for left, right in zip(points[:-1], points[1:]):
-        if left[0] <= away <= right[0] and right[0] > left[0]:
+        if min(left[0], right[0]) <= away <= max(left[0], right[0]) and right[0] != left[0]:
             weight = (away - left[0]) / (right[0] - left[0])
             keys = set(left[2]['recordings']) & set(right[2]['recordings'])
             values = {r: left[2]['recordings'][r] * (1 - weight) + right[2]['recordings'][r] * weight for r in keys}
             return dict(**interval(list(values.values())), recordings=values,
-                        away=away, gains=[left[1], right[1]], interpolation_weight=weight)
+                        away=away, gains=[left[1], right[1]], interpolation_weight=weight,
+                        method='First crossing between adjacent gains; recording interval conditional on interpolation weight')
     return None
 
 
@@ -277,7 +307,7 @@ def propagation_verdict():
                     episode_spreads=episode_spread('graph', 'M4_away')))
     for kind in ('confirming-fail', 'confirming-nofail'):
         pred[kind + '_M8_001'] = compare(episode_stats('graph', 'M8', kind), None, threshold=.01, direction='below',
-                                        episode_spreads=episode_spread('graph', 'M8'))
+                                        episode_spreads=episode_spread('graph', 'M8', kind=kind))
     retire = dict(away_over_035=compare(episode_stats('graph', 'M4_away'), None, threshold=.35,
                                       episode_spreads=episode_spread('graph', 'M4_away')))
     similarity_no_gain = compare(graph, local, threshold=0, direction='below',
@@ -310,14 +340,20 @@ def propagation_verdict():
                                         episode_spreads=episode_spread(arm, 'M3i', 'graph'))
             retiring[str(away)] = compare(aa, bb, threshold=0, direction='below',
                                         episode_spreads=episode_spread(arm, 'M3i', 'graph'))
-        null_good = all(ratios[kind][str(seed)]['ratio'] is not None and ratios[kind][str(seed)]['ratio'] <= .2
-                        for kind in ratios for seed in (0, 1))
-        shuffle_bad = all(ratios['shuffle'][str(seed)]['ratio'] is not None and ratios['shuffle'][str(seed)]['ratio'] > .5 for seed in (0, 1))
+        null_checks = {kind: compare(null, {s: scaled_stats(real[s], .2) for s in (0, 1)},
+            threshold=0, direction='below', episode_spreads=episode_spread(
+                arm, 'M3i', arm, kind=kind, other_scale=.2)) for kind, null in nulls.items()}
+        shuffle_check = compare(nulls['shuffle'], {s: scaled_stats(real[s], .5) for s in (0, 1)},
+            threshold=0, episode_spreads=episode_spread(arm, 'M3i', arm, kind='shuffle', other_scale=.5))
+        positive_denominator = all(real[s] and real[s]['mean'] is not None and real[s]['mean'] > 0 for s in (0, 1))
+        null_good = positive_denominator and all(v['holds_both_seeds'] for v in null_checks.values())
+        shuffle_bad = positive_denominator and shuffle_check['holds_both_seeds']
         learned_verdict = ('retire under mapper-agreement screen' if shuffle_bad or all(v['holds_both_seeds'] for v in retiring.values())
                            else 'pass under mapper-agreement screen' if null_good and all(v['holds_both_seeds'] for v in comparisons.values())
                            else 'inconclusive')
         learned[arm] = dict(verdict=learned_verdict, matched_away=comparisons, retire_matched_away=retiring,
-            null_retention=ratios, null_retention_limit_met=null_good, shuffle_retire=shuffle_bad,
+            null_retention=ratios, null_retention_checks=null_checks, shuffle_retire_check=shuffle_check,
+            null_retention_limit_met=null_good, shuffle_retire=shuffle_bad,
             over_random=compare(real, random, threshold=0, episode_spreads=episode_spread(arm, 'M3i', 'random')))
     invariant = {str(s): read(f'P7-invariants-s{s}.json') for s in (0, 1)}
     invariant_ok = all(invariant[str(s)] and invariant[str(s)].get('complete') and invariant[str(s)].get('breaches') == 0 for s in (0, 1))

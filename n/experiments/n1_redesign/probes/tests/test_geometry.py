@@ -26,6 +26,25 @@ def test_transitive_folder_rejected_before_read():
         assert_open(row, e)
 
 
+def test_extension_mel_requires_manifest_and_recorded_path(tmp_path, monkeypatch):
+    from n1_redesign.probes import common
+    from ensomi_n.features.cache import mel_path
+    monkeypatch.setattr(common, 'ROOT', tmp_path)
+    sha = 'a' * 64
+    row = dict(sha256=sha, frames=4)
+    with pytest.raises(AssertionError, match='non-extension'):
+        common.mel_for(row)
+    path = mel_path(tmp_path / 'artifacts/n1-redesign-20261028/gpu/input-cache/mel', sha)
+    path.parent.mkdir(parents=True)
+    np.save(path, np.ones((4, 128), np.float16))
+    index = {sha: dict(item=sha, frames=4, mel=str(path))}
+    monkeypatch.setattr(common, 'extension_mel_index', lambda: index)
+    assert common.mel_for(dict(row, ext=True)).shape == (4, 128)
+    index[sha]['mel'] = str(tmp_path / 'unlisted.npy')
+    with pytest.raises(AssertionError):
+        common.mel_for(dict(row, ext=True))
+
+
 def test_lattice_and_interpolation():
     assert len(LATTICE) == 24
     assert set(np.round(LATTICE * 48).astype(int)) == set(range(0, 48, 3)) | set(range(0, 48, 4))

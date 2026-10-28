@@ -5,7 +5,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from n1_redesign.probes.common import auc, interval, paired
-from n1_redesign.probes.report import compare
+from n1_redesign.probes.report import compare, merge_stats
 
 
 def summary(values):
@@ -36,3 +36,21 @@ def test_power_floor_and_refit_margin():
     assert compare({0: a, 1: a}, None, threshold=.7)['holds_both_seeds']
     noisy = {0: [.6, .8, .9, 1., .7], 1: [.6, .8, .9, 1., .7]}
     assert not compare({0: a, 1: a}, None, threshold=.7, refits=noisy)['holds_both_seeds']
+
+
+def test_joined_read_cohorts_count_each_recording_once():
+    result = merge_stats([summary({'a': .2, 'shared': .4}), None,
+                          summary({'b': .8, 'shared': .6})])
+    assert result['n'] == 3
+    assert result['recordings'] == {'a': .2, 'b': .8, 'shared': .5}
+
+
+def test_curve_follows_adjacent_gains(monkeypatch):
+    from n1_redesign.probes import report
+    data = {'curves': {f'graph:{g}': {'M4_away': summary({'a': x}),
+                                    'M3i': summary({'a': y})}
+                       for g, x, y in [(0, 0, 0), (1, .3, .9), (2, .1, .1)]}}
+    monkeypatch.setattr(report, 'read', lambda _: data)
+    value = report.curve_read(0, 'graph', .2)
+    assert value['gains'] == [0, 1]
+    assert abs(value['mean'] - .6) < 1e-6

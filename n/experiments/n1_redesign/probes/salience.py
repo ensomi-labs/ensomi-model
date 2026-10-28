@@ -12,7 +12,7 @@ from .tokens import event_inputs
 def predictors(u, row):
     z = labels(u)
     q = np.isfinite(z['retention'])
-    if sum(q) < 30:
+    if not q.any():
         return None
     ht = z['hard_heads']
     pos = z['hard_pos']
@@ -26,12 +26,16 @@ def predictors(u, row):
     d = event_inputs(f, logits, m, ht[q], z)
     x = np.c_[c[q], interp(f, ht[q]), d['M'][:, :1152], z['chord'][q]].astype('float64')
     y = z['retention'][q].astype(float)
+    return x, y, cls[q]
+
+
+def permute_retention(y, cls, rec):
     null = y.copy()
-    rng = np.random.default_rng(stable_seed('P2-null:' + u['rec']))
+    rng = np.random.default_rng(stable_seed('P2-null:' + rec))
     for k in range(7):
-        ix = np.flatnonzero(cls[q] == k)
+        ix = np.flatnonzero(cls == k)
         null[ix] = rng.permutation(null[ix])
-    return x, y, null
+    return null
 
 
 def run(seed):
@@ -61,7 +65,8 @@ def run(seed):
         data = predictors(u, cache[u['sha']])
         if data is None:
             continue
-        x, y, null = data
+        x, y, cls = data
+        null = permute_retention(y, cls, u['rec'])
         x = np.c_[x, np.ones(len(x))]
         target = np.c_[y, null]
         a, b = x.T @ x / len(x), x.T @ target / len(x)
@@ -98,23 +103,37 @@ def run(seed):
                 key = f'{name}:null{null}:refit{refit}'
                 models[key] = (idx, beta)
                 selected[key] = dict(alpha=alpha, dev_mse=mse)
-    recordings = defaultdict(lambda: defaultdict(list))
+    predictions = defaultdict(lambda: defaultdict(list))
     for u in us:
         if u['cohort'] not in ('panel', 'val_hard') or u['sha'] not in cache:
             continue
         data = predictors(u, cache[u['sha']])
         if data is None:
             continue
-        x, y, null = data
+        x, y, cls = data
         x = np.c_[x, np.ones(len(x))]
+        predictions[u['rec']]['y'].append(y)
+        predictions[u['rec']]['cls'].append(cls)
         for name, (idx, beta) in models.items():
+            predictions[u['rec']][name].append(x[:, idx] @ beta)
+    recordings = defaultdict(dict)
+    for rec, group in predictions.items():
+        y, cls = np.concatenate(group['y']), np.concatenate(group['cls'])
+        if len(y) < 30:
+            continue
+        null = permute_retention(y, cls, rec)
+        for name, values in group.items():
+            if name in ('y', 'cls'):
+                continue
             target = null if ':null1:' in name else y
             if np.std(target) == 0:
                 continue
-            score = float(spearmanr(target, x[:, idx] @ beta).statistic)
+            score = float(spearmanr(target, np.concatenate(values)).statistic)
             if np.isfinite(score):
-                recordings[name][u['rec']].append(score)
-    summary = {k: dict(**interval([np.mean(v) for v in r.values()]),
-                       recordings={rec: float(np.mean(v)) for rec, v in r.items()}) for k, r in recordings.items()}
+                recordings[name][rec] = score
+    summary = {k: dict(**interval(list(r.values())), recordings=r) for k, r in recordings.items()}
+    np.savez_compressed(OUT / 'models' / f'P2-s{seed}.npz',
+        **{key + ':coefficients': beta for key, (idx, beta) in models.items()},
+        **{key + ':columns': idx for key, (idx, beta) in models.items()})
     dump(OUT / f'P2-s{seed}.json', dict(summary=summary, selected=selected, fit_units=nfit, dev_units=ndev))
     log('P2_done', seed=seed)

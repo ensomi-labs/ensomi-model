@@ -169,14 +169,18 @@ class Song:
     metric_cache: dict = field(default_factory=dict)
 
 
-def song(seed, u):
+def song(seed, u, *, geometry=True):
     z = labels(u)
     p = np.load(OUT / 'm0' / f's{seed}' / (u['id'] + '.npy'))
     t = token_load(seed, u)
     c, cm = norm(context(t['Fz'])), norm(context(t['Mz']))
-    b = norm(bar_tokens(t['Fz'], z))
-    exact, _ = pattern_matrix(z)
-    return Song(u, z, p, c, cm, c @ c.T, cm @ cm.T, b @ b.T, exact, regions(z, p), pulse_hash(z))
+    if geometry:
+        b = norm(bar_tokens(t['Fz'], z))
+        exact, _ = pattern_matrix(z)
+        similarity, mel_similarity, bar_similarity = c @ c.T, cm @ cm.T, b @ b.T
+    else:
+        similarity = mel_similarity = bar_similarity = exact = None
+    return Song(u, z, p, c, cm, similarity, mel_similarity, bar_similarity, exact, regions(z, p), pulse_hash(z))
 
 
 def update(s, marks, arm, config, learned=None, rng_seed=0):
@@ -314,7 +318,7 @@ def train_learned(seed, train_seed):
         model.train()
         used = 0
         for ix in rng.permutation(len(fit_units)):
-            s = song(seed, fit_units[ix])
+            s = song(seed, fit_units[ix], geometry=False)
             valid = [r for r in s.regions if len(eligible(s.z, r, s.p, True))]
             if not valid:
                 continue
@@ -351,7 +355,7 @@ def train_learned(seed, train_seed):
         losses, no_marks, shuffled = [], [], []
         with torch.no_grad():
             for u in dev_units:
-                s = song(seed, u)
+                s = song(seed, u, geometry=False)
                 valid = [r for r in s.regions if len(eligible(s.z, r))]
                 if not valid:
                     continue
