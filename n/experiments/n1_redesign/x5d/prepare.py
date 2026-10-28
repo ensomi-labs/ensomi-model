@@ -17,6 +17,12 @@ def prepare(seed):
     missing = set(selected) - set(rows)
     if missing:
         raise RuntimeError(f'{seed}: {len(missing)} probe feature entries missing')
+    if seed == 's1':
+        source = manifest('s0')
+        for audio in selected:
+            memberships = lambda row: sorted(tuple(sorted(m['charts'])) for m in row['memberships'])
+            if memberships(rows[audio]) != memberships(source[audio]):
+                raise RuntimeError('Probe chart memberships differ between evidence seeds')
     destination = OUT / seed / 'data'
     destination.mkdir(parents=True, exist_ok=False)
     counts = {}
