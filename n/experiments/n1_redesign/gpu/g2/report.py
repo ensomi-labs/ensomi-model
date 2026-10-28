@@ -102,6 +102,10 @@ def build():
         fields=[f"{100*v['delta']['value']:+.2f} ({100*v['margin']:.2f})" for v in values]
         failed=[k for k,v in s['decision']['clauses'].items() if not v]
         lines.append(f"| {seed} | {' | '.join(fields)} | {', '.join(failed) if failed else 'all met'} |")
+    for seed,s in results['seeds'].items():
+        if s['run']['kills']:
+            when='at the planned final probe' if s['run']['training_s']>=2400 else 'before the planned endpoint'
+            lines += ['',f"F2-s{seed} triggered `{s['run']['status']}` {when}. Its saved endpoint is scored; the warning is retained and no scientific rerun was made."]
     lines += ['','## Runs','',
            '| Run | Status | Steps | Training min | Wall min | Sigma floor | F0 repro max abs |',
            '|---|---|---:|---:|---:|---:|---:|']
@@ -109,7 +113,7 @@ def build():
         error=max(x['max_abs'] for x in s['inference']['F0']['reproduction'])
         for name,r in [(f'F0-s{seed} (G1)',s['F0_run']),(f'F2-s{seed}',s['run'])]:
             lines.append(f"| {name} | {r['status']} | {r['steps']} | {r['training_s']/60:.2f} | {r['wall_s']/60:.2f} | {r['sigma_floor']:.10g} | {error:g} |")
-    lines+=['','G2 wrote only a final checkpoint for each F2 run. Original four-minute probes, losses, resource guards and kills are retained in runs/F2-s*/progress.jsonl. No scientific kill was rerun. Final component losses:','']
+    lines+=['','G2 wrote only a final checkpoint for each F2 run. Original four-minute probes, losses, resource guards and kills are retained in runs/F2-s*/progress.jsonl. No scientific kill was rerun. Final batch component losses:','']
     for seed,s in results['seeds'].items():
         lines.append(f"- F2-s{seed}: `{json.dumps(s['run']['final_losses'],sort_keys=True)}`.")
     lines+=['','## Panel and structure comparisons','',
