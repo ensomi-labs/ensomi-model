@@ -175,12 +175,20 @@ def figures(data, configs):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    fig, axes = plt.subplots(1, 2, figsize=(13, 5), sharey=True, layout='constrained')
+    from matplotlib.ticker import PercentFormatter
+    fig, axes = plt.subplots(2, 2, figsize=(13, 8), sharex=True, sharey='row', layout='constrained')
     styles = [('mel-graph', '#0072B2', '-'), ('oracle-graph', '#D55E00', '-'),
               ('mel-random', '#0072B2', '--'), ('oracle-random', '#D55E00', '--'),
               ('local', '#009E73', '-'), ('graph', '#CC79A7', '-'),
               ('bias', '#777777', '-'), ('mark', '#E6AB02', '-')]
-    for seed, ax in enumerate(axes):
+    zoom_high = .001
+    for seed in (0, 1):
+        for arm in (*NEW_ARMS, 'local', 'graph', 'mark'):
+            for point in curve_points(data[seed], arm):
+                x, y = point['away'], point['recovery']
+                if x and y and x['mean'] is not None and y['ci95'] is not None:
+                    zoom_high = max(zoom_high, y['ci95'][1] * 1.15)
+    for seed, top in enumerate(axes[0]):
         for arm, color, style in styles:
             points = curve_points(data[seed], arm)
             xx, yy = [], []
@@ -191,26 +199,34 @@ def figures(data, configs):
                 yy.append(y['mean'] if valid else np.nan)
                 if valid:
                     marker = 'o' if min(x['n'], y['n']) >= 40 else 'x'
-                    ax.errorbar(x['mean'], y['mean'],
-                        yerr=[[max(0, y['mean'] - y['ci95'][0])], [max(0, y['ci95'][1] - y['mean'])]],
-                        color=color, marker=marker, markersize=3, capsize=2, linewidth=.7)
+                    for ax in axes[:, seed]:
+                        ax.errorbar(x['mean'], y['mean'],
+                            yerr=[[max(0, y['mean'] - y['ci95'][0])], [max(0, y['ci95'][1] - y['mean'])]],
+                            color=color, marker=marker, markersize=3, capsize=2, linewidth=.7)
             gain = (configs[seed] or {}).get('configs', {}).get(arm, {}).get('gain')
             label = f'{arm} (selected g={gain})'
             if not any(np.isfinite(xx)):
                 label += '; no defined harm points'
-            ax.plot(xx, yy, style, color=color, linewidth=1, label=label)
-            for point, x, y in zip(points, xx, yy):
-                if point['gain'] == gain and np.isfinite([x, y]).all():
-                    ax.plot(x, y, 's', color=color, markersize=7, markerfacecolor='none')
-        for target in (.1, .2):
-            ax.axvline(target, color='#999999', linestyle=':', linewidth=.8)
-        ax.set_title(f'Feature seed {seed}')
-        ax.set_xlabel('Away-share among outside-region MAP changes')
-        ax.set_xlim(left=0)
-        ax.set_ylim(bottom=0)
-        ax.grid(alpha=.15)
-        ax.legend(frameon=False, fontsize=7, loc='upper left')
-    axes[0].set_ylabel('M3i: recovery in other failing ternary regions')
+            for ax in axes[:, seed]:
+                ax.plot(xx, yy, style, color=color, linewidth=1, label=label)
+                for point, x, y in zip(points, xx, yy):
+                    if point['gain'] == gain and np.isfinite([x, y]).all():
+                        ax.plot(x, y, 's', color=color, markersize=7, markerfacecolor='none')
+        for ax in axes[:, seed]:
+            for target in (.1, .2):
+                ax.axvline(target, color='#999999', linestyle=':', linewidth=.8)
+            ax.set_xlim(left=0)
+            ax.set_ylim(bottom=0)
+            ax.grid(alpha=.15)
+            ax.xaxis.set_major_formatter(PercentFormatter(1, decimals=0))
+            ax.yaxis.set_major_formatter(PercentFormatter(1, decimals=1))
+        top.set_title(f'Feature seed {seed}: full scale')
+        top.legend(frameon=False, fontsize=7, loc='upper left')
+        axes[1, seed].set_ylim(0, zoom_high)
+        axes[1, seed].set_title('Same curves, expanded vertical scale')
+        axes[1, seed].set_xlabel('Away-share among outside-region MAP changes')
+    axes[0, 0].set_ylabel('M3i: recovery in other failing ternary regions')
+    axes[1, 0].set_ylabel('M3i: expanded vertical scale')
     fig.suptitle('Mapper agreement: single marks, no confirmations; recording means and 95% intervals\n'
                  'Squares: selected gain on this slice. Crosses: fewer than 40 recordings. Undefined harm breaks curves.', fontsize=10)
     fig.savefig(DEST / 'curves.png', dpi=180)
@@ -349,6 +365,9 @@ def build():
               'expectation. Null ratios use shared recordings and remain undefined with a zero real-recovery '
               'denominator. A null failure is not repaired with chart-aware gating.', '',
               '## Gain curves and cohorts', '', '![Gain curves](curves.png)', '',
+              'Each seed has a full-scale view and an expanded vertical scale showing the same curves. '
+              'The expanded range is calculated from the non-bias arms’ intervals; the full-scale row '
+              'retains the complete bias curve.', '',
               'The curve slice uses one mark, no confirmations, both simulators and the three ordinary '
               'positions. Squares show the selected gain on this slice, which differs from the all-episode '
               'table. Missing harm coordinates break the line; crosses indicate fewer than 40 recordings. '
