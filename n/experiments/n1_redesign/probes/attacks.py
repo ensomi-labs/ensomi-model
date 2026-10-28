@@ -26,13 +26,26 @@ def training(seed, name, shifted=False):
         if not p.exists():
             continue
         with np.load(p) as d:
-            groups[u['cohort']].append((select(d, name), d['y'], u['rec']))
+            groups[u['cohort']].append((p, len(d['y']), u['rec']))
     out = []
     for cohort in ('probe-fit', 'probe-dev'):
         g = groups[cohort]
-        out.append((np.concatenate([a for a, _, _ in g]),
-                    np.concatenate([b for _, b, _ in g]),
-                    np.concatenate([np.repeat(rec_ids[r], len(b)) for _, b, r in g])))
+        if not g:
+            raise ValueError(f'No attack training samples for {cohort}')
+        with np.load(g[0][0]) as d:
+            sample = select(d, name)
+            width, dtype, target_dtype = sample.shape[1], sample.dtype, d['y'].dtype
+        count = sum(n for _, n, _ in g)
+        x = np.empty((count, width), dtype=dtype)
+        y, rec = np.empty(count, target_dtype), np.empty(count, dtype=np.int64)
+        offset = 0
+        for path, n, recording in g:
+            with np.load(path) as d:
+                x[offset:offset + n] = select(d, name)
+                y[offset:offset + n] = d['y']
+            rec[offset:offset + n] = rec_ids[recording]
+            offset += n
+        out.append((x, y, rec))
     return out
 
 

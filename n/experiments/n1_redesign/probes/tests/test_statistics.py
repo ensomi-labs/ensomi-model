@@ -124,3 +124,29 @@ def test_bootstrap_scaler_matches_physical_recording_resample(monkeypatch):
                    kind='logistic', seed=1, epochs=0)
     np.testing.assert_array_equal(a['mean'], b['mean'])
     np.testing.assert_array_equal(a['sd'], b['sd'])
+
+
+def test_attack_buffer_preserves_cohorts_rows_and_recording_ids(tmp_path, monkeypatch):
+    from n1_redesign.probes import attacks
+    members = [dict(id='b-fit', rec='b', cohort='probe-fit'),
+               dict(id='c-dev', rec='c', cohort='probe-dev'),
+               dict(id='a-fit', rec='a', cohort='probe-fit'),
+               dict(id='z-panel', rec='z', cohort='panel')]
+    monkeypatch.setattr(attacks, 'units', lambda: members)
+    monkeypatch.setattr(attacks, 'OUT', tmp_path)
+    folder = tmp_path / 'frames' / 's0' / 'real'
+    folder.mkdir(parents=True)
+    for identity, f, pos, y in [('b-fit', [7], [9], [1]),
+                               ('c-dev', [5], [6], [0]),
+                               ('a-fit', [1, 2], [3, 4], [0, 1])]:
+        np.savez(folder / (identity + '.npz'), F=np.array(f, np.float16)[:, None],
+                 Pos=np.array(pos, np.float16)[:, None], y=np.array(y, np.int8))
+    (x, y, rec), (xd, yd, rd) = attacks.training(0, 'F+Pos')
+    np.testing.assert_array_equal(x, [[7, 9], [1, 3], [2, 4]])
+    np.testing.assert_array_equal(y, [1, 0, 1])
+    np.testing.assert_array_equal(rec, [1, 0, 0])
+    np.testing.assert_array_equal(xd, [[5, 6]])
+    np.testing.assert_array_equal(yd, [0])
+    np.testing.assert_array_equal(rd, [2])
+    assert x.dtype == xd.dtype == np.float16
+    assert y.dtype == yd.dtype == np.int8

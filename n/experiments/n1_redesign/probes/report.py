@@ -579,6 +579,13 @@ def build():
     results['resources'] = dict(peak_recorded_process_rss_bytes=max(e.get('peak_rss_bytes', 0) for e in events),
         artifact_file_bytes=sum(p.stat().st_size for p in OUT.rglob('*') if p.is_file()),
         numerical_thread_limit=4, device='cpu', niceness=10)
+    results['resources']['memory_limit_bytes'] = 6_000_000_000
+    results['resources']['memory_budget_met'] = results['resources']['peak_recorded_process_rss_bytes'] <= 6_000_000_000
+    results['memory_mitigation'] = read('memory-validation.json')
+    if not results['resources']['memory_budget_met']:
+        peak = results['resources']['peak_recorded_process_rss_bytes'] / 1e9
+        results['limitations'].append(f'Peak logged process RSS was {peak:.3f} GB, exceeding the decimal 6 GB cap. '
+            'The attack loader was changed to avoid duplicate training matrices; memory-validation.json records its equivalence and memory check. The earlier breach remains part of this run.')
     dump(OUT / 'results.json', results)
     display = dict(verdicts)
     for arm, item in verdicts['P7']['learned'].items():
