@@ -24,7 +24,6 @@ def main():
         from .labels import prepare
         prepare(a.seed)
     elif a.stage == 'freeze':
-        from pathlib import Path
         assert not (OUT / 'prereg-lock.json').exists(), 'Preregistration already frozen'
         counts = json.loads((OUT / 'counts-s0.json').read_text())
         body = Path(a.template).read_text() + '\n\n## P0 label counts\n\n```json\n' + json.dumps(counts, indent=2) + '\n```\n'
