@@ -131,9 +131,15 @@ def render():
                 counts.update(r['counts']);ready[(r['panel'],r['rec'])].append(float(r['ready']))
             structure[name]=dict(first_error_span_counts=dict(counts),recording_ready=interval([np.mean(v) for v in ready.values()]))
     code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
-    audit=read(OUT/'full-input-audit.json',{}).get('cohorts',{})
+    audit_file=read(OUT/'full-input-audit.json',{})
+    audit=audit_file.get('cohorts',{})
+    extension=read(OUT/'cohorts.json',{}).get('extension',[])
+    drop_reasons=Counter(reason for r in extension if r.get('ext')=='std' for reason in r.get('drop_reasons',[]))
     result=dict(status='complete' if (OUT/'queue-DONE.json').exists() else 'in_progress',utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                 code_commit=code_commit,preregistration=lock,g0=g0,baseline_reproduction=reproduction,
+                input_cohorts=audit,exclusion_decision=audit_file.get('decision'),
+                prior_checkpoint_training_removed=audit.get('training',{}).get('removed',[]),
+                extension_drop_reason_counts=dict(drop_reasons),
                 baseline_noise=read(OUT/'baseline-noise.json'),sigma=read(OUT/'sigma-baseline.json'),
                 target_rates=read(OUT/'target-rates.json'),target_head_invariant=read(OUT/'target-head-invariant.json'),
                 runs=runs,pulse=pulse,new_heads=heads,head_coverage=coverage,structure=structure,predictions=predictions,
@@ -160,6 +166,9 @@ def render():
            f"and {audit.get('g0_probe',{}).get('audio')} G0 probe recordings. "
            'All assembled cohorts passed the independent sealed-folder audit after this filter. '
            'The original checkpoints retain prior influence from the excluded recording; no sealed audio or chart labels were opened.', '',
+           f"Excluded folders: {json.dumps((result['exclusion_decision'] or {}).get('folders',[]))}. "
+           f"Excluded corpus groups: {json.dumps((result['exclusion_decision'] or {}).get('corpus_groups',[]))}. "
+           f"Prior-checkpoint training recording removed from new training: {json.dumps(result['prior_checkpoint_training_removed'])}.",'',
            'Inputs and cheap hashes are in `inputs.json`; full cohort counts and decision removals are in `full-input-audit.json`. '
            'The fixed input is audio plus unchanged song memory. Heads, snap and retention are supervision only. '
            'Evaluation uses existing open panels; chart-grid cells can conceal errors in the predicted grid, so the second cell readout uses original decoded grids.', '',
@@ -173,6 +182,7 @@ def render():
                   'Detailed field/float16 differences are in g0-reproduction.json.',
                   f"Unreadable extension inputs skipped: {len(g0['skipped'])}; identities and reasons are in `g0-results.json`. "
                   'Curation drop reasons are retained in extension manifest memberships and `cohorts.json`.',
+                  f"Std extension drop-reason counts (a recording may have several): {json.dumps(dict(drop_reasons))}.",
                   'All 15 session-1 recordings were already in the seed-0 manifest, so none was added. `DONE` was written before G1.', '']
     else:lines+=['G0 is running.','']
     lines+=['## Runs','', '| Run | Status | Steps | Training min | Wall min | Sigma floor | Final probe loss |','| --- | --- | ---: | ---: | ---: | ---: | ---: |']
@@ -186,16 +196,20 @@ def render():
             '## Baselines and pulse','',f"Baseline reproduction: {reproduction['compared']} comparisons; {json.dumps(reproduction['differences'])}. "
             'All discrepancies are reported rather than hidden by rounding.',
             'Neighbouring-checkpoint ranges and the selected-seed difference are in `baseline-noise.json`. '
-            'Margins below are the larger of the baseline seed difference and paired F1-F0 bootstrap half-width.', '']
+            'Margins below are the larger of the baseline seed difference and paired F1-F0 bootstrap half-width. '
+            'Registered preservation is two-sided: improvements beyond the margin also fail equivalence. '
+            'The harm retirement rule uses only negative differences.',
+            f"The seed-0 share of baseline sigma below .01 was {result['sigma']['share_below_001']:.12g}; "
+            f"all fine-tunes used its fifth-percentile floor {result['sigma']['floor']:.12g}.", '']
     for seed in (0,1):
-        lines += [f'### Seed {seed}', '', '| Cohort / statistic | N | v0.1 | F0 | F1 | F1−F0 [95% CI] | Margin |','| --- | ---: | ---: | ---: | ---: | --- | ---: |']
+        lines += ['',f'### Seed {seed}', '', '| Cohort / statistic | N | v0.1 | F0 | F1 | F1−F0 [95% CI] | Margin |','| --- | ---: | ---: | ---: | ---: | --- | ---: |']
         for c,m in primary:
             r=pulse[str(seed)][c][m]
             if r:lines.append(f"| {c}/{m} | {r['n']} | {val(r['v01']['value'])} | {val(r['F0']['value'])} | {val(r['F1']['value'])} | {ci(r['F1_minus_F0'])} | {val(r['margin'])} |")
     lines += ['', '## New heads','', 'AUCs and Spearman are recording means; comparisons use matched finite recordings. '
               'Intervals resample recordings 1,000 times. F0 readouts apply the frozen initialiser to the fine-tuned F0 features.', '']
     for seed in (0,1):
-        lines += [f'### Seed {seed}', '', '| Statistic | N | Frozen | F0 readout | F1 | F1−frozen [95% CI] | Margin |','| --- | ---: | ---: | ---: | ---: | --- | ---: |']
+        lines += ['',f'### Seed {seed}', '', '| Statistic | N | Frozen | F0 readout | F1 | F1−frozen [95% CI] | Margin |','| --- | ---: | ---: | ---: | ---: | --- | ---: |']
         for m,r in heads[str(seed)].items():
             if r:lines.append(f"| {m} | {r['n']} | {val(r['v01']['value'])} | {val(r['F0']['value'])} | {val(r['F1']['value'])} | {ci(r['F1_minus_v01'])} | {val(r['margin'])} |")
     lines += ['', 'Decoded-grid unmatched shares and qualified reference counts:', '', '```json',json.dumps(coverage,indent=2),'```','',
@@ -223,6 +237,12 @@ def provenance():
                   f'artifacts/n1-night-20261018/runs/v01-s{s}-20261020/config.json',
                   f'artifacts/n1-redesign-20261028/featcache/v01-s{s}-009001/manifest.jsonl']
     records={p:dict(exists=(ROOT/p).exists(),sha256=digest(ROOT/p) if (ROOT/p).is_file() else None) for p in files}
+    for p in ['artifacts/bulk/n1-cache/mel','artifacts/bulk/n1-cache/memo-v1','artifacts/bulk/n1-cache/labels-v0b',
+              'artifacts/n1-stage0-20261028','artifacts/bulk/n1-stage0-20261028/maps']:
+        records[p]=dict(exists=(ROOT/p).is_dir(),kind='directory')
+    for seed in (0,1):
+        p=f'artifacts/astra-consult-20261021/astra/exp/evidence/s{seed}/009001'
+        records[p]=dict(exists=(ROOT/p).is_dir(),kind='directory')
     dump(OUT/'inputs.json',dict(inputs=records,code_sha256={p.name:digest(p) for p in Path(__file__).parent.glob('*.py')},
                                decision_sha256=digest(OUT/'decision-exclusions.json'),
                                code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
