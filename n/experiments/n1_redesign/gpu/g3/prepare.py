@@ -96,7 +96,7 @@ This comparison changes initialization, memory, losses, learning rate and traini
     source = Path(__file__).parent
     frozen = [source/p for p in ['common.py','train.py','infer.py','mel.py','statistics.py']]
     frozen += [source.parent/p for p in ['evaluate.py','finetune.py','targets.py','scoring.py','decision.py','sealed.py']]
-    frozen += [Path('n/src/ensomi_n')/p for p in ['v0/model.py','v0/data.py','v0/infer.py','v0/train.py','augment.py']]
+    frozen += [Path('n/src/ensomi_n')/p for p in ['v0/model.py','v0/data.py','v0/infer.py','v0/train.py','augment/__init__.py']]
     lock = dict(sha256=digest(OUT/'prereg.md'),utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
         source_sha256={str(p.resolve()):digest(p) for p in frozen},
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip())
