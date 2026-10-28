@@ -1,0 +1,228 @@
+"""Summarise paired decoder measurements into private JSON and Markdown artifacts."""
+from collections import Counter,defaultdict
+from base import *
+from baseline import recording_rows
+from measurements import interval,margin,cluster_ratio,CLASSES
+
+METRICS=('n_bars_same','n_level','r5','p5','guarded_ready','raw_guarded_ready','structural_ready')
+SEEDS=('s0','s1')
+PANELS=('panel','val_hard','pooled')
+ARMS=('oracle_original','oracle_d2','own_d2','d4')
+
+
+def structural_rows(rows,cell='all'):
+    groups=defaultdict(list)
+    for r in rows:
+        if cell=='all':spans=r['spans']
+        elif cell in r.get('strata',{}):
+            masks=r['strata'][cell]
+            spans=r['spans'] if masks is None else [s for s in r['spans'] if any(s['lo']<b and s['hi']>a for a,b in masks)]
+        else:continue
+        if spans:
+            groups[(r['panel'],r['rec'],r['seed']+':'+r['arm'],r['aligned'])].extend(spans)
+    return [dict(panel=p,rec=rec,arm=arm,aligned=aligned,cell=cell,
+        ready=int(all(s['cls'] in CLASSES[:3] for s in ss)),counts=dict(Counter(s['cls'] for s in ss)),spans=len(ss))
+        for (p,rec,arm,aligned),ss in sorted(groups.items())]
+
+
+def select(rows,panel,cell,arm):
+    return {(r['panel'],r['rec']):r for r in rows if r['cell']==cell and r['arm']==arm and (panel=='pooled' or r['panel']==panel)}
+
+
+def comparisons(rows):
+    result={}
+    for panel in PANELS:
+        result[panel]={}
+        for cell in ('all','S0','S5'):
+            result[panel][cell]={}
+            for arm in ARMS:
+                stats={}
+                for metric in METRICS:
+                    bs=[select(rows,panel,cell,s+':baseline') for s in SEEDS]
+                    ts=[select(rows,panel,cell,s+':'+arm) for s in SEEDS]
+                    keys=sorted(set.intersection(*(set(d) for d in bs+ts)))
+                    keys=[k for k in keys if all(np.isfinite(d[k].get(metric,np.nan)) for d in bs+ts)]
+                    if not keys:continue
+                    b=np.array([[d[k][metric] for k in keys] for d in bs])
+                    t=np.array([[d[k][metric] for k in keys] for d in ts])
+                    noise=margin(b[0],b[1])
+                    stats[metric]=dict(margin=noise,seeds={s:dict(baseline=interval(b[i]),
+                        treatment=interval(t[i]),delta=interval(t[i]-b[i])) for i,s in enumerate(SEEDS)})
+                result[panel][cell][arm]=stats
+    return result
+
+
+def scorecard(rows):
+    result={}
+    for panel in (*PANELS,'C1'):
+        result[panel]={}
+        for arm in sorted({r['arm'] for r in rows}):
+            for aligned in (False,True):
+                sub=[r for r in rows if r['arm']==arm and r['aligned']==aligned and
+                     (r['panel'] in ('panel','val_hard') if panel=='pooled' else r['panel']==panel)]
+                if not sub:continue
+                classes=Counter()
+                for r in sub:classes.update(r['counts'])
+                result[panel].setdefault(arm,{})['aligned' if aligned else 'raw']=dict(
+                    ready=interval([r['ready'] for r in sub]),classes=dict(classes),spans=sum(classes.values()))
+    return result
+
+
+def fmt(s,percent=True):
+    if not s or s['value'] is None:return 'n/a'
+    scale=100 if percent else 1
+    return f"{scale*s['value']:.2f} [{scale*s['ci95'][0]:.2f}, {scale*s['ci95'][1]:.2f}]"
+
+
+def main():
+    baseline=json.loads((OUT/'baseline-recordings.json').read_text())
+    raw=[json.loads(line) for line in (OUT/'panels.jsonl').read_text().splitlines()]
+    rows=baseline+recording_rows([r for job in raw for r in job['rows']])
+    sr=[r for job in raw for r in job['structures']]
+    nulls=[r for job in raw for r in job['nulls']]
+    mapper=json.loads((OUT/'mapper-pairs.json').read_text())
+    for cell in ('all','S0','S5'):
+        lookup={(r['panel'],r['rec'],r['arm']):r['ready'] for r in structural_rows(sr,cell) if r['aligned']}
+        for r in rows:
+            if r['cell']==cell:r['structural_ready']=lookup.get((r['panel'],r['rec'],r['arm']),math.nan)
+    for r in rows:
+        r['raw_guarded_ready']=int(r['raw_r5']>=.9 and r['raw_p5']>=.9)
+    comp=comparisons(rows)
+    structures=structural_rows(sr+nulls+mapper['structures'])
+    card=scorecard(structures)
+    x4=json.loads((OUT/'x4-summary.json').read_text())
+    x4rows=[r for line in (OUT/'x4.jsonl').read_text().splitlines() for r in json.loads(line)]
+    for panel in ('panel','val_hard','pooled','cohort40'):
+        selected={r['rec'] for r in json.loads((ROOT/'artifacts/n1-stage0-20261028/events-cohort.json').read_text())['selected']}
+        for seed in SEEDS:
+            sub=[r for r in x4rows if r['seed']==seed and (panel=='pooled' or r['panel']==panel or panel=='cohort40' and r['rec'] in selected)]
+            target=x4['cohorts'][panel][seed]
+            target['class_intervals']={c:cluster_ratio([dict(r,hit=int(r['cls']==c)) for r in sub],'hit','one') for c in target['failure_classes']}
+            target['phase_errors']=dict(Counter(f"{r['meter']}:{r['phase_error']}" for r in sub if r['cls']=='systematic evidence error'))
+    pooled=comp['pooled']['all']
+    verdicts={}
+    verdicts['X4a_prediction']=all(x4['cohorts']['pooled'][s]['chart']['value']>=.6 for s in SEEDS)
+    verdicts['X4a_retires_main_lever']=all(x4['cohorts']['pooled'][s]['chart']['value']<=.4 for s in SEEDS)
+    verdicts['X4b']='gated out' if not x4['d3_gate'] else 'requires D3 result'
+    def delta(arm,metric,s,cell='all'):
+        return comp['pooled'][cell][arm][metric]['seeds'][s]['delta']['value']
+    verdicts['X5a']={s:dict(bars=delta('oracle_d2','n_bars_same',s)>=-.01,
+        level=delta('oracle_d2','n_level',s)>=0,guarded=delta('oracle_d2','guarded_ready',s)>=0) for s in SEEDS}
+    verdicts['X5b']={s:dict(S5_level=delta('own_d2','n_level',s,'S5')>=.01,
+        S0_no_loss=all(delta('own_d2',m,s,'S0')>=-comp['pooled']['S0']['own_d2'][m]['margin']
+            for m in ('n_bars_same','n_level','guarded_ready','structural_ready'))) for s in SEEDS}
+    verdicts['X5c']={s:all(abs(delta('d4',m,s))<=pooled['d4'][m]['margin'] for m in
+        ('n_bars_same','n_level','guarded_ready','structural_ready')) for s in SEEDS}
+    verdicts['X5_retires_fold']=any(all(delta('oracle_d2',m,s)<-pooled['oracle_d2'][m]['margin'] for s in SEEDS)
+        for m in ('n_bars_same','n_level'))
+    baseline_struct={s:{r['rec']:r['ready'] for r in structures if r['arm']==s+':baseline' and r['aligned']} for s in SEEDS}
+    keys=sorted(set(baseline_struct['s0'])&set(baseline_struct['s1']))
+    disagree=interval([baseline_struct['s0'][k]!=baseline_struct['s1'][k] for k in keys])
+    human=card['C1']['human:mapper']['aligned']['ready']['value']
+    model={s:card['pooled'][s+':baseline']['aligned']['ready']['value'] for s in SEEDS}
+    gap={s:human-model[s] for s in SEEDS}
+    null_pass={a:card['pooled']['reference:'+a]['aligned']['ready']['value']<=.05 for a in ('random_phase','random_level','x2')}
+    doubled=card['pooled']['reference:x2']['aligned']
+    x2level=doubled['classes'].get('level x2',0)/doubled['spans']
+    verdicts['X6']=dict(nulls=null_pass,x2_level_share=x2level,x2_level_pass=x2level>=.95,
+        gap=gap,seed_rate_difference=abs(model['s0']-model['s1']),seed_verdict_disagreement=disagree,
+        gap_exceeds_disagreement=all(v>disagree['value'] for v in gap.values()))
+    verdicts['X6']['retires_ranking']=not(all(null_pass.values()) and x2level>=.95 and verdicts['X6']['gap_exceeds_disagreement'])
+    guard={}
+    for panel in (*PANELS,'C1'):
+        source=mapper['recording_rows'] if panel=='C1' else rows
+        arms=['mapper'] if panel=='C1' else [s+':baseline' for s in SEEDS]
+        guard[panel]={}
+        for arm in arms:
+            sub=[r for r in source if r['arm']==arm and r['cell']=='all' and (panel in ('pooled','C1') or r['panel']==panel)]
+            guard[panel][arm]={k:interval([int(r['raw_r5']>=.9 and r['raw_p5']>=.9) if k=='raw_guarded_ready' else r[k] for r in sub])
+                for k in ('r5','p5','raw_r5','raw_p5','guarded_ready','raw_guarded_ready')}
+    session=json.loads((OUT/'session-coverage.json').read_text())
+    lattice=json.loads((OUT/'lattice-chance.json').read_text())
+    result=dict(preregistration=json.loads((OUT/'prereg-identity.json').read_text()),
+        baseline=json.loads((OUT/'baseline-reproduction.json').read_text()),X4=x4,X5=comp,
+        X6=dict(scorecard=card,guarded=guard,session_coverage={k:v for k,v in session.items() if k not in ('marks','counts')},
+                lattice=lattice),verdicts=verdicts)
+    dump(OUT/'results.json',result)
+    dump(OUT/'treatment-recordings.json',rows)
+    dump(OUT/'structural-recordings.json',structures)
+    report(result,mapper)
+    print(json.dumps(verdicts,indent=2),flush=True)
+
+
+def report(r,mapper):
+    pr=r['preregistration'];v=r['verdicts']
+    lines=['# N1 decoder line: X4, X5, X6', '',
+        f"Preregistration SHA-256: `{pr['sha256']}`; frozen UTC: `{pr['utc']}`.",
+        'Baseline source: `b51a9ff`; evidence: both E2 checkpoint-009001 seeds. CPU only, nice 10, two workers.',
+        f"Baseline: {r['baseline']['jobs']} recording/seed jobs, {r['baseline']['compared_scores']} score comparisons; exact timing maps and E1 scores reproduced with zero differences.", '',
+        'Intervals below are recording-bootstrap 95% intervals (2,000 draws); values and differences are percentages / percentage points. '
+        'The margin is the larger baseline seed difference or baseline bootstrap half-width. '
+        'The 40-song subset is included in fit_dev and is not counted again in the pool.', '',
+        '## X4: evidence and decoder', '',
+        '| Cohort | Seed | Failing runs | Recordings | Chart evidence right % [95% CI] | Decoded evidence right % [95% CI] |',
+        '| --- | --- | ---: | ---: | --- | --- |']
+    for panel,ss in r['X4']['cohorts'].items():
+        for s,x in ss.items():lines.append(f"| {panel} | {s} | {x['runs']} | {x['chart']['n']} | {fmt(x['chart'])} | {fmt(x['decoded'])} |")
+    lines+=['',f"Prediction (>=60% both seeds): **{v['X4a_prediction']}**. Retire decoder repair as main lever (<=40% both): **{v['X4a_retires_main_lever']}**.",
+        f"D3 gate: **{r['X4']['d3_gate']}**. X4b status: **{v['X4b']}**.", '',
+        'The requested unnormalised sum over downbeat log odds is sensitive to candidate meter rate. '
+        'This characterises the stated decode-free criterion; it does not prove the head contains no usable bar information.', '',
+        '| Cohort | Seed | Failure class | Runs | Share % [95% CI] |','| --- | --- | --- | ---: | --- |']
+    for panel,ss in r['X4']['cohorts'].items():
+        for s,x in ss.items():
+            for c,n in x['failure_classes'].items():lines.append(f"| {panel} | {s} | {c} | {n} | {fmt(x['class_intervals'][c])} |")
+    lines+=['','Systematic phase histograms and tie counts are in results.json; classes give grid failures priority while the evidence-right numerator remains independent.', '',
+        '## X5: octave bands and parity', '',
+        '| Cohort/cell | Arm | Metric | Margin pp | s0 baseline % | s0 delta pp [95% CI] | s1 baseline % | s1 delta pp [95% CI] |',
+        '| --- | --- | --- | ---: | ---: | --- | ---: | --- |']
+    for panel,cells in r['X5'].items():
+        for cell,arms in cells.items():
+            for arm,stats in arms.items():
+                for m in ('n_bars_same','n_level','guarded_ready','structural_ready'):
+                    if m not in stats:continue
+                    x=stats[m];a,b=(x['seeds'][s] for s in SEEDS)
+                    lines.append(f"| {panel}/{cell} | {arm} | {m} | {100*x['margin']:.2f} | {100*a['baseline']['value']:.2f} | {fmt(a['delta'])} | {100*b['baseline']['value']:.2f} | {fmt(b['delta'])} |")
+    lines+=['',f"X5a predictions: `{json.dumps(v['X5a'])}`.",f"X5b predictions: `{json.dumps(v['X5b'])}`.",
+        f"X5c within-noise prediction: `{json.dumps(v['X5c'])}`.",f"Fold diagnosis retirement rule fired: **{v['X5_retires_fold']}**.", '',
+        'The oracle replaces only level probabilities; period uncertainty, the tracked path, parity and bar emissions remain model-derived. '
+        'The difference from the original oracle is therefore a decoder diagnostic, not deployable oracle performance.', '',
+        '## X6: structural scorecard', '',
+        f"Mapper floor: {mapper['pairs']} C1 same-audio pairs, {mapper['recordings']} recordings. C1 was selected for canonical grid agreement; these are different recordings from the model panels.", '',
+        '| Cohort | Arm | Offset | Recordings | Ready % [95% CI] | Spans |','| --- | --- | --- | ---: | --- | ---: |']
+    for panel,arms in r['X6']['scorecard'].items():
+        for arm,modes in arms.items():
+            if arm.split(':')[-1] not in ('baseline','mapper','random_phase','random_level','x2'):continue
+            for mode,x in modes.items():lines.append(f"| {panel} | {arm} | {mode} | {x['ready']['n']} | {fmt(x['ready'])} | {x['spans']} |")
+    lines+=['','First structural error counts (aligned; all raw and treatment counts are in results.json):','',
+        '| Cohort | Arm | Class | Spans |','| --- | --- | --- | ---: |']
+    for panel in ('pooled','C1'):
+        for arm,modes in r['X6']['scorecard'][panel].items():
+            if arm.split(':')[-1] not in ('baseline','mapper','random_phase','random_level','x2'):continue
+            for cls,n in modes['aligned']['classes'].items():lines.append(f'| {panel} | {arm} | {cls} | {n} |')
+    lines+=['','Guarded readiness uses the same one-to-one notated R5 and P5 for models and mapper pairs, each >=90%.','',
+        '| Cohort | Arm | R5 % [CI] | P5 % [CI] | Guarded % [CI] | Raw guarded % [CI] |',
+        '| --- | --- | --- | --- | --- | --- |']
+    for panel,arms in r['X6']['guarded'].items():
+        for arm,x in arms.items():lines.append(f"| {panel} | {arm} | {fmt(x['r5'])} | {fmt(x['p5'])} | {fmt(x['guarded_ready'])} | {fmt(x['raw_guarded_ready'])} |")
+    x=v['X6']
+    lines+=['',f"Null ready <=5%: `{json.dumps(x['nulls'])}`. Doubled-level spans: {100*x['x2_level_share']:.2f}% (required >=95%).",
+        f"Mapper-minus-model gaps: `{json.dumps(x['gap'])}` (fractions). Seed ready-rate difference: {100*x['seed_rate_difference']:.2f} pp; paired seed verdict disagreement: {fmt(x['seed_verdict_disagreement'])}%.",
+        f"Retire scorecard for ranking: **{x['retires_ranking']}**. Passing nulls and a selected mapper floor does not validate ranking against independent human structural labels; none are available here.", '',
+        '### Session 1 chart coverage', '',
+        f"Off-pulse marks within 20 ms of a chart head after subtracting +7.7 ms: {fmt(r['X6']['session_coverage']['coverage'])}%.",
+        f"Coverage denominator: {r['X6']['session_coverage']['coverage']['denominator']}; covered: {r['X6']['session_coverage']['coverage']['numerator']}. "
+        f"{r['X6']['session_coverage']['passages']} passages and {r['X6']['session_coverage']['recordings']} recordings. Details remain only in session-coverage.json.", '',
+        '### Uniform-time lattice chance', '', '| BPM | Half | Half/third/quarter | Through eighth/sixth |','| ---: | ---: | ---: | ---: |']
+    for bpm,x in r['X6']['lattice'].items():lines.append(f"| {bpm} | {100*x['half']:.2f}% | {100*x['half_third_quarter']:.2f}% | {100*x['through_eighth_sixth']:.2f}% |")
+    lines+=['','## Deviations, failed paths and limits','',
+        'The first synthetic insertion fixture exposed a meter diagnosis before line matching; this was fixed before any treatment. '
+        'Short final spans use up to four neighbouring intervals to identify level, while their error time is restricted to the span. '
+        'S0/S5 structural guards include any eight-bar span overlapping the stratum; mixed spans are conservative and may include errors outside it.', '',
+        'No holdouts were opened. No weights were trained or inferred. All production decoder files remain unchanged. '
+        'The immutable preregistration, job.log, input identities, per-recording rows, per-span classes and treatment maps are in this directory. '
+        'Private listening data and derived results are excluded from the public branch.', '']
+    (OUT/'report.md').write_text('\n'.join(lines))
+
+
+if __name__=='__main__':main()
