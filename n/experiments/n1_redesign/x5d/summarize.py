@@ -198,6 +198,16 @@ def write_report(r):
         for cell in CELLS:
             d=r['verdicts'][panel][cell]; c=r['comparisons'][panel][cell]['band_d2']
             lines.append(f"| {panel}/{cell} | {100*c['n_level']['margin']:.2f} | {100*c['n_bars_same']['margin']:.2f} | {d['prediction']} | {d['retire']} | {d['verdict']} |")
+    lines += ['', '## Evaluation cohorts', '',
+        'Frame and regime counts sum chart-reference instances; recording counts are the bootstrap units.', '',
+        '| Cell | Seed | Sets | Recordings | Mapped frames | Chart regimes |',
+        '| --- | --- | ---: | ---: | ---: | ---: |']
+    for panel in PANELS:
+        for cell in CELLS:
+            for seed in r['seeds']:
+                a=r['accuracy'][panel][cell][seed]['baseline']
+                lines.append(f"| {panel}/{cell} | {seed} | {a['frame']['sets']} | {a['frame']['recordings']} | "
+                    f"{a['frame']['count']} | {a['regime']['count']} |")
     lines += ['', '## Scores and paired changes', '', 'Percent; brackets are 95% intervals. Baseline rows show absolute scores and zero change.', '',
         '| Cell | Seed | Arm | Level | Level Δ (pp) | Same bars | Bars Δ (pp) | Structural ready, offset | Structural ready, raw | Guarded ready, offset |',
         '| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |']
