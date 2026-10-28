@@ -41,7 +41,7 @@ def load_session():
 
 
 def decoded_song(seed, u, cache):
-    d, _, g = inputs(seed, u, cache, 'decoded')
+    d, _, g = inputs(seed, u, cache, 'decoded', full_song=True)
     p = expit(Predictor(load(cell_path(seed, 'mlp', 'T24')))(d['T24'])).astype('float32')
     bars = np.cumsum(g['down']).astype(int)
     ub = np.unique(bars)

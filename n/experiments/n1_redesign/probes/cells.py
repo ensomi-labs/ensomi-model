@@ -12,12 +12,18 @@ from .attacks import model_path as attack_path
 from .tokens import beat_tokens, pca_transform, token_load
 
 
-def decoded(seed, u, z):
+def decoded(seed, u, z, extent=None):
     from ensomi_n.mapformat import MusicMap
     p = PREV / 'e2-maps' / f's{seed}' / '009001' / (u['sha'] + '.json')
     m = MusicMap.from_json(json.loads(p.read_text())['full'])
-    t = m.timing(float(z['beats'][0]), float(z['beats'][-1] + z['length'][-1]))
-    keep = (t.beats >= z['beats'][0] - 50) & (t.beats <= z['beats'][-1] + 50)
+    if extent is None:
+        lo, hi = float(z['beats'][0]), float(z['beats'][-1] + z['length'][-1])
+        lower, upper = z['beats'][0] - 50, z['beats'][-1] + 50
+    else:
+        lo, hi = extent
+        lower, upper = lo, hi
+    t = m.timing(lo, hi)
+    keep = (t.beats >= lower) & (t.beats <= upper)
     b = t.beats[keep]
     delta, _ = nearest(b, z['beats'])
     close = abs(delta) <= 50
@@ -29,7 +35,7 @@ def decoded(seed, u, z):
                 red=np.array([[s.start_ms, s.beat_ms, s.meter] for s in m.segments]))
 
 
-def inputs(seed, u, rows, grid='chart'):
+def inputs(seed, u, rows, grid='chart', *, full_song=False):
     z = labels(u)
     f = None
     if grid == 'chart':
@@ -37,7 +43,8 @@ def inputs(seed, u, rows, grid='chart'):
         result = dict(T24=t['F'], Mel24=t['M'], T24shift=t['Fshift'], Mel24shift=t['Mshift'])
         g = z
     else:
-        g = decoded(seed, u, z)
+        extent = (0., (rows[u['sha']]['frames'] - 1) * 10.) if full_song else None
+        g = decoded(seed, u, z, extent=extent)
         f, _, m = features(rows[u['sha']])
         result = {}
         for name, xx in [('T24', f), ('Mel24', np.asarray(m, np.float32).reshape(len(m), 64, 2).mean(axis=-1))]:

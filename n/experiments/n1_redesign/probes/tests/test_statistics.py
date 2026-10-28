@@ -56,6 +56,10 @@ def test_missing_experiments_do_not_qualify_packet(monkeypatch):
     value = report.propagation_verdict()
     assert value['packet_eligible_arms'] == []
     assert value['verdict'] == 'inconclusive'
+    monkeypatch.setattr(report, 'read', lambda name: dict(complete=False, breaches=1) if 'invariants' in name else None)
+    value = report.propagation_verdict()
+    assert value['packet_eligible_arms'] == []
+    assert value['verdict'] == 'stopped: invariant breach'
 
 
 def test_power_floor_and_refit_margin():

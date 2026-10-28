@@ -12,7 +12,7 @@ from scipy.stats import t as student
 import torch
 from torch import nn
 
-from .common import OUT, dump, labels, log, norm, prereg_check, stable_seed, units
+from .common import OUT, PREV, digest, dump, labels, log, norm, prereg_check, stable_seed, units
 from .tokens import bar_tokens, context, token_load
 from .repeats import aggregate, pattern_matrix, regions, runs
 
@@ -633,16 +633,33 @@ def evaluate(seed, models, configs):
                   regions=region_count, failing_units=fail_count, nonfailing_units=nofail_count,
                   skipped_mark_draws=skipped, invariant_checks=checked)
     dump(OUT / f'P7-s{seed}.json', result)
-    dump(OUT / f'P7-invariants-s{seed}.json', dict(fixtures=fixture_result, complete=True,
-                                                episode_updates_checked=checked, breaches=0))
+    dump(OUT / f'P7-invariants-s{seed}.json', dict(fixtures=fixture_result, complete=False,
+        episode_updates_checked=checked, breaches=0, array_scope='Literal chart-grid beats, red lines and bars used by P7'))
     return result
 
 
 def run(seed):
     prereg_check()
-    dump(OUT / f'P7-fixtures-s{seed}.json', fixtures())
-    for train_seed in (0, 1):
-        train_learned(seed, train_seed)
-    models = {f'learned{k}': load_learned(seed, k) for k in (0, 1)}
-    configs = tune(seed, models)['configs']
-    evaluate(seed, models, configs)
+    invariant_path = OUT / f'P7-invariants-s{seed}.json'
+    dump(invariant_path, dict(complete=False, breaches=0))
+    try:
+        dump(OUT / f'P7-fixtures-s{seed}.json', fixtures())
+        sources = {PREV / 'e2-maps' / f's{seed}' / '009001' / (u['sha'] + '.json')
+                   for u in units() if u['cohort'] in ('panel', 'val_hard')}
+        before = {str(p): digest(p) for p in sorted(sources)}
+        for train_seed in (0, 1):
+            train_learned(seed, train_seed)
+        models = {f'learned{k}': load_learned(seed, k) for k in (0, 1)}
+        configs = tune(seed, models)['configs']
+        evaluate(seed, models, configs)
+        after = {str(p): digest(p) for p in sorted(sources)}
+        assert before == after, 'Source decoded maps changed during P7'
+        result = json.loads(invariant_path.read_text())
+        result.update(complete=True, decoded_map_files=len(sources), decoded_maps_unchanged=True,
+                      decoded_map_manifest_sha256=hashlib.sha256(json.dumps(before, sort_keys=True).encode()).hexdigest())
+        dump(invariant_path, result)
+    except AssertionError as exc:
+        result = json.loads(invariant_path.read_text())
+        result.update(complete=False, breaches=1, failure=str(exc))
+        dump(invariant_path, result)
+        raise

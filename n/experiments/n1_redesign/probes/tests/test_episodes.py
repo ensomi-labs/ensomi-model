@@ -1,8 +1,10 @@
 import sys
+import json
 from pathlib import Path
 
 import numpy as np
 import torch
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from n1_redesign.probes.episodes import Reach, fixtures, sparsemax, contiguous, kernel
@@ -12,6 +14,19 @@ from n1_redesign.probes import episodes
 def test_all_arms_preserve_literal_pulse_and_no_marks():
     r = fixtures()
     assert r['passed'] and r['updates'] == 33
+
+
+def test_invariant_failure_stops_before_training(tmp_path, monkeypatch):
+    monkeypatch.setattr(episodes, 'OUT', tmp_path)
+    monkeypatch.setattr(episodes, 'prereg_check', lambda: None)
+    def breach():
+        raise AssertionError('fixture pulse changed')
+    monkeypatch.setattr(episodes, 'fixtures', breach)
+    monkeypatch.setattr(episodes, 'train_learned', lambda *a: pytest.fail('Training ran after a breach'))
+    with pytest.raises(AssertionError, match='fixture pulse changed'):
+        episodes.run(0)
+    result = json.loads((tmp_path / 'P7-invariants-s0.json').read_text())
+    assert result['breaches'] == 1 and not result['complete']
 
 
 def test_sparsemax_has_a_zero_null_value_and_sparse_support():

@@ -25,6 +25,14 @@ def stat(data, *path):
     return data if isinstance(data, dict) and 'recordings' in data else None
 
 
+def number(value):
+    return 'unavailable' if value is None else f'{value:.4f}'
+
+
+def confidence(value):
+    return 'unavailable' if value is None else '[' + ', '.join(number(v) for v in value) + ']'
+
+
 def average_stats(stats):
     stats = [s for s in stats if s is not None]
     if not stats:
@@ -463,6 +471,10 @@ def propagation_verdict():
             over_random=compare(real, random, threshold=0, episode_spreads=episode_spread(arm, 'M3i', 'random')))
     invariant = {str(s): read(f'P7-invariants-s{s}.json') for s in (0, 1)}
     invariant_ok = all(invariant[str(s)] and invariant[str(s)].get('complete') and invariant[str(s)].get('breaches') == 0 for s in (0, 1))
+    invariant_breach = any(v and v.get('breaches', 0) for v in invariant.values())
+    if not invariant_ok:
+        for item in learned.values():
+            item['verdict'] = 'stopped: invariant breach' if invariant_breach else 'inconclusive: incomplete invariant evidence'
     packet_arms = []
     if invariant_ok:
         if pred['graph_over_random']['holds_both_seeds']:
@@ -477,7 +489,8 @@ def propagation_verdict():
                    for s in (0, 1)} for arm, v in self_null.items()}
     bias_equivalent = all(row.get('power') and row.get('margin') is not None and
         abs(row['contrast']['mean']) <= row['margin'] for row in pred['graph_over_bias']['seeds'].values())
-    return dict(verdict=verdict(pred, retire), predictions=pred, retire=retire,
+    decision = verdict(pred, retire) if invariant_ok else 'stopped: invariant breach' if invariant_breach else 'inconclusive'
+    return dict(verdict=decision, predictions=pred, retire=retire,
                 learned=learned, invariants=invariant, packet_eligible_arms=packet_arms,
                 mark_position_estimates=positions, self_label_null=self_null, self_label_status=self_status,
                 bias_interpretation='similar = the rest of the song' if bias_equivalent else 'equivalence to per-song bias not established',
@@ -504,6 +517,8 @@ def build():
         'P3 T24 is a 64-dimensional unsupervised PCA projection. Its retirement does not prove that all 4000 raw token dimensions lack thirds.',
         'Only checkpoint 009001 is available. Seed spread and probe refits do not measure neighboring-checkpoint noise.',
         'P7 supplies chart timing and changes only cell posteriors; it cannot recover pulse, red lines, bars or between-cell spans.',
+        'P7 keeps its preregistered feature-token graph and reports Mel as a separate arm. Retirement of that graph does not establish that Mel-based or trained similarity must fail.',
+        'The P7 tuning objective excludes the marked neighborhood. Mark-beat-only therefore has zero recovery objective; the preregistered lower-gain tie rule can select zero gain for this control.',
         'The secondary U probe was not fitted. Unbeat-pair class expectations are unassessed.']
     shifted = verdicts['P1']['shifted_null']
     if all(shifted[s] and shifted[s]['mean'] is not None and shifted[s]['mean'] > .60 for s in (0, 1)):
@@ -534,18 +549,32 @@ def build():
     from .plots import write
     results['figures'] = write()
     dump(OUT / 'results.json', results)
+    display = dict(verdicts)
+    for arm, item in verdicts['P7']['learned'].items():
+        display['P7 ' + arm] = dict(verdict=item['verdict'],
+            predictions={**{'matched_away_' + key: value for key, value in item['matched_away'].items()},
+                         **{'null_retention_' + key: value for key, value in item['null_retention_checks'].items()}},
+            retire={**{'matched_away_' + key: value for key, value in item['retire_matched_away'].items()},
+                    'shuffle_retention_over_050': item['shuffle_retire_check']})
     lines = ['# N1 frozen-feature probes', '', results['evidence'], '',
              f"Preregistration: `{lock['sha256']}`, frozen {lock['utc']}.",
              f"Code: `{results['source_commit']}` on `codex/n1-probes`.", '',
              '## Screening verdicts', '', '| Experiment | Both-seed verdict |', '| --- | --- |']
-    for name, v in verdicts.items():
+    for name, v in display.items():
         lines.append(f"| {name} | {v['verdict']} |")
     lines += ['', 'The numbers, recording intervals, paired contrasts, margin components and power checks for every criterion are in results.json. Raw per-seed summaries and strata are in the hashed experiment files listed there. Missing evidence prevents a pass.', '',
               '![Feature and Mel comparisons](probe-comparison.png)', '',
               '## Interpretation limits', '', *['- ' + item for item in results['limitations']], '',
-              '## Cohorts and counts', '', '```json', json.dumps(results['cohorts'], indent=2), '```', '',
-              '## Criterion estimates', '']
-    for name, v in verdicts.items():
+              '## Cohorts and counts', '',
+              '| Seed | Cohort | Recordings | Audio | Units | Beats | Heads | Ternary | Binary-fine | Ladder heads | Nontrivial bars | Inconsistent grids | Rank fallback |',
+              '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |']
+    count_keys = ('recordings', 'audio_inputs', 'units', 'beats', 'heads', 'ternary', 'binary_fine',
+                  'laddered_heads', 'nontrivial_bars', 'timing_inconsistent', 'hardest_rank_fallback')
+    for seed, cohorts in results['cohorts'].items():
+        for name, counts in (cohorts or {}).items():
+            lines.append('| ' + ' | '.join([seed, name] + [str(counts.get(k, 'unavailable')) for k in count_keys]) + ' |')
+    lines += ['', '## Criterion estimates', '']
+    for name, v in display.items():
         lines += [f'### {name}', '', '| Criterion | Seed | Estimate / contrast | 95% CI | Margin | n | Status |',
                   '| --- | --- | --- | --- | --- | --- | --- |']
         for category in ('predictions', 'retire'):
@@ -553,14 +582,45 @@ def build():
                 for s, val in c['seeds'].items():
                     d = val.get('contrast', {})
                     mean = d.get('mean')
-                    lines.append(f"| {category}: {criterion} | {s} | {mean if mean is not None else 'unavailable'} | {d.get('ci95')} | {val.get('margin')} | {d.get('n', 0)} | {val['status']} |")
+                    lines.append(f"| {category}: {criterion} | {s} | {number(mean)} | {confidence(d.get('ci95'))} | {number(val.get('margin'))} | {d.get('n', 0)} | {val['status']} |")
         lines.append('')
+    lines += ['## P7 arm readings', '',
+              'All entries are recording-balanced. The per-seed files also contain lag, tempo, mark-position, single/run and confirming-count strata.', '',
+              '| Arm | Seed | Metric | Mean | 95% CI | Recordings |', '| --- | --- | --- | --- | --- | --- |']
+    for arm in ('mark', 'local', 'graph', 'learned0', 'learned1', 'repeat', 'bias', 'random', 'mel', 'periodic', 'everywhere'):
+        for seed in (0, 1):
+            for metric in ('M1e', 'M2', 'M3i', 'M3ii', 'R_binary_flipped', 'M4_toward', 'M4_away', 'M4_unlabelled', 'M7', 'tier2_precision'):
+                item = episode_stats(arm, metric)[seed]
+                if item:
+                    lines.append(f"| {arm} | {seed} | {metric} | {number(item['mean'])} | {confidence(item['ci95'])} | {item['n']} |")
+            for kind in ('confirming-fail', 'confirming-nofail'):
+                item = episode_stats(arm, 'M8', kind)[seed]
+                if item:
+                    lines.append(f"| {arm} | {seed} | M8 {kind} | {number(item['mean'])} | {confidence(item['ci95'])} | {item['n']} |")
+    lines.append('')
     lines += ['## P7 invariants and packet', '', '```json', json.dumps(verdicts['P7']['invariants'], indent=2), '```', '',
               '![Propagation gain curves](P7-curves.png)', '',
               'Self-label nulls (zero MAP changes expected):', '', '```json', json.dumps(verdicts['P7']['self_label_status'], indent=2), '```', '',
               json.dumps(results['packet'], indent=2) if results['packet'] else 'Packet not yet built.', '',
-              '## Private design checks', '', '```json', json.dumps(results['design_checks'], indent=2), '```', '',
-              '## Deviations and failed paths', '', json.dumps(results['deviations'], indent=2), '',
+              '## Private design checks', '',
+              '| Seed | Arm | Expectation | Passage / scope | Outcome |', '| --- | --- | --- | --- | --- |']
+    for seed, data in results['design_checks']['session'].items():
+        for arm, expectations in data.get('expectation_results', {}).items():
+            for expectation, value in expectations.items():
+                for scope, status in (value.items() if isinstance(value, dict) else [('all', value)]):
+                    lines.append(f'| {seed} | {arm} | {expectation} | {scope} | {status} |')
+    simulator = results['design_checks']['simulator']
+    if simulator:
+        lines += ['', '| Simulator measure | Estimate | Fixed band | Outcome |', '| --- | --- | --- | --- |']
+        for key, value, band in [('robust_sd', 'simulator_residual_robust_sd_ms', '[5, 10] ms'),
+                                 ('beyond15', 'simulator_beyond15_share', '[.05, .15]'),
+                                 ('offpulse', 'offpulse_difference', '[-.15, .15]'),
+                                 ('phase_tv', 'phase_tv', '<= .25')]:
+            status = 'in band' if simulator['bands'][key] else 'out of band'
+            lines.append(f"| {key} | {number(simulator[value])} | {band} | {status} |")
+        coverage = simulator['owner_chart_coverage']
+        lines += ['', f"Owner off-pulse chart-head coverage: {number(coverage['share'])}, {coverage['n']} marks. Run-length distributions and passage details are in P6.json; reached regions and source-cell posteriors are in P8-s0.json and P8-s1.json."]
+    lines += ['', '## Deviations and failed paths', '', json.dumps(results['deviations'], indent=2), '',
               json.dumps(results['failed_paths'], indent=2), '', '## Unfinished', '',
               ', '.join(results['unfinished']) or 'None.', '']
     (OUT / 'report.md').write_text('\n'.join(lines))

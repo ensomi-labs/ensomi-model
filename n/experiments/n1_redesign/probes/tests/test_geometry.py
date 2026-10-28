@@ -67,6 +67,21 @@ def test_salience_position_control_keeps_nonfour_meter_beats():
     np.testing.assert_array_equal(position_classes(z), [0, 1, 1])
 
 
+def test_session_grid_keeps_decoded_context_outside_chart_heads(tmp_path, monkeypatch):
+    from n1_redesign.probes import cells
+    monkeypatch.setattr(cells, 'PREV', tmp_path)
+    path = tmp_path / 'e2-maps/s0/009001/fixture.json'
+    path.parent.mkdir(parents=True)
+    beats = np.arange(9) * 500.
+    path.write_text(json.dumps({'full': dict(format='ensomi-music-map', version=1,
+        beats=beats.tolist(), downbeats=[0, 4, 8], segments=[dict(start_ms=0, beat_ms=500, meter=4)])}))
+    z = dict(beats=np.array([1000., 1500., 2000.]), length=np.full(3, 500.))
+    chart_range = cells.decoded(0, {'sha': 'fixture'}, z)
+    whole = cells.decoded(0, {'sha': 'fixture'}, z, extent=(0, 4000))
+    np.testing.assert_array_equal(chart_range['beats'], z['beats'])
+    np.testing.assert_array_equal(whole['beats'], beats)
+
+
 def test_fractional_reset_last_head_and_plain_stream(tmp_path):
     p = tmp_path / 'fixture.osu'
     p.write_text('''osu file format v14

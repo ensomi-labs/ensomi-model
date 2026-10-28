@@ -45,6 +45,12 @@ def model_path(seed, kind, name, shifted=False, boot=None):
 
 def fit_models(seed, shifted=False, bootstrap=False):
     prereg_check()
+    requested = [(name, kind, b) for name in SETS
+                 if not bootstrap or name in ('F', 'M', 'Pos', 'F+Pos')
+                 for kind in (['mlp'] if bootstrap else ['logistic', 'mlp'])
+                 for b in (range(5) if bootstrap else [None])]
+    if all(model_path(seed, kind, name, shifted, b).exists() for name, kind, b in requested):
+        return
     attack_sample(seed, shifted)
     for name in SETS:
         jobs = [(kind, b) for kind in ('logistic', 'mlp') for b in ([None] if not bootstrap else range(5))]
@@ -141,4 +147,11 @@ def evaluate(seed, shifted=False, bootstrap=False):
         dump(OUT / f'P1-null-overlap-s{seed}.json', dict(posthoc=True,
             definition='Share of shifted-positive off-line frames also positive under the original labels, averaged by recording',
             summary=diagnostic, decision_use=False))
+        # These deterministic training samples are no longer needed once the
+        # null fits and complete reads exist; keep models, labels and scores.
+        import shutil
+        sample_dir = OUT / 'frames' / f's{seed}' / 'shift'
+        if sample_dir.exists():
+            shutil.rmtree(sample_dir)
+            log('released_shift_frame_samples', seed=seed)
     log('P1_done', seed=seed, shifted=shifted, bootstrap=bootstrap)
