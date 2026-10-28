@@ -154,6 +154,14 @@ def test_span_average_does_not_count_a_shared_bar_boundary_twice():
     assert distinct_spans(candidates) == [(0.9, 18, 2), (0.8, 26, 0), (0.7, 31, -1)]
 
 
+def test_matrix_storage_keeps_random_training_reads_within_budget():
+    from n1_redesign.probes.layers import matrix_backing
+    assert matrix_backing({'probe-fit': 8, 'probe-dev': 4}, 5, 100) == {
+        'probe-fit': False, 'probe-dev': True}
+    assert matrix_backing({'probe-fit': 12, 'probe-dev': 4}, 5, 100) == {
+        'probe-fit': True, 'probe-dev': False}
+
+
 def test_attack_buffer_preserves_cohorts_rows_and_recording_ids(tmp_path, monkeypatch):
     from n1_redesign.probes import attacks
     members = [dict(id='b-fit', rec='b', cohort='probe-fit'),

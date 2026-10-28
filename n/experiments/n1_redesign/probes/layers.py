@@ -60,6 +60,17 @@ def permute(y, rec, position_class):
     return yy
 
 
+def matrix_backing(counts, width, resident_budget=4_000_000_000):
+    """Prefer resident training rows for random batches; dev reads are sequential."""
+    resident, backing = 0, {}
+    for cohort in ('probe-fit', 'probe-dev'):
+        size = counts[cohort] * width * 2
+        backing[cohort] = resident + size > resident_budget
+        if not backing[cohort]:
+            resident += size
+    return backing
+
+
 def run(seed, keysounds=False):
     prereg_check()
     rows = manifests(seed)
@@ -106,17 +117,20 @@ def run(seed, keysounds=False):
             if any(not path.exists() for _, _, _, path in jobs):
                 width = {'Pos': 29, 'Pos+F': 189, 'Pos+M': 1309}[name]
                 size = sum(counts.values()) * width * 2
-                mapped = size > 4e9
+                backing = matrix_backing(counts, width)
+                mapped = any(backing.values())
                 if mapped:
+                    mapped_size = sum(counts[c] * width * 2 for c, use in backing.items() if use)
                     used = sum(p.stat().st_size for p in OUT.rglob('*') if p.is_file())
-                    if used + size > 14.9e9:
+                    if used + mapped_size > 14.9e9:
                         raise RuntimeError('P4 mapped matrix would exceed the artifact disk budget')
                     log('P4_mapped_storage', seed=seed, label=label, inputs=name,
-                        matrix_bytes=size, projected_artifact_bytes=used + size)
+                        matrix_bytes=size, backing=backing, mapped_bytes=mapped_size,
+                        projected_artifact_bytes=used + mapped_size)
                 with tempfile.TemporaryDirectory(prefix='P4-matrix-', dir=OUT) as temporary:
                     directory = Path(temporary)
-                    x, y, rec, pc = matrix(seed, rows, selected, name, label, st, 'probe-fit', directory / 'fit' if mapped else None)
-                    xd, yd, rd, pd = matrix(seed, rows, selected, name, label, st, 'probe-dev', directory / 'dev' if mapped else None)
+                    x, y, rec, pc = matrix(seed, rows, selected, name, label, st, 'probe-fit', directory / 'fit' if backing['probe-fit'] else None)
+                    xd, yd, rd, pd = matrix(seed, rows, selected, name, label, st, 'probe-dev', directory / 'dev' if backing['probe-dev'] else None)
                     try:
                         for null, refit, suffix, path in jobs:
                             if not path.exists():
