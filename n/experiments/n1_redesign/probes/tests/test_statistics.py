@@ -171,6 +171,27 @@ def test_matrix_storage_keeps_random_training_reads_within_budget():
         'probe-fit': True, 'probe-dev': False}
 
 
+def test_layer_matrix_bounds_event_temporaries_and_preserves_rows(tmp_path, monkeypatch):
+    from n1_redesign.probes import layers
+    size = 17000
+    times = np.arange(size)
+    yy = times % 2
+    u = dict(sha='audio', cohort='probe-fit')
+    monkeypatch.setattr(layers, 'features', lambda _: (None, None, None))
+    monkeypatch.setattr(layers, 'labels', lambda _: {'event_t': times})
+    def inputs(f, l, m, t, z):
+        assert len(t) <= 8192
+        return {'Pos': np.eye(29, dtype=np.float32)[t % 29]}
+    monkeypatch.setattr(layers, 'event_inputs', inputs)
+    args = (0, {'audio': None}, [(u, np.ones(size, bool), yy)], 'Pos', 'clap', None, 'probe-fit')
+    a, y, rec, pc = layers.matrix(*args)
+    b, yb, rb, pcb = layers.matrix(*args, mapped_path=tmp_path / 'matrix')
+    np.testing.assert_array_equal(a, np.eye(29)[times % 29])
+    np.testing.assert_array_equal(a, b.read(slice(None), np.float16))
+    for left, right in ((y, yy), (yb, yy), (rec, rb), (pc, pcb)):
+        np.testing.assert_array_equal(left, right)
+
+
 def test_attack_buffer_preserves_cohorts_rows_and_recording_ids(tmp_path, monkeypatch):
     from n1_redesign.probes import attacks
     members = [dict(id='b-fit', rec='b', cohort='probe-fit'),

@@ -37,16 +37,18 @@ def matrix(seed, rows, selected, name, label, stratum, cohort, mapped_path=None)
         if u['cohort'] != cohort:
             continue
         f, l, m = features(rows[u['sha']]); z = labels(u)
-        d = event_inputs(f, l, m, z['event_t'][use], z)
-        xx = np.concatenate([d[k] for k in name.split('+')], axis=1)
-        n = len(yy)
-        if mapped_path:
-            x.write(offset, xx)
-        else:
-            x[offset:offset + n] = xx
-        y[offset:offset + n], rec[offset:offset + n] = yy, i
-        position_class[offset:offset + n] = np.argmax(d['Pos'][:, :24], axis=1) + 24 * np.argmax(d['Pos'][:, 24:], axis=1)
-        offset += n
+        times = z['event_t'][use]
+        for start in range(0, len(yy), 8192):
+            d = event_inputs(f, l, m, times[start:start + 8192], z)
+            xx = np.concatenate([d[k] for k in name.split('+')], axis=1)
+            n = len(xx)
+            if mapped_path:
+                x.write(offset, xx)
+            else:
+                x[offset:offset + n] = xx
+            y[offset:offset + n], rec[offset:offset + n] = yy[start:start + n], i
+            position_class[offset:offset + n] = np.argmax(d['Pos'][:, :24], axis=1) + 24 * np.argmax(d['Pos'][:, 24:], axis=1)
+            offset += n
     return x, y, rec, position_class
 
 
