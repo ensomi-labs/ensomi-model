@@ -112,13 +112,20 @@ def structural(ref, mmap, offset=0.):
     rbar=rt.bar_starts()
     pbar=pt.bar_starts()-offset
     rbnd,pbnd=boundaries(rt),boundaries(pt)-offset
+    # Match on the song first. A matched line belongs to its reference span,
+    # even when tolerance places the prediction across an eight-bar cut.
+    scored=np.flatnonzero(inside(rb,ref))
+    ri_all,pj_all=one_to_one(rb[scored],pb,15)
+    matched=np.full(len(rb),-1,dtype=int)
+    matched[scored[ri_all]]=pj_all
+    used=np.zeros(len(pb),bool);used[pj_all]=True
     rows=[]
     for lo,hi in spans8(ref):
-        r=rb[(rb>=lo)&(rb<hi)&ref.scorable(rb)]
-        p=pb[(pb>=lo)&(pb<hi)&ref.scorable(pb)]
+        ridx=np.flatnonzero((rb>=lo)&(rb<hi)&ref.scorable(rb))
+        pidx=np.flatnonzero((pb>=lo)&(pb<hi)&ref.scorable(pb))
+        r=rb[ridx];p=pb[pidx]
         if not len(r):
             continue
-        ri,pj=one_to_one(r,p,15)
         events=[]
         def event(time,cls,**kw):
             events.append(dict(time=float(time),cls=cls,**kw))
@@ -154,8 +161,8 @@ def structural(ref, mmap, offset=0.):
             pp=float(np.median(np.diff(p))) if len(p)>1 else math.inf
             if abs(pp/rp-1)<=.02 and abs(med)>15 and mad<=15:
                 event(r[0],'phase',beat_fraction=med/rp)
-        missing=np.setdiff1d(np.arange(len(r)),ri)
-        inserted=np.setdiff1d(np.arange(len(p)),pj)
+        missing=np.flatnonzero(matched[ridx]<0)
+        inserted=np.flatnonzero(~used[pidx])
         if len(inserted):
             event(p[inserted[0]],'inserted lines')
         if len(missing):
@@ -185,7 +192,7 @@ def structural(ref, mmap, offset=0.):
             first=min(events,key=lambda e:(round(e['time'],6),PRIORITY[e['cls']]))
             row=dict(lo=float(lo),hi=float(hi),**first)
         else:
-            residual=p[pj]-r[ri]
+            residual=pb[matched[ridx]]-r
             raw=residual+offset
             cls='correct' if np.all(abs(raw)<=5) else ('offset-only' if np.all(abs(residual)<=5) else 'fine')
             row=dict(lo=float(lo),hi=float(hi),cls=cls)

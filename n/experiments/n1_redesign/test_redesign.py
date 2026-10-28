@@ -44,6 +44,13 @@ def test_offset_only():
     assert 'offset-only' in structural(ref,m,8.)['counts']
 
 
+def test_tolerance_matches_across_span_and_song_boundaries():
+    ref=reference();t=ref.timing
+    b=t.beats+np.where(np.arange(len(t.beats))%2,1.,-1.)
+    m=MusicMap.from_beats(b,np.flatnonzero(t.downbeat),segments=ref.segments)
+    assert structural(ref,m)['ready']
+
+
 def test_fold_does_not_halve_pulse_already_in_band():
     n=200
     e=dec.Evidence(np.ones(n),level=np.tile([.97,.01,.01,.01],(n,1)),

@@ -75,11 +75,15 @@ def fmt(s,percent=True):
 
 
 def main():
+    import argparse
+    parser=argparse.ArgumentParser();parser.add_argument('--scorecards')
+    args=parser.parse_args()
     baseline=json.loads((OUT/'baseline-recordings.json').read_text())
     raw=[json.loads(line) for line in (OUT/'panels.jsonl').read_text().splitlines()]
     rows=baseline+recording_rows([r for job in raw for r in job['rows']])
-    sr=[r for job in raw for r in job['structures']]
-    nulls=[r for job in raw for r in job['nulls']]
+    sc=[json.loads(line) for line in (OUT/args.scorecards).read_text().splitlines()] if args.scorecards else raw
+    sr=[r for job in sc for r in job['structures']]
+    nulls=[r for job in sc for r in job['nulls']]
     mapper=json.loads((OUT/'mapper-pairs.json').read_text())
     for cell in ('all','S0','S5'):
         lookup={(r['panel'],r['rec'],r['arm']):r['ready'] for r in structural_rows(sr,cell) if r['aligned']}
@@ -99,6 +103,11 @@ def main():
             target=x4['cohorts'][panel][seed]
             target['class_intervals']={c:cluster_ratio([dict(r,hit=int(r['cls']==c)) for r in sub],'hit','one') for c in target['failure_classes']}
             target['phase_errors']=dict(Counter(f"{r['meter']}:{r['phase_error']}" for r in sub if r['cls']=='systematic evidence error'))
+    x4['margins']={}
+    for panel,ss in x4['cohorts'].items():
+        stats=[ss[s]['chart'] for s in SEEDS]
+        x4['margins'][panel]=max(abs(stats[0]['value']-stats[1]['value']),
+            *(0.5*(st['ci95'][1]-st['ci95'][0]) for st in stats))
     pooled=comp['pooled']['all']
     verdicts={}
     verdicts['X4a_prediction']=all(x4['cohorts']['pooled'][s]['chart']['value']>=.6 for s in SEEDS)
@@ -136,11 +145,28 @@ def main():
         for arm in arms:
             sub=[r for r in source if r['arm']==arm and r['cell']=='all' and (panel in ('pooled','C1') or r['panel']==panel)]
             guard[panel][arm]={k:interval([int(r['raw_r5']>=.9 and r['raw_p5']>=.9) if k=='raw_guarded_ready' else r[k] for r in sub])
-                for k in ('r5','p5','raw_r5','raw_p5','guarded_ready','raw_guarded_ready')}
+                for k in ('r5','p5','raw_r5','raw_p5','ready','guarded_ready','raw_guarded_ready')}
     session=json.loads((OUT/'session-coverage.json').read_text())
     lattice=json.loads((OUT/'lattice-chance.json').read_text())
-    result=dict(preregistration=json.loads((OUT/'prereg-identity.json').read_text()),
+    old=json.loads((ROOT/'artifacts/n1-stage0-20261028/baseline-null.json').read_text())
+    checkpoint_context={p:{c:{m:old[p][c][m]['checkpoint_ranges']
+        for m in ('n_bars_same','n_level','r5') if m in old[p].get(c,{})}
+        for c in ('all','S0','S5')} for p in ('panel','val_hard')}
+    import csv
+    original=list(csv.DictReader((ROOT/'artifacts/n1-stage0-20261028/decoder-recordings.csv').open()))
+    original={(q['panel'],q['cell'],q['arm'],q['rec']):q for q in original if q['arm'].endswith(':level')}
+    oracle_differences=[];n_oracle=0
+    for q in rows:
+        if not q['arm'].endswith(':oracle_original'):continue
+        key=(q['panel'],q['cell'],q['arm'].replace('oracle_original','level'),q['rec'])
+        before=original[key]
+        for metric in ('n_bars_same','n_level','r5','p5','guarded_ready'):
+            n_oracle+=1
+            if not np.isclose(q[metric],float(before[metric]),atol=1e-9,rtol=0,equal_nan=True):
+                oracle_differences.append(dict(key=key,metric=metric,before=float(before[metric]),after=q[metric]))
+    result=dict(preregistration=json.loads((OUT/'prereg-identity.json').read_text()),scorecard_source=args.scorecards or 'panels.jsonl',
         baseline=json.loads((OUT/'baseline-reproduction.json').read_text()),X4=x4,X5=comp,
+        checkpoint_context=checkpoint_context,original_oracle_reproduction=dict(compared=n_oracle,differences=oracle_differences),
         X6=dict(scorecard=card,guarded=guard,session_coverage={k:v for k,v in session.items() if k not in ('marks','counts')},
                 lattice=lattice),verdicts=verdicts)
     dump(OUT/'results.json',result)
@@ -164,6 +190,7 @@ def report(r,mapper):
         '| --- | --- | ---: | ---: | --- | --- |']
     for panel,ss in r['X4']['cohorts'].items():
         for s,x in ss.items():lines.append(f"| {panel} | {s} | {x['runs']} | {x['chart']['n']} | {fmt(x['chart'])} | {fmt(x['decoded'])} |")
+    lines+=['', 'Chart-evidence noise margins (pp): '+', '.join(f"{p} {100*m:.2f}" for p,m in r['X4']['margins'].items())+'.']
     lines+=['',f"Prediction (>=60% both seeds): **{v['X4a_prediction']}**. Retire decoder repair as main lever (<=40% both): **{v['X4a_retires_main_lever']}**.",
         f"D3 gate: **{r['X4']['d3_gate']}**. X4b status: **{v['X4b']}**.", '',
         'The requested unnormalised sum over downbeat log odds is sensitive to candidate meter rate. '
@@ -185,6 +212,7 @@ def report(r,mapper):
                     lines.append(f"| {panel}/{cell} | {arm} | {m} | {100*x['margin']:.2f} | {100*a['baseline']['value']:.2f} | {fmt(a['delta'])} | {100*b['baseline']['value']:.2f} | {fmt(b['delta'])} |")
     lines+=['',f"X5a predictions: `{json.dumps(v['X5a'])}`.",f"X5b predictions: `{json.dumps(v['X5b'])}`.",
         f"X5c within-noise prediction: `{json.dumps(v['X5c'])}`.",f"Fold diagnosis retirement rule fired: **{v['X5_retires_fold']}**.", '',
+        f"Original level-oracle reproduction: {r['original_oracle_reproduction']['compared']} metric comparisons, {len(r['original_oracle_reproduction']['differences'])} differences from stage 0.", '',
         'The oracle replaces only level probabilities; period uncertainty, the tracked path, parity and bar emissions remain model-derived. '
         'The difference from the original oracle is therefore a decoder diagnostic, not deployable oracle performance.', '',
         '## X6: structural scorecard', '',
@@ -219,6 +247,15 @@ def report(r,mapper):
         'The first synthetic insertion fixture exposed a meter diagnosis before line matching; this was fixed before any treatment. '
         'Short final spans use up to four neighbouring intervals to identify level, while their error time is restricted to the span. '
         'S0/S5 structural guards include any eight-bar span overlapping the stratum; mixed spans are conservative and may include errors outside it.', '',
+        'The initial scorecard matched independently inside each span, falsely declaring missing lines for 1 ms jitter across a cut. '
+        'A new absolute fixture failed on that implementation. Matching now runs once over the song; each matched prediction belongs to its reference span, '
+        'and unmatched predictions still count in their own time span. Structural scores were recomputed from saved maps without decoding again. '
+        'The failed scorecard, report and summaries are preserved under failed-span-local-scorecard/. '
+        'The preregistration was not edited; this is a measurement implementation correction made after observing the initial zero-ready result.', '',
+        'The first C1 loader stopped on a multi-audio set key. Its retry handles the existing set/audio-stem identities and reads only their named chart files; '
+        'the original error is retained in calibration.log. No pair was dropped.', '',
+        'Stage 0 neighbouring-checkpoint ranges for bars, level and R5 are retained in results.json as checkpoint_context. '
+        'Only the two selected checkpoint-009001 seeds are decoded here, as requested; the margin uses the frozen two-seed/bootstrap rule.', '',
         'No holdouts were opened. No weights were trained or inferred. All production decoder files remain unchanged. '
         'The immutable preregistration, job.log, input identities, per-recording rows, per-span classes and treatment maps are in this directory. '
         'Private listening data and derived results are excluded from the public branch.', '']

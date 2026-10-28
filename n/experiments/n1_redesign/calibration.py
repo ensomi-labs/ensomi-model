@@ -13,10 +13,15 @@ from run import check_authority
 @lru_cache(None)
 def pair_reference(key):
     # Existing pairs are the allowlist; no corpus crawl or holdout inspection.
-    if not key.startswith('0/') or not key[2:].isdigit():
+    parts=key.split('/')
+    if len(parts) not in (2,3) or parts[0]!='0' or not parts[1].isdigit():
         raise ValueError('Unsupported mapper-pair set identity: '+key)
-    paths=sorted((ROOT/'dataset'/key).glob('*.osu'))
-    paths=[p for p in paths if read_header(p).get('Mode')=='3' and float(read_header(p).get('CircleSize','0'))==4]
+    paths=[]
+    for p in sorted((ROOT/'dataset'/parts[0]/parts[1]).glob('*.osu')):
+        header=read_header(p)
+        if header.get('Mode')!='3' or float(header.get('CircleSize','0'))!=4:continue
+        if len(parts)==3 and Path(header.get('AudioFilename','')).stem!=parts[2]:continue
+        paths.append(p)
     return reference_from_charts([read_osu(p) for p in paths],key)
 
 
