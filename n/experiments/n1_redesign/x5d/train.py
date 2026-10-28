@@ -93,6 +93,9 @@ def train(seed):
     folder = OUT / seed
     data_path = folder / 'data'
     metadata = json.loads((data_path / 'metadata.json').read_text())
+    exclusions()
+    if metadata['exclusions_sha256'] != sha(OUT / 'exclusions.json'):
+        raise RuntimeError('Prepared data use different exclusions')
     data = {split: {name: np.load(data_path / f'{split}-{name}.npy', mmap_mode='r')[:metadata['counts'][split]['samples']]
                    for name in ('x', 'y', 'own', 'weight', 'owner')} for split in ('fit', 'cal')}
     for split in data.values():

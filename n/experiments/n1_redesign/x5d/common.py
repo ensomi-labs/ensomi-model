@@ -28,8 +28,39 @@ def band_of(beat_ms):
 
 def training_rows():
     path = ROOT / 'artifacts/n1-night-20261018/runs/v0data2-20261019/curated.json'
+    rule = exclusions()
+    if sha(path) != rule['input_sha256'][str(path.relative_to(ROOT))]:
+        raise RuntimeError('Training allowlist differs from the audited input')
     return {r['audio_sha256']: r for r in json.loads(path.read_text())
-            if r['role'] == 'train' and r.get('keep') and bucket(r['audio_sha256']) < 3}
+            if r['role'] == 'train' and r.get('keep') and bucket(r['audio_sha256']) < 3
+            and not excluded(r, rule)}
+
+
+def exclusions():
+    path = OUT / 'exclusions.json'
+    identity = json.loads((OUT / 'exclusion-identity.json').read_text())
+    if sha(path) != identity['sha256']:
+        raise RuntimeError('Frozen exclusion metadata changed')
+    return json.loads(path.read_text())
+
+
+def excluded(row, rule):
+    """Reject private denylist identities and aliases using metadata only."""
+    audio = row.get('sha256', row.get('audio_sha256'))
+    if audio in rule['audio_sha256']:
+        return True
+    groups = set(row.get('groups', [])) | {str(row.get('group_id', ''))}
+    if groups & set(rule['corpus_groups']):
+        return True
+    paths = [row['audio_rel']] if 'audio_rel' in row else []
+    for member in row.get('memberships', []):
+        paths += [member['audio_rel'], *member['charts']]
+    return any(str(Path(p).parent) in rule['folders'] for p in paths)
+
+
+def require_allowed(row):
+    if excluded(row, exclusions()):
+        raise RuntimeError('Input matches the frozen private exclusion metadata')
 
 
 def cache_root(seed):
@@ -51,6 +82,7 @@ def manifest(seed):
 
 
 def chart_references(row):
+    require_allowed(row)
     from ensomi_n.labels import read_osu, reference_from_charts
     refs = []
     for member in row['memberships']:

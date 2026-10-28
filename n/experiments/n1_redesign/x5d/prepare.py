@@ -78,6 +78,7 @@ def prepare(seed):
     sd = np.maximum(np.sqrt(np.maximum(second/total-mean*mean, 0.)), 1e-4)
     np.savez(destination / 'normalizer.npz', mean=mean.astype(np.float32), sd=sd.astype(np.float32))
     dump(destination / 'metadata.json', dict(seed=seed, counts=counts,
+        exclusions_sha256=sha(OUT / 'exclusions.json'),
         manifest_sha256=sha(cache_root(seed) / 'manifest.jsonl'), utc=datetime.now(timezone.utc).isoformat()))
     print(seed, 'prepared', counts, flush=True)
 

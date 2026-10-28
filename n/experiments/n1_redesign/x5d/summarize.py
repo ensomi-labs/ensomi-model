@@ -152,7 +152,9 @@ def summarize(seeds):
         generated_utc=datetime.now(timezone.utc).isoformat(), seeds=seeds,
         controls=dict(maps=json.loads((OUT / 'control-reproduction.json').read_text()), checked_scores=checked, passed=True),
         cohorts=dict(panel=dict(sets=322,recordings=262), val_hard=dict(sets=150,recordings=150),
-            unique_audio=466, fit=1545, calibration=752),
+            unique_audio=466, fit=len([a for a in training_rows() if bucket(a)<2]),
+            calibration=len([a for a in training_rows() if bucket(a)==2])),
+        exclusion_identity=json.loads((OUT / 'exclusion-identity.json').read_text()),
         frozen_margins=frozen, comparisons=comp, accuracy=acc, verdicts=decide(comp,seeds),
         structural=scorecard(structural_rows(sr)),
         training={seed:json.loads((OUT / seed / 'heads' / 'selection.json').read_text()) for seed in seeds},
@@ -174,8 +176,8 @@ def write_report(r):
         'CPU measurement only; no decoder or model change is adopted. Primary decision cell: fit_dev/all.', '',
         f"Completed seeds: {', '.join(r['seeds'])}. Baseline/own-D2/oracle-D2 reproduced exactly: "
         f"{r['controls']['maps']['compared_maps']} maps before fitting, {r['controls']['checked_scores']} scored control values after evaluation.", '',
-        'The band is floor(log2(notated BPM / 80)), b=-2..4. Fit uses 1,545 training recordings (hash buckets 0/1); '
-        '752 disjoint bucket-2 recordings select epochs, temperatures and pooling weight. Each contributes at most 512 '
+        f"The band is floor(log2(notated BPM / 80)), b=-2..4. Fit uses {r['cohorts']['fit']:,} training recordings (hash buckets 0/1); "
+        f"{r['cohorts']['calibration']:,} disjoint bucket-2 recordings select epochs, temperatures and pooling weight. Each contributes at most 512 "
         'evenly spaced mapped frames with total weight one. Panel labels never select a parameter.', '',
         'Read sets: fit_dev 322 sets / 262 recordings; val-n1 hard 150 sets / 150 recordings, 466 unique audio files. '
         'All confidence intervals are 2,000 recording-bootstrap percentile intervals. Deltas use paired recordings; '

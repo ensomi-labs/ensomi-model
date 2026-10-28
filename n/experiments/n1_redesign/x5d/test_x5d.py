@@ -12,6 +12,16 @@ def test_absolute_band_boundaries():
     np.testing.assert_array_equal(band_of(60000./bpm), [-2,-2,-1,-1,0,0,1,1,2,3])
 
 
+def test_private_exclusion_rejects_folder_audio_and_corpus_group_aliases():
+    rule=dict(folders=['dataset/std-taiko/sealed'], audio_sha256=['blocked-hash'], corpus_groups=['blocked-group'])
+    assert excluded(dict(audio_rel='dataset/std-taiko/sealed/song.mp3'),rule)
+    assert excluded(dict(audio_rel='dataset/0/open/song.mp3',audio_sha256='blocked-hash'),rule)
+    assert excluded(dict(audio_rel='dataset/0/open/song.mp3',group_id='blocked-group'),rule)
+    assert excluded(dict(sha256='different',memberships=[dict(audio_rel='dataset/0/open/song.mp3',
+        charts=['dataset/std-taiko/sealed/chart.osu'])]),rule)
+    assert not excluded(dict(audio_rel='dataset/0/open/song.mp3',audio_sha256='open-hash'),rule)
+
+
 def test_targets_use_notated_step_and_exclude_unmapped_frames():
     ref = Reference.from_segments([Segment(100., 500., 4), Segment(1455.5, 250., 4)],
                                  np.arange(100., 3001., 250.), lo_ms=100., hi_ms=3000.)

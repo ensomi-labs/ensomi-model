@@ -136,6 +136,11 @@ def evaluate(seed, workers):
     if audios-set(rows):
         raise RuntimeError(f'Missing {len(audios-set(rows))} panel feature entries')
     selected = {audio:rows[audio] for audio in sorted(audios)}
+    for row in selected.values():
+        require_allowed(row)
+    fit = json.loads((OUT / seed / 'heads' / 'selection.json').read_text())
+    if fit['cohort']['exclusions_sha256'] != sha(OUT / 'exclusions.json'):
+        raise RuntimeError('Fitted heads use different exclusions')
     path = OUT / seed / 'evaluation.jsonl'
     if path.exists():
         raise RuntimeError('Fresh evaluation output required')
@@ -143,6 +148,7 @@ def evaluate(seed, workers):
     identity = dict(seed=seed, workers=workers, utc=datetime.now(timezone.utc).isoformat(),
         code_commit=subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
         prereg=json.loads((OUT / 'prereg-identity.json').read_text()),
+        exclusions_sha256=sha(OUT / 'exclusions.json'),
         manifest_sha256=sha(cache_root(seed) / 'manifest.jsonl'))
     dump(OUT / seed / 'evaluation-identity.json', identity)
     jobs = [(seed,xs) for _,xs in sorted(groups.items())]
