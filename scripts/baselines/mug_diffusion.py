@@ -42,7 +42,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--audio', type=Path, required=True)
     parser.add_argument('--star', type=float, required=True)
-    parser.add_argument('--arm', choices=('natural', 'high-ln'), required=True)
+    parser.add_argument('--arm', choices=('natural', 'high-ln', 'source'), required=True)
+    parser.add_argument('--ln-ratio', type=float, help='Source LN-head share, required for the source arm')
+    parser.add_argument('--ln-tag', action='store_true', help='Add the LN tag to the source arm')
     parser.add_argument('--output', type=Path, required=True, help='New .osu file; also writes .json')
     parser.add_argument('--seed', type=int, required=True)
     args = parser.parse_args()
@@ -51,6 +53,11 @@ def main():
         parser.error('Audio must exist and star must be in [1, 8]')
     if args.seed < 0 or args.output.suffix != '.osu':
         parser.error('Seed must be nonnegative and output must end in .osu')
+    if args.arm == 'source':
+        if args.ln_ratio is None or not math.isfinite(args.ln_ratio) or not 0 <= args.ln_ratio <= 1:
+            parser.error('The source arm requires --ln-ratio in [0, 1]')
+    elif args.ln_ratio is not None or args.ln_tag:
+        parser.error('--ln-ratio and --ln-tag apply only to the source arm')
     if any(path.exists() for path in (args.output, args.output.with_suffix('.json'),
                                       args.output.with_suffix('.raw-hitobjects.txt'))):
         parser.error('Output, its receipt or raw-object sidecar already exists')
@@ -84,6 +91,10 @@ def main():
     features = {'sr': args.star}
     if args.arm == 'high-ln':
         features.update(ln_ratio=0.8, ln=1)
+    elif args.arm == 'source':
+        features['ln_ratio'] = args.ln_ratio
+        if args.ln_tag:
+            features['ln'] = 1
     feature_yaml = yaml.safe_load((repo / 'configs/mug/mania_beatmap_features.yaml').read_text())
 
     def condition(values):
@@ -138,14 +149,21 @@ def main():
         for i in range(notes.shape[1]):
             orphan[lane, i] = bool(held[lane, i] and not starts[lane, i] and not active)
             active = bool(starts[lane, i] or (active and held[lane, i]))
+    boundary_lanes = np.flatnonzero(held[:, -1] & ~starts[:, -1] & ~orphan[:, -1]).tolist()
+    boundary_heads = []
+    for lane in boundary_lanes:
+        index = int(np.flatnonzero(starts[lane])[-1])
+        start_ms = int(round((index + np.clip(notes[4 + lane, index], 0, 1)) * meta.convertor.frame_ms))
+        boundary_heads.append(dict(lane=lane, start_ms=start_ms))
     receipt = dict(baseline=f'Mug-Diffusion-{cfg.version}', audio=str(args.audio), star=args.star,
                    arm=args.arm, seed=args.seed, device='cpu', threads=2, features=features,
+                   feature_embedding_ids=feature_dict_to_embedding_ids(features, feature_yaml),
                    steps=100, cfg_scale=5.0, eta=0.0, snap=True, minijack_ms=90,
                    weights=str(weights), repo=str(repo), supplied_timing=False,
                    audio_frames=frames, padded_audio_frames=padded_frames, latent_length=model.z_length,
                    frame_ms=meta.convertor.frame_ms, postprocess=postprocess,
                    orphan_held_frames=int(orphan.sum()),
-                   held_lanes_at_array_end=int((held[:, -1] & ~starts[:, -1] & ~orphan[:, -1]).sum()),
+                   held_lanes_at_array_end=len(boundary_lanes), array_terminated_heads=boundary_heads,
                    wall_seconds=time.monotonic() - started,
                    peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
                    * (1 if sys.platform == 'darwin' else 1024))

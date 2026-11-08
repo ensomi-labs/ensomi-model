@@ -19,7 +19,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--audio', type=Path, required=True)
     parser.add_argument('--star', type=float, required=True)
-    parser.add_argument('--arm', choices=('natural', 'high-ln', 'inverse'), required=True)
+    parser.add_argument('--arm', choices=('natural', 'high-ln', 'inverse', 'source', 'source-inverse'), required=True)
+    parser.add_argument('--ln-ratio', type=float, help='Source LN-head share for source arms')
+    parser.add_argument('--export-audit', action='store_true', help='Save events and paired exporter diagnostics privately')
     parser.add_argument('--output', type=Path, required=True, help='New .osu file; also writes .json')
     parser.add_argument('--seed', type=int, required=True)
     args = parser.parse_args()
@@ -28,6 +30,11 @@ def main():
         parser.error('Audio must exist and star must be finite and positive')
     if args.seed < 0 or args.output.suffix != '.osu':
         parser.error('Seed must be nonnegative and output must end in .osu')
+    if args.arm.startswith('source'):
+        if args.ln_ratio is None or not math.isfinite(args.ln_ratio) or not 0 <= args.ln_ratio <= 1:
+            parser.error('Source arms require --ln-ratio in [0, 1]')
+    elif args.ln_ratio is not None:
+        parser.error('--ln-ratio applies only to source arms')
     if args.output.exists() or args.output.with_suffix('.json').exists():
         parser.error('Output or its receipt already exists')
     repo = Path(os.environ['MAPPERATORINATOR_REPO']).resolve()
@@ -51,12 +58,18 @@ def main():
     from omegaconf import OmegaConf
     import inference
 
+    if args.export_audit:
+        from mapper_export_audit import install
+        install(args.output)
+
     torch.set_num_threads(2)
     torch.set_num_interop_threads(1)
     arm = {
         'natural': {'hold_note_ratio': None, 'descriptors': None, 'cfg_scale': 1.0},
         'high-ln': {'hold_note_ratio': 0.8, 'descriptors': None, 'cfg_scale': 1.0},
         'inverse': {'hold_note_ratio': None, 'descriptors': ['gimmick/LN inverse'], 'cfg_scale': 3.0},
+        'source': {'hold_note_ratio': args.ln_ratio, 'descriptors': None, 'cfg_scale': 1.0},
+        'source-inverse': {'hold_note_ratio': args.ln_ratio, 'descriptors': ['gimmick/LN inverse'], 'cfg_scale': 3.0},
     }[args.arm]
     vocabulary = json.loads((model / 'tokenizer.json').read_text())['descriptor_idx']
     for descriptor in arm['descriptors'] or []:
