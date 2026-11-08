@@ -54,8 +54,19 @@ def mask_log_probs(logp, held):
 
 @torch.no_grad()
 def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln_fraction=1., requests=(),
-            masks=None, copy=None, recorder=None, random_source=None, random_prefix='r2'):
-    """Full BOS sampling; target order held, heads per row, all-busy share. Masks are one band's config.
+            masks=None, copy=None, recorder=None, random_source=None, random_prefix='r2',
+            prefix_actions=None, prefix_gap=None, pointer_orientation=None):
+    """BOS or prefix continuation; target order held, heads per row, all-busy share.
+
+    ``prefix_actions`` and ``prefix_gap`` optionally supply [P,4] human decisions,
+    excluding EOS. Replay them into the exact state, temporal cache, mask history
+    and running levels without consuming random draws. Controls apply only to
+    the continuation. Scoped requests are not supported with a supplied prefix.
+    Masks are one band's config.
+
+    ``pointer_orientation`` fixes the release order to 0 (forward) or 1
+    (mirrored) for inference lesions. None samples the trained mixture. The
+    orientation draw is consumed even when overridden.
 
     Resolved requests contain concept, a_ms, b_ms, target, q, band; optional w selects open loop. Callers
     validate external arguments. ``copy(k, hist, lp15)`` returns 15 head-mask biases from the committed head
@@ -65,6 +76,19 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
     kappa = np.broadcast_to(np.asarray(kappa, dtype=float), (3,))
     K = len(head_ms)
     stop = K + 1 if stop is None else stop
+    if pointer_orientation not in (None, 0, 1):
+        raise ValueError('Pointer orientation must be None, 0 or 1')
+    prefix_n = 0
+    if prefix_actions is not None or prefix_gap is not None:
+        if prefix_actions is None or prefix_gap is None:
+            raise ValueError('Prefix actions and gap releases must be supplied together')
+        prefix_actions, prefix_gap = np.asarray(prefix_actions), np.asarray(prefix_gap)
+        prefix_n = len(prefix_actions)
+        if (prefix_actions.shape != (prefix_n, 4) or prefix_gap.shape != (prefix_n, 4)
+                or prefix_n > min(K, stop)):
+            raise ValueError('Prefix must have matching [P,4] arrays with P <= min(K, stop)')
+        if requests and prefix_n:
+            raise ValueError('Scoped requests are not supported with a supplied prefix')
     model.eval()
     actions = np.zeros((K + 1, 4), np.int64)
     gap = np.full((K + 1, 4), np.nan)
@@ -116,6 +140,21 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
         chart = state.chart
         d = chart.derived()
         held = d.held[k]
+        if k < prefix_n:
+            state.append(prefix_actions[k], prefix_gap[k])
+            actual = chart.derived().attack[k]
+            busy[k + 1] = busy[k] + bool((held | actual).all())
+            hist[k] = int(actual.astype(np.int64) @ BIT)
+            if guard is not None:
+                guard.observe(actual)
+            if stepper is None:
+                cache = temporal.append(cache, model._t(_history_token(chart, k)))
+                if k % model.config.stride == 0:
+                    marks.append(temporal.read(cache))
+            else:
+                stepper.commit(chart, k)
+            action_nll[k] = np.nan
+            continue
         support = action_support_mask(held, k == K)[None]
         if stepper is None:
             before = temporal.read(cache).to(model.dtype)[None]
@@ -260,6 +299,8 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
         action_nll[k] = -float(plain[chosen])
         orientation = (int(torch.randint(2, (), generator=generator)) if random_source is None else
                        random_source.orientation(generator, f'{random_prefix}/{k}/orientation'))
+        if pointer_orientation is not None:
+            orientation = pointer_orientation
         lanes = gap_release_lanes(held, codes, orientation)
         rel = np.full(4, np.nan)
         if lanes:

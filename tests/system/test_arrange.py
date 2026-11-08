@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 import torch
 
 from ensomi_model.r2.sampling import continue_chart
@@ -19,6 +20,51 @@ def test_without_force_masks_or_copy_it_is_r2s_own_sampler():
     actions, gap, _ = arrange(model, head, song, grid(), seed=954, target=[0, 1, 0], kappa=0)
     assert actions.tobytes() == expected[0].tobytes()
     assert np.array_equal(gap, expected[1], equal_nan=True)
+
+
+def test_prefix_continuation_matches_natural_sampler_and_keeps_open_holds():
+    head, song = skeleton(np.random.default_rng(12), 80)
+    model = tiny_r2()
+    original, releases = continue_chart(model, head, song, grid(), seed=9)
+    held, _, _ = decode(original)
+    cut = next(k for k in range(10, 60) if held[k].any())
+    kwargs = dict(prefix_actions=original[:cut], prefix_gap=releases[:cut], seed=954)
+    expected = continue_chart(model, head, song, grid(), **kwargs)
+    actions, gap, trace = arrange(model, head, song, grid(), target=[0, 1, 0], kappa=0, **kwargs)
+    assert np.array_equal(actions, expected[0])
+    assert np.array_equal(gap, expected[1], equal_nan=True)
+    assert np.array_equal(actions[:cut], original[:cut])
+    assert np.isnan(trace['action_nll'][:cut]).all()
+
+
+def test_prefix_populates_controller_and_playability_history():
+    from ensomi_model.r2.state import replay_decisions
+    head = np.arange(20, dtype=float) * 125 + 1000
+    model = tiny_r2()
+    prefix = np.zeros((8, 4), dtype=int)
+    prefix[:, 0] = 1
+    a, g, trace = arrange(model, head, 4000., grid(), seed=5, target=[0, 1.5, 0], kappa=3,
+                          masks=calibration()['masks']['3'], prefix_actions=prefix,
+                          prefix_gap=np.full((8, 4), np.nan))
+    assert trace['heads_force_running'][8] == 1
+    assert trace['heads_window_rows'][8] == 8
+    assert trace['mask_firings'][8, 2] > 0
+    assert replay_decisions(head, 4000., a, g)[0].finalized
+
+
+def test_fixed_pointer_orientation_is_legal_and_validated():
+    from ensomi_model.r2.state import replay_decisions
+    head, song = skeleton(np.random.default_rng(13), 50)
+    model = tiny_r2()
+    for orientation in (0, 1):
+        a, g, _ = arrange(model, head, song, grid(), seed=4, target=[0, 1, 0], kappa=0,
+                          pointer_orientation=orientation)
+        assert replay_decisions(head, song, a, g)[0].finalized
+    with pytest.raises(ValueError, match='orientation'):
+        arrange(model, head, song, grid(), seed=4, target=[0, 1, 0], kappa=0, pointer_orientation=2)
+    with pytest.raises(ValueError, match='together'):
+        arrange(model, head, song, grid(), seed=4, target=[0, 1, 0], kappa=0,
+                prefix_actions=np.zeros((1, 4)))
 
 
 def test_a_zero_copy_bias_changes_nothing_and_a_strong_one_steers_the_heads():
