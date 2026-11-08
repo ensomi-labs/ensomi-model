@@ -31,7 +31,16 @@ def run(plan, root):
     prior = [json.loads(s) for s in record.read_text().splitlines()] if record.exists() else []
     done = {r['id'] for r in prior if r['status'] in ('completed', 'failed', 'skipped_budget')}
     completed.extend(r for r in prior if r['status'] == 'completed')
-    mapper_started = sum(r.get('wall_seconds', 0) for r in prior if r.get('system') == 'mapper')
+    # Reused receipts add no execution time.
+    mapper_started = sum(r.get('wall_seconds', 0) for r in prior
+                         if r.get('system') == 'mapper' and not r.get('reused'))
+    accounted = {r['id'] for r in prior if r.get('system') == 'mapper'
+                 and 'wall_seconds' in r and not r.get('reused')}
+    for row in prior:
+        if row.get('system') == 'mapper' and row.get('reused') and row['id'] not in accounted:
+            # A receipt can outlive a dispatcher that never logged the child exit.
+            mapper_started += row['wall_seconds']
+            accounted.add(row['id'])
 
     def save(row):
         with record.open('a') as f:
@@ -123,6 +132,8 @@ def run(plan, root):
             time.sleep(1)
     finally:
         for proc, job, started, log in active:
+            if proc.poll() is not None:
+                continue
             try:
                 os.killpg(proc.pid, signal.SIGTERM)
             except ProcessLookupError:

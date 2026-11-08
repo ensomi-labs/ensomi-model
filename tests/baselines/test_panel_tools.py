@@ -76,3 +76,45 @@ def test_deadline_stops_only_owned_child(tmp_path, monkeypatch):
     finally:
         sentinel.terminate()
         sentinel.wait()
+
+
+@pytest.mark.parametrize('exit_logged,seconds,should_run', [(True, 14_000, True), (False, 26_000, False)])
+def test_resumed_receipt_preserves_mapper_budget(tmp_path, monkeypatch, exit_logged, seconds, should_run):
+    queue = module('panel_run')
+    monkeypatch.setattr(queue.shutil, 'disk_usage', lambda _: SimpleNamespace(free=101_000_000_000))
+    (tmp_path / 'results').mkdir()
+    old = dict(id='previous', system='mapper', song='previous', arm='natural', seed=954,
+               source_class='inverse', audio_seconds=10_000, wall_seconds=seconds)
+    history = ([dict(old, status='interrupted')] if exit_logged else [])
+    history.append(dict(old, status='completed', reused=True))
+    (tmp_path/'results/jobs.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in history))
+    receipt = tmp_path/'receipt.json'
+    job = dict(id='next', system='mapper', song='next', arm='natural', seed=954, threads=1,
+               source_class='normal', audio_seconds=1, receipt=str(receipt), log=str(tmp_path/'child.log'),
+               argv=[sys.executable, '-c', 'import pathlib,sys; pathlib.Path(sys.argv[1]).write_text("{}")',
+                     str(receipt)])
+    plan = dict(jobs=[job], cwd=str(tmp_path), retained_root=str(tmp_path),
+                deadline_utc=(datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(seconds=30)).isoformat())
+    queue.run(plan, tmp_path)
+    records = [json.loads(s) for s in (tmp_path/'results/jobs.jsonl').read_text().splitlines()]
+    assert receipt.exists() == should_run
+    assert records[-1]['id'] == 'next'
+    assert records[-1]['status'] == ('completed' if should_run else 'skipped_budget')
+
+
+def test_shutdown_reaps_exited_child_without_signalling_its_group(tmp_path, monkeypatch):
+    queue = module('panel_run')
+    monkeypatch.setattr(queue.shutil, 'disk_usage', lambda _: SimpleNamespace(free=101_000_000_000))
+    monkeypatch.setattr(queue.os, 'killpg', lambda *_: pytest.fail('Exited child group was signalled'))
+    (tmp_path/'results').mkdir()
+    receipt = tmp_path/'receipt.json'
+    job = dict(id='finished', system='r2', song='fixture', arm='shipped', seed=954, threads=1,
+               source_class='normal', audio_seconds=1, receipt=str(receipt), log=str(tmp_path/'child.log'),
+               argv=['/usr/bin/time', sys.executable, '-c',
+                     'import pathlib,sys; pathlib.Path(sys.argv[1]).write_text("{}")', str(receipt)])
+    plan = dict(jobs=[job], cwd=str(tmp_path), retained_root=str(tmp_path),
+                deadline_utc=(datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(seconds=.5)).isoformat())
+    queue.run(plan, tmp_path)
+    assert receipt.exists()
+    records = [json.loads(s) for s in (tmp_path/'results/jobs.jsonl').read_text().splitlines()]
+    assert records[-1]['status'] == 'interrupted'

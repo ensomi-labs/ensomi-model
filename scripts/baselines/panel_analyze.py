@@ -174,6 +174,15 @@ def inspect_runs(root, cache, code):
                         old = Counter(key(o) for o in code.parse_mania_hit_objects(path.with_suffix('.unpatched.osu')))
                         result['export_object_difference'] = dict(patched_only=sum((fixed-old).values()),
                             unpatched_only=sum((old-fixed).values()), common=sum((fixed & old).values()))
+                if system == 'mug' and result['parse']:
+                    raw = path.with_suffix('.raw-hitobjects.txt').read_text().splitlines()
+                    raw_holds = sum(bool(int(s.split(',')[3]) & 128) for s in raw if s.strip())
+                    final = code.parse_mania_hit_objects(path)
+                    final_holds = sum(o.kind is code.ManiaHitObjectKind.HOLD for o in final)
+                    # Native gridify preserves object types; minijack processing
+                    # only moves or removes objects, so this is an exact loss count.
+                    result['native_hold_loss'] = dict(raw_holds=raw_holds, exported_holds=final_holds,
+                                                     dropped_holds=raw_holds-final_holds)
                 records.append(result)
     return records
 
@@ -272,9 +281,15 @@ def legality_summary(records, code):
         if r['system'] == 'mug':
             row.update({k: r['receipt'][k] for k in ('orphan_held_frames', 'held_lanes_at_array_end')})
             row['moved_or_removed_holds'] = r['receipt']['postprocess']['removed_or_moved_holds']
+            row.update({'native_'+k: v for k, v in r.get('native_hold_loss', {}).items()})
         if r['system'] == 'mapper':
             row['raw_stream_grammar'] = int(r['raw_stream']['grammar'])
-            row['unpatched_legal'] = int(r['unpatched']['legal'])
+            row['raw_stream_replay'] = int(r['raw_stream']['replay']['complete'])
+            for key in ('parse', 'grammar', 'holds_closed', 'legal'):
+                row['unpatched_'+key] = int(r['unpatched'].get(key, False))
+            for key in ('missing_timestamp', 'missing_position', 'time_reversal', 'unmatched_end',
+                        'nonpositive_hold', 'head_while_held', 'open_holds_at_end'):
+                row['raw_'+key] = r['raw_stream']['errors'].get(key, 0)
             for version in ('unpatched', 'patched'):
                 warnings = r['export_warnings'][version]
                 row[version+'_incomplete_heads'] = sum('Incomplete hold note' in w for w in warnings)

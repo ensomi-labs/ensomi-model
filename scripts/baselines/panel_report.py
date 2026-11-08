@@ -30,6 +30,8 @@ def render(root):
     effects = effects[(effects.sensitivity == 'all_parsed') & (effects.band.astype(str) == 'all')]
     jobs = [json.loads(s) for s in (root / 'results/jobs.jsonl').read_text().splitlines()]
     plan = json.loads((root / 'setup/jobs.json').read_text())
+    latest = {j['id']: j for j in jobs if 'id' in j}
+    unstarted = sum(j['id'] not in latest for j in plan['jobs'])
     selection = json.loads((root / 'setup/selection.json').read_text())
     panel = json.loads((root / 'results/panel.json').read_text())
     source_counts = Counter(row['ln_class'] for row in panel)
@@ -64,6 +66,7 @@ def render(root):
               f"The source panel contains {len(panel)} fit_dev songs: {source_counts['normal']} normal, {source_counts['ln_heavy']} LN-heavy and {source_counts['inverse']} inverse. Mapper’s initial subset contains {sum(row['mapper_selected'] for row in panel)} songs; retained counts by class appear below. These are development-panel measurements.", '',
               f"Updated {datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')}. Completed analysis: {len(records)}/{len(plan['jobs'])} planned outputs. "
               f"Generation failures: {sum(j['status']=='failed' for j in jobs)}; budget-skipped jobs: {sum(j['status']=='skipped_budget' for j in jobs)}. "
+              f"Interrupted jobs: {sum(j['status']=='interrupted' for j in latest.values())}; never started: {unstarted}. "
               'The requested Mapper normal subset can be reduced by measured runtime; missing outputs are not zero-valued charts.', '',
               '## Reading and scope', '',
               'These are audio-to-chart comparisons with independently generated timing and heads. They describe the released systems and their controls; they do not isolate the LN representation. R2’s oracle receives three source statistics, including heads per row and all-busy share, whereas the external source arms receive LN-head share and, where specified, a tag. Training data, unknown external-model overlap with this panel, model size, requested-star calibration, native postprocessing and head placement remain confounded. Mug generates head and held channels jointly by diffusion; this is not a test of strictly causal or next-head-blind release decisions.', '',
@@ -99,9 +102,9 @@ def render(root):
     nulls = nulls[(nulls['mode']=='bos')&(nulls.metric=='ln_share')&nulls.ln_class.isin(CLASSES)]
     for row in nulls.itertuples():
         lines.append(f"| {row.ln_class} | {'same' if row.same_creator else 'different'} | {row.bands} | {row.pairs}/{row.songs} | {number(row.rms*100)} | {number(row.p95_abs*100)} |")
-    lines += ['', 'The full inherited null table, with metric-specific counts, is `setup/human-null-summary.csv` and the underlying pairs are `setup/human-null.csv`. These are near-identical-row same-song pairs, not a perceptual ceiling or a floor matched to independently generated heads. There is no inverse–inverse null; LN-heavy different-creator nulls cover only one song.', '',
+    lines += ['', 'The full inherited null table, with metric-specific counts, is `setup/human-null-summary.csv` and the underlying pairs are `setup/human-null.csv`. These near-identical-row same-song pairs come from stage 1’s broader source-pair pool, not just the 48 selected panel songs. They are not a perceptual ceiling or a floor matched to independently generated heads. There is no inverse–inverse null; LN-heavy different-creator nulls cover only one song.', '',
               '## Legality and exporter diagnostics', '',
-              '| System / arm | Parse | Grammar | Replay reaches closed terminal state | Inside audio and legal | Raw-stream grammar | Unpatched export legal |',
+              '| System / arm | Parse | Grammar | Replay reaches closed terminal state | Inside audio and legal | Raw grammar / replay | Unpatched parse / grammar / replay / legal |',
               '| --- | ---: | ---: | ---: | ---: | ---: | ---: |']
     for system, arm in ARMS:
         sub = [r for r in records if r['system']==system and r['arm']==arm]
@@ -110,8 +113,14 @@ def render(root):
         counts = [sum(r.get('parse',False) for r in sub),sum(r.get('grammar',False) for r in sub),
                   sum(r.get('holds_closed',False) for r in sub),sum(r['legal'] for r in sub)]
         cells = [f'{n}/{len(sub)}' for n in counts]
-        cells += [f"{sum(r['raw_stream']['grammar'] for r in sub)}/{len(sub)}" if system=='mapper' else '—',
-                  f"{sum(r['unpatched']['legal'] for r in sub)}/{len(sub)}" if system=='mapper' else '—']
+        if system == 'mapper':
+            raw_counts = [sum(r['raw_stream']['grammar'] for r in sub),
+                          sum(r['raw_stream']['replay']['complete'] for r in sub)]
+            old_counts = [sum(r['unpatched'].get(k, False) for r in sub)
+                          for k in ('parse', 'grammar', 'holds_closed', 'legal')]
+            cells += ['; '.join(f'{n}/{len(sub)}' for n in counts) for counts in (raw_counts, old_counts)]
+        else:
+            cells += ['—', '—']
         lines.append(f"| {system} / {arm} | {' | '.join(cells)} |")
     for system in ('r2','mug','mapper'):
         sub = [r for r in records if r['system']==system]
@@ -120,7 +129,8 @@ def render(root):
             violations.update(r.get('violations',{}))
         lines += ['', f"{system}: output violation totals `{dict(violations)}`; excluded hazard holds {sum(r.get('hazard_excluded_holds',0) for r in sub)}."]
         if system=='mug':
-            lines += [f"Orphan held frames: {sum(r['receipt']['orphan_held_frames'] for r in sub)}; held lanes at padded-array end: {sum(r['receipt']['held_lanes_at_array_end'] for r in sub)}. Native minijack processing moved or removed {sum(r['receipt']['postprocess']['removed_or_moved_objects'] for r in sub)} objects, including {sum(r['receipt']['postprocess']['removed_or_moved_holds'] for r in sub)} holds. Those counts compare snapped objects with final objects; they do not distinguish a moved object from a dropped one. Receipts and raw-object sidecars retain the evidence; no validator repair is applied."]
+            hold_loss = [r['native_hold_loss'] for r in sub if 'native_hold_loss' in r]
+            lines += [f"Orphan held frames: {sum(r['receipt']['orphan_held_frames'] for r in sub)}; held lanes at padded-array end: {sum(r['receipt']['held_lanes_at_array_end'] for r in sub)}. Native minijack processing moved or removed {sum(r['receipt']['postprocess']['removed_or_moved_objects'] for r in sub)} objects, including {sum(r['receipt']['postprocess']['removed_or_moved_holds'] for r in sub)} holds. Those combined counts compare snapped objects with final objects. On {len(hold_loss)}/{len(sub)} parseable charts, raw-to-export hold counts separately show {sum(r['dropped_holds'] for r in hold_loss)} dropped holds out of {sum(r['raw_holds'] for r in hold_loss)}, across {sum(r['dropped_holds'] > 0 for r in hold_loss)} charts. Native gridify preserves object types and minijack processing only moves or removes objects, so this count reduction measures hold loss. Receipts and raw-object sidecars retain the evidence; no validator repair is applied."]
         if system=='mapper':
             for version in ('unpatched','patched'):
                 warnings = [w for r in sub for w in r['export_warnings'][version]]
@@ -145,6 +155,16 @@ def render(root):
     reading = root/'results/reading.md'
     if reading.exists():
         lines[index:index] = [reading.read_text().strip(), '']
+    scheduling = root/'setup/scheduling.json'
+    if scheduling.exists():
+        schedule = json.loads(scheduling.read_text())
+        if schedule.get('implemented'):
+            index = lines.index('## Inputs, controls, reproducibility and budget') + 2
+            lines[index:index] = [schedule['description'], '',
+                                  'The original and execution manifests, their hashes, and the dispatcher restart are retained in `setup/scheduling.json` and `setup/dispatcher-restart.json`. The job dictionaries are identical; only their order changes.', '']
+            restart = json.loads((root/'setup/dispatcher-restart.json').read_text())
+            if restart.get('note'):
+                lines[index + 4:index + 4] = [restart['note'], '']
     index = lines.index('## Sampling spread and human same-song nulls') + 2
     spread = ['| System / arm | Source class | Paired songs | LN-share gap pp [95% song CI] | Seed RMS pp / pairs |',
               '| --- | --- | ---: | --- | ---: |']
