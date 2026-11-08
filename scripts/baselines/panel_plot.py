@@ -46,15 +46,22 @@ def plot(root):
                     human_values.append(dict(sha=sha, age_lo_ms=bin['age_lo_ms'],
                                              rate=bin['releases']/bin['risk'] if bin['risk'] else np.nan))
             series['human'] = pd.DataFrame(human_values)
+            by_song = {}
             for system, sub in series.items():
                 sub = sub[sub.sha.isin(common)]
-                song = sub.groupby(['sha','age_lo_ms']).rate.mean().unstack('age_lo_ms').reindex(columns=edges)
+                by_song[system] = sub.groupby(['sha','age_lo_ms']).rate.mean().unstack('age_lo_ms').reindex(index=sorted(common), columns=edges)
+            # A chart with no surviving hold has an undefined hazard, not zero.
+            # Keep the same valid songs in every displayed curve within a bin.
+            valid = np.logical_and.reduce([np.isfinite(frame.to_numpy()) for frame in by_song.values()])
+            for system, song in by_song.items():
+                song = song.where(valid)
                 summaries = [interval(song[e]) for e in edges]
                 mean = np.array([s['effect'] for s in summaries])
                 ax.plot(range(7), mean, marker='o', ms=3, label=system, color=colors[system], lw=1.7)
                 ax.fill_between(range(7), [s['lo'] for s in summaries], [s['hi'] for s in summaries],
                                 color=colors[system], alpha=.1)
-                manifest.append(dict(mode=mode, source_class=cls, system=system, songs=sorted(common), bins=summaries))
+                manifest.append(dict(mode=mode, source_class=cls, system=system, songs=sorted(common), bins=summaries,
+                                     valid_songs_by_bin=[song.index[valid[:, i]].tolist() for i in range(len(edges))]))
             ax.set_xticks(range(7), labels, rotation=35, ha='right', fontsize=8)
             ax.set_ylim(-.02,1.02)
             ax.grid(axis='y', alpha=.2)
