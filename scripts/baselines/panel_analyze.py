@@ -319,6 +319,14 @@ def main():
     pd.DataFrame(costs).to_csv(a.root / 'results/costs.csv', index=False)
     legality_summary(records, code).to_csv(a.root / 'results/legality.csv', index=False)
     comparisons(tables[0], code).to_csv(a.root / 'results/comparisons.csv', index=False)
+    # Score the identical exported objects with the fixed human grid. This is
+    # a timing sensitivity check; generation still receives no source timing.
+    source_records = [dict(r, metrics=r['source_grid_metrics']) for r in records
+                      if 'source_grid_metrics' in r]
+    source_tables = summaries(source_records, human, code)
+    source_tables[0].to_csv(a.root / 'results/source-grid-runs.csv', index=False)
+    source_tables[1].to_csv(a.root / 'results/source-grid-effects.csv', index=False)
+    comparisons(source_tables[0], code).to_csv(a.root / 'results/source-grid-comparisons.csv', index=False)
     print(dict(outputs=len(records), legal=dict(Counter(r['system'] for r in records if r['legal']))))
 
 
