@@ -154,7 +154,7 @@ def inspect_runs(root, cache, code):
                 receipt = json.loads(path.with_suffix('.json').read_text())
                 result = dict(system=system, sha=source['sha256'], source_class=source['ln_class'],
                               band=source['band'], arm=arm, seed=int(seed), requested_star=source['star'],
-                              requested_ln_share=source['ln_share'], receipt=receipt,
+                              source_ln_share=source['ln_share'], receipt=receipt,
                               **inspect_chart(path, source, grid, code))
                 result['wall_seconds'] = receipt['wall_seconds']
                 result['peak_rss_bytes'] = receipt['peak_rss_bytes']
