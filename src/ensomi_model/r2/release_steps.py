@@ -349,6 +349,7 @@ def continue_release_steps(model, head_ms, song_ms, grid, *, seed, target=(0., 1
     # opportunities, releases, expected releases, forced opportunities
     hazards = np.zeros((len(age_edges) + 1, 4))
     fallback_count, forced_count = 0, 0
+    forced_full, forced_eos = 0, 0
     for k in range(K + 1):
         chart = state.chart
         d = chart.derived()
@@ -387,6 +388,8 @@ def continue_release_steps(model, head_ms, song_ms, grid, *, seed, target=(0., 1
                         age_bin = np.searchsorted(age_edges, age, side='right')
                         hazards[age_bin] += (1, release, probability, force)
                         forced_count += force
+                        forced_full += force and k < K
+                        forced_eos += force and k == K
                         if release:
                             rel[lane] = u
                             active[lane] = False
@@ -424,4 +427,5 @@ def continue_release_steps(model, head_ms, song_ms, grid, *, seed, target=(0., 1
                 guard.observe(actual)
             cache = model.temporal.append(cache, model._t(_history_token(chart, k)))
     return actions, gap, dict(fallback_count=fallback_count, forced_releases=forced_count,
+        forced_full_occupancy=int(forced_full), forced_eos=int(forced_eos),
         age_edges_ms=age_edges.tolist(), hazards=hazards.tolist())

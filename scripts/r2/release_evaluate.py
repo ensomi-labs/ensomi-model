@@ -26,6 +26,7 @@ from ensomi_model.osu_core.hitobjects import ManiaHitObjectKind
 from ensomi_model.r2.cache import objects_from_decisions
 from ensomi_model.r2.data import chart_from_cache
 from ensomi_model.r2.model import R2Model, R2Config
+from ensomi_model.r2.release_diagnostics import opportunity_profile, leak_counts
 from ensomi_model.r2.release_steps import ReleaseStepModel, continue_release_steps
 from ensomi_model.r2.state import replay_decisions
 from ensomi_model.r2.theta import decode
@@ -68,6 +69,7 @@ def job(row):
         return dict(sha=row['sha256'], cached=True)
     dec = heldout_chart(row, args['cache'])
     chart, grid = chart_from_cache(dec), grid_of(dec)
+    opportunities = opportunity_profile(dec.head_ms, grid)
     system = Path(args['model_dir'])
     masks = json.loads((system / 'calibration.json').read_text())['masks'][str(row['band'])]
     target = kappa_targets(Prior.load(system / 'prior.json').predict(
@@ -89,6 +91,7 @@ def job(row):
         for mode, cut in [('bos', 0), ('prefix', dec.K // 3)]:
             start_ms = dec.head_ms[cut]
             human.append(dict(mode=mode, **ln_statistics(original, grid, start_ms),
+                              leaks=leak_counts(chart, opportunities, cut),
                               duration_hazards=duration_hazards(original, start_ms)))
             for kappa in (0, 3):
                 for seed in (954, 955, 956):
@@ -99,6 +102,7 @@ def job(row):
                     final, _ = replay_decisions(dec.head_ms, dec.song_ms, actions, gap)
                     assert final.finalized and not np.any(final.held)
                     objects = objects_from_decisions(dec.head_ms, actions, gap, dec.song_ms)
+                    generated = chart.with_decisions(actions, gap)
                     held, _, _ = decode(actions)
                     tail = gap[dec.K][held[dec.K]]
                     runs.append(dict(mode=mode, kappa=kappa, seed=seed,
@@ -107,6 +111,8 @@ def job(row):
                         eos_releases=int(held[dec.K].sum()),
                         eos_release_offset_from_last_head_ms=(tail - dec.head_ms[-1]).tolist(),
                         fallbacks=trace['fallback_count'], forced_releases=trace.get('forced_releases'),
+                        forced_full_occupancy=trace.get('forced_full_occupancy'),
+                        forced_eos=trace.get('forced_eos'), leaks=leak_counts(generated, opportunities, cut),
                         conditional_hazards=trace.get('hazards'), seconds=time.monotonic() - t0))
     write_json(path, dict(sha=row['sha256'], group=row['group_id'], role=row['role'],
         source_class=row['ln_class'], band=row['band'], representation=representation,
@@ -129,6 +135,7 @@ def main():
     root.mkdir(parents=True, exist_ok=True)
     disk_guard(root)
     config = vars(args).copy()
+    config['schema_version'] = 2
     config['checkpoint_sha256'] = hashlib.sha256(Path(args.checkpoint).read_bytes()).hexdigest()
     rows = json.loads(Path(args.panel).read_text())['charts']
     if args.limit:

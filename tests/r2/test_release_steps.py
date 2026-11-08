@@ -175,6 +175,7 @@ def test_sampler_keeps_prefix_and_closes_holds_even_with_dense_full_occupancy(bl
         assert final.finalized and not np.any(final.held)
         assert np.array_equal(a[:1], prefix)
         assert trace['fallback_count'] > 0
+        assert trace['forced_releases'] == trace['forced_full_occupancy'] + trace['forced_eos']
         with torch.inference_mode():
             lp = m.window(Chart(head, 1012., grid(), a, g), 1, len(a)).total
         assert torch.isfinite(lp).all()

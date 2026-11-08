@@ -5,6 +5,10 @@ directory, and owned_roots. Commands are argv lists, never shell expressions.
 Each child gets its own process group; SIGTERM or STOP requests a clean child
 stop. A child which does not exit within 90 seconds is killed. Completed jobs
 are skipped on restart. A failed/stopped job prevents later jobs from starting.
+Jobs may opt into bounded RSS-guard restarts with state_file and rss_restarts;
+only a progressing clean recovery is retried. Disk, explicit stop and numerical
+failures never trigger that retry. --detach starts nohup/nice/caffeinate in a new
+session; --detach --resume explicitly clears STOP and a verified stale lock.
 """
 from __future__ import annotations
 
@@ -15,6 +19,7 @@ from pathlib import Path
 import shutil
 import signal
 import subprocess
+import sys
 import time
 
 
@@ -43,11 +48,54 @@ def guard(root, owned_roots):
     return None
 
 
+def detach(manifest, spec, resume=False):
+    """Launch nohup/nice/caffeinate in a new session; never replace a live queue."""
+    root = Path(spec['out'])
+    root.mkdir(parents=True, exist_ok=True)
+    reason = guard(root, spec['owned_roots'])
+    if reason:
+        raise SystemExit(reason)
+    lock = root / 'queue.lock'
+    if lock.exists():
+        pid = int(lock.read_text())
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            if not resume:
+                raise SystemExit('Stale queue.lock exists; use --detach --resume after checking the run')
+            lock.unlink()
+        else:
+            raise SystemExit(f'Queue lock PID {pid} is still alive')
+    stop = root / 'STOP'
+    if stop.exists():
+        if not resume:
+            raise SystemExit('STOP exists; use --detach --resume to resume explicitly')
+        stop.unlink()
+    commands = [shutil.which(name) for name in ('nohup', 'nice', 'caffeinate')]
+    if not all(commands):
+        raise SystemExit('Detached launch requires nohup, nice and caffeinate')
+    argv = [commands[0], commands[1], '-n', '10', commands[2], '-i', sys.executable,
+            str(Path(__file__).resolve()), '--manifest', str(Path(manifest).resolve())]
+    with (root / 'queue.log').open('a') as log:
+        child = subprocess.Popen(argv, cwd=root, stdin=subprocess.DEVNULL, stdout=log,
+                                 stderr=subprocess.STDOUT, start_new_session=True)
+    record = dict(wrapper_pid=child.pid, wrapper_pgid=child.pid, started=time.time(), argv=argv)
+    (root / 'detached.json').write_text(json.dumps(record, indent=2) + '\n')
+    print(json.dumps(record), flush=True)
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--manifest', required=True)
+    parser.add_argument('--detach', action='store_true')
+    parser.add_argument('--resume', action='store_true', help='Explicitly clear STOP/stale lock when detaching')
     args = parser.parse_args()
     spec = json.loads(Path(args.manifest).read_text())
+    if args.detach:
+        return detach(args.manifest, spec, args.resume)
+    if args.resume:
+        parser.error('--resume requires --detach; child checkpoint resume belongs in the job argv')
     root = Path(spec['out'])
     root.mkdir(parents=True, exist_ok=True)
     reason = guard(root, spec['owned_roots'])
@@ -69,7 +117,10 @@ def main():
                                                       started=time.time()), indent=2))
     status, child = 0, None
     try:
-        for job in spec['jobs']:
+        jobs = list(spec['jobs'])
+        retries, progress = {}, {}
+        while jobs:
+            job = jobs.pop(0)
             if Path(job['complete_file']).exists():
                 print(json.dumps(dict(job=job['name'], status='already_complete')), flush=True)
                 continue
@@ -97,6 +148,20 @@ def main():
                     time.sleep(2)
                 status = child.returncode
                 print(json.dumps(dict(job=job['name'], exited=time.time(), returncode=status)), flush=True)
+                state_path = Path(job['state_file']) if job.get('state_file') else None
+                if status == 75 and not stopping and state_path is not None and state_path.exists():
+                    state = json.loads(state_path.read_text())
+                    recovered = state.get('recovery_exposures', 0)
+                    name = job['name']
+                    if (str(state.get('reason', '')).startswith('RSS ')
+                            and recovered > progress.get(name, 0)
+                            and retries.get(name, 0) < job.get('rss_restarts', 0)):
+                        progress[name] = recovered
+                        retries[name] = retries.get(name, 0) + 1
+                        print(json.dumps(dict(job=name, status='resume_after_rss_guard',
+                                              exposures=recovered, attempt=retries[name])), flush=True)
+                        jobs.insert(0, job)
+                        continue
                 if status or stopping:
                     return status or 75
                 if not Path(job['complete_file']).exists():
