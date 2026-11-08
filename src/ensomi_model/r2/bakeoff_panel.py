@@ -112,6 +112,8 @@ def checkpoint_path(path):
 
 def load_model(path):
     data = torch.load(checkpoint_path(path), map_location='cpu', weights_only=False)
+    if data.get('representation', 'r2') != 'r2':
+        raise ValueError('Release-step weights require their own likelihood and sampler; use release_evaluate.py')
     model = R2Model(R2Config(**data['model_config'])).eval()
     model.load_state_dict(data['model'])
     return model

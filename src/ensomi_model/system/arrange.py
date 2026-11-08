@@ -55,14 +55,15 @@ def mask_log_probs(logp, held):
 @torch.no_grad()
 def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln_fraction=1., requests=(),
             masks=None, copy=None, recorder=None, random_source=None, random_prefix='r2',
-            prefix_actions=None, prefix_gap=None, pointer_orientation=None):
+            prefix_actions=None, prefix_gap=None, pointer_orientation=None, masks_off=False):
     """BOS or prefix continuation; target order held, heads per row, all-busy share.
 
     ``prefix_actions`` and ``prefix_gap`` optionally supply [P,4] human decisions,
     excluding EOS. Replay them into the exact state, temporal cache, mask history
     and running levels without consuming random draws. Controls apply only to
     the continuation. Scoped requests are not supported with a supplied prefix.
-    Masks are one band's config.
+    Masks are one band's config. ``masks_off`` disables only those playability
+    rules for inference ablations; grammar support and EOS closure still apply.
 
     ``pointer_orientation`` fixes the release order to 0 (forward) or 1
     (mirrored) for inference lesions. None samples the trained mixture. The
@@ -118,7 +119,7 @@ def arrange(model, head_ms, song_ms, grid, *, seed, target, kappa, stop=None, ln
         scopes.append(dict(request=r, lo=lo, hi=hi, N=max(0, hi - max(1, lo)), n=0, success=0, chance=0.,
                            probability=0., visible=0, readout=0., expected=0., expected_chance=0.,
                            chord_N=hi - lo, chord_n=0, chord_success=0, chord_probability=0.))
-    guard = Playability(masks) if masks is not None else None
+    guard = Playability(masks) if masks is not None and not masks_off else None
     kl = np.zeros(stop)
     gain = np.full(stop, np.nan)
     request_id = np.full(stop, -1, int)

@@ -31,6 +31,7 @@ def load_script(name):
 separation = load_script('separation')
 probe = load_script('ln_probe')
 analysis = load_script('ln_analysis')
+causes = load_script('ln_causes')
 
 
 def chord_chart():
@@ -121,3 +122,14 @@ def test_a_single_song_cannot_get_an_interval_verdict():
     result = analysis.scaled(analysis.interval([1.]), dict(sampling_rms=0., checkpoint_rms=0.))
     assert np.isinf(result['effect_over_floor'])
     assert result['verdict'] == 'insufficient_songs'
+
+
+def test_mask_replay_counts_head_age_and_oracle_measures_held_state():
+    chart = chord_chart()
+    masks = dict(reattack_floor_ms=501., quad_run_cap=0,
+                 gap_tercile_edges_ms=[100., 600.], jack_run_caps=[1, 2, 3])
+    counts = causes.mask_census(chart, masks)
+    assert counts['rows'] == 4
+    assert counts['reattack'] == 3  # lane 2 repeats; LN gap at 1875 does not reset head age
+    assert counts['jack'] == 2
+    np.testing.assert_allclose(causes.source_levels(chart.actions, chart.K), [5 / 16, 7 / 4, 0])

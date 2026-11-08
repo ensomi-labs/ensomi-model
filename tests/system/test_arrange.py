@@ -22,6 +22,21 @@ def test_without_force_masks_or_copy_it_is_r2s_own_sampler():
     assert np.array_equal(gap, expected[1], equal_nan=True)
 
 
+def test_masks_off_preserves_grammar_and_matches_unmasked_sampler():
+    from ensomi_model.r2.state import replay_decisions
+    head = np.arange(30, dtype=float) * 20 + 1000
+    model = tiny_r2()
+    kwargs = dict(seed=954, target=[.3, 2., .2], kappa=3)
+    expected, eg, _ = arrange(model, head, 1700., grid(), **kwargs)
+    actual, ag, trace = arrange(model, head, 1700., grid(), masks=calibration()['masks']['2'],
+                                masks_off=True, **kwargs)
+    assert np.array_equal(actual, expected)
+    assert np.array_equal(ag, eg, equal_nan=True)
+    assert trace['fallback_count'] == 0
+    final, _ = replay_decisions(head, 1700., actual, ag)
+    assert final.finalized and not np.any(final.held)
+
+
 def test_prefix_continuation_matches_natural_sampler_and_keeps_open_holds():
     head, song = skeleton(np.random.default_rng(12), 80)
     model = tiny_r2()
