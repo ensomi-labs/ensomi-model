@@ -13,7 +13,7 @@ defined and what a change affects.
 1. **Change the source, then everything it reaches.** Edit the fact where it
    is defined and regenerate derived files (the manifest, `SHA256SUMS`,
    bindings, lock files) with their own commands. Sweep ensomi-model,
-   ensomi-runtime, ensomi-protocol, ensomi, ensomi-web and beatmap-lens
+   ensomi-runtime, ensomi-protocol, ensomi-app, ensomi, ensomi-web and beatmap-lens
    (`git -C ../<repo> grep -n -i '<old>'`) and the Hub card's raw `README.md`
    for the old value and wording, and fix every hit in the same round. Open
    one pull request per repository, in the order `docs/ecosystem.md` gives: a
