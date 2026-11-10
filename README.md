@@ -26,7 +26,7 @@ Yellow notes are taps and cyan notes long notes, read bottom to top. The
 more songs; the examples illustrate behavior and are not a quality benchmark.
 
 [ensomi.app](https://ensomi.app) generates a chart in the browser and the
-[Ensomi app](https://github.com/ensomi-labs/ensomi) on macOS, both with the
+[Ensomi app](https://github.com/ensomi-labs/ensomi-app) on macOS, both with the
 [Ensomi runtime](https://github.com/ensomi-labs/runtime).
 
 ### Generate a chart

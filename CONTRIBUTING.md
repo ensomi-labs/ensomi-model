@@ -64,7 +64,7 @@ them in [Discussions](https://github.com/orgs/ensomi-labs/discussions), where
 others can add to them and upvote them. Questions and charts you made with
 ensomi go there too. Problems with ensomi.app go to
 [ensomi-web](https://github.com/ensomi-labs/ensomi-web/issues), and with the app
-to [ensomi](https://github.com/ensomi-labs/ensomi/issues).
+to [ensomi-app](https://github.com/ensomi-labs/ensomi-app/issues).
 
 ## Code
 

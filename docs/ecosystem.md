@@ -18,7 +18,7 @@ says how to make such a change.
 | ensomi-model | the models, their training and evaluation, the released Python system, the model service, the exporter that writes model packages, this page | the protocol (the model service); beatmap-lens's annotation dataset releases |
 | runtime | the Rust core every client binds to: generation, gameplay rules, the model-package format and its reader; the Swift and npm packages | the protocol, whose messages it mirrors; model packages |
 | protocol | EnsomiProtocol: the messages programs exchange, with their error codes and phases | — |
-| ensomi | the macOS and iOS app | the runtime and the protocol; the model package on Hugging Face; the model service, its chart-server engine |
+| ensomi-app | the macOS and iOS app | the runtime and the protocol; the model package on Hugging Face; the model service, its chart-server engine |
 | ensomi-web | the site and its in-browser generator | the runtime; the model package on Hugging Face |
 | beatmap-lens | the chart renderer and the annotation tools | ensomi-model, whose code some of its tools run |
 | the model repository on Hugging Face | the released model's files, its package manifest and its card | ensomi-model's exporter and release step write it |

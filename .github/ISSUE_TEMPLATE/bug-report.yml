@@ -7,7 +7,7 @@ body:
       value: |
         A chart that plays badly goes in **Chart feedback** instead. Problems with ensomi.app go
         to [ensomi-web](https://github.com/ensomi-labs/ensomi-web/issues), with the app to
-        [ensomi](https://github.com/ensomi-labs/ensomi/issues), and with the Inspector or the
+        [ensomi-app](https://github.com/ensomi-labs/ensomi-app/issues), and with the Inspector or the
         renderer to [beatmap-lens](https://github.com/ensomi-labs/beatmap-lens/issues/new?template=tooling-feedback.yml).
         Only the first box is required.
 
