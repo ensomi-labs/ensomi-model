@@ -18,6 +18,8 @@ FIELDS = ('bl20', 'bars_start', 'bars_same', 'level')
 def span_quality(ref, pred, spans):
     """Intersect labelled spans with the primary experiment's one-second inner range."""
     lo, hi = ref.lo_ms + 1000., ref.hi_ms - 1000.
+    if spans is None:  # The stratum API uses None for the whole mapped range.
+        spans = [(lo, hi)]
     clipped = [(max(a, lo), min(b, hi)) for a, b in spans if min(b, hi) > max(a, lo)]
     if not clipped:
         return None

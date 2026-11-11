@@ -86,6 +86,7 @@ def test_stratum_quality_clips_to_inner_range():
     ref = Reference.from_segments([Segment(100.25, 487.3), Segment(12077.17, 487.3)],
                                   np.arange(1000., 29000., 121.7))
     assert span_quality(ref, ref.timing, [(ref.lo_ms, ref.lo_ms + 500.)]) is None
+    assert span_quality(ref, ref.timing, None)['bl20'] == 1.
     good = span_quality(ref, ref.timing, [(3000., 9000.), (15000., 21000.)])
     assert good['bl20'] == good['level'] == good['bars_start'] == 1.
     late = span_quality(ref, ref.timing.shifted(25.), [(3000., 9000.), (15000., 21000.)])
