@@ -42,10 +42,11 @@ Steps:
    least-squares fit gives each constant segment an exact beat length; nothing is rounded.
 4. **Level.** Each constant segment, and each run of free beats, takes the level class with the highest
    mean log probability over its frames plus ``level_prior`` for the song's duration-weighted majority.
-   Free runs choose among ratios 1, 2 and 4. Notated beats are the canonical beat divided by the ratio:
+   Free runs choose among ratios 1, 2 and 4 unless ``allow_half_free`` is enabled. Notated beats are
+   the canonical beat divided by the ratio:
    ``r - 1`` points are inserted for ``r > 1``; for ``r = 0.5`` every other canonical beat is kept, the
-   parity chosen by the downbeat activation (when the odd parity wins, the segment's first canonical
-   beat becomes a one-beat segment at ratio 1, so no canonical line is lost).
+   parity chosen by the downbeat activation (when the odd parity wins in a constant segment, its first
+   canonical beat becomes a one-beat segment at ratio 1, so no canonical line is lost there).
 5. **Bars and meter.** A Viterbi pass over the notated beats with states (meter ``m`` in ``meters``,
    position ``k``): the downbeat activation sampled at each beat (largest value within ``down_window``
    frames) is the emission at ``k = 0``, ``meter_logprior`` is paid per bar, a meter change costs
@@ -56,7 +57,8 @@ Steps:
    (the beat activation at a canonical beat's frame; inserted beats take the canonical beat before
    them) and one `Segment` per constant segment and per free canonical beat. A free beat's segment holds
    ``r`` notated beats, so the scorer's canonical anchoring (`ensomi_n.timing.Timing.anchors`) keeps
-   exactly the canonical beats as lines.
+   exactly the canonical beats as lines. The experimental ``allow_half_free`` option instead
+   removes alternate free beats and does not preserve every canonical anchor.
 
 Deviations from the parent's plan, and why:
 
@@ -178,6 +180,7 @@ class DecodeConfig:
     bar_restart_anywhere: float = 12.0   # bar restart elsewhere
     down_weight: float = 1.0
     down_window: int = 2                 # frames either side of a beat for its downbeat activation
+    allow_half_free: bool = False        # research readout: permit decimation of free canonical runs
 
 
 # ---------------------------------------------------------------- oracle evidence
@@ -607,7 +610,7 @@ def _levels(ev: Evidence, groups: list[tuple[int, int, bool]], cfg: DecodeConfig
     for m, (_, _, free) in zip(means, groups):
         s = m.copy()
         s[song] += cfg.level_prior
-        if free:
+        if free and not cfg.allow_half_free:
             s[0] = -np.inf
         out.append(LEVEL_CLASSES[int(np.argmax(s))])
     return out
@@ -701,6 +704,24 @@ def _notated(ev: Evidence, regs: list[_Regime], t: np.ndarray, conf: np.ndarray,
                 bt = start + np.arange(m) * step
                 idx = np.minimum(parity + 2 * np.arange(len(bt)), len(cconf) - 1)
                 segs.append(_Seg(float(start), float(step), list(bt), list(cconf[idx]), ratio, False, first))
+        elif ratio < 1.0:
+            # Each retained free beat owns one segment. Unlike interpolation,
+            # decimation need not preserve intermediate canonical anchors.
+            indices = np.arange(regs[k].i0, regs[j - 1].i1)
+            d = _down_at(ev, canon[indices], cfg)
+            parity = int(d is not None and d[1::2].sum() > d[0::2].sum())
+            kept = indices[parity::2]
+            for ii, i in enumerate(kept):
+                if ii + 1 < len(kept):
+                    gap = canon[kept[ii + 1]] - canon[i]
+                elif i + 1 < nb:
+                    gap = 2 * (canon[i + 1] - canon[i])
+                elif i > 0:
+                    gap = 2 * (canon[i] - canon[i - 1])
+                else:
+                    gap = 1000.0
+                segs.append(_Seg(float(canon[i]), float(gap), [float(canon[i])],
+                                 [float(conf[i])], ratio, True, ii == 0))
         else:
             q = int(round(ratio))
             for ii, rr in enumerate(regs[k:j]):

@@ -122,8 +122,8 @@ def paired_bootstrap(left, right, *, samples: int = 10000, seed: int = 20261111)
     return dict(n=len(a), difference=float(delta.mean()), lo=float(lo), hi=float(hi))
 
 
-def minimal_peaks(probability, *, fps: int = 100) -> np.ndarray:
-    """Strict >0.5 peaks in ±60 ms, with adjacent maxima averaged, in seconds.
+def minimal_peaks(probability, *, fps: int = 100, threshold: float = 0.5) -> np.ndarray:
+    """Strict above-threshold peaks in ±60 ms, adjacent maxima averaged, in seconds.
 
     This reproduces Beat This 1.1.0's 7-frame max pool at 50 fps. At 100 fps
     the pool is 13 frames to preserve its actual temporal support. No learned
@@ -133,12 +133,14 @@ def minimal_peaks(probability, *, fps: int = 100) -> np.ndarray:
     x = np.asarray(probability, dtype=float)
     if fps <= 0:
         raise ValueError('fps must be positive')
+    if not 0 <= threshold <= 1:
+        raise ValueError('threshold must lie in [0, 1]')
     if x.ndim != 1 or not np.isfinite(x).all() or ((x < 0) | (x > 1)).any():
         raise ValueError('expected a finite probability vector')
     if not len(x):
         return np.array([], dtype=float)
     width = int(round(0.06 * fps))
-    peaks = np.flatnonzero((x > 0.5) & (x == maximum_filter1d(x, size=2 * width + 1, mode='constant', cval=-1)))
+    peaks = np.flatnonzero((x > threshold) & (x == maximum_filter1d(x, size=2 * width + 1, mode='constant', cval=-1)))
     # Beat This compares each next index to the running mean, not the last
     # index: a long plateau may produce several groups. Preserve that rule.
     means, count = [], 0
