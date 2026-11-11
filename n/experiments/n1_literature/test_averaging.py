@@ -68,3 +68,13 @@ def test_paired_reduction_and_recording_aggregation():
     assert result['s0/all/wave8']['relative_reduction']['value'] == .5
     assert result['s0/all/wave8']['relative_reduction']['denominator_changed'] == 2
     assert result['s0/all/wave8']['delta_bl20']['value'] == 0.
+
+
+def test_feature_rounding_requires_adjacent_half_precision_values():
+    from .averaging import feature_reproduction
+    old = np.array([[1., -2.]], np.float16)
+    new = np.nextafter(old, np.float16(np.inf))
+    assert feature_reproduction(old, old)['exact']
+    assert feature_reproduction(old, new)['passed']
+    assert not feature_reproduction(old, np.nextafter(new, np.float16(np.inf)))['passed']
+    assert not feature_reproduction(old, np.zeros((2, 2), np.float16))['passed']

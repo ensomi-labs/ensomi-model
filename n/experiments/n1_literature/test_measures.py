@@ -74,3 +74,10 @@ def test_beat_matched_background_can_expose_generic_beat_response():
     z[::50] = 1.
     assert boundary_auc(z, [1000.], [1000.], 0., 5000., negative_times=np.arange(0., 5001., 500.))['auc'] == .5
     assert boundary_auc(z, [1000.], [1000.], 0., 5000.)['auc'] > .5
+
+
+def test_recordings_have_equal_weight_despite_multiple_sets():
+    from .measures import recording_values, summarize
+    rows = [dict(rec='a', value=0.), dict(rec='a', value=1.), dict(rec='b', value=1.)]
+    assert recording_values(rows, 'value') == {'a': .5, 'b': 1.}
+    assert summarize(rows, ['value'])['value']['value'] == .75

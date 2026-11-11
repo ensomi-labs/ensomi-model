@@ -4,6 +4,25 @@ from __future__ import annotations
 import numpy as np
 
 
+def feature_reproduction(cached, fresh):
+    """Check float16 cache reproduction allowing adjacent quantizers of float32 calculations.
+
+    The decoded-map reproduction check is still required for any nonexact array.
+    This check alone does not establish equivalent model outputs.
+    """
+    if cached.shape != fresh.shape:
+        return dict(passed=False, exact=False, max_error=None, changed=None)
+    old, new = np.asarray(cached, np.float16), np.asarray(fresh, np.float16)
+    lo = np.nextafter(old, np.float16(-np.inf)).astype(np.float32)
+    hi = np.nextafter(old, np.float16(np.inf)).astype(np.float32)
+    new32 = new.astype(np.float32)
+    eps = np.finfo(np.float32).eps
+    error = np.abs(new32 - old.astype(np.float32))
+    return dict(passed=bool(np.all((new32 >= lo - eps) & (new32 <= hi + eps))),
+                exact=bool(np.array_equal(old, new)), max_error=float(error.max()),
+                changed=int(np.count_nonzero(error)))
+
+
 def shifted_wave(wave, samples):
     """Delay without wrapping or changing length; samples is a nonnegative integer."""
     if int(samples) != samples or samples < 0:
