@@ -174,6 +174,8 @@ def a1(root, out):
                 result[f'{panel}/s{seed}/{subset}'] = dict(items=len(rr), counts=dict(Counter(r['verdict'] for r in rr)),
                     **M.summarize(rr, ['model_share', 'chart_share', 'tie_share', 'weight_coverage', 'flux_offset_ms']))
     C.write_json(out / 'a1-onset-summary.json', result)
+    if errors:
+        raise RuntimeError(f'A1 incomplete: {len(errors)} audio/onset failures; see a1-onset-errors.jsonl')
     print('A1 complete', flush=True)
 
 
@@ -335,6 +337,8 @@ def a3(root, out):
                         missing_negatives=sum(r['n_positive'] > 0 and r['n_negative'] == 0 for r in rows),
                         auc=M.interval(list(M.recording_values(eligible, 'auc').values())))
     C.write_json(out / 'a3-summary.json', summary)
+    if errors:
+        raise RuntimeError(f'A3 incomplete: {len(errors)} cache failures; see a3-errors.jsonl')
     print('A3 complete', flush=True)
 
 
