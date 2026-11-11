@@ -18,6 +18,8 @@ nice -n 10 python -m pytest n/experiments/n1_literature -q -p no:cacheprovider
 nice -n 10 python -m n1_literature.cpu a1 --root /path/to/data-root --out /path/to/new-results
 nice -n 10 python -m n1_literature.cpu a2 --root /path/to/data-root --out /path/to/new-results
 nice -n 10 python -m n1_literature.cpu a3 --root /path/to/data-root --out /path/to/new-results
+# Optional A3 control with other canonical beats as the background:
+nice -n 10 python -m n1_literature.boundary_control --root /path/to/data-root --out /path/to/new-results
 nice -n 10 python -m n1_literature.shift_run --root /path/to/data-root \
   --out /path/to/new-results --device mps --count 100 --minutes 60
 ```
@@ -41,12 +43,15 @@ not construct or alter an exclusion list.
   frames within each song. Both event and background scores use the same
   temporal max filter; an exact-frame sensitivity is also written. A cache
   without the optional head-layout field is checked against the checkpoint's
-  linear projection before use.
+  linear projection before use. The optional control replaces background
+  frames with other canonical beat positions to check generic beat responses.
 - B averages eight translated waveforms or eight crop origins. It repeats
   each whole arm on a fresh crop grid and measures one-to-one beat agreement
   at 5 ms, plus chart BL-20, bars and level. It verifies fresh features,
   unchanged inference, identical repeats, initial saved maps and checkpoint
-  hashes. A failed reproduction check stops attribution to averaging.
+  hashes. Adjacent float16 quantizers are allowed in feature reproduction only
+  when the decoded map also passes the saved-map check. A failed map check
+  stops attribution to averaging.
 
 `test_measures.py` and `test_averaging.py` contain absolute fixtures for clock
 signs, fractional boundaries, matching multiplicity, AUC ties, class thresholds
