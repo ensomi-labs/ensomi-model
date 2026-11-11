@@ -91,3 +91,12 @@ def test_stratum_quality_clips_to_inner_range():
     assert good['bl20'] == good['level'] == good['bars_start'] == 1.
     late = span_quality(ref, ref.timing.shifted(25.), [(3000., 9000.), (15000., 21000.)])
     assert late['bl20'] == 0.
+
+
+def test_span_seed_null_uses_only_matched_recordings():
+    from .stratum_scores import FIELDS, seed_null
+    rows = [dict(rec=rec, seed=s, stratum='S2', arm='single', fresh_ms=0,
+                 **{f: value for f in FIELDS}) for rec, s, value in
+            [('a', 0, .2), ('b', 0, .8), ('a', 1, .5), ('c', 1, 1.)]]
+    result = seed_null(rows)['S2']['bl20']
+    assert result == dict(value=.3, lo=.3, hi=.3, n=1)

@@ -27,6 +27,19 @@ def span_quality(ref, pred, spans):
     return {f: getattr(sc, f) for f in FIELDS}
 
 
+def seed_null(rows):
+    """Matched seed-1-minus-seed-0 contrasts for the original single-pass spans."""
+    result = {}
+    for st in sorted({r['stratum'] for r in rows}):
+        seeds = [{r['rec']: r for r in rows if r['stratum'] == st and r['seed'] == s
+                  and r['arm'] == 'single' and r['fresh_ms'] == 0} for s in (0, 1)]
+        keys = sorted(seeds[0].keys() & seeds[1].keys())
+        result[st] = {f: M.interval([seeds[1][k][f] - seeds[0][k][f] for k in keys
+                                    if seeds[0][k][f] is not None and seeds[1][k][f] is not None])
+                      for f in FIELDS}
+    return result
+
+
 def run(root, out):
     runtime = json.loads((out / 'b-runtime.json').read_text())
     cohort = json.loads((out / 'b-cohort.json').read_text())[:runtime['completed_recordings']]
@@ -64,6 +77,7 @@ def run(root, out):
     C.write_rows(out / 'b-span-recordings.jsonl', rows)
     summary = {k: M.summarize(rs, list(FIELDS) + ['delta_' + f for f in FIELDS]) for k, rs in groups.items()}
     C.write_json(out / 'b-span-summary.json', summary)
+    C.write_json(out / 'b-span-seed-null.json', seed_null(rows))
     print(f'Scored {len(cohort)} recordings on labelled spans; all primary scores reproduced.', flush=True)
 
 
