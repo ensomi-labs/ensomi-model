@@ -22,6 +22,8 @@ nice -n 10 python -m n1_literature.cpu a3 --root /path/to/data-root --out /path/
 nice -n 10 python -m n1_literature.boundary_control --root /path/to/data-root --out /path/to/new-results
 nice -n 10 python -m n1_literature.shift_run --root /path/to/data-root \
   --out /path/to/new-results --device mps --count 100 --minutes 60
+# Before discarding the generated maps, score the labelled stratum spans:
+nice -n 10 python -m n1_literature.stratum_scores --root /path/to/data-root --out /path/to/new-results
 ```
 
 Use a fresh output directory and preregister definitions before running. The
@@ -51,7 +53,8 @@ not construct or alter an exclusion list.
   unchanged inference, identical repeats, initial saved maps and checkpoint
   hashes. Adjacent float16 quantizers are allowed in feature reproduction only
   when the decoded map also passes the saved-map check. A failed map check
-  stops attribution to averaging.
+  stops attribution to averaging. The span-scoring command supplements the
+  whole-recording subgroups with quality scores on each stratum's own spans.
 
 `test_measures.py` and `test_averaging.py` contain absolute fixtures for clock
 signs, fractional boundaries, matching multiplicity, AUC ties, class thresholds

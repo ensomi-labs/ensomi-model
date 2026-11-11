@@ -78,3 +78,15 @@ def test_feature_rounding_requires_adjacent_half_precision_values():
     assert feature_reproduction(old, new)['passed']
     assert not feature_reproduction(old, np.nextafter(new, np.float16(np.inf)))['passed']
     assert not feature_reproduction(old, np.zeros((2, 2), np.float16))['passed']
+
+
+def test_stratum_quality_clips_to_inner_range():
+    from ensomi_n.timing import Reference, Segment
+    from .stratum_scores import span_quality
+    ref = Reference.from_segments([Segment(100.25, 487.3), Segment(12077.17, 487.3)],
+                                  np.arange(1000., 29000., 121.7))
+    assert span_quality(ref, ref.timing, [(ref.lo_ms, ref.lo_ms + 500.)]) is None
+    good = span_quality(ref, ref.timing, [(3000., 9000.), (15000., 21000.)])
+    assert good['bl20'] == good['level'] == good['bars_start'] == 1.
+    late = span_quality(ref, ref.timing.shifted(25.), [(3000., 9000.), (15000., 21000.)])
+    assert late['bl20'] == 0.
