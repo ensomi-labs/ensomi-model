@@ -80,17 +80,22 @@ def auc(positive, negative):
     return float(np.mean((less + .5 * equal) / len(n)))
 
 
-def boundary_auc(logits, boundaries, positive, lo, hi, radius=3):
+def boundary_auc(logits, boundaries, positive, lo, hi, radius=3, negative_times=None):
     """Within-song AUC with equally max-filtered event and background scores.
 
     Times are ms, logits at 100 fps; background centers are spaced 100 ms and
     exclude 500 ms around every boundary. `positive` may select one boundary kind.
+    Optional negative_times replaces the uniform background centers, in ms.
     """
     from scipy.ndimage import maximum_filter1d
     z = np.asarray(logits, float)
     if radius:
         z = maximum_filter1d(z, size=2 * radius + 1, mode='nearest')
-    centers = np.arange(0, len(z), 10)
+    if negative_times is None:
+        centers = np.arange(0, len(z), 10)
+    else:
+        centers = np.unique(np.round(np.asarray(negative_times) / 10.).astype(int))
+        centers = centers[(centers >= 0) & (centers < len(z))]
     t = centers * 10.
     distance, _ = nearest(t, np.asarray(boundaries))
     good = (t >= lo) & (t <= hi) & (np.abs(distance) >= 500.)

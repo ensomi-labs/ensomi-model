@@ -67,3 +67,10 @@ def test_onset_reference_direction_lag_and_no_reuse():
     assert r['matched_peaks'] == 3
     assert onset_offset(lines, np.ones(3), lines - 3., 20., -3.)['verdict'] == 'chart'
     assert onset_offset([100., 105.], [1., 1.], [103.], 0., 0.)['matched_peaks'] == 1
+
+
+def test_beat_matched_background_can_expose_generic_beat_response():
+    z = np.zeros(501)
+    z[::50] = 1.
+    assert boundary_auc(z, [1000.], [1000.], 0., 5000., negative_times=np.arange(0., 5001., 500.))['auc'] == .5
+    assert boundary_auc(z, [1000.], [1000.], 0., 5000.)['auc'] > .5

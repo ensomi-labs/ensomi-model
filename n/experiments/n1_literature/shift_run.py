@@ -176,7 +176,10 @@ def run(a):
                 mel = log_mel(shifted_wave(wave, j * 30)).astype(np.float16)
                 features.append((mel, memo_from_mel(mel), float(mel.astype(np.float32).mean()),
                                  float(mel.astype(np.float32).std() + 1e-6)))
-            if features[0][0].shape != source_mel.shape or not np.array_equal(features[0][0], source_mel):
+            fresh_mel = features[0][0]
+            mel_error = (float(np.max(np.abs(fresh_mel.astype(np.float32) - source_mel.astype(np.float32))))
+                         if fresh_mel.shape == source_mel.shape else float('inf'))
+            if mel_error > 1e-4:
                 raise RuntimeError(f'fresh Mel differs from cached source for {x["key"]}')
             # Preserve the source normalization down to its stored rounding.
             features[0] = (*features[0][:2], st['mean'], st['std'])
@@ -207,14 +210,14 @@ def run(a):
                         raise RuntimeError(f'in-memory inference differs from source: {max_error}')
                     nulls.append(dict(seed=seed, source_inference_max_error=max_error))
                 futures.append(pool.submit(decode_recording, x, seed, acts, cfg_kw,
-                                           saved[seed][x['key']].to_json() if ix < 3 else None, repeat))
+                                           saved[seed][x['key']].to_json() if ix < 3 or mel_error > 0 else None, repeat))
                 del acts, by_origin
             completed = [f.result() for f in futures]
             for seed, result in enumerate(completed):
                 rows.extend(result['rows'])
                 # Maps are small and needed to audit geometry; intermediate evidence is discarded.
                 C.write_json(out / f'b-maps-{ix:03d}-s{seed}.json', result['maps'])
-                records.append(dict(index=ix, key=x['key'], seed=seed, null=result['null'],
+                records.append(dict(index=ix, key=x['key'], seed=seed, null=result['null'], mel_max_error=mel_error,
                                     reproduction=result['reproduction'], decode_seconds=result['decode_seconds']))
             C.write_rows(out / 'b-recordings.jsonl', rows)
             C.write_json(out / 'b-verification.json', records)
